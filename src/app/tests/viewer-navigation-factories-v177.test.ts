@@ -30,6 +30,7 @@ for (const native of [false, true]) {
     const surfaces = { water: [] }, prisms = { buildings: [] };
     const argumentsSeen: unknown[][] = [], floorHints: number[] = [];
     let medianSampler: ((x: number, z: number) => number) | undefined;
+    let bridgeMode: (() => string) | undefined;
     const prepare = factory(native ? "prepareVoxelNavigation" : "prepareIsoNavigation", {
       createPedestrianEnvironment: (...args: unknown[]) => { argumentsSeen.push(args); return environment; },
       surroundingPedestrianExtension: () => "surrounding exact policy",
@@ -38,6 +39,11 @@ for (const native of [false, true]) {
       createSchwellenraumMemorialProtectionIndex: () => ({}),
       createArdHauptstadtstudioRoofCollision: () => null,
       createHistoricParkBridgeCollision: () => ({ solidAt: () => false }),
+      createCoreSpreeBridgeNavigationV242: (payload: unknown, activeMode: () => string) => {
+        expect(payload).toBe(ground);
+        bridgeMode = activeMode;
+        return { solidAt: () => false };
+      },
       createSchwellenraumStaticPropCollision: () => () => false,
       smoothGroundTopSampler: () => (x: number, z: number) => x * 10 + z,
       deriveUnterDenLindenMedianSamples: () => ["median sample"],
@@ -57,9 +63,12 @@ for (const native of [false, true]) {
     expect(argumentsSeen[0][2]).toBe(runtime.tunnelPortalCourse);
     expect(argumentsSeen[0][3]).toBe(prisms);
     expect(argumentsSeen[0][4]).toBe("surrounding exact policy");
+    expect(argumentsSeen[0][5]).toMatchObject({ golgathaV270: true, includeAuguststrasseMuralV270: true, replaceTachelesFrontPrisms: true });
     expect(published.visualMode()).toBe(runtime.lightingMode);
+    expect(bridgeMode!()).toBe(runtime.lightingMode);
     runtime.lightingMode = "minecraft";
     expect(published.visualMode()).toBe("minecraft");
+    expect(bridgeMode!()).toBe("minecraft");
     expect(published.parkTreeSolidAt()).toBe(true);
     expect(published.interiorSolidAt(1, 2, 3, 0.5)).toBe(true);
     runtime.tunnelInteriorAt = () => true;
@@ -71,6 +80,7 @@ for (const native of [false, true]) {
     expect(published.interiorGroundAt(1, 2)).toBe(20);
     expect(floorHints.at(-1)).toBe(17);
     runtime.lightingMode = "day";
+    expect(bridgeMode!()).toBe("day");
     expect(published.interiorGroundAt(1, 2, 9)).toBe(null);
     expect(floorHints.at(-1)).toBe(9);
     if (!native) {

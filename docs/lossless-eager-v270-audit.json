@@ -1,0 +1,3461 @@
+{
+  "scope": "Only eager literals in changed v270 main chunks; no new live residency policy",
+  "fields": [
+    {
+      "path": "data/feuerwacheKreuzbergV267.json",
+      "key": "packets",
+      "raw": 631990,
+      "packed": 219392,
+      "saved": 412598,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/moabitHousesCoreV269.json",
+      "key": "native",
+      "raw": 187974,
+      "packed": 32324,
+      "saved": 155650,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/dorotheenstadtV266.json",
+      "key": "minecraft",
+      "raw": 165724,
+      "packed": 58132,
+      "saved": 107592,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/tegelMotorwayV194.json",
+      "key": "positions",
+      "raw": 147190,
+      "packed": 52126,
+      "saved": 95064,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/friedrichshainV266.json",
+      "key": "chunks",
+      "raw": 120665,
+      "packed": 29908,
+      "saved": 90757,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/greyFacadesV263.json",
+      "key": "packets",
+      "raw": 99350,
+      "packed": 19381,
+      "saved": 79969,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/dorotheenstadtV266.json",
+      "key": "drawn",
+      "raw": 114492,
+      "packed": 47796,
+      "saved": 66696,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/cemeteryGrunewaldV199Navigation.json",
+      "key": "native",
+      "raw": 83960,
+      "packed": 19891,
+      "saved": 64069,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/moabitHousesCoreV269.json",
+      "key": "core",
+      "raw": 104206,
+      "packed": 40532,
+      "saved": 63674,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/charlottenburgerTorV201Navigation.json",
+      "key": "nativeColumns",
+      "raw": 63861,
+      "packed": 7066,
+      "saved": 56795,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/steglitzMotorwayV226.json",
+      "key": "positions",
+      "raw": 63607,
+      "packed": 9211,
+      "saved": 54396,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/gendarmenBndContextV214Source.json",
+      "key": "buildings",
+      "raw": 65254,
+      "packed": 11601,
+      "saved": 53653,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/westSquaresV163Navigation.json",
+      "key": "nativeRoofCells",
+      "raw": 62351,
+      "packed": 11680,
+      "saved": 50671,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/nordMauerparkV266.json",
+      "key": "chunks",
+      "raw": 62269,
+      "packed": 12568,
+      "saved": 49701,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/publicPlacesV185Native.json",
+      "key": "boxes",
+      "raw": 63745,
+      "packed": 14511,
+      "saved": 49234,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/hackescherMarktV163Navigation.json",
+      "key": "roofTriangles",
+      "raw": 65344,
+      "packed": 16992,
+      "saved": 48352,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/berAirportV205.json",
+      "key": "buildings",
+      "raw": 60298,
+      "packed": 15146,
+      "saved": 45152,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/arenaStationV225Navigation.json",
+      "key": "roofTriangles",
+      "raw": 57609,
+      "packed": 12686,
+      "saved": 44923,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/hospitalV228Navigation.json",
+      "key": "sites",
+      "raw": 63104,
+      "packed": 19156,
+      "saved": 43948,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/aegCampusV241Navigation.json",
+      "key": "sites",
+      "raw": 57609,
+      "packed": 14176,
+      "saved": 43433,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/steglitzSchoolV250.json",
+      "key": "boxes",
+      "raw": 52985,
+      "packed": 9591,
+      "saved": 43394,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/chariteBridgesV265RetainedNative.json",
+      "key": "triangles",
+      "raw": 51156,
+      "packed": 7856,
+      "saved": 43300,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/westVenuesV260.json",
+      "key": "ribSegments",
+      "raw": 53720,
+      "packed": 10616,
+      "saved": 43104,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/alexanderplatzV189.json",
+      "key": "boxes",
+      "raw": 51828,
+      "packed": 8931,
+      "saved": 42897,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/zooStationV165Navigation.json",
+      "key": "roofTriangles",
+      "raw": 55115,
+      "packed": 12312,
+      "saved": 42803,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/bendlerblockV202Navigation.json",
+      "key": "nativeRoofFaces",
+      "raw": 63425,
+      "packed": 20692,
+      "saved": 42733,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/hackescherMarktV163Navigation.json",
+      "key": "nativeRoofCells",
+      "raw": 54212,
+      "packed": 11544,
+      "saved": 42668,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/breitscheidTowersNavigation.json",
+      "key": "roofTriangles",
+      "raw": 53313,
+      "packed": 10944,
+      "saved": 42369,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/danzigerTramV249.json",
+      "key": "nativeBoxes",
+      "raw": 56727,
+      "packed": 14691,
+      "saved": 42036,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/tachelesFrontsV270Profile.json",
+      "key": "sites",
+      "raw": 55512,
+      "packed": 14544,
+      "saved": 40968,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/steglitzSchoolV250.json",
+      "key": "rods",
+      "raw": 52591,
+      "packed": 11826,
+      "saved": 40765,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/gipsKoppenV252.json",
+      "key": "boxes",
+      "raw": 50616,
+      "packed": 9966,
+      "saved": 40650,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/pankeNativeBanksV229.json",
+      "key": "banks",
+      "raw": 49639,
+      "packed": 9031,
+      "saved": 40608,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/townhallV227Ownership.json",
+      "key": "navigationRecords",
+      "raw": 58306,
+      "packed": 17746,
+      "saved": 40560,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/moabitJusticeV166Navigation.json",
+      "key": "parts",
+      "raw": 63376,
+      "packed": 24204,
+      "saved": 39172,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/elevatedCoreOwnersV238.json",
+      "key": "navigationSolids",
+      "raw": 48495,
+      "packed": 11600,
+      "saved": 36895,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/scheunenV265.json",
+      "key": "chunks",
+      "raw": 47079,
+      "packed": 10280,
+      "saved": 36799,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/parkSitesV190.json",
+      "key": "edges",
+      "raw": 55254,
+      "packed": 20141,
+      "saved": 35113,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/schoolsPlacesV205.json",
+      "key": "places",
+      "raw": 42569,
+      "packed": 7648,
+      "saved": 34921,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/districtCourtsV229Navigation.json",
+      "key": "sites",
+      "raw": 48304,
+      "packed": 13532,
+      "saved": 34772,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/windkanalV261.json",
+      "key": "blocks",
+      "raw": 38333,
+      "packed": 3631,
+      "saved": 34702,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/schlossplatzV239Owners.json",
+      "key": "previousColumns",
+      "raw": 36433,
+      "packed": 2204,
+      "saved": 34229,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/tachelesFrontsV270Receipts.json",
+      "key": "packets",
+      "raw": 62352,
+      "packed": 29832,
+      "saved": 32520,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/centralNamedV230Envelopes.json",
+      "key": "sites",
+      "raw": 38280,
+      "packed": 5921,
+      "saved": 32359,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/outerFacadesV262.json",
+      "key": "packets",
+      "raw": 41616,
+      "packed": 9271,
+      "saved": 32345,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/tuWaterV168Navigation.json",
+      "key": "structureNativeBands",
+      "raw": 38965,
+      "packed": 7448,
+      "saved": 31517,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/rosenthalerV228.json",
+      "key": "facades",
+      "raw": 38840,
+      "packed": 7381,
+      "saved": 31459,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/grunewaldLandmarksV190Native.json",
+      "key": "sites",
+      "raw": 39427,
+      "packed": 7981,
+      "saved": 31446,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/lennonV250.json",
+      "key": "boxes",
+      "raw": 38868,
+      "packed": 8416,
+      "saved": 30452,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/columbiahalleV257.json",
+      "key": "drawn",
+      "raw": 48612,
+      "packed": 18186,
+      "saved": 30426,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/ihzV241Previous.json",
+      "key": "records",
+      "raw": 53388,
+      "packed": 24611,
+      "saved": 28777,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/hbfDrawnTerrainBoundaryV252.json",
+      "key": "edges_f32",
+      "raw": 49538,
+      "packed": 20976,
+      "saved": 28562,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/staatsbibliothekV241Previous.json",
+      "key": "boxes",
+      "raw": 33687,
+      "packed": 5436,
+      "saved": 28251,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/fritzRodelbahnV229.json",
+      "key": "models",
+      "raw": 40128,
+      "packed": 12071,
+      "saved": 28057,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/waldbuehneV201Navigation.json",
+      "key": "roofTriangles",
+      "raw": 34406,
+      "packed": 6401,
+      "saved": 28005,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/steglitzV246Details.json",
+      "key": "boxes",
+      "raw": 32356,
+      "packed": 4681,
+      "saved": 27675,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/littenInstanzV257.json",
+      "key": "missingCourtFaces",
+      "raw": 38147,
+      "packed": 11266,
+      "saved": 26881,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/cityWestCinemasV166Navigation.json",
+      "key": "parts",
+      "raw": 39695,
+      "packed": 12828,
+      "saved": 26867,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/staatsoperV240Previous.json",
+      "key": "segments",
+      "raw": 32549,
+      "packed": 5821,
+      "saved": 26728,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/springerV215Drawn.json",
+      "key": "meshes",
+      "raw": 48234,
+      "packed": 21800,
+      "saved": 26434,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/bendlerblockV202Navigation.json",
+      "key": "parts",
+      "raw": 36221,
+      "packed": 10032,
+      "saved": 26189,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/orankeseeMarginV209.json",
+      "key": "native",
+      "raw": 29691,
+      "packed": 3981,
+      "saved": 25710,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/justicePalaceV183.json",
+      "key": "estimatedWallSkins",
+      "raw": 27420,
+      "packed": 1836,
+      "saved": 25584,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/railStationsV190.json",
+      "key": "routes",
+      "raw": 56832,
+      "packed": 31251,
+      "saved": 25581,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/hbfDrawnTerrainBoundaryV252.json",
+      "key": "cells_u32",
+      "raw": 33762,
+      "packed": 8404,
+      "saved": 25358,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/unterDenLindenBlockStreets.json",
+      "key": "runs",
+      "raw": 39234,
+      "packed": 14004,
+      "saved": 25230,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/cafeNeuerSeeV164Navigation.json",
+      "key": "nativeRoofCells",
+      "raw": 30757,
+      "packed": 5572,
+      "saved": 25185,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/bundeswehrHospitalV215Drawn.json",
+      "key": "meshes",
+      "raw": 44886,
+      "packed": 20052,
+      "saved": 24834,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/prenzlbergV264Native.json",
+      "key": "sites",
+      "raw": 30145,
+      "packed": 5896,
+      "saved": 24249,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/steglitzV246Details.json",
+      "key": "nativeRows",
+      "raw": 28506,
+      "packed": 4506,
+      "saved": 24000,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/golgathaV270.json",
+      "key": "drawn",
+      "raw": 46510,
+      "packed": 22692,
+      "saved": 23818,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/stadthausV239Replacement.json",
+      "key": "segments",
+      "raw": 29617,
+      "packed": 5851,
+      "saved": 23766,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/kreuzbergStreetsV267.json",
+      "key": "chunks",
+      "raw": 31231,
+      "packed": 7592,
+      "saved": 23639,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/schoolsV185.json",
+      "key": "nativeRows",
+      "raw": 30009,
+      "packed": 6688,
+      "saved": 23321,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/eurefTransfersV262.json",
+      "key": "packets",
+      "raw": 36432,
+      "packed": 13456,
+      "saved": 22976,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/ostkreuzV190.json",
+      "key": "tracks",
+      "raw": 34802,
+      "packed": 11966,
+      "saved": 22836,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/prisonsMemorialsOwnershipV209.json",
+      "key": "navigationRecords",
+      "raw": 28965,
+      "packed": 6251,
+      "saved": 22714,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/westVenuesV260Navigation.json",
+      "key": "nativeRoofCells",
+      "raw": 29426,
+      "packed": 6732,
+      "saved": 22694,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/aegCampusV241CorePrevious.json",
+      "key": "owners",
+      "raw": 27686,
+      "packed": 5436,
+      "saved": 22250,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/westVenuesV260Navigation.json",
+      "key": "parts",
+      "raw": 30824,
+      "packed": 8632,
+      "saved": 22192,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/westLakesV194Navigation.json",
+      "key": "drawn",
+      "raw": 53224,
+      "packed": 31526,
+      "saved": 21698,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/steglitzMotorwayV226.json",
+      "key": "colors",
+      "raw": 21844,
+      "packed": 191,
+      "saved": 21653,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/lennonV250.json",
+      "key": "rods",
+      "raw": 29403,
+      "packed": 7800,
+      "saved": 21603,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/eastParksV198.json",
+      "key": "buildings",
+      "raw": 32738,
+      "packed": 11151,
+      "saved": 21587,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/hbfNorthRailTerrainBoundary.json",
+      "key": "edges_f32",
+      "raw": 37082,
+      "packed": 15672,
+      "saved": 21410,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/breitscheidTowersNavigation.json",
+      "key": "nativeRoofCells",
+      "raw": 26160,
+      "packed": 4924,
+      "saved": 21236,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/staatsoperV240Previous.json",
+      "key": "records",
+      "raw": 33190,
+      "packed": 12146,
+      "saved": 21044,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/viktoriaparkV194.json",
+      "key": "features",
+      "raw": 38030,
+      "packed": 17111,
+      "saved": 20919,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/hbfDrawnTerrainBoundaryV252.json",
+      "key": "triangles_f32",
+      "raw": 38402,
+      "packed": 17524,
+      "saved": 20878,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/altMitteV169Ownership.json",
+      "key": "prismIds",
+      "raw": 59687,
+      "packed": 38820,
+      "saved": 20867,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/hbfNorthRailTerrainBoundary.json",
+      "key": "cells_u32",
+      "raw": 27330,
+      "packed": 6564,
+      "saved": 20766,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/staatsbibliothekV241Previous.json",
+      "key": "blocks",
+      "raw": 24655,
+      "packed": 3891,
+      "saved": 20764,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/steglitzCourtyardV251.json",
+      "key": "boxes",
+      "raw": 26075,
+      "packed": 5371,
+      "saved": 20704,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/zooGroundsV165Navigation.json",
+      "key": "parts",
+      "raw": 36117,
+      "packed": 15544,
+      "saved": 20573,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/northV185.json",
+      "key": "faces",
+      "raw": 27766,
+      "packed": 7288,
+      "saved": 20478,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/sintiRomaPavingV256.json",
+      "key": "shards",
+      "raw": 36854,
+      "packed": 16752,
+      "saved": 20102,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/eurefV262.json",
+      "key": "buildings",
+      "raw": 31365,
+      "packed": 11291,
+      "saved": 20074,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/kiezFacadesV209.json",
+      "key": "blocks",
+      "raw": 24558,
+      "packed": 4924,
+      "saved": 19634,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/ministrySpreeV207.json",
+      "key": "surfaces",
+      "raw": 25624,
+      "packed": 6231,
+      "saved": 19393,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/westIndustrialV230Ownership.json",
+      "key": "lineRecords",
+      "raw": 22329,
+      "packed": 3046,
+      "saved": 19283,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/tachelesV167Navigation.json",
+      "key": "nativeRoofCells",
+      "raw": 23614,
+      "packed": 4648,
+      "saved": 18966,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/northV185.json",
+      "key": "owners",
+      "raw": 27420,
+      "packed": 8624,
+      "saved": 18796,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/steglitzCourtyardV251.json",
+      "key": "rods",
+      "raw": 26319,
+      "packed": 7716,
+      "saved": 18603,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/bundeswehrHospitalV215Navigation.json",
+      "key": "nativeChangedRoofCells",
+      "raw": 22401,
+      "packed": 3916,
+      "saved": 18485,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/springerV215Navigation.json",
+      "key": "nativeChangedRoofCells",
+      "raw": 21986,
+      "packed": 3644,
+      "saved": 18342,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/weddingSitesV210Envelopes.json",
+      "key": "blocks",
+      "raw": 22807,
+      "packed": 4740,
+      "saved": 18067,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/northParksV198Buildings.json",
+      "key": "nativeHeroBoxes",
+      "raw": 21932,
+      "packed": 4324,
+      "saved": 17608,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/outerMaterialsV263.json",
+      "key": "packets",
+      "raw": 25142,
+      "packed": 7971,
+      "saved": 17171,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/prisonsMemorialsOwnershipV209.json",
+      "key": "records",
+      "raw": 28026,
+      "packed": 10891,
+      "saved": 17135,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/waldbuehneV201Navigation.json",
+      "key": "floorTriangles",
+      "raw": 23538,
+      "packed": 6436,
+      "saved": 17102,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/outerMaterialsV254.json",
+      "key": "packets",
+      "raw": 23488,
+      "packed": 6446,
+      "saved": 17042,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/steglitzV182Navigation.json",
+      "key": "buildings",
+      "raw": 26052,
+      "packed": 9072,
+      "saved": 16980,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/schlossEastNavigation.json",
+      "key": "native_runs",
+      "raw": 27473,
+      "packed": 10588,
+      "saved": 16885,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/westCivicV210Previous.json",
+      "key": "segments",
+      "raw": 17389,
+      "packed": 1221,
+      "saved": 16168,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/chariteBettenhausV207.json",
+      "key": "nightBoxes",
+      "raw": 19922,
+      "packed": 3781,
+      "saved": 16141,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/botanicalV230Navigation.json",
+      "key": "groundLayers",
+      "raw": 37416,
+      "packed": 21340,
+      "saved": 16076,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/cemeteryGrunewaldV199Navigation.json",
+      "key": "drawn",
+      "raw": 24004,
+      "packed": 7936,
+      "saved": 16068,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/centralSitesV200Navigation.json",
+      "key": "buildings",
+      "raw": 22105,
+      "packed": 6320,
+      "saved": 15785,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/litfinNeighboursV215Source.json",
+      "key": "buildings",
+      "raw": 20569,
+      "packed": 4791,
+      "saved": 15778,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/chariteBettenhausV207.json",
+      "key": "nightNativeBlocks",
+      "raw": 19644,
+      "packed": 3896,
+      "saved": 15748,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/hbfNorthRailTerrainBoundary.json",
+      "key": "triangles_f32",
+      "raw": 28546,
+      "packed": 13072,
+      "saved": 15474,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/arkonaplatzV193.json",
+      "key": "pavingRings",
+      "raw": 22838,
+      "packed": 8216,
+      "saved": 14622,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/berlinWallMemorialV174Navigation.json",
+      "key": "posts",
+      "raw": 22475,
+      "packed": 7924,
+      "saved": 14551,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/cafeNeuerSeeV164Navigation.json",
+      "key": "roofTriangles",
+      "raw": 18939,
+      "packed": 4404,
+      "saved": 14535,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/kosmosV166Navigation.json",
+      "key": "nativeRoofCells",
+      "raw": 18997,
+      "packed": 4528,
+      "saved": 14469,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/colonnadesV231Navigation.json",
+      "key": "roofTriangles",
+      "raw": 18487,
+      "packed": 4144,
+      "saved": 14343,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/scheunenFacadesV183.json",
+      "key": "boxes",
+      "raw": 22064,
+      "packed": 7981,
+      "saved": 14083,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/centralSitesV200Correction.json",
+      "key": "native",
+      "raw": 20291,
+      "packed": 6244,
+      "saved": 14047,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/hackescherMarktV163Navigation.json",
+      "key": "parts",
+      "raw": 23263,
+      "packed": 9220,
+      "saved": 14043,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/potsdamerWestV266.json",
+      "key": "positions",
+      "raw": 16659,
+      "packed": 2780,
+      "saved": 13879,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/townhallV227CorePrevious.json",
+      "key": "owners",
+      "raw": 17533,
+      "packed": 3740,
+      "saved": 13793,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/staatsoperV240Previous.json",
+      "key": "boxes",
+      "raw": 16172,
+      "packed": 2466,
+      "saved": 13706,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/elevatedCoreOwnersV238.json",
+      "key": "previousColumns",
+      "raw": 14322,
+      "packed": 920,
+      "saved": 13402,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/quartier207V241Previous.json",
+      "key": "records",
+      "raw": 22939,
+      "packed": 9741,
+      "saved": 13198,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/labourQuartierV208.json",
+      "key": "surfaces",
+      "raw": 17308,
+      "packed": 4221,
+      "saved": 13087,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/surroundingCityScope.json",
+      "key": "footprint",
+      "raw": 36551,
+      "packed": 23540,
+      "saved": 13011,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/rosenthalerV228Ground.json",
+      "key": "4_-3.drawn",
+      "raw": 16836,
+      "packed": 3906,
+      "saved": 12930,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/suhrkampPfefferbergV189.json",
+      "key": "faces",
+      "raw": 17112,
+      "packed": 4186,
+      "saved": 12926,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/nordicAndKasV246.json",
+      "key": "nativeCells",
+      "raw": 15444,
+      "packed": 2548,
+      "saved": 12896,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/steglitzCourtGroundV251.json",
+      "key": "nativeRows",
+      "raw": 17956,
+      "packed": 5081,
+      "saved": 12875,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/iccV199Navigation.json",
+      "key": "buildings",
+      "raw": 19967,
+      "packed": 7136,
+      "saved": 12831,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/eastCinemasV260Navigation.json",
+      "key": "nativeShellCells",
+      "raw": 16130,
+      "packed": 3401,
+      "saved": 12729,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/fountainNavigationV248.json",
+      "key": "drawn",
+      "raw": 21065,
+      "packed": 8500,
+      "saved": 12565,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/volksbuehneEnvelopeV209.json",
+      "key": "drawn",
+      "raw": 17700,
+      "packed": 5326,
+      "saved": 12374,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/zionskirchplatzV193.json",
+      "key": "surfaces",
+      "raw": 15411,
+      "packed": 3196,
+      "saved": 12215,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/albrechtstrasseV248Details.json",
+      "key": "boxes",
+      "raw": 14556,
+      "packed": 2366,
+      "saved": 12190,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/breitscheidTowersNavigation.json",
+      "key": "parts",
+      "raw": 17860,
+      "packed": 5696,
+      "saved": 12164,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/steglitzCourtyardV251.json",
+      "key": "nativeColors",
+      "raw": 14621,
+      "packed": 2486,
+      "saved": 12135,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/neukoellnPlacesV210Navigation.json",
+      "key": "roofTriangles",
+      "raw": 15709,
+      "packed": 3686,
+      "saved": 12023,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/bendlerblockV202Navigation.json",
+      "key": "columns",
+      "raw": 14260,
+      "packed": 2360,
+      "saved": 11900,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/parkSitesV190.json",
+      "key": "benches",
+      "raw": 16017,
+      "packed": 4236,
+      "saved": 11781,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/kosmosV166Navigation.json",
+      "key": "roofTriangles",
+      "raw": 15381,
+      "packed": 3632,
+      "saved": 11749,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/kranzlerV165Navigation.json",
+      "key": "roofTriangles",
+      "raw": 15197,
+      "packed": 3632,
+      "saved": 11565,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/spreeFacadesV231.json",
+      "key": "sites",
+      "raw": 17985,
+      "packed": 6506,
+      "saved": 11479,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/fountainNavigationV248.json",
+      "key": "native",
+      "raw": 13283,
+      "packed": 1832,
+      "saved": 11451,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/arenaStationV225Navigation.json",
+      "key": "owners",
+      "raw": 17424,
+      "packed": 6006,
+      "saved": 11418,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/teufelsbergStationV195.json",
+      "key": "navigation",
+      "raw": 18140,
+      "packed": 7071,
+      "saved": 11069,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/bundeswehrHospitalV215Ownership.json",
+      "key": "records",
+      "raw": 21750,
+      "packed": 10706,
+      "saved": 11044,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/northCityScopeV190.json",
+      "key": "footprint",
+      "raw": 22314,
+      "packed": 11308,
+      "saved": 11006,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/westVenuesV260.json",
+      "key": "sourceColors",
+      "raw": 12574,
+      "packed": 1766,
+      "saved": 10808,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/steglitzSchoolV250.json",
+      "key": "remove",
+      "raw": 16082,
+      "packed": 5391,
+      "saved": 10691,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/centralNamedV230Navigation.json",
+      "key": "sites",
+      "raw": 14299,
+      "packed": 3676,
+      "saved": 10623,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/eastCinemasV260Ownership.json",
+      "key": "records",
+      "raw": 17659,
+      "packed": 7071,
+      "saved": 10588,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/altMitteGroundSeamsV206.json",
+      "key": "spans_u32",
+      "raw": 12238,
+      "packed": 1868,
+      "saved": 10370,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/staatsbibliothekV241Previous.json",
+      "key": "surfaces",
+      "raw": 13849,
+      "packed": 3496,
+      "saved": 10353,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/playgroundsV255.json",
+      "key": "sites",
+      "raw": 13864,
+      "packed": 3600,
+      "saved": 10264,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/westSquaresV163Navigation.json",
+      "key": "roofTriangles",
+      "raw": 13558,
+      "packed": 3384,
+      "saved": 10174,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/ringCityScopeV182.json",
+      "key": "footprint",
+      "raw": 22312,
+      "packed": 12300,
+      "saved": 10012,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/ringStationDetailsV205.json",
+      "key": "stations",
+      "raw": 14534,
+      "packed": 4566,
+      "saved": 9968,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/kiezFacadesV209.json",
+      "key": "surfaces",
+      "raw": 11492,
+      "packed": 1636,
+      "saved": 9856,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/moabitJusticeV166Navigation.json",
+      "key": "legacyPrisms",
+      "raw": 15961,
+      "packed": 6324,
+      "saved": 9637,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/schlossstrasseV247Details.json",
+      "key": "nativeRows",
+      "raw": 12235,
+      "packed": 2631,
+      "saved": 9604,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/panoramaFacadeV202.json",
+      "key": "records",
+      "raw": 16770,
+      "packed": 7211,
+      "saved": 9559,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/springerV215Ownership.json",
+      "key": "records",
+      "raw": 17554,
+      "packed": 8171,
+      "saved": 9383,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/zionskirchplatzV193Evidence.json",
+      "key": "selectedFaces",
+      "raw": 13732,
+      "packed": 4571,
+      "saved": 9161,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/potsdamerWestV266.json",
+      "key": "nativeRoofBlocks",
+      "raw": 10149,
+      "packed": 996,
+      "saved": 9153,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/citywestStreetsV235.json",
+      "key": "packets",
+      "raw": 15999,
+      "packed": 6886,
+      "saved": 9113,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/cemeteryGrunewaldV199Drawn.json",
+      "key": "positions",
+      "raw": 10561,
+      "packed": 1561,
+      "saved": 9000,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/marzahnScopeV230.json",
+      "key": "footprint",
+      "raw": 17276,
+      "packed": 8300,
+      "saved": 8976,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/steglitzSchoolV250.json",
+      "key": "nativeColors",
+      "raw": 10643,
+      "packed": 1721,
+      "saved": 8922,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/hermannEhlersFountainV248.json",
+      "key": "nativeRows",
+      "raw": 10496,
+      "packed": 1611,
+      "saved": 8885,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/potsdamerWestV266.json",
+      "key": "nativeSurfaceColumns",
+      "raw": 9960,
+      "packed": 1280,
+      "saved": 8680,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/hermannEhlersV247Details.json",
+      "key": "surfaces",
+      "raw": 11272,
+      "packed": 2641,
+      "saved": 8631,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/zooStationV165Navigation.json",
+      "key": "parts",
+      "raw": 14228,
+      "packed": 5676,
+      "saved": 8552,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/floodExtensionV205.json",
+      "key": "chunks",
+      "raw": 11254,
+      "packed": 2808,
+      "saved": 8446,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/spanishEmbassyV164Navigation.json",
+      "key": "nativeRoofCells",
+      "raw": 10558,
+      "packed": 2156,
+      "saved": 8402,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/embassiesV208.json",
+      "key": "faces",
+      "raw": 12171,
+      "packed": 3826,
+      "saved": 8345,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/altMitteGroundSeamsV206.json",
+      "key": "tops_f32",
+      "raw": 12238,
+      "packed": 4052,
+      "saved": 8186,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/citadelCrownV230Previous.json",
+      "key": "drawnVertices",
+      "raw": 9894,
+      "packed": 1801,
+      "saved": 8093,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/zooPalastV260.json",
+      "key": "nativeOccupiedCells",
+      "raw": 9948,
+      "packed": 1961,
+      "saved": 7987,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/danzigerTramV249.json",
+      "key": "rails",
+      "raw": 16671,
+      "packed": 8701,
+      "saved": 7970,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/prisonsMemorialsOwnershipV209.json",
+      "key": "retainedOwners",
+      "raw": 12105,
+      "packed": 4291,
+      "saved": 7814,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/danzigerTramV249.json",
+      "key": "boxes",
+      "raw": 10699,
+      "packed": 3026,
+      "saved": 7673,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/eastParksV198.json",
+      "key": "benches",
+      "raw": 11198,
+      "packed": 3636,
+      "saved": 7562,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/prisonsMemorialsV209Navigation.json",
+      "key": "barriers",
+      "raw": 12428,
+      "packed": 5088,
+      "saved": 7340,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/berlinWallMemorialV174Navigation.json",
+      "key": "roofTriangles",
+      "raw": 9440,
+      "packed": 2184,
+      "saved": 7256,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/neukoellnPlacesV210Ownership.json",
+      "key": "records",
+      "raw": 11326,
+      "packed": 4121,
+      "saved": 7205,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/colonnadesV231Navigation.json",
+      "key": "columns",
+      "raw": 11232,
+      "packed": 4028,
+      "saved": 7204,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/mainStreetSignalsV254.json",
+      "key": "signals",
+      "raw": 8804,
+      "packed": 1696,
+      "saved": 7108,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/spreeBridgeCorePreviousV242.json",
+      "key": "records",
+      "raw": 10879,
+      "packed": 3948,
+      "saved": 6931,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/huthmacherNavigation.json",
+      "key": "nativeRoofCells",
+      "raw": 8407,
+      "packed": 1592,
+      "saved": 6815,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/neukoellnPlacesV210Ownership.json",
+      "key": "navigationRecords",
+      "raw": 9142,
+      "packed": 2381,
+      "saved": 6761,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/kudammTreesV205.json",
+      "key": "sourceIds",
+      "raw": 7921,
+      "packed": 1166,
+      "saved": 6755,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/bundeswehrHospitalV215Navigation.json",
+      "key": "newFamilyRoofs",
+      "raw": 9006,
+      "packed": 2328,
+      "saved": 6678,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/kudammTreesV205.json",
+      "key": "trees",
+      "raw": 13312,
+      "packed": 6711,
+      "saved": 6601,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/railStationsV190.json",
+      "key": "stations",
+      "raw": 9748,
+      "packed": 3156,
+      "saved": 6592,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/librariesV202.json",
+      "key": "owners",
+      "raw": 10675,
+      "packed": 4092,
+      "saved": 6583,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/northParksV198Terrain.json",
+      "key": "waters",
+      "raw": 18039,
+      "packed": 11600,
+      "saved": 6439,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/viktoriaparkV194.json",
+      "key": "surfaces",
+      "raw": 8050,
+      "packed": 1631,
+      "saved": 6419,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/potsdamerWestV266.json",
+      "key": "colors",
+      "raw": 6541,
+      "packed": 144,
+      "saved": 6397,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/centralNamedV230Native.json",
+      "key": "sites",
+      "raw": 8302,
+      "packed": 1928,
+      "saved": 6374,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/districtCourtsV229Ownership.json",
+      "key": "records",
+      "raw": 10461,
+      "packed": 4096,
+      "saved": 6365,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/orankeseeMarginV209.json",
+      "key": "drawn",
+      "raw": 7968,
+      "packed": 1631,
+      "saved": 6337,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/albrechtstrasseV248Details.json",
+      "key": "nativeRows",
+      "raw": 7273,
+      "packed": 1016,
+      "saved": 6257,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/rosenthalerV228Ground.json",
+      "key": "3_-3.drawn",
+      "raw": 8284,
+      "packed": 2141,
+      "saved": 6143,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/altMitteAppearanceV213.json",
+      "key": "palette",
+      "raw": 13339,
+      "packed": 7291,
+      "saved": 6048,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/tuWaterV168Navigation.json",
+      "key": "sourceParts",
+      "raw": 9709,
+      "packed": 3936,
+      "saved": 5773,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/lindenCorridorV197.json",
+      "key": "owners",
+      "raw": 9120,
+      "packed": 3431,
+      "saved": 5689,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/arenaStationV225Ownership.json",
+      "key": "records",
+      "raw": 10702,
+      "packed": 5016,
+      "saved": 5686,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/townhallV227Ownership.json",
+      "key": "lineRecords",
+      "raw": 9445,
+      "packed": 3846,
+      "saved": 5599,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/cityRecognitionV182.json",
+      "key": "features",
+      "raw": 8637,
+      "packed": 3096,
+      "saved": 5541,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/gipsKoppenV252.json",
+      "key": "rods",
+      "raw": 7445,
+      "packed": 1931,
+      "saved": 5514,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/civicV246NativeFaces.json",
+      "key": "spd",
+      "raw": 6708,
+      "packed": 1306,
+      "saved": 5402,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/neueSynagogeV167Navigation.json",
+      "key": "roofTriangles",
+      "raw": 7161,
+      "packed": 1792,
+      "saved": 5369,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/schoolsV185.json",
+      "key": "boxes",
+      "raw": 7327,
+      "packed": 2112,
+      "saved": 5215,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/kiezFacadesV209.json",
+      "key": "boxes",
+      "raw": 7209,
+      "packed": 2008,
+      "saved": 5201,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/hermannEhlersFountainV248.json",
+      "key": "surfaces",
+      "raw": 6595,
+      "packed": 1401,
+      "saved": 5194,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/tuWaterV168Navigation.json",
+      "key": "parts",
+      "raw": 8654,
+      "packed": 3460,
+      "saved": 5194,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/arkonaplatzV193.json",
+      "key": "trees",
+      "raw": 9119,
+      "packed": 3981,
+      "saved": 5138,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/centralSitesV200.json",
+      "key": "owners",
+      "raw": 7817,
+      "packed": 2721,
+      "saved": 5096,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/neukoellnPlacesV210Navigation.json",
+      "key": "owners",
+      "raw": 7567,
+      "packed": 2536,
+      "saved": 5031,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/hermannEhlersV247Details.json",
+      "key": "nativeRows",
+      "raw": 6132,
+      "packed": 1111,
+      "saved": 5021,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/westCivicV210Navigation.json",
+      "key": "volumes",
+      "raw": 7372,
+      "packed": 2352,
+      "saved": 5020,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/altMitteDrawnV169Source.json",
+      "key": "chunkFiles",
+      "raw": 5628,
+      "packed": 644,
+      "saved": 4984,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/rosenthalerV228Ground.json",
+      "key": "4_-3.minecraft",
+      "raw": 6462,
+      "packed": 1501,
+      "saved": 4961,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/kalkscheuneOwnershipV218.json",
+      "key": "records",
+      "raw": 8471,
+      "packed": 3541,
+      "saved": 4930,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/arenaStationV225Ownership.json",
+      "key": "navigationRecords",
+      "raw": 7959,
+      "packed": 3066,
+      "saved": 4893,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/zooGroundsV165Navigation.json",
+      "key": "legacyPrisms",
+      "raw": 8511,
+      "packed": 3628,
+      "saved": 4883,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/weddingSitesV210Envelopes.json",
+      "key": "surfaces",
+      "raw": 5859,
+      "packed": 1060,
+      "saved": 4799,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/golgathaV270Profile.json",
+      "key": "roofTriangles",
+      "raw": 6513,
+      "packed": 1728,
+      "saved": 4785,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/viktoriaparkV194.json",
+      "key": "waterRings",
+      "raw": 8545,
+      "packed": 3761,
+      "saved": 4784,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/publicPlacesV185.json",
+      "key": "boxes",
+      "raw": 6785,
+      "packed": 2021,
+      "saved": 4764,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/publicPlacesV185.json",
+      "key": "rods",
+      "raw": 6693,
+      "packed": 1936,
+      "saved": 4757,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/cityWestCinemasV166Navigation.json",
+      "key": "legacyPrisms",
+      "raw": 7266,
+      "packed": 2564,
+      "saved": 4702,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/alexanderStationsV183Source.json",
+      "key": "outerOwners",
+      "raw": 8361,
+      "packed": 3701,
+      "saved": 4660,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/roofHouseV233.json",
+      "key": "keys",
+      "raw": 5677,
+      "packed": 1026,
+      "saved": 4651,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/tempelhofV261.json",
+      "key": "blocks",
+      "raw": 6209,
+      "packed": 1591,
+      "saved": 4618,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/jamesSimonTerrainBoundary.json",
+      "key": "cells_u32",
+      "raw": 5890,
+      "packed": 1276,
+      "saved": 4614,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/spanishEmbassyV164Navigation.json",
+      "key": "roofTriangles",
+      "raw": 6069,
+      "packed": 1512,
+      "saved": 4557,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/districtCourtsV229Ownership.json",
+      "key": "navigationRecords",
+      "raw": 7101,
+      "packed": 2586,
+      "saved": 4515,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/steglitzCourtGroundV251.json",
+      "key": "rods",
+      "raw": 6637,
+      "packed": 2181,
+      "saved": 4456,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/ostkreuzV190.json",
+      "key": "navigation",
+      "raw": 7472,
+      "packed": 3031,
+      "saved": 4441,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/outerMaterialsV232.json",
+      "key": "packets",
+      "raw": 6372,
+      "packed": 1931,
+      "saved": 4441,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/centralSitesV200Correction.json",
+      "key": "ownershipAudit",
+      "raw": 7551,
+      "packed": 3120,
+      "saved": 4431,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/zooPalastV260.json",
+      "key": "studs",
+      "raw": 5147,
+      "packed": 736,
+      "saved": 4411,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/prenzlbergV264Ownership.json",
+      "key": "records",
+      "raw": 7369,
+      "packed": 3060,
+      "saved": 4309,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/steglitzGroundV247.json",
+      "key": "native",
+      "raw": 6089,
+      "packed": 1812,
+      "saved": 4277,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/prenzlbergV264Ownership.json",
+      "key": "navigationRecords",
+      "raw": 6603,
+      "packed": 2380,
+      "saved": 4223,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/berAirportRoofPatchV236.json",
+      "key": "nativeRings",
+      "raw": 5125,
+      "packed": 916,
+      "saved": 4209,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/uraniaArcV206Navigation.json",
+      "key": "parts",
+      "raw": 5824,
+      "packed": 1636,
+      "saved": 4188,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/zionskirchplatzV193.json",
+      "key": "owners",
+      "raw": 6626,
+      "packed": 2471,
+      "saved": 4155,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/charlottenburgerTorV201Navigation.json",
+      "key": "primitives",
+      "raw": 6134,
+      "packed": 2001,
+      "saved": 4133,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/drachenbergLawnV195.json",
+      "key": "native",
+      "raw": 6085,
+      "packed": 2021,
+      "saved": 4064,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/centralSitesV200Replacement.json",
+      "key": "replacements",
+      "raw": 6809,
+      "packed": 2772,
+      "saved": 4037,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/chariteBridgesV265AltMittePrevious.json",
+      "key": "records",
+      "raw": 6815,
+      "packed": 2784,
+      "saved": 4031,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/labourQuartierV208.json",
+      "key": "owners",
+      "raw": 6094,
+      "packed": 2176,
+      "saved": 3918,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/chariteBettenhausV207.json",
+      "key": "walls",
+      "raw": 6447,
+      "packed": 2571,
+      "saved": 3876,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/hermannEhlersFountainV248.json",
+      "key": "boxes",
+      "raw": 6105,
+      "packed": 2256,
+      "saved": 3849,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/cemeteryGrunewaldV199Drawn.json",
+      "key": "colors",
+      "raw": 3889,
+      "packed": 131,
+      "saved": 3758,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/northParksV198Buildings.json",
+      "key": "heroes",
+      "raw": 5299,
+      "packed": 1544,
+      "saved": 3755,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/spreeFacadesV231Ownership.json",
+      "key": "records",
+      "raw": 6835,
+      "packed": 3201,
+      "saved": 3634,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/cityStreetsV249.json",
+      "key": "ids",
+      "raw": 4502,
+      "packed": 876,
+      "saved": 3626,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/cityCoverageScopeV183.json",
+      "key": "footprint",
+      "raw": 7615,
+      "packed": 4028,
+      "saved": 3587,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/huthmacherNavigation.json",
+      "key": "roofTriangles",
+      "raw": 4763,
+      "packed": 1192,
+      "saved": 3571,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/ostkreuzV190.json",
+      "key": "roofs",
+      "raw": 6479,
+      "packed": 2926,
+      "saved": 3553,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/kranzlerV165Navigation.json",
+      "key": "parts",
+      "raw": 6000,
+      "packed": 2540,
+      "saved": 3460,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/chariteCampusV265.json",
+      "key": "parts",
+      "raw": 5753,
+      "packed": 2296,
+      "saved": 3457,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/kiezFacadesV209.json",
+      "key": "shellBlocks",
+      "raw": 4259,
+      "packed": 856,
+      "saved": 3403,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/drachenbergLawnV195.json",
+      "key": "drawn",
+      "raw": 5788,
+      "packed": 2466,
+      "saved": 3322,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/zooStationV165Navigation.json",
+      "key": "legacyPrisms",
+      "raw": 4942,
+      "packed": 1624,
+      "saved": 3318,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/allotmentsV264.json",
+      "key": "keys",
+      "raw": 4283,
+      "packed": 971,
+      "saved": 3312,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/kosmosV166Navigation.json",
+      "key": "parts",
+      "raw": 5644,
+      "packed": 2360,
+      "saved": 3284,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/colonnadesCorePreviousV231.json",
+      "key": "owners",
+      "raw": 4602,
+      "packed": 1368,
+      "saved": 3234,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/ubahnEntrancesV261.json",
+      "key": "stairs",
+      "raw": 4396,
+      "packed": 1172,
+      "saved": 3224,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/nordicAndKasV246.json",
+      "key": "copper",
+      "raw": 5129,
+      "packed": 1908,
+      "saved": 3221,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/olympicGroundsV201.json",
+      "key": "gatewayOffsets",
+      "raw": 3442,
+      "packed": 226,
+      "saved": 3216,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/orankeseeV209.json",
+      "key": "sand",
+      "raw": 4028,
+      "packed": 886,
+      "saved": 3142,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/golgathaV270Profile.json",
+      "key": "nativeColumns",
+      "raw": 4345,
+      "packed": 1228,
+      "saved": 3117,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/danzigerTramV249.json",
+      "key": "solids",
+      "raw": 5039,
+      "packed": 1931,
+      "saved": 3108,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/ringStationsV232.json",
+      "key": "sites",
+      "raw": 5712,
+      "packed": 2666,
+      "saved": 3046,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/uraniaLuetzowV188.json",
+      "key": "paths",
+      "raw": 4344,
+      "packed": 1311,
+      "saved": 3033,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/dorotheenstadtV266Previous.json",
+      "key": "records",
+      "raw": 5083,
+      "packed": 2092,
+      "saved": 2991,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/districtCourtsV229CorePrevious.json",
+      "key": "owners",
+      "raw": 3922,
+      "packed": 948,
+      "saved": 2974,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/parkSitesV190.json",
+      "key": "basins",
+      "raw": 4686,
+      "packed": 1756,
+      "saved": 2930,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/westernStadiumV187Navigation.json",
+      "key": "cutout",
+      "raw": 6287,
+      "packed": 3444,
+      "saved": 2843,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/northV185.json",
+      "key": "beds",
+      "raw": 4885,
+      "packed": 2052,
+      "saved": 2833,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/steglitzGroundV247.json",
+      "key": "drawn",
+      "raw": 5397,
+      "packed": 2584,
+      "saved": 2813,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/berlinWallMemorialV174Navigation.json",
+      "key": "solids",
+      "raw": 4436,
+      "packed": 1632,
+      "saved": 2804,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/schlossstrasseV247Details.json",
+      "key": "boxes",
+      "raw": 4161,
+      "packed": 1361,
+      "saved": 2800,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/berlinWallMemorialV174Navigation.json",
+      "key": "buildings",
+      "raw": 4405,
+      "packed": 1608,
+      "saved": 2797,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/cafeNeuerSeeV164Navigation.json",
+      "key": "parts",
+      "raw": 5297,
+      "packed": 2500,
+      "saved": 2797,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/jamesSimonTerrainBoundary.json",
+      "key": "edges_f32",
+      "raw": 5890,
+      "packed": 3116,
+      "saved": 2774,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/westIndustrialV230Ownership.json",
+      "key": "replacementParents",
+      "raw": 3601,
+      "packed": 851,
+      "saved": 2750,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/steglitzMotorwayV226Navigation.json",
+      "key": "polygons",
+      "raw": 7602,
+      "packed": 4908,
+      "saved": 2694,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/tachelesV167Navigation.json",
+      "key": "roofTriangles",
+      "raw": 3658,
+      "packed": 992,
+      "saved": 2666,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/westLakesV194Navigation.json",
+      "key": "buildings",
+      "raw": 5977,
+      "packed": 3336,
+      "saved": 2641,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/parkTerrainV229Profile.json",
+      "key": "offsets",
+      "raw": 4523,
+      "packed": 1900,
+      "saved": 2623,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/waldbuehneV201Navigation.json",
+      "key": "deck",
+      "raw": 5939,
+      "packed": 3356,
+      "saved": 2583,
+      "wasTransformed": true
+    },
+    {
+      "path": "pergamonPanoramaV202Source.json",
+      "key": "native_replacement_columns",
+      "raw": 3222,
+      "packed": 672,
+      "saved": 2550,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/neukoellnPlacesV210Ownership.json",
+      "key": "coarseOwners",
+      "raw": 4779,
+      "packed": 2241,
+      "saved": 2538,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/teehausRuinV168Navigation.json",
+      "key": "walls",
+      "raw": 4472,
+      "packed": 1948,
+      "saved": 2524,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/westSquaresV163Navigation.json",
+      "key": "parts",
+      "raw": 4671,
+      "packed": 2200,
+      "saved": 2471,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/arenaStationV225Profile.json",
+      "key": "arena",
+      "raw": 5039,
+      "packed": 2576,
+      "saved": 2463,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/berAirportRoofPatchV236.json",
+      "key": "nativeRows",
+      "raw": 3002,
+      "packed": 591,
+      "saved": 2411,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/altMitteTransportCorrectionsV206.json",
+      "key": "corrections",
+      "raw": 2864,
+      "packed": 464,
+      "saved": 2400,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/bndHeadquartersV174Navigation.json",
+      "key": "upperParts",
+      "raw": 5079,
+      "packed": 2708,
+      "saved": 2371,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/rosenthalerV228Ground.json",
+      "key": "3_-3.minecraft",
+      "raw": 3332,
+      "packed": 971,
+      "saved": 2361,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/spreeRailings.json",
+      "key": "rails",
+      "raw": 3867,
+      "packed": 1528,
+      "saved": 2339,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/cityWestCinemasV166Navigation.json",
+      "key": "parents",
+      "raw": 2924,
+      "packed": 600,
+      "saved": 2324,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/campusNordV266AltMittePrevious.json",
+      "key": "records",
+      "raw": 3977,
+      "packed": 1672,
+      "saved": 2305,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/huthmacherNavigation.json",
+      "key": "parts",
+      "raw": 3486,
+      "packed": 1216,
+      "saved": 2270,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/jamesSimonTerrainBoundary.json",
+      "key": "triangles_f32",
+      "raw": 4930,
+      "packed": 2676,
+      "saved": 2254,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/prisonsMemorialsOwnershipV209.json",
+      "key": "lineRecords",
+      "raw": 3205,
+      "packed": 956,
+      "saved": 2249,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/tuWaterV168Navigation.json",
+      "key": "legacyPrisms",
+      "raw": 3694,
+      "packed": 1520,
+      "saved": 2174,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/bundeswehrHospitalV215Navigation.json",
+      "key": "oldTargetRoofs",
+      "raw": 3038,
+      "packed": 868,
+      "saved": 2170,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/nordicAndKasV246.json",
+      "key": "faces",
+      "raw": 3511,
+      "packed": 1364,
+      "saved": 2147,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/colonnadesV231Navigation.json",
+      "key": "passageSamples",
+      "raw": 4545,
+      "packed": 2412,
+      "saved": 2133,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/uraniaLuetzowV188.json",
+      "key": "beds",
+      "raw": 3667,
+      "packed": 1561,
+      "saved": 2106,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/campusNordV266.json",
+      "key": "neighbours",
+      "raw": 3542,
+      "packed": 1440,
+      "saved": 2102,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/weddingSitesV210Envelopes.json",
+      "key": "barriers",
+      "raw": 4202,
+      "packed": 2104,
+      "saved": 2098,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/stadthausV239Replacement.json",
+      "key": "boxes",
+      "raw": 2627,
+      "packed": 566,
+      "saved": 2061,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/zooStationV165Navigation.json",
+      "key": "stairs",
+      "raw": 3088,
+      "packed": 1076,
+      "saved": 2012,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/neukoellnPlacesV210Ownership.json",
+      "key": "legacyDetailRecords",
+      "raw": 2817,
+      "packed": 816,
+      "saved": 2001,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/potsdamerContextV214Profile.json",
+      "key": "owners",
+      "raw": 3294,
+      "packed": 1296,
+      "saved": 1998,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/tuWaterV168Navigation.json",
+      "key": "structureNativeFineBands",
+      "raw": 2529,
+      "packed": 532,
+      "saved": 1997,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/centralNamedV230Ownership.json",
+      "key": "records",
+      "raw": 3401,
+      "packed": 1466,
+      "saved": 1935,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/kiezSitesOwnershipV209.json",
+      "key": "records",
+      "raw": 2905,
+      "packed": 1006,
+      "saved": 1899,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/zooStationV165Navigation.json",
+      "key": "stationFootprint",
+      "raw": 3809,
+      "packed": 1932,
+      "saved": 1877,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/hackescherMarktV163Navigation.json",
+      "key": "legacyPrisms",
+      "raw": 3257,
+      "packed": 1412,
+      "saved": 1845,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/dorotheenstadtV266.json",
+      "key": "profile",
+      "raw": 2986,
+      "packed": 1172,
+      "saved": 1814,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/schlossplatzV239AltMittePrevious.json",
+      "key": "previousNavigationParts",
+      "raw": 3317,
+      "packed": 1521,
+      "saved": 1796,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/parkSitesV190.json",
+      "key": "woodlandTrees",
+      "raw": 2995,
+      "packed": 1211,
+      "saved": 1784,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/arkonaplatzV193.json",
+      "key": "stalls",
+      "raw": 3758,
+      "packed": 1976,
+      "saved": 1782,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/volksbuehneEnvelopeV209.json",
+      "key": "volumes",
+      "raw": 3786,
+      "packed": 2051,
+      "saved": 1735,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/schlossplatzV239PreviousNavigation.json",
+      "key": "parts",
+      "raw": 3317,
+      "packed": 1620,
+      "saved": 1697,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/hansaLibraryV237.json",
+      "key": "parts",
+      "raw": 2568,
+      "packed": 956,
+      "saved": 1612,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/prisonsMemorialsV209Envelopes.json",
+      "key": "sourceIds",
+      "raw": 2243,
+      "packed": 668,
+      "saved": 1575,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/spreeBridgesV242.json",
+      "key": "packets",
+      "raw": 2045,
+      "packed": 500,
+      "saved": 1545,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/centralNamedV230Ownership.json",
+      "key": "navigationRecords",
+      "raw": 2731,
+      "packed": 1206,
+      "saved": 1525,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/schlossstrasseV247Details.json",
+      "key": "surfaces",
+      "raw": 2801,
+      "packed": 1291,
+      "saved": 1510,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/auguststrasseMuralV270Profile.json",
+      "key": "nativeFootprints",
+      "raw": 1973,
+      "packed": 464,
+      "saved": 1509,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/zooStationV165Navigation.json",
+      "key": "platforms",
+      "raw": 3607,
+      "packed": 2108,
+      "saved": 1499,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/civicV246NativeFaces.json",
+      "key": "rosa",
+      "raw": 1999,
+      "packed": 521,
+      "saved": 1478,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/weddingStationCorePreviousV229.json",
+      "key": "owners",
+      "raw": 2235,
+      "packed": 760,
+      "saved": 1475,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/schlossplatzV239Owners.json",
+      "key": "navigationSolids",
+      "raw": 3048,
+      "packed": 1576,
+      "saved": 1472,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/mierendorffV269.json",
+      "key": "profile",
+      "raw": 3170,
+      "packed": 1728,
+      "saved": 1442,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/kalkscheuneFacadesV218.json",
+      "key": "walls",
+      "raw": 2494,
+      "packed": 1068,
+      "saved": 1426,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/steglitzCourtGroundV251.json",
+      "key": "boxes",
+      "raw": 2155,
+      "packed": 746,
+      "saved": 1409,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/eastParksV198.json",
+      "key": "cenotaphs",
+      "raw": 2358,
+      "packed": 961,
+      "saved": 1397,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/uraniaArcV206Navigation.json",
+      "key": "legacyVoxelColumns",
+      "raw": 1721,
+      "packed": 328,
+      "saved": 1393,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/embassiesV208.json",
+      "key": "cylinders",
+      "raw": 1831,
+      "packed": 441,
+      "saved": 1390,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/westSquaresV163Navigation.json",
+      "key": "legacyPrisms",
+      "raw": 2509,
+      "packed": 1140,
+      "saved": 1369,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/neueSynagogeV167Navigation.json",
+      "key": "parts",
+      "raw": 2496,
+      "packed": 1128,
+      "saved": 1368,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/westIndustrialV230Ownership.json",
+      "key": "authorizedOwners",
+      "raw": 1799,
+      "packed": 436,
+      "saved": 1363,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/spreeLandmarksV183Source.json",
+      "key": "features",
+      "raw": 4135,
+      "packed": 2791,
+      "saved": 1344,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/schlesischesTorV267.json",
+      "key": "roofs",
+      "raw": 2228,
+      "packed": 892,
+      "saved": 1336,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/golgathaV270Previous.json",
+      "key": "records",
+      "raw": 2422,
+      "packed": 1100,
+      "saved": 1322,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/springerV215Navigation.json",
+      "key": "roofTriangles",
+      "raw": 2004,
+      "packed": 692,
+      "saved": 1312,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/westCivicV210Previous.json",
+      "key": "boxes",
+      "raw": 1636,
+      "packed": 376,
+      "saved": 1260,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/townhallV227Ownership.json",
+      "key": "blocked",
+      "raw": 1529,
+      "packed": 296,
+      "saved": 1233,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/steglitzCourtGroundV251Floor.json",
+      "key": "native",
+      "raw": 2028,
+      "packed": 812,
+      "saved": 1216,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/schlossEastNavigation.json",
+      "key": "footprint",
+      "raw": 2007,
+      "packed": 796,
+      "saved": 1211,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/tegelSpandauV198Navigation.json",
+      "key": "nativeWaterPolygons",
+      "raw": 1549,
+      "packed": 352,
+      "saved": 1197,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/neukoellnPlacesV210Ownership.json",
+      "key": "lineRecords",
+      "raw": 1814,
+      "packed": 631,
+      "saved": 1183,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/feuerwacheKreuzbergV267PreviousProfiles.json",
+      "key": "records",
+      "raw": 1608,
+      "packed": 440,
+      "saved": 1168,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/spanishEmbassyV164Navigation.json",
+      "key": "parts",
+      "raw": 2104,
+      "packed": 940,
+      "saved": 1164,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/houseDoorsV233.json",
+      "key": "ids",
+      "raw": 1723,
+      "packed": 571,
+      "saved": 1152,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/eastParksV198.json",
+      "key": "park",
+      "raw": 2563,
+      "packed": 1431,
+      "saved": 1132,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/civicV246NativeFaces.json",
+      "key": "green",
+      "raw": 1520,
+      "packed": 391,
+      "saved": 1129,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/spreeFacadesV231Ownership.json",
+      "key": "appearance",
+      "raw": 1842,
+      "packed": 716,
+      "saved": 1126,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/campusNordV266.json",
+      "key": "mensa",
+      "raw": 1879,
+      "packed": 768,
+      "saved": 1111,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/teehausRuinV168Navigation.json",
+      "key": "parts",
+      "raw": 1927,
+      "packed": 824,
+      "saved": 1103,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/cafeNeuerSeeV164Navigation.json",
+      "key": "legacyPrisms",
+      "raw": 2040,
+      "packed": 948,
+      "saved": 1092,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/chariteRailV261.json",
+      "key": "parts",
+      "raw": 1865,
+      "packed": 776,
+      "saved": 1089,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/townhallV227Previous.json",
+      "key": "features",
+      "raw": 1908,
+      "packed": 826,
+      "saved": 1082,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/colonnadesV231Navigation.json",
+      "key": "rings",
+      "raw": 2489,
+      "packed": 1412,
+      "saved": 1077,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/houseCurbsV233.json",
+      "key": "ids",
+      "raw": 1413,
+      "packed": 346,
+      "saved": 1067,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/museumBridgePreviousV243.json",
+      "key": "records",
+      "raw": 1924,
+      "packed": 884,
+      "saved": 1040,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/playgroundsV255.json",
+      "key": "packetSites",
+      "raw": 1507,
+      "packed": 468,
+      "saved": 1039,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/tachelesV167Navigation.json",
+      "key": "parts",
+      "raw": 1786,
+      "packed": 768,
+      "saved": 1018,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/steglitzCourtyardV251.json",
+      "key": "removeSourceBoxes",
+      "raw": 1861,
+      "packed": 846,
+      "saved": 1015,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/golgathaV270Profile.json",
+      "key": "nativeFootprints",
+      "raw": 1343,
+      "packed": 356,
+      "saved": 987,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/fritzRodelbahnV229Navigation.json",
+      "key": "footprint",
+      "raw": 2686,
+      "packed": 1728,
+      "saved": 958,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/kiezSitesOwnershipV209.json",
+      "key": "coarseOwners",
+      "raw": 1581,
+      "packed": 626,
+      "saved": 955,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/justicePalaceV183.json",
+      "key": "features",
+      "raw": 1886,
+      "packed": 941,
+      "saved": 945,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/eurefV262.json",
+      "key": "gasometer",
+      "raw": 2613,
+      "packed": 1671,
+      "saved": 942,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/botanicalV230Navigation.json",
+      "key": "water",
+      "raw": 2503,
+      "packed": 1564,
+      "saved": 939,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/golgathaV270Colours.json",
+      "key": "packets",
+      "raw": 1677,
+      "packed": 756,
+      "saved": 921,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/volksbuehneV189.json",
+      "key": "building",
+      "raw": 2047,
+      "packed": 1181,
+      "saved": 866,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/prisonsMemorialsV209Navigation.json",
+      "key": "sites",
+      "raw": 2708,
+      "packed": 1844,
+      "saved": 864,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/eastParksV198.json",
+      "key": "memorial",
+      "raw": 1847,
+      "packed": 996,
+      "saved": 851,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/dorotheenstadtV266.json",
+      "key": "graves",
+      "raw": 1413,
+      "packed": 564,
+      "saved": 849,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/orankeseeV209.json",
+      "key": "shoreline",
+      "raw": 1700,
+      "packed": 881,
+      "saved": 819,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/westVenuesV260Navigation.json",
+      "key": "legacyPrisms",
+      "raw": 1580,
+      "packed": 768,
+      "saved": 812,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/volksbuehneEnvelopeV209.json",
+      "key": "rings",
+      "raw": 1514,
+      "packed": 746,
+      "saved": 768,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/neueNationalgalerieV183Source.json",
+      "key": "parts",
+      "raw": 1279,
+      "packed": 516,
+      "saved": 763,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/ministrySpreeV207.json",
+      "key": "owners",
+      "raw": 1454,
+      "packed": 696,
+      "saved": 758,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/arkonaplatzV193.json",
+      "key": "benches",
+      "raw": 1530,
+      "packed": 776,
+      "saved": 754,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/botanicalV230Navigation.json",
+      "key": "nativeWater",
+      "raw": 1049,
+      "packed": 300,
+      "saved": 749,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/bundeswehrHospitalV215Drawn.json",
+      "key": "lines",
+      "raw": 1616,
+      "packed": 892,
+      "saved": 724,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/schlossplatzV239AltMittePrevious.json",
+      "key": "lineRecords",
+      "raw": 1769,
+      "packed": 1046,
+      "saved": 723,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/centralSitesV200Correction.json",
+      "key": "rawOsmEvidence",
+      "raw": 1728,
+      "packed": 1016,
+      "saved": 712,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/spanishEmbassyV164Navigation.json",
+      "key": "legacyPrisms",
+      "raw": 1305,
+      "packed": 604,
+      "saved": 701,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/uraniaLuetzowV188.json",
+      "key": "park",
+      "raw": 1899,
+      "packed": 1206,
+      "saved": 693,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/alexanderStationsV183Source.json",
+      "key": "conflicts",
+      "raw": 2113,
+      "packed": 1421,
+      "saved": 692,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/tachelesV167Navigation.json",
+      "key": "sourceParts",
+      "raw": 1429,
+      "packed": 756,
+      "saved": 673,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/teehausRuinV168Navigation.json",
+      "key": "legacyPrisms",
+      "raw": 1183,
+      "packed": 520,
+      "saved": 663,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/elevatedCoreOwnersV238.json",
+      "key": "previousPrisms",
+      "raw": 1447,
+      "packed": 788,
+      "saved": 659,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/schlesischesTorV267.json",
+      "key": "ring",
+      "raw": 1307,
+      "packed": 648,
+      "saved": 659,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/prenzlbergV264Ownership.json",
+      "key": "lineRecords",
+      "raw": 1420,
+      "packed": 764,
+      "saved": 656,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/prisonsMemorialsV209Navigation.json",
+      "key": "gates",
+      "raw": 1121,
+      "packed": 488,
+      "saved": 633,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/westVenuesV260.json",
+      "key": "sourcePartIds",
+      "raw": 1673,
+      "packed": 1056,
+      "saved": 617,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/kranzlerV165Navigation.json",
+      "key": "legacyPrisms",
+      "raw": 1144,
+      "packed": 532,
+      "saved": 612,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/campusNordV266.json",
+      "key": "rhoda",
+      "raw": 1306,
+      "packed": 708,
+      "saved": 598,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/volksbuehneV209Navigation.json",
+      "key": "flatVolumes",
+      "raw": 1752,
+      "packed": 1156,
+      "saved": 596,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/chariteBridgesV265.json",
+      "key": "sites",
+      "raw": 1342,
+      "packed": 756,
+      "saved": 586,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/viktoriaparkV194.json",
+      "key": "points",
+      "raw": 1372,
+      "packed": 796,
+      "saved": 576,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/westernStadiumV187Navigation.json",
+      "key": "trackOuter",
+      "raw": 1362,
+      "packed": 816,
+      "saved": 546,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/littenInstanzV257.json",
+      "key": "references",
+      "raw": 1283,
+      "packed": 746,
+      "saved": 537,
+      "wasTransformed": false
+    },
+    {
+      "path": "data/kraftwerkBerlinV268.json",
+      "key": "profile",
+      "raw": 1593,
+      "packed": 1060,
+      "saved": 533,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/staatsbibliothekV241Previous.json",
+      "key": "lineRecords",
+      "raw": 1103,
+      "packed": 571,
+      "saved": 532,
+      "wasTransformed": true
+    },
+    {
+      "path": "data/tegelSpandauV198Navigation.json",
+      "key": "waterPolygons",
+      "raw": 1370,
+      "packed": 840,
+      "saved": 530,
+      "wasTransformed": true
+    }
+  ]
+}

@@ -73,6 +73,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     built.push(mesh); group.add(mesh);
     return group;
   }
+  const coreSpreeBridgeFactory = () => model("Source-bound core Spree bridges");
   const modules = {
     "./ConcertHalls": { createConcertHalls: () => model("Kulturforum concert halls") },
     "./KulturforumMuseums": { createKulturforumMuseums: () => model("Kulturforum museums") },
@@ -148,6 +149,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
   const expectedImports = [...declarations[0].matchAll(/loadAddon\("([^"]+)"\)/g)].map(match => match[1]);
   expect(Object.keys(modules).sort()).toEqual(expectedImports.sort());
   const bindings = {
+    createCoreSpreeBridgesV242: coreSpreeBridgeFactory,
     parkStaticGeometrySteps, parkStaticInstancesSteps,
     interleaveStaticGeometry,
     interleaveStaticGeometrySteps,
@@ -188,8 +190,9 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     splitProgressiveBuildings: () => ({ initial: [], remaining: [], omitted: [] }),
     buildingDetailProfile: () => ({ batchSize: 240 }),
     buildingDetailDistricts: () => [], selectBuildingDetailDistricts: () => [], buildingDetailViewPoints: () => [],
-    createIsometricCity: (_prisms: unknown, _ground: unknown, _tunnel: unknown, _surfaces: unknown, buildOptions: { includeAltMitteCoreV169: boolean }) => {
+    createIsometricCity: (_prisms: unknown, _ground: unknown, _tunnel: unknown, _surfaces: unknown, buildOptions: { includeAltMitteCoreV169: boolean; coreSpreeBridgeFactoryV242: unknown }) => {
       expect(buildOptions.includeAltMitteCoreV169).toBe(false);
+      expect(buildOptions.coreSpreeBridgeFactoryV242).toBe(coreSpreeBridgeFactory);
       const city = model("core"); city.add(model("drawn bridge structures")); return city;
     },
     createInitialDrawnWater: () => options.initialWater ? model("source-bound drawn water") : null,
@@ -205,6 +208,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     createBebelplatzBuildingShells: () => model("Bebelplatz shells"),
     createProgressiveBuildingCoverage: () => model("coverage"),
     setWeidendammerBridgePresentation: () => {}, setSandkrugBridgePresentation: () => {},
+    setCoreBridgeRoadPresentationV242: () => {}, setCoreSpreeBridgePresentationV242: () => {},
     capturePedestrianAttachment: () => { savedPose = pose; return { underside: false, pose }; },
     restorePedestrianAttachment: (_: unknown, snapshot: { pose: number }) => { pose = snapshot.pose; },
     captureProgressiveWorld: () => ({}), restoreProgressiveWorld: () => {},

@@ -1,3 +1,4 @@
+import { isTachelesFrontSourceV270 } from "./TachelesFrontsV270Profile";
 import { isMoabitLandmarkSourceV269 } from "./MoabitLandmarksV269Profile";
 import { moabitCoreFacadeHeadV269 } from "./MoabitCoreHousesV269";
 import { isCampusCanopySourceV266 } from "./CampusNordV266Profile";
@@ -150,6 +151,7 @@ import { GUSTAV_BRIDGE_SUPPORT_FALLBACK } from "./gustavBridgeSupportSource";
 import { ABGEORDNETENHAUS_PROFILE } from "./abgeordnetenhausProfile";
 import { GROPIUS_BAU_PRISM_TONES, GROPIUS_BAU_PRISM_ROOF_TONES } from "./gropiusBauProfile";
 import { hasPotsdamerUpperStoreys, POTSDAMER_UPPER_STOREYS, potsdamerPanoramaMaterialFor } from "./potsdamerPanoramaPalette";
+import { isAuguststrasseOldGableRimV270 } from "./AuguststrasseMuralV270Profile";
 import {
   buildingAttributes,
   mappedGlazing,
@@ -397,6 +399,8 @@ export type IsometricCityBuildOptions = {
   /** Complete measured AEG campus is required before replacing legacy prisms. */
   architectureV241?: boolean;
   /** Exact church fallbacks yield only to the complete required v269 models. */
+  golgathaV270?: boolean;
+  tachelesFrontsV270?: boolean;
   moabitLandmarksV269?: boolean;
   tempodromAnhalterV266?: boolean;
   northernSitesV266?: boolean;
@@ -1789,11 +1793,12 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
   const visible = buildings.filter(building => !options.architectureV241 || !isAEGCampusCorePrismV241(building))
+    .filter(building => !options.tachelesFrontsV270 || !isTachelesFrontSourceV270(building))
     .filter(building => !options.moabitLandmarksV269 || !isMoabitLandmarkSourceV269(building))
     .filter(building => !options.tempodromAnhalterV266 || !isAnhalterSourceV266(building))
     .filter(building => !options.northernSitesV266 || !isCampusCanopySourceV266(building))
@@ -11975,6 +11980,7 @@ export function createIsometricCityCore(
     geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
   for (const sourceBuilding of buildings) {
+    if (options.tachelesFrontsV270 && isTachelesFrontSourceV270(sourceBuilding)) continue;
     if (options.moabitLandmarksV269 && isMoabitLandmarkSourceV269(sourceBuilding)) continue;
     if (options.tempodromAnhalterV266 && isAnhalterSourceV266(sourceBuilding)) continue;
     if (options.northernSitesV266 && isCampusCanopySourceV266(sourceBuilding)) continue;
@@ -12535,7 +12541,10 @@ export function createIsometricCityCore(
         sockel.computeVertexNormals();
         bakeColor(sockel, sockelTone);
         bodyGeometries.push(sockel);
-        if (!roofTriangles) {
+        if (!roofTriangles && !(options.tachelesFrontsV270 && isAuguststrasseOldGableRimV270(
+          sourceBuilding, wall.x1, wall.z1, wall.x1 + wall.dirX * wall.length, wall.z1 + wall.dirZ * wall.length,
+          bodyHeight, CORNICE_HEIGHT_M, CORNICE_DEPTH_M,
+        ))) {
           const cornice = new BufferGeometry();
           cornice.setAttribute(
             "position",

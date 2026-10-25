@@ -1663,6 +1663,166 @@
       "role": "Complete attributed quarter polygons used only for audit distribution. Model boundary remains exact ALKIS Moabit; no photograph or invented architectural detail.",
       "checked": "2026-10-25",
       "pixels_bundled": false
+    },
+    {
+      "landmark_id": "auguststrasse_mural_v270",
+      "title": "Bring them home — primary artist and corner identification",
+      "page_url": "https://www.zentralratderjuden.de/presseerklaerungen/politische-erklaerung-zum-zweiten-jahrestag-des-massakers-am-7-oktober-2023/",
+      "credit": "Zentralrat der Juden in Deutschland; artwork Benzi Brofman",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Primary photograph caption identifies Benzi Brofman and Auguststraße/Oranienburger Straße. Location and identity only; appearance follows user photographs.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "auguststrasse_mural_v270",
+      "title": "Jüdische Kulturtage Berlin 2024 — press release 8 July 2024",
+      "page_url": "https://www.juedische-kulturtage.org/_files/ugd/a77f2c_a6282aaf311941889d55529698db66e2.pdf",
+      "credit": "Jüdische Kulturtage Berlin",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Primary programme release identifies Benzi Brofman's Oranienburger mural as a late-2023 work.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "auguststrasse_mural_v270",
+      "title": "Bring Them Home NOW — 6 December 2023",
+      "page_url": "https://www.jgms.de/2023/12/bring-them-home-n-o-w/",
+      "credit": "Jüdische Gemeinde Münster; Sharon Fehr; artwork Benzi Brofman",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Primary community account identifies the artist, child, teddy, sun and interrupted balloon cord. No photograph downloaded or bundled.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tacheles_fronts_v270",
+      "title": "Official identity Oranienburger Straße 45, Mietshaus 1889; object endpoint was unavailable, cross-checked in official monument list",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09035140",
+      "credit": "Landesdenkmalamt Berlin / Geoportal Berlin",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Official identity Oranienburger Straße 45, Mietshaus 1889; object endpoint was unavailable, cross-checked in official monument list",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tacheles_fronts_v270",
+      "title": "Official identity Oranienburger Straße 46–47, Mietshaus 1884",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09035141",
+      "credit": "Landesdenkmalamt Berlin / Geoportal Berlin",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Official identity Oranienburger Straße 46–47, Mietshaus 1884",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tacheles_fronts_v270",
+      "title": "Official identity Oranienburger Straße 48–49, Mietshaus 1847, alteration 1930; object endpoint unavailable, cross-checked official monument list",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09035142",
+      "credit": "Landesdenkmalamt Berlin / Geoportal Berlin",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Official identity Oranienburger Straße 48–49, Mietshaus 1847, alteration 1930; object endpoint unavailable, cross-checked official monument list",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tacheles_fronts_v270",
+      "title": "Official identity Oranienburger Straße 50",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09035143",
+      "credit": "Landesdenkmalamt Berlin / Geoportal Berlin",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Official identity Oranienburger Straße 50",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tacheles_fronts_v270",
+      "title": "Official street-number and monument-identity cross-check for 45, 46–47, 48–49 and 50",
+      "page_url": "https://www.berlin.de/landesdenkmalamt/_assets/pdf-und-zip/denkmale/liste-karte-datenbank/dm_liste.pdf?ts=1762426495",
+      "credit": "Landesdenkmalamt Berlin / Geoportal Berlin",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Official street-number and monument-identity cross-check for 45, 46–47, 48–49 and 50",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tacheles_fronts_v270",
+      "title": "Number 45 identification from the photographed ground-floor frontage; no tenant text reproduced",
+      "page_url": "https://amrit.de/impressum/",
+      "credit": "AMRIT",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Number 45 identification from the photographed ground-floor frontage; no tenant text reproduced",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tacheles_fronts_v270",
+      "title": "Oranienburger Straße 45 address cross-check",
+      "page_url": "https://amrit.de/faq/standorte-anreise/",
+      "credit": "AMRIT",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Oranienburger Straße 45 address cross-check",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tacheles_fronts_v270",
+      "title": "Retained official LoD2 building owners and measured source sheets",
+      "page_url": "https://www.berlin.de/sen/sbw/stadtdaten/geoportal/3d-gebaeudemodelle/",
+      "credit": "Landesdenkmalamt Berlin / Geoportal Berlin",
+      "license": "Datenlizenz Deutschland – Zero – Version 2.0 (dl-de/zero-2-0)",
+      "role": "Retained official LoD2 building owners and measured source sheets",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tacheles_fronts_v270",
+      "title": "Existing exact OSM core footprint identities, streets and licensed geometry",
+      "page_url": "https://www.openstreetmap.org/copyright",
+      "credit": "OpenStreetMap contributors",
+      "license": "ODbL 1.0",
+      "role": "Existing exact OSM core footprint identities, streets and licensed geometry",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "golgatha_v270",
+      "title": "Golgathakirche, object09080455",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09080455",
+      "credit": "Landesdenkmalamt Berlin",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Identity and brick Gothic church with lateral tower",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "golgatha_v270",
+      "title": "Golgathakirche exterior, LDA1998",
+      "page_url": "https://denkmaldatenbank.berlin.de/media/uploads/Mit/03/09080455.jpg",
+      "credit": "Landesdenkmalamt Berlin; individual photographer unspecified",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Reference photograph of belfry arches, clock gables, corner pinnacles and steep helm",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "golgatha_v270",
+      "title": "Golgathakirche operator exterior views",
+      "page_url": "https://neu.elisabeth.berlin/de/kulturorte/golgathakirche",
+      "credit": "Maschalsky / Kultur Büro Elisabeth",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Church identity and current exterior; no photographic pixels bundled",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "golgatha_v270",
+      "title": "Golgathakirche historical documentation",
+      "page_url": "https://digital.zlb.de/viewer/fulltext/14192916_1901/360/",
+      "credit": "Berliner Architekturwelt1901 / Zentral- und Landesbibliothek Berlin",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Identity, side tower and Rathenow brick material; present user photographs govern form",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
     }
   ]
 }

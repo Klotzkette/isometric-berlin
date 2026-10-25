@@ -4,6 +4,7 @@ import { gzipSync } from "node:zlib";
 import { encodeLosslessBase85, decodeLosslessBase85, decodeLosslessGzipJson } from "../src/losslessGzipBase85";
 import { LOSSLESS_BASE85_SOURCES_V263 } from "../losslessBase85SourcesV263";
 import { transformLosslessJsonData } from "../losslessJsonData";
+import { LOSSLESS_EAGER_FIELDS_V270 } from "../losslessEagerFieldsV270";
 
 test("base85 is canonical and byte-exact across word and scratch-buffer boundaries", () => {
   for (const length of [...Array.from({ length: 33 }, (_, i) => i), 65535, 65536, 65537]) {
@@ -48,12 +49,22 @@ test("real strong packed strings and weak roof packets retain their source value
   for (const path of ["data/westVenuesV260.json", "data/outerRoofsV262.json"]) {
     const text = readFileSync(new URL(`../src/${path}`, import.meta.url), "utf8");
     const expected = JSON.parse(text), { data, result, decodes } = compile(text, path);
-    expect(decodes()).toBe(0);
-    expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
+    // Only these formerly eager literals acquire an eager source decode.
+    const eagerFields = path.includes("westVenues") ? ["ribSegments", "sourceColors", "sourcePartIds"] : [];
+    expect(LOSSLESS_EAGER_FIELDS_V270[path] ?? []).toEqual(eagerFields);
+    expect(decodes()).toBe(eagerFields.length);
+    for (const key of eagerFields) {
+      expect(Object.getOwnPropertyDescriptor(data, key)?.value).toBe(data[key]);
+      expect(data[key]).toEqual(expected[key]);
+    }
+    expect(decodes()).toBe(eagerFields.length);
     const field = path.includes("outerRoofs") ? "packets" : "sourcePositions";
+    expect(Object.getOwnPropertyDescriptor(data, field)?.get).toBeFunction();
     const before = decodes(), first = data[field];
+    expect(decodes()).toBe(before + 1);
     expect(data[field]).toBe(first);
-    expect(decodes()).toBe(before);
+    expect(decodes()).toBe(before + 1);
+    expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
     expect(result.code.includes("WeakRef")).toBe(field === "packets");
     data[field] = { explicit: "ownership transfer" };
     expect(data[field]).toEqual({ explicit: "ownership transfer" });

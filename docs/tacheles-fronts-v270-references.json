@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "checked": "2026-10-25",
+  "scope": "Five photographed Oranienburger street-front owners opposite Tacheles; no mural or church owner",
+  "sources": [
+    {"url":"https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09035140","supports":"Official identity Oranienburger Straße 45, Mietshaus 1889; object endpoint was unavailable, cross-checked in official monument list","status":"official list cross-check"},
+    {"url":"https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09035141","supports":"Official identity Oranienburger Straße 46–47, Mietshaus 1884","status":"checked"},
+    {"url":"https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09035142","supports":"Official identity Oranienburger Straße 48–49, Mietshaus 1847, alteration 1930; object endpoint unavailable, cross-checked official monument list","status":"official list cross-check"},
+    {"url":"https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09035143","supports":"Official identity Oranienburger Straße 50","status":"checked"},
+    {"url":"https://www.berlin.de/landesdenkmalamt/_assets/pdf-und-zip/denkmale/liste-karte-datenbank/dm_liste.pdf?ts=1762426495","supports":"Official street-number and monument-identity cross-check for 45, 46–47, 48–49 and 50","status":"checked official search index"},
+    {"url":"https://amrit.de/impressum/","supports":"Number 45 identification from the photographed ground-floor frontage; no tenant text reproduced","status":"checked"},
+    {"url":"https://amrit.de/faq/standorte-anreise/","supports":"Oranienburger Straße 45 address cross-check","status":"checked"},
+    {"url":"https://www.berlin.de/sen/sbw/stadtdaten/geoportal/3d-gebaeudemodelle/","supports":"Retained official LoD2 building owners and measured source sheets","license":"Datenlizenz Deutschland – Zero – Version 2.0 (dl-de/zero-2-0)"},
+    {"url":"https://www.openstreetmap.org/copyright","supports":"Existing exact OSM core footprint identities, streets and licensed geometry","license":"ODbL 1.0"}
+  ],
+  "photographicEvidence": {
+    "origin":"User supplied photographs 1–8 from Tacheles, hashes retained in source.json.gz. No bitmap bundled, cropped, traced as a texture, or redistributed.",
+    "redCorner":"Photos 1–3: red walls, pale lower wall band, curved multi-storey glazing, two setback glass rooftop storeys, terrace railings and dark roof. Corner is Auguststraße, not Johannisstraße. House number unasserted.",
+    "white45":"Photos 4–7: pale ornate facade, two projecting two-storey bays beneath upper balconies, white pilasters/capitals, open balustrades, top-row arches, triangular pediments and dark flat roof with chimneys and small rooflights.",
+    "brick46":"Photos 5–8: irregular exposed light-brown brick and residual plaster; all openings rectangular, top-row blind arches and second-row curved lintel ornaments; five source-seated chimney estimates shared with number 45.",
+    "yellow48":"Photos 7–8: pale yellow wall, restrained rectangular openings and dark pitched roof.",
+    "ochre50":"Photo 8: ochre street facade, ornamental window surrounds and dark measured roof."
+  },
+  "estimates":"Facade paint RGB, opening widths and spacing, frames, pediments, cornice relief, rail posts and two red-corner setback dimensions are procedural display estimates fitted to retained source walls. Photographs establish forms and approximate colours, not surveyed fittings. No invented tenant names or passable doors. Ground is each exact existing core owner's y0=5.2m; measured source is rigidly translated to that scene datum."
+}

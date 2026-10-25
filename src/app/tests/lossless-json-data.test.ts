@@ -7,6 +7,7 @@ import { build } from "vite";
 import { losslessJsonData, transformLosslessJsonData } from "../losslessJsonData";
 import { decodeLosslessGzipJson } from "../src/losslessGzipJson";
 import { decodeLosslessGzipJson as decodeBase85GzipJson } from "../src/losslessGzipBase85";
+import { LOSSLESS_EAGER_FIELDS_V270 } from "../losslessEagerFieldsV270";
 
 const ID = "/project/src/app/src/data/example.json";
 
@@ -26,6 +27,38 @@ function evaluateModule(source: string, threshold = 64 * 1024, id = ID) {
 }
 
 describe("lossless lazy source JSON", () => {
+  test("the startup landmark catalogue does not pull the Three.js decoder into the initial graph", async () => {
+    const relative = "data/regierungsviertel-landmarks.json";
+    const path = fileURLToPath(new URL(`../src/${relative}`, import.meta.url));
+    expect(LOSSLESS_EAGER_FIELDS_V270[relative]).toBeUndefined();
+    expect(transformLosslessJsonData(await readFile(path, "utf8"), path)).toBeUndefined();
+  });
+
+  test("v270 eager fields retain complete values, data descriptors and strong named identity", async () => {
+    for (const [relative, fields] of Object.entries(LOSSLESS_EAGER_FIELDS_V270)) {
+      const path = fileURLToPath(new URL(`../src/${relative}`, import.meta.url));
+      const source = await readFile(path, "utf8");
+      const expected = JSON.parse(source);
+      const { data, named } = evaluateModule(source, 64 * 1024, path);
+      expect(data, relative).toEqual(expected);
+      for (const key of fields) {
+        const descriptor = Object.getOwnPropertyDescriptor(data, key)!;
+        expect(descriptor.get, relative + ':' + key).toBeUndefined();
+        expect(descriptor.enumerable).toBe(true);
+        expect(descriptor.writable).toBe(true);
+        expect(descriptor.configurable).toBe(true);
+        expect(descriptor.value).toBe(data[key]);
+        const exported = key !== "default" && /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u.test(key);
+        if (exported) expect(named[key]).toBe(data[key]);
+        else expect(Object.hasOwn(named, key)).toBe(false);
+        const original = data[key];
+        data[key] = { replacement: true };
+        if (exported) expect(named[key]).toBe(original);
+        expect(data[key]).toEqual({ replacement: true });
+      }
+    }
+  }, 60000);
+
   test("two retained legacy navigation sources keep eager strong identity while saving worker bytes", async () => {
     let originalBytes = 0, encodedBytes = 0;
     for (const name of ["leipzigerPlatzSource.json", "schlossNaturkundeSource.json"]) {

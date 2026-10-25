@@ -3,6 +3,14 @@ import { readFileSync } from 'node:fs';
 import { transformLosslessJsonData, LOSSLESS_PACKED_STRING_FIELDS } from '../losslessJsonData';
 import { decodeLosslessGzipJson } from '../src/losslessGzipJson';
 import { decodeLosslessGzipJson as decodeBase85GzipJson } from "../src/losslessGzipBase85";
+import { LOSSLESS_EAGER_FIELDS_V270 } from '../losslessEagerFieldsV270';
+
+// These separately audited fields were already eager, strongly owned literals.
+// Their v270 source encoding adds exactly one initial decode per listed field.
+const EAGER_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  'altMitteGroundSeamsV206.json': ['spans_u32', 'tops_f32'],
+  'westVenuesV260.json': ['ribSegments', 'sourceColors', 'sourcePartIds'],
+};
 
 function compile(name: string, value: unknown) {
   const result = transformLosslessJsonData(JSON.stringify(value), `/project/src/app/src/data/${name}`)!;
@@ -23,14 +31,23 @@ test('audited water, ground and venue packed strings round-trip every byte with 
   for (const [name, fields] of Object.entries(LOSSLESS_PACKED_STRING_FIELDS)) {
     const source = JSON.parse(readFileSync(new URL(`../src/data/${name}`, import.meta.url), 'utf8'));
     const { data, result, decodes } = compile(name, source);
-    expect(decodes()).toBe(0);
+    const eagerFields = EAGER_FIELDS[name] ?? [];
+    expect(LOSSLESS_EAGER_FIELDS_V270[`data/${name}`] ?? []).toEqual(eagerFields);
+    expect(decodes()).toBe(eagerFields.length);
+    for (const field of eagerFields) {
+      expect(Object.getOwnPropertyDescriptor(data, field)?.value).toBe(data[field]);
+      expect(data[field]).toEqual(source[field]);
+    }
+    expect(decodes()).toBe(eagerFields.length);
     for (const field of fields) {
+      expect(Object.getOwnPropertyDescriptor(data, field)?.get).toBeFunction();
       const before = decodes(), decoded = data[field];
       expect(decoded).toBe(source[field]);
       expect(Buffer.from(decoded, 'base64')).toEqual(Buffer.from(source[field], 'base64'));
       expect(data[field]).toBe(decoded);
       expect(decodes()).toBe(before + 1);
     }
+    expect(decodes()).toBe(eagerFields.length + fields.length);
     expect(Object.keys(data).sort()).toEqual(Object.keys(source).sort());
     expect(JSON.stringify(data)).toBe(JSON.stringify(source));
     expect(result.code).not.toContain('WeakRef');

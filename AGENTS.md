@@ -1682,3 +1682,26 @@ independent orthogonal native geometry, 93 tour stops and all residency, decode
 and prefetch budgets. Audited immutable construction data may be compressed
 losslessly without altering any geometry. No new coverage or photo textures;
 internal browser QA only, never external Safari.
+
+### Step 10 — v270 Tacheles photographic sightlines
+
+The owner's ten photographs request a faithful view from Tacheles over
+Oranienburger Straße and its Auguststraße junction, including the photographed
+historic fronts, red rounded corner, Bring Them Home mural and church skyline.
+Use these photographs as reference only, with complete retained official building
+parts and exact public source identities. Correct only precisely receipted
+inaccurate fallback owners or authored details, retaining complete original
+evidence and unrelated sources. The mural is a compact independently authored
+procedural interpretation at its verified Auguststraße 92 gable; no photographic
+pixels or texture is bundled. Distinguish Sophienkirche, Golgathakirche and
+Zionskirche along their actual sightlines. Unsurveyed small details remain
+documented estimates. Keep existing full mobile quality, separate orthogonal
+native geometry, all 93 tour stops, coverage and runtime memory limits.
+Internal-browser visual QA only; no external Safari or browser process.
+
+The finite v270 eager-field encoding audit may compress source literals only;
+preserve eager evaluation, strong ownership, ordinary data descriptors and
+per-field tree shaking. Existing lazy/weak fields retain their contracts.
+Keep the initial landmark catalogue outside this encoding to avoid pulling
+the Three.js decoder into the startup graph. Retain both preceding live asset
+closures and the unchanged Pages/package ceilings; never trade detail for size.

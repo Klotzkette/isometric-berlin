@@ -1,0 +1,42 @@
+{
+  "records": [
+    {
+      "landmark_id": "auguststrasse_mural_v270",
+      "title": "Bring them home — primary artist and corner identification",
+      "page_url": "https://www.zentralratderjuden.de/presseerklaerungen/politische-erklaerung-zum-zweiten-jahrestag-des-massakers-am-7-oktober-2023/",
+      "credit": "Zentralrat der Juden in Deutschland; artwork Benzi Brofman",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Primary photograph caption identifies Benzi Brofman and Auguststraße/Oranienburger Straße. Location and identity only; appearance follows user photographs.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "auguststrasse_mural_v270",
+      "title": "Jüdische Kulturtage Berlin 2024 — press release 8 July 2024",
+      "page_url": "https://www.juedische-kulturtage.org/_files/ugd/a77f2c_a6282aaf311941889d55529698db66e2.pdf",
+      "credit": "Jüdische Kulturtage Berlin",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Primary programme release identifies Benzi Brofman's Oranienburger mural as a late-2023 work.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "auguststrasse_mural_v270",
+      "title": "Bring Them Home NOW — 6 December 2023",
+      "page_url": "https://www.jgms.de/2023/12/bring-them-home-n-o-w/",
+      "credit": "Jüdische Gemeinde Münster; Sharon Fehr; artwork Benzi Brofman",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Primary community account identifies the artist, child, teddy, sun and interrupted balloon cord. No photograph downloaded or bundled.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    }
+  ],
+  "user_photographs": [
+    {"file": "3-Photo-3.jpg", "sha256": "01fb87fd729094547eb13419dd33968ab90db87913015a2da55d720d5f80c1f2", "received": "2026-10-25", "capture_date": "Unverified; no EXIF capture date", "pixels_bundled": false},
+    {"file": "10-Photo-10.jpg", "sha256": "194a130f68840a34f7b77eb206b33cc440c18dba681e7c5dd91299766811f149", "received": "2026-10-25", "capture_date": "Unverified; no EXIF capture date", "pixels_bundled": false}
+  ],
+  "retained_building_sources": [
+    {"source": "Berlin official LoD2 complete owner DEBE01YYK0000ArM, both original parts", "credit": "Geoportal Berlin / 3D-Gebäudemodelle LoD2; existing repository data attribution retained", "file": "geo_data/regierungsviertel/alt-mitte-v169/source-390_5820-00.json.gz"},
+    {"source": "OpenStreetMap way97856098 Auguststraße92 and artwork node11375835878", "credit": "© OpenStreetMap contributors", "license": "ODbL-1.0", "page_url": "https://www.openstreetmap.org/node/11375835878", "role": "Retained exact building footprint/address and artwork location; original owner is unchanged."}
+  ]
+}

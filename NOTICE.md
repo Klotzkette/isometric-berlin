@@ -2325,3 +2325,24 @@ unspecified), Sascha Gebauer, KHMM / Bezirksamt Charlottenburg-Wilmersdorf
 pixels or protected plans are redistributed. Small fittings and photograph-
 derived roof dimensions remain display estimates. Exact credits and source
 URLs are in the public visual-reference ledger and [v269 notes](docs/moabit-mierendorff-v269.md).
+
+
+## v270 — Tacheles photographic sightlines
+
+Complete retained Geoportal Berlin LoD2 (dl-de/zero-2-0) and © OpenStreetMap
+contributors (ODbL-1.0) support building owners, measured roof sheets, street
+courses and the 1435mm tram gauge. The owner's ten supplied photographs are
+reference-only; no photograph, cropped image, recording or raster texture is
+redistributed. Facade subdivisions, colours and small architectural fittings
+are explicit procedural estimates fitted to those sources.
+
+The wall artwork **Bring Them Home NOW**, at Auguststraße 92, is credited to
+**Benzi Brofman**. Its stylized geometric interpretation follows the supplied
+photographs, with artist/location cross-checks from Zentralrat der Juden,
+Jüdische Kulturtage Berlin and Jüdische Gemeinde Münster (Sharon Fehr).
+Golgathakirche references: Landesdenkmalamt Berlin, object09080455 and its
+1998 exterior photograph (individual photographer unspecified); Maschalsky /
+Kultur Büro Elisabeth; Berliner Architekturwelt1901 / Zentral- und
+Landesbibliothek Berlin. No source photograph or protected plan is bundled.
+Source URLs, original credits and limits are recorded in the public
+visual-reference ledger and [v270 notes](docs/tacheles-view-v270.md).

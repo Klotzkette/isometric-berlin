@@ -10,6 +10,7 @@ import { decodeLosslessGzipJson } from "../src/losslessGzipJson";
 import { decodeLosslessGzipJson as decodeBase85GzipJson } from "../src/losslessGzipBase85";
 import { prepareOuterRoofsV262, applyOuterRoofsV262Triangles, type OuterRoofsSourceV262 } from "../src/outerRoofsV262";
 import type { SurroundingCityChunk } from "../src/SurroundingCityGeometry";
+import { LOSSLESS_EAGER_FIELDS_V270 } from "../losslessEagerFieldsV270";
 
 test("every finite retained source preserves complete values, eager strong ownership and named aliases", () => {
   let savings = 0;
@@ -119,12 +120,24 @@ test("production venue strings decode on demand and retain exact typed-buffer by
   const expected = JSON.parse(original), code = await compileFixture("westVenuesV260.json", original);
   const window: { fixture?: Record<string, unknown> } = {}; let parses = 0;
   new Function("window", "JSON", "WeakRef", code)(window, { parse(value: string) { parses++; return JSON.parse(value); } }, CollectableReference);
-  expect(parses).toBe(0); const source = window.fixture!;
+  const source = window.fixture!;
+  // These three fields keep their prior eager ownership; the packed strings
+  // below must still decode only when first accessed, once each.
+  const eagerFields = ["ribSegments", "sourceColors", "sourcePartIds"];
+  expect(LOSSLESS_EAGER_FIELDS_V270["data/westVenuesV260.json"]).toEqual(eagerFields);
+  expect(parses).toBe(eagerFields.length);
+  for (const field of eagerFields) {
+    expect(Object.getOwnPropertyDescriptor(source, field)?.value).toBe(source[field]);
+    expect(source[field]).toEqual(expected[field]);
+  }
+  expect(parses).toBe(eagerFields.length);
   for (const field of ["sourcePositions", "facadeBoxes", "nativeBoxes"]) {
+    expect(Object.getOwnPropertyDescriptor(source, field)?.get).toBeFunction();
     const before = parses, value = source[field] as string;
     expect(value).toBe(expected[field]); expect(Buffer.from(value, "base64")).toEqual(Buffer.from(expected[field], "base64"));
     CollectableReference.collect(); expect(source[field]).toBe(value); expect(parses).toBe(before + 1);
   }
+  expect(parses).toBe(eagerFields.length + 3);
   expect(JSON.stringify(source)).toBe(JSON.stringify(expected));
   source.nativeBoxes = "retained replacement"; CollectableReference.collect(); expect(source.nativeBoxes).toBe("retained replacement");
   Object.freeze(source); expect(() => { source.nativeBoxes = "forbidden"; }).toThrow(TypeError);

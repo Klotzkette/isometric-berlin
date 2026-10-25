@@ -1,3 +1,7 @@
+import { auguststrasseUpperSolidsV270 } from "./AuguststrasseMuralV270Profile";
+import { golgathaSolidsV270 } from "./golgathaV270Profile";
+import { isGolgathaPreviousPartV270 } from "./golgathaV270Ownership";
+import { isTachelesFrontSourceV270, tachelesFrontSolidsV270 } from "./TachelesFrontsV270Profile";
 import { isMoabitLandmarkSourceV269, moabitLandmarkSolidsV269 } from "./MoabitLandmarksV269Profile";
 import { schlesischesTorSolidsV267 } from "./SchlesischesTorV267Profile";
 import { isCampusCanopySourceV266, campusCanopySolidsV266, isCampusCanopyPreviousPartV266 } from "./CampusNordV266Profile";
@@ -685,9 +689,17 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
-  options: { includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
+  if (options.includeAuguststrasseMuralV270) {
+    for (const native of [false, true]) for (const solid of auguststrasseUpperSolidsV270(native)) {
+      addPolygonObstacle(index, solid.ring, solid.holes, solid.minY, solid.maxY, solid.sourceId, 1,
+        (x, z) => (visualMode() === "minecraft") === native
+          ? solid.topAt(x, z) ?? Number.NEGATIVE_INFINITY : Number.NEGATIVE_INFINITY);
+      index.buildingCount += 1;
+    }
+  }
   if (options.includeSchlesischesTorV267) {
     for (const native of [false, true]) for (const solid of schlesischesTorSolidsV267(native)) {
       addPolygonObstacle(index, solid.ring, solid.holes, solid.minY, solid.maxY, solid.sourceId, 1,
@@ -710,6 +722,18 @@ export function compilePedestrianObstacles(
           addPolygonObstacle(index, solid.ring, solid.holes, solid.minY, solid.maxY,
             solid.sourceId, 1, () => (visualMode() === "minecraft") === native
               ? solid.maxY : Number.NEGATIVE_INFINITY);
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (options.replaceTachelesFrontPrisms && isTachelesFrontSourceV270(sourceBuilding)) {
+      for (const native of [false, true]) {
+        for (const solid of tachelesFrontSolidsV270(native)) {
+          if (solid.sourceId !== sourceBuilding.id) continue;
+          addPolygonObstacle(index, solid.ring, solid.holes, solid.minY, solid.maxY,
+            solid.sourceId, 1, (x, z) => (visualMode() === "minecraft") === native
+              ? solid.topAt(x, z) ?? Number.NEGATIVE_INFINITY : Number.NEGATIVE_INFINITY);
           index.buildingCount += 1;
         }
       }
@@ -1479,6 +1503,15 @@ export function compilePedestrianObstacles(
       addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m, part.top_y_m + 2, part.sourceId, 1, (x,z) => bndHeadquartersV174RoofAt(x,z,visualMode() === "minecraft"));
     }
     for (const part of ALT_MITTE_V169_PARTS) {
+      if (options.golgathaV270 && isGolgathaPreviousPartV270(part)) {
+        for (const native of [false, true]) for (const solid of golgathaSolidsV270(native)) {
+          addPolygonObstacle(index, solid.ring, solid.holes, solid.minY, solid.maxY, solid.sourceId, 1,
+            (x, z) => (visualMode() === "minecraft") === native
+              ? solid.topAt(x, z) ?? Number.NEGATIVE_INFINITY : Number.NEGATIVE_INFINITY);
+          index.buildingCount += 1;
+        }
+        continue;
+      }
       if (campusCanopyReplaced && isCampusCanopyPreviousPartV266(part)) continue;
       if (replacedChariteBridges.has(part.id.slice(-8)) && isChariteBridgePreviousPartV265(part)) continue;
       if (replacedParents.has("schlossplatz-v239") && isSchlossplatzPreviousPartV239(part)) continue;
@@ -2157,7 +2190,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
-  options: { includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;

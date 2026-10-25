@@ -1,3 +1,4 @@
+import { createTachelesFrontColumnTesterV270 } from "./TachelesFrontsV270Profile";
 import { createMoabitLandmarkColumnTesterV269 } from "./MoabitLandmarksV269Profile";
 import { moabitCoreNativeHeadV269 } from "./MoabitCoreHousesV269";
 import { createCampusCanopyColumnTesterV266 } from "./CampusNordV266Profile";
@@ -312,6 +313,8 @@ import {
 } from "./TunnelPortals";
 
 export type MinecraftVoxelWorldOptions = {
+  golgathaV270?: boolean;
+  tachelesFrontsV270?: boolean;
   moabitLandmarksV269?: boolean;
   tempodromAnhalterV266?: boolean;
   northernSitesV266?: boolean;
@@ -2470,7 +2473,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftBerlinWallMemorialV174());
   yield;
-  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ northernSitesV266: options.northernSitesV266, chariteBridgesV265: options.chariteBridgesV265, schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true }));
+  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ golgathaV270: options.golgathaV270, tachelesFrontsV270: options.tachelesFrontsV270, northernSitesV266: options.northernSitesV266, chariteBridgesV265: options.chariteBridgesV265, schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true }));
   yield;
 
   group.add(createMinecraftZooGroundsV165());
@@ -2625,6 +2628,8 @@ export function* buildMinecraftVoxelWorldSteps(
     ? createSchlossplatzColumnTesterV239(options.sourcePrisms, cell) : () => false;
   const colonnadeColumnAt = options.includeLegacyColonnadesEnvelopes === false
     ? createColonnadesCoreColumnTesterV231(options.sourcePrisms, cell) : () => false;
+  const tachelesFrontColumnAt = options.tachelesFrontsV270
+    ? createTachelesFrontColumnTesterV270(options.sourcePrisms, cell) : () => false;
   const moabitChurchColumnAt = options.moabitLandmarksV269
     ? createMoabitLandmarkColumnTesterV269(options.sourcePrisms, cell) : () => false;
   const anhalterColumnAt = options.tempodromAnhalterV266
@@ -2639,6 +2644,7 @@ export function* buildMinecraftVoxelWorldSteps(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
+    if (tachelesFrontColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (moabitChurchColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (anhalterColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (campusCanopyColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;

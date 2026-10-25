@@ -1,3 +1,5 @@
+import { applyGolgathaColoursV270, transferGolgathaTrianglesV270, transferGolgathaLinesV270 } from "./golgathaV270Ownership";
+import { prepareTachelesFrontsV270, applyTachelesFrontsV270Triangles } from "./TachelesFrontsV270Receipts";
 import { prepareMoabitHousesV269 } from "./MoabitHousesV269";
 import { prepareMierendorffV269, applyMierendorffTrianglesV269, mierendorffNavigationV269 } from "./MierendorffV269";
 import { prepareKoepenickerStreetsV268 } from "./KoepenickerStreetsV268";
@@ -243,6 +245,8 @@ export type SurroundingOwnershipOptions = {
   prenzlbergV264?: boolean;
   chariteBridgesV265?: boolean;
   northernSitesV266?: boolean;
+  golgathaV270?: boolean;
+  tachelesFrontsV270?: boolean;
 };
 
 export function* buildSurroundingCityChunk(
@@ -284,6 +288,7 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareKraftwerkBerlinV268(chunk, id, minecraft);
   chunk = yield* prepareMoabitHousesV269(chunk, id, minecraft);
   chunk = yield* prepareMierendorffV269(chunk, id, minecraft);
+  chunk = yield* prepareTachelesFrontsV270(chunk, id, minecraft, ownership.tachelesFrontsV270 === true);
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
@@ -339,6 +344,8 @@ export function* buildSurroundingCityChunk(
       }
       const panoramaTransferred = yield* replacePanoramaFacadeV202(id, minecraft, part, indices, indexOffset);
       if (panoramaTransferred) root.userData.panoramaTransferredTriangles = (root.userData.panoramaTransferredTriangles ?? 0) + panoramaTransferred;
+      const golgathaTransferred = yield* transferGolgathaTrianglesV270(ownership.golgathaV270 === true, id, minecraft, part, indices, indexOffset);
+      if (golgathaTransferred) root.userData.golgathaTransferredTrianglesV270 = (root.userData.golgathaTransferredTrianglesV270 ?? 0) + golgathaTransferred;
       const siteTransferred = yield* transferSiteTrianglesV209(id, minecraft, part, indices, indexOffset, ownership.schlossplatzV239 === true, ownership.staatsoperV240 === true, ownership.architectureV241 === true, ownership.prenzlbergV264 === true, ownership.chariteBridgesV265 === true, ownership.northernSitesV266 === true);
       if (siteTransferred) root.userData.siteTransferredTrianglesV209 = (root.userData.siteTransferredTrianglesV209 ?? 0) + siteTransferred;
       // The v169 core resident packets contain source shells only. Refine the
@@ -363,6 +370,8 @@ export function* buildSurroundingCityChunk(
       if (districtPanes) root.userData.districtHousePanesV225 = (root.userData.districtHousePanesV225 ?? 0) + districtPanes;
       const outerPanes = yield* shadeOuterHousePanesV230(part.kind, vertices, indices, indexOffset, written, chunk.origin[0], chunk.origin[2], minecraft);
       if (outerPanes) root.userData.outerHousePanesV230 = (root.userData.outerHousePanesV230 ?? 0) + outerPanes;
+      const golgathaAppearance = yield* applyGolgathaColoursV270(ownership.golgathaV270 === true, id, minecraft, part, meshIndex, vertices, vertexOffset, count);
+      if (golgathaAppearance) root.userData.golgathaMaterialVerticesV270 = (root.userData.golgathaMaterialVerticesV270 ?? 0) + golgathaAppearance;
       const replacedRoof = yield* applyRoofHouseV233Triangles(chunk, meshIndex, indices, indexOffset);
       if (replacedRoof) root.userData.roofHouseTrianglesV233 = (root.userData.roofHouseTrianglesV233 ?? 0) + replacedRoof;
       const outerRoofs = yield* applyOuterRoofsV262Triangles(chunk, meshIndex, indices, indexOffset);
@@ -377,6 +386,8 @@ export function* buildSurroundingCityChunk(
       if (koepenickerLandmarkTransfer) root.userData.koepenickerLandmarksTransferredTrianglesV268 = (root.userData.koepenickerLandmarksTransferredTrianglesV268 ?? 0) + koepenickerLandmarkTransfer;
       const kraftwerkTransfer = yield* applyKraftwerkBerlinV268Triangles(chunk, meshIndex, indices, indexOffset);
       if (kraftwerkTransfer) root.userData.kraftwerkBerlinTransferredTrianglesV268 = (root.userData.kraftwerkBerlinTransferredTrianglesV268 ?? 0) + kraftwerkTransfer;
+      const tachelesTransfer = yield* applyTachelesFrontsV270Triangles(chunk, meshIndex, indices, indexOffset);
+      if (tachelesTransfer) root.userData.tachelesFrontTransferredTrianglesV270 = (root.userData.tachelesFrontTransferredTrianglesV270 ?? 0) + tachelesTransfer;
       const mierendorffTransfer = yield* applyMierendorffTrianglesV269(chunk, meshIndex, indices, indexOffset);
       if (mierendorffTransfer) root.userData.mierendorffTransferredTrianglesV269 = (root.userData.mierendorffTransferredTrianglesV269 ?? 0) + mierendorffTransfer;
       vertexOffset += count;
@@ -441,6 +452,7 @@ export function* buildSurroundingCityChunk(
       root.add(ink);
       yield* interleavedPositions(lines.positions, values, 0, hasLineColors ? 6 : 3);
       if (hasLineColors) yield* interleavedColors(lines.colors!, values, 0);
+      root.userData.golgathaTransferredLineSegmentsV270 = yield* transferGolgathaLinesV270(ownership.golgathaV270 === true, id, lines, values, hasLineColors ? 6 : 3);
       root.userData.siteTransferredLineSegmentsV209 = yield* transferSiteLinesV209(id, lines, values, hasLineColors ? 6 : 3, ownership.schlossplatzV239 === true, ownership.architectureV241 === true, ownership.prenzlbergV264 === true, ownership.chariteBridgesV265 === true, ownership.northernSitesV266 === true);
       root.userData.roofHouseLineSegmentsV233 = yield* applyRoofHouseV233Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.outerRoofLineSegmentsV262 = yield* applyOuterRoofsV262Lines(chunk, values, hasLineColors ? 6 : 3);

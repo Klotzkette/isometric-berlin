@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 import { encodeLosslessBase85 } from "./src/losslessGzipBase85";
 import { LOSSLESS_BASE85_SOURCES_V263 } from "./losslessBase85SourcesV263";
+import { LOSSLESS_EAGER_FIELDS_V270 } from "./losslessEagerFieldsV270";
 
 export const LOSSLESS_JSON_FIELD_BYTES = 64 * 1024;
 
@@ -64,6 +65,11 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   // Church constructors synchronously copy these encoded source meshes into
   // owned typed arrays. The separate small navigation profile stays strong.
   "moabitLandmarksV269.json": ["sites"],
+  // New photo-based constructors synchronously consume these fields;
+  // navigation retains separate small profiles, never construction arrays.
+  "tachelesFrontsV270.json": ["sites"],
+  "auguststrasseMuralV270.json": ["drawn", "native"],
+  "golgathaV270.json": ["drawn", "native"],
   "allotmentsV264.json": ["chunks"],
   "prenzlbergV264.json": ["sites"],
   "prenzlbergV264Envelopes.json": ["sites"],
@@ -319,10 +325,12 @@ export function transformLosslessJsonData(
   const normalizedId = id.replaceAll("\\", "/");
   const retainedName = normalizedId.match(/\/src\/app\/src\/([^/]+)$/)?.[1];
   const eagerRetainedSource = EAGER_RETAINED_SOURCE_NAMES.some(name => name === retainedName);
-  if ((!DATA_JSON.test(normalizedId) && !eagerRetainedSource) || (!eagerRetainedSource && source.length < thresholdBytes)) {
+  const sourcePath = normalizedId.match(/\/src\/app\/src\/(.+)$/)?.[1] ?? "";
+  const eagerFields = LOSSLESS_EAGER_FIELDS_V270[sourcePath] ?? [];
+  if ((!DATA_JSON.test(normalizedId) && !eagerRetainedSource && !eagerFields.length) ||
+      (!eagerRetainedSource && !eagerFields.length && source.length < thresholdBytes)) {
     return undefined;
   }
-  const sourcePath = normalizedId.match(/\/src\/app\/src\/(.+)$/)?.[1] ?? "";
   const base85 = LOSSLESS_BASE85_SOURCES_V263.has(sourcePath);
   const gzipDecoder = base85 ? BASE85_DECODER : GZIP_DECODER;
   // Keep the old base64 admission test exactly; encoding never changes whether
@@ -395,7 +403,7 @@ export function transformLosslessJsonData(
     // ordinary object and navigation identity remains eager and unchanged.
     const constructionObject = weakFields.includes(key) && value !== null && typeof value === "object";
     const packedString = typeof value === "string" && packedStrings.includes(key);
-    if (!packedPacket && (!packedFields.includes(key) || packedString) && (Array.isArray(value) || constructionObject || packedString) && json.length >= thresholdBytes) {
+    if (DATA_JSON.test(normalizedId) && !packedPacket && (!packedFields.includes(key) || packedString) && (Array.isArray(value) || constructionObject || packedString) && json.length >= thresholdBytes) {
       lazyFields += 1;
       const cache = `__cache${index}`;
       const loaded = `__loaded${index}`;
@@ -451,16 +459,26 @@ export function transformLosslessJsonData(
         ].join("\n"),
       );
     } else {
-      const literal = hasProtoKey(value)
+      let literal = hasProtoKey(value)
         ? `/* @__PURE__ */ JSON.parse(${JSON.stringify(json)})`
         : json;
+      // These exact fields were eager literals before v270. Keep a direct,
+      // strongly owned value (including named-export identity); only encode
+      // its immutable source more compactly. Do not introduce a getter/cache.
+      if (eagerFields.includes(key)) {
+        const { encoded: packed, admissionLength } = pack(json);
+        if (admissionLength < json.length * .8) {
+          literal = `/* @__PURE__ */ __decodeLosslessGzip(${JSON.stringify(packed)})`;
+          gzipUsed = true;
+        }
+      }
       declarations.push(`const ${field} = ${literal};`);
       properties.push(`${property}: ${field}`);
     }
     // Export aliases may be reserved words, but bindings above never are.
     if (key !== "default" && EXPORT_NAME.test(key)) exports.push(`${field} as ${key}`);
   }
-  if (lazyFields === 0 && !packedPacket && !packedFields.length) return undefined;
+  if (lazyFields === 0 && !packedPacket && !packedFields.length && !gzipUsed) return undefined;
   return {
     code: `${gzipUsed ? `import { decodeLosslessGzipJson as __decodeLosslessGzip } from ${JSON.stringify(gzipDecoder)};\n` : ""}${declarations.join("\n")}\nexport { ${exports.join(", ")} };\nexport default {\n${properties.join(",\n")}\n};`,
     map: null,
