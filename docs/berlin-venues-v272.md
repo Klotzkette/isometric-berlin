@@ -56,5 +56,20 @@ every retained matrix and colour byte against that fixed source: exactly 1,079
 generic building layers and 2,205 windows retire for HAU/Press; 225 neighbouring
 windows become visible. Museum source transfers have separate exact-tuple proofs.
 
-The final production build completed in 16.59 seconds. Publication receipts
-follow below after live and archive verification.
+The final production build completed in 16.59 seconds.
+
+
+## Publication receipt
+
+The source release `v1.0.172` is `91819d1cb6a342a94c4fa1f8fc5ae59b99005754`. Both complete portable archives passed the unchanged validators and their uploaded SHA-256 digests and sizes match. The package contains **4,747 files / 927,999,348 bytes**.
+
+| Archive | Bytes | SHA-256 |
+| --- | ---: | --- |
+| isometric-berlin-regierungsviertel-local.zip | 760,842,369 | `749e425e4f35d09cba5db290f7792f6dc6160c5317cdd780407c6c40bcbcb10b` |
+| isometric-berlin-viewer-v1.0.172.tar.gz | 760,067,969 | `b57369c7888348b3f4e86f1e30a80d047c03b62c26e259f6651080caf43d8d06` |
+
+[Versioned downloads](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.172). The public Pages commit `c4dbee0c4a8ad84e3fcc710b1ae69a6d66f13bf8` deployed successfully ([workflow](https://github.com/Klotzkette/isometric-berlin/actions/runs/40232000085)). All ten hosted index, manifest, attribution, runtime and worker byte comparisons match the prepared package. Both archive digests and both checksum files match; the three withdrawn Columbiahalle recordings remain HTTP 404.
+
+The complete deployment is **1,026,810,627 bytes**, **46,931,197 bytes below 1 GiB**. All **326** assets from the exact preceding v170/v171 live closures remain; 26 are prior-only assets totalling 98,811,279 bytes. Only 17 stale older hashed assets were removed. No hosted geometry overrides or quality reductions were introduced.
+
+[Machine-readable receipt](berlin-venues-v272-verification.json). [Live viewer](https://klotzkette.github.io/isometric-berlin/).

@@ -1,0 +1,130 @@
+{
+  "sourceCommit": "91819d1cb6a342a94c4fa1f8fc5ae59b99005754",
+  "tag": "v1.0.172",
+  "pagesCommit": "c4dbee0c4a8ad84e3fcc710b1ae69a6d66f13bf8",
+  "workflow": "https://github.com/Klotzkette/isometric-berlin/actions/runs/40232000085",
+  "workflowConclusion": "success",
+  "python": {
+    "passed": 1966,
+    "skipped": 4
+  },
+  "focusedBun": {
+    "v272Tests": 19,
+    "lifecycleTests": 28
+  },
+  "completeBun": {
+    "completed": false,
+    "passedBeforeTermination": 2354,
+    "failuresBeforeTermination": 34,
+    "termination": "signal 9; baseline discrepancies documented"
+  },
+  "package": {
+    "packageVersion": "1.0.172",
+    "bytes": 927999348,
+    "fileCount": 4747,
+    "sourceInventorySha256": "b5216251db81ecfdfd4b36c4f22b9443648b41aced4efa748d7ce6ca3ef73ca4",
+    "MiB": 885.0091438293457,
+    "releaseId": 423649337,
+    "archives": {
+      "isometric-berlin-regierungsviertel-local.zip": {
+        "size": 760842369,
+        "sha256": "749e425e4f35d09cba5db290f7792f6dc6160c5317cdd780407c6c40bcbcb10b",
+        "localValidationPassed": true,
+        "storage": "memory-only",
+        "remoteVerified": true,
+        "assetId": 676071066,
+        "remoteSize": 760842369,
+        "remoteDigest": "sha256:749e425e4f35d09cba5db290f7792f6dc6160c5317cdd780407c6c40bcbcb10b",
+        "remoteState": "uploaded"
+      },
+      "isometric-berlin-viewer-v1.0.172.tar.gz": {
+        "size": 760067969,
+        "sha256": "b57369c7888348b3f4e86f1e30a80d047c03b62c26e259f6651080caf43d8d06",
+        "localValidationPassed": true,
+        "storage": "memory-only",
+        "remoteVerified": true,
+        "assetId": 676076328,
+        "remoteSize": 760067969,
+        "remoteDigest": "sha256:b57369c7888348b3f4e86f1e30a80d047c03b62c26e259f6651080caf43d8d06",
+        "remoteState": "uploaded"
+      }
+    }
+  },
+  "deployment": {
+    "version": "1.0.172",
+    "parent": "1d97f6203e4b87bfa28c94bb5db65a3b92c6ba8b",
+    "previousTwoAssets": 326,
+    "retainedPreviousOnlyAssets": 26,
+    "retainedPreviousOnlyBytes": 98811279,
+    "removedStaleAssets": 17,
+    "removedBytes": 72316758,
+    "bytes": 1026810627,
+    "headroomBelow1GiB": 46931197,
+    "gitOperationsReadOnly": true,
+    "packageFiles": 4747,
+    "packageBytes": 927999348
+  },
+  "live": {
+    "withdrawnMedia404": [
+      "columbiahalle-v257-silent.mp4",
+      "columbiahalle-v258-red-silent.mp4",
+      "columbiahalle-v258-portrait-silent.mp4"
+    ],
+    "release": "https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.172",
+    "tag": "v1.0.172",
+    "assetsVerified": 2,
+    "hostedChecks": [
+      {
+        "path": "index.html",
+        "bytes": 3525,
+        "sha256": "b868e472467761716fc519e33375a84fb3ec913383b5cb92b6a32444c4b0060f"
+      },
+      {
+        "path": "package-manifest.json",
+        "bytes": 6107,
+        "sha256": "55cf7e9703d3011f565f0e6d12a86b19d5abb06e593cab38e25c60a963138641"
+      },
+      {
+        "path": "mesh/surrounding-berlin-v159/manifest.json",
+        "bytes": 2147689,
+        "sha256": "db15e3b722bf64d223eed121aac4986dc48e91207e086e8b8d8f9a43dd074115"
+      },
+      {
+        "path": "dzi/regierungsviertel/visual_reference_attribution.json",
+        "bytes": 102182,
+        "sha256": "dbe44aa0116d8b1d105a4dfefdc8d8e06598c5e0b1d58a7a10ee7d8e8fecb542"
+      },
+      {
+        "path": "assets/ThreeViewer-DaXImS-2.js",
+        "bytes": 3441130,
+        "sha256": "9eb68fd4f758f298b476f0c2fd2a773df1868c49a866b54953ab9265ef4401cd"
+      },
+      {
+        "path": "assets/index-BGAz6tMW.js",
+        "bytes": 192365,
+        "sha256": "8b3fb4f81bb0c50ffe77a81301b77fe2a300c71f5eaa28e1efb2a939871e728c"
+      },
+      {
+        "path": "assets/OuterThinOutlines-B_KZWaBZ.js",
+        "bytes": 18930379,
+        "sha256": "be13eca684ab4cd22a5a976c6ed29b09739bff9388de20610bc5c11e98bfb75f"
+      },
+      {
+        "path": "assets/RequiredSiteEnvelopesV209-BqEVKTod.js",
+        "bytes": 11442701,
+        "sha256": "2187facc7f88f3860fabb55838e5c445207f606defc19b42048ef63a33e7f16c"
+      },
+      {
+        "path": "assets/SurroundingCityGeometry-BDn7iqNn.js",
+        "bytes": 7595914,
+        "sha256": "a4f155a13ee4bf55dae4dcf07c1b7ee42c975a19a9a7969e27ab616e00fec807"
+      },
+      {
+        "path": "assets/progressiveWorld.worker-BmItolDl.js",
+        "bytes": 10815821,
+        "sha256": "b620e3ecfbf4f9c1ec373683df16b030929a2a85152c302f87b6de7c57eece80"
+      }
+    ],
+    "passed": true
+  }
+}
