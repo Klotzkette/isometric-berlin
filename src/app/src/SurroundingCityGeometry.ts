@@ -1,3 +1,6 @@
+import { applyWeinbergLegacyMaterialsV271 } from "./weinbergLegacyMaterialsV271";
+import { applyNorthMitteColoursV271 } from "./northMitteColoursV271";
+import { applyKollwitzMaterialsV271 } from "./kollwitzMaterialsV271";
 import { applyGolgathaColoursV270, transferGolgathaTrianglesV270, transferGolgathaLinesV270 } from "./golgathaV270Ownership";
 import { prepareTachelesFrontsV270, applyTachelesFrontsV270Triangles } from "./TachelesFrontsV270Receipts";
 import { prepareMoabitHousesV269 } from "./MoabitHousesV269";
@@ -358,6 +361,10 @@ export function* buildSurroundingCityChunk(
       if (greyCorners) root.userData.greyClusterColourVerticesV263 = (root.userData.greyClusterColourVerticesV263 ?? 0) + greyCorners;
       const appearance = yield* applyAltMitteAppearanceV213(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (appearance) root.userData.altMitteAppearanceVerticesV213 = (root.userData.altMitteAppearanceVerticesV213 ?? 0) + appearance;
+      const northMitte = yield* applyNorthMitteColoursV271(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
+      if (northMitte) root.userData.northMitteColourVerticesV271 = (root.userData.northMitteColourVerticesV271 ?? 0) + northMitte;
+      const legacyWeinberg = yield* applyWeinbergLegacyMaterialsV271(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
+      if (legacyWeinberg) root.userData.weinbergLegacyMaterialVerticesV271 = (root.userData.weinbergLegacyMaterialVerticesV271 ?? 0) + legacyWeinberg;
       const spreeAppearance = yield* applySpreeFacadeColoursV231(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (spreeAppearance) root.userData.spreeFacadeVerticesV231 = (root.userData.spreeFacadeVerticesV231 ?? 0) + spreeAppearance;
       const outerAppearance = yield* applyOuterMaterialsV232(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
@@ -366,6 +373,8 @@ export function* buildSurroundingCityChunk(
       if (outerAppearanceV254) root.userData.outerMaterialVerticesV254 = (root.userData.outerMaterialVerticesV254 ?? 0) + outerAppearanceV254;
       const outerAppearanceV263 = yield* applyOuterMaterialsV263(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (outerAppearanceV263) root.userData.outerMaterialVerticesV263 = (root.userData.outerMaterialVerticesV263 ?? 0) + outerAppearanceV263;
+      const kollwitz = yield* applyKollwitzMaterialsV271(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
+      if (kollwitz) root.userData.kollwitzMaterialVerticesV271 = (root.userData.kollwitzMaterialVerticesV271 ?? 0) + kollwitz;
       const districtPanes = yield* shadeDistrictHousePanesV225(part.kind, vertices, indices, indexOffset, written, chunk.origin[0], chunk.origin[2], minecraft);
       if (districtPanes) root.userData.districtHousePanesV225 = (root.userData.districtHousePanesV225 ?? 0) + districtPanes;
       const outerPanes = yield* shadeOuterHousePanesV230(part.kind, vertices, indices, indexOffset, written, chunk.origin[0], chunk.origin[2], minecraft);

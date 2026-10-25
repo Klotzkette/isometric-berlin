@@ -27,6 +27,22 @@ function evaluateModule(source: string, threshold = 64 * 1024, id = ID) {
 }
 
 describe("lossless lazy source JSON", () => {
+  test("v271 colour receipts preserve exact values and small eager indices", async () => {
+    for (const name of ["northMitteColoursV271", "weinbergLegacyMaterialsV271", "kollwitzMaterialsV271"]) {
+      const path = fileURLToPath(new URL(`../src/data/${name}.json`, import.meta.url));
+      const text = await readFile(path, "utf8");
+      const compiled = transformLosslessJsonData(text, path);
+      if (compiled) {
+        const { data } = evaluateModule(text, 64 * 1024, path);
+        expect(data).toEqual(JSON.parse(text));
+        expect(Object.getOwnPropertyDescriptor(data, "palette")?.get).toBeUndefined();
+        expect(compiled.code).toContain('new WeakRef(value)');
+      } else expect(text.length).toBeLessThan(64 * 1024);
+      const indexPath = fileURLToPath(new URL(`../src/data/${name}Index.json`, import.meta.url));
+      expect(transformLosslessJsonData(await readFile(indexPath, "utf8"), indexPath)).toBeUndefined();
+    }
+  });
+
   test("the startup landmark catalogue does not pull the Three.js decoder into the initial graph", async () => {
     const relative = "data/regierungsviertel-landmarks.json";
     const path = fileURLToPath(new URL(`../src/${relative}`, import.meta.url));

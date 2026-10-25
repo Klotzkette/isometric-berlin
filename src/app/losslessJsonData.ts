@@ -89,6 +89,9 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   // Read-only appearance receipts are used only during yielded packet decode;
   // roots retain final colours, never the receipt map. Compress without loss.
   "altMitteAppearanceV213.json": ["packets"],
+  "northMitteColoursV271.json": ["packets"],
+  "weinbergLegacyMaterialsV271.json": ["packets"],
+  "kollwitzMaterialsV271.json": ["packets"],
   // Exact ordinary-house colour receipts live only through yielded decoding.
   "greyClusterColoursV263.json": ["packets"],
   // Decoders keep one packet only during construction; roots own decoded buffers.

@@ -1705,3 +1705,21 @@ per-field tree shaking. Existing lazy/weak fields retain their contracts.
 Keep the initial landmark catalogue outside this encoding to avoid pulling
 the Three.js decoder into the startup graph. Retain both preceding live asset
 closures and the unchanged Pages/package ceilings; never trade detail for size.
+
+### Step 10 — v271 northern grey-house correction
+
+The owner's viewer screenshots identify monotonous ordinary houses around
+Weinbergspark, Zionskirchplatz, Kastanienallee and Kollwitzplatz. The dictated
+“Altonaer Platz” is provisionally treated as nearby Arkonaplatz pending the
+requested clarification; do not claim a confirmed Altonaer location. Correct
+the distinct measured v169 and legacy v166/v168 source layers plus the separate
+Kollwitz primary packets, including the source-bound northern Kastanienallee
+corridor to Eberswalder Straße. Preserve complete source geometry, individual authored
+facades, mapped colour/material evidence, all earlier windows and linework.
+Only exact immutable source-bound existing colour cells may change. Unknown
+wall and roof colours are restrained contextual display estimates, not claimed
+photographic surveys. Keep independent native proofs, full mobile quality,
+93 stops and every existing residency/decode/prefetch limit. No new geometry,
+texture, per-frame work or coverage. Compare identical before/after views in
+the internal browser only. New colour receipts may use the established weak
+construction-field encoding with a separate eager packet-key rejection index.

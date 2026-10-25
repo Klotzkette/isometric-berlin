@@ -2346,3 +2346,13 @@ Kultur Büro Elisabeth; Berliner Architekturwelt1901 / Zentral- und
 Landesbibliothek Berlin. No source photograph or protected plan is bundled.
 Source URLs, original credits and limits are recorded in the public
 visual-reference ledger and [v270 notes](docs/tacheles-view-v270.md).
+
+## Northern ordinary-house appearance, v271
+
+The finite Weinbergspark, Zionskirchplatz/Arkonaplatz, Kastanienallee and
+Kollwitzplatz corrections reuse the existing credited Berlin LoD2 and
+OpenStreetMap source owners, unchanged geometry and retained colour/material
+evidence. The user screenshots are diagnosis references only and are not
+bundled. Unknown plaster and roof hues are contextual display estimates, not
+current individual facade surveys. Source proofs and protection rules are in
+`docs/northern-houses-v271.md` and its three component evidence notes.
