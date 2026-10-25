@@ -1709,9 +1709,8 @@ closures and the unchanged Pages/package ceilings; never trade detail for size.
 ### Step 10 — v271 northern grey-house correction
 
 The owner's viewer screenshots identify monotonous ordinary houses around
-Weinbergspark, Zionskirchplatz, Kastanienallee and Kollwitzplatz. The dictated
-“Altonaer Platz” is provisionally treated as nearby Arkonaplatz pending the
-requested clarification; do not claim a confirmed Altonaer location. Correct
+Weinbergspark, Zionskirchplatz, Kastanienallee and Kollwitzplatz. The owner confirmed
+that the dictated “Altonaer Platz” means nearby Arkonaplatz. Correct
 the distinct measured v169 and legacy v166/v168 source layers plus the separate
 Kollwitz primary packets, including the source-bound northern Kastanienallee
 corridor to Eberswalder Straße. Preserve complete source geometry, individual authored
