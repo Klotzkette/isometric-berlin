@@ -73,3 +73,14 @@ Northern source notes: [Campus Nord](campus-nord-v266.md), [Dorotheenstadt](doro
 The final review found and corrected a 2.2m cemetery anchoring error. All 90 marker centres and 360 footprint corners are now checked against the existing 5.2m production ground, with mode-specific geometry unchanged. The four Dorotheenstadt Bun and four Python tests passed again after this fix.
 
 Production TypeScript/Vite build passed; complete release-readiness validation returned zero failures. Pages preflight totals 1,059,783,886 bytes, 13,957,938 bytes below 1 GiB, retaining exactly both prior live v164/v165 asset graphs (326 files; 30 retained-only files). No current asset or source detail was dropped to fit.
+
+## Final publication receipt — 25 October 2026
+
+- Source commit: `1b50d41f`; tag and public release: `v1.0.166`.
+- Pages commit: `4d7aadd6324e30190aff7fd060796840efaa599e`; deployment run `40197515248` succeeded.
+- Complete package: 4,747 files, 928,559,595 bytes; source inventory SHA-256 `411ed5ae6b057f369787128d942e66fcb7747b2bfddc957eab08d7993c10b64b`.
+- `isometric-berlin-regierungsviertel-local.zip`: 757,308,398 bytes, SHA-256 `d11ca908835b016b2f473fa8c98369cecd0fd0cc97fc4eaf8f0d71afc0d0795a`; full original archive validator passed and GitHub size/digest matched.
+- `isometric-berlin-viewer-v1.0.166.tar.gz`: 756,505,443 bytes, SHA-256 `5e3767b25fcfc1f96ae0c39a170b98685f066fecf769a816b5b7ed038c2e4b65`; full original archive validator passed and GitHub size/digest matched.
+- The two complete archives were built, validated and uploaded sequentially in RAM to avoid duplicate disk storage. All source geometry remains in both downloads.
+- 10 live entry, metadata and hashed JavaScript files matched the staged bytes exactly; both public release assets were verified again. All three withdrawn Columbiahalle recording URLs returned HTTP 404.
+- No external browser was started. The single temporary internal QA tab and local server were closed; temporary QA source/data files were removed before production build.
