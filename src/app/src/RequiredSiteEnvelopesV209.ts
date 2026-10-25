@@ -1,3 +1,4 @@
+import { createSchlesischesTorV267 } from "./SchlesischesTorV267";
 import { createCampusNordV266 } from "./CampusNordV266";
 import { createDorotheenstadtV266 } from "./DorotheenstadtV266";
 import { createTempodromAnhalterV266 } from "./TempodromAnhalterV266";
@@ -51,6 +52,8 @@ import { createDistrictCourtsV229 } from "./DistrictCourtsV229";
 /** Attach each complete owner before yielding, so the city's transaction owns
  * and disposes every allocated model even when loading is interrupted. */
 export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false): Generator<void> {
+  root.add(createSchlesischesTorV267(native));
+  yield;
   root.add(createCampusNordV266(native));
   yield;
   root.add(createDorotheenstadtV266(native));

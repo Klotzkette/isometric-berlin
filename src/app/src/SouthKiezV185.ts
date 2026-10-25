@@ -1,3 +1,4 @@
+import { correctFeuerwacheProfilesV267 } from "./feuerwacheKreuzbergV267Profiles";
 import { Group } from "three";
 import source from "./data/southKiezV185.json";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
@@ -13,7 +14,7 @@ export function createSouthKiezV185(): Group {
     sourceStatus: "Retained OSM courses and LoD2/OSM owner envelopes; profile sections, kerb width and bench dimensions are display estimates",
     frontageCount: 113, mappedBenchCount: 39,
   };
-  const mesh = justicePalaceV183Boxes(source.boxes);
+  const mesh = justicePalaceV183Boxes(correctFeuerwacheProfilesV267(source.boxes, false));
   mesh.name = "Connected source kerbs, park path edges, 113 shallow facade profiles and 39 mapped wooden benches";
   root.add(mesh);
   return freezeStaticSceneTransforms(root);

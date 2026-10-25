@@ -1,3 +1,4 @@
+import { schlesischesTorSolidsV267 } from "./SchlesischesTorV267Profile";
 import { isCampusCanopySourceV266, campusCanopySolidsV266, isCampusCanopyPreviousPartV266 } from "./CampusNordV266Profile";
 import { isAnhalterSourceV266, anhalterSolidsForV266, isTempodromSourceV266, tempodromRoofAtV266 } from "./TempodromAnhalterV266Profile";
 import { isChariteBridgePreviousPartV265 } from "./chariteBridgesV265Ownership";
@@ -683,9 +684,17 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
-  options: { replaceCampusCanopy?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
+  if (options.includeSchlesischesTorV267) {
+    for (const native of [false, true]) for (const solid of schlesischesTorSolidsV267(native)) {
+      addPolygonObstacle(index, solid.ring, solid.holes, solid.minY, solid.maxY, solid.sourceId, 1,
+        (x, z) => (visualMode() === "minecraft") === native
+          ? solid.topAt(x, z) : Number.NEGATIVE_INFINITY);
+      index.buildingCount += 1;
+    }
+  }
   const replacedParents = new Set<string>();
   const replacedChariteBridges = new Set<string>();
   let campusCanopyReplaced = false;
@@ -2135,7 +2144,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
-  options: { replaceCampusCanopy?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;

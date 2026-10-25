@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.166 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.166/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.167 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.167/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.166** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.167** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.167 refines Schlesisches Tor, Feuerwache Kreuzberg and source-supported street details around Görlitzer Park, Wiener Straße and Oranienstraße. Existing source buildings, earlier details and mobile memory limits remain. Unmeasured architectural subdivisions are documented estimates. [Evidence and checks](docs/kreuzberg-v267.md).
+
+Version 1.0.167 präzisiert Schlesisches Tor, die Feuerwache Kreuzberg und quellengestützte Straßendetails rund um Görlitzer Park, Wiener Straße und Oranienstraße. Quellgebäude, frühere Details und mobile Speichergrenzen bleiben erhalten. Unvermessene architektonische Unterteilungen sind dokumentierte Schätzungen. [Belege und Prüfungen](docs/kreuzberg-v267.md).
 
 Version 1.0.166 refines Tempodrom, the correctly located open Anhalter portico, the former Daimler/debis ensemble, Friedrichshain and the requested Dorotheenstadt/HU/Nordbahnhof sites. Mapped source owners and prior details remain; unmeasured fittings are documented estimates. Existing mobile detail and runtime memory limits are preserved. [Evidence and checks](docs/sites-east-west-v266.md).
 

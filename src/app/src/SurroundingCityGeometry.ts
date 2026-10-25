@@ -1,3 +1,5 @@
+import { prepareFeuerwacheKreuzbergV267, applyFeuerwacheKreuzbergV267Triangles, applyFeuerwacheKreuzbergV267Lines, feuerwacheKreuzbergNavigationV267 } from "./FeuerwacheKreuzbergV267";
+import { prepareKreuzbergStreetsV267 } from "./KreuzbergStreetsV267";
 import { prepareNordMauerparkV266 } from "./NordMauerparkV266";
 import { prepareFriedrichshainV266 } from "./FriedrichshainV266";
 import { prepareScheunenV265 } from "./ScheunenV265";
@@ -270,6 +272,8 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareMainStreetEdgesV254(chunk, id, minecraft);
   chunk = yield* prepareNamedSiteV238(chunk, id, minecraft);
   chunk = yield* prepareEurefTransfersV262(chunk, id, minecraft);
+  chunk = yield* prepareKreuzbergStreetsV267(chunk, id, minecraft);
+  chunk = yield* prepareFeuerwacheKreuzbergV267(chunk, id, minecraft);
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
@@ -357,6 +361,8 @@ export function* buildSurroundingCityChunk(
       if (namedTransfer) root.userData.namedSiteTrianglesV238 = (root.userData.namedSiteTrianglesV238 ?? 0) + namedTransfer;
       const eurefTransfer = yield* applyEurefTransfersV262Triangles(chunk, meshIndex, indices, indexOffset);
       if (eurefTransfer) root.userData.eurefTransferredTrianglesV262 = (root.userData.eurefTransferredTrianglesV262 ?? 0) + eurefTransfer;
+      const fireStationTransfer = yield* applyFeuerwacheKreuzbergV267Triangles(chunk, meshIndex, indices, indexOffset);
+      if (fireStationTransfer) root.userData.feuerwacheTransferredTrianglesV267 = (root.userData.feuerwacheTransferredTrianglesV267 ?? 0) + fireStationTransfer;
       vertexOffset += count;
       indexOffset += written;
     }
@@ -424,6 +430,7 @@ export function* buildSurroundingCityChunk(
       root.userData.outerRoofLineSegmentsV262 = yield* applyOuterRoofsV262Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.namedSiteLineSegmentsV238 = yield* applyNamedSiteLinesV238(chunk, values, hasLineColors ? 6 : 3);
       root.userData.eurefTransferredLineSegmentsV262 = yield* applyEurefTransfersV262Lines(chunk, values, hasLineColors ? 6 : 3);
+      root.userData.feuerwacheTransferredLineSegmentsV267 = yield* applyFeuerwacheKreuzbergV267Lines(chunk, values, hasLineColors ? 6 : 3);
       geometryBytes += values.byteLength;
       yield* geometryBounds(geometry);
       bufferCount++;
@@ -431,7 +438,7 @@ export function* buildSurroundingCityChunk(
     // These fresh per-tile arrays are owned only by this unpublished root.
     if (parkBacking) yield* parkStaticGeometrySteps(root, true);
     const result = { root: freezeStaticSceneTransforms(root), geometryBytes, bufferCount,
-      nav: eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, chunk.nav, ownership.prenzlbergV264 === true))), origin: chunk.origin };
+      nav: feuerwacheKreuzbergNavigationV267(chunk, eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, chunk.nav, ownership.prenzlbergV264 === true)))), origin: chunk.origin };
     completed = true;
     return result;
   } finally {

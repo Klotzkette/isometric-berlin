@@ -1,0 +1,11 @@
+{
+  "version": "v267",
+  "scope": "Feuerwache Kreuzberg, Wiener Straße 64",
+  "sources": [
+    {"title":"Berliner Feuerwehr — Feuerwache Kreuzberg","url":"https://www.berliner-feuerwehr.de/ueber-uns/standorte/feuerwache-kreuzberg/","imageUrl":"https://www.berliner-feuerwehr.de/fileadmin/_processed_/4/d/csm_1600_4b98e28c65.jpg","credit":"Berliner Feuerwehr; individual photographer not specified","use":"Current operator identity, chronology, 2002 painted facade and visually inspected exterior reference","licence":"Copyright retained by source; reference only, no pixels redistributed"},
+    {"title":"Die helfende Hand – rund um die Uhr: Zu Besuch bei der Feuerwache Kreuzberg","url":"https://www.berlin.de/ba-friedrichshain-kreuzberg/aktuelles/bezirksticker/2026/feuerwache-kreuzberg-1711918.php","published":"2026-09-09","imageUrls":["https://www.berlin.de/ba-friedrichshain-kreuzberg/aktuelles/bezirksticker/2026/image00002.jpeg","https://www.berlin.de/ba-friedrichshain-kreuzberg/aktuelles/bezirksticker/2026/feuerwache_kreuzberg.jpeg"],"credit":"Sara Lühmann / Bezirksamt Friedrichshain-Kreuzberg","use":"Visually inspected current cladding and vehicle-gate exterior; original procedural mural colour cues only","licence":"Copyright retained by photographer; reference only, no pixels or mural artwork redistributed"},
+    {"title":"Berlin-Kreuzberg, Wiener Straße 64, Feuerwache","url":"https://www.deutsche-digitale-bibliothek.de/item/VJK2FM2DSD6MC44RZ4ETQLQINTZ2VV2Q","credit":"Akademie der Künste, Reinhard-Friedrich-Archiv; photographer Reinhard Friedrich, 1977; Friedrich-Reinhard 126","use":"Historical Rainer G. Rümmler attribution and site identity only; no archival image used as current facade evidence","licence":"Archival reference only; no image redistributed"},
+    {"title":"Geoportal Berlin LoD2 — LoD2_393_5817.zip","url":"https://gdi.berlin.de/data/a_lod2/atom/LoD2_393_5817.zip","credit":"Land Berlin / Geoportal Berlin","licence":"dl-de/zero-2-0","use":"Complete parent DEBE02YY40000Avj, six parts and 148 original source sheets"},
+    {"title":"Retained OpenStreetMap source and delivered outer-v159 packet","url":"https://www.openstreetmap.org/copyright","credit":"OpenStreetMap contributors","licence":"ODbL-1.0","use":"Existing stream ground and street context retained unchanged"}
+  ]
+}

@@ -2270,3 +2270,21 @@ and Potsdamer Platz's operator exterior (individual photographer unspecified).
 Site-specific references and limitations: [v266 sources](docs/sites-east-west-v266.md).
 
 The v266 northern continuation uses external architectural references from Archiv BBR (2001), Literaturforum im Brecht-Haus, Egbert Schmidt / EVFBS, peb+, Werner Huthmacher / Bodamer Faber, Stefan Müller / Müller Reimann, Schnepp Renou / Horst Stasny / euroluftbild.de and Stefan Mueller for O&O Baukunst, and Bartlomiej Banaszak for DB. Individual photographers are identified where credited. Copyright remains with each source; no photographic pixels are bundled. Full source URLs and credits are in the public visual-reference attribution and the v266 reference documents.
+
+## v267 — Schlesisches Tor and Kreuzberg streets
+
+Complete retained Geoportal Berlin LoD2 and OpenStreetMap records support the
+named source buildings and mapped public equipment; the original source licences
+and attribution remain unchanged. New facade openings, small material cues and
+furniture dimensions are documented display estimates. The Feuerwache Kreuzberg
+references are credited to Berliner Feuerwehr and Sara Lühmann / Bezirksamt
+Friedrichshain-Kreuzberg. Reinhard Friedrich / Akademie der Künste supports the
+historical architect attribution. No photographic pixels, mural artwork or
+protected plans are bundled. See [v267 evidence](docs/kreuzberg-v267.md) and the
+public visual-reference attribution.
+
+Schlesisches Tor architectural evidence: Landesdenkmalamt Berlin, object
+09031242, and BVG (2018 planning report; proposed lifts are not modelled).
+Visual reference: [Jörg Zägel, 4 May 2012](https://commons.wikimedia.org/wiki/File:Berlin,_Kreuzberg,_Skalitzer_Strasse,_Bahnhof_Schlesisches_Tor.jpg),
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). No photograph
+or plan is distributed; roof and fitting dimensions remain display estimates.

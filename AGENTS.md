@@ -1634,3 +1634,18 @@ existing complete owners, grave/park paths and all earlier details; additions re
 bounded, source-bound, static and texture-free within existing coverage. Unsurveyed
 facade fittings and grave markers are illustrative, never measured or named graves.
 All source-retention, native geometry, mobile quality and runtime limits above apply.
+
+### Step 10 — v267 Schlesisches Tor and Kreuzberg streets
+
+The owner requests more accurate Schlesisches Tor station, Görlitzer Park
+surroundings, Wiener Straße including Feuerwache Kreuzberg, and Oranienstraße.
+Identify station and fire-station owners against retained complete sources and
+public architectural evidence. Preserve all earlier v167/v185/v188 street fronts,
+park paths and furniture; fit new details into evidenced gaps without duplicating
+window grids or obscuring mapped entrances. Only documented exact inaccurate
+proxies may yield to complete replacement owners with preservation receipts.
+Keep independent orthogonal native construction, full mobile detail, 93 tour
+stops and every live residency/decode/prefetch limit. No new coverage, texture
+or animation. Unsurveyed facade subdivisions remain explicit display estimates.
+The spoken “Dominikanerstraße” is unresolved and must not be silently replaced
+by a different address. Internal-browser QA only.
