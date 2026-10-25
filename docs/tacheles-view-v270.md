@@ -101,3 +101,15 @@ counts, not network-compression estimates.
 * Internal-browser inspection covers the drawn fronts, red corner, mural and
   tower plus the world-cardinal mural with actual adjacent source geometry.
   The temporary QA tab/server and local-only harness are closed/removed.
+
+## Publication receipt — 25 October 2026
+
+* Source tag `v1.0.170`: `6408698c718f5de3f4613a99326d707bafacbac3`.
+* [Published release](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.170), release ID `423542050`.
+* Pages commit `1582ea1caa10ab4bda9311e16e456d328288047f`; [deployment 40215605892](https://github.com/Klotzkette/isometric-berlin/actions/runs/40215605892) succeeded.
+* Complete package: 4,747 files / 926,563,613 bytes; inventory SHA-256 `9499ade1dbc22883244bac852742852b50b5901e78e7f8c7debfdcbdd3fa0d27`.
+* `isometric-berlin-regierungsviertel-local.zip`: 760,102,198 bytes; SHA-256 `6238217c7923fd1e73eba9ff775a8c67b82d93934aaf587f6caff6b1241be3d0`.
+* `isometric-berlin-viewer-v1.0.170.tar.gz`: 759,326,476 bytes; SHA-256 `3a098e372b856354449bca39c805c83510e2e01e98b01e4abe6fee0b2829f149`.
+* Both archives passed the unchanged complete validators and remote size/digest checks. They were built and uploaded sequentially in RAM to avoid disk duplication. Both checksum files are attached to the release.
+* All 10 hosted checks (HTML, package/city manifests, visual credits and six key application/worker bundles) match the verified package byte for byte. All three withdrawn Columbiahalle recordings still return HTTP 404.
+* Live viewer: https://klotzkette.github.io/isometric-berlin/ . This bounded visual and delivery verification is not an exhaustive mobile endurance or crash-free guarantee.
