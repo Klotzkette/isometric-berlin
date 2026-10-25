@@ -1512,6 +1512,157 @@
       "checked": "2026-10-25",
       "pixels_bundled": false,
       "license_url": "https://creativecommons.org/licenses/by-sa/3.0/"
+    },
+    {
+      "landmark_id": "mierendorff_v269",
+      "title": "Mierendorffplatz — district identity and garden description",
+      "page_url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/freiflaechen/plaetze/artikel.118258.php",
+      "credit": "Bezirksamt Charlottenburg-Wilmersdorf",
+      "license": "Factual reference only; no photographic pixels bundled",
+      "role": "Charlottenburg identity; two square halves; Erwin Barth garden, granite fountain, square-glass lanterns and preserved market area; factual reference only.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "mierendorff_v269",
+      "title": "Mierendorffplatz north garden, 7 August 2012",
+      "page_url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/aktuelles/pressemitteilungen/2020/pressemitteilung.1022860.php",
+      "credit": "KHMM / Bezirksamt Charlottenburg-Wilmersdorf",
+      "license": "Reference only; copyright retained by source; no pixels distributed",
+      "role": "Visually inspected: low granite basin and jet, pale benches, formal open paths. Photograph is dated 2012, not a claim of a 2026 survey. Small material and fitting dimensions are estimates.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "mierendorff_v269",
+      "title": "BVG — Mierendorffplatz entrance renovation",
+      "page_url": "https://www.bvg.de/de/unternehmen/herzensprojekte/streckenbauwerke_u-bahn",
+      "credit": "Berliner Verkehrsbetriebe (BVG)",
+      "license": "Factual reference only; no photographic pixels bundled",
+      "role": "Four entrances and current staged renovation; steps, side walls, handrails and portal work. Planned lift is not treated as existing. No plan or photographic pixels distributed.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "mierendorff_v269",
+      "title": "BVG — Mierendorffplatz station and local map",
+      "page_url": "https://www.bvg.de/de/verbindungen/stationsuebersicht/u-mierendorffplatz",
+      "credit": "Berliner Verkehrsbetriebe (BVG)",
+      "license": "Factual reference only; no photographic pixels bundled",
+      "role": "U7 identity and four street-access locations, corroborating retained OSM stair axes. No reproduced map.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "mierendorff_v269",
+      "title": "Mierendorffplatz heritage garden",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09046348",
+      "credit": "Landesdenkmalamt Berlin",
+      "license": "Factual reference only; no photographic pixels bundled",
+      "role": "Erwin Barth, 1912–1913; garden and playground remain distinct; no historical garden plan reproduced.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "mierendorff_v269",
+      "title": "Berlin LoD2 and retained OpenStreetMap source",
+      "page_url": "https://gdi.berlin.de/data/a_lod2/",
+      "credit": "Geoportal Berlin (dl-de/zero-2-0); © OpenStreetMap contributors (ODbL-1.0)",
+      "license": "Factual reference only; no photographic pixels bundled",
+      "role": "Complete existing city meshes and navigation; retained v188 actual source wall/pane records; exact OSM access axes, fountain perimeter and bench nodes from berlin-260929.osm.pbf.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "moabit_landmarks_v269",
+      "title": "Dominikaner Berlin — Das Kirchengebäude",
+      "page_url": "https://www.dominikaner-berlin.de/kloster/das-kirchengebaeude/",
+      "credit": "Dominikanerkloster Sankt Paulus Berlin",
+      "license": "Factual reference only; no photographic pixels bundled",
+      "role": "Primary architecture account: two45m towers, square-to-octagonal belfries, eight-sided copper helms, orange-red brick, white joints, green glazed bands, rose and three doors. Exact small dimensions are not supplied.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "moabit_landmarks_v269",
+      "title": "Landesdenkmalamt — Kath. St. Paulus-Kirche mit Dominikanerkloster",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050242",
+      "credit": "Landesdenkmalamt Berlin",
+      "license": "Factual reference only; no photographic pixels bundled",
+      "role": "Exact Moabit identity, Waldenserstrasse forecourt, twin-tower front, rose and stepped Gothic gable; attached monastery remains distinct.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "moabit_landmarks_v269",
+      "title": "Erzbistum Berlin — St. Paulus exterior",
+      "page_url": "https://www.erzbistumberlin.de/site-7153/news/meldung/news-title/erste-weihen-nach-fusion/",
+      "credit": "Erzbistum Berlin / Dominikaner; page text credited to Sabine Steinhoff, individual photographer not identified",
+      "license": "Copyright retained by source; reference only, no redistributed pixels",
+      "role": "Visually inspected front: central eight-petal rose, paired narrow upper belfries, dark helms, glazed brick edges, pale blind-lancet fields.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "moabit_landmarks_v269",
+      "title": "Evangelische Kirchengemeinde Tiergarten — Heilandskirche Turmtreppe",
+      "page_url": "https://www.ev-gemeinde-tiergarten.de/donnerstag-7-mai",
+      "credit": "Evangelische Kirchengemeinde Tiergarten; page photograph Sascha Gebauer",
+      "license": "Factual reference only; no photographic pixels bundled",
+      "role": "Primary parish explicitly states87m tower height. Page photograph is not bundled.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "moabit_landmarks_v269",
+      "title": "Turmstrasse — completed Heilandskirche refurbishment",
+      "page_url": "https://www.turmstrasse.de/projekte/heilandskirche",
+      "credit": "Turmstrasse area management / Bezirksamt Mitte and Evangelische Kirchengemeinde Tiergarten; architects Leibenatus Stockburger Wittayer",
+      "license": "Factual reference only; no photographic pixels bundled",
+      "role": "Completed2016 roof/facade refurbishment, reduced corner towers and no vanished roof rider after1956–60 reconstruction. This source says88m overall, conflicting with parish87m; model follows parish87m and documents the1m difference.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "moabit_landmarks_v269",
+      "title": "Heilandskirche Moabit,26March2021",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Heilandskirche_Moabit_asv2021-03.jpg",
+      "credit": "A.Savin, Wikipedia",
+      "license": "Free Art License1.3, https://artlibre.org/licence/lal/en/",
+      "role": "Visually inspected present tower/clock/spire, red steep nave roof and reduced corner roofs. Reference only, no pixels bundled. Roof eave15m/ridge28m are display estimates, not survey dimensions.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "moabit_landmarks_v269",
+      "title": "Geoportal Berlin — complete retained LoD2 archives",
+      "page_url": "https://gdi.berlin.de/data/a_lod2/atom/",
+      "credit": "Land Berlin / Geoportal Berlin",
+      "license": "dl-de/zero-2-0",
+      "role": "ParentsDEBE01YYK0002JYD andDEBE01YYK0002JYQ from archives387_5821/387_5820; all11parts and530original wall/roof sheets retained, rigid datum shifts only.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "moabit_landmarks_v269",
+      "title": "OpenStreetMap original church owners",
+      "page_url": "https://www.openstreetmap.org/copyright",
+      "credit": "OpenStreetMap contributors",
+      "license": "ODbL-1.0",
+      "role": "SanktPaulusway106483932 andHeilandskircheway37533771, exact original14m fallback footprints and immutable delivered core prism/voxel receipts.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "moabit_houses_v269",
+      "title": "LOR planning areas 2021 — Moabit distribution audit",
+      "page_url": "https://gdi.berlin.de/services/wfs/lor_2021",
+      "credit": "Amt für Statistik Berlin-Brandenburg",
+      "license": "CC BY 3.0 DE",
+      "license_url": "https://creativecommons.org/licenses/by/3.0/de/",
+      "role": "Complete attributed quarter polygons used only for audit distribution. Model boundary remains exact ALKIS Moabit; no photograph or invented architectural detail.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
     }
   ]
 }
