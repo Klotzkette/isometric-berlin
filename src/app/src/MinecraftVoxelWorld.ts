@@ -1,3 +1,5 @@
+import { createMoabitLandmarkColumnTesterV269 } from "./MoabitLandmarksV269Profile";
+import { moabitCoreNativeHeadV269 } from "./MoabitCoreHousesV269";
 import { createCampusCanopyColumnTesterV266 } from "./CampusNordV266Profile";
 import { createAnhalterColumnTesterV266 } from "./TempodromAnhalterV266Profile";
 import { createChariteBridgeColumnTesterV265 } from "./ChariteBridgesV265Profile";
@@ -310,6 +312,7 @@ import {
 } from "./TunnelPortals";
 
 export type MinecraftVoxelWorldOptions = {
+  moabitLandmarksV269?: boolean;
   tempodromAnhalterV266?: boolean;
   northernSitesV266?: boolean;
   chariteBridgesV265?: boolean;
@@ -2622,6 +2625,8 @@ export function* buildMinecraftVoxelWorldSteps(
     ? createSchlossplatzColumnTesterV239(options.sourcePrisms, cell) : () => false;
   const colonnadeColumnAt = options.includeLegacyColonnadesEnvelopes === false
     ? createColonnadesCoreColumnTesterV231(options.sourcePrisms, cell) : () => false;
+  const moabitChurchColumnAt = options.moabitLandmarksV269
+    ? createMoabitLandmarkColumnTesterV269(options.sourcePrisms, cell) : () => false;
   const anhalterColumnAt = options.tempodromAnhalterV266
     ? createAnhalterColumnTesterV266(options.sourcePrisms, cell) : () => false;
   const campusCanopyColumnAt = options.northernSitesV266
@@ -2634,6 +2639,7 @@ export function* buildMinecraftVoxelWorldSteps(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
+    if (moabitChurchColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (anhalterColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (campusCanopyColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (chariteBridgeColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
@@ -2888,6 +2894,7 @@ export function* buildMinecraftVoxelWorldSteps(
     const glass = new Color(VOXEL_WINDOW_GLASS);
     const glassPale = new Color(VOXEL_WINDOW_GLASS_PALE);
     const teal = new Color(VOXEL_WINDOW_TEAL);
+    const moabitHeadTone = new Color(0xc6c4ad);
     const directions = [
       [1, 0],
       [-1, 0],
@@ -2935,6 +2942,9 @@ export function* buildMinecraftVoxelWorldSteps(
           const firstRow = sourceStoreys
             ? base + sourceStoreys.sillStart + sourceStoreys.height / 2
             : Math.ceil((base + 2) / cell) * cell;
+          const moabitHead = moabitCoreNativeHeadV269(
+            () => toneLookup?.sourceIdAt?.(windowX, windowZ) ?? undefined, xIdx, zIdx, dx, dz, y0dm, y1dm,
+          );
           for (let yCenter = firstRow; yCenter + 1.2 <= top; yCenter += rowPitch) {
             if (neighbourTop !== undefined && neighbourTop >= yCenter + 1) {
               continue;
@@ -2968,6 +2978,18 @@ export function* buildMinecraftVoxelWorldSteps(
               panes.setColorAt(count, color);
             }
             count += 1;
+            // Same counting/writing pass and batch; keep every original pane.
+            if (moabitHead && yCenter + VOXEL_WINDOW_HEIGHT_M / 2 + .20 < top) {
+              if (panes) {
+                const width = VOXEL_WINDOW_WIDTH_M + .20;
+                matrix.set(-dz * width, 0, dx, faceX,
+                  0, .12, 0, yCenter + VOXEL_WINDOW_HEIGHT_M / 2 + .13,
+                  dx * width, 0, dz, faceZ, 0, 0, 0, 1);
+                panes.setMatrixAt(count, matrix);
+                panes.setColorAt(count, moabitHeadTone);
+              }
+              count += 1;
+            }
           }
         }
       }

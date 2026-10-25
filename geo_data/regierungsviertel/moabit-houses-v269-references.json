@@ -1,0 +1,25 @@
+{
+  "checked": "2026-10-25",
+  "references": [
+    {
+      "url": "https://www.berlin.de/ba-mitte/politik-und-verwaltung/service-und-organisationseinheiten/sozialraumorientierte-planungskoordination/bezirksregionen/",
+      "claim": "Current west/east LOR inventory and distinct quarter names; not an architectural material survey."
+    },
+    {
+      "url": "https://www.berlin.de/ba-mitte/politik-und-verwaltung/service-und-organisationseinheiten/sozialraumorientierte-planungskoordination/bezirksregionen/artikel.1621654.php",
+      "claim": "West: Huttenkiez industrial area, Gründerzeit character elsewhere; Turmstraße commercial centre. No individual ornament inferred."
+    },
+    {
+      "url": "https://www.quartiersmanagement-berlin.de/quartiere/moabit-ost.html",
+      "claim": "Official funded QM portal: mixed Gründerzeit and 1950s–1970s housing, bounded Perleberger/Birken/Rathenower/Lehrter area."
+    },
+    {
+      "url": "https://gdi.berlin.de/services/wfs/lor_2021",
+      "claim": "Exact complete LOR polygons only for honest distribution audit; ALKIS Moabit remains model boundary.",
+      "license": "CC-BY-3.0",
+      "author": "Amt für Statistik Berlin-Brandenburg",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/de/",
+      "licenseEvidence": "https://gdi.berlin.de/services/wfs/lor_2021?service=WFS&version=2.0.0&request=GetCapabilities"
+    }
+  ]
+}

@@ -1664,3 +1664,21 @@ Preserve full mobile quality, independent orthogonal native construction,
 93 tour stops and all live residency/decode/prefetch limits. No unrelated
 coverage, photographic textures or animation. Unmeasured fittings are explicit
 display estimates. Internal-browser QA only; never launch external Safari.
+
+### Step 10 — v269 Moabit and Mierendorffplatz
+
+The owner requests all Moabit and the Mierendorffplatz surroundings. Audit the
+official Moabit boundary and its distinct neighbourhoods, including existing core
+houses rather than only outer streamed fronts. Preserve measured footprints,
+roofs, source colours and previous window grids; add bounded missing fittings to
+exact public street-facing owners. Mierendorffplatz is a separate Charlottenburg
+site: retain its earlier streetscape and verify mapped fountain and U-Bahn exits.
+Open stairwells require exact ground transfers, complete outside complements and
+matching local walking floors. The two confirmed 14-m church fallbacks, Sankt
+Paulus and Heilandskirche, may yield only to complete retained measured parts and
+evidenced tower/roof forms, with original source receipts and matching navigation.
+Unsurveyed fittings remain display estimates. Keep full mobile quality,
+independent orthogonal native geometry, 93 tour stops and all residency, decode
+and prefetch budgets. Audited immutable construction data may be compressed
+losslessly without altering any geometry. No new coverage or photo textures;
+internal browser QA only, never external Safari.

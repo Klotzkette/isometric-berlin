@@ -1,3 +1,4 @@
+import { isMoabitLandmarkSourceV269, moabitLandmarkSolidsV269 } from "./MoabitLandmarksV269Profile";
 import { schlesischesTorSolidsV267 } from "./SchlesischesTorV267Profile";
 import { isCampusCanopySourceV266, campusCanopySolidsV266, isCampusCanopyPreviousPartV266 } from "./CampusNordV266Profile";
 import { isAnhalterSourceV266, anhalterSolidsForV266, isTempodromSourceV266, tempodromRoofAtV266 } from "./TempodromAnhalterV266Profile";
@@ -684,7 +685,7 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
-  options: { includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   if (options.includeSchlesischesTorV267) {
@@ -709,6 +710,18 @@ export function compilePedestrianObstacles(
           addPolygonObstacle(index, solid.ring, solid.holes, solid.minY, solid.maxY,
             solid.sourceId, 1, () => (visualMode() === "minecraft") === native
               ? solid.maxY : Number.NEGATIVE_INFINITY);
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (options.replaceMoabitLandmarkPrisms && isMoabitLandmarkSourceV269(sourceBuilding)) {
+      for (const native of [false, true]) {
+        for (const solid of moabitLandmarkSolidsV269(native)) {
+          if (solid.sourceId !== sourceBuilding.id) continue;
+          addPolygonObstacle(index, solid.ring, solid.holes, solid.minY, solid.maxY,
+            solid.sourceId, 1, (x, z) => (visualMode() === "minecraft") === native
+              ? solid.topAt(x, z) ?? Number.NEGATIVE_INFINITY : Number.NEGATIVE_INFINITY);
           index.buildingCount += 1;
         }
       }
@@ -2144,7 +2157,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
-  options: { includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;

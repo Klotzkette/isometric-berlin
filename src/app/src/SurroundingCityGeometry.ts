@@ -1,3 +1,5 @@
+import { prepareMoabitHousesV269 } from "./MoabitHousesV269";
+import { prepareMierendorffV269, applyMierendorffTrianglesV269, mierendorffNavigationV269 } from "./MierendorffV269";
 import { prepareKoepenickerStreetsV268 } from "./KoepenickerStreetsV268";
 import { prepareKraftwerkBerlinV268, applyKraftwerkBerlinV268Triangles, kraftwerkBerlinNavigationV268 } from "./KraftwerkBerlinV268";
 import { prepareKoepenickerLandmarksV268, applyKoepenickerLandmarksV268Triangles, applyKoepenickerLandmarksV268Lines, koepenickerLandmarksNavigationV268 } from "./KoepenickerLandmarksV268";
@@ -280,6 +282,8 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareKoepenickerLandmarksV268(chunk, id, minecraft);
   chunk = yield* prepareKoepenickerStreetsV268(chunk, id, minecraft);
   chunk = yield* prepareKraftwerkBerlinV268(chunk, id, minecraft);
+  chunk = yield* prepareMoabitHousesV269(chunk, id, minecraft);
+  chunk = yield* prepareMierendorffV269(chunk, id, minecraft);
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
@@ -373,6 +377,8 @@ export function* buildSurroundingCityChunk(
       if (koepenickerLandmarkTransfer) root.userData.koepenickerLandmarksTransferredTrianglesV268 = (root.userData.koepenickerLandmarksTransferredTrianglesV268 ?? 0) + koepenickerLandmarkTransfer;
       const kraftwerkTransfer = yield* applyKraftwerkBerlinV268Triangles(chunk, meshIndex, indices, indexOffset);
       if (kraftwerkTransfer) root.userData.kraftwerkBerlinTransferredTrianglesV268 = (root.userData.kraftwerkBerlinTransferredTrianglesV268 ?? 0) + kraftwerkTransfer;
+      const mierendorffTransfer = yield* applyMierendorffTrianglesV269(chunk, meshIndex, indices, indexOffset);
+      if (mierendorffTransfer) root.userData.mierendorffTransferredTrianglesV269 = (root.userData.mierendorffTransferredTrianglesV269 ?? 0) + mierendorffTransfer;
       vertexOffset += count;
       indexOffset += written;
     }
@@ -449,7 +455,7 @@ export function* buildSurroundingCityChunk(
     // These fresh per-tile arrays are owned only by this unpublished root.
     if (parkBacking) yield* parkStaticGeometrySteps(root, true);
     const result = { root: freezeStaticSceneTransforms(root), geometryBytes, bufferCount,
-      nav: kraftwerkBerlinNavigationV268(chunk, koepenickerLandmarksNavigationV268(chunk, feuerwacheKreuzbergNavigationV267(chunk, eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, chunk.nav, ownership.prenzlbergV264 === true)))))), origin: chunk.origin };
+      nav: mierendorffNavigationV269(chunk, kraftwerkBerlinNavigationV268(chunk, koepenickerLandmarksNavigationV268(chunk, feuerwacheKreuzbergNavigationV267(chunk, eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, chunk.nav, ownership.prenzlbergV264 === true))))))), origin: chunk.origin };
     completed = true;
     return result;
   } finally {

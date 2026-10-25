@@ -1,0 +1,179 @@
+{
+  "cameras": [
+    {
+      "kind": "core",
+      "quarter": "Stephankiez",
+      "owner": "28672179",
+      "street": "Perleberger Straße",
+      "eye": [
+        -942.024,
+        12,
+        -1893.089
+      ],
+      "target": [
+        -933.474,
+        11,
+        -1882.257
+      ],
+      "required": [
+        "lod2-prisms.json core factory",
+        "minecraft-voxels.json native factory"
+      ],
+      "sourceGround": 5.2
+    },
+    {
+      "kind": "core",
+      "quarter": "Thomasiusstraße",
+      "owner": "K0002P0d",
+      "street": "Melanchthonstraße",
+      "eye": [
+        -1194.085,
+        12,
+        -275.029
+      ],
+      "target": [
+        -1190.896,
+        11,
+        -288.455
+      ],
+      "required": [
+        "lod2-prisms.json core factory",
+        "minecraft-voxels.json native factory"
+      ],
+      "sourceGround": 5.2
+    },
+    {
+      "kind": "stream",
+      "quarter": "western Moabit",
+      "owner": "DEBE01YYK0002Mi1",
+      "street": "Birkenstraße",
+      "eye": [
+        -1986.704,
+        11,
+        -1525.299
+      ],
+      "target": [
+        -1992.44,
+        9,
+        -1512.857
+      ],
+      "packets": [
+        "-4_-3",
+        "district188--4_-3",
+        "kiez209--4_-3"
+      ],
+      "sourceGround": {
+        "drawn": 3,
+        "minecraft": 3
+      }
+    }
+  ],
+  "streamOwners": 237,
+  "nativeOwners": 91,
+  "boxes": {
+    "-4_-3": {
+      "drawn": 1116,
+      "minecraft": 219
+    },
+    "-4_-4": {
+      "drawn": 1145,
+      "minecraft": 208
+    },
+    "-5_-3": {
+      "drawn": 2671,
+      "minecraft": 422
+    },
+    "-5_-4": {
+      "drawn": 1237,
+      "minecraft": 332
+    },
+    "-6_-3": {
+      "drawn": 2921,
+      "minecraft": 1033
+    },
+    "-6_-4": {
+      "drawn": 1271,
+      "minecraft": 616
+    },
+    "-7_-3": {
+      "drawn": 285,
+      "minecraft": 141
+    },
+    "-7_-4": {
+      "drawn": 45,
+      "minecraft": 30
+    }
+  },
+  "browserReview": "Pending root in-app browser QA; source cameras ray checked in retained source footprints.",
+  "actualCoreFactoryAudit": {
+    "totals": {
+      "addedHeadLines": 4167,
+      "changedCoreParts": 1220,
+      "unchangedEligibleCoreParts": 37,
+      "actualNativeFaces": 5147
+    },
+    "quarters": {
+      "Elberfelder Straße": {
+        "addedHeadLines": 660,
+        "changedCoreParts": 179,
+        "actualNativeFaces": 746
+      },
+      "Lüneburger Straße": {
+        "addedHeadLines": 135,
+        "changedCoreParts": 34,
+        "actualNativeFaces": 156
+      },
+      "Zillesiedlung": {
+        "addedHeadLines": 36,
+        "changedCoreParts": 11,
+        "actualNativeFaces": 35
+      },
+      "Thomasiusstraße": {
+        "addedHeadLines": 417,
+        "changedCoreParts": 108,
+        "actualNativeFaces": 460
+      },
+      "Stephankiez": {
+        "addedHeadLines": 892,
+        "changedCoreParts": 269,
+        "actualNativeFaces": 1064
+      },
+      "Heidestraße": {
+        "addedHeadLines": 110,
+        "changedCoreParts": 19,
+        "actualNativeFaces": 120
+      },
+      "Huttenkiez": {
+        "addedHeadLines": 124,
+        "changedCoreParts": 42,
+        "actualNativeFaces": 181
+      },
+      "Zwinglistraße": {
+        "addedHeadLines": 301,
+        "changedCoreParts": 97,
+        "actualNativeFaces": 452
+      },
+      "Lübecker Straße": {
+        "addedHeadLines": 588,
+        "changedCoreParts": 181,
+        "actualNativeFaces": 708
+      },
+      "Bremer Straße": {
+        "addedHeadLines": 383,
+        "changedCoreParts": 114,
+        "actualNativeFaces": 556
+      },
+      "Beusselkiez": {
+        "addedHeadLines": 264,
+        "changedCoreParts": 81,
+        "actualNativeFaces": 296
+      },
+      "Emdener Straße": {
+        "addedHeadLines": 257,
+        "changedCoreParts": 85,
+        "actualNativeFaces": 373
+      }
+    },
+    "policy": "Serial per-source-part actual core factory before/after guard toggle; other packets/IDs/geometry unchanged. Native actual source-owner lookup qualifies frozen exterior face candidates; final pane neighbour/top checks still apply."
+  }
+}

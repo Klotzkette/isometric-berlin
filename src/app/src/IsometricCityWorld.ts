@@ -1,3 +1,5 @@
+import { isMoabitLandmarkSourceV269 } from "./MoabitLandmarksV269Profile";
+import { moabitCoreFacadeHeadV269 } from "./MoabitCoreHousesV269";
 import { isCampusCanopySourceV266 } from "./CampusNordV266Profile";
 import { isAnhalterSourceV266 } from "./TempodromAnhalterV266Profile";
 import { createChariteCampusV265 } from "./ChariteCampusV265";
@@ -394,9 +396,11 @@ export type IsometricCityBuildOptions = {
   includeLegacyTownhallEnvelopes?: boolean;
   /** Complete measured AEG campus is required before replacing legacy prisms. */
   architectureV241?: boolean;
-  /** Exact bridge sources yield only inside the required v265 transaction. */
+  /** Exact church fallbacks yield only to the complete required v269 models. */
+  moabitLandmarksV269?: boolean;
   tempodromAnhalterV266?: boolean;
   northernSitesV266?: boolean;
+  /** Exact bridge sources yield only inside the required v265 transaction. */
   chariteBridgesV265?: boolean;
   includeLegacyMuseumFront?: boolean;
   includeLegacyDistrictCourtEnvelopes?: boolean;
@@ -1785,11 +1789,12 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
   const visible = buildings.filter(building => !options.architectureV241 || !isAEGCampusCorePrismV241(building))
+    .filter(building => !options.moabitLandmarksV269 || !isMoabitLandmarkSourceV269(building))
     .filter(building => !options.tempodromAnhalterV266 || !isAnhalterSourceV266(building))
     .filter(building => !options.northernSitesV266 || !isCampusCanopySourceV266(building))
     .filter(building => !options.chariteBridgesV265 || !isChariteBridgeSourceV265(building))
@@ -11970,6 +11975,7 @@ export function createIsometricCityCore(
     geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
   for (const sourceBuilding of buildings) {
+    if (options.moabitLandmarksV269 && isMoabitLandmarkSourceV269(sourceBuilding)) continue;
     if (options.tempodromAnhalterV266 && isAnhalterSourceV266(sourceBuilding)) continue;
     if (options.northernSitesV266 && isCampusCanopySourceV266(sourceBuilding)) continue;
     if (options.chariteBridgesV265 && isChariteBridgeSourceV265(sourceBuilding)) continue;
@@ -12394,6 +12400,7 @@ export function createIsometricCityCore(
           // elongated-window outline without claiming surveyed pane
           // coordinates, duplicating hero facades or adding another draw call.
           if (grid) {
+            const moabitHead = moabitCoreFacadeHeadV269(building, wall);
             for (let floor = 0; floor < grid.floors; floor += 1) {
               const bandY = sillOf(floor) - 0.28;
               pushFacadeAxis(
@@ -12406,6 +12413,7 @@ export function createIsometricCityCore(
                 wall.length,
               );
               if (
+                moabitHead ||
                 (plazaDetailZone && floor < plazaDetailZone.facadeRhythm.maximumDetailedStoreys) ||
                 (sourceStoreys && !plazaDetailZone && (floor === 0 || floor === grid.floors - 1 || urbanFacadeScope(building)))
               ) {

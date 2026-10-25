@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.168 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.168/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.169 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.169/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,12 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.168** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.169** · static viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.168 refines Köpenicker Straße in Kreuzberg and its power-station context. Source-bound architectural details retain earlier city geometry, full mobile detail and existing runtime limits. [Evidence and checks](docs/koepenicker-v268.md).
+Version 1.0.169 refines Moabit and the Mierendorffplatz surroundings. Source-bound street fronts, corrected church silhouettes and mapped square details preserve earlier geometry, full mobile detail and existing runtime limits. [Evidence and checks](docs/moabit-mierendorff-v269.md).
 
-Version 1.0.168 präzisiert die Köpenicker Straße in Kreuzberg und ihr Kraftwerksumfeld. Quellengestützte Architekturdetails erhalten die bisherige Stadtgeometrie, den vollen mobilen Detailgrad und die bestehenden Laufzeitgrenzen. [Belege und Prüfungen](docs/koepenicker-v268.md).
+Version 1.0.169 präzisiert Moabit und die Umgebung des Mierendorffplatzes. Quellengestützte Straßenfronten, korrigierte Kirchensilhouetten und Platzdetails erhalten die bisherige Stadtgeometrie, den vollen mobilen Detailgrad und die bestehenden Laufzeitgrenzen. [Belege und Prüfungen](docs/moabit-mierendorff-v269.md).
 
 Version 1.0.167 refines Schlesisches Tor, Feuerwache Kreuzberg and source-supported street details around Görlitzer Park, Wiener Straße and Oranienstraße. Existing source buildings, earlier details and mobile memory limits remain. Unmeasured architectural subdivisions are documented estimates. [Evidence and checks](docs/kreuzberg-v267.md).
 

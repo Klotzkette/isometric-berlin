@@ -2303,3 +2303,25 @@ Industriekultur, Helmchen Event + Location / visitBerlin, and Jörg Zägel's
 ledger records original URLs, credits and usage limits. Heritage, BEW and
 Berlin planning references distinguish the former venue from active HKW Mitte.
 See [v268 sources and checks](docs/koepenicker-v268.md).
+
+
+## v269 — Moabit and Mierendorffplatz
+
+Complete retained Geoportal Berlin LoD2 and ALKIS data (dl-de/zero-2-0),
+and © OpenStreetMap contributors (ODbL-1.0), support existing owner geometry,
+street-front matches, the fountain and four U7 access axes. The separate LOR
+2021 quarter polygons used for the distribution audit are © Amt für Statistik
+Berlin-Brandenburg, [CC BY 3.0 DE](https://creativecommons.org/licenses/by/3.0/de/),
+via [Geoportal WFS](https://gdi.berlin.de/services/wfs/lor_2021). They are not
+an architectural survey and do not expand model coverage.
+
+Architectural evidence: Dominikanerkloster Sankt Paulus, Evangelische
+Kirchengemeinde Tiergarten, Landesdenkmalamt Berlin, Bezirksämter Mitte and
+Charlottenburg-Wilmersdorf, Turmstraße area management and BVG. External visual
+references include Erzbistum Berlin / Dominikaner (individual photographer
+unspecified), Sascha Gebauer, KHMM / Bezirksamt Charlottenburg-Wilmersdorf
+(2012 garden view), and A.Savin's 2021 Heilandskirche photograph under the
+[Free Art License 1.3](https://artlibre.org/licence/lal/en/). No photographic
+pixels or protected plans are redistributed. Small fittings and photograph-
+derived roof dimensions remain display estimates. Exact credits and source
+URLs are in the public visual-reference ledger and [v269 notes](docs/moabit-mierendorff-v269.md).

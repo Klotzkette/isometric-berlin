@@ -1,3 +1,4 @@
+import { mierendorffFloorAtV269 } from "./MierendorffV269";
 import { Box3, Frustum, Group, Matrix4, Vector3, type Camera, Material, Mesh, Line, Points } from "three";
 import {
   createSurroundingCityChunkCooperatively, surroundingBuildingSolidAt, surroundingPolygonContains, validSurroundingPolygon,
@@ -581,6 +582,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       }
       const lx = x - entry.origin[0], lz = z - entry.origin[2];
       if (!entry.nav.ground.some(p => surroundingPolygonContains(p, lx, lz))) return null;
+      const stairFloor = mierendorffFloorAtV269(entry.nav, lx, lz);
+      if (stairFloor !== null) return stairFloor;
       const bridgeFloor = spreeBridgeFloorAtV242(entry.nav, lx, lz);
       if (bridgeFloor !== null) return bridgeFloor;
       const road = entry.nav.roads?.some(p => surroundingPolygonContains(p, lx, lz));

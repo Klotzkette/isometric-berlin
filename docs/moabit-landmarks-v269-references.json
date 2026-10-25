@@ -1,0 +1,58 @@
+{
+  "scope": "Only Sankt Paulus and Heilandskirche in Moabit; Lutherkirche at Buelowstrasse is outside this task",
+  "sources": [
+    {
+      "title": "Dominikaner Berlin — Das Kirchengebäude",
+      "url": "https://www.dominikaner-berlin.de/kloster/das-kirchengebaeude/",
+      "credit": "Dominikanerkloster Sankt Paulus Berlin",
+      "use": "Primary architecture account: two 45 m towers, square-to-octagonal belfries, eight-sided copper helms, orange-red brick, white joints, green glazed bands, rose and three doors. Exact small dimensions are not supplied."
+    },
+    {
+      "title": "Landesdenkmalamt — Kath. St. Paulus-Kirche mit Dominikanerkloster",
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050242",
+      "credit": "Landesdenkmalamt Berlin",
+      "use": "Exact Moabit identity, Waldenserstrasse forecourt, twin-tower front, rose and stepped Gothic gable; attached monastery remains distinct."
+    },
+    {
+      "title": "Erzbistum Berlin — St. Paulus exterior",
+      "url": "https://www.erzbistumberlin.de/site-7153/news/meldung/news-title/erste-weihen-nach-fusion/",
+      "imageUrl": "https://www.erzbistumberlin.de/fileadmin/user_mount/Bilder/Erzbistum/St._Paulus_Berlin.jpg",
+      "credit": "Erzbistum Berlin / Dominikaner; page text credited to Sabine Steinhoff, individual photographer not identified",
+      "licence": "Copyright retained by source; reference only, no redistributed pixels",
+      "use": "Visually inspected front: central eight-petal rose, paired narrow upper belfries, dark helms, glazed brick edges, pale blind-lancet fields."
+    },
+    {
+      "title": "Evangelische Kirchengemeinde Tiergarten — Heilandskirche Turmtreppe",
+      "url": "https://www.ev-gemeinde-tiergarten.de/donnerstag-7-mai",
+      "credit": "Evangelische Kirchengemeinde Tiergarten; page photograph Sascha Gebauer",
+      "use": "Primary parish explicitly states 87 m tower height. Page photograph is not bundled."
+    },
+    {
+      "title": "Turmstrasse — completed Heilandskirche refurbishment",
+      "url": "https://www.turmstrasse.de/projekte/heilandskirche",
+      "credit": "Turmstrasse area management / Bezirksamt Mitte and Evangelische Kirchengemeinde Tiergarten; architects Leibenatus Stockburger Wittayer",
+      "use": "Completed 2016 roof/facade refurbishment, reduced corner towers and no vanished roof rider after 1956–60 reconstruction. This source says 88 m overall, conflicting with parish 87 m; model follows parish 87 m and documents the 1 m difference."
+    },
+    {
+      "title": "Heilandskirche Moabit,26 March 2021",
+      "url": "https://commons.wikimedia.org/wiki/File:Berlin_Heilandskirche_Moabit_asv2021-03.jpg",
+      "credit": "A.Savin, Wikipedia",
+      "licence": "Free Art License 1.3, https://artlibre.org/licence/lal/en/",
+      "use": "Visually inspected present tower/clock/spire, red steep nave roof and reduced corner roofs. Reference only, no pixels bundled. Roof eave 15 m/ridge 28 m are display estimates, not survey dimensions."
+    },
+    {
+      "title": "Geoportal Berlin — complete retained LoD2 archives",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/",
+      "credit": "Land Berlin / Geoportal Berlin",
+      "licence": "dl-de/zero-2-0",
+      "use": "Parents DEBE01YYK0002JYD and DEBE01YYK0002JYQ from archives 387_5821/387_5820; all 11 parts and 530 original wall/roof sheets retained, rigid datum shifts only."
+    },
+    {
+      "title": "OpenStreetMap original church owners",
+      "url": "https://www.openstreetmap.org/copyright",
+      "credit": "OpenStreetMap contributors",
+      "licence": "ODbL-1.0",
+      "use": "Sankt Paulus way 106483932 and Heilandskirche way 37533771, exact original 14 m fallback footprints and immutable delivered core prism/voxel receipts."
+    }
+  ]
+}

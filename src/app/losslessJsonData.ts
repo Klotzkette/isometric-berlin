@@ -54,6 +54,16 @@ const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
  * Do not extend by filename pattern: navigation and mutable source caches have
  * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  // Prepared v268 generators own one immutable receipt until decode completes;
+  // published roots retain typed geometry and small navigation, not these maps.
+  "koepenickerStreetsV268.json": ["chunks"],
+  "koepenickerLandmarksV268.json": ["packets"],
+  "kraftwerkBerlinV268.json": ["packets"],
+  "moabitHousesV269.json": ["chunks"],
+  "mierendorffV269.json": ["packets"],
+  // Church constructors synchronously copy these encoded source meshes into
+  // owned typed arrays. The separate small navigation profile stays strong.
+  "moabitLandmarksV269.json": ["sites"],
   "allotmentsV264.json": ["chunks"],
   "prenzlbergV264.json": ["sites"],
   "prenzlbergV264Envelopes.json": ["sites"],
