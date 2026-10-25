@@ -16,7 +16,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 import shapely
-from packet_additions_v200 import audited_v200_additions
+from packet_additions_v200 import audited_v200_pre_v242_additions
 from packet_additions_v230 import predecessor_manifest_v230
 from packet_receipts_v190 import (
   assert_retained_descriptor,
@@ -913,7 +913,7 @@ def test_current_packet_manifests_and_untouched_assets_match_release(
   station_rows, station_files = verified_station_replacements()
   v190_changes, _ = audited_v190_changes()
   additions = v190_additions()
-  east_additions = audited_v200_additions()
+  east_additions = audited_v200_pre_v242_additions()
   assert not additions.keys() & east_additions.keys()
   additions = {**additions, **east_additions}
   kiez_additions = audited_v209_additions()

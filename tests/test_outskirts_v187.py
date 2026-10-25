@@ -14,7 +14,7 @@ from typing import Any
 
 import numpy as np
 import pytest
-from packet_additions_v200 import audited_v200_additions
+from packet_additions_v200 import audited_v200_pre_v242_additions
 from packet_additions_v230 import predecessor_manifest_v230
 from packet_receipts_v190 import assert_retained_descriptor, audited_v190_changes
 from packet_receipts_v205 import audited_v209_additions
@@ -351,7 +351,7 @@ def test_v190_changes_only_receipted_v189_packets_and_named_new_cells() -> None:
   assert after["source"] == before["source"]
   additions = after["chunks"][len(before["chunks"]) :]
   north = load(DATA / "north-city-v190-manifest.json")["chunks"]
-  east = list(audited_v200_additions().values())
+  east = list(audited_v200_pre_v242_additions().values())
   kiez = list(audited_v209_additions().values())
   expected_additions = north + companions + east + kiez
   assert len({c["id"] for c in expected_additions}) == len(expected_additions)

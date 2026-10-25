@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from packet_additions_v200 import audited_v200_additions
+from packet_additions_v200 import audited_v200_pre_v242_additions
 from packet_additions_v230 import predecessor_manifest_v230
 from packet_receipts_v190 import (
   assert_retained_descriptor,
@@ -45,7 +45,7 @@ def test_every_previous_packet_descriptor_and_payload_is_retained() -> None:
   old = EVIDENCE["oldDescriptors"]
   assert len(old) == 1369
   changes, _ = audited_v190_changes()
-  additions = {**v190_additions(), **audited_v200_additions()}
+  additions = {**v190_additions(), **audited_v200_pre_v242_additions()}
   # Only the independently audited, exact v209 append may be excluded here.
   kiez = audited_v209_additions()
   assert not set(kiez).intersection(additions)

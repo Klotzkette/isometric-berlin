@@ -80,3 +80,34 @@ def audited_v200_additions() -> dict:
   assert hashlib.sha256(raw).hexdigest() == asset["sha256"]
   final = {c["id"]: c for c in published["chunks"]}
   return {identity: final[identity] for identity in added}
+
+
+@lru_cache(maxsize=1)
+def audited_v200_pre_v242_additions() -> dict:
+  """Match historical manifest replays only after auditing every later receipt.
+
+  The current supplement includes the two exact v261 Adlershof replacements.
+  Older tests compare a pre-v230 manifest, so their expected descriptors must
+  use the same pre-v242 lineage, retaining the independently proved v201 edits.
+  Current bytes and the complete reversible later manifest chain are still
+  verified; no descriptor difference or missing payload is ignored.
+  """
+  from scripts.spree_bridge_lineage_v242 import (
+    predecessor_manifest_v242,
+    predecessor_packet_bytes_v242,
+  )
+
+  additions = audited_v200_additions()
+  predecessor = predecessor_manifest_v242(
+    json.loads((PUBLIC / "manifest.json").read_bytes())
+  )
+  result = {c["id"]: c for c in predecessor["chunks"] if c["id"] in additions}
+  assert result.keys() == additions.keys()
+  for descriptor in result.values():
+    for mode in ("drawn", "minecraft"):
+      asset = descriptor[mode]
+      raw = predecessor_packet_bytes_v242(PUBLIC / asset["url"])
+      assert len(raw) == asset["bytes"]
+      assert hashlib.sha256(raw).hexdigest() == asset["sha256"], asset["url"]
+      assert len(gzip.decompress(raw)) == asset["decodedBytes"]
+  return result

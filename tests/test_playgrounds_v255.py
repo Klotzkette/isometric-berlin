@@ -10,6 +10,7 @@ from shapely.geometry import LineString, Point, Polygon, shape
 from shapely.ops import transform, unary_union
 
 from scripts import build_playgrounds_v255 as build
+from scripts.integrate_height_reconstruction_v259 import predecessor_manifest_v259
 
 
 def inputs():
@@ -30,7 +31,11 @@ def test_playgrounds_are_exact_ranked_twenty_and_named_exceptions():
     assert build.digest(build.ROOT / receipt["path"]) == receipt["sha256"]
   if build.PBF.exists():
     assert build.digest(build.PBF) == source["osmSha256"]
-  current = {d["id"]: d for d in build.read_json(build.OUT / "manifest.json")["chunks"]}
+  # Later v259/v261/v262 changes have exact reversible receipts. Verify their
+  # full manifests, source/asset hashes and replacements before comparing the
+  # complete v255 predecessor descriptors; never exempt a changed parent ID.
+  predecessor = predecessor_manifest_v259(build.read_json(build.OUT / "manifest.json"))
+  current = {d["id"]: d for d in predecessor["chunks"]}
   for desc in evidence["oldDescriptors"]:
     assert current[desc["id"]] == desc
 
