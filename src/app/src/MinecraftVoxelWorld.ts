@@ -1,3 +1,6 @@
+import { createTechnikmuseumColumnTesterV272 } from "./TechnikmuseumV272Profile";
+import { theatresV272SourceColumn } from "./theatresV272Profile";
+import { pressQuarterV272SourceColumn } from "./pressQuarterV272Profile";
 import { createTachelesFrontColumnTesterV270 } from "./TachelesFrontsV270Profile";
 import { createMoabitLandmarkColumnTesterV269 } from "./MoabitLandmarksV269Profile";
 import { moabitCoreNativeHeadV269 } from "./MoabitCoreHousesV269";
@@ -315,6 +318,7 @@ import {
 export type MinecraftVoxelWorldOptions = {
   golgathaV270?: boolean;
   tachelesFrontsV270?: boolean;
+  technikmuseumV272?: boolean;
   moabitLandmarksV269?: boolean;
   tempodromAnhalterV266?: boolean;
   northernSitesV266?: boolean;
@@ -2630,6 +2634,8 @@ export function* buildMinecraftVoxelWorldSteps(
     ? createColonnadesCoreColumnTesterV231(options.sourcePrisms, cell) : () => false;
   const tachelesFrontColumnAt = options.tachelesFrontsV270
     ? createTachelesFrontColumnTesterV270(options.sourcePrisms, cell) : () => false;
+  const technikmuseumColumnAt = options.technikmuseumV272
+    ? createTechnikmuseumColumnTesterV272(options.sourcePrisms, cell) : () => false;
   const moabitChurchColumnAt = options.moabitLandmarksV269
     ? createMoabitLandmarkColumnTesterV269(options.sourcePrisms, cell) : () => false;
   const anhalterColumnAt = options.tempodromAnhalterV266
@@ -2645,6 +2651,7 @@ export function* buildMinecraftVoxelWorldSteps(
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
     if (tachelesFrontColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
+    if (technikmuseumColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (moabitChurchColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (anhalterColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (campusCanopyColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
@@ -2702,6 +2709,8 @@ export function* buildMinecraftVoxelWorldSteps(
       !alexanderNorthV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !alexanderStationsV183SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !cityWestCinemasV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !theatresV272SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
+      !pressQuarterV272SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !westVenuesV260SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !moabitJusticeV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&
       !mitteHeritageV166SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&

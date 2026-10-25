@@ -1823,6 +1823,213 @@
       "role": "Identity, side tower and Rathenow brick material; present user photographs govern form",
       "checked": "2026-10-25",
       "pixels_bundled": false
+    },
+    {
+      "landmark_id": "hau_theatres_v272",
+      "title": "HAU1, HAU2 and HAU3 — venues, access and exterior photographs",
+      "page_url": "https://www.hebbel-am-ufer.de/service/anfahrt-besuch",
+      "credit": "HAU Hebbel am Ufer; photographs by Jürgen Fehrmann",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Three separate venue addresses; HAU3 is the rear third-floor venue with a distinct street-access house. Three operator photographs inform estimated exterior fittings; no photograph pixels bundled.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false,
+      "artist": "Jürgen Fehrmann"
+    },
+    {
+      "landmark_id": "hau_theatres_v272",
+      "title": "HAU — accessibility of the three venues",
+      "page_url": "https://www.hebbel-am-ufer.de/service/barrierefreiheit/",
+      "credit": "HAU Hebbel am Ufer",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "HAU1 stair entrance, HAU2 level access and HAU3 third-floor access; no unverified walk-through interior invented.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "hau_theatres_v272",
+      "title": "HAU — technical venue information",
+      "page_url": "https://www.hebbel-am-ufer.de/ueber-uns/technik",
+      "credit": "HAU Hebbel am Ufer",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Venue identity and architecture reference for the three separately reconstructed theatres.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "hau1_v272",
+      "title": "Hebbel-Theater — monument 09031244",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09031244",
+      "credit": "Landesdenkmalamt Berlin; architecture by Oskar Kaufmann",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "1907–08 theatre identity, limestone rustication, convex foyer window field and front pediment; fine divisions are recognition estimates.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "grips_v272",
+      "title": "GRIPS Theater — Hansaplatz arrival and identity",
+      "page_url": "https://www.grips-theater.de/de/service/anreise",
+      "credit": "GRIPS Theater",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Altonaer Straße 22 at Hansaplatz, distinguished from the Podewil venue; additive refinement of the retained original GRIPS model.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "technikmuseum_v272",
+      "title": "Deutsches Technikmuseum — buildings and museum grounds",
+      "page_url": "https://technikmuseum.berlin/museum/ueber-uns/gebaeude-und-gelaende",
+      "credit": "Stiftung Deutsches Technikmuseum Berlin; exterior photograph Ériver Hijano; park photograph C. Kirchner",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Existing four-storey new museum by Ulrich Wolff / Helge Pitz; suspended Douglas C-47B; former Anhalter railway works, two railway exhibition halls, old entrance and separate Spectrum. Planned new reception is not built here.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "technikmuseum_v272",
+      "title": "Deutsches Technikmuseum — 44 m Vestas blade and historic windmills",
+      "page_url": "https://technikmuseum.berlin/programm/dauerausstellungen/windenergie",
+      "credit": "Stiftung Deutsches Technikmuseum Berlin; photographs Ériver Hijano / C. Kirchner",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "The upright Vestas V90 blade is 44 m long; two distinct working windmills survive in the museum park.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "technikmuseum_v272",
+      "title": "Deutsches Technikmuseum — roundhouses, turntables and railway exhibition",
+      "page_url": "https://technikmuseum.berlin/programm/dauerausstellungen/eisenbahn",
+      "credit": "Stiftung Deutsches Technikmuseum Berlin; photographs Ériver Hijano",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Two historic roundhouses and their outdoor turntables, glazed inner circulation, 40 original railway vehicles and the surviving Fürstenportal. Six generic static locomotive interpretations are not asserted to identify six current display bays or inventory numbers.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "springer_v272",
+      "title": "Axel Springer — Berlin publishing headquarters, architecture and art",
+      "page_url": "https://www.axelspringer.com/de/geschichte/berliner-verlagssitz-ueberblick-baugeschichte-kunst",
+      "credit": "Axel Springer; architecture references: Melchiorre Bega, Gino Franzi, Sobotka/Müller and Gerhard Stössner",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Tower and silver 1994 wing recognition; retained measured heights govern despite differing published nominal heights.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "springer_v272",
+      "title": "Axel-Springer-Haus — monument 09031173",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09031173",
+      "credit": "Landesdenkmalamt Berlin",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Official building identity and architecture; facade recognition does not rescale the complete retained survey.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "taz_v272",
+      "title": "taz — move into the new house, 2018",
+      "page_url": "https://taz.de/Die-taz-zieht-um-ins-neue-Haus/!5539549/",
+      "credit": "taz; architecture: E2A / Piet and Wim Eckert",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Current taz headquarters at Friedrichstraße 21, distinct from the old taz house at Rudi-Dutschke-Straße 23.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "taz_v272",
+      "title": "Built taz house — structural-engineering project account",
+      "page_url": "https://www.schnetzerpuskas.com/media/files/8W8081K4/022_027_dok_taz_berlin_hk6.pdf?dnt=1",
+      "credit": "Schnetzer Puskas Ingenieure; architecture: E2A / Piet and Wim Eckert",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Built structural and diamond metal-screen organisation of the current taz house; small facade subdivisions are estimates.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "lenk_taz_v272",
+      "title": "Peter Lenk — taz reference, 2009",
+      "page_url": "https://taz.de/Peter-Lenk/!5152426/",
+      "credit": "Peter Lenk (artwork); taz (reference publication)",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Friede sei mit Dir on the former taz house. The runtime uses an independently authored compact sculptural interpretation, not a reproduction or a measured figure survey.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false,
+      "artist": "Peter Lenk"
+    },
+    {
+      "landmark_id": "lenk_taz_v272",
+      "title": "taz — Hotspot am Checkpoint Charlie, 2013",
+      "page_url": "https://taz.de/Hotspot-am-Checkpoint-Charlie/!4629333/",
+      "credit": "taz; artwork by Peter Lenk",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Former taz location and wall-art context around Rudi-Dutschke-Straße/Kochstraße; street shop details remain bounded visual estimates.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false,
+      "artist": "Peter Lenk"
+    },
+    {
+      "landmark_id": "alexander_north_v272",
+      "title": "Pressehaus — monument 09020853",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09020853",
+      "credit": "Landesdenkmalamt Berlin; frieze by Willi Neubert",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "1970-1973 building identity, original architects and Willi Neubert frieze attribution",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "alexander_north_v272",
+      "title": "Pressehaus am Alexanderplatz — completed gmp renovation",
+      "page_url": "https://www.gmp.de/de/projekte/7669/pressehaus-am-alexanderplatz",
+      "credit": "gmp Architekten",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "17-storey 92-metre slab, reconstructed facade and stair tower, three-building ensemble",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "alexander_north_v272",
+      "title": "Pressehaus operator — current rotating BERLINER VERLAG crown",
+      "page_url": "https://pressehausberlin.de/",
+      "credit": "Pressehaus operator",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Current white aluminium facade, New Podium and Pressecafe identity; explicit current rotating BERLINER VERLAG crown description",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "alexander_north_v272",
+      "title": "Berliner Zeitung — historical account of publisher and newspaper roof signs",
+      "page_url": "https://www.berliner-zeitung.de/article/in-eigener-sache-umzug-des-verlages-berliner-zeitung-am-alexanderplatz-wo-sonst-316754",
+      "credit": "Berliner Zeitung / Maritta Tkalec, 12 February 2023",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Publisher's historical account distinguishes rotating BERLINER VERLAG crown from the removed BERLINER ZEITUNG roof letters. Fixed newspaper letters are an explicitly owner-requested historical reinstatement, not a current survey claim.",
+      "checked": "2026-10-25",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "alexander_north_v272",
+      "title": "Pressehaus facade photograph",
+      "page_url": "https://www.gmp.de/de/projekte/7669/pressehaus-am-alexanderplatz",
+      "credit": "Copyright Marcus Bredt / gmp Architekten",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Deep white brise-soleil, grey backing panels and window subdivisions; reference only",
+      "checked": "2026-10-25",
+      "pixels_bundled": false,
+      "file_url": "https://www.gmp.de/images/3377_221006_MB_0641_PH_Fassade_neu.jpg?w=1600",
+      "artist": "Marcus Bredt"
+    },
+    {
+      "landmark_id": "alexander_north_v272",
+      "title": "Pressecafé and glazed stair-tower photograph",
+      "page_url": "https://www.gmp.de/de/projekte/7669/pressehaus-am-alexanderplatz",
+      "credit": "Copyright Marcus Bredt / gmp Architekten",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Glazed stair tower, circular separate-letter crown, Pressecafe glazing/fascia and frieze location; reference only",
+      "checked": "2026-10-25",
+      "pixels_bundled": false,
+      "file_url": "https://www.gmp.de/images/3377_221006_MB_0713_Pressecafe_nachher.jpg?w=1600",
+      "artist": "Marcus Bredt"
     }
   ]
 }

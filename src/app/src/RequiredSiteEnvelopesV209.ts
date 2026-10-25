@@ -1,3 +1,7 @@
+import { createTechnikmuseumV272 } from "./TechnikmuseumV272";
+import { createTheatresV272 } from "./TheatresV272";
+import { createGripsDetailsV272 } from "./GripsDetailsV272";
+import { createPressQuarterV272 } from "./PressQuarterV272";
 import { createAuguststrasseMuralV270 } from "./AuguststrasseMuralV270";
 import { createGolgathaV270 } from "./GolgathaV270";
 import { createTachelesRailsV270 } from "./TachelesRailsV270";
@@ -84,6 +88,14 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   root.add(createPrenzlbergV264(native));
   yield;
   root.add(createChariteRailV261(native));
+  yield;
+  root.add(createTechnikmuseumV272(native));
+  yield;
+  root.add(createTheatresV272(native));
+  yield;
+  root.add(createGripsDetailsV272(native));
+  yield;
+  root.add(createPressQuarterV272(native));
   yield;
   root.add(createWestVenuesV260(native));
   yield;

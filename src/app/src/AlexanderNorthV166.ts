@@ -3,6 +3,7 @@ import source from "./data/alexanderNorthV166Source.json";
 import nav from "./data/alexanderNorthV166Navigation.json";
 import { letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { alexanderNorthRecognitionV272, createPressehausCrownV272 } from "./AlexanderNorthV272";
 
 export const ALEXANDER_NORTH_V166_GROUP = "Alexander north: complete Park Inn, Pressehaus, Tor and street sources";
 export const ALEXANDER_NORTH_V166_NATIVE_GROUP = "Alexander north: independent orthogonal native skin";
@@ -68,14 +69,8 @@ function recognition(native: boolean): Instance[] {
   }
   const tor=front("DEBE3DYRpubWolUn");
   text("SCHOENHAUSER TOR",[(tor.a[0]+tor.b[0])/2+tor.nx*.26,7.1,(tor.a[1]+tor.b[1])/2+tor.nz*.26],tor.dx<0?[-tor.dx,0,-tor.dz]:[tor.dx,0,tor.dz],.82,0xECEBDD,.075);
-  // Published rooftop identity, fitted around the retained LoD2 sign support.
-  const center:P=[2756.45,77.3,-553.15],radius=3.2;
-  for(let i=0;i<40;i++){
-    const a=i*Math.PI/20,b=(i+1)*Math.PI/20;
-    for(const y of [77.3,79.45])rod(0xD5D6C8,[center[0]+Math.cos(a)*radius,y,center[2]+Math.sin(a)*radius],[center[0]+Math.cos(b)*radius,y,center[2]+Math.sin(b)*radius],.10);
-  }
-  text("BERLINER",[center[0],77.55,center[2]+3.28],[1,0,0],.83,0xF0EFDC,.105);
-  text("VERLAG",[center[0],77.55,center[2]-3.28],[-1,0,0],.83,0xF0EFDC,.105);
+  // v272 retires only the fingerprinted 150 drawn / 595 native instances of
+  // the two-flat-word crown. Every source sheet and unrelated identity stays.
   // The official operator + exact OSM node identify this restaurant. The
   // text is a simple locator, not a facsimile of any sign, logo or portrait.
   const vuong=front("DEBE3DTSFeK8a2Bb",-1,0);
@@ -88,7 +83,12 @@ function create(native:boolean):Group {
   root.userData={textureFree:true,blockNative:native,keepInMinecraft:native,fullStaticDetailOnTouch:true,sourceGeometryRetained:true,sourcePartIds:source.partIds,sourceOwnerIds:nav.outerOwners.map(p=>p.id),detailStatus:"Source metric envelopes; bounded procedural facade, sign and mast estimates. Berlinian is an unfinished structural shell."};
   if(native)root.add(batch(boxes(source.nativeRuns.map(([x,y,z,w,h,d,c])=>[x,y,z,w,h,d,0,c]))));
   else root.add(sourceSheets(),batch(boxes(source.facadeBoxes)));
-  root.add(batch(recognition(native)));return freezeStaticSceneTransforms(root);
+  const retained=recognition(native), additions=alexanderNorthRecognitionV272(native);
+  root.add(batch([...retained,...additions]));
+  const crown=createPressehausCrownV272(native);root.add(crown);
+  root.userData.alexanderNorthV272={retainedRecognitionCount:retained.length,addedStaticInstances:additions.length};
+  root.userData.updatePressehausV272=crown.userData.updatePressehausV272;
+  return freezeStaticSceneTransforms(root);
 }
 export function createAlexanderNorthV166():Group { return create(false); }
 export function createMinecraftAlexanderNorthV166():Group { return create(true); }

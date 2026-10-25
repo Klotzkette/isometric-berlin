@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "scope": "Source-bound recognition at Pressehaus, glazed stair tower, Pressecafe and New Podium on the northern Alexanderplatz frontage",
+  "sources": [
+    {"url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09020853", "publisher": "Landesdenkmalamt Berlin", "use": "1970-1973 building identity, original architects and Willi Neubert frieze attribution"},
+    {"url": "https://www.gmp.de/de/projekte/7669/pressehaus-am-alexanderplatz", "publisher": "gmp Architekten", "use": "17-storey 92-metre slab, reconstructed facade and stair tower, three-building ensemble"},
+    {"url": "https://pressehausberlin.de/", "publisher": "Pressehaus operator", "use": "Current white aluminium facade, New Podium and Pressecafe identity; explicit current rotating BERLINER VERLAG crown description"},
+    {"url": "https://www.berliner-zeitung.de/article/in-eigener-sache-umzug-des-verlages-berliner-zeitung-am-alexanderplatz-wo-sonst-316754", "publisher": "Berliner Zeitung / Maritta Tkalec, 12 February 2023", "use": "Publisher's historical account distinguishes rotating BERLINER VERLAG crown from the removed BERLINER ZEITUNG roof letters. Fixed newspaper letters are an explicitly owner-requested historical reinstatement, not a current survey claim."}
+  ],
+  "externalVisualReferences": [
+    {"url": "https://www.gmp.de/images/3377_221006_MB_0641_PH_Fassade_neu.jpg?w=1600", "author": "Marcus Bredt", "copyright": "Copyright Marcus Bredt / gmp Architekten", "use": "Deep white brise-soleil, grey backing panels and window subdivisions; reference only"},
+    {"url": "https://www.gmp.de/images/3377_221006_MB_0713_Pressecafe_nachher.jpg?w=1600", "author": "Marcus Bredt", "copyright": "Copyright Marcus Bredt / gmp Architekten", "use": "Glazed stair tower, circular separate-letter crown, Pressecafe glazing/fascia and frieze location; reference only"}
+  ],
+  "restrictions": "No photograph, crop, font, video or protected mural composition is bundled or used as a runtime texture. The frieze receives independent abstract colour blocks only; it is not a reproduction. Small dimensions, materials, glyphs and rotation speed are explicitly estimated recognition details.",
+  "geometry": "Complete unchanged v166 Berlin LoD2 sheets dl-de/zero-2-0 and OSM context ODbL-1.0. Exact selected surface hashes and old sign replacement receipts are in alexanderNorthV272.json."
+}

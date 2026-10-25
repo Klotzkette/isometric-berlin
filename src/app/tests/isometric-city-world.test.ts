@@ -12,6 +12,7 @@ import centralReplacement from "../src/data/centralSitesV200Replacement.json";
 import bendlerV202 from "../src/data/bendlerblockV202Evidence.json";
 import panoramaV202 from "../src/pergamonPanoramaV202Source.json";
 import { buildingAttributes, mappedStoreyProfile } from "../src/buildingAttributes";
+import { laterPrismOwnersV272 } from "./helpers/laterPrismOwnersV272";
 
 import {
   Box3,
@@ -827,7 +828,25 @@ describe("ligne-claire fenestration", () => {
       expect(ALT_MITTE_V169_PRISM_IDS.has(owner.id)).toBeFalse();
       expect(NATIONALGALERIE_V183_IDS.has(owner.id)).toBeFalse();
     }
-    expect(axes.userData.buildingDetailCoverage.envelopeDetailedParts + galleryOwners.length + laterOwners.length).toBe(21_896);
+    const transferred = laterPrismOwnersV272(payload);
+    let transferredDetails = 0;
+    for (const owner of transferred) {
+      expect(PRISM_SUPPRESSED_IDS.has(owner.id)).toBeTrue();
+      // A different ID with the identical source shape must remain visible.
+      // Measure its actual facade contribution: the four glass taz pieces
+      // never contributed ordinary envelope strokes to the frozen total.
+      const control = createIsometricCity(payload, null, null, null, {
+        buildings: [{ ...owner, id: `control-${owner.id}` }], includeContext: false,
+      });
+      const detail = control.userData.buildingDetailCoverage.envelopeDetailedParts;
+      expect(detail).toBe(["6yqbDi2y", "pAdKsQF2", "33EWDuRF", "qazo1opJ"].includes(owner.id) ? 0 : 1);
+      transferredDetails += detail;
+      control.traverse(object => {
+        if (object instanceof Mesh || object instanceof LineSegments) object.geometry.dispose();
+      });
+    }
+    expect(transferredDetails).toBe(19);
+    expect(axes.userData.buildingDetailCoverage.envelopeDetailedParts + galleryOwners.length + laterOwners.length + transferredDetails).toBe(21_896);
     expect(axes.userData.buildingDetailCoverage.envelopeDetailedParts + altMitteOwners.length + galleryOwners.length).toBeGreaterThan(24_000);
     const transferredStoreys = altMitteOwners.filter(p => mappedStoreyProfile(buildingAttributes(p.id), p.h_dm / 10));
     expect(transferredStoreys).toHaveLength(1_550);

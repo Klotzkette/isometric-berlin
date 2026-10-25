@@ -55,6 +55,7 @@ const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
  * Do not extend by filename pattern: navigation and mutable source caches have
  * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "alexanderNorthV272.json": ["panels"],
   // Prepared v268 generators own one immutable receipt until decode completes;
   // published roots retain typed geometry and small navigation, not these maps.
   "koepenickerStreetsV268.json": ["chunks"],
@@ -260,6 +261,8 @@ export const LOSSLESS_PACKED_STRING_FIELDS: Readonly<Record<string, readonly str
   "drawnWaterBoundary.json": ["cells_u32", "triangles_f32", "edges_f32"],
   "altMitteGroundSeamsV206.json": ["cells_u32", "triangles_f32", "edges_f32"],
   "westVenuesV260.json": ["sourcePositions", "facadeBoxes", "nativeBoxes"],
+  "pressQuarterV272.json": ["sourcePositions", "facadeBoxes", "nativeBoxes"],
+  "theatresV272.json": ["sourcePositions", "facadeBoxes", "nativeBoxes"],
 };
 
 // Encode existing lazy fields only. Their cache/ownership policy is independent

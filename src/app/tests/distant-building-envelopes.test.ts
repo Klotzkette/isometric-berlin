@@ -17,6 +17,7 @@ import centralReplacement from "../src/data/centralSitesV200Replacement.json";
 import bendlerblock from "../src/data/bendlerblockV202Evidence.json";
 import panorama from "../src/pergamonPanoramaV202Source.json";
 import uraniaV206 from "../../../geo_data/regierungsviertel/urania-arc-v206-source.json";
+import { laterPrismOwnersV272 } from "./helpers/laterPrismOwnersV272";
 
 const source = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const fixture = (changes: Partial<PrismBuilding> = {}): PrismBuilding => ({
@@ -167,7 +168,10 @@ describe("complete distant building source envelopes", () => {
       "-7903504", "velffOVN", "eTv6rMSm", "lSPuB8DI", "dT0GhZDa", "8ITOvSLQ", "mdWef52O", "OcEXDDwu", "w0KNc7fU", "35493631", "11687794",
     ].sort());
     expect(new Set(laterOwners.map(p => p.id)).size).toBe(18);
-    for (const owner of laterOwners) {
+    // v237/v238/v246/v260 and v272 now own these exact source envelopes.
+    // Add their receipts, preserving the historical city total below.
+    const allLaterOwners = [...laterOwners, ...laterPrismOwnersV272(source)];
+    for (const owner of allLaterOwners) {
       expect(source.buildings.filter(p => p.id === owner.id)).toEqual([owner]);
       expect(ALT_MITTE_V169_PRISM_IDS.has(owner.id)).toBe(false);
       expect(NATIONALGALERIE_V183_IDS.has(owner.id)).toBe(false);
@@ -178,13 +182,13 @@ describe("complete distant building source envelopes", () => {
       expect(control.userData.visibleBuildingCount).toBe(1);
       for (const child of control.children) if (child instanceof Mesh) child.geometry.dispose();
     }
-    expect(visible + galleryOwners.length + laterOwners.length).toBe(23_576);
+    expect(visible + galleryOwners.length + allLaterOwners.length).toBe(23_576);
     expect(visible + altMitteOwners.length + galleryOwners.length).toBeGreaterThan(28_000);
     // Other individually tested complete models also own source courtyards
     // (e.g. the parliament, Ministry and Moabit families).
     const dedicatedCourts = source.buildings.filter(b => PRISM_SUPPRESSED_IDS.has(b.id))
       .reduce((sum, b) => sum + (b.holes?.length ?? 0), 0);
-    expect(courtyards + laterOwners.reduce((sum, owner) => sum + owner.holes.length, 0)).toBe(496);
+    expect(courtyards + allLaterOwners.reduce((sum, owner) => sum + (owner.holes?.length ?? 0), 0)).toBe(496);
     expect(courtyards + dedicatedCourts).toBeGreaterThan(600);
     expect(retained).toBeLessThan(30 * 1024 * 1024);
     expect(vertices).toBeLessThan(1_300_000);

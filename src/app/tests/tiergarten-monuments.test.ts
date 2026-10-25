@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { gunzipSync } from "node:zlib";
 
 import {
   Box3,
@@ -27,6 +29,8 @@ import { WAGNER_MEMORIAL_PROFILE } from "../src/WagnerMemorial";
 import { createHandMitUhr } from "../src/GymnasiumTiergartenNeubau";
 import { HAND_MIT_UHR_PROFILE } from "../src/gymnasiumTiergartenProfile";
 import { MOABIT_PRISON_MEMORIAL_PROFILE } from "../src/MoabitPrisonMemorialPark";
+import { createPressQuarterV272 } from "../src/PressQuarterV272";
+import { disposeSurroundingCityRoot } from "../src/SurroundingCity";
 import type { VoxelPayload as GroundPayload } from "../src/MinecraftVoxelWorld";
 import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import {
@@ -47,6 +51,7 @@ import voxelPayload from "../public/mesh/regierungsviertel/minecraft-voxels.json
 
 const street = streetDetails as unknown as StreetDetailsPayload;
 const ground = voxelPayload as unknown as GroundPayload;
+const LENK_FORMER_TAZ_OSM_KEY = "node/7599829392";
 
 function monumentBodyMeshes(root: Group): Mesh[] {
   const matches: Mesh[] = [];
@@ -451,6 +456,7 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
         !KROLLOPER_SCULPTURE_OSM_KEYS.has(candidate.osm_key) &&
         !ALEXANDER_PUBLIC_REALM_OSM_KEYS.includes(candidate.osm_key) &&
         candidate.osm_key !== HAND_MIT_UHR_PROFILE.osmKey &&
+        candidate.osm_key !== LENK_FORMER_TAZ_OSM_KEY &&
         !MOABIT_PRISON_MEMORIAL_PROFILE.modelOwnership
           .genericArtworkSuppressionKeys.includes(candidate.osm_key) &&
         !MONUMENTS_ALREADY_MODELLED.test(candidate.name),
@@ -596,6 +602,61 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(bounds.max.y - bounds.min.y)
       .toBeCloseTo(HAND_MIT_UHR_PROFILE.displayHeightM, 2);
     expect(HAND_MIT_UHR_PROFILE.heightIsSurveyed).toBeFalse();
+  });
+
+  test("Lenk's former-taz relief transfers only its evidenced identity to the full-height press-quarter model", () => {
+    const evidence = JSON.parse(gunzipSync(readFileSync(new URL(
+      "../../../geo_data/regierungsviertel/press-quarter-v272-source.json.gz", import.meta.url,
+    ))).toString("utf8")).artwork;
+    const entry = street.monuments!.find(candidate => candidate.osm_key === LENK_FORMER_TAZ_OSM_KEY)!;
+    expect(evidence).toMatchObject({ osmKey: LENK_FORMER_TAZ_OSM_KEY,
+      name: "Friede sei mit Dir", artist: "Peter Lenk", oldGenericOwnerReplaced: true });
+    expect(evidence.interpretation).toContain("former taz house");
+    expect(entry.name).toBe(evidence.name);
+    expect(entry.x_dm / 10).toBeCloseTo(evidence.anchor[0], 1);
+    expect(entry.z_dm / 10).toBeCloseTo(evidence.anchor[1], 1);
+    expect(createTiergartenMonuments({ ...street, monuments: [entry] }, ground)).toBeNull();
+    expect(monuments.userData.externallyModelledSourceKeys).toContain(entry.osm_key);
+
+    // Retirement is exact-ID based, not a name or area suppression rule.
+    const unrelated = createTiergartenMonuments({ ...street, monuments: [{
+      ...entry, osm_key: "node/900000000000", osm_id: "900000000000",
+    }] }, ground);
+    expect(unrelated).not.toBeNull();
+    disposeSurroundingCityRoot(unrelated!);
+
+    for (const native of [false, true]) {
+      const model = createPressQuarterV272(native, { mobileLike: true });
+      const bounds = new Box3(), transform = new Matrix4(), color = new Color(), vertex = new Vector3();
+      let components = 0;
+      model.updateMatrixWorld(true);
+      model.traverse(object => {
+        if (!(object instanceof InstancedMesh)) return;
+        const positions = object.geometry.getAttribute("position");
+        for (let index = 0; index < object.count; index++) {
+          object.getColorAt(index, color);
+          if (![0xd39585, 0xc69d8a, 0x594c49].includes(color.getHex())) continue;
+          object.getMatrixAt(index, transform); transform.premultiply(object.matrixWorld);
+          vertex.setFromMatrixPosition(transform);
+          if (Math.hypot(vertex.x - evidence.anchor[0], vertex.z - evidence.anchor[1]) > 12) continue;
+          components++;
+          for (let v = 0; v < positions.count; v++) {
+            bounds.expandByPoint(vertex.fromBufferAttribute(positions, v).applyMatrix4(transform));
+          }
+        }
+      });
+      // A tall sculptural interpretation with separate figures and curved
+      // relief strokes must survive in each mode, not a low generic marker.
+      expect(components).toBeGreaterThan(20);
+      expect(bounds.max.y - bounds.min.y).toBeGreaterThan(20);
+      expect(bounds.max.y - bounds.min.y).toBeLessThan(24);
+      expect(bounds.min.y).toBeLessThan(9);
+      expect(bounds.max.y).toBeGreaterThan(29);
+      const center = bounds.getCenter(new Vector3());
+      expect(Math.hypot(center.x - evidence.anchor[0], center.z - evidence.anchor[1])).toBeLessThan(10);
+      expect(model.userData.fullStaticDetailOnTouch).toBe(true);
+      disposeSurroundingCityRoot(model);
+    }
   });
 
   test("Robert Koch sits in marble on the surveyed Robert-Koch-Platz anchor", () => {

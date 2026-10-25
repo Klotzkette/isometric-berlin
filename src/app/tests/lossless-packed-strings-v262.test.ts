@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
-import { transformLosslessJsonData, LOSSLESS_PACKED_STRING_FIELDS } from '../losslessJsonData';
+import { transformLosslessJsonData, LOSSLESS_JSON_FIELD_BYTES, LOSSLESS_PACKED_STRING_FIELDS } from '../losslessJsonData';
 import { decodeLosslessGzipJson } from '../src/losslessGzipJson';
 import { decodeLosslessGzipJson as decodeBase85GzipJson } from "../src/losslessGzipBase85";
 import { LOSSLESS_EAGER_FIELDS_V270 } from '../losslessEagerFieldsV270';
@@ -10,6 +10,14 @@ import { LOSSLESS_EAGER_FIELDS_V270 } from '../losslessEagerFieldsV270';
 const EAGER_FIELDS: Readonly<Record<string, readonly string[]>> = {
   'altMitteGroundSeamsV206.json': ['spans_u32', 'tops_f32'],
   'westVenuesV260.json': ['ribSegments', 'sourceColors', 'sourcePartIds'],
+};
+
+// v272 adds packed fields smaller than the unchanged 64 KiB admission limit.
+// They remain direct literals; listing them explicitly prevents a shrinking or
+// unexpectedly uncompressed large field from silently bypassing lazy checks.
+const DIRECT_PACKED_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  'pressQuarterV272.json': ['sourcePositions'],
+  'theatresV272.json': ['sourcePositions', 'facadeBoxes'],
 };
 
 function compile(name: string, value: unknown) {
@@ -26,12 +34,14 @@ function compile(name: string, value: unknown) {
   return { data, result, decodes: () => decodes };
 }
 
-test('audited water, ground and venue packed strings round-trip every byte with lazy strong field ownership', () => {
+test('audited packed strings round-trip every byte with strong ownership and size-bound lazy decoding', () => {
   let savings = 0;
   for (const [name, fields] of Object.entries(LOSSLESS_PACKED_STRING_FIELDS)) {
     const source = JSON.parse(readFileSync(new URL(`../src/data/${name}`, import.meta.url), 'utf8'));
     const { data, result, decodes } = compile(name, source);
     const eagerFields = EAGER_FIELDS[name] ?? [];
+    const directFields = DIRECT_PACKED_FIELDS[name] ?? [];
+    for (const field of directFields) expect(fields).toContain(field);
     expect(LOSSLESS_EAGER_FIELDS_V270[`data/${name}`] ?? []).toEqual(eagerFields);
     expect(decodes()).toBe(eagerFields.length);
     for (const field of eagerFields) {
@@ -40,18 +50,29 @@ test('audited water, ground and venue packed strings round-trip every byte with 
     }
     expect(decodes()).toBe(eagerFields.length);
     for (const field of fields) {
-      expect(Object.getOwnPropertyDescriptor(data, field)?.get).toBeFunction();
+      const direct = directFields.includes(field);
+      const descriptor = Object.getOwnPropertyDescriptor(data, field)!;
+      if (direct) {
+        expect(JSON.stringify(source[field]).length).toBeLessThan(LOSSLESS_JSON_FIELD_BYTES);
+        expect(descriptor.get).toBeUndefined();
+        expect(descriptor.value).toBe(source[field]);
+      } else {
+        expect(JSON.stringify(source[field]).length).toBeGreaterThanOrEqual(LOSSLESS_JSON_FIELD_BYTES);
+        expect(descriptor.get).toBeFunction();
+      }
       const before = decodes(), decoded = data[field];
       expect(decoded).toBe(source[field]);
       expect(Buffer.from(decoded, 'base64')).toEqual(Buffer.from(source[field], 'base64'));
       expect(data[field]).toBe(decoded);
-      expect(decodes()).toBe(before + 1);
+      expect(decodes()).toBe(before + (direct ? 0 : 1));
     }
-    expect(decodes()).toBe(eagerFields.length + fields.length);
+    expect(decodes()).toBe(eagerFields.length + fields.length - directFields.length);
     expect(Object.keys(data).sort()).toEqual(Object.keys(source).sort());
     expect(JSON.stringify(data)).toBe(JSON.stringify(source));
     expect(result.code).not.toContain('WeakRef');
-    const field = fields[0]; data[field] = 'owned replacement';
+    const field = fields.find(candidate => !directFields.includes(candidate))!;
+    expect(field).toBeDefined();
+    data[field] = 'owned replacement';
     expect(data[field]).toBe('owned replacement');
     Object.freeze(data); expect(() => { data[field] = 'forbidden'; }).toThrow();
     savings += JSON.stringify(source).length - result.code.length;

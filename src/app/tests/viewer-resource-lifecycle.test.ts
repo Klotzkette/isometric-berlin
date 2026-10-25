@@ -2,10 +2,11 @@ import { expect, test } from "bun:test";
 import ts from "typescript";
 import {
   BoxGeometry, BufferGeometry, Group, InstancedMesh, Line, LineBasicMaterial,
-  LineLoop, LineSegments, Material, Mesh, Points, PointsMaterial, Scene, Texture,
+  LineLoop, LineSegments, Material, Mesh, PerspectiveCamera, Points, PointsMaterial, Scene, Texture,
   UnsignedByteType, WebGLRenderTarget,
 } from "three";
 import { createSnowstorm } from "../src/SnowstormEffects";
+import { createPressehausCrownV272 } from "../src/AlexanderNorthV272";
 import { preservedBackbufferRequired, stableWebglMemoryProfile } from "../src/renderQuality";
 import { objectMaterialsIncludingTransferredAlternates } from "../src/transferableObject3D";
 import {
@@ -40,6 +41,25 @@ function disposals(resource: BufferGeometry | Material | Texture): () => number 
   (resource as Material).addEventListener("dispose", () => { count++; });
   return () => count;
 }
+
+test("final viewer root teardown stops both nested Pressehaus crown callbacks", () => {
+  const scene = new Scene(), root = new Group();scene.add(root);
+  const camera = new PerspectiveCamera(55, 1, .1, 20000);
+  camera.position.set(2780, 95, -515);camera.lookAt(2756.45, 78.6, -553.15);camera.updateMatrixWorld(true);
+  const crowns = [createPressehausCrownV272(false), createPressehausCrownV272(true)];
+  root.add(...crowns);root.updateMatrixWorld(true);
+  for (const crown of crowns) {
+    expect(crown.userData.updatePressehausV272(0, camera)).toBe(true);
+    expect(crown.userData.updatePressehausV272(100, camera)).toBe(true);
+  }
+  const elapsed = crowns.map(crown => crown.userData.elapsedSeconds);
+  const host = disposalHost(root);host.run();host.run();
+  expect(scene.children).toHaveLength(0);
+  for (const [i, crown] of crowns.entries()) {
+    expect(crown.userData.updatePressehausV272(200, camera)).toBe(false);
+    expect(crown.userData.elapsedSeconds).toBe(elapsed[i]);
+  }
+});
 
 test("viewer teardown frees shared line/point buffers, alternate materials and images exactly once", () => {
   const root = new Group();

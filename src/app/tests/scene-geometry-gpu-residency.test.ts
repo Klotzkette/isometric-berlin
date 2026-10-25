@@ -2,13 +2,14 @@ import { describe, expect, test } from "bun:test";
 import {
   BoxGeometry, BufferAttribute, BufferGeometry, Group, InstancedMesh,
   InterleavedBuffer, InterleavedBufferAttribute, Line, LineBasicMaterial, Mesh,
-  MeshBasicMaterial, OrthographicCamera, Points, PointsMaterial, Scene,
+  MeshBasicMaterial, OrthographicCamera, PerspectiveCamera, Points, PointsMaterial, Scene,
   type Camera, type Material, type WebGLRenderer,
 } from "three";
 import { WebGLAttributes } from "three/src/renderers/webgl/WebGLAttributes.js";
 import { WebGLGeometries } from "three/src/renderers/webgl/WebGLGeometries.js";
 import { createSceneGeometryGpuResidency } from "../src/sceneGeometryGpuResidency";
 import { createSceneGpuResidency } from "../src/sceneGpuResidency";
+import { createPressehausCrownV272 } from "../src/AlexanderNorthV272";
 
 type Renderable = Mesh | Line | Points;
 
@@ -68,6 +69,34 @@ function interleavedTriangle() {
 }
 
 describe("lossless static-geometry GPU residency", () => {
+  test("Pressehaus crowns resume after real offscreen GPU eviction and identical reupload", () => {
+    for (const native of [false, true]) {
+      const h = host({ budgetBuffers: 0, graceMs: 0 }), root = createPressehausCrownV272(native);
+      h.scene.add(root);h.scene.updateMatrixWorld(true);
+      const mesh = root.children[0] as InstancedMesh;
+      const matrices = mesh.instanceMatrix.array, colors = mesh.instanceColor!.array;
+      const view = new PerspectiveCamera(55, 1, .1, 20000);
+      view.position.set(2780, 95, -515);view.lookAt(2756.45, 78.6, -553.15);view.updateMatrixWorld(true);
+      const update = root.userData.updatePressehausV272;
+      expect(update(0, view)).toBe(true);expect(update(100, view)).toBe(true);
+      h.residency.enqueue(root);h.draw(mesh);
+      const resident = h.live.size;expect(resident).toBeGreaterThan(0);
+      expect(update(200, view, false, true)).toBe(false);
+      const paused = root.userData.elapsedSeconds;
+      // The residency host looks away from the crown and uses the real Three
+      // geometry disposal backend, retaining the complete authored root.
+      expect(h.residency.refresh(250, true)).toBe(1);
+      expect(h.released).toEqual([mesh.geometry]);expect(h.live.size).toBe(0);
+      expect(mesh.parent).toBe(root);
+      h.draw(mesh);expect(h.live.size).toBe(resident);
+      expect(update(300, view)).toBe(true);expect(root.userData.elapsedSeconds).toBe(paused);
+      expect(update(400, view)).toBe(true);expect(root.userData.elapsedSeconds).toBeGreaterThan(paused);
+      expect(mesh.instanceMatrix.array).toBe(matrices);expect(mesh.instanceColor!.array).toBe(colors);
+      h.residency.dispose();root.userData.disposePressehausV272();
+      mesh.geometry.dispose();mesh.userData.dayMaterial.dispose();mesh.userData.nightMaterial.dispose();
+    }
+  });
+
   test("counts real uploads once, including interleaved storage, and reuploads identical data", () => {
     const h = host({ budgetBuffers: 0, graceMs: 0 });
     const { geometry, data } = interleavedTriangle();

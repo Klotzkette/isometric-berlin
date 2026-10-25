@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.171 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.171/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.172 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.172/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.171** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.172** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.172 refines HAU1/2/3 and GRIPS, the Technikmuseum with its aircraft, wind-turbine blade and railway sheds, the Springer/taz buildings and southern Friedrichstraße/Kochstraße fronts, and the northern Alexanderplatz/Pressehaus ensemble. Detailed source and approximation boundaries are documented; full mobile detail and live memory limits remain. [Evidence and checks](docs/berlin-venues-v272.md).
+
+Version 1.0.172 präzisiert HAU1/2/3 und GRIPS, das Technikmuseum mit Flugzeug, Windradflügel und Lokschuppen, Springer/taz und die südliche Friedrichstraße/Kochstraße sowie die Nordseite des Alexanderplatzes. Quellen und modellhafte Annäherungen sind dokumentiert; mobiler Detailgrad und laufende Speichergrenzen bleiben erhalten. [Belege und Prüfungen](docs/berlin-venues-v272.md).
 
 Version 1.0.171 corrects the missed grey-house layers around Weinbergspark, Zionskirchplatz, Arkonaplatz, Kastanienallee and Kollwitzplatz. Exact existing colour cells gain consistent, differentiated plaster and roof tones while all geometry, earlier details and mapped materials remain. Unknown colours are contextual estimates. [Evidence and checks](docs/northern-houses-v271.md).
 

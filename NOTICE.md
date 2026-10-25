@@ -2356,3 +2356,25 @@ evidence. The user screenshots are diagnosis references only and are not
 bundled. Unknown plaster and roof hues are contextual display estimates, not
 current individual facade surveys. Source proofs and protection rules are in
 `docs/northern-houses-v271.md` and its three component evidence notes.
+
+
+## Step 10 v272 — HAU, GRIPS, Technikmuseum and Berlin newspaper buildings
+
+Complete selected Berlin LoD2 source surfaces: Geoportal Berlin,
+dl-de/zero-2-0; retained OpenStreetMap plans, road/rail courses and POIs:
+OpenStreetMap contributors, ODbL 1.0. Original source hashes and unchanged
+ownership records are retained with the v272 evidence.
+Architectural/public references: HAU Hebbel am Ufer, GRIPS Theater, Landesdenkmalamt
+Berlin, Stiftung Deutsches Technikmuseum Berlin, Axel Springer, taz,
+E2A architects and Schnetzer Puskas, Pressehaus Berlin and gmp.
+Public-art reference credit: Peter Lenk, Friede sei mit Dir, former taz house.
+Only a small independently authored geometric interpretation is shown.
+The Pressecafé frieze reference is credited to Willi Neubert; its figures
+and composition are not traced. Reference-only photographs are credited to
+Jürgen Fehrmann, Ériver Hijano, C. Kirchner and Marcus Bredt.
+BERLINER VERLAG motion follows the operator's description; speed is illustrative.
+BERLINER ZEITUNG lettering is an owner-requested historical reinstatement.
+No source photograph, video, recording or photographic texture is distributed.
+Fine geometry and colors not surveyed are explicitly documented display estimates.
+Source URLs, model boundaries and licensing: docs/press-quarter-v272.md,
+docs/theatres-v272.md, docs/technikmuseum-v272.md, docs/alexander-north-v272.md.

@@ -1722,3 +1722,18 @@ photographic surveys. Keep independent native proofs, full mobile quality,
 texture, per-frame work or coverage. Compare identical before/after views in
 the internal browser only. New colour receipts may use the established weak
 construction-field encoding with a separate eager packet-key rejection index.
+
+### Step 10 — v272 theatres, Technikmuseum and newspaper buildings
+
+The owner requests HAU1/2/3, GRIPS, the complete Technikmuseum outdoor and rail
+heritage ensemble, Axel-Springer tower, old and current taz houses and Peter
+Lenk's wall sculpture, Friedrichstraße/Kochstraße, and Alexanderplatz north with
+the publisher's rotating crown. Resolve exact retained official owners and
+replace only receipted coarse proxies, retaining complete original evidence.
+Keep each venue at its actual address; distinguish the current BERLINER VERLAG
+rotating crown from the requested historic BERLINER ZEITUNG lettering.
+Use primary operator/architect/heritage references; unsurveyed fine details are
+explicit estimates. All source parts, roofs, courtyards, full mobile detail,
+independent orthogonal native geometry, 93 stops and runtime budgets remain.
+Animation uses the existing shared loop with offscreen/hidden/reduced-motion
+and disposal guards. No raw media or textures. Internal-browser QA only.

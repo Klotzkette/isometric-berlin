@@ -1,3 +1,6 @@
+import { isTechnikmuseumSourceV272 } from "./TechnikmuseumV272Profile";
+import { THEATRES_V272_PRISM_IDS } from "./theatresV272Profile";
+import { PRESS_QUARTER_V272_PRISM_IDS } from "./pressQuarterV272Profile";
 import { isTachelesFrontSourceV270 } from "./TachelesFrontsV270Profile";
 import { isMoabitLandmarkSourceV269 } from "./MoabitLandmarksV269Profile";
 import { moabitCoreFacadeHeadV269 } from "./MoabitCoreHousesV269";
@@ -401,6 +404,7 @@ export type IsometricCityBuildOptions = {
   /** Exact church fallbacks yield only to the complete required v269 models. */
   golgathaV270?: boolean;
   tachelesFrontsV270?: boolean;
+  technikmuseumV272?: boolean;
   moabitLandmarksV269?: boolean;
   tempodromAnhalterV266?: boolean;
   northernSitesV266?: boolean;
@@ -1085,6 +1089,8 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   ...ALT_MITTE_V169_PRISM_IDS,
   ...ALEXANDER_NORTH_V166_PRISM_IDS,
   ...CITYWEST_CINEMAS_V166_PRISM_IDS,
+  ...THEATRES_V272_PRISM_IDS,
+  ...PRESS_QUARTER_V272_PRISM_IDS,
   ...WEST_VENUES_V260_PRISM_IDS,
   ...MOABIT_JUSTICE_V166_PRISM_IDS,
   ...MITTE_HERITAGE_V166_PRISM_IDS,
@@ -1793,12 +1799,13 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
   const visible = buildings.filter(building => !options.architectureV241 || !isAEGCampusCorePrismV241(building))
     .filter(building => !options.tachelesFrontsV270 || !isTachelesFrontSourceV270(building))
+    .filter(building => !options.technikmuseumV272 || !isTechnikmuseumSourceV272(building))
     .filter(building => !options.moabitLandmarksV269 || !isMoabitLandmarkSourceV269(building))
     .filter(building => !options.tempodromAnhalterV266 || !isAnhalterSourceV266(building))
     .filter(building => !options.northernSitesV266 || !isCampusCanopySourceV266(building))
@@ -11981,6 +11988,7 @@ export function createIsometricCityCore(
   };
   for (const sourceBuilding of buildings) {
     if (options.tachelesFrontsV270 && isTachelesFrontSourceV270(sourceBuilding)) continue;
+    if (options.technikmuseumV272 && isTechnikmuseumSourceV272(sourceBuilding)) continue;
     if (options.moabitLandmarksV269 && isMoabitLandmarkSourceV269(sourceBuilding)) continue;
     if (options.tempodromAnhalterV266 && isAnhalterSourceV266(sourceBuilding)) continue;
     if (options.northernSitesV266 && isCampusCanopySourceV266(sourceBuilding)) continue;

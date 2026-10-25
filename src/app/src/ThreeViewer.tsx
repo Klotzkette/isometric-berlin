@@ -3732,7 +3732,7 @@ function prepareIsoNavigation(
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(ground);
   configureNeueNationalgalerieObstaclesV217(pedestrianEnvironment.obstacles);
@@ -4174,7 +4174,7 @@ function ensureIsoWorld(
           {
             buildings: initialBuildings,
             includeLegacyChariteFacade: false,
-            includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
+            includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
             includeLegacyHungarianEnvelope: false,
             architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
             includeKulturforumAndNorthRail: false,
@@ -4324,7 +4324,7 @@ function ensureIsoWorld(
           yield;
           pendingPathTerrainAt = prepareDistrictPathTerrain(ground, runtime.tunnelPortalCourse);
         }
-        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { golgathaV270: true, tachelesFrontsV270: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
+        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
         yield;
         isoWorld.add(komischeOper.createKomischeOperSourceGeometry());
         yield;
@@ -4679,7 +4679,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   environment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
@@ -4905,7 +4905,7 @@ function ensureVoxelWorld(
           {
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             sourcePrisms: prisms?.buildings,
-            includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
+            includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
             staatsoperV240: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
           },
         ),
@@ -5681,6 +5681,8 @@ function disposeObject3D(runtime: Runtime, root: Object3D): void {
   const textures = new Set<Texture>();
   const closeableImages = new Set<{ close: () => void }>();
   root.traverse((object) => {
+    // Permanent root retirement is distinct from reusable GPU-buffer eviction.
+    object.userData.disposePressehausV272?.();
     if (object === runtime.schwellenraumTowerSteam) {
       runtime.schwellenraumTowerSteam = null;
     }
@@ -8211,6 +8213,20 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const ordinaryEnvironmentFrameIntervalMs =
         environmentFrameIntervalMs(runtime.coarsePointer);
       const trafficTowerScreen = new Vector3();
+      let pressehausWorldV272: Object3D | null = null;
+      let pressehausUpdatesV272: Array<(t: number, c: PerspectiveCamera, reduced: boolean, hidden: boolean) => boolean> = [];
+      const updatePressehausV272 = (timestamp: number, hidden: boolean) => {
+        const world = runtime.lightingMode === "minecraft" ? runtime.voxelWorld : runtime.isoWorld;
+        if (world !== pressehausWorldV272) {
+          pressehausWorldV272 = world;
+          const updates = new Set<(t: number, c: PerspectiveCamera, reduced: boolean, hidden: boolean) => boolean>();
+          world?.traverse(object => {
+            if (typeof object.userData.updatePressehausV272 === "function") updates.add(object.userData.updatePressehausV272);
+          });
+          pressehausUpdatesV272 = [...updates];
+        }
+        for (const update of pressehausUpdatesV272) if (update(timestamp, camera, reducedMotion, hidden || runtime.underside)) runtime.renderInvalidated = true;
+      };
       const animate = (timestamp = 0) => {
         if (disposed) {
           return;
@@ -8218,6 +8234,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         frame = window.requestAnimationFrame(animate);
         if (!activeRef.current || document.hidden || runtime.contextLost) {
           runtime.columbiahalleV257?.suspend();
+          updatePressehausV272(timestamp, true);
           // Hidden mobile tabs must not advance navigation or GPU work when
           // a browser still supplies occasional animation frames.
           lastAnimateAt = timestamp;
@@ -8230,6 +8247,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         // The unlit exhibit fade has no changing shadow casters.
         if (runtime.pergamonReveal?.update(timestamp)) runtime.renderInvalidated = true;
+        updatePressehausV272(timestamp, false);
         runtime.scheduleGpuWarmup?.();
         if (timestamp >= wheelEndNotifyAt) {
           wheelEndNotifyAt = Number.POSITIVE_INFINITY;
@@ -8480,6 +8498,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.geometryResidency?.refresh(timestamp);
         runtime.surroundingCity?.refresh(timestamp, runtime.controls.target);
         runtime.gpuWarmup?.refreshView();
+        updatePressehausV272(timestamp, false);
         runtime.scheduleGpuWarmup?.();
         updateMobileBuildingDetails(runtime, timestamp, onWarningRef.current);
         const movingFlagCount =
@@ -9486,6 +9505,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.pergamonReveal = undefined;
         runtime.columbiahalleV257?.dispose();
         runtime.columbiahalleV257 = undefined;
+        pressehausUpdatesV272 = [];
+        pressehausWorldV272 = null;
         // Minimap poses own resident navigation references. Saved navigation is
         // numeric and separate, so release the old family before rebuilding it.
         pedestrianPoseEmissionRef.current.active = false;
