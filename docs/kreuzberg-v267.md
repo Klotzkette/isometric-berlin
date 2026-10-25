@@ -18,10 +18,19 @@ The spoken street name **“Dominikanerstraße” remains unresolved**. No other
 - New Python generation/evidence checks:11 passed. Repository-wide Ruff format:833 files unchanged; Ruff check passed.
 - One Codex internal browser only; no external browser. Actual local source packets, matching district profiles and SouthKiez details were reviewed at the station front/roof, fire-station front, Wiener/Görlitzer lower fronts, both Oranien cycle-stand views and park tables, each in drawn/native. A native station wall mismatch and open roof steps were found and corrected before the final review. No captured console warning/error. This bounded scene harness is a local visual check, not a full-city performance certification.
 - Station walking check uses both immutable9_4 packets with real ground, roads and neighbour obstacles. Forty-eight steps below the western viaduct across day→native→day do not respawn or jump, and height changes stay at or below0.09m. Decks block at their correct height; the station itself remains closed.
-- Final TypeScript and Vite production builds passed. Complete release-readiness validation returned zero failures. The full repository Python run and publication receipts are recorded below when completed.
+- Final TypeScript and Vite production builds passed. Complete release-readiness validation returned zero failures. The additional full repository Python run was manually interrupted after330 passing tests in752.57s while checking historical Shapely geometry, to bound local resource use. No failures occurred before interruption, but the full1,883-test suite is **not certified complete**. All11 focused new Python checks and49 focused integration/runtime tests completed successfully.
 
 Primary architectural/photo sources, estimates, exact owners and retained-source hashes are linked in the three model notes and the public visual-reference attribution ledger.
 
 ## Package preflight
 
 Complete extracted package:4,747 files /929,889,015 bytes. The prospective Pages tree including both retained v165/v166 asset graphs is1,063,068,363 bytes,10,673,461 bytes below1GiB. Exactly326 prior hashed assets remain eligible;30 retained-only files contribute133,179,348 bytes. No current asset is omitted and no live budget is increased.
+
+## Publication receipts
+
+Implementation commit: `c87037c4`; tag: `v1.0.167`. Complete package inventory SHA-256: `70831a29b157e65468a1c038e65f03578ebbada5f55f3296b3def84e10806943`. Archives were built one at a time in memory to avoid unnecessary disk duplication, using the original deterministic writers and complete archive validators.
+
+- `isometric-berlin-regierungsviertel-local.zip`: 757,648,065 bytes; SHA-256 `d34fa7965c2a9161ff47ccdd57790e81b52256309696d8aefa93464407ff0207`. Complete validation passed; GitHub size/digest/state match.
+- `isometric-berlin-viewer-v1.0.167.tar.gz`: 756,841,194 bytes; SHA-256 `17d9c90d0fe3fc29c1cdeeeea84280fb8e3695a0ed9f5a301d3b989293586bdb`. Complete validation passed; GitHub size/digest/state match.
+
+Pages commit: `8fe483e63c3b1d0a48e3807e8ce33fffed83febf`. GitHub Pages workflow40200866284 completed successfully. Public release: [v1.0.167](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.167). All10 checked hosted files match the package byte-for-byte, including the index, package/stream manifests, attribution, viewer/site/stream/worker bundles. Both archive size/digest/state checks match GitHub. All three withdrawn Columbiahalle recordings still return404. No external browser was launched; the temporary IAB tab/server were closed.
