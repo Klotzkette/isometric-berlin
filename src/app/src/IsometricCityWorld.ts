@@ -1,3 +1,5 @@
+import { isCampusCanopySourceV266 } from "./CampusNordV266Profile";
+import { isAnhalterSourceV266 } from "./TempodromAnhalterV266Profile";
 import { createChariteCampusV265 } from "./ChariteCampusV265";
 import { isChariteBridgeSourceV265 } from "./ChariteBridgesV265Profile";
 import { WEST_VENUES_V260_PRISM_IDS } from "./westVenuesV260Profile";
@@ -393,6 +395,8 @@ export type IsometricCityBuildOptions = {
   /** Complete measured AEG campus is required before replacing legacy prisms. */
   architectureV241?: boolean;
   /** Exact bridge sources yield only inside the required v265 transaction. */
+  tempodromAnhalterV266?: boolean;
+  northernSitesV266?: boolean;
   chariteBridgesV265?: boolean;
   includeLegacyMuseumFront?: boolean;
   includeLegacyDistrictCourtEnvelopes?: boolean;
@@ -1781,11 +1785,13 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
   const visible = buildings.filter(building => !options.architectureV241 || !isAEGCampusCorePrismV241(building))
+    .filter(building => !options.tempodromAnhalterV266 || !isAnhalterSourceV266(building))
+    .filter(building => !options.northernSitesV266 || !isCampusCanopySourceV266(building))
     .filter(building => !options.chariteBridgesV265 || !isChariteBridgeSourceV265(building))
     .filter(building => options.includeLegacyTownhallEnvelopes !== false || !isTownhallCorePrismV227(building))
     .filter(building => options.includeLegacyDistrictCourtEnvelopes !== false || !isDistrictCourtCorePrismV229(building))
@@ -11964,6 +11970,8 @@ export function createIsometricCityCore(
     geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
   for (const sourceBuilding of buildings) {
+    if (options.tempodromAnhalterV266 && isAnhalterSourceV266(sourceBuilding)) continue;
+    if (options.northernSitesV266 && isCampusCanopySourceV266(sourceBuilding)) continue;
     if (options.chariteBridgesV265 && isChariteBridgeSourceV265(sourceBuilding)) continue;
     if (options.architectureV241 && isAEGCampusCorePrismV241(sourceBuilding)) continue;
     if (options.includeLegacyTownhallEnvelopes === false && isTownhallCorePrismV227(sourceBuilding)) continue;

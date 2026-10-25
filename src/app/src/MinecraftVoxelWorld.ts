@@ -1,3 +1,5 @@
+import { createCampusCanopyColumnTesterV266 } from "./CampusNordV266Profile";
+import { createAnhalterColumnTesterV266 } from "./TempodromAnhalterV266Profile";
 import { createChariteBridgeColumnTesterV265 } from "./ChariteBridgesV265Profile";
 import { createChariteCampusV265 } from "./ChariteCampusV265";
 import { createEmbassyGateV264 } from "./EmbassyGateV264";
@@ -308,6 +310,8 @@ import {
 } from "./TunnelPortals";
 
 export type MinecraftVoxelWorldOptions = {
+  tempodromAnhalterV266?: boolean;
+  northernSitesV266?: boolean;
   chariteBridgesV265?: boolean;
   includeLegacyMuseumFront?: boolean;
   sourcePrisms?: readonly SonyRoofSourcePrism[];
@@ -2463,7 +2467,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftBerlinWallMemorialV174());
   yield;
-  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ chariteBridgesV265: options.chariteBridgesV265, schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true }));
+  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ northernSitesV266: options.northernSitesV266, chariteBridgesV265: options.chariteBridgesV265, schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true }));
   yield;
 
   group.add(createMinecraftZooGroundsV165());
@@ -2618,6 +2622,10 @@ export function* buildMinecraftVoxelWorldSteps(
     ? createSchlossplatzColumnTesterV239(options.sourcePrisms, cell) : () => false;
   const colonnadeColumnAt = options.includeLegacyColonnadesEnvelopes === false
     ? createColonnadesCoreColumnTesterV231(options.sourcePrisms, cell) : () => false;
+  const anhalterColumnAt = options.tempodromAnhalterV266
+    ? createAnhalterColumnTesterV266(options.sourcePrisms, cell) : () => false;
+  const campusCanopyColumnAt = options.northernSitesV266
+    ? createCampusCanopyColumnTesterV266(options.sourcePrisms, cell) : () => false;
   const chariteBridgeColumnAt = options.chariteBridgesV265
     ? createChariteBridgeColumnTesterV265(options.sourcePrisms, cell) : () => false;
   const visibleBuildingColumns: VoxelBuildingColumn[] = [];
@@ -2626,6 +2634,8 @@ export function* buildMinecraftVoxelWorldSteps(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
+    if (anhalterColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
+    if (campusCanopyColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (chariteBridgeColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (schlossColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm, y1dm, classId)) continue;
     if (aegColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;

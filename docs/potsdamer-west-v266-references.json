@@ -1,0 +1,22 @@
+{
+  "version": "v266",
+  "scope": "Potsdamer west external visual references; no source image pixels bundled",
+  "references": [
+    {
+      "title": "Atrium Tower exterior",
+      "sourcePage": "https://www.potsdamerplatz.de/de/office-leasing/atriumtower/",
+      "imageUrl": "https://ppassets.fra1.digitaloceanspaces.com/3ef3de5e163846f5e20e66a1c0350745f932a4de_2_47885fab42.jpg",
+      "credit": "Potsdamer Platz / operator; individual photographer not identified on source page",
+      "rights": "Reference only. No redistribution licence asserted; image not bundled.",
+      "usedFor": "Separate terracotta shaft, four-by-four green square crown, office double facade"
+    },
+    {
+      "title": "Potsdamer Platz canal-side exterior",
+      "sourcePage": "https://www.rpbw.com/project/postdamer-platz",
+      "imageUrl": "https://cdn.sanity.io/images/zi3g9jaq/production/6c3d87c796fcec582d412bf3519507d33edccec1-1400x1097.jpg",
+      "credit": "Enrico Cano / Renzo Piano Building Workshop",
+      "rights": "Reference only. No redistribution licence asserted; image not bundled.",
+      "usedFor": "Distinct ventilation shaft and lower office silhouette, terracotta and glazed facade relationships"
+    }
+  ]
+}

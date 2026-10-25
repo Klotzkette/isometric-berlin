@@ -112,6 +112,8 @@ export type ExpandedLandmark = {
 
 export type ExpandedCityDetailsOptions = {
   detailProfile?: MoabitPrisonMemorialDetailProfile;
+  /** Disable only after the complete required v266 portico has been constructed. */
+  includeLegacyAnhalter?: boolean;
 };
 
 export { CHARLOTTENBURGER_TOR_PROFILE } from "./charlottenburgerTorV201Profile";
@@ -317,6 +319,7 @@ export function expandedCityFocusCamera(
   const preset = EXPANDED_FOCUS_PRESETS[landmark.name];
   if (!preset) return null;
   const metricTargetByName: Record<string, readonly [number, number]> = {
+    "Anhalter Bahnhof": [713.526826309941, 1709.296598606446],
     "Berliner Philharmonie": KULTURFORUM_PROFILE.philharmonie.centerWorldM,
     "DKB Campus Upbeat": EUROPACITY_PROFILE.upbeat.centerWorldM,
     Gemäldegalerie: KULTURFORUM_PROFILE.gemaldegalerie.centerWorldM,
@@ -5248,7 +5251,7 @@ export function createExpandedCityDetails(
       addBox(builder, box.color, ...box.position, ...box.size, box.rotationY, false);
     }
   }
-  addAnhalterBahnhof(builder, byName);
+  if (options.includeLegacyAnhalter !== false) addAnhalterBahnhof(builder, byName);
   addCharlottenburgerTor(builder, byName);
   addAmanoGrandCentral(builder, byName);
   addEuropacityCompanyBuildings(builder, byName);

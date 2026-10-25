@@ -1,3 +1,7 @@
+import { createCampusNordV266 } from "./CampusNordV266";
+import { createDorotheenstadtV266 } from "./DorotheenstadtV266";
+import { createTempodromAnhalterV266 } from "./TempodromAnhalterV266";
+import { createPotsdamerWestV266 } from "./PotsdamerWestV266";
 import { createChariteBridgesV265 } from "./ChariteBridgesV265";
 import { createPrenzlbergEnvelopesV264 } from "./PrenzlbergEnvelopesV264";
 import { createPrenzlbergV264 } from "./PrenzlbergV264";
@@ -47,6 +51,14 @@ import { createDistrictCourtsV229 } from "./DistrictCourtsV229";
 /** Attach each complete owner before yielding, so the city's transaction owns
  * and disposes every allocated model even when loading is interrupted. */
 export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false): Generator<void> {
+  root.add(createCampusNordV266(native));
+  yield;
+  root.add(createDorotheenstadtV266(native));
+  yield;
+  root.add(createTempodromAnhalterV266(native));
+  yield;
+  root.add(createPotsdamerWestV266(native));
+  yield;
   root.add(createChariteBridgesV265(native));
   yield;
   root.add(createPrenzlbergEnvelopesV264(native));

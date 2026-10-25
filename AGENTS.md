@@ -1610,3 +1610,27 @@ Native merged triangles require a fingerprinted transfer of their four-part
 parent family; republish the two unrelated parts completely with the identical
 original native construction, while replacing only the two bridge volumes.
 Retain all four original source sheets and the exact triangle/line receipts.
+
+### Step 10 — v266 Tempodrom, Anhalter Bahnhof and east/west streets
+
+The owner requests a more accurate Tempodrom and surviving Anhalter Bahnhof
+portal, the named Potsdamer Platz buildings west of Tilla-Durieux-Park including
+the former Daimler/debis ensemble and its green-cube ventilation tower, and
+existing Ostkreuz, Boxhagener Platz and Friedrichshain context. Resolve company
+names against actual building identities and public architectural evidence.
+Preserve complete measured owners, all earlier details and source provenance;
+only precisely receipted inaccurate proxies may yield to complete required
+replacements. Streamed ordinary fittings follow mapped entrances and measured
+wall/roof edges. Unsurveyed subdivisions and recognition dimensions remain
+explicit display estimates. Keep full mobile detail, independent orthogonal
+native construction, 93 tour stops and every live residency/decode/prefetch
+limit. No unrelated coverage, textures or animation; internal browser QA only.
+
+The same v266 turn additionally requests Dorotheenstädtischer Friedhof, Brecht-Haus,
+Hannoversche Straße and the former Ständige Vertretung, the HU/Mensa quarter south
+of Naturkundemuseum, plus the Mauerpark/Nordbahnhof context, MYJUMP, DB offices
+and Ernst Busch theatre sites. Verify distinct addresses before modelling. Preserve
+existing complete owners, grave/park paths and all earlier details; additions remain
+bounded, source-bound, static and texture-free within existing coverage. Unsurveyed
+facade fittings and grave markers are illustrative, never measured or named graves.
+All source-retention, native geometry, mobile quality and runtime limits above apply.

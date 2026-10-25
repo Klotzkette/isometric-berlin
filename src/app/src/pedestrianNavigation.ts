@@ -1,3 +1,5 @@
+import { isCampusCanopySourceV266, campusCanopySolidsV266, isCampusCanopyPreviousPartV266 } from "./CampusNordV266Profile";
+import { isAnhalterSourceV266, anhalterSolidsForV266, isTempodromSourceV266, tempodromRoofAtV266 } from "./TempodromAnhalterV266Profile";
 import { isChariteBridgePreviousPartV265 } from "./chariteBridgesV265Ownership";
 import { isChariteBridgeSourceV265, chariteBridgeSolidsForV265 } from "./ChariteBridgesV265Profile";
 import { WEST_VENUES_V260_PRISM_IDS, WEST_VENUES_V260_PARTS, westVenuesV260RoofAt } from "./westVenuesV260Profile";
@@ -681,15 +683,49 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
-  options: { replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { replaceCampusCanopy?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   const replacedParents = new Set<string>();
   const replacedChariteBridges = new Set<string>();
+  let campusCanopyReplaced = false;
   const leipzigerParts = new Map(LEIPZIGER_SOURCE_PARTS.map(part => [part.id.slice(-8), part]));
   const potsdamerParts = new Map(POTSDAMER_MINISTRY_BUILDINGS.flatMap(family =>
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   for (const sourceBuilding of prisms.buildings) {
+    if (options.replaceCampusCanopy && isCampusCanopySourceV266(sourceBuilding)) {
+      campusCanopyReplaced = true;
+      for (const native of [false, true]) {
+        for (const solid of campusCanopySolidsV266(native)) {
+          addPolygonObstacle(index, solid.ring, solid.holes, solid.minY, solid.maxY,
+            solid.sourceId, 1, () => (visualMode() === "minecraft") === native
+              ? solid.maxY : Number.NEGATIVE_INFINITY);
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
+    if (options.replaceAnhalterPrism && isTempodromSourceV266(sourceBuilding)) {
+      const ring = sourceBuilding.ring.map(p => [p[0] / 10, p[1] / 10]);
+      const holes = (sourceBuilding.holes ?? []).map(hole => hole.map(p => [p[0] / 10, p[1] / 10]));
+      const bottom = sourceBuilding.y0_dm / 10;
+      const podiumTop = bottom + sourceBuilding.h_dm / 10;
+      addPolygonObstacle(index, ring, holes, bottom, 42.5, sourceBuilding.id, 1,
+        (x, z) => Math.max(podiumTop, tempodromRoofAtV266(x, z, visualMode() === "minecraft") ?? podiumTop));
+      index.buildingCount += 1;
+      continue;
+    }
+    if (options.replaceAnhalterPrism && isAnhalterSourceV266(sourceBuilding)) {
+      for (const native of [false, true]) {
+        for (const solid of anhalterSolidsForV266(native)) {
+          addPolygonObstacle(index, solid.ring, solid.holes, solid.minY, solid.maxY,
+            solid.sourceId, 1, () => (visualMode() === "minecraft") === native
+              ? solid.maxY : Number.NEGATIVE_INFINITY);
+          index.buildingCount += 1;
+        }
+      }
+      continue;
+    }
     if (options.replaceChariteBridges && isChariteBridgeSourceV265(sourceBuilding)) {
       replacedChariteBridges.add(sourceBuilding.id);
       for (const solid of chariteBridgeSolidsForV265(sourceBuilding.id)) {
@@ -1421,6 +1457,7 @@ export function compilePedestrianObstacles(
       addPolygonObstacle(index, part.ring, part.holes, part.ground_y_m, part.top_y_m + 2, part.sourceId, 1, (x,z) => bndHeadquartersV174RoofAt(x,z,visualMode() === "minecraft"));
     }
     for (const part of ALT_MITTE_V169_PARTS) {
+      if (campusCanopyReplaced && isCampusCanopyPreviousPartV266(part)) continue;
       if (replacedChariteBridges.has(part.id.slice(-8)) && isChariteBridgePreviousPartV265(part)) continue;
       if (replacedParents.has("schlossplatz-v239") && isSchlossplatzPreviousPartV239(part)) continue;
       addPolygonObstacle(index, part.ring, part.holes, part.groundY, part.topY + 2, part.id, 1, roofAt);
@@ -2098,7 +2135,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
-  options: { replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { replaceCampusCanopy?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;

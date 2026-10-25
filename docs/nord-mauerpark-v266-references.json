@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "references": [
+    {
+      "url": "https://www.hfs-berlin.de/buehnen/",
+      "claim": "Zinnowitzer Str. 11 and bat Belforter Str. 15 are distinct venues",
+      "retrieved": "2026-10-25",
+      "sha256": "89e5aeac5a0890ce43f0c007c6fe6f865b55ff874aec2bdf5abe4956260e396a",
+      "bytes": 45542
+    },
+    {
+      "url": "https://ortner-ortner.com/de/baukunst/projekte/kultur/hochschule-fuer-schauspielkunst-ernst-busch",
+      "claim": "Timber stage tower and glazed cafe box; published 24m tower; original measured source heights retained",
+      "credit": "Schnepp Renou / Horst Stasny / euroluftbild.de for O&O Baukunst; reference only",
+      "retrieved": "2026-10-25",
+      "sha256": "46603312954844d0344a28c29d0b535857dd60ae31632dfb756f787c291e13ff",
+      "bytes": 61033
+    },
+    {
+      "url": "https://www.ortner-ortner.com/en/baukunst/projekte/kultur/berliner-arbeitertheater-bat",
+      "claim": "Bat exterior entrance photograph: framed central door, three upper openings and low side openings",
+      "credit": "Stefan Mueller for O&O Baukunst; reference only",
+      "retrieved": "2026-10-25",
+      "sha256": "3b49528d466bf8f4b41df0107800276f14fff439cd32a511847bb6ebaf4702e4",
+      "bytes": 60141
+    },
+    {
+      "url": "https://myjump.de/berlin-mitte",
+      "claim": "MYJUMP Berlin Mitte, Caroline-Michaelis-Strasse 8; no exterior construction measurement",
+      "retrieved": "2026-10-25",
+      "sha256": "93d5d4f4589387b173c9d970ba4a3d976543a953971c0c5e8d17d783bf67e4eb",
+      "bytes": 158163
+    },
+    {
+      "url": "https://www.dbsystel.de/resource/blob/418080/771e5262de9b4aec0e5120bbccdcfdfd/Anfahrtsskizze-DB-Systel-Berlin--Caroline-Michaelis-Strasse-data.pdf",
+      "claim": "Stettiner Carree at Caroline-Michaelis 5-11; distinct from Nordbahnhof Carre; no map tracing",
+      "credit": "Exterior photo Bartlomiej Banaszak; reference only",
+      "retrieved": "2026-10-25",
+      "verification": "web tool primary-page text; direct HTTP receipt unavailable",
+      "httpError": "HTTP Error 404: "
+    },
+    {
+      "url": "https://gruen-berlin.de/pressemitteilung/mehr-gruen-fuer-die-stadt-mauerpark-eroeffnet-mit-verdoppelter-flaeche",
+      "claim": "Granite public-space character and stone seating; no protected park-plan tracing",
+      "retrieved": "2026-10-25",
+      "sha256": "a8bb736108d4dcba99db392308b7803b9fbc56af42ecfc99477d57bdfebac634",
+      "bytes": 142055
+    },
+    {
+      "url": "https://gruen-berlin.de/projekt-meldung/qualifizierung-mauerpark-musterflaechen-am-amphitheater",
+      "claim": "Amphitheatre survives; future works are not represented as completed",
+      "retrieved": "2026-10-25",
+      "sha256": "d041df37f4fdc6638b7120649acb72d8237725f99528503a10d0a7c33d11ec80",
+      "bytes": 124323
+    },
+    {
+      "url": "https://ortner-ortner.com/thumbs/baukunst/projekte/kultur/hochschule-fuer-schauspielkunst-ernst-busch/1_scre_000339159_send-970x728-q40.jpg",
+      "sha256": "acee97abab3317679cb2bcebdff32f88823028452c0f31bf1408ce12cdd0c1f8",
+      "bytes": 48963,
+      "retrieved": "2026-10-25",
+      "use": "Visual reference only, not bundled or used as texture. Member spacing, geometry and colour remain estimates."
+    },
+    {
+      "url": "https://www.ortner-ortner.com/thumbs/baukunst/projekte/kultur/berliner-arbeitertheater-bat/bat_1-970x728-q40.jpg",
+      "sha256": "7fac76ad3d17192176d835dda72e4ed0bb43a705b230c8dd58a3104ab5b3625f",
+      "bytes": 62178,
+      "retrieved": "2026-10-25",
+      "use": "Visual reference only, not bundled or used as texture. Member spacing, geometry and colour remain estimates."
+    }
+  ]
+}

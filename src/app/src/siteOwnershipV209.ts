@@ -1,3 +1,5 @@
+import { transferCampusCanopyTrianglesV266, transferCampusCanopyLinesV266 } from "./CampusNordV266Profile";
+import { transferDorotheenstadtTrianglesV266 } from "./dorotheenstadtV266Ownership";
 import { transferChariteBridgeTrianglesV265, transferChariteBridgeLinesV265 } from "./chariteBridgesV265Ownership";
 import prenzlberg from "./data/prenzlbergV264Ownership.json";
 import { transferPrenzlbergNavigationV264 } from "./prenzlbergPacketNavigationV264";
@@ -37,9 +39,9 @@ const lines = [...eastCinemas.lineRecords, ...helmholtz.lineRecords, ...prisons.
 /** Each replacement body is required in the city construction transaction. */
 export function* transferSiteTrianglesV209(tile: string, native: boolean,
   part: SurroundingPackedMesh, indices: Uint16Array | Uint32Array, offset: number,
-  schlossplatzV239 = false, staatsoperV240 = false, architectureV241 = false, prenzlbergV264 = false, chariteBridgesV265 = false): Generator<void, number> {
+  schlossplatzV239 = false, staatsoperV240 = false, architectureV241 = false, prenzlbergV264 = false, chariteBridgesV265 = false, northernSitesV266 = false): Generator<void, number> {
   const sites = yield* transferExactPacketTriangles(triangles, tile, native, part, indices, offset);
-  return sites + (yield* transferChariteBridgeTrianglesV265(chariteBridgesV265, tile, native, part, indices, offset)) + (prenzlbergV264 ? yield* transferExactPacketTriangles(prenzlberg.records, tile, native, part, indices, offset) : 0) + (yield* transferKalkscheuneFacadeV218(tile, native, part, indices, offset))
+  return (yield* transferCampusCanopyTrianglesV266(northernSitesV266, tile, native, part, indices, offset)) + (yield* transferDorotheenstadtTrianglesV266(northernSitesV266, tile, native, part, indices, offset)) + sites + (yield* transferChariteBridgeTrianglesV265(chariteBridgesV265, tile, native, part, indices, offset)) + (prenzlbergV264 ? yield* transferExactPacketTriangles(prenzlberg.records, tile, native, part, indices, offset) : 0) + (yield* transferKalkscheuneFacadeV218(tile, native, part, indices, offset))
     + (yield* transferSpreeFacadeV231(tile, native, part, indices, offset))
     + (yield* transferSchlossplatzTrianglesV239(schlossplatzV239, tile, native, part, indices, offset))
     + (yield* transferStaatsoperTrianglesV240(staatsoperV240, tile, native, part, indices, offset))
@@ -48,8 +50,8 @@ export function* transferSiteTrianglesV209(tile: string, native: boolean,
     + (yield* transferIHZTrianglesV241(architectureV241, tile, native, part, indices, offset));
 }
 export function* transferSiteLinesV209(tile: string, part: SurroundingPackedLines,
-  values: Uint16Array, stride: number, schlossplatzV239 = false, architectureV241 = false, prenzlbergV264 = false, chariteBridgesV265 = false): Generator<void, number> {
-  return (yield* transferChariteBridgeLinesV265(chariteBridgesV265, tile, part, values, stride)) + (prenzlbergV264 ? yield* transferExactPacketLines(prenzlberg.lineRecords, tile, part, values, stride) : 0) + (yield* transferExactPacketLines(lines, tile, part, values, stride))
+  values: Uint16Array, stride: number, schlossplatzV239 = false, architectureV241 = false, prenzlbergV264 = false, chariteBridgesV265 = false, northernSitesV266 = false): Generator<void, number> {
+  return (yield* transferCampusCanopyLinesV266(northernSitesV266, tile, part, values, stride)) + (yield* transferChariteBridgeLinesV265(chariteBridgesV265, tile, part, values, stride)) + (prenzlbergV264 ? yield* transferExactPacketLines(prenzlberg.lineRecords, tile, part, values, stride) : 0) + (yield* transferExactPacketLines(lines, tile, part, values, stride))
     + (yield* transferSchlossplatzLinesV239(schlossplatzV239, tile, part, values, stride))
     + (yield* transferStaatsbibliothekLinesV241(architectureV241, tile, part, values, stride));
 }

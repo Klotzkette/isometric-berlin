@@ -2254,3 +2254,19 @@ or source download is bundled. Window rhythm and unknown-material palette are
 illustrative; retained explicit source colours keep priority. Exact source
 receipts, protection of earlier details and limits are documented in
 [v263 evidence](docs/grey-clusters-v263.md).
+
+## v266 — central landmarks and requested neighbourhoods
+
+Complete retained Geoportal Berlin LoD2 (dl-de/zero-2-0) and OpenStreetMap
+(ODbL-1.0) records support the mapped owners, plans and public-space fittings.
+The Anhalter portico's exact coarse closure yields to an open model retaining
+its complete measured roof and all source sheets as evidence. New facade details,
+roof interpretation, lettering and anonymous grave markers are procedural
+interpretations; unmeasured dimensions remain explicit display estimates.
+External architectural photographs remain reference-only, with no pixels or
+textures distributed. Credits include Nico Kupfer / Berliner Zentrum
+Industriekultur; Christian Gahl and Marcus Bredt / gmp; Enrico Cano / RPBW;
+and Potsdamer Platz's operator exterior (individual photographer unspecified).
+Site-specific references and limitations: [v266 sources](docs/sites-east-west-v266.md).
+
+The v266 northern continuation uses external architectural references from Archiv BBR (2001), Literaturforum im Brecht-Haus, Egbert Schmidt / EVFBS, peb+, Werner Huthmacher / Bodamer Faber, Stefan Müller / Müller Reimann, Schnepp Renou / Horst Stasny / euroluftbild.de and Stefan Mueller for O&O Baukunst, and Bartlomiej Banaszak for DB. Individual photographers are identified where credited. Copyright remains with each source; no photographic pixels are bundled. Full source URLs and credits are in the public visual-reference attribution and the v266 reference documents.

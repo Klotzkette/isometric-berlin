@@ -1,0 +1,30 @@
+{
+  "version": "v266",
+  "scope": "Primary external visual references; no image pixels bundled",
+  "references": [
+    {
+      "title": "Altbau, Hannoversche Straße 28–30",
+      "sourcePage": "https://www.museum-der-1000-orte.de/bauwerke/bauwerk/altbau",
+      "imageUrl": "https://www.museum-der-1000-orte.de/images/1bbb2f6f4fb598a7bbce5ce4b74b74ec11ba802e.jpg",
+      "credit": "Archiv BBR (2001), as credited by Museum der 1000 Orte / Bundesamt für Bauwesen und Raumordnung",
+      "rights": "Reference only; no redistribution licence asserted; image not bundled",
+      "usedFor": "Five paired middle bays, side risalits, upper atelier glazing, terracotta bands and stone base"
+    },
+    {
+      "title": "Literaturforum im Brecht-Haus, Außenansicht",
+      "sourcePage": "https://lfbrecht.de/brecht-haus/geschichte/",
+      "imageUrl": "https://lfbrecht.de/wp-content/uploads/2013/12/Literaturforum-im-Brecht-Haus-Aussenansicht-1024x670.jpg",
+      "credit": "Literaturforum im Brecht-Haus; individual photographer not identified on source page",
+      "rights": "Reference only; no redistribution licence asserted; image not bundled",
+      "usedFor": "Five-axis classical front, lateral rounded entrance, cornices, brackets and dentils; monochrome photo does not establish facade paint colours"
+    },
+    {
+      "title": "Dorotheenstädtischer Friedhof I",
+      "sourcePage": "https://evfbs.de/start/friedhoefe/region-nord/einzeldarstellung/dorotheenstadt-i/rundgang",
+      "imageUrl": "https://evfbs.de/fileadmin/user_upload/images/kopf1640/do1_es559126_1640.jpg",
+      "credit": "© Egbert Schmidt / Evangelischer Friedhofsverband Berlin Stadtmitte",
+      "rights": "Reference only; no redistribution licence asserted; image not bundled",
+      "usedFor": "Cemetery material context; no pictured named monument or figure reproduced"
+    }
+  ]
+}
