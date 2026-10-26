@@ -1,11 +1,11 @@
 {
   "version": "1.0.177",
-  "status": "local_qa_complete_publication_pending",
+  "status": "final_verified",
   "python": {
     "schema": "berlin-v277-final-pytest-audit-v1",
     "releaseVersion": "1.0.177",
     "createdAtUtc": "2026-10-26T14:28:50.731584+00:00",
-    "status": "full-run-failed-follow-up-pending",
+    "status": "full-run-failed-exact-three-node-follow-up-passed",
     "singleFullSuiteGreen": false,
     "combinedVerificationComplete": true,
     "originalFullRun": {
@@ -45,10 +45,15 @@
           ],
           "tracebackSha256": "8e24cc7e2347977bc092aa1d0621ac3ce4f008153e901ac7cc743679f1feca97",
           "followUp": {
-            "status": "pending",
+            "status": "passed",
             "requiredExactNode": "tests/test_choriner_v250.py::test_generator_replays_without_network_and_does_not_rewrite_source",
             "requiredUnmodifiedTest": true,
-            "result": null
+            "result": {
+              "log": "pytest-followup.log",
+              "sha256": "9cc18636f1156f409e34539b982a0d6a6ba637df7d88ba96cf9e0d44fc8ed733",
+              "exitCode": 0,
+              "exactNodePassed": true
+            }
           }
         },
         {
@@ -68,10 +73,15 @@
           ],
           "tracebackSha256": "7e728bf050db6f2193706690b56ccdd51df139923f7483eb017d6593c382b526",
           "followUp": {
-            "status": "pending",
+            "status": "passed",
             "requiredExactNode": "tests/test_city_coverage_v183.py::test_v182_packets_survive_except_replayed_exact_station_owner_replacements",
             "requiredUnmodifiedTest": true,
-            "result": null
+            "result": {
+              "log": "pytest-followup.log",
+              "sha256": "9cc18636f1156f409e34539b982a0d6a6ba637df7d88ba96cf9e0d44fc8ed733",
+              "exitCode": 0,
+              "exactNodePassed": true
+            }
           }
         },
         {
@@ -97,10 +107,15 @@
           ],
           "tracebackSha256": "5cd40702a4188747eee77da57a70e19f892f38ccca36a749b3bfef3fc20e8596",
           "followUp": {
-            "status": "pending",
+            "status": "passed",
             "requiredExactNode": "tests/test_release_readiness.py::test_current_tree_is_release_ready",
             "requiredUnmodifiedTest": true,
-            "result": null
+            "result": {
+              "log": "pytest-followup.log",
+              "sha256": "9cc18636f1156f409e34539b982a0d6a6ba637df7d88ba96cf9e0d44fc8ed733",
+              "exitCode": 0,
+              "exactNodePassed": true
+            }
           }
         }
       ],
@@ -274,7 +289,7 @@
       "limitation": "The raw LoD2 ZIP is not tracked by Git; it matches the retained tracked evidence SHA-256 instead. This is a post-run byte comparison, not a claim that no process ever opened a file during the run."
     },
     "followUpRequirements": {
-      "status": "pending",
+      "status": "fulfilled",
       "exactNodes": [
         "tests/test_choriner_v250.py::test_generator_replays_without_network_and_does_not_rewrite_source",
         "tests/test_city_coverage_v183.py::test_v182_packets_survive_except_replayed_exact_station_owner_replacements",
@@ -286,9 +301,9 @@
       "requiredSkippedCount": 0,
       "mustPreserveOriginalFailureHistory": true,
       "testsOrModelChangedToPass": false,
-      "pendingAction": "Root runs TypeScript then production build serially, then reruns the three exact unmodified nodes. No tests were run by this audit."
+      "completedAction": "Serial TypeScript and production build/package completed, then all three exact unmodified nodes passed together in 197.29 seconds."
     },
-    "claimsLimit": "The original full suite failed. Two tracebacks report ENOSPC; the third is an actual release-readiness assertion for a missing built hashed main bundle. No original all-green suite or successful follow-up is claimed.",
+    "claimsLimit": "The original full suite failed and its original counts remain unchanged. Two tracebacks report ENOSPC; the third is a missing built main bundle. The exact three separately passed after storage recovery and production packaging. No single all-green full-suite run is claimed.",
     "followUp": {
       "status": "passed",
       "file": "pytest-followup.log",
@@ -518,5 +533,180 @@
     "An earlier concurrent typecheck was killed and an incomplete build was stopped during storage pressure; the recorded final serial typecheck/build passed.",
     "No physical mobile-device or endurance test. Browser checks were short production desktop and actual model-factory checks.",
     "Small facade fittings and internal Berlin Decks roof-step boundaries remain explicit estimates. Original source conflicts and evidence remain in site documentation."
-  ]
+  ],
+  "sourceTag": {
+    "initialSourceCommit": "8c91c81e4b592572abd087c7ca32a7749e740eb5",
+    "releaseSourceCommit": "8146977d3c2950201f2c39161f9c6bb6c162bfbc",
+    "tag": "v1.0.177",
+    "correction": "Before draft/release creation, four already tested Python regression files were added in a separate commit; the newly created tag was advanced with an exact old-tag-object lease. Product/build/model bytes did not change."
+  },
+  "verifiedAt": "2026-10-26T14:56:30.732862+00:00",
+  "allRequiredFinalGatesPassed": true,
+  "finalGateScope": "Combined original suite plus exact three-node follow-up, final build/typecheck/lint, targeted JavaScript checks, package/archive validation and live HTTP checks. No single all-green full Python suite or exhaustive mobile/endurance check is claimed.",
+  "publication": {
+    "release": {
+      "isDraft": false,
+      "name": "v1.0.177 · Nordufer, Moabit, Lehrter Straße und Bayer",
+      "tagName": "v1.0.177",
+      "url": "https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.177"
+    },
+    "packageAndArchives": {
+      "packageVersion": "1.0.177",
+      "bytes": 934453959,
+      "fileCount": 4750,
+      "sourceInventorySha256": "d9139475dcd9f414423c8357989983bc2084a151f358ff31793155db7b580dd7",
+      "MiB": 891.164740562439,
+      "releaseId": 424369060,
+      "archives": {
+        "isometric-berlin-regierungsviertel-local.zip": {
+          "size": 764717741,
+          "sha256": "fb9e0d2d87e4d3d68b4725704a20b3e9ddd4435f37c94e37b5cc865083fa8f7f",
+          "localValidationPassed": true,
+          "storage": "memory-only",
+          "remoteVerified": true,
+          "assetId": 678456931,
+          "remoteSize": 764717741,
+          "remoteDigest": "sha256:fb9e0d2d87e4d3d68b4725704a20b3e9ddd4435f37c94e37b5cc865083fa8f7f",
+          "remoteState": "uploaded"
+        },
+        "isometric-berlin-viewer-v1.0.177.tar.gz": {
+          "size": 763928879,
+          "sha256": "88a098faf146146c248d63d18bf25acac06b4df8773cd1a49daecd35a4ff3d4a",
+          "localValidationPassed": true,
+          "storage": "memory-only",
+          "remoteVerified": true,
+          "assetId": 678464577,
+          "remoteSize": 763928879,
+          "remoteDigest": "sha256:88a098faf146146c248d63d18bf25acac06b4df8773cd1a49daecd35a4ff3d4a",
+          "remoteState": "uploaded"
+        }
+      }
+    },
+    "checksumAssets": [
+      {
+        "name": "SHA256SUMS.txt",
+        "bytes": 217,
+        "sha256": "54c7a4ea5da0883da864b3fd903a9a3890a7be7d1c5b838b07d7bc0737875e40",
+        "assetId": 678469847,
+        "remoteVerified": true
+      },
+      {
+        "name": "SHA256SUMS-v1.0.177.txt",
+        "bytes": 217,
+        "sha256": "54c7a4ea5da0883da864b3fd903a9a3890a7be7d1c5b838b07d7bc0737875e40",
+        "assetId": 678469848,
+        "remoteVerified": true
+      }
+    ],
+    "pages": {
+      "url": "https://klotzkette.github.io/isometric-berlin/",
+      "commit": "5ef8d33a3db13895f2ec37a3653f0f7a1eb2b125",
+      "status": "built",
+      "updatedAt": "2026-10-26T14:51:09Z",
+      "error": {
+        "message": null
+      },
+      "treeBytes": 1068223060,
+      "headroomBelow1GiB": 5518764,
+      "retainedPreviousTwoAssets": 332,
+      "retainedPreviousOnlyAssets": 30,
+      "retainedPreviousOnlyBytes": 133769101,
+      "publishLog": {
+        "file": "pages-publish.log",
+        "bytes": 592,
+        "sha256": "f55dcf7752bc56b26692c7ea5b338aa13146a8c10b34e8fe68b030423826ab0b"
+      }
+    },
+    "liveVerification": {
+      "withdrawnMedia404": [
+        "columbiahalle-v257-silent.mp4",
+        "columbiahalle-v258-red-silent.mp4",
+        "columbiahalle-v258-portrait-silent.mp4"
+      ],
+      "release": "https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.177",
+      "tag": "v1.0.177",
+      "assetsVerified": 2,
+      "hostedChecks": [
+        {
+          "path": "index.html",
+          "bytes": 3525,
+          "sha256": "50a2c20c542d1e5b0cb1dfb431217d767ce03463af49102b1ee71527298cca1a"
+        },
+        {
+          "path": "package-manifest.json",
+          "bytes": 6107,
+          "sha256": "55371c7039f1ad44c745af2c32dd4f4d8fa7dc89ce611f7fde9a36306a6bc386"
+        },
+        {
+          "path": "mesh/surrounding-berlin-v159/manifest.json",
+          "bytes": 2147689,
+          "sha256": "db15e3b722bf64d223eed121aac4986dc48e91207e086e8b8d8f9a43dd074115"
+        },
+        {
+          "path": "dzi/regierungsviertel/visual_reference_attribution.json",
+          "bytes": 110159,
+          "sha256": "25bcf3496bc5d8432c31256e1cf3be905ec08134be627de7e5f21d6184999c27"
+        },
+        {
+          "path": "assets/ThreeViewer-BEi-XkU3.js",
+          "bytes": 3380496,
+          "sha256": "892044b500d1502fdab788807c1ef7543db56e46490a1b432f0ab25ef20ff22f"
+        },
+        {
+          "path": "assets/index-BQY4WG2S.js",
+          "bytes": 192500,
+          "sha256": "47d40744ef5e600487fcc758a0a41b563f2685ce3022b96fa43bb52f3e79c0a5"
+        },
+        {
+          "path": "assets/OuterThinOutlines-CU4EW7L3.js",
+          "bytes": 17353150,
+          "sha256": "fd22b5bc188a36a99ba1773c2e26e1a0a950d2e82b5db03fe98c5b6dc4c824dc"
+        },
+        {
+          "path": "assets/RequiredSiteEnvelopesV209-BBiIV788.js",
+          "bytes": 10692952,
+          "sha256": "323fbdcd627ee6670038945d9eebe1344fa2dae7e2e01536e824fe4b9f192aac"
+        },
+        {
+          "path": "assets/SurroundingCityGeometry-JjkedZZP.js",
+          "bytes": 14457806,
+          "sha256": "825f00ceda5a25916d981fe14003de369f7afb5bc704460c6234388f1fc939a3"
+        },
+        {
+          "path": "assets/progressiveWorld.worker-Ba_ChFjo.js",
+          "bytes": 10778859,
+          "sha256": "44555918307da80ca21f7b10378d0fba6a61e13d95af1bcf42fe30dea8e3d4f5"
+        }
+      ],
+      "scope": "HTTP byte checks and GitHub release assets only; no browser or endurance testing",
+      "passed": true
+    },
+    "receipts": [
+      {
+        "file": "package-verification.json",
+        "bytes": 1154,
+        "sha256": "be2008001b6196692dd63a68b7f3ae7979f82aeb4898314e2b6d28b9075e92b1"
+      },
+      {
+        "file": "release-published.json",
+        "bytes": 181,
+        "sha256": "f5aad64921e5047acb486e90c13b6301142396e1a8b386240976b70cf436cfa2"
+      },
+      {
+        "file": "checksum-assets.json",
+        "bytes": 396,
+        "sha256": "b139fc809c61b3fcec78a9ce2ec55c31b350e2d4b907d17809273bd9b5be0a93"
+      },
+      {
+        "file": "live-verification.json",
+        "bytes": 2144,
+        "sha256": "9b7d5e06ac12b58b1eff3b93f106ece1150a542c20fcd40346547b3789ed6166"
+      },
+      {
+        "file": "live-verification.log",
+        "bytes": 2144,
+        "sha256": "9b7d5e06ac12b58b1eff3b93f106ece1150a542c20fcd40346547b3789ed6166"
+      }
+    ]
+  }
 }
