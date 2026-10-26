@@ -1,0 +1,1713 @@
+{
+  "version": "1.0.176",
+  "tag": "v1.0.176",
+  "generatedAtUnix": 1793017921.650183,
+  "status": "final_verified",
+  "allRequiredFinalGatesPassed": true,
+  "python": {
+    "main": {
+      "file": "pytest-full.log",
+      "bytes": 36592,
+      "sha256": "fb0ace7919a4e072c3016fcf2c18918a1c72821a657fbe1872e777b0f78bfaf4",
+      "summary": "====== 1 failed, 2080 passed, 4 skipped, 2 warnings in 2487.07s (0:41:27) ======",
+      "counts": {
+        "failed": 1,
+        "passed": 2080,
+        "skipped": 4,
+        "warnings": 2
+      },
+      "seconds": 2487.07,
+      "complete": true,
+      "runPassed": false,
+      "failedNodeIds": [
+        "tests/test_weinberg_terrain_packets_v176.py::test_current_packet_manifests_and_untouched_assets_match_release"
+      ],
+      "collected": 2085,
+      "exitCode": 1,
+      "exitReceipt": {
+        "file": "pytest-full.exit",
+        "bytes": 2,
+        "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+      },
+      "greenClaim": false,
+      "singleFullSuiteGreenClaim": false,
+      "status": "completed_with_storage_failure_and_separate_unmodified_passing_recheck",
+      "failureClassification": "Temporary station-owner replay could not write a packet: OSError Errno28. No product/assertion failure was reached at this node.",
+      "outcomeAccounting": "Original 1 failed / 2080 passed / 4 skipped / 2 warnings and exit1 are retained. The separate one-test follow-up is not added to the main-run count.",
+      "storageFollowUp": {
+        "file": "pytest-storage-followup.log",
+        "bytes": 439,
+        "sha256": "4bace3c2c6381bb2c1cfca7a8fb32645bc238d35be8e27a50a432205499f75c6",
+        "summary": "======================== 1 passed in 261.50s (0:04:21) =========================",
+        "counts": {
+          "passed": 1
+        },
+        "seconds": 261.5,
+        "complete": true,
+        "runPassed": true,
+        "failedNodeIds": [],
+        "collected": 1,
+        "exactCommandReceipt": {
+          "file": "pytest-storage-followup-command.json",
+          "bytes": 514,
+          "sha256": "a255d81b4dde94f378f7fe72e524b2c3ed859b9d43f74fdc35925868117df615",
+          "data": {
+            "command": [
+              "uv",
+              "run",
+              "--no-sync",
+              "pytest",
+              "tests/test_weinberg_terrain_packets_v176.py::test_current_packet_manifests_and_untouched_assets_match_release"
+            ],
+            "cwd": "/Users/klotzkette/Desktop/Codex Projects/isometric-berlin",
+            "execSession": 60720,
+            "toolOutputChunk": "1e1a1c",
+            "log": "pytest-storage-followup.log",
+            "exitFile": "pytest-storage-followup.exit",
+            "source": "Actual tools.exec_command invocation in this task; no source/test changes before isolated rerun."
+          }
+        },
+        "exitCode": 0,
+        "exitReceipt": {
+          "file": "pytest-storage-followup.exit",
+          "bytes": 2,
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        "scope": {
+          "file": "pytest-storage-followup-scope.json",
+          "bytes": 1331,
+          "sha256": "e2ccfeaf18c7bf2ddd7c54604e94533b627df9391e62ba2e6c8ebf58849a62a5",
+          "data": {
+            "capturedAtUnix": 1793016221.3943229,
+            "nodeId": "tests/test_weinberg_terrain_packets_v176.py::test_current_packet_manifests_and_untouched_assets_match_release",
+            "testCodeChangedForRerun": false,
+            "evidence": "Coordinator reported no source changes after the full run. Independent read-only comparison below confirms the test, station fixture helper and integrator match their committed versions. This is not a fabricated pre-run hash snapshot.",
+            "files": [
+              {
+                "path": "tests/test_weinberg_terrain_packets_v176.py",
+                "sha256": "1b35cced35c529e65722f8a96195978b748e65ade7369794d3f5e08f7e7de39e",
+                "bytes": 41767,
+                "equalToCurrentCommittedVersion": true
+              },
+              {
+                "path": "tests/station_receipts_v183.py",
+                "sha256": "633d1dc1d18a8ea9554772cec833d89f3ffc0caf3dad1a683e8e5ab4fb1d26c1",
+                "bytes": 4100,
+                "equalToCurrentCommittedVersion": true
+              },
+              {
+                "path": "scripts/integrate_alexander_stations_v183.py",
+                "sha256": "f554662b68d46a6f0a521e23c5b070d5bea10e97ed63b529dc0edd8676f01eff",
+                "bytes": 8034,
+                "equalToCurrentCommittedVersion": true
+              }
+            ],
+            "fullFailure": "OSError [Errno 28] No space left on device while creating a temporary berlin-v183-owner-proof packet, not an assertion comparison result",
+            "followUpStatusAtCapture": "running"
+          }
+        },
+        "chronology": "Fresh isolated rerun after the full process released resources; no test/model source changes (coordinator statement, source hashes retained)."
+      },
+      "storageFailureResolvedBySeparateRecheck": true,
+      "scope": "Entire 2,085-item collection; includes release readiness. Models/source geometry were frozen before this run.",
+      "duringRunChange": "Only package_static_site.PACKAGE_VERSION was corrected from 1.0.175 to 1.0.176 while the run was in early unrelated tests; package checks load that script when their tests execute. Package was restaged, then separate read-only readiness and explicit-version HTTP smoke passed.",
+      "changeEvidence": "Coordinator report plus package-preflight-initial-finding.json and package-stage-followup logs; no model/build change during the run",
+      "countsAreNotAddedToFocusedRuns": true
+    },
+    "focusedRuns": {
+      "tierpark-python-final.log": {
+        "file": "tierpark-python-final.log",
+        "bytes": 99,
+        "sha256": "adc329f2be30feadb73db16d2948f85805866416b115b118a23a1d7cb052ee49",
+        "summary": "12 passed in 5.68s",
+        "counts": {
+          "passed": 12
+        },
+        "seconds": 5.68,
+        "complete": true,
+        "runPassed": true,
+        "failedNodeIds": []
+      },
+      "pytest-zoo-west.log": {
+        "file": "pytest-zoo-west.log",
+        "bytes": 99,
+        "sha256": "c6f3bb71fec323f9fd06192136da2d72d5b5967b6228ca343dd233cb49501c82",
+        "summary": "16 passed in 1.42s",
+        "counts": {
+          "passed": 16
+        },
+        "seconds": 1.42,
+        "complete": true,
+        "runPassed": true,
+        "failedNodeIds": []
+      },
+      "pytest-kanzel-cabin-followup.log": {
+        "file": "pytest-kanzel-cabin-followup.log",
+        "bytes": 98,
+        "sha256": "9f32f3bd557cff5f59af8a8f1e4b18aa8df69df81f70c161c5762e6110714a74",
+        "summary": "4 passed in 0.57s",
+        "counts": {
+          "passed": 4
+        },
+        "seconds": 0.57,
+        "complete": true,
+        "runPassed": true,
+        "failedNodeIds": []
+      },
+      "street-curves-pytest-final.log": {
+        "file": "street-curves-pytest-final.log",
+        "bytes": 109,
+        "sha256": "42a57cb96a1ea7e4bb042acb8a8c29c46a12240e91f6e9a2e955274da3aa9655",
+        "summary": "5 passed in 82.44s (0:01:22)",
+        "counts": {
+          "passed": 5
+        },
+        "seconds": 82.44,
+        "complete": true,
+        "runPassed": true,
+        "failedNodeIds": []
+      },
+      "core-colours-pytest-final.log": {
+        "file": "core-colours-pytest-final.log",
+        "bytes": 98,
+        "sha256": "be8228587865d3962a8b4d1ef3bcb4f21e4775704eb072f698fda2ba3e54e159",
+        "summary": "4 passed in 2.93s",
+        "counts": {
+          "passed": 4
+        },
+        "seconds": 2.93,
+        "complete": true,
+        "runPassed": true,
+        "failedNodeIds": []
+      }
+    },
+    "overlapPolicy": "Focused runs overlap the full collection; no counts or assertions are added across runs."
+  },
+  "targetedJavaScript": {
+    "runs": {
+      "tierpark-bun-final.log": {
+        "file": "tierpark-bun-final.log",
+        "bytes": 1711,
+        "sha256": "c7976c522adef25cd6ccdc3f89be0ad96db975319de7eb2c46ff93a4741c6951",
+        "passed": 12,
+        "failed": 0,
+        "assertions": 5897,
+        "tests": 12,
+        "files": 3,
+        "duration": "1065.00ms",
+        "failedTests": [],
+        "passedTests": [
+          "Tierpark v276 source-bound complete companion > all six real packets keep every prior mesh, path, water and building; both modes decode",
+          "Tierpark v276 source-bound complete companion > actual wall mutation, ground drift, wrong family and cancellation fail closed",
+          "Tierpark v276 source-bound complete companion > production streaming path publishes the full companion and aborts before upload",
+          "streamed Tierpark additions exactly match explicit preparation for all ten existing packets",
+          "the local Tierpark receipt hash equals the existing shared guard exactly",
+          "streamed playground metadata is attached without changing its actual geometry or navigation",
+          "abort during Tierpark preparation leaves the source untouched and publishes no root",
+          "abort after decoder allocation disposes the unpublished geometry",
+          "Tierpark source-bound streamed companion v255 > all packets retain existing geometry/navigation and decode inside current bounds",
+          "Tierpark source-bound streamed companion v255 > different source rings/datum/origin and wrong family fail closed; preparation cancels",
+          "Tierpark source-bound streamed companion v255 > native remains fully orthogonal and packet data contain no imagery",
+          "Tierpark source-bound streamed companion v255 > unused construction path does not retain Tierpark packed data in another bundle"
+        ],
+        "testFiles": [
+          "tests/tierpark-v276.test.ts",
+          "tests/surrounding-stream-v255.test.ts",
+          "tests/tierpark-v255.test.ts"
+        ]
+      },
+      "bun-zoo-west.log": {
+        "file": "bun-zoo-west.log",
+        "bytes": 2637,
+        "sha256": "1ecd85aaa705a761300a16af5c8bf5ed718b694d5f3ba3b67fadea063e46b61a",
+        "passed": 14,
+        "failed": 0,
+        "assertions": 2418897,
+        "tests": 14,
+        "files": 4,
+        "duration": "1.71s",
+        "failedTests": [],
+        "passedTests": [
+          "Zoo Berlin complete source architecture and current mapped grounds > renders every source triangle including the transparent animal-house shells",
+          "Zoo Berlin complete source architecture and current mapped grounds > has fixed instanced texture-free budgets and identical full detail on touch",
+          "Zoo Berlin complete source architecture and current mapped grounds > native rooftop navigation is the exact merged source shell ceiling",
+          "Zoo Berlin complete source architecture and current mapped grounds > condor and marsh-bird source envelopes remain present but never opaque",
+          "v255 Zoo Berlin additive recognition > keeps the existing render calls and fixed buffer ceilings",
+          "v255 Zoo Berlin additive recognition > native pagoda roof follows the actual independent orthogonal solids",
+          "v256 Hippo Bay retains the complete prior rendered Zoo > exact indexing preserves every prior triangle, colour and authored instance",
+          "v256 Hippo Bay retains the complete prior rendered Zoo > new grid is rendered in the existing batches under both unchanged total ceilings",
+          "Zoo West complete retained sources with finite corrected restaurants > lossless row joining preserves every actual rendered original native volume and colour",
+          "Zoo West complete retained sources with finite corrected restaurants > full drawn and independent orthogonal native remain in all old batches and fixed budgets",
+          "Zoo West complete retained sources with finite corrected restaurants > actual core navigation replaces the tall restaurant proxies and preserves open canopy clearance",
+          "Zoo West complete retained sources with finite corrected restaurants > every restaurant solid uses independent native cells and canopy air stays clear",
+          "Zoo West complete retained sources with finite corrected restaurants > the real append path emits complete shells, visible wolves and condor recognition",
+          "Zoo West complete retained sources with finite corrected restaurants > retirement is exact and changed/missing/duplicated owners fail closed"
+        ],
+        "testFiles": [
+          "tests/zoo-grounds-v165.test.ts",
+          "tests/zoo-recognition-v255.test.ts",
+          "tests/zoo-hippo-v256.test.ts",
+          "tests/zoo-west-v276.test.ts"
+        ]
+      },
+      "bun-kanzel-cabin-followup.log": {
+        "file": "bun-kanzel-cabin-followup.log",
+        "bytes": 597,
+        "sha256": "eae0ed677b45030e5025b262b52d32fd1b85cbee24ed63e7eb8956a8304cbade",
+        "passed": 3,
+        "failed": 0,
+        "assertions": 4241,
+        "tests": 3,
+        "files": 1,
+        "duration": "936.00ms",
+        "failedTests": [],
+        "passedTests": [
+          "complete pavilion and cabin have bounded full mobile geometry in both modes",
+          "finite ownership fails closed for changed sources and shared neighbours",
+          "walking remains possible under canopy while kiosk and actual pillars block"
+        ],
+        "testFiles": [
+          "tests/verkehrskanzel-v276.test.ts"
+        ]
+      },
+      "street-curves-integration-bun.log": {
+        "file": "street-curves-integration-bun.log",
+        "bytes": 812,
+        "sha256": "2be0c0107c86fe21ab864d7f85198fbfc514500ce550dba52f643b01bc460d6f",
+        "passed": 5,
+        "failed": 0,
+        "assertions": 5263,
+        "tests": 5,
+        "files": 1,
+        "duration": "10.22s",
+        "failedTests": [],
+        "passedTests": [
+          "v276 exact road-arc ownership > all plans preserve originals and retire only their proven chords in the existing ink buffer",
+          "v276 exact road-arc ownership > unknown and native requests never decode constructor recipes",
+          "v276 exact road-arc ownership > changed origin, original meshes, ink, navigation and exhausted capacity fail closed",
+          "v276 exact road-arc ownership > existing append-only preparations survive, yielding is bounded, incorrect destinations are rejected",
+          "every selected production packet admits the arc after all older preparations, with navigation and the same batches"
+        ],
+        "testFiles": []
+      },
+      "street-core-integration-final-bun.log": {
+        "file": "street-core-integration-final-bun.log",
+        "bytes": 20058,
+        "sha256": "4215a2e885ea5a17174f6684ac22cdf40f991d75002098b26c309d56fa260fae",
+        "passed": 162,
+        "failed": 0,
+        "assertions": 1802435,
+        "tests": 162,
+        "files": 21,
+        "duration": "73.01s",
+        "failedTests": [],
+        "passedTests": [
+          "actual decoder preserves exact sources and accounts/disposes all eight outer-roof transactions",
+          "actual decoder retains one existing v233 family pair without a new outer-roof transfer",
+          "bounded source-supported main streets v254 > all real edge packets decode with complete old geometry, navigation and lines",
+          "bounded source-supported main streets v254 > ground/origin drift, unrelated identity, wrong family and cancellation fail closed",
+          "bounded source-supported main streets v254 > native edge triangles remain independently orthogonal",
+          "bounded source-supported main streets v254 > signals merge exactly once by source identity while every older placement survives",
+          "bounded source-supported main streets v254 > actual new signals retain grounded positions and an orthogonal native reading",
+          "bounded source-supported main streets v254 > every signal base meets the final prepared pavement independently in both families",
+          "unequal segment lengths retain the same 22cm perpendicular width on both sides",
+          "closed curb courses meet at an identical cross-section without changing the corner",
+          "acute corners, duplicates and reversals remain bounded without smoothing away source corners",
+          "the actual complete curb batch keeps every original course, height pair, index and byte capacity",
+          "all twenty actual bodies and fittings remain static, finite, texture-free and identical on mobile",
+          "every independent native roof cell has its submitted body and open shelters have only thin roof slabs",
+          "the required-site transaction attaches the complete compound before its first yield in both modes",
+          "actual navigation replaces the high garage and small roof while the live mode can change back",
+          "changed source and unrelated worlds never silently lose their original collision",
+          "all eleven canopy interiors remain clear below their actual sloping roof, while the roof and posts collide",
+          "the actual native constructor removes all 166 old high columns and their generic windows only when activated",
+          "v276 exact road-arc ownership > all plans preserve originals and retire only their proven chords in the existing ink buffer",
+          "v276 exact road-arc ownership > unknown and native requests never decode constructor recipes",
+          "v276 exact road-arc ownership > changed origin, original meshes, ink, navigation and exhausted capacity fail closed",
+          "v276 exact road-arc ownership > existing append-only preparations survive, yielding is bounded, incorrect destinations are rejected",
+          "every selected production packet admits the arc after all older preparations, with navigation and the same batches",
+          "lossless lazy source JSON > v271 colour receipts preserve exact values and small eager indices",
+          "lossless lazy source JSON > the startup landmark catalogue does not pull the Three.js decoder into the initial graph",
+          "lossless lazy source JSON > v270 eager fields retain complete values, data descriptors and strong named identity",
+          "lossless lazy source JSON > two retained legacy navigation sources keep eager strong identity while saving worker bytes",
+          "lossless lazy source JSON > audited nested model packets stay lossless and weak without changing ordinary objects",
+          "lossless lazy source JSON > preserves numbers, Unicode, escaping, own __proto__ and export identity",
+          "lossless lazy source JSON > leaves small, raw/url and external JSON untouched and keeps root arrays exact",
+          "lossless lazy source JSON > gzip retains exact JSON semantics without changing field ownership",
+          "lossless lazy source JSON > round-trips every transformed committed source payload without a changed value",
+          "lossless lazy source JSON > the installed production bundler keeps default arrays lazy and shakes unused named exports",
+          "twenty exact retained owners, source hashes and complete exclusive column receipts remain independently bound",
+          "changed source geometry, elevations, material, roof, holes or owner never yields",
+          "a new or changed overlapping owner preserves its whole old column without erasing neighbouring cells",
+          "initial, distant and progressive drawn layers retire all twenty old prisms only on explicit activation",
+          "production core colour source is smaller with exact eager values, ordinary descriptors and strong aliases",
+          "production schema-only import omits the eager core owner payload and decoder",
+          "bounded direct decoding preserves every source value across slice boundaries (older browser)",
+          "bounded direct decoding preserves every source value across slice boundaries (native)",
+          "complete buildings before worker refinement > mobile: all source buildings have permanent colored envelopes within the memory budget",
+          "complete buildings before worker refinement > desktop: all source buildings have permanent colored envelopes within the memory budget",
+          "production preview replacement lifecycle > complete geometry appears before CPU acknowledgement and a retired worker gets no late ACK",
+          "production preview replacement lifecycle > a settled district set ignores priority-only reordering while unfinished detail still reprioritizes",
+          "production preview replacement lifecycle > mobile: fast travel restores source roofs before evicting distant detail and accepts its return",
+          "production preview replacement lifecycle > desktop: fast travel restores source roofs before evicting distant detail and accepts its return",
+          "production preview replacement lifecycle > a quick reversal reuses cached exact geometry without reupload or disposal",
+          "production preview replacement lifecycle > a district finishing after the camera left is acknowledged without hiding the envelope",
+          "production preview replacement lifecycle > day: relights and attaches exact geometry before hiding its fallback",
+          "production preview replacement lifecycle > night: relights and attaches exact geometry before hiding its fallback",
+          "production preview replacement lifecycle > snowstorm: relights and attaches exact geometry before hiding its fallback",
+          "production preview replacement lifecycle > schwellenraum: relights and attaches exact geometry before hiding its fallback",
+          "production preview replacement lifecycle > mobile: background/Minecraft pause retains exact roofs and restart requests only missing batches",
+          "production preview replacement lifecycle > desktop: background/Minecraft pause retains exact roofs and restart requests only missing batches",
+          "production preview replacement lifecycle > Worker API unavailable preserves complete startup coverage",
+          "production preview replacement lifecycle > decode failure retains successful roofs and unreplaced distant coverage",
+          "production preview replacement lifecycle > acknowledgement failure retains successful roofs and unreplaced distant coverage",
+          "production preview replacement lifecycle > worker failure retains successful roofs and unreplaced distant coverage",
+          "citywide source-tagged crossing and curb complements v249 > restored crossing stripes are the actual top visible surface in both families",
+          "citywide source-tagged crossing and curb complements v249 > every old packet, line and navigation survives; additions decode in existing bounded batch",
+          "citywide source-tagged crossing and curb complements v249 > unrelated packets avoid packed data; drift and cancellation fail closed",
+          "resolved authored registries and their imported owners are completely excluded",
+          "every positive residential receipt matches its complete unchanged source and rejects changed samples/geometry",
+          "actual early and detailed factories change only existing paint; mapped and authored controls are byte-identical",
+          "all 29,818 native sample queries keep mapped caps and exact source ownership, with an unchanged colour complement",
+          "the native constructor preserves the historic paint-only change outside exact later ownership hooks",
+          "bounded exact street construction > preserves published bytes except the source-centred v276 kerb cross-section correction",
+          "bounded exact street construction > keeps signed centimetres and Three's unsigned restart-index boundary",
+          "bounded exact street construction > counts empty and singleton curb lines without changing index width or topology",
+          "pedestrian navigation > enters walking mode below the visible camera instead of its look-at focus",
+          "pedestrian navigation > falls back to the look-at focus only when the camera is outside the world",
+          "pedestrian navigation > drops vertically onto a roof without changing the flight X/Z",
+          "pedestrian navigation > keeps the radial safety search for non-flight respawns",
+          "pedestrian navigation > never uses an exact vertical drop to enter a protected memorial",
+          "pedestrian navigation > returns no authored spawn when neither live camera point is walkable",
+          "pedestrian navigation > spawns at eye height on Pariser Platz facing the Brandenburg Gate",
+          "pedestrian navigation > walk input stays horizontal and diagonal speed is normalized",
+          "pedestrian navigation > default travel covers 13 metres in one second, with proportional precise thumb input",
+          "pedestrian navigation > sprint is an explicit four-times speed layer",
+          "pedestrian navigation > joystick boost cannot multiply sprint or fast run and rejects invalid speed",
+          "pedestrian navigation > boosted held movement cannot cross a thin wall or shoreline",
+          "pedestrian navigation > triple activation adds a distinct eight-times fast-run layer",
+          "pedestrian navigation > double activation has a bounded, deterministic sprint window",
+          "pedestrian navigation > counts three quick presses only for the same movement direction",
+          "pedestrian navigation > double Space has its own bounded high-jump window",
+          "pedestrian navigation > starts on the ground below the current view instead of teleporting",
+          "pedestrian navigation > normal jump clears three person heights and rejects an ordinary airborne jump",
+          "pedestrian navigation > double Space boosts once to the bounded high apex",
+          "pedestrian navigation > head look is clamped before it can flip upside down",
+          "pedestrian navigation > water holes remain dry while shorelines block without respawning",
+          "pedestrian navigation > held keyboard input separates walking, strafing and turning",
+          "pedestrian navigation > up/down arrows look in that direction without walking or changing floor",
+          "pedestrian navigation > LoD2 walls are solid while a real courtyard hole remains walkable",
+          "pedestrian navigation > indexes LoD2 source rings without cloning the city footprint graph",
+          "pedestrian navigation > walk mode stops at a facade and slides along it",
+          "pedestrian navigation > fast-run substeps cannot tunnel through a thin official tree trunk",
+          "pedestrian navigation > preserves a measured 1.426 m veteran-tree trunk as solid",
+          "pedestrian navigation > official wall traces are solid without becoming infinite barriers",
+          "pedestrian navigation > mapped hedges and rendered shrubs are finite obstacles",
+          "pedestrian navigation > activation over a solid footprint relocates to nearby open ground",
+          "audited constructor source cache ownership > production default import stays lazy and collected constructor fields reparse exactly",
+          "audited constructor source cache ownership > named exports retain identity and unsupported WeakRef retains the original strong semantics",
+          "audited constructor source cache ownership > an unaudited filename keeps even similarly named fields strongly cached",
+          "audited constructor source cache ownership > packed street surface strings use direct literals without parsing or changing their bytes",
+          "audited constructor source cache ownership > packed Alt-Mitte complements decode lazily once and retain exact strongly owned strings",
+          "bounded District streets in the drawn city > v206 corrects only documented false stripes, preserving every street surface and edge",
+          "bounded District streets in the drawn city > retains continuous carriageways, mapped walkways and real kerb faces",
+          "bounded District streets in the drawn city > follows the retained terrain instead of using a floating flat plate",
+          "bounded District streets in the drawn city > makes the kerb an upstand above the road, with ink on its upper edge",
+          "bounded District streets in the drawn city > keeps the street reading and bounded avenue infill in eight static, image-free batches",
+          "keeps the Bellevueallee ribbon above its surveyed ground without moving its plan",
+          "audited source transfers > keeps unrelated triangles and offset neighbours byte-identical",
+          "audited source transfers > changed source bytes, a foreign tile, or other mode never lose geometry",
+          "audited source transfers > a malformed triangle receipt cannot reach the next part",
+          "audited source transfers > old ink collapses only at audited segments, retaining per-vertex colours",
+          "Werkhof source packing preserves every mesh byte and the retained navigation objects",
+          "every roof transaction retains all packed source identities and retires only audited indices",
+          "flat roof ink changes only in the final copied line buffer",
+          "changed packets, wrong origins and malformed receipts fail closed without any replacement",
+          "cooperative cancellation leaves the complete original visible and consumes no live resource",
+          "bounded source curb packet additions > unrelated packets never decode the weak packed-data field",
+          "bounded source curb packet additions > every retained source packet gets exactly one additive part and unchanged navigation",
+          "bounded source curb packet additions > wrong ground, origin or unknown ownership is a safe no-op",
+          "bounded source curb packet additions > family data remains separate and cancellation does not mutate input",
+          "disjoint additive scopes sharing one tile rectangle retain both ground and water ownership",
+          "updated terrain revalidates the manifest and separates cached packet revisions",
+          "streamed city leaves unchanged world transforms cached across rendered frames",
+          "centimetre geometry preserves exact topology, colour, world coordinates and at most three GL buffers",
+          "several source kinds merge into one mesh without rewriting any source triangle",
+          "WebGL2 primitive-restart index 65535 keeps Uint32 topology instead of losing triangles",
+          "light kerbs and dark roof contours retain their separate source colours in one ink buffer",
+          "native Minecraft uses its separate payload and no smooth ink duplicate",
+          "corrupt indices and mismatched attribute counts cannot publish partial geometry",
+          "building collision preserves courtyard holes, height clearance and a bounded wall radius",
+          "resident bridge paving, curb and side barriers share geometry lifetime without blocking approaches",
+          "malformed bridge navigation cannot publish geometry",
+          "moving to a new district releases old geometry and navigation, then reloads on return",
+          "bounded overlapping transfers discard the former family on mode changes",
+          "a Day to Schwellenraum change retains the exact same geometry and source request",
+          "an aborted pending load cannot resurrect a disposed viewer",
+          "retirement budgets never remove a tile that is still in the wide visible view",
+          "lossless gzip chunks decode through the browser stream with identical geometry",
+          "older browsers use the bounded bundled inflater without retaining compressed source",
+          "HTTP gzip decoded by Fetch is not decoded a second time",
+          "gzip size violations publish no partial geometry in either browser path",
+          "mapped bridge courses remain walkable over water without opening the entire river",
+          "a transient manifest error retries before giving up on surrounding coverage",
+          "disposing during a manifest retry clears the timer and settles ready",
+          "cooperative chunk loading preserves exact buffers, source navigation and THREE bounds",
+          "cooperative work yields by elapsed budget instead of a timer for every stream",
+          "cancelling during cooperative decode rejects before any chunk can be published",
+          "cancellation disposes meshes and both lighting materials already prepared before publication",
+          "three requests overlap while publication keeps exact focused-first geometry",
+          "new camera regions load immediately but prefetch only after continuing visibility",
+          "prefetch reserves worst-case bytes and ignores extraneous uncompressed decodedBytes",
+          "oversized gzip candidates stay serial even when compressed bytes are small",
+          "a camera turn aborts all old prefetched responses and ignores their late arrival",
+          "prefetched gzip keeps identical geometry in streaming, fallback and HTTP-decoded paths",
+          "malformed prefetched gzip never publishes incomplete geometry",
+          "renderer suspension retains resident packets and resumes requests with unchanged geometry"
+        ],
+        "testFiles": [
+          "tests/outer-roofs-v262-decoder.test.ts",
+          "tests/main-streets-v254.test.ts",
+          "tests/street-kerb-joins-v276.test.ts",
+          "tests/tiergarten-werkhof-v275.test.ts",
+          "tests/street-curves-v276.test.ts",
+          "tests/lossless-json-data.test.ts",
+          "tests/tiergarten-werkhof-v275-ownership.test.ts",
+          "tests/core-house-colours-storage-v273.test.ts",
+          "tests/surrounding-city-v177-decode.test.ts",
+          "tests/progressive-building-coverage.test.ts",
+          "tests/city-streets-v249.test.ts",
+          "tests/core-house-colours-v273.test.ts",
+          "tests/district-street-memory.test.ts",
+          "tests/pedestrian-navigation.test.ts",
+          "tests/lossless-source-cache.test.ts",
+          "tests/district-streets.test.ts",
+          "tests/exact-packet-transfer.test.ts",
+          "tests/lossless-werkhof-v275.test.ts",
+          "tests/roof-house-v233.test.ts",
+          "tests/house-curbs-v233.test.ts",
+          "tests/surrounding-city.test.ts"
+        ]
+      }
+    },
+    "entireHistoricalBunSuiteRun": false,
+    "overlapPolicy": "The 162-test integrated run overlaps several smaller runs; results remain per run, never summed."
+  },
+  "preservedFailureHistory": [
+    {
+      "kind": "Python model replay",
+      "original": {
+        "file": "pytest-kanzel.log",
+        "bytes": 1376,
+        "sha256": "3349d7d2fa97fc65dc188f0df1c1d48633ba868df06c2899f6f5775567f80204",
+        "summary": "1 failed, 1 passed in 0.49s",
+        "counts": {
+          "failed": 1,
+          "passed": 1
+        },
+        "seconds": 0.49,
+        "complete": true,
+        "runPassed": false,
+        "failedNodeIds": [
+          "tests/test_verkehrskanzel_v276.py::test_complete_source_and_reproducibility"
+        ]
+      },
+      "followUp": {
+        "file": "pytest-kanzel-cabin-followup.log",
+        "bytes": 98,
+        "sha256": "9f32f3bd557cff5f59af8a8f1e4b18aa8df69df81f70c161c5762e6110714a74",
+        "summary": "4 passed in 0.57s",
+        "counts": {
+          "passed": 4
+        },
+        "seconds": 0.57,
+        "complete": true,
+        "runPassed": true,
+        "failedNodeIds": []
+      },
+      "explanation": "Observed parts mismatch in data == build(); subsequent complete final four-test file passed. No undocumented root cause is inferred."
+    },
+    {
+      "kind": "Native cabin frame visibility",
+      "original": {
+        "file": "pytest-kanzel-cabin-before.log",
+        "bytes": 1967,
+        "sha256": "0f8423260c941ebdbde6f98a5ab21095a446d2f75ceed32b08afbb96b0c1928d",
+        "summary": "1 failed in 0.08s",
+        "counts": {
+          "failed": 1
+        },
+        "seconds": 0.08,
+        "complete": true,
+        "runPassed": false,
+        "failedNodeIds": [
+          "tests/test_verkehrskanzel_v276.py::test_native_cabin_posts_are_visible_outside_actual_glass_wall_cells"
+        ]
+      },
+      "followUp": {
+        "file": "pytest-kanzel-cabin-followup.log",
+        "bytes": 98,
+        "sha256": "9f32f3bd557cff5f59af8a8f1e4b18aa8df69df81f70c161c5762e6110714a74",
+        "summary": "4 passed in 0.57s",
+        "counts": {
+          "passed": 4
+        },
+        "seconds": 0.57,
+        "complete": true,
+        "runPassed": true,
+        "failedNodeIds": []
+      },
+      "explanation": "White frame segments intersected actual native glass cells. Bounded X/Z repositioning made every frame visible; drawn fields, glass cells, non-frame rows and counts stayed unchanged.",
+      "beforeProof": {
+        "file": "verkehrskanzel-cabin-before-proof.json",
+        "bytes": 55455,
+        "sha256": "d35f7829d4ccc9267ff555d6f637f3a873dfdf51b0f14c7cc499cb7fbae8f3c7"
+      },
+      "afterProof": {
+        "file": "verkehrskanzel-cabin-after-proof.json",
+        "bytes": 1195,
+        "sha256": "f828b1546f69756be9f864200f0e75faa0bcb1b5396e4ed4adc7cf2ea9c1ee26",
+        "data": {
+          "beforeSha256": "0329bfc6b90745541e37af9a36bb07c5b73be38a65bbadd7e74aa787f0f903ab",
+          "afterSha256": "c205ef3c47b5d2fbf08c4caaae1fe71b12bd742701d52ed69f2df717f5e68be8",
+          "beforeOverlapping": 167,
+          "beforeFullyEmbedded": 122,
+          "afterOverlapping": 0,
+          "minimumRenderedGapM": 0.016201172024011612,
+          "maximumFitOffsetM": 0.21875,
+          "unchangedFields": [
+            "schemaVersion",
+            "sourceSha256",
+            "parts",
+            "drawnPositions",
+            "drawnColors",
+            "drawnDetails",
+            "roles",
+            "posts",
+            "nativeCabinBoxes",
+            "nativeFittingReceipts",
+            "cabin",
+            "counts"
+          ],
+          "allOtherNativeRowsSHA256": "a108117162532eac05215f6e86197422ea12ed9280f8f490b20b171703907338",
+          "nativeCounts": {
+            "triangles": 116,
+            "drawnBoxes": 222,
+            "nativeBoxes": 697
+          },
+          "jsonBytesBefore": 78662,
+          "jsonBytesAfter": 82976,
+          "roles": {
+            "continuousWhitePosts": 20,
+            "unchangedPieces": 200,
+            "glassWallCellsUnchanged": 33
+          },
+          "scope": "Only native white cabin frame X/Z positions and associated row order changed. Every previous JSON field except nativeDetails identical, every non-frame Float32 row byte-identical in order. New receipts explain the bounded frame placement."
+        }
+      }
+    },
+    {
+      "kind": "Initial street audit fixture",
+      "original": {
+        "file": "street-curves-pytest.log",
+        "bytes": 1315,
+        "sha256": "f76ccfcb6d65ab55e039a8667c9883d77e9b61f6ba92379b9d87166ab5480e63",
+        "summary": "1 failed, 4 passed, 2 warnings in 69.45s (0:01:09)",
+        "counts": {
+          "failed": 1,
+          "passed": 4,
+          "warnings": 2
+        },
+        "seconds": 69.45,
+        "complete": true,
+        "runPassed": false,
+        "failedNodeIds": [
+          "tests/test_street_curves_v276.py::test_source_and_original_asset_bytes_remain_exact"
+        ]
+      },
+      "followUp": {
+        "file": "street-curves-pytest-final.log",
+        "bytes": 109,
+        "sha256": "42a57cb96a1ea7e4bb042acb8a8c29c46a12240e91f6e9a2e955274da3aa9655",
+        "summary": "5 passed in 82.44s (0:01:22)",
+        "counts": {
+          "passed": 5
+        },
+        "seconds": 82.44,
+        "complete": true,
+        "runPassed": true,
+        "failedNodeIds": []
+      },
+      "explanation": "Incorrect >2000 primary-packet assertion corrected to the actual 1804; all 390 detail companions remain excluded."
+    },
+    {
+      "kind": "Street neighbour geometry warning",
+      "original": {
+        "file": "street-curves-pytest-followup.log",
+        "bytes": 8056,
+        "sha256": "e5138b759cc108626b5e647999105f3531da0b9b7af766f7d30819e885ee76f9",
+        "summary": "1 failed, 1 passed in 15.00s",
+        "counts": {
+          "failed": 1,
+          "passed": 1
+        },
+        "seconds": 15.0,
+        "complete": true,
+        "runPassed": false,
+        "failedNodeIds": [
+          "tests/test_street_curves_v276.py::test_every_emitted_arc_has_free_mapped_support_and_no_protected_neighbour"
+        ]
+      },
+      "followUp": {
+        "file": "street-curves-pytest-final.log",
+        "bytes": 109,
+        "sha256": "42a57cb96a1ea7e4bb042acb8a8c29c46a12240e91f6e9a2e955274da3aa9655",
+        "summary": "5 passed in 82.44s (0:01:22)",
+        "counts": {
+          "passed": 5
+        },
+        "seconds": 82.44,
+        "complete": true,
+        "runPassed": true,
+        "failedNodeIds": []
+      },
+      "explanation": "Warnings-as-errors exposed two already quantized invalid neighbour polygons. Conservative make-valid buffering repaired the audit without changing selected arcs or generated bytes."
+    },
+    {
+      "kind": "Native orthogonality signed zero",
+      "original": {
+        "file": "bun-kanzel.log",
+        "bytes": 1716,
+        "sha256": "c06562b4b6bca73b0323f1a0b8e50e284d00024ce05a3b19e07b941fce37b1bd",
+        "passed": 2,
+        "failed": 1,
+        "assertions": 61,
+        "tests": 3,
+        "files": 1,
+        "duration": "816.00ms",
+        "failedTests": [
+          "complete pavilion and cabin have bounded full mobile geometry in both modes"
+        ],
+        "passedTests": [
+          "finite ownership fails closed for changed sources and shared neighbours",
+          "walking remains possible under canopy while kiosk and actual pillars block"
+        ],
+        "testFiles": [
+          "tests/verkehrskanzel-v276.test.ts"
+        ]
+      },
+      "followUp": {
+        "file": "bun-kanzel-cabin-followup.log",
+        "bytes": 597,
+        "sha256": "eae0ed677b45030e5025b262b52d32fd1b85cbee24ed63e7eb8956a8304cbade",
+        "passed": 3,
+        "failed": 0,
+        "assertions": 4241,
+        "tests": 3,
+        "files": 1,
+        "duration": "936.00ms",
+        "failedTests": [],
+        "passedTests": [
+          "complete pavilion and cabin have bounded full mobile geometry in both modes",
+          "finite ownership fails closed for changed sources and shared neighbours",
+          "walking remains possible under canopy while kiosk and actual pillars block"
+        ],
+        "testFiles": [
+          "tests/verkehrskanzel-v276.test.ts"
+        ]
+      },
+      "explanation": "The initial strict toBe(0) rejected numeric -0. Orthogonality was checked numerically; actual independent native geometry remains verified.",
+      "countsAreNotAdded": true
+    },
+    {
+      "kind": "V255 streaming expectation",
+      "original": {
+        "file": "bun-kanzel-tierpark.log",
+        "bytes": 2281,
+        "sha256": "85325f3b65796e59d56f99fd1c74f67b4dfc31409e927d22f92a9bb2d421dda8",
+        "passed": 10,
+        "failed": 1,
+        "assertions": 4413,
+        "tests": 11,
+        "files": 3,
+        "duration": "995.00ms",
+        "failedTests": [
+          "streamed Tierpark additions exactly match explicit preparation for all ten existing packets"
+        ],
+        "passedTests": [
+          "Tierpark v276 source-bound complete companion > all six real packets keep every prior mesh, path, water and building; both modes decode",
+          "Tierpark v276 source-bound complete companion > actual wall mutation, ground drift, wrong family and cancellation fail closed",
+          "Tierpark v276 source-bound complete companion > production streaming path publishes the full companion and aborts before upload",
+          "complete pavilion and cabin have bounded full mobile geometry in both modes",
+          "finite ownership fails closed for changed sources and shared neighbours",
+          "walking remains possible under canopy while kiosk and actual pillars block",
+          "the local Tierpark receipt hash equals the existing shared guard exactly",
+          "streamed playground metadata is attached without changing its actual geometry or navigation",
+          "abort during Tierpark preparation leaves the source untouched and publishes no root",
+          "abort after decoder allocation disposes the unpublished geometry"
+        ],
+        "testFiles": [
+          "tests/tierpark-v276.test.ts",
+          "tests/verkehrskanzel-v276.test.ts",
+          "tests/surrounding-stream-v255.test.ts"
+        ]
+      },
+      "followUp": {
+        "file": "tierpark-bun-final.log",
+        "bytes": 1711,
+        "sha256": "c7976c522adef25cd6ccdc3f89be0ad96db975319de7eb2c46ff93a4741c6951",
+        "passed": 12,
+        "failed": 0,
+        "assertions": 5897,
+        "tests": 12,
+        "files": 3,
+        "duration": "1065.00ms",
+        "failedTests": [],
+        "passedTests": [
+          "Tierpark v276 source-bound complete companion > all six real packets keep every prior mesh, path, water and building; both modes decode",
+          "Tierpark v276 source-bound complete companion > actual wall mutation, ground drift, wrong family and cancellation fail closed",
+          "Tierpark v276 source-bound complete companion > production streaming path publishes the full companion and aborts before upload",
+          "streamed Tierpark additions exactly match explicit preparation for all ten existing packets",
+          "the local Tierpark receipt hash equals the existing shared guard exactly",
+          "streamed playground metadata is attached without changing its actual geometry or navigation",
+          "abort during Tierpark preparation leaves the source untouched and publishes no root",
+          "abort after decoder allocation disposes the unpublished geometry",
+          "Tierpark source-bound streamed companion v255 > all packets retain existing geometry/navigation and decode inside current bounds",
+          "Tierpark source-bound streamed companion v255 > different source rings/datum/origin and wrong family fail closed; preparation cancels",
+          "Tierpark source-bound streamed companion v255 > native remains fully orthogonal and packet data contain no imagery",
+          "Tierpark source-bound streamed companion v255 > unused construction path does not retain Tierpark packed data in another bundle"
+        ],
+        "testFiles": [
+          "tests/tierpark-v276.test.ts",
+          "tests/surrounding-stream-v255.test.ts",
+          "tests/tierpark-v255.test.ts"
+        ]
+      },
+      "explanation": "Expected preparation was updated to explicit V255 then V276, with old V255 prefix retained. The original failure reflected missing V276 in the test expectation.",
+      "countsAreNotAdded": true
+    },
+    {
+      "kind": "Historic native constructor guard",
+      "original": {
+        "file": "core-colours-bun-final.log",
+        "bytes": 2086,
+        "sha256": "d4a1cf628cf647f8615dec3c3319a929d568f97797b68811d2201bde09137932",
+        "passed": 6,
+        "failed": 1,
+        "assertions": 164223,
+        "tests": 7,
+        "files": 2,
+        "duration": "1187.00ms",
+        "failedTests": [
+          "the native constructor preserves the historic paint-only change outside exact later ownership hooks"
+        ],
+        "passedTests": [
+          "production core colour source is smaller with exact eager values, ordinary descriptors and strong aliases",
+          "production schema-only import omits the eager core owner payload and decoder",
+          "resolved authored registries and their imported owners are completely excluded",
+          "every positive residential receipt matches its complete unchanged source and rejects changed samples/geometry",
+          "actual early and detailed factories change only existing paint; mapped and authored controls are byte-identical",
+          "all 29,818 native sample queries keep mapped caps and exact source ownership, with an unchanged colour complement"
+        ],
+        "testFiles": [
+          "tests/core-house-colours-storage-v273.test.ts",
+          "tests/core-house-colours-v273.test.ts"
+        ]
+      },
+      "followUp": {
+        "file": "core-colours-bun-followup.log",
+        "bytes": 1199,
+        "sha256": "5375ddc258c82d06d85534fb20702fe2cb6fdc40c8611f1529edcf5ddc23e2d4",
+        "passed": 7,
+        "failed": 0,
+        "assertions": 164227,
+        "tests": 7,
+        "files": 2,
+        "duration": "1366.00ms",
+        "failedTests": [],
+        "passedTests": [
+          "production core colour source is smaller with exact eager values, ordinary descriptors and strong aliases",
+          "production schema-only import omits the eager core owner payload and decoder",
+          "resolved authored registries and their imported owners are completely excluded",
+          "every positive residential receipt matches its complete unchanged source and rejects changed samples/geometry",
+          "actual early and detailed factories change only existing paint; mapped and authored controls are byte-identical",
+          "all 29,818 native sample queries keep mapped caps and exact source ownership, with an unchanged colour complement",
+          "the native constructor preserves the historic paint-only change outside exact later ownership hooks"
+        ],
+        "testFiles": []
+      },
+      "explanation": "Only four exact new V276 ownership hooks were normalized; historical expected hash retained, all remaining constructor bytes identical.",
+      "countsAreNotAdded": true,
+      "proof": {
+        "file": "core-constructor-v276-normalization-proof.json",
+        "bytes": 801,
+        "sha256": "eb46c5570c99ad620b77b0d4a40a55049e0ca654e861b1d0fa7ab8dfe0335af2",
+        "data": {
+          "baselineHeadSha256": "0171073d4600d43cd33edcaae99a7ed3222fb80344bb9c81211120f5d532d7a2",
+          "afterExactlyFourV276HooksSha256": "0171073d4600d43cd33edcaae99a7ed3222fb80344bb9c81211120f5d532d7a2",
+          "historicalExpectedSha256": "0171073d4600d43cd33edcaae99a7ed3222fb80344bb9c81211120f5d532d7a2",
+          "remainingConstructorByteIdentical": true,
+          "exactAdditionalHooks": [
+            "  const zooWestColumnAt = options.zooWestV276 ? createZooWestColumnTesterV276(options.sourcePrisms, cell) : () => false;\n",
+            "  const kanzelColumnAt = options.verkehrskanzelV276 ? createVerkehrskanzelColumnTesterV276(options.sourcePrisms, cell) : () => false;\n",
+            "    if (zooWestColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;\n",
+            "    if (kanzelColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;\n"
+          ]
+        }
+      }
+    },
+    {
+      "kind": "V249 default timeout",
+      "original": {
+        "file": "street-regressions-bun-final.log",
+        "bytes": 6074,
+        "sha256": "486c430279e627046918572780d2d4836ed451e15ed12c8c6c02bca50363955e",
+        "passed": 39,
+        "failed": 2,
+        "assertions": 1342251,
+        "tests": 41,
+        "files": 10,
+        "duration": "27.08s",
+        "failedTests": [
+          "citywide source-tagged crossing and curb complements v249 > restored crossing stripes are the actual top visible surface in both families",
+          "citywide source-tagged crossing and curb complements v249 > every old packet, line and navigation survives; additions decode in existing bounded batch"
+        ],
+        "passedTests": [
+          "actual decoder preserves exact sources and accounts/disposes all eight outer-roof transactions",
+          "actual decoder retains one existing v233 family pair without a new outer-roof transfer",
+          "bounded source-supported main streets v254 > all real edge packets decode with complete old geometry, navigation and lines",
+          "bounded source-supported main streets v254 > ground/origin drift, unrelated identity, wrong family and cancellation fail closed",
+          "bounded source-supported main streets v254 > native edge triangles remain independently orthogonal",
+          "bounded source-supported main streets v254 > signals merge exactly once by source identity while every older placement survives",
+          "bounded source-supported main streets v254 > actual new signals retain grounded positions and an orthogonal native reading",
+          "bounded source-supported main streets v254 > every signal base meets the final prepared pavement independently in both families",
+          "unequal segment lengths retain the same 22cm perpendicular width on both sides",
+          "closed curb courses meet at an identical cross-section without changing the corner",
+          "acute corners, duplicates and reversals remain bounded without smoothing away source corners",
+          "the actual complete curb batch keeps every original course, height pair, index and byte capacity",
+          "v276 exact road-arc ownership > all plans preserve originals and retire only their proven chords in the existing ink buffer",
+          "v276 exact road-arc ownership > unknown and native requests never decode constructor recipes",
+          "v276 exact road-arc ownership > changed origin, original meshes, ink, navigation and exhausted capacity fail closed",
+          "v276 exact road-arc ownership > existing append-only preparations survive, yielding is bounded, incorrect destinations are rejected",
+          "every selected production packet admits the arc after all older preparations, with navigation and the same batches",
+          "citywide source-tagged crossing and curb complements v249 > unrelated packets avoid packed data; drift and cancellation fail closed",
+          "bounded exact street construction > preserves published bytes except the source-centred v276 kerb cross-section correction",
+          "bounded exact street construction > keeps signed centimetres and Three's unsigned restart-index boundary",
+          "bounded exact street construction > counts empty and singleton curb lines without changing index width or topology",
+          "bounded District streets in the drawn city > v206 corrects only documented false stripes, preserving every street surface and edge",
+          "bounded District streets in the drawn city > retains continuous carriageways, mapped walkways and real kerb faces",
+          "bounded District streets in the drawn city > follows the retained terrain instead of using a floating flat plate",
+          "bounded District streets in the drawn city > makes the kerb an upstand above the road, with ink on its upper edge",
+          "bounded District streets in the drawn city > keeps the street reading and bounded avenue infill in eight static, image-free batches",
+          "keeps the Bellevueallee ribbon above its surveyed ground without moving its plan",
+          "audited source transfers > keeps unrelated triangles and offset neighbours byte-identical",
+          "audited source transfers > changed source bytes, a foreign tile, or other mode never lose geometry",
+          "audited source transfers > a malformed triangle receipt cannot reach the next part",
+          "audited source transfers > old ink collapses only at audited segments, retaining per-vertex colours",
+          "every roof transaction retains all packed source identities and retires only audited indices",
+          "flat roof ink changes only in the final copied line buffer",
+          "changed packets, wrong origins and malformed receipts fail closed without any replacement",
+          "cooperative cancellation leaves the complete original visible and consumes no live resource",
+          "bounded source curb packet additions > unrelated packets never decode the weak packed-data field",
+          "bounded source curb packet additions > every retained source packet gets exactly one additive part and unchanged navigation",
+          "bounded source curb packet additions > wrong ground, origin or unknown ownership is a safe no-op",
+          "bounded source curb packet additions > family data remains separate and cancellation does not mutate input"
+        ],
+        "testFiles": [
+          "tests/outer-roofs-v262-decoder.test.ts",
+          "tests/main-streets-v254.test.ts",
+          "tests/street-kerb-joins-v276.test.ts",
+          "tests/street-curves-v276.test.ts",
+          "tests/city-streets-v249.test.ts",
+          "tests/district-street-memory.test.ts",
+          "tests/district-streets.test.ts",
+          "tests/exact-packet-transfer.test.ts",
+          "tests/roof-house-v233.test.ts",
+          "tests/house-curbs-v233.test.ts"
+        ]
+      },
+      "followUp": {
+        "file": "city-streets-v249-followup.log",
+        "bytes": 611,
+        "sha256": "17cb97d708f018e4410700adaca5fe798af418f36124712272d49f7b0966aedf",
+        "passed": 3,
+        "failed": 0,
+        "assertions": 2161,
+        "tests": 3,
+        "files": 1,
+        "duration": "12.50s",
+        "failedTests": [],
+        "passedTests": [
+          "citywide source-tagged crossing and curb complements v249 > restored crossing stripes are the actual top visible surface in both families",
+          "citywide source-tagged crossing and curb complements v249 > every old packet, line and navigation survives; additions decode in existing bounded batch",
+          "citywide source-tagged crossing and curb complements v249 > unrelated packets avoid packed data; drift and cancellation fail closed"
+        ],
+        "testFiles": [
+          "tests/city-streets-v249.test.ts"
+        ]
+      },
+      "explanation": "Two existing tests exceeded the default 5000 ms. Complete affected file passed at 30000 ms; subsequent integrated 162-test/21-file run also passed at that timeout. No assertions or geometry were weakened.",
+      "countsAreNotAdded": true
+    }
+  ],
+  "typeScriptAttempts": [
+    {
+      "file": "tsc-first.log",
+      "bytes": 360,
+      "sha256": "eb79b0e3757623799e90e979615b853a5f277c1c3e9dd61203590f0dc5a3ac9f",
+      "exitCode": 1,
+      "exitReceipt": {
+        "file": "tsc-first.exit",
+        "bytes": 2,
+        "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+      },
+      "diagnostics": [
+        "src/pedestrianNavigation.ts(732,66): error TS2552: Cannot find name 'verkehrszooWestSolidsV276'. Did you mean 'zooWestSolidsV276'?",
+        "src/pedestrianNavigation.ts(736,9): error TS2552: Cannot find name 'verkehrszooWestSolidsV276'. Did you mean 'zooWestSolidsV276'?",
+        "src/pedestrianNavigation.ts(736,47): error TS7006: Parameter 'solid' implicitly has an 'any' type."
+      ],
+      "explanation": "Navigation helper identifier typo; observed TS2552/TS7006."
+    },
+    {
+      "file": "tsc-final.log",
+      "bytes": 426,
+      "sha256": "b83bf50a66ee2ba3866a845201a425e667e86371513a06a460480cc73ff279f0",
+      "exitCode": 1,
+      "exitReceipt": {
+        "file": "tsc-final.exit",
+        "bytes": 2,
+        "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+      },
+      "diagnostics": [
+        "src/streetCurvesV276.ts(36,65): error TS2339: Property 'minHeight' does not exist on type 'SurroundingPolygon & Record<\"sourceId\", unknown>'.",
+        "src/streetCurvesV276.ts(36,78): error TS2339: Property 'height' does not exist on type 'SurroundingPolygon & Record<\"sourceId\", unknown>'.",
+        "src/streetCurvesV276.ts(36,88): error TS2339: Property 'groundOffset' does not exist on type 'SurroundingPolygon & Record<\"sourceId\", unknown>'."
+      ],
+      "explanation": "Street navigation building type narrowing; observed TS2339."
+    },
+    {
+      "file": "tsc-final-followup.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exitCode": 0,
+      "exitReceipt": {
+        "file": "tsc-final-followup.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "diagnostics": [],
+      "explanation": "Final complete TypeScript check after corrections."
+    }
+  ],
+  "productionBuild": {
+    "file": "build.log",
+    "bytes": 31947,
+    "sha256": "018e4dd0d75a5cd30cf5d46eb74db4ea13ce52c802fcfa7ac2031a8a9ac7e89d",
+    "exitCode": 0,
+    "publicLinking": {
+      "file": "link-public.log",
+      "bytes": 65,
+      "sha256": "62aceb8e02eba964bfb624f3eb24a72c7a171671668bcc6c8db3f0a6d84892fd"
+    }
+  },
+  "lint": {
+    "check": {
+      "file": "ruff-check.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "format": {
+      "file": "ruff-format.log",
+      "bytes": 45,
+      "sha256": "c6e718d6d5a26e5c507574262ec6fa61060309a0b8864644426f2cf6d32fbd3d"
+    },
+    "exitCode": 0,
+    "formatResult": "1 file reformatted, 906 files left unchanged"
+  },
+  "package": {
+    "initialVersionFinding": {
+      "file": "package-preflight-initial-finding.json",
+      "bytes": 1604,
+      "sha256": "9cb7def7545eea4dccb4407da27425a43e6276a069fb985c8d534ccf737d9f6f",
+      "data": {
+        "checkedAtUnix": 1793014045.9717162,
+        "expectedVersion": "1.0.176",
+        "finding": "Initial read-only inspection observed generator PACKAGE_VERSION and staged package_version 1.0.175 against project/application 1.0.176. Root then corrected the single generator version constant and restaged. No test had been run against the stale stage.",
+        "wasTestExecution": false,
+        "initialObservation": {
+          "generator": "scripts/package_static_site.py:23: PACKAGE_VERSION = \"1.0.175\"",
+          "stagedManifestVersion": "1.0.175",
+          "stagedManifestModifiedLocal": "2026-10-26 12:20:57",
+          "projectVersion": "1.0.176",
+          "applicationVersion": "1.0.176",
+          "evidence": "Initial exec output aaddd9 and ab735a; version snapshot below was captured after root corrected/restaged."
+        },
+        "afterCorrectionSnapshot": [
+          {
+            "path": "pyproject.toml",
+            "version": "1.0.176",
+            "bytes": 1436,
+            "sha256": "b16154a9b13935cdfac435e660c9117a23b542512272902b2bc402ab67d9ed92"
+          },
+          {
+            "path": "src/app/package.json",
+            "version": "1.0.176",
+            "bytes": 1265,
+            "sha256": "f748b366ed895fd3eacd01fcb2310b8c1b1bca1ff36dfee7d0c129b637edc676"
+          },
+          {
+            "path": "scripts/package_static_site.py",
+            "version": "1.0.176",
+            "bytes": 30451,
+            "sha256": "ffc5a521a693b25aa0dce7ea3131920264e11474e7d64ef1ac8ac9048114e957"
+          },
+          {
+            "path": "releases/isometric-berlin-regierungsviertel-local/package-manifest.json",
+            "version": "1.0.176",
+            "bytes": 6107,
+            "sha256": "332870c64b873cc09a80245cc74e14d7f71e64cfca09cc7f0796901c0c488345"
+          }
+        ]
+      }
+    },
+    "restage": {
+      "file": "package-stage-followup.log",
+      "bytes": 116,
+      "sha256": "347e818b800ca29f7bbec42db2b4d2c97700a6468105bf832f01ac58f1f80d47"
+    },
+    "inventory": {
+      "file": "package-inventory.json",
+      "bytes": 2152,
+      "sha256": "c294a492b16fefa441a0721b114ade3bd9c040614b463ce8043ccac731ac57e8",
+      "data": {
+        "version": "1.0.176",
+        "fileCount": 4750,
+        "bytes": 932392033,
+        "MiB": 889.1983346939087,
+        "pathSizeMtimeInventorySha256": "e96bc3cc3a40d4060979a348d66cac12dcc51da1a6661199ccb55c3d11ef92b6",
+        "manifestSha256": "332870c64b873cc09a80245cc74e14d7f71e64cfca09cc7f0796901c0c488345",
+        "stableDuringReadiness": true,
+        "groups": {
+          "(root)": {
+            "files": 11,
+            "bytes": 25034
+          },
+          "assets": {
+            "files": 314,
+            "bytes": 203610162
+          },
+          "dzi": {
+            "files": 6,
+            "bytes": 927271
+          },
+          "mesh": {
+            "files": 4419,
+            "bytes": 727829566
+          }
+        },
+        "largestFiles": [
+          {
+            "path": "assets/restoredRoadSurfaces.ndjson-E3DSTOen.txt",
+            "bytes": 30512656
+          },
+          {
+            "path": "assets/OuterThinOutlines-BBUfKy24.js",
+            "bytes": 17353114
+          },
+          {
+            "path": "assets/SurroundingCityGeometry-JjkedZZP.js",
+            "bytes": 14457806
+          },
+          {
+            "path": "assets/progressiveWorld.worker-BBWdF6Lc.js",
+            "bytes": 10686828
+          },
+          {
+            "path": "assets/RequiredSiteEnvelopesV209-CPFoFnqu.js",
+            "bytes": 10516767
+          },
+          {
+            "path": "assets/DistrictStreets-DIudMU-k.js",
+            "bytes": 6884452
+          },
+          {
+            "path": "mesh/regierungsviertel/lod2-prisms.json",
+            "bytes": 6308725
+          },
+          {
+            "path": "assets/TunnelPortals-Zj33iYUo.js",
+            "bytes": 6117809
+          },
+          {
+            "path": "mesh/regierungsviertel/park-details.json",
+            "bytes": 6107835
+          },
+          {
+            "path": "mesh/regierungsviertel/minecraft-voxels.json",
+            "bytes": 5596288
+          },
+          {
+            "path": "mesh/regierungsviertel/surface-polygons.json",
+            "bytes": 4770788
+          },
+          {
+            "path": "assets/ThreeViewer-DymZvLVn.js",
+            "bytes": 3349211
+          },
+          {
+            "path": "mesh/surrounding-berlin-v159/4_-3.minecraft.json.gz",
+            "bytes": 3298511
+          },
+          {
+            "path": "mesh/surrounding-berlin-v159/4_-4.minecraft.json.gz",
+            "bytes": 3133443
+          },
+          {
+            "path": "mesh/surrounding-berlin-v159/3_-4.minecraft.json.gz",
+            "bytes": 3039258
+          }
+        ],
+        "scope": "Read-only staged package inventory; not an archive or live deployment size"
+      }
+    },
+    "readiness": {
+      "file": "release-readiness-final.json",
+      "bytes": 424,
+      "sha256": "af6de7f00ba094305b9b4178b17cfb4977a1d18358d1e23292a72b9716c7231e",
+      "data": {
+        "version": "1.0.176",
+        "command": "check_release_readiness.collect_failures(require_package_zip=False, require_static_tarball=False)",
+        "elapsedSeconds": 11.2030930519104,
+        "archiveValidation": "Deferred to unchanged RAM archive validators; no on-disk archives required here",
+        "failures": [],
+        "passed": true,
+        "initialFinding": "package-preflight-initial-finding.json",
+        "inventory": "package-inventory.json"
+      }
+    },
+    "httpSmoke": {
+      "file": "http-smoke-final.json",
+      "bytes": 465,
+      "sha256": "4cfe95af89dcb34b35d7b2d7b7d372fba420bdd99b368694b556257515841ac6",
+      "data": {
+        "version": "1.0.176",
+        "command": "uv run --no-sync python scripts/smoke_local_package.py --expected-version 1.0.176",
+        "exitCode": 0,
+        "log": "/Users/klotzkette/.cache/codex-berlin-v276/http-smoke-final.log",
+        "logSha256": "afd5b3118fbce8773699125eaaebbd1727779eb728c2cd6ddcde16cbee9838f4",
+        "passed": true,
+        "scope": "Pure local HTTP using package server --no-open; no browser, rendering, phone or endurance claim",
+        "finishedAtUnix": 1793014145.208
+      }
+    },
+    "archives": {
+      "file": "package-verification.json",
+      "bytes": 1155,
+      "sha256": "267ae5c977c4025b72153841b5202a935c03d16bfdbaf98bfe638591608c4bb2",
+      "data": {
+        "packageVersion": "1.0.176",
+        "bytes": 932392033,
+        "fileCount": 4750,
+        "sourceInventorySha256": "e96bc3cc3a40d4060979a348d66cac12dcc51da1a6661199ccb55c3d11ef92b6",
+        "MiB": 889.1983346939087,
+        "releaseId": 424203490,
+        "archives": {
+          "isometric-berlin-regierungsviertel-local.zip": {
+            "size": 763531846,
+            "sha256": "5043ff2a1dd42e2b73bbabd9aeaf6626dda507c591390ddf1ee90667a3b770d1",
+            "localValidationPassed": true,
+            "storage": "memory-only",
+            "remoteVerified": true,
+            "assetId": 678056275,
+            "remoteSize": 763531846,
+            "remoteDigest": "sha256:5043ff2a1dd42e2b73bbabd9aeaf6626dda507c591390ddf1ee90667a3b770d1",
+            "remoteState": "uploaded"
+          },
+          "isometric-berlin-viewer-v1.0.176.tar.gz": {
+            "size": 762739154,
+            "sha256": "04c5fd7f18661a1a87f5c08c57b5fa4ac12dfe8c4011c3f3e9bebad52836be43",
+            "localValidationPassed": true,
+            "storage": "memory-only",
+            "remoteVerified": true,
+            "assetId": 678062260,
+            "remoteSize": 762739154,
+            "remoteDigest": "sha256:04c5fd7f18661a1a87f5c08c57b5fa4ac12dfe8c4011c3f3e9bebad52836be43",
+            "remoteState": "uploaded"
+          }
+        }
+      }
+    }
+  },
+  "browserInspection": {
+    "file": "production-browser-verification.json",
+    "bytes": 563,
+    "sha256": "69c42c898c80e7daf0cf56899510865c03463f1f59f6459a75b3ee5d5fd0fb20",
+    "data": {
+      "version": "1.0.176",
+      "browser": "Codex In-app Browser",
+      "url": "http://127.0.0.1:65526/index.html",
+      "checks": [
+        "German start screen",
+        "Model loading message without map applet",
+        "Day scene loaded at Bundeskanzleramt",
+        "Five zoom-out actions rendered wider city",
+        "Minecraft mode loaded",
+        "Return to Day rendered"
+      ],
+      "consoleWarningsAndErrors": [],
+      "limits": [
+        "Manual desktop smoke only",
+        "No mobile hardware or endurance measurement",
+        "Separate isolated model previews supplement this whole-app check"
+      ]
+    }
+  },
+  "deploymentPreflight": {
+    "file": "pages-preflight.log",
+    "bytes": 308,
+    "sha256": "cef2958b50d37efd13ab004a70b98ae88958d62c4bcc2a65a3c2a70164719ac4",
+    "data": {
+      "version": "1.0.176",
+      "parent": "d060a48b4ac3c020d7ae95d20a8ad61d92573291",
+      "previousTwoAssets": 324,
+      "retainedPreviousOnlyAssets": 28,
+      "retainedPreviousOnlyBytes": 113407534,
+      "removedStaleAssets": 17,
+      "removedBytes": 74757062,
+      "bytes": 1045799567,
+      "headroomBelow1GiB": 27942257,
+      "publishRequested": false
+    },
+    "retention": {
+      "file": "retention-summary.json",
+      "bytes": 620,
+      "sha256": "05ff3157d3a96beebb3f86a89799664c69e58d65a226bfa9c0d2228ca5fd58cb",
+      "data": {
+        "source": "/Users/klotzkette/.cache/codex-berlin-v275/prior-live-assets-v173-v174.json",
+        "sourceSha256": "1b1255727faacdcbda85581634840e01bad58ee1c3403b8ba9d162a573cff6e3",
+        "v174ReconstructedExactly": true,
+        "v174Assets": 314,
+        "v174Bytes": 202723886,
+        "v175Assets": 314,
+        "v175Bytes": 202890449,
+        "retainedUnionAssets": 324,
+        "retainedUnionBytes": 236986354,
+        "currentTreeBytes": 1040525287,
+        "pinnedTreeHeadroomBelow1GiB": 33216537,
+        "currentPublicParent": "d060a48b4ac3c020d7ae95d20a8ad61d92573291",
+        "missingReferences": [],
+        "gitOperationsReadOnly": true,
+        "newBuildOrPackageEvaluated": false
+      }
+    }
+  },
+  "publication": {
+    "status": "verified",
+    "identity": {
+      "file": "publication-identity-v276.json",
+      "bytes": 285,
+      "sha256": "0a4435aaae110dca1eac7f8914cd48d43fbbc888b915e7142fe51d54a3fcc0e6",
+      "data": {
+        "version": "1.0.176",
+        "tag": "v1.0.176",
+        "sourceCommit": "194acf86d6ec3e313f11edadbf9f60bfcfa7e2d3",
+        "pagesCommit": "76fa7ce1839b9dd67e82c37627fdb6445e01914b",
+        "releaseId": 424203490,
+        "releaseUrl": "https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.176"
+      }
+    },
+    "archives": {
+      "file": "package-verification.json",
+      "bytes": 1155,
+      "sha256": "267ae5c977c4025b72153841b5202a935c03d16bfdbaf98bfe638591608c4bb2",
+      "data": {
+        "packageVersion": "1.0.176",
+        "bytes": 932392033,
+        "fileCount": 4750,
+        "sourceInventorySha256": "e96bc3cc3a40d4060979a348d66cac12dcc51da1a6661199ccb55c3d11ef92b6",
+        "MiB": 889.1983346939087,
+        "releaseId": 424203490,
+        "archives": {
+          "isometric-berlin-regierungsviertel-local.zip": {
+            "size": 763531846,
+            "sha256": "5043ff2a1dd42e2b73bbabd9aeaf6626dda507c591390ddf1ee90667a3b770d1",
+            "localValidationPassed": true,
+            "storage": "memory-only",
+            "remoteVerified": true,
+            "assetId": 678056275,
+            "remoteSize": 763531846,
+            "remoteDigest": "sha256:5043ff2a1dd42e2b73bbabd9aeaf6626dda507c591390ddf1ee90667a3b770d1",
+            "remoteState": "uploaded"
+          },
+          "isometric-berlin-viewer-v1.0.176.tar.gz": {
+            "size": 762739154,
+            "sha256": "04c5fd7f18661a1a87f5c08c57b5fa4ac12dfe8c4011c3f3e9bebad52836be43",
+            "localValidationPassed": true,
+            "storage": "memory-only",
+            "remoteVerified": true,
+            "assetId": 678062260,
+            "remoteSize": 762739154,
+            "remoteDigest": "sha256:04c5fd7f18661a1a87f5c08c57b5fa4ac12dfe8c4011c3f3e9bebad52836be43",
+            "remoteState": "uploaded"
+          }
+        }
+      }
+    },
+    "pagesCommit": "76fa7ce1839b9dd67e82c37627fdb6445e01914b",
+    "publishLog": {
+      "file": "publish-pages.log",
+      "bytes": 593,
+      "sha256": "6edb539edc6f5a00d600cb18f419700fc2705c18cc97d6c2049903eff0c065b4"
+    },
+    "workflow": {
+      "file": "pages-workflow.json",
+      "bytes": 304,
+      "sha256": "62c7e9619cbac8decb028a1808088c95f7dc483544523d686538a603a0f6eeea",
+      "data": {
+        "conclusion": "success",
+        "createdAt": "2026-10-26T12:25:43Z",
+        "databaseId": 40322455165,
+        "headSha": "76fa7ce1839b9dd67e82c37627fdb6445e01914b",
+        "name": "pages build and deployment",
+        "status": "completed",
+        "url": "https://github.com/Klotzkette/isometric-berlin/actions/runs/40322455165"
+      }
+    },
+    "live": {
+      "file": "live-verification.json",
+      "bytes": 2486,
+      "sha256": "ed044525d342df50bb1df422f48316052a879a8e0a4891fc8db29bf90353576c",
+      "data": {
+        "withdrawnMedia404": [
+          "columbiahalle-v257-silent.mp4",
+          "columbiahalle-v258-red-silent.mp4",
+          "columbiahalle-v258-portrait-silent.mp4"
+        ],
+        "release": "https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.176",
+        "tag": "v1.0.176",
+        "assetsVerified": 2,
+        "hostedChecks": [
+          {
+            "path": "index.html",
+            "bytes": 3525,
+            "sha256": "b71eeec8272e70aaaed587a60edb170f39cf52a1ac4134fe0d79d058423df5e9"
+          },
+          {
+            "path": "package-manifest.json",
+            "bytes": 6107,
+            "sha256": "332870c64b873cc09a80245cc74e14d7f71e64cfca09cc7f0796901c0c488345"
+          },
+          {
+            "path": "mesh/surrounding-berlin-v159/manifest.json",
+            "bytes": 2147689,
+            "sha256": "db15e3b722bf64d223eed121aac4986dc48e91207e086e8b8d8f9a43dd074115"
+          },
+          {
+            "path": "dzi/regierungsviertel/visual_reference_attribution.json",
+            "bytes": 104446,
+            "sha256": "fcb6905143d62c7bdb3c477db7b6e5885f048cee75f642de0510530758137a16"
+          },
+          {
+            "path": "assets/ThreeViewer-DymZvLVn.js",
+            "bytes": 3349211,
+            "sha256": "81e04773b482455352fe01401905954857656209eac3883004095f11aaaeece6"
+          },
+          {
+            "path": "assets/index-XdO7eI3w.js",
+            "bytes": 192500,
+            "sha256": "d2e48507cf44a7cd86b890e3ddf4302647d603076342498ca3ed5151253217d0"
+          },
+          {
+            "path": "assets/OuterThinOutlines-BBUfKy24.js",
+            "bytes": 17353114,
+            "sha256": "4f4eff399cdc74d04ce26035c5d1e3b39605491920faa34742429d514c2d4bbe"
+          },
+          {
+            "path": "assets/RequiredSiteEnvelopesV209-CPFoFnqu.js",
+            "bytes": 10516767,
+            "sha256": "64f10508a79d2187259b16a762089d0874657da0d2bb5016a94ac184221c6b64"
+          },
+          {
+            "path": "assets/SurroundingCityGeometry-JjkedZZP.js",
+            "bytes": 14457806,
+            "sha256": "825f00ceda5a25916d981fe14003de369f7afb5bc704460c6234388f1fc939a3"
+          },
+          {
+            "path": "assets/progressiveWorld.worker-BBWdF6Lc.js",
+            "bytes": 10686828,
+            "sha256": "80fc5b14b0449be076550249b976c13c03634a54a20575e034ea3e557420398b"
+          },
+          {
+            "path": "assets/ZooGroundsV165-DT26ieXz.js",
+            "bytes": 960557,
+            "sha256": "7fc46d03eececc3f6379403f04865728e0d6f4711ed484fc776453a75d7f56d8"
+          },
+          {
+            "path": "assets/DistrictStreets-DIudMU-k.js",
+            "bytes": 6884452,
+            "sha256": "7e6e5b04fb3ab590e447d62b5a7f6dc5c1685b60037484c65cb4d652a0e7b690"
+          }
+        ],
+        "scope": "HTTP byte checks and GitHub release assets only; no browser or endurance testing",
+        "passed": true
+      }
+    },
+    "publishedClaim": true
+  },
+  "pagesPublicationAttemptHistory": {
+    "status": "failed_storage_attempt_then_successful_retry",
+    "original": {
+      "file": "publish-pages-storage-first.log",
+      "bytes": 1757,
+      "sha256": "acc9ee417039121516f65f4780438c54e7b24d44208c85f4284d16665217ca81",
+      "exitCode": 1,
+      "exitReceipt": {
+        "file": "publish-pages-storage-first.exit",
+        "bytes": 2,
+        "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+      },
+      "gitSubprocessExit": 128,
+      "preflight": {
+        "version": "1.0.176",
+        "parent": "d060a48b4ac3c020d7ae95d20a8ad61d92573291",
+        "previousTwoAssets": 324,
+        "retainedPreviousOnlyAssets": 28,
+        "retainedPreviousOnlyBytes": 113407534,
+        "removedStaleAssets": 17,
+        "removedBytes": 74757062,
+        "bytes": 1045799567,
+        "headroomBelow1GiB": 27942257,
+        "publishRequested": true
+      },
+      "classification": "Infrastructure storage exhaustion while writing a loose Git object for RequiredSiteEnvelopesV209-CPFoFnqu.js.",
+      "chronology": "Traceback stops inside hash-object before commit-tree/push. Coordinator confirmed no Pages commit or push from this attempt."
+    },
+    "successfulRetry": {
+      "file": "publish-pages.log",
+      "bytes": 593,
+      "sha256": "6edb539edc6f5a00d600cb18f419700fc2705c18cc97d6c2049903eff0c065b4",
+      "exitCode": 0,
+      "exitReceipt": {
+        "file": "publish-pages.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "publication": {
+        "commit": "76fa7ce1839b9dd67e82c37627fdb6445e01914b",
+        "bytes": 1045799567
+      }
+    }
+  },
+  "independentReview": {
+    "file": "final-owner-navigation-attribution-review-v276.json",
+    "bytes": 4769,
+    "sha256": "3e50aaf892e31fb06ec9c65e5dec4ba6c54503309d547e5d419341d7d383cdcd",
+    "data": {
+      "result": "No concrete new regression found in the reviewed final diff.",
+      "scope": "Read-only ownership, navigation, atomic integration, cancellation and source-attribution review. No browser and no new broad test suite.",
+      "reviewedHashes": {
+        "src/app/src/zooWestV276Ownership.ts": "4bc39bedd772a2d1a2e0c90622ffc618ed6636004f650f302fa35c34ee42f9c9",
+        "src/app/src/zooWestV276Profile.ts": "29660a7daee1bfc92cceb67e65055128f5cd8d3b36f9cda260c34a673e4f6ac8",
+        "src/app/src/verkehrskanzelV276Ownership.ts": "316b3979c8f85c67121ef987a327f55e52c5d234db55369185a7646d24d96da7",
+        "src/app/src/verkehrskanzelV276Profile.ts": "5da9c0b348e5ecf7539581ca97f998d40f22fcd3cb04d3e7a9e9bbd3e8601651",
+        "src/app/src/IsometricCityWorld.ts": "db0a29ae888dc6ce9c6b4e4ed5b24e6f4ebb1dc491fe4216f8403b16a30ae22d",
+        "src/app/src/MinecraftVoxelWorld.ts": "66077d4bef8caba83419f57b05492fbc75b670585e76ac269a49de783c39dcf7",
+        "src/app/src/pedestrianNavigation.ts": "d3d140f38241f6ae02e4289b00cb87afeb6816ab54dd3e81c11533b712652e21",
+        "src/app/src/RequiredSiteEnvelopesV209.ts": "b5ea0f724e5ea844aa99af46af850f53e951ac883dc88c73e127e9a28ea72a25",
+        "src/app/src/ThreeViewer.tsx": "23b04425bb08b3aaa147fb745a5ff82547687ccc2cf294b6cc55266f364b860e",
+        "src/app/src/progressiveWorld.worker.ts": "623cec7a8c0ac94c60ffa8c9d4b6ae0ed4f64c6117ea4de65e338a7b414ccdfc",
+        "src/app/src/progressiveBuildingCoverage.ts": "10bf4d94d8af029283a9ce4a2e324e1557239103bbab2ce13b5cc781253d6998",
+        "src/app/src/SurroundingCity.ts": "d34f0e0d3b4dbaa73e6533490911d1938e8ade638ce5a302658eb5031b2320a6",
+        "src/app/src/SurroundingCityGeometry.ts": "3b522856d29013f279f9fa03416bc94a1c940b13ec926815c9d080b46176dcfd",
+        "src/app/src/TierparkV276.ts": "4f8b312008bd9cebfde118212468995fb654ef677fb58a29f78d93f7b8bbf0aa",
+        "src/app/src/streetCurvesV276.ts": "a8433acf675a905c47cdc7a6ac1c7aaa01cc7f77a47960a7f250f5b6e10d3337",
+        "docs/zooWestV276.md": "bee77b0a978e76d8f4262e59bcc5c4d290aa9cebc5355ccd6f6e417dd0f9af0f",
+        "docs/tierpark-v276.md": "0af21f2f8e1ea9e79b867a54cce72d69d40d3281188e896e0c9aa9cea71e3c04",
+        "docs/verkehrskanzel-v276.md": "e6c8cbe5e7c855cf79c4f734da80c8b082e96bc985453ec155498c7526ecf6c3",
+        "NOTICE.md": "ea5bdd117a32043d5f0ce46e28cf04b9080a659bd1f3f85d344229d20ba8e27c"
+      },
+      "checks": [
+        "Zoo twelve and Kanzel two exact source IDs are disjoint; new Zoo replacement IDs do not alias the 53 retained Zoo V165 parts.",
+        "Full prism fingerprints guard ISO initial, distant coverage and worker paths; exclusive native tuples additionally require complete unchanged owners and protect shared/changed neighbours. No rectangle deletion.",
+        "Zoo and Kanzel profiles are registered by exact source ID before old collision fallback; live mode selection, native cell unions and local canopy bottoms match rendered architecture.",
+        "Both source-bound replacements are completed inside existing provisional scene construction before publication; native Zoo is attached by the existing native constructor, Kanzel by required sites. Existing cancellation/rollback remains.",
+        "Tierpark preparation preserves original packet prefixes and navigation; drift guards bind base mesh, origin and ground. Stream runs V255 then V276 with cancellation checkpoints and normal decoder ownership.",
+        "Street additions are guard-bound, append to the existing geometry/ink and road navigation, and keep native untouched based on the recorded independent occupancy proof. No runtime ceilings increased in reviewed diff.",
+        "Final Kanzel visibility correction changes only native white frame XZ positions; earlier proof records unchanged all other native rows and drawn bytes.",
+        "Attribution explicitly separates official geometry, OSM tags and operator-reference-only photos/maps. Current European wolf species, illustrative animal counts, uncertain tree-obscured roofs and estimated cabin/facade details are disclosed."
+      ],
+      "limits": [
+        "Full pytest is still running under the root task; this review does not replace that result.",
+        "No independent browser session performed in this final read-only review; root owns the final combined IAB views.",
+        "Waldschaenke K0002RFN and two Tierpark suspicious source heights remain unresolved and unchanged, documented as such. Completed 2026 flamingo-aviary metrics do not establish a traced full footprint, so no full new net enclosure is claimed."
+      ],
+      "existingFocusedEvidence": [
+        "pytest-zoo-west.log: 16 passed",
+        "bun-zoo-west.log: 14 passed, 2418897 assertions",
+        "pytest-kanzel-cabin-followup.log: 4 passed",
+        "bun-kanzel-cabin-followup.log: 3 passed, 4241 assertions",
+        "verkehrskanzel-cabin-after-proof.json: 0 overlaps, unchanged 53620-byte native geometry"
+      ]
+    }
+  },
+  "streetAudit": {
+    "file": "street-validation-receipt.json",
+    "bytes": 2409,
+    "sha256": "111bcf96a17780ce0ad49cb1808e53b9928e4d2ef8dbec73b41b2cbc9f46dc6f",
+    "data": {
+      "productionFrozen": true,
+      "roadArcs": 764,
+      "primaryPackets": 210,
+      "scannedSourceRoads": 64510,
+      "scannedPrimaryPackets": 1804,
+      "geometryBudgetsChanged": false,
+      "nativeRasterChanged": false,
+      "newSceneBatches": 0,
+      "checks": [
+        {
+          "log": "street-curves-pytest-final.log",
+          "passed": 5,
+          "failed": 0,
+          "runtimeWarningsAreErrors": true,
+          "seconds": 82.44
+        },
+        {
+          "log": "street-curves-integration-bun.log",
+          "passed": 5,
+          "failed": 0,
+          "assertions": 5263,
+          "seconds": 10.22
+        },
+        {
+          "log": "street-regressions-bun-final.log",
+          "passed": 39,
+          "timedOut": 2,
+          "semanticFailures": 0,
+          "assertions": 1342251,
+          "seconds": 27.08
+        },
+        {
+          "log": "city-streets-v249-followup.log",
+          "passed": 3,
+          "failed": 0,
+          "assertions": 2161,
+          "seconds": 12.5,
+          "testTimeoutMs": 30000
+        },
+        {
+          "log": "core-colours-pytest-final.log",
+          "passed": 4,
+          "failed": 0,
+          "seconds": 2.93
+        },
+        {
+          "log": "core-colours-bun-final.log",
+          "passed": 6,
+          "failed": 1,
+          "reason": "Four exact newly authorized v276 constructor ownership hooks; historical expected hash retained after narrow normalization"
+        },
+        {
+          "log": "core-colours-bun-followup.log",
+          "passed": 7,
+          "failed": 0,
+          "assertions": 164227,
+          "seconds": 1.366
+        },
+        {
+          "log": "street-core-integration-final-bun.log",
+          "passed": 162,
+          "failed": 0,
+          "assertions": 1802435,
+          "files": 21,
+          "seconds": 73.01,
+          "testTimeoutMs": 30000
+        }
+      ],
+      "initialNewTestCorrection": "Primary packet count corrected from >2000 to exact1804. All390 detail companions excluded.",
+      "geometryWarningRepair": "Two already quantized invalid neighbour polygons made valid before conservative buffering. Selected arcs and generated data bytes exactly unchanged.",
+      "cacheRoot": "/Users/klotzkette/.cache/codex-berlin-v276",
+      "coreMetadataReceipt": "core-v273-v276-metadata-refresh.json",
+      "constructorProof": "core-constructor-v276-normalization-proof.json",
+      "finalCoreMetadataReceipt": "core-v273-v276-final-metadata-refresh.json",
+      "independentReadOnlyReview": "No concrete finding: original ink hashes, shared tail, atomic mesh/nav/line activation, cancellation/disposal and native early return reviewed by v273_audit_validation."
+    }
+  },
+  "coreMetadataRefresh": {
+    "file": "core-v273-v276-metadata-refresh.json",
+    "bytes": 494,
+    "sha256": "c80fd390bfbd57f3c8feb8200df1cdaa5c2c6a1d59ff4aeddf0e1c5790c21fa4",
+    "data": {
+      "runtimeSha256": "4f6384565300fbc08a4c1333d3300fd9fedd0b93532c545b225530ad6a8f5461",
+      "runtimeOwners": 7165,
+      "selectedParts": 7173,
+      "runtimeByteIdentical": true,
+      "previousEvidenceSha256": "cdb3c5f88f149d662ae9bd37c9146a5e49fdc2abd62f2926b017dffeaab4297c",
+      "newEvidenceSha256": "b73463909ed93759bf981a12b30afc28a12e02a88e50f4be420575d33587ef0e",
+      "changedEvidenceFields": [
+        "protectionReceipts",
+        "protectedIds",
+        "blockedFamilies"
+      ],
+      "selectedRowsUnchanged": true
+    }
+  },
+  "finalCoreMetadataRefresh": {
+    "file": "core-v273-v276-final-metadata-refresh.json",
+    "bytes": 423,
+    "sha256": "211b845640bcb8cc10ee12b39b2bb0867a9294c9f6f45458878e5bfe590b3fa7",
+    "data": {
+      "runtimeSha256": "4f6384565300fbc08a4c1333d3300fd9fedd0b93532c545b225530ad6a8f5461",
+      "runtimeOwners": 7165,
+      "selectedParts": 7173,
+      "runtimeByteIdentical": true,
+      "previousEvidenceSha256": "b73463909ed93759bf981a12b30afc28a12e02a88e50f4be420575d33587ef0e",
+      "newEvidenceSha256": "b73463909ed93759bf981a12b30afc28a12e02a88e50f4be420575d33587ef0e",
+      "changedEvidenceFields": [],
+      "selectedRowsUnchanged": true
+    }
+  },
+  "limits": [
+    "Production browser evidence is a short manual desktop smoke: day, five zoom-outs, native and return to day. It is not an exhaustive visual audit of Berlin.",
+    "No physical iPhone/mobile hardware or endurance/memory measurement was performed.",
+    "The focused JavaScript runs are not the entire historical Bun suite; overlapping reruns are not summed.",
+    "Python model geometry was frozen before the full run; one packaging version constant was corrected during early unrelated tests and the package was separately restaged/rechecked.",
+    "The first Pages publication attempt failed with ENOSPC before commit/push; a successful retry is separately verified and does not erase the failure.",
+    "The original full Python run retained one ENOSPC failure, 2080 passes, four skips and two warnings. A separate exact unmodified one-test pass may resolve that storage incident; no single all-green full-suite rerun is claimed.",
+    "Animal positions/counts and some fittings are illustrative estimates. Source-obscured Zoo/Tierpark roofs and the untraced complete new flamingo enclosure remain disclosed limitations.",
+    "Street corrections are the documented finite candidates/packets, not a claim to every road or every city district being newly surveyed."
+  ],
+  "publicationStorageRecovery": {
+    "removed": [
+      {
+        "path": "/Users/klotzkette/Desktop/Codex Projects/isometric-berlin/src/app/node_modules/.vite",
+        "bytes": 10975155,
+        "reason": "rebuildable Vite cache"
+      },
+      {
+        "path": "/Users/klotzkette/Desktop/Codex Projects/isometric-berlin/.git/objects/03/tmp_obj_gZGshs",
+        "bytes": 4493312,
+        "reason": "incomplete temporary Git object from failed v176 Pages write"
+      },
+      {
+        "path": "/Users/klotzkette/Desktop/Codex Projects/isometric-berlin/tests/__pycache__",
+        "bytes": 12280340,
+        "reason": "rebuildable Python bytecode cache after completed tests"
+      },
+      {
+        "path": "/Users/klotzkette/Desktop/Codex Projects/isometric-berlin/scripts/__pycache__",
+        "bytes": 7516603,
+        "reason": "rebuildable Python bytecode cache after completed tests"
+      }
+    ],
+    "losslessCompression": [
+      {
+        "originalPath": "/Users/klotzkette/.cache/codex-berlin-v274/north-culture-actual-matrices.json",
+        "retainedPath": "/Users/klotzkette/.cache/codex-berlin-v274/north-culture-actual-matrices.json.gz",
+        "originalBytes": 22107230,
+        "compressedBytes": 1243917,
+        "originalSha256": "d09977dfb62dfe0354d90dc406fb27cf0bcb14f617c8aa170f11051b9acdb4c3",
+        "roundTripVerified": true
+      }
+    ]
+  }
+}
