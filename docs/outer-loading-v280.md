@@ -95,7 +95,7 @@ ZIP and tar archives pass their unchanged complete validators, sequentially
 in RAM without additional disk archive copies. Pages preflight retains the
 complete v179/v178 asset closures and totals 959,009,745 bytes, leaving
 114,732,079 bytes below 1 GiB. Both archives and their checksums are uploaded to the verified v1.0.180 draft;
-publication remains pending.
+publication and live checks have now passed.
 
 The internal app browser exercised the actual packaged production city with
 a controlled stall in `outer187--22_-6`'s Minecraft response. In the decisive
@@ -116,5 +116,10 @@ coverage gap. No external browser was used.
 
 The complete Python suite passes **2,107 tests**, with four skips and two
 existing CRS warnings, in 3,077.14 seconds. Both uploaded archives match the
-validated local bytes and their remote SHA-256 digests. Publication and live
-verification remain pending.
+validated local bytes and their remote SHA-256 digests. Version **1.0.180** is
+published as a GitHub release and on Pages. The live index, manifest and actual
+owning chunks of both changed loader modules match the verified package byte
+for byte. The withdrawn Columbiahalle recordings remain HTTP 404. The complete
+public tree remains 959,009,745 bytes with both preceding live asset closures
+retained. This release fixes transport liveness; the separately proposed
+Reuter-West coverage extension remains unapproved and unbuilt.

@@ -3,7 +3,7 @@
   "pipelineStep": 10,
   "iteration": "v280",
   "version": "1.0.180",
-  "status": "all_required_local_checks_passed_publication_pending",
+  "status": "runtime_fix_published_all_required_checks_passed_separate_coverage_proposal_pending",
   "scope": "Recover stalled surrounding-city transport without changing source geometry, visible quality, coverage or residency budgets. A distinct missing Reuter-West ground footprint is diagnosed; its bounded expansion proposal awaits explicit owner approval.",
   "runtimeAndTestSha256": {
     "src/app/src/surroundingTransport.ts": "773efa091bdbe71594cc8581318b2d3db40d0208e0caf199167050d6d13148d9",
@@ -211,7 +211,6 @@
     "tourStops": 93
   },
   "pending": {
-    "publicationAndLiveVerification": "pending",
     "reuterCoverageExpansion": "explicit owner approval pending; proposal only, no geometry added"
   },
   "cacheReceiptSha256": {
@@ -392,7 +391,7 @@
     "buildLogSha256": "1ecac3a0a6d4cd19bb42ce80896b4f550b7bbde6eb07858a1457d2e9f228ec9e"
   },
   "completePackageAndArchives": {
-    "status": "validated_and_uploaded_to_draft_publication_pending",
+    "status": "validated_uploaded_and_published",
     "packageVersion": "1.0.180",
     "packageFiles": 4750,
     "packageBytes": 934456238,
@@ -414,7 +413,7 @@
       }
     },
     "archivesUploaded": true,
-    "archivesPublished": false,
+    "archivesPublished": true,
     "pagesPreflight": {
       "version": "1.0.180",
       "parent": "1fe20feb9dbbf6eb49a69071f5efcc771fc28a72",
@@ -506,5 +505,97 @@
     "elapsedSeconds": 3077.14,
     "logSha256": "a78b64320379b8ca287e63f367c9a0f930e0944b76d3eb830c6f26caa7a14561",
     "warningsDescription": "Existing geometry-audit fixture writes omit CRS; no runtime or package failure."
+  },
+  "publication": {
+    "sourceReleaseCommit": "f5d69127",
+    "tag": "v1.0.180",
+    "release": "https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.180",
+    "releaseId": 424600950,
+    "pagesCommit": "7c971b2a3537f14312e8ebed864dae73bfff444c",
+    "pages": {
+      "version": "1.0.180",
+      "parent": "1fe20feb9dbbf6eb49a69071f5efcc771fc28a72",
+      "previousTwoAssets": 321,
+      "retainedPreviousOnlyAssets": 14,
+      "retainedPreviousOnlyBytes": 24553507,
+      "removedStaleAssets": 10,
+      "removedBytes": 21773789,
+      "bytes": 959009745,
+      "headroomBelow1GiB": 114732079,
+      "publishRequested": true
+    },
+    "pagesBuildStatus": "built",
+    "liveVerification": {
+      "withdrawnMedia404": [
+        "columbiahalle-v257-silent.mp4",
+        "columbiahalle-v258-red-silent.mp4",
+        "columbiahalle-v258-portrait-silent.mp4"
+      ],
+      "release": "https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.180",
+      "tag": "v1.0.180",
+      "assetsVerified": 2,
+      "hostedChecks": [
+        {
+          "path": "index.html",
+          "bytes": 3525,
+          "sha256": "740dbf1694eb3ae2a247b5fddbb342b99bac4d06f74f5e48970fcab2181075a1"
+        },
+        {
+          "path": "package-manifest.json",
+          "bytes": 6107,
+          "sha256": "b76685ef5813e25b3cca1f9383bd99890c28357876ba093bb478ac3f63498215"
+        },
+        {
+          "path": "mesh/surrounding-berlin-v159/manifest.json",
+          "bytes": 2147689,
+          "sha256": "db15e3b722bf64d223eed121aac4986dc48e91207e086e8b8d8f9a43dd074115"
+        },
+        {
+          "path": "dzi/regierungsviertel/visual_reference_attribution.json",
+          "bytes": 110159,
+          "sha256": "25bcf3496bc5d8432c31256e1cf3be905ec08134be627de7e5f21d6184999c27"
+        },
+        {
+          "path": "assets/ThreeViewer-BuXGlEor.js",
+          "bytes": 3380496,
+          "sha256": "c6067f9c4a0781328b06dcba1ae729eca7740dbe93960553f5d0c710c7698430"
+        },
+        {
+          "path": "assets/index-B87n-tNN.js",
+          "bytes": 192667,
+          "sha256": "edbb6cb567684f6a59aa4fad828468e2b2ac77f9bfa555e43ebb8bb4daf2d022"
+        },
+        {
+          "path": "assets/OuterThinOutlines-CU4EW7L3.js",
+          "bytes": 17353150,
+          "sha256": "fd22b5bc188a36a99ba1773c2e26e1a0a950d2e82b5db03fe98c5b6dc4c824dc"
+        },
+        {
+          "path": "assets/RequiredSiteEnvelopesV209-BBiIV788.js",
+          "bytes": 10692952,
+          "sha256": "323fbdcd627ee6670038945d9eebe1344fa2dae7e2e01536e824fe4b9f192aac"
+        },
+        {
+          "path": "assets/SurroundingCityGeometry-JjkedZZP.js",
+          "bytes": 14457806,
+          "sha256": "825f00ceda5a25916d981fe14003de369f7afb5bc704460c6234388f1fc939a3"
+        },
+        {
+          "path": "assets/AltMitteCoreV169-Cl7gW6Qq.js",
+          "bytes": 2306423,
+          "sha256": "0530ef893a3cb4e18d461326f0585d9d0d196e737bfd481311eda1a8ff26ad55"
+        },
+        {
+          "path": "assets/progressiveWorld.worker-Ba_ChFjo.js",
+          "bytes": 10778859,
+          "sha256": "44555918307da80ca21f7b10378d0fba6a61e13d95af1bcf42fe30dea8e3d4f5"
+        }
+      ],
+      "scope": "HTTP byte checks and GitHub release assets only; no browser or endurance testing",
+      "passed": true
+    },
+    "liveReceiptSha256": "63d47cab956c830541586cf057898b001da1a87f53e544c6e1315ff9b796ae64",
+    "sourceTreeGeometryChanges": false,
+    "browserTabsAndQaServersClosed": true
   }
 }
