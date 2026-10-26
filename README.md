@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.175 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.175/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.176 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.176/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,12 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.175** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.176** · static viewer and a
 complete local package for macOS, Windows, and Linux.
 
-Version 1.0.175 corrects the Großer Tiergarten maintenance compound at Straße des 17. Juni 31. Two implausibly tall source buildings receive independently checked low roofs; one tree-obscured canopy uses an explicitly estimated height. The actual houses retain their measured roof forms. Garage fronts, restrained materials and surrounding shrubs replace the office-like appearance. Original source evidence, full mobile detail and existing city coverage remain. See the [evidence and checks](docs/tiergarten-werkhof-v275.md).
+Version 1.0.176 repairs shared curb joints and selectively smooths proven round-road facets, preserving mapped routes, real corners and markings. The historic Verkehrskanzel opposite Café Kranzler has its open canopy, kiosk and glass cabin. Zoo West gains complete restaurant corrections, aviary details, condors and the current European wolves; Tierpark gains visible bison, flamingos, both camel species and restaurant details. Original sources, full mobile detail and all existing runtime limits remain. Unknown enclosure outlines and unconfirmed roof heights are documented rather than invented. See [roads](docs/street-curves-v276.md), [Verkehrskanzel](docs/verkehrskanzel-v276.md), [Zoo](docs/zooWestV276.md) and [Tierpark](docs/tierpark-v276.md).
 
-Version 1.0.175 korrigiert den Werkhof im Großen Tiergarten an der Straße des 17. Juni 31. Zwei unplausibel hohe Quellgebäude erhalten unabhängig überprüfte niedrige Dächer; eine baumverdeckte Überdachung bekommt eine ausdrücklich geschätzte Höhe. Die tatsächlichen Häuser behalten ihre vermessenen Dachformen. Garagenfronten, zurückhaltende Materialien und umgebende Sträucher ersetzen den bürohausartigen Eindruck. Originalquellen, voller mobiler Detailgrad und bestehende Stadtgebiete bleiben erhalten. Siehe die [Belege und Prüfungen](docs/tiergarten-werkhof-v275.md).
+Version 1.0.176 korrigiert gemeinsame Bordsteinanschlüsse und glättet gezielt belegte Straßenrundungen; kartierte Verläufe, echte Ecken und Markierungen bleiben erhalten. Die historische Verkehrskanzel gegenüber dem Café Kranzler erhält ihr offenes Dach, den Kiosk und die Glaskabine. Im Zoo werden Restaurants, Volierendetails, Kondore und die heutigen Europäischen Wölfe ergänzt; im Tierpark Bisons, Flamingos, beide Kamelarten und Restaurantdetails. Originalquellen, voller mobiler Detailgrad und alle Laufzeitgrenzen bleiben erhalten. Unbekannte Gehegeumrisse und unbestätigte Dachhöhen sind als offene Grenzen dokumentiert. Siehe [Straßen](docs/street-curves-v276.md), [Verkehrskanzel](docs/verkehrskanzel-v276.md), [Zoo](docs/zooWestV276.md) und [Tierpark](docs/tierpark-v276.md).
 
 Version 1.0.173 audits all existing city layers for missed grey fallback paint, including Moabit, Schöneberg, Steglitz, Kreuzberg and Friedrichshain. Distinct restrained facade/roof tones preserve mapped materials and geometry. The remaining historic Gymnasium Steglitz fronts gain photo-guided tall arched windows and brick bands; the modern wing remains separate. Unsurveyed colours and openings are documented estimates. [Evidence and checks](docs/city-house-colours-v273.md).
 

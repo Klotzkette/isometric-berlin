@@ -1811,3 +1811,25 @@ shrubs must fit the mapped compound and cannot conceal uncorrected high proxies.
 Keep full mobile detail, independent orthogonal native construction, all prior
 city sources, 93 stops and unchanged residency/decode/prefetch limits. No new
 coverage, texture, animation or external browser.
+
+### Step 10 — v276 road joints, Verkehrskanzel and both zoos
+
+The owner requests more natural curbs and road alignment throughout retained
+coverage, particularly Mitte, Friedrichshain-Kreuzberg, Steglitz-Zehlendorf and
+Charlottenburg. Audit the shared paths; correct proven join defects without
+moving original source nodes, true sharp corners, junction openings or existing
+markings. Any bounded outer-road corrections require exact old/new surface and
+navigation receipts; do not claim untouched districts as newly reconstructed.
+Add the historic Verkehrskanzel at Joachimsthaler Straße/Kurfürstendamm using
+mapped position and heritage references. Retain complete measured bodies;
+unmeasured small fittings remain explicitly estimated. At Zoo and Tierpark,
+retain all earlier houses, high aviaries, restaurants, grounds and details while
+adding source-supported enclosures and visible, static animals. Verify present
+species rather than silently depicting historical stock as current. Operator
+maps/photos establish identity and appearance only, never metric tracing or
+bundled textures. Any restaurant proxy retirement is finite, source-receipted,
+complete and paired with navigation. Exact merging of adjacent same-colour
+native boxes may save memory only with proven identical occupied volume and
+colour, without raster coarsening. Keep full mobile detail, orthogonal native
+geometry, 93 stops, previous source data and all existing runtime/release limits.
+No new coverage, animation, raw media or external browser.

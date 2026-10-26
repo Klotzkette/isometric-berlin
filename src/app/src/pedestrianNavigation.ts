@@ -1,3 +1,7 @@
+import { isZooWestSourceV276 } from "./zooWestV276Ownership";
+import { zooWestSolidsV276 } from "./zooWestV276Profile";
+import { isVerkehrskanzelSourceV276 } from "./verkehrskanzelV276Ownership";
+import { verkehrskanzelSolidsV276 } from "./verkehrskanzelV276Profile";
 import { isTiergartenWerkhofSourceV275 } from "./tiergartenWerkhofV275Ownership";
 import { tiergartenWerkhofSolidsV275 } from "./tiergartenWerkhofV275Profile";
 import { herzJesuV274Solids } from "./herzJesuV274Profile";
@@ -698,7 +702,7 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
-  options: { tiergartenWerkhofV275?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { tiergartenWerkhofV275?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   if (options.includeAuguststrasseMuralV270) {
@@ -724,7 +728,35 @@ export function compilePedestrianObstacles(
   const potsdamerParts = new Map(POTSDAMER_MINISTRY_BUILDINGS.flatMap(family =>
     family.officialParts.map(part => [part.id.slice(-8), { part, shift: family.displayYTranslationM }] as const)));
   let werkhofSolids: { native: boolean; solid: ReturnType<typeof tiergartenWerkhofSolidsV275>[number] }[] | undefined;
+  let kanzelSolids: { native: boolean; solid: ReturnType<typeof verkehrskanzelSolidsV276>[number] }[] | undefined;
+  let zooWestSolids: { native: boolean; solid: ReturnType<typeof zooWestSolidsV276>[number] }[] | undefined;
   for (const sourceBuilding of prisms.buildings) {
+    if (options.zooWestV276 && isZooWestSourceV276(sourceBuilding)) {
+      zooWestSolids ??= [false, true].flatMap(native =>
+        zooWestSolidsV276(native).map(solid => ({ native, solid })));
+      for (const { native, solid } of zooWestSolids) {
+        if (solid.sourceId !== sourceBuilding.id) continue;
+        addPolygonObstacle(index, solid.ring, solid.holes ?? [], solid.minY, solid.maxY,
+          solid.sourceId, 1, (x, z) => (visualMode() === "minecraft") === native
+            ? solid.topAt(x, z) ?? Number.NEGATIVE_INFINITY : Number.NEGATIVE_INFINITY,
+          (x, z) => solid.bottomAt?.(x, z) ?? solid.minY);
+        index.buildingCount += 1;
+      }
+      continue;
+    }
+    if (options.verkehrskanzelV276 && isVerkehrskanzelSourceV276(sourceBuilding)) {
+      kanzelSolids ??= [false, true].flatMap(native =>
+        verkehrskanzelSolidsV276(native).map(solid => ({ native, solid })));
+      for (const { native, solid } of kanzelSolids) {
+        if (solid.sourceId !== sourceBuilding.id) continue;
+        addPolygonObstacle(index, solid.ring, solid.holes ?? [], solid.minY, solid.maxY,
+          solid.sourceId, 1, (x, z) => (visualMode() === "minecraft") === native
+            ? solid.topAt(x, z) ?? Number.NEGATIVE_INFINITY : Number.NEGATIVE_INFINITY,
+          (x, z) => solid.bottomAt?.(x, z) ?? solid.minY);
+        index.buildingCount += 1;
+      }
+      continue;
+    }
     if (options.tiergartenWerkhofV275 && isTiergartenWerkhofSourceV275(sourceBuilding)) {
       werkhofSolids ??= [false, true].flatMap(native =>
         tiergartenWerkhofSolidsV275(native).map(solid => ({ native, solid })));
@@ -2275,7 +2307,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
-  options: { tiergartenWerkhofV275?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { tiergartenWerkhofV275?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;

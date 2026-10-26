@@ -9,6 +9,7 @@ import { letteringStrokePaths } from "./drawnLettering";
 import { pointInWorldRing, type WorldRing } from "./chancelleryExtensionProfile";
 import { appendZooRecognitionV255 } from "./ZooRecognitionV255";
 import { appendZooHippoV256 } from "./ZooHippoV256";
+import { appendZooWestV276, compactZooWestV276Rows } from "./zooWestV276";
 
 type P = [number, number, number];
 type Sheet = { color: number; triangles: number[][][] };
@@ -167,9 +168,11 @@ function create(native:boolean):Group {
   mountain(details,"25036813",10.5,"ibex");mountain(details,"25036814",9.8,"takin");mountain(details,"49896121",7.8,"tahr");
   aviary(details,"32995989",21.2);aviary(details,"32995991",23.9);aviary(details,"618256710",8.8);aviary(details,"48374319",7.5);
   beerGarden(details);birdhouse(details);appendZooRecognitionV255(details,source);appendZooHippoV256(details);
+  const beforeV276={boxes:details.boxes.length,triangles:details.surfaces.reduce((n,s)=>n+s.triangles.length,0)};
+  appendZooWestV276(details);
   if(native){
     const rows=[...source.nativeRows.filter(r=>r[6]!==0x758c86),...source.groundRuns].map(r=>[r[0],r[1],r[2],r[3],r[4],r[5],0,r[6]]);
-    const model=batch(rows);model.name="Zoo retained native house shells and ground rows";group.add(model);
+    const model=batch(compactZooWestV276Rows(rows));model.name="Zoo retained native house shells and ground rows";group.add(model);
     const props=batch(details.boxes);props.name="Zoo native aviaries climbing rocks and furniture";group.add(props);
     const glass=batch(source.nativeRows.filter(r=>r[6]===0x758c86).map(r=>[r[0],r[1],r[2],r[3],r[4],r[5],0,r[6]]),true);glass.name="Zoo native transparent aviary shell blocks";group.add(glass);
   }else{
@@ -180,7 +183,7 @@ function create(native:boolean):Group {
     const boxes=batch(details.boxes);boxes.name="Zoo structural posts rails and garden furniture";group.add(boxes);
     const rocks=sheets(details.surfaces,false,true);rocks.name="Zoo climbing cliffs aviary rods and animals";group.add(rocks);
   }
-  group.userData={fullStaticDetailOnTouch:true,textureFree:true,sourceBound:true,sourceHouseParts:source.parts.length,mappedHabitats:source.habitats.length,mappedPaths:source.paths.length,mappedPonds:source.waters.length,schleusenkrugTables:source.schleusenkrugTables.length,condorAviary:"way/32995989",mountainHabitats:["25036813","25036814","49896121"],polarFoxStatus:source.polarFoxStatus,native,zooRecognitionV255:true,zooHippoV256:true};
+  group.userData={fullStaticDetailOnTouch:true,textureFree:true,sourceBound:true,sourceHouseParts:source.parts.length,mappedHabitats:source.habitats.length,mappedPaths:source.paths.length,mappedPonds:source.waters.length,schleusenkrugTables:source.schleusenkrugTables.length,condorAviary:"way/32995989",mountainHabitats:["25036813","25036814","49896121"],polarFoxStatus:source.polarFoxStatus,native,zooRecognitionV255:true,zooHippoV256:true,zooWestV276:true,beforeV276};
   freezeStaticSceneTransforms(group);return group;
 }
 export function createZooGroundsV165():Group {return create(false);}

@@ -1,3 +1,5 @@
+import { createZooWestColumnTesterV276 } from "./zooWestV276Ownership";
+import { createVerkehrskanzelColumnTesterV276 } from "./verkehrskanzelV276Ownership";
 import { createTiergartenWerkhofColumnTesterV275 } from "./tiergartenWerkhofV275Ownership";
 import { createOperaTheatresColumnTesterV274 } from "./operaTheatresV274Ownership";
 import { createTechnikmuseumColumnTesterV272 } from "./TechnikmuseumV272Profile";
@@ -323,7 +325,7 @@ export type MinecraftVoxelWorldOptions = {
   tachelesFrontsV270?: boolean;
   technikmuseumV272?: boolean;
   operaTheatresV274?: boolean;
-  tiergartenWerkhofV275?: boolean;
+  tiergartenWerkhofV275?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean;
   moabitLandmarksV269?: boolean;
   tempodromAnhalterV266?: boolean;
   northernSitesV266?: boolean;
@@ -2648,6 +2650,8 @@ export function* buildMinecraftVoxelWorldSteps(
     ? createColonnadesCoreColumnTesterV231(options.sourcePrisms, cell) : () => false;
   const tachelesFrontColumnAt = options.tachelesFrontsV270
     ? createTachelesFrontColumnTesterV270(options.sourcePrisms, cell) : () => false;
+  const zooWestColumnAt = options.zooWestV276 ? createZooWestColumnTesterV276(options.sourcePrisms, cell) : () => false;
+  const kanzelColumnAt = options.verkehrskanzelV276 ? createVerkehrskanzelColumnTesterV276(options.sourcePrisms, cell) : () => false;
   const werkhofColumnAt = options.tiergartenWerkhofV275
     ? createTiergartenWerkhofColumnTesterV275(options.sourcePrisms, cell) : () => false;
   const operaTheatresColumnAt = options.operaTheatresV274
@@ -2669,6 +2673,8 @@ export function* buildMinecraftVoxelWorldSteps(
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
     if (tachelesFrontColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
+    if (zooWestColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
+    if (kanzelColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (werkhofColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (operaTheatresColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (technikmuseumColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;

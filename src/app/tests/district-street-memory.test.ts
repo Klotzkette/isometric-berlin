@@ -1,9 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 import { Mesh } from "three";
-import { createDistrictStreets, createSourceStreetSurfaces, type StreetSource } from "../src/DistrictStreets";
+import { createDistrictStreets, createSourceStreetSurfaces, districtStreetTerrainSampler, type StreetSource } from "../src/DistrictStreets";
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import groundSource from "../public/mesh/regierungsviertel/ground-context.json";
+import streetSource from "../src/data/districtStreets.json";
 
 const ground = groundSource as unknown as VoxelPayload;
 const digest = (values: ArrayBufferView): string => createHash("sha256")
@@ -98,7 +99,7 @@ function release(root: ReturnType<typeof createDistrictStreets>): void {
 }
 
 describe("bounded exact street construction", () => {
-  test("preserves all published surface, kerb, ink and marking bytes", () => {
+  test("preserves published bytes except the source-centred v276 kerb cross-section correction", () => {
     const root = createDistrictStreets(ground);
     try {
       const actual = root.children.map(object => {
@@ -111,7 +112,24 @@ describe("bounded exact street construction", () => {
           indexHash: index ? digest(index.array) : null,
           bytes: position.array.byteLength + (index?.array.byteLength ?? 0) };
       });
-      expect(actual).toEqual(PUBLISHED_STREETS);
+      // v276 changes only the old skewed cross-section positions. Independently
+      // reconstruct the released positions and retain their historical hash;
+      // every other attribute, count, index and byte capacity stays identical.
+      const terrainAt = districtStreetTerrainSampler(ground);
+      const old = new Float32Array(streetSource.curbs_m.reduce((n, line) => n + line.length * 12, 0));
+      let cursor = 0;
+      for (const line of streetSource.curbs_m) for (let i = 0; i < line.length; i++) {
+        const [x, z] = line[i], [ax, az] = line[Math.max(0, i - 1)], [bx, bz] = line[Math.min(line.length - 1, i + 1)];
+        const length = Math.hypot(bx - ax, bz - az) || 1;
+        const nx = -(bz - az) / length * .11, nz = (bx - ax) / length * .11;
+        const base = terrainAt(x, z) + .18, top = base + .14;
+        old.set([x-nx, base, z-nz, x+nx, base, z+nz, x-nx, top, z-nz, x+nx, top, z+nz], cursor);
+        cursor += 12;
+      }
+      const publishedKerb = PUBLISHED_STREETS.find(p => p.name === "District raised kerbstones")!;
+      expect(digest(old)).toBe(publishedKerb.positionHash);
+      expect(actual.find(p => p.name === publishedKerb.name)!.positionHash).not.toBe(publishedKerb.positionHash);
+      expect(actual.map(p => p.name === publishedKerb.name ? { ...p, positionHash: digest(old) } : p)).toEqual(PUBLISHED_STREETS);
     } finally { release(root); }
   });
 

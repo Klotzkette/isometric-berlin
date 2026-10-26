@@ -1,3 +1,4 @@
+import { createVerkehrskanzelV276 } from "./VerkehrskanzelV276";
 import { createTiergartenWerkhofV275 } from "./TiergartenWerkhofV275";
 import { createCentralTheatresV274 } from "./CentralTheatresV274";
 import { createOperaTheatresV274 } from "./OperaTheatresV274";
@@ -66,6 +67,8 @@ import { createDistrictCourtsV229 } from "./DistrictCourtsV229";
  * and disposes every allocated model even when loading is interrupted. */
 export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false): Generator<void> {
   root.add(createTiergartenWerkhofV275(native));
+  yield;
+  root.add(createVerkehrskanzelV276(native));
   yield;
   root.add(createCentralTheatresV274(native));
   yield;

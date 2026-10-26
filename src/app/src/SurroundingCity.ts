@@ -1,3 +1,4 @@
+import { prepareTierparkV276 } from "./TierparkV276";
 import { mierendorffFloorAtV269 } from "./MierendorffV269";
 import { Box3, Frustum, Group, Matrix4, Vector3, type Camera, Material, Mesh, Line, Points } from "three";
 import {
@@ -306,7 +307,8 @@ export async function createStreamedSurroundingCityChunkV255(
   const checkAbort = (): void => {
     if (schedule.signal?.aborted) throw new DOMException("Aborted", "AbortError");
   };
-  const iterator = prepareTierparkV255(chunk, id, minecraft);
+  for (const prepare of [prepareTierparkV255, prepareTierparkV276]) {
+  const iterator = prepare(chunk, id, minecraft);
   try {
     while (true) {
       checkAbort();
@@ -322,6 +324,7 @@ export async function createStreamedSurroundingCityChunkV255(
       }
     }
   } finally { iterator.return(undefined as never); }
+  }
   checkAbort();
   const entry = await createSurroundingCityChunkCooperatively(chunk, id, minecraft, schedule, ownership);
   try {

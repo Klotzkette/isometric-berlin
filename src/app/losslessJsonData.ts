@@ -86,6 +86,8 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   "columbiahalleV257.json": ["drawn", "minecraft"],
   "leipzigerMuenzeV257.json": ["cells"],
   "tierparkV255.json": ["packets"],
+  "tierparkV276.json": ["packets"],
+  "streetCurvesV276.json": ["chunks"],
   // The hospital constructor consumes these rows synchronously into its own
   // instance buffers. Navigation retains only the separate small helipad data.
   "bundeswehrHospitalV214.json": ["boxes", "blocks", "padTriangles"],

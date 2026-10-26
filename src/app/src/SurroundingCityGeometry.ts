@@ -1,3 +1,4 @@
+import { prepareStreetCurvesV276, streetCurveExtraLineVerticesV276, applyStreetCurveLinesV276 } from "./streetCurvesV276";
 import { transferOperaTheatreTrianglesV274, transferOperaTheatreLinesV274, operaTheatreNavigationV274 } from "./operaTheatresV274Ownership";
 import { applyPrimaryColoursV273 } from "./primaryColoursV273";
 import { primaryHousePaletteV273 } from "./primaryHousePaletteV273";
@@ -300,6 +301,7 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareMierendorffV269(chunk, id, minecraft);
   chunk = yield* prepareTachelesFrontsV270(chunk, id, minecraft, ownership.tachelesFrontsV270 === true);
   chunk = yield* prepareAugustFrontsV274(chunk, id, minecraft);
+  chunk = yield* prepareStreetCurvesV276(chunk, id, minecraft);
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
@@ -429,12 +431,13 @@ export function* buildSurroundingCityChunk(
     let geometryBytes = vertices.byteLength + indices.byteLength;
     let bufferCount = 0;
     const lines = chunk.lines?.positions && !minecraft ? chunk.lines : null;
-    const lineCount = lines ? encodedBytes(lines.positions, 12) / 6 : 0;
+    const sourceLineCount = lines ? encodedBytes(lines.positions, 12) / 6 : 0;
+    const lineCount = sourceLineCount + streetCurveExtraLineVerticesV276(chunk);
     if (lineCount > MAX_VERTEX_COUNT) {
       throw new Error("Surrounding-city ink exceeds the tile budget");
     }
     const hasLineColors = !!lines?.colors;
-    if (hasLineColors && encodedBytes(lines!.colors!, 3) !== lineCount * 3) {
+    if (hasLineColors && encodedBytes(lines!.colors!, 3) !== sourceLineCount * 3) {
       throw new Error("Surrounding-city ink colour count differs from positions");
     }
     if (vertexCount && indexCount) {
@@ -486,6 +489,7 @@ export function* buildSurroundingCityChunk(
       root.userData.eurefTransferredLineSegmentsV262 = yield* applyEurefTransfersV262Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.feuerwacheTransferredLineSegmentsV267 = yield* applyFeuerwacheKreuzbergV267Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.koepenickerLandmarksTransferredLineSegmentsV268 = yield* applyKoepenickerLandmarksV268Lines(chunk, values, hasLineColors ? 6 : 3);
+      root.userData.streetCurveSegmentsV276 = yield* applyStreetCurveLinesV276(chunk, values, hasLineColors ? 6 : 3, sourceLineCount);
       geometryBytes += values.byteLength;
       yield* geometryBounds(geometry);
       bufferCount++;

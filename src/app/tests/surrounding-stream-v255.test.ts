@@ -6,6 +6,7 @@ import { BufferGeometry, type Group, type Mesh } from "three";
 import data from "../src/data/tierparkV255.json";
 import playgrounds from "../src/data/playgroundsV255.json";
 import { prepareTierparkV255, tierparkGroundGuardV255, type TierparkSourceV255 } from "../src/TierparkV255";
+import { prepareTierparkV276 } from "../src/TierparkV276";
 import { houseCurbGroundGuardV233 } from "../src/houseCurbsV233";
 import { createSurroundingCityChunkCooperatively, type SurroundingCityChunk } from "../src/SurroundingCityGeometry";
 import { createStreamedSurroundingCityChunkV255, disposeSurroundingCityRoot } from "../src/SurroundingCity";
@@ -39,7 +40,15 @@ test("streamed Tierpark additions exactly match explicit preparation for all ten
     const raw = fixture(key), unchanged = JSON.stringify(raw);
     const steps = prepareTierparkV255(raw, id, native);
     let next = steps.next(); while (!next.done) next = steps.next();
-    const explicit = await createSurroundingCityChunkCooperatively(next.value, id, native);
+    const v255 = next.value;
+    // V255's original source and addition remain a complete prefix when the
+    // separately guarded v276 companion is present on these existing tiles.
+    expect(v255.meshes.slice(0, raw.meshes.length)).toEqual(raw.meshes);
+    expect(v255.meshes.at(-1)).toBe(source.packets[key].mesh);
+    const v276Steps = prepareTierparkV276(v255, id, native);
+    let v276 = v276Steps.next(); while (!v276.done) v276 = v276Steps.next();
+    expect(v276.value.meshes.slice(0, v255.meshes.length)).toEqual(v255.meshes);
+    const explicit = await createSurroundingCityChunkCooperatively(v276.value, id, native);
     const streamed = await createStreamedSurroundingCityChunkV255(raw, id, native);
     try {
       expect(streamed.root.userData.sourceKinds).toContain("tierpark-v255");

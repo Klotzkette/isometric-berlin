@@ -5,6 +5,7 @@ import {
 import source from "./data/districtStreets.json";
 import { smoothGroundTopSampler, type VoxelPayload } from "./terrainPayload";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { streetKerbJoinOffsetV276 } from "./streetKerbJoinsV276";
 
 type Point = [number, number];
 const SURFACE_STYLES = {
@@ -143,6 +144,7 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
     ? new Uint32Array(segmentCount * 18) : new Uint16Array(segmentCount * 18);
   const ink = new Float32Array(segmentCount * 6);
   let curbCursor = 0, indexCursor = 0, inkCursor = 0;
+  const kerbOffset: [number, number] = [0, 0];
   // Four shared vertices per boundary point, instead of eighteen duplicated
   // vertices per segment. Real 22cm kerb top and both upstand faces remain.
   for (const line of streets.curbs_m) {
@@ -150,10 +152,7 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
     for (let i = 0; i < line.length; i += 1) {
       const [x, z] = line[i];
       const [ax, az] = line[Math.max(0, i - 1)];
-      const [bx, bz] = line[Math.min(line.length - 1, i + 1)];
-      const length = Math.hypot(bx - ax, bz - az) || 1;
-      const nx = -(bz - az) / length * KERB_HALF_WIDTH_M;
-      const nz = (bx - ax) / length * KERB_HALF_WIDTH_M;
+      const [nx, nz] = streetKerbJoinOffsetV276(line, i, KERB_HALF_WIDTH_M, kerbOffset);
       const base = terrainAt(x, z) + DISTRICT_STREET_LIFT_M;
       const top = base + DISTRICT_KERB_RISE_M;
       curbs.set([x-nx, base, z-nz, x+nx, base, z+nz,

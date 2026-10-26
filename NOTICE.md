@@ -2423,3 +2423,17 @@ samples; a tree-obscured canopy height and unmeasured fittings/planting remain
 explicit display estimates. All original source sheets are retained. The user's
 viewer screenshot and official orthophoto are references only; no image pixels
 or new textures are bundled. See docs/tiergarten-werkhof-v275.md.
+
+
+v1.0.176 roads, Verkehrskanzel and both zoos: complete retained Geoportal Berlin
+LoD2/DOP/bDOM evidence (dl-de/zero-2-0) and OpenStreetMap geometries and species
+records (© OpenStreetMap contributors, ODbL 1.0) support the finite corrections.
+Landesdenkmalamt Berlin and Bezirksamt Charlottenburg-Wilmersdorf identify the
+traffic pavilion; the district photograph by Farchmin (2022) is reference only.
+Zoo Berlin and Tierpark Berlin operator pages establish current species and
+site identities. Independent authored animal silhouettes, facade fittings and
+unmeasured cabin dimensions are explicitly display estimates. No operator map,
+photograph, recording or other new image pixels are distributed. Original
+source sheets and old-owner receipts are retained. Sources and limits are in
+docs/street-curves-v276.md, docs/verkehrskanzel-v276.md, docs/zooWestV276.md and
+docs/tierpark-v276.md.

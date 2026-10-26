@@ -92,17 +92,25 @@ test("the native constructor preserves the historic paint-only change outside ex
   const operaRetirement = "    if (operaTheatresColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;\n";
   const werkhofPreparation = "  const werkhofColumnAt = options.tiergartenWerkhofV275\n    ? createTiergartenWerkhofColumnTesterV275(options.sourcePrisms, cell) : () => false;\n";
   const werkhofRetirement = "    if (werkhofColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;\n";
-  // HEAD already contains the two exact v274 opera ownership hooks; v275
-  // adds the two Werkhof hooks. Their source/column/constructor behaviour has
-  // separate v274/v275 tests. Keep the original v273 fixture hash and preserve
-  // the historical whole-constructor comparison for every other statement.
+  const v276Hooks = [
+    "  const zooWestColumnAt = options.zooWestV276 ? createZooWestColumnTesterV276(options.sourcePrisms, cell) : () => false;\n",
+    "  const kanzelColumnAt = options.verkehrskanzelV276 ? createVerkehrskanzelColumnTesterV276(options.sourcePrisms, cell) : () => false;\n",
+    "    if (zooWestColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;\n",
+    "    if (kanzelColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;\n",
+  ];
+  // Exact v274/v275/v276 ownership hooks have separate source, column and
+  // actual-constructor tests. HEAD and the working constructor independently
+  // retain the original v273 hash after removing only these exact additions.
+  // Every other statement remains covered by the historical full comparison.
+  for (const hook of v276Hooks) expect(constructor.split(hook)).toHaveLength(2);
   expect(constructor.split(operaPreparation)).toHaveLength(2);
   expect(constructor.split(operaRetirement)).toHaveLength(2);
   expect(constructor.split(werkhofPreparation)).toHaveLength(2);
   expect(constructor.split(werkhofRetirement)).toHaveLength(2);
-  const normalized = constructor.replace(current, "sourceRoofTone ?? layers.cap")
+  let normalized = constructor.replace(current, "sourceRoofTone ?? layers.cap")
     .replace(operaPreparation, "").replace(operaRetirement, "")
     .replace(werkhofPreparation, "").replace(werkhofRetirement, "");
+  for (const hook of v276Hooks) normalized = normalized.replace(hook, "");
   expect(new Bun.CryptoHasher("sha256").update(normalized).digest("hex")).toBe(before.nativeConstructorSha256);
   // This fixes the complete full/mobile control flow, all original matrix/size
   // writes, cap allocation, window/tree/landmark construction and return path.
