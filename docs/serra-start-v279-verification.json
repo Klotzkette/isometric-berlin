@@ -1,5 +1,5 @@
 {
-  "status": "targeted_and_browser_checks_passed_full_suite_running",
+  "status": "all_checks_passed_publication_pending",
   "version": "1.0.179",
   "scope": "Only the automatic Serra flight approach azimuth changes; no geometry changes.",
   "sourceBaseline": "v1.0.178",
@@ -540,5 +540,84 @@
     ],
     "cleanup": "Internal tab closed, temporary viewport reset, local QA server stopped. Seed page exists only in the local QA server, not in dist or the package.",
     "limits": "Desktop responsive viewport, not a physical phone; no endurance guarantee."
+  },
+  "implementationCommit": "f4fae374abea2fb108a4c10777dc8693ec0d64ab",
+  "fullPythonSuite": {
+    "passed": true,
+    "summary": "2107 passed, 4 skipped, 2 warnings in 2500.68s (0:41:40)",
+    "passedTests": 2107,
+    "skippedTests": 4,
+    "warnings": 2,
+    "seconds": 2500.68,
+    "log": "pytest-full.log",
+    "sha256": "5c374108e8d02a86fe3d07d20b8e3c73472c0eb19a2806dfc512ea0631293471",
+    "warningScope": "Two existing pyogrio CRS warnings in test_actual_export_retains_road_under_elevated_building."
+  },
+  "packagePublication": {
+    "packageVersion": "1.0.179",
+    "bytes": 934454380,
+    "fileCount": 4750,
+    "sourceInventorySha256": "dc81b693b81f976453f6e75deca3aa5d2eb977900187fefcd8d313e20c81a03a",
+    "MiB": 891.1651420593262,
+    "releaseId": 424508045,
+    "archives": {
+      "isometric-berlin-regierungsviertel-local.zip": {
+        "size": 764717911,
+        "sha256": "02c1fcd5e2ba8eb479f2c8143a7db05e7f6d2e3ad218ab6cf449b30977938931",
+        "localValidationPassed": true,
+        "storage": "memory-only",
+        "remoteVerified": true,
+        "assetId": 678788695,
+        "remoteSize": 764717911,
+        "remoteDigest": "sha256:02c1fcd5e2ba8eb479f2c8143a7db05e7f6d2e3ad218ab6cf449b30977938931",
+        "remoteState": "uploaded"
+      },
+      "isometric-berlin-viewer-v1.0.179.tar.gz": {
+        "size": 763928615,
+        "sha256": "081bb674babb0f632d87a7c2b7c91af7f53dbf0a7a7ea89041e725db64ddfff3",
+        "localValidationPassed": true,
+        "storage": "memory-only",
+        "remoteVerified": true,
+        "assetId": 678794318,
+        "remoteSize": 763928615,
+        "remoteDigest": "sha256:081bb674babb0f632d87a7c2b7c91af7f53dbf0a7a7ea89041e725db64ddfff3",
+        "remoteState": "uploaded"
+      }
+    }
+  },
+  "draftRelease": {
+    "assets": [
+      {
+        "digest": "sha256:02c1fcd5e2ba8eb479f2c8143a7db05e7f6d2e3ad218ab6cf449b30977938931",
+        "id": 678788695,
+        "name": "isometric-berlin-regierungsviertel-local.zip",
+        "size": 764717911,
+        "state": "uploaded"
+      },
+      {
+        "digest": "sha256:081bb674babb0f632d87a7c2b7c91af7f53dbf0a7a7ea89041e725db64ddfff3",
+        "id": 678794318,
+        "name": "isometric-berlin-viewer-v1.0.179.tar.gz",
+        "size": 763928615,
+        "state": "uploaded"
+      },
+      {
+        "digest": "sha256:3066234ee0de4c5a5da77bd9b2f8a583279abb135ed9ea9746c371ef60d72684",
+        "id": 678803943,
+        "name": "SHA256SUMS-v1.0.179.txt",
+        "size": 217,
+        "state": "uploaded"
+      },
+      {
+        "digest": "sha256:3066234ee0de4c5a5da77bd9b2f8a583279abb135ed9ea9746c371ef60d72684",
+        "id": 678803942,
+        "name": "SHA256SUMS.txt",
+        "size": 217,
+        "state": "uploaded"
+      }
+    ],
+    "draft": true,
+    "id": 424508045,
+    "tag_name": "v1.0.179"
   }
 }

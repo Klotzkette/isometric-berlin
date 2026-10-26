@@ -44,8 +44,10 @@ or errors were captured. The tab, temporary viewport and local-only QA server
 were cleaned up; the QA seed page is never included in the package. This is
 desktop responsive testing, not a physical-phone or endurance guarantee.
 
-The full Python suite and publication are still pending at this source freeze;
-their final results are recorded in `serra-start-v279-verification.json`.
+The full Python suite passes: **2,107 passed, four skipped**, in 2,500.68 seconds.
+Two existing pyogrio CRS warnings come from the elevated-road fixture test.
+Both draft archives and checksum assets match the local prevalidation exactly.
+Final publication results are recorded in `serra-start-v279-verification.json`.
 
 The historical `scripts/smoke_start_views.py` expects six physical openings and
 is not used for this release: the current product has seven automatic flight
