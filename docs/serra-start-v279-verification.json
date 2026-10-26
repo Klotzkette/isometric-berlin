@@ -1,5 +1,5 @@
 {
-  "status": "all_checks_passed_publication_pending",
+  "status": "published_all_required_checks_passed",
   "version": "1.0.179",
   "scope": "Only the automatic Serra flight approach azimuth changes; no geometry changes.",
   "sourceBaseline": "v1.0.178",
@@ -619,5 +619,100 @@
     "draft": true,
     "id": 424508045,
     "tag_name": "v1.0.179"
+  },
+  "publication": {
+    "sourceCommit": "e256b3e7bf2b3d637c5dc9b9daf4a5fc59cefa06",
+    "tag": "v1.0.179",
+    "releaseId": 424508045,
+    "releaseUrl": "https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.179",
+    "pagesCommit": "1fe20feb9dbbf6eb49a69071f5efcc771fc28a72",
+    "checksumAssets": [
+      {
+        "digest": "sha256:3066234ee0de4c5a5da77bd9b2f8a583279abb135ed9ea9746c371ef60d72684",
+        "id": 678803943,
+        "name": "SHA256SUMS-v1.0.179.txt",
+        "size": 217,
+        "state": "uploaded"
+      },
+      {
+        "digest": "sha256:3066234ee0de4c5a5da77bd9b2f8a583279abb135ed9ea9746c371ef60d72684",
+        "id": 678803942,
+        "name": "SHA256SUMS.txt",
+        "size": 217,
+        "state": "uploaded"
+      }
+    ]
+  },
+  "pagesBuild": {
+    "commit": "1fe20feb9dbbf6eb49a69071f5efcc771fc28a72",
+    "error": {
+      "message": null
+    },
+    "status": "built",
+    "updated_at": "2026-10-26T17:21:03Z"
+  },
+  "liveHttpVerification": {
+    "withdrawnMedia404": [
+      "columbiahalle-v257-silent.mp4",
+      "columbiahalle-v258-red-silent.mp4",
+      "columbiahalle-v258-portrait-silent.mp4"
+    ],
+    "release": "https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.179",
+    "tag": "v1.0.179",
+    "assetsVerified": 2,
+    "hostedChecks": [
+      {
+        "path": "index.html",
+        "bytes": 3525,
+        "sha256": "439af36946e743d6c080e45a696b76e9039d23a90818aeec753a4796157681bd"
+      },
+      {
+        "path": "package-manifest.json",
+        "bytes": 6107,
+        "sha256": "3fb6e0680840b877a9e927ff351931002179a96504bb58946a4db1099afbf860"
+      },
+      {
+        "path": "mesh/surrounding-berlin-v159/manifest.json",
+        "bytes": 2147689,
+        "sha256": "db15e3b722bf64d223eed121aac4986dc48e91207e086e8b8d8f9a43dd074115"
+      },
+      {
+        "path": "dzi/regierungsviertel/visual_reference_attribution.json",
+        "bytes": 110159,
+        "sha256": "25bcf3496bc5d8432c31256e1cf3be905ec08134be627de7e5f21d6184999c27"
+      },
+      {
+        "path": "assets/ThreeViewer-BU2a-tZH.js",
+        "bytes": 3380496,
+        "sha256": "f50b9c46bec8f9611e216b911110a12ac99d63e4898b3a1fe4aa08cf752b1ae7"
+      },
+      {
+        "path": "assets/index-eKjGcmYk.js",
+        "bytes": 192667,
+        "sha256": "3fb3f2e8d0287407aa8e71ed1c72778f596e3fc2d8aff76d2a3643aed4bfba43"
+      },
+      {
+        "path": "assets/OuterThinOutlines-CU4EW7L3.js",
+        "bytes": 17353150,
+        "sha256": "fd22b5bc188a36a99ba1773c2e26e1a0a950d2e82b5db03fe98c5b6dc4c824dc"
+      },
+      {
+        "path": "assets/RequiredSiteEnvelopesV209-BBiIV788.js",
+        "bytes": 10692952,
+        "sha256": "323fbdcd627ee6670038945d9eebe1344fa2dae7e2e01536e824fe4b9f192aac"
+      },
+      {
+        "path": "assets/SurroundingCityGeometry-JjkedZZP.js",
+        "bytes": 14457806,
+        "sha256": "825f00ceda5a25916d981fe14003de369f7afb5bc704460c6234388f1fc939a3"
+      },
+      {
+        "path": "assets/progressiveWorld.worker-Ba_ChFjo.js",
+        "bytes": 10778859,
+        "sha256": "44555918307da80ca21f7b10378d0fba6a61e13d95af1bcf42fe30dea8e3d4f5"
+      }
+    ],
+    "scope": "HTTP byte checks and GitHub release assets only; no browser or endurance testing",
+    "passed": true
   }
 }

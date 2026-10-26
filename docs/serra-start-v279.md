@@ -49,6 +49,12 @@ Two existing pyogrio CRS warnings come from the elevated-road fixture test.
 Both draft archives and checksum assets match the local prevalidation exactly.
 Final publication results are recorded in `serra-start-v279-verification.json`.
 
+Release v1.0.179 and Pages commit
+`1fe20feb9dbbf6eb49a69071f5efcc771fc28a72` are public. Live HTTP byte checks
+match the tested package, including the current camera-owning chunks. GitHub's
+archive digests match the complete prevalidated downloads. The three withdrawn
+Columbiahalle recording URLs still return 404. No external browser was opened.
+
 The historical `scripts/smoke_start_views.py` expects six physical openings and
 is not used for this release: the current product has seven automatic flight
 openings. Its outdated contract is separate from this correction.
