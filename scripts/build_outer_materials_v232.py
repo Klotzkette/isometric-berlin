@@ -17,6 +17,7 @@ from shapely.strtree import STRtree
 
 from scripts import build_alt_mitte_appearance_v213 as appearance
 from scripts import build_district_facades_v188 as base
+from scripts.build_outer_facades_v262 import COLOUR_ONLY_V273_FILES
 
 ROOT, GEO, OUT = base.ROOT, base.GEO, base.OUT
 CONTEXT = GEO / "outer-materials-v232-context.json.gz"
@@ -101,7 +102,10 @@ def protected_owners() -> set[str]:
     "src/app/src/*Prisms.json",
   ):
     for path in ROOT.glob(pattern):
-      if path.name not in {"buildingAttributeSource.json", OUTPUT.name}:
+      if (
+        path.name not in {"buildingAttributeSource.json", OUTPUT.name}
+        and path.relative_to(ROOT).as_posix() not in COLOUR_ONLY_V273_FILES
+      ):
         owners.update(
           re.findall(
             r"\b(?:DEBE[A-Za-z0-9]+|OSM-(?:way|relation)-\d+)", path.read_text()

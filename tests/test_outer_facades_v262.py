@@ -9,9 +9,10 @@ from shapely.geometry import LineString
 from scripts import build_district_facades_v188 as base
 from scripts import build_grey_facades_v263 as grey
 from scripts import build_outer_facades_v262 as build
+from scripts import build_outer_materials_v232 as materials
 
 
-@pytest.mark.parametrize("module", [build, grey])
+@pytest.mark.parametrize("module", [build, grey, materials])
 def test_colour_only_receipts_do_not_claim_fittings_but_authored_models_still_do(
   tmp_path, monkeypatch, module
 ):
@@ -41,7 +42,9 @@ def test_colour_only_receipts_do_not_claim_fittings_but_authored_models_still_do
   for name, owner in authored.items():
     path = tmp_path / name
     path.write_text(json.dumps({"owner": owner}))
+  independently_authored = min(colour_ids)
   preserved = {
+    "authoredIds": [independently_authored],
     "faces": [{"owner": "DEBEPreviousWindow"}],
     "owners": [{"owner": "DEBEPreviousRoof"}],
     "doors": [{"owner": "DEBEPreviousDoor"}],
@@ -50,14 +53,16 @@ def test_colour_only_receipts_do_not_claim_fittings_but_authored_models_still_do
   monkeypatch.setattr(base, "read_json", lambda _: preserved)
   # An independent authored identity still protects the same owner even when
   # it also appears in a colour receipt; skipping paint cannot erase ownership.
-  independently_authored = min(colour_ids)
-  protected = module.protected_owners({"authoredIds": [independently_authored]})
+  protected = (
+    module.protected_owners()
+    if module is materials
+    else module.protected_owners({"authoredIds": [independently_authored]})
+  )
   assert protected == {
     *authored.values(),
     independently_authored,
     "DEBEPreviousWindow",
-    "DEBEPreviousRoof",
-    "DEBEPreviousDoor",
+    *({"DEBEPreviousRoof", "DEBEPreviousDoor"} if module is not materials else set()),
   }
   assert not (colour_ids - {independently_authored}) & protected
 
