@@ -179,5 +179,7 @@ describe("v196–v200 outer construction source ownership", () => {
       expect(weak.factories.map(factory => renderDigest(factory(native)))).toEqual(expected[native ? 1 : 0]);
     }
     CollectableReference.collect();
-  }, 90_000);
+  // Includes a cold production build. The finite v274 Zopfli pass intentionally
+  // spends more build time without changing runtime decoding or these digests.
+  }, 240_000);
 });

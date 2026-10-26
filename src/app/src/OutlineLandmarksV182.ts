@@ -124,7 +124,7 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createCivicPartyDetailsV246(nextNative));
       yield;
-      root.add(createCityRecognitionV182(nextNative, false, true, true, true));
+      root.add(createCityRecognitionV182(nextNative, false, true, true, true, true));
       yield;
       root.add(nextNative ? createMinecraftJusticePalaceV183() : createJusticePalaceV183());
       yield;

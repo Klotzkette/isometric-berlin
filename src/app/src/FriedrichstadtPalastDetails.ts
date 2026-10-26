@@ -4,6 +4,7 @@ import {
 } from "three";
 import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { createBuilder, finishDrawnGroup, paintGeometry } from "./drawnKit";
+import { palastStageV274TopAt, replacePalastStageV274 } from "./palastStageV274";
 
 export type PalaceDetailProfile = "full" | "mobile";
 type P2 = readonly [number, number];
@@ -76,9 +77,7 @@ export function friedrichstadtPalastContains(x: number, z: number): boolean {
 }
 export function friedrichstadtPalastTopAt(x: number, z: number, sourceId = FRIEDRICHSTADT_PALAST_PRISM_ID): number | null {
   if (sourceId !== FRIEDRICHSTADT_PALAST_PRISM_ID || !friedrichstadtPalastContains(x, z)) return null;
-  const [u, out] = localAt(x, z);
-  if (Math.abs(u + 1.5) <= 11.85 && Math.abs(out + 62) <= 15.85) return BASE + 32.24;
-  return BASE + 20.2;
+  return palastStageV274TopAt(x, z) ?? BASE + 20.2;
 }
 export function friedrichstadtPalastSolidAt(x: number, z: number, footY: number, height = 1.8): boolean {
   const top = friedrichstadtPalastTopAt(x, z);
@@ -307,7 +306,7 @@ export function planFriedrichstadtPalast(detailProfile: PalaceDetailProfile = "f
       }
     }
   }
-  return p;
+  return replacePalastStageV274(p, detailProfile, minecraft);
 }
 
 function batch(boxes: PalastBox[], name: string, emissive = false): InstancedMesh {

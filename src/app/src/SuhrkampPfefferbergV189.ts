@@ -2,6 +2,7 @@ import { Group } from "three";
 import source from "./data/suhrkampPfefferbergV189.json";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { suhrkampCoreV274 } from "./SuhrkampV274";
 
 export const SUHRKAMP_PFEFFERBERG_V189_GROUP = "Suhrkamp and Pfefferberg source-wall recognition v189";
 type Rows = number[][];
@@ -42,6 +43,7 @@ function suhrkamp(rows: Rows, native: boolean, f: Face): void {
   const member = (u: number, y: number, w: number, h: number, d: number,
     color: number, out: number): void => put(rows, native, f, u, y, w, h, d, color, out + .52);
   if (core) {
+    if (suhrkampCoreV274(f, member)) return;
     member(length / 2, (f.bottom + f.top) / 2,
       length - .12, height - .12, .055, concrete, .13);
     for (let level = 1; level < floors; level++) {

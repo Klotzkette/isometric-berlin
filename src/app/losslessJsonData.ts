@@ -4,6 +4,9 @@ import { gzipSync } from "node:zlib";
 import { encodeLosslessBase85 } from "./src/losslessGzipBase85";
 import { LOSSLESS_BASE85_SOURCES_V263 } from "./losslessBase85SourcesV263";
 import { LOSSLESS_EAGER_FIELDS_V270 } from "./losslessEagerFieldsV270";
+import { LOSSLESS_EAGER_FIELDS_V274 } from "./losslessEagerFieldsV274";
+import { createLosslessZopfliPreparation, type LosslessZopfliField } from "./losslessZopfliV274";
+import { LOSSLESS_ZOPFLI_FIELDS_V274 } from "./losslessZopfliFieldsV274";
 
 export const LOSSLESS_JSON_FIELD_BYTES = 64 * 1024;
 
@@ -55,6 +58,11 @@ const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
  * Do not extend by filename pattern: navigation and mutable source caches have
  * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  // New constructors copy these arrays into final mesh buffers; navigation
+  // has its own small strong profiles. No decoded construction graph survives.
+  "schoolsCourtsV274.json": ["sites"],
+  "centralTheatresV274.json": ["native"],
+  "augustFrontsV274.json": ["chunks"],
   "alexanderNorthV272.json": ["panels"],
   // Prepared v268 generators own one immutable receipt until decode completes;
   // published roots retain typed geometry and small navigation, not these maps.
@@ -294,6 +302,7 @@ const PACKED_SOURCE_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
 // in the current worker/main graphs, so lossless source packing avoids duplicated
 // uncompressed base64 literals while preserving the existing source lifetime.
 export const LOSSLESS_PACKED_STRING_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "operaTheatresV274.json": ["sourcePositions", "nativeBoxes"],
   "drawnWaterBoundary.json": ["cells_u32", "triangles_f32", "edges_f32"],
   "altMitteGroundSeamsV206.json": ["cells_u32", "triangles_f32", "edges_f32"],
   "westVenuesV260.json": ["sourcePositions", "facadeBoxes", "nativeBoxes"],
@@ -363,12 +372,14 @@ export function transformLosslessJsonData(
   source: string,
   id: string,
   thresholdBytes = LOSSLESS_JSON_FIELD_BYTES,
+  preparedGzip?: ReadonlyMap<string, Uint8Array>,
 ): LosslessJsonTransform | undefined {
   const normalizedId = id.replaceAll("\\", "/");
   const retainedName = normalizedId.match(/\/src\/app\/src\/([^/]+)$/)?.[1];
   const eagerRetainedSource = EAGER_RETAINED_SOURCE_NAMES.some(name => name === retainedName);
   const sourcePath = normalizedId.match(/\/src\/app\/src\/(.+)$/)?.[1] ?? "";
-  const eagerFields = LOSSLESS_EAGER_FIELDS_V270[sourcePath] ?? [];
+  const eagerV274 = LOSSLESS_EAGER_FIELDS_V274[sourcePath] ?? [];
+  const eagerFields = eagerV274.length ? eagerV274 : LOSSLESS_EAGER_FIELDS_V270[sourcePath] ?? [];
   if ((!DATA_JSON.test(normalizedId) && !eagerRetainedSource && !eagerFields.length) ||
       (!eagerRetainedSource && !eagerFields.length && source.length < thresholdBytes)) {
     return undefined;
@@ -378,9 +389,10 @@ export function transformLosslessJsonData(
   // Keep the old base64 admission test exactly; encoding never changes whether
   // a field is eager/lazy, compressed or retained strongly/weakly.
   const pack = (json: string) => {
-    const bytes = gzipSync(json, { level: 9 });
-    return { encoded: base85 ? encodeLosslessBase85(bytes) : bytes.toString("base64"),
-      admissionLength: Math.ceil(bytes.length / 3) * 4 };
+    const original = gzipSync(json, { level: 9 });
+    const bytes = preparedGzip?.get(json) ?? original;
+    return { encoded: base85 ? encodeLosslessBase85(bytes) : Buffer.from(bytes).toString("base64"),
+      admissionLength: Math.ceil(original.length / 3) * 4 };
   };
   const data: unknown = JSON.parse(source.replace(/^\uFEFF/, ""));
   if (eagerRetainedSource) {
@@ -445,7 +457,7 @@ export function transformLosslessJsonData(
     // ordinary object and navigation identity remains eager and unchanged.
     const constructionObject = weakFields.includes(key) && value !== null && typeof value === "object";
     const packedString = typeof value === "string" && packedStrings.includes(key);
-    if (DATA_JSON.test(normalizedId) && !packedPacket && (!packedFields.includes(key) || packedString) && (Array.isArray(value) || constructionObject || packedString) && json.length >= thresholdBytes) {
+    if (DATA_JSON.test(normalizedId) && !packedPacket && !eagerV274.includes(key) && (!packedFields.includes(key) || packedString) && (Array.isArray(value) || constructionObject || packedString) && json.length >= thresholdBytes) {
       lazyFields += 1;
       const cache = `__cache${index}`;
       const loaded = `__loaded${index}`;
@@ -529,12 +541,23 @@ export function transformLosslessJsonData(
 }
 
 /** Install separately in the application and Worker build plugin lists. */
-export function losslessJsonData(): Plugin {
+export function losslessJsonData(
+  zopfliFields: readonly LosslessZopfliField[] = LOSSLESS_ZOPFLI_FIELDS_V274,
+): Plugin {
+  const preparation = createLosslessZopfliPreparation(zopfliFields, exactJson);
+  let productionBuild = false;
   return {
     name: "isometric-berlin-lossless-json-data",
     enforce: "pre",
-    transform(source, id) {
-      return transformLosslessJsonData(source, id);
+    configResolved(config) {
+      productionBuild = config.command === "build";
+    },
+    async transform(source, id) {
+      const prepared = productionBuild ? await preparation.prepare(source, id) : undefined;
+      return transformLosslessJsonData(source, id, LOSSLESS_JSON_FIELD_BYTES, prepared);
+    },
+    buildEnd() {
+      preparation.clear();
     },
   };
 }

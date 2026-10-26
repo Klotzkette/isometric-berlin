@@ -1,3 +1,4 @@
+import { transferOperaTheatreTrianglesV274, transferOperaTheatreLinesV274, operaTheatreNavigationV274 } from "./operaTheatresV274Ownership";
 import { applyPrimaryColoursV273 } from "./primaryColoursV273";
 import { primaryHousePaletteV273 } from "./primaryHousePaletteV273";
 import { applyLegacyHouseMaterialsV273 } from "./legacyHouseMaterialsV273";
@@ -17,6 +18,7 @@ import { prepareKreuzbergStreetsV267 } from "./KreuzbergStreetsV267";
 import { prepareNordMauerparkV266 } from "./NordMauerparkV266";
 import { prepareFriedrichshainV266 } from "./FriedrichshainV266";
 import { prepareScheunenV265 } from "./ScheunenV265";
+import { prepareAugustFrontsV274 } from "./AugustFrontsV274";
 import { prepareAllotmentsV264 } from "./AllotmentsV264";
 import { prepareEurefTransfersV262, applyEurefTransfersV262Triangles, applyEurefTransfersV262Lines, eurefNavigationV262 } from "./eurefTransfersV262";
 import { prepareOuterFacadesV262 } from "./outerFacadesV262";
@@ -251,6 +253,7 @@ export type SurroundingOwnershipOptions = {
   /** Complete documented planetarium is already attached by the required city transaction. */
   prenzlbergV264?: boolean;
   chariteBridgesV265?: boolean;
+  operaTheatresV274?: boolean;
   northernSitesV266?: boolean;
   golgathaV270?: boolean;
   tachelesFrontsV270?: boolean;
@@ -296,6 +299,7 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareMoabitHousesV269(chunk, id, minecraft);
   chunk = yield* prepareMierendorffV269(chunk, id, minecraft);
   chunk = yield* prepareTachelesFrontsV270(chunk, id, minecraft, ownership.tachelesFrontsV270 === true);
+  chunk = yield* prepareAugustFrontsV274(chunk, id, minecraft);
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
@@ -353,6 +357,8 @@ export function* buildSurroundingCityChunk(
       if (panoramaTransferred) root.userData.panoramaTransferredTriangles = (root.userData.panoramaTransferredTriangles ?? 0) + panoramaTransferred;
       const golgathaTransferred = yield* transferGolgathaTrianglesV270(ownership.golgathaV270 === true, id, minecraft, part, indices, indexOffset);
       if (golgathaTransferred) root.userData.golgathaTransferredTrianglesV270 = (root.userData.golgathaTransferredTrianglesV270 ?? 0) + golgathaTransferred;
+      const operaTransferred = yield* transferOperaTheatreTrianglesV274(ownership.operaTheatresV274 === true, id, minecraft, part, indices, indexOffset);
+      if (operaTransferred) root.userData.operaTheatreTrianglesV274 = (root.userData.operaTheatreTrianglesV274 ?? 0) + operaTransferred;
       const siteTransferred = yield* transferSiteTrianglesV209(id, minecraft, part, indices, indexOffset, ownership.schlossplatzV239 === true, ownership.staatsoperV240 === true, ownership.architectureV241 === true, ownership.prenzlbergV264 === true, ownership.chariteBridgesV265 === true, ownership.northernSitesV266 === true);
       if (siteTransferred) root.userData.siteTransferredTrianglesV209 = (root.userData.siteTransferredTrianglesV209 ?? 0) + siteTransferred;
       // The v169 core resident packets contain source shells only. Refine the
@@ -472,6 +478,7 @@ export function* buildSurroundingCityChunk(
       yield* interleavedPositions(lines.positions, values, 0, hasLineColors ? 6 : 3);
       if (hasLineColors) yield* interleavedColors(lines.colors!, values, 0);
       root.userData.golgathaTransferredLineSegmentsV270 = yield* transferGolgathaLinesV270(ownership.golgathaV270 === true, id, lines, values, hasLineColors ? 6 : 3);
+      root.userData.operaTheatreLinesV274 = yield* transferOperaTheatreLinesV274(ownership.operaTheatresV274 === true, id, lines, values, hasLineColors ? 6 : 3);
       root.userData.siteTransferredLineSegmentsV209 = yield* transferSiteLinesV209(id, lines, values, hasLineColors ? 6 : 3, ownership.schlossplatzV239 === true, ownership.architectureV241 === true, ownership.prenzlbergV264 === true, ownership.chariteBridgesV265 === true, ownership.northernSitesV266 === true);
       root.userData.roofHouseLineSegmentsV233 = yield* applyRoofHouseV233Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.outerRoofLineSegmentsV262 = yield* applyOuterRoofsV262Lines(chunk, values, hasLineColors ? 6 : 3);
@@ -486,7 +493,7 @@ export function* buildSurroundingCityChunk(
     // These fresh per-tile arrays are owned only by this unpublished root.
     if (parkBacking) yield* parkStaticGeometrySteps(root, true);
     const result = { root: freezeStaticSceneTransforms(root), geometryBytes, bufferCount,
-      nav: mierendorffNavigationV269(chunk, kraftwerkBerlinNavigationV268(chunk, koepenickerLandmarksNavigationV268(chunk, feuerwacheKreuzbergNavigationV267(chunk, eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, chunk.nav, ownership.prenzlbergV264 === true))))))), origin: chunk.origin };
+      nav: mierendorffNavigationV269(chunk, kraftwerkBerlinNavigationV268(chunk, koepenickerLandmarksNavigationV268(chunk, feuerwacheKreuzbergNavigationV267(chunk, eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, operaTheatreNavigationV274(ownership.operaTheatresV274 === true, id, minecraft, chunk.nav, root.userData.operaTheatreTrianglesV274 ?? 0), ownership.prenzlbergV264 === true))))))), origin: chunk.origin };
     completed = true;
     return result;
   } finally {

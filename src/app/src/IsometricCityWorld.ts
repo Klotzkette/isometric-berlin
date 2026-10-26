@@ -1,3 +1,4 @@
+import { isOperaTheatrePreviousPrismV274 } from "./operaTheatresV274Ownership";
 import { isTechnikmuseumSourceV272 } from "./TechnikmuseumV272Profile";
 import { THEATRES_V272_PRISM_IDS } from "./theatresV272Profile";
 import { PRESS_QUARTER_V272_PRISM_IDS } from "./pressQuarterV272Profile";
@@ -406,6 +407,7 @@ export type IsometricCityBuildOptions = {
   golgathaV270?: boolean;
   tachelesFrontsV270?: boolean;
   technikmuseumV272?: boolean;
+  operaTheatresV274?: boolean;
   moabitLandmarksV269?: boolean;
   tempodromAnhalterV266?: boolean;
   northernSitesV266?: boolean;
@@ -1804,12 +1806,13 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
   const visible = buildings.filter(building => !options.architectureV241 || !isAEGCampusCorePrismV241(building))
     .filter(building => !options.tachelesFrontsV270 || !isTachelesFrontSourceV270(building))
+    .filter(building => !isOperaTheatrePreviousPrismV274(options.operaTheatresV274 === true, building))
     .filter(building => !options.technikmuseumV272 || !isTechnikmuseumSourceV272(building))
     .filter(building => !options.moabitLandmarksV269 || !isMoabitLandmarkSourceV269(building))
     .filter(building => !options.tempodromAnhalterV266 || !isAnhalterSourceV266(building))
@@ -11992,6 +11995,7 @@ export function createIsometricCityCore(
     geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
   for (const sourceBuilding of buildings) {
+    if (isOperaTheatrePreviousPrismV274(options.operaTheatresV274 === true, sourceBuilding)) continue;
     if (options.tachelesFrontsV270 && isTachelesFrontSourceV270(sourceBuilding)) continue;
     if (options.technikmuseumV272 && isTechnikmuseumSourceV272(sourceBuilding)) continue;
     if (options.moabitLandmarksV269 && isMoabitLandmarkSourceV269(sourceBuilding)) continue;

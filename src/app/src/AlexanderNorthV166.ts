@@ -4,6 +4,7 @@ import nav from "./data/alexanderNorthV166Navigation.json";
 import { letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { alexanderNorthRecognitionV272, createPressehausCrownV272 } from "./AlexanderNorthV272";
+import { planSchoenhauserTorV274 } from "./NorthCultureV274";
 
 export const ALEXANDER_NORTH_V166_GROUP = "Alexander north: complete Park Inn, Pressehaus, Tor and street sources";
 export const ALEXANDER_NORTH_V166_NATIVE_GROUP = "Alexander north: independent orthogonal native skin";
@@ -86,6 +87,7 @@ function create(native:boolean):Group {
   const retained=recognition(native), additions=alexanderNorthRecognitionV272(native);
   root.add(batch([...retained,...additions]));
   const crown=createPressehausCrownV272(native);root.add(crown);
+  root.add(planSchoenhauserTorV274(native, source.nativeRuns).mesh("Schoenhauser Tor built crown and street entries v274"));
   root.userData.alexanderNorthV272={retainedRecognitionCount:retained.length,addedStaticInstances:additions.length};
   root.userData.updatePressehausV272=crown.userData.updatePressehausV272;
   return freezeStaticSceneTransforms(root);

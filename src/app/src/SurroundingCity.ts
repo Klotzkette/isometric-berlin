@@ -55,6 +55,7 @@ export type SurroundingCityOptions = {
   architectureV241?: boolean;
   prenzlbergV264?: boolean;
   chariteBridgesV265?: boolean;
+  operaTheatresV274?: boolean;
   northernSitesV266?: boolean;
   golgathaV270?: boolean;
   tachelesFrontsV270?: boolean;
@@ -436,7 +437,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) continue;
           const entry = await createStreamedSurroundingCityChunkV255(
             data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
-            { schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true },
+            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true },
           );
           unpublished = entry.root;
           // onAttach can synchronously dispose this controller during error recovery.

@@ -1766,3 +1766,31 @@ The finite v273 colour receipts may use the existing Base85 lossless source
 encoding. The hot core owner map must retain eager strong ownership and ordinary
 data descriptors; construction-only shard fields retain their weak lifetime.
 Keep the existing extracted-package and Pages ceilings without dropping detail.
+
+### Step 10 — v274 named schools, theatres and northern Mitte architecture
+
+The owner requests another source-supported architectural pass at Gymnasium
+Tiergarten, GRIPS, Deutsches Theater, Berliner Ensemble, Kastanienbaum school,
+the identified Fürstenberger Straße nursery near Arkonaplatz, Be Smart Academy,
+Berlin Metropolitan School, Herz-Jesu at Fehrbelliner Straße, John-Lennon school,
+Choriner Höfe, Grober Unfug Torstraße, Schönhauser Tor, Suhrkamp headquarters,
+Volksbühne and its immediate surroundings, Schiller-Theater, all three opera
+houses, Heinrich-Böll-Stiftung, Friedrichstadt-Palast and the existing Neue
+Synagoge/Auguststraße/Linienstraße context. Identify distinct actual sites and
+current buildings against operator, architectural and retained measured sources;
+do not substitute proposed redevelopment or temporary venues. Preserve all
+source envelopes, previous details, roof/court openings and navigation. Replace
+only exactly evidenced wrong authored estimates with receipted complete models.
+Bühnenhaus height and silhouette must be represented where source-supported;
+unmeasured recognition fittings remain explicit estimates. Keep full mobile
+detail, independently orthogonal native geometry, 93 stops and every existing
+residency/decode/prefetch limit. No new city coverage, textures, animation or
+external browser. The owner clarified Volksbühne 'Theaterbuchmacher' as its
+stage tower and stage roof structures, not a bookshop. Use the existing batches
+and bounded lifetimes.
+
+The finite v274 build-only stronger Gzip encoding must preserve exact JSON
+(including negative zero), the original zlib admission decision, all existing
+codecs and eager/strong/weak field contracts. Bind candidates to exact source
+field hashes; keep the compressor outside the runtime and startup graphs.
+Retain both preceding public asset closures and all existing release ceilings.

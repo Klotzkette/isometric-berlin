@@ -1,3 +1,7 @@
+import { herzJesuV274Solids } from "./herzJesuV274Profile";
+import { isOperaTheatrePreviousPrismV274 } from "./operaTheatresV274Ownership";
+import { SCHOOLS_COURTS_V274_BASE_PRISM_ID, SCHOOLS_COURTS_V274_UPPER_PARTS, SCHOOLS_COURTS_V274_NATIVE_UPPER_PART, schoolsCourtsV274RoofAt } from "./schoolsCourtsV274Navigation";
+import { OPERA_THEATRES_V274_PARTS, operaTheatresV274RoofAt } from "./operaTheatresV274Profile";
 import { isTechnikmuseumSourceV272, technikmuseumSolidsV272 } from "./TechnikmuseumV272Profile";
 import { THEATRES_V272_PRISM_IDS, THEATRES_V272_PARTS, theatresV272RoofAt } from "./theatresV272Profile";
 import { PRESS_QUARTER_V272_PRISM_IDS, PRESS_QUARTER_V272_PARTS, pressQuarterV272RoofAt } from "./pressQuarterV272Profile";
@@ -692,7 +696,7 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
-  options: { includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   if (options.includeAuguststrasseMuralV270) {
@@ -877,6 +881,7 @@ export function compilePedestrianObstacles(
     if (ALT_MITTE_V169_PRISM_IDS.has(building.id) || BERLIN_WALL_MEMORIAL_V174_PRISM_IDS.has(building.id)) continue;
     if (TEEHAUS_RUIN_V168_PRISM_IDS.has(building.id) || TU_WATER_V168_PRISM_IDS.has(building.id)) continue;
     if (NEUE_SYNAGOGE_V167_PRISM_IDS.has(building.id) || TACHELES_V167_PRISM_IDS.has(building.id)) continue;
+    if (isOperaTheatrePreviousPrismV274(options.operaTheatresV274 === true, building)) continue;
     if (THEATRES_V272_PRISM_IDS.has(building.id)) continue;
     if (PRESS_QUARTER_V272_PRISM_IDS.has(building.id)) continue;
     if (WEST_VENUES_V260_PRISM_IDS.has(building.id)) continue;
@@ -1584,6 +1589,39 @@ export function compilePedestrianObstacles(
       addPolygonObstacle(index, part.ring, part.holes, part.groundY, part.topY + 2, part.id, 1, (x,z) => tachelesV167RoofAt(x,z,visualMode() === "minecraft"));
     }
   }
+  // BMS keeps its existing ground-floor owner. Only the five measured upper
+  // parts are additive; their separate rings leave the courtyard open.
+  if (prisms.buildings.some(b => b.id === SCHOOLS_COURTS_V274_BASE_PRISM_ID)) {
+    for (const part of SCHOOLS_COURTS_V274_UPPER_PARTS) for (const polygon of part.polygons) {
+      addPolygonObstacle(index, polygon.ring, polygon.holes, part.groundY, part.topY,
+        part.id, 1, (x,z) => visualMode() === "minecraft"
+          ? Number.NEGATIVE_INFINITY : schoolsCourtsV274RoofAt(x,z));
+      index.buildingCount += 1;
+    }
+    const part = SCHOOLS_COURTS_V274_NATIVE_UPPER_PART;
+    for (const polygon of part.polygons) {
+      addPolygonObstacle(index, polygon.ring, polygon.holes, part.groundY, part.topY,
+        part.id, 1, (x,z) => visualMode() === "minecraft"
+          ? schoolsCourtsV274RoofAt(x,z,true) : Number.NEGATIVE_INFINITY);
+      index.buildingCount += 1;
+    }
+  }
+  if (options.northCultureV274) {
+    // Exact occupied sections preserve the roof steps, eave undersides and
+    // empty native AABB corners. The retained lower church owner is untouched.
+    for (const native of [false, true]) for (const solid of herzJesuV274Solids(native)) {
+      addPolygonObstacle(index, solid.ring, [], solid.minY, solid.maxY,
+        solid.sourceId, 1, () => (visualMode() === "minecraft") === native
+          ? solid.maxY : Number.NEGATIVE_INFINITY);
+    }
+  }
+  if (options.operaTheatresV274) {
+    for (const part of OPERA_THEATRES_V274_PARTS) for (const polygon of part.polygons) {
+      addPolygonObstacle(index, polygon.ring, polygon.holes, part.groundY, part.topY + 2,
+        part.id, 1, (x,z) => operaTheatresV274RoofAt(x,z,visualMode() === "minecraft"));
+      index.buildingCount += 1;
+    }
+  }
   if (prisms.buildings.some(b => THEATRES_V272_PRISM_IDS.has(b.id))) {
     for (const part of THEATRES_V272_PARTS) for (const polygon of part.polygons) {
       addPolygonObstacle(index, polygon.ring, polygon.holes, part.groundY, part.topY + 2,
@@ -2221,7 +2259,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
-  options: { includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;

@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.173 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.173/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.174 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.174/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.173** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.174** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.174 refines the requested schools, theatres and northern Mitte architecture: complete measured Schiller/Deutsche Oper roofs, corrected Palast stage placement, BMS copper upper floors and source-bound facade details. Herz-Jesu gains its missing tall campanile; Grober Unfug, Suhrkamp and Schönhauser Tor receive distinct fittings. Existing city sources and full mobile detail remain. Measured forms and estimated fittings are distinguished in the [evidence and checks](docs/culture-schools-v274.md).
+
+Version 1.0.174 präzisiert die angefragten Schulen, Theater und Bauten im nördlichen Mitte: vollständige vermessene Dächer bei Schiller-Theater und Deutscher Oper, korrigierte Lage des Palast-Bühnenhauses, die kupferne BMS-Aufstockung und quellengestützte Fassadendetails. Herz Jesu erhält den fehlenden hohen Glockenturm; Grober Unfug, Suhrkamp und Schönhauser Tor bekommen eigene Architekturmerkmale. Frühere Stadtquellen und voller mobiler Detailgrad bleiben erhalten. Vermessene Formen und geschätzte Details sind in den [Belegen und Prüfungen](docs/culture-schools-v274.md) getrennt ausgewiesen.
 
 Version 1.0.173 audits all existing city layers for missed grey fallback paint, including Moabit, Schöneberg, Steglitz, Kreuzberg and Friedrichshain. Distinct restrained facade/roof tones preserve mapped materials and geometry. The remaining historic Gymnasium Steglitz fronts gain photo-guided tall arched windows and brick bands; the modern wing remains separate. Unsurveyed colours and openings are documented estimates. [Evidence and checks](docs/city-house-colours-v273.md).
 

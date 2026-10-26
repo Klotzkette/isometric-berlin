@@ -1,0 +1,11 @@
+{
+  "FriedrichstadtPalast": {
+    "hash": "39f2d873cd588951ddf05e6f752c8899fd41fe6f1fd3501d0634927338e3e3ce",
+    "budget": {
+      "bytes": 372624,
+      "draws": 4,
+      "instances": 4824,
+      "vertices": 288
+    }
+  }
+}

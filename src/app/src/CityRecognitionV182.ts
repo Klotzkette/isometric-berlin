@@ -1,3 +1,4 @@
+import { operaTheatresV274PreviousFilters } from "./operaTheatresV274Ownership";
 import { keepStadthausBoxV182V239, keepStadthausSegmentV182V239 } from "./stadthausPreviousV239";
 import { staatsoperV240PreviousFilters } from "./staatsoperV240Ownership";
 import {
@@ -14,7 +15,7 @@ export const CITY_RECOGNITION_V182_GROUP = "Measured civic and theatre recogniti
 export const CITY_RECOGNITION_V182_NATIVE_GROUP = "Native civic and theatre recognition v182";
 
 /** A small additive skin. Earlier building owners, courts and detail stay intact. */
-export function createCityRecognitionV182(minecraft = false, includeSupersededEstimates = true, replaceTownhallEstimates = false, replaceStadthausEstimate = false, replaceStaatsoperEstimate = false): Group {
+export function createCityRecognitionV182(minecraft = false, includeSupersededEstimates = true, replaceTownhallEstimates = false, replaceStadthausEstimate = false, replaceStaatsoperEstimate = false, replaceOperaTheatresV274 = false): Group {
   const root = new Group();
   root.name = minecraft ? CITY_RECOGNITION_V182_NATIVE_GROUP : CITY_RECOGNITION_V182_GROUP;
   root.userData = {
@@ -25,11 +26,12 @@ export function createCityRecognitionV182(minecraft = false, includeSupersededEs
     facadeStatus: "Thin procedural subdivisions on official source wall planes; not a facade survey",
   };
   // Both receipts address original row indices. Never filter successively.
+  const theatres = operaTheatresV274PreviousFilters(!includeSupersededEstimates && replaceOperaTheatresV274);
   const opera = staatsoperV240PreviousFilters(!includeSupersededEstimates && replaceStaatsoperEstimate);
   const segments = includeSupersededEstimates ? source.segments : source.segments.filter((row, index) =>
-    keepCivicSegmentV182V210(row, index) && (!replaceTownhallEstimates || keepTownhallSegmentV182V227(row, index)) && (!replaceStadthausEstimate || keepStadthausSegmentV182V239(row, index)) && opera.segment(row, index));
+    keepCivicSegmentV182V210(row, index) && (!replaceTownhallEstimates || keepTownhallSegmentV182V227(row, index)) && (!replaceStadthausEstimate || keepStadthausSegmentV182V239(row, index)) && opera.segment(row, index) && theatres.segment(row, index));
   const boxes = includeSupersededEstimates ? source.boxes : source.boxes.filter((row, index) =>
-    keepCivicBoxV182V210(row, index) && (!replaceTownhallEstimates || keepTownhallBoxV182V227(row, index)) && (!replaceStadthausEstimate || keepStadthausBoxV182V239(row, index)) && opera.box(row, index));
+    keepCivicBoxV182V210(row, index) && (!replaceTownhallEstimates || keepTownhallBoxV182V227(row, index)) && (!replaceStadthausEstimate || keepStadthausBoxV182V239(row, index)) && opera.box(row, index) && theatres.box(row, index));
   const positions = new Float32Array(segments.length * 6);
   const colors = new Float32Array(positions.length);
   const color = new Color();

@@ -1,7 +1,10 @@
+import { createCentralTheatresV274 } from "./CentralTheatresV274";
+import { createOperaTheatresV274 } from "./OperaTheatresV274";
 import { createTechnikmuseumV272 } from "./TechnikmuseumV272";
 import { createTheatresV272 } from "./TheatresV272";
 import { createGripsDetailsV272 } from "./GripsDetailsV272";
 import { createPressQuarterV272 } from "./PressQuarterV272";
+import { createNorthCultureV274 } from "./NorthCultureV274";
 import { createAuguststrasseMuralV270 } from "./AuguststrasseMuralV270";
 import { createGolgathaV270 } from "./GolgathaV270";
 import { createTachelesRailsV270 } from "./TachelesRailsV270";
@@ -61,6 +64,12 @@ import { createDistrictCourtsV229 } from "./DistrictCourtsV229";
 /** Attach each complete owner before yielding, so the city's transaction owns
  * and disposes every allocated model even when loading is interrupted. */
 export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false): Generator<void> {
+  root.add(createCentralTheatresV274(native));
+  yield;
+  root.add(createOperaTheatresV274(native));
+  yield;
+  root.add(createNorthCultureV274(native));
+  yield;
   root.add(createAuguststrasseMuralV270(native));
   yield;
   root.add(createGolgathaV270(native));

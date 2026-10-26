@@ -1,6 +1,15 @@
 // Finite audited JSON module ownership, initially the three v263 main chunks.
 // Codec selection only: field thresholds and strong/weak/eager lifetimes stay intact.
 export const LOSSLESS_BASE85_SOURCES_V263: ReadonlySet<string> = new Set([
+  "data/operaTheatresV274.json",
+  "data/operaTheatresV274Navigation.json",
+  "data/operaTheatresV274Ownership.json",
+  "data/schoolsCourtsV274.json",
+  "data/schoolsCourtsV274Navigation.json",
+  "data/centralTheatresV274.json",
+  "data/northCultureV274Source.json",
+  "data/augustFrontsV274.json",
+
   // v273 colour receipts and the photo-guided school-window correction retain
   // their existing construction-only lifetimes and exact decoded values.
   "data/legacyHouseMaterialsV273.json",

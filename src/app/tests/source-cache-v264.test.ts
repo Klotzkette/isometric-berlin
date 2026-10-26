@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { gunzipSync } from "node:zlib";
 import { build } from "vite";
 import { losslessJsonData, LOSSLESS_JSON_FIELD_BYTES, READONLY_CONSTRUCTION_JSON_FIELDS } from "../losslessJsonData";
+import { LOSSLESS_EAGER_FIELDS_V270 } from "../losslessEagerFieldsV270";
 import { prepareAllotmentsV264, type AllotmentSourceV264 } from "../src/AllotmentsV264";
 import type { SurroundingCityChunk } from "../src/SurroundingCityGeometry";
 
@@ -66,19 +67,24 @@ test("real v264 garden recipes stay lazy through early guards and byte-exact acr
   expect(code.length).toBeLessThan(originals[0].length / 2);
   const { window, parses } = evaluate(code);
   const source = window.sources![0] as AllotmentSourceV264, prepare = window.prepare!;
-  expect(parses()).toBe(0);
+  // v270 compressed the existing eager key inventory without changing ownership.
+  expect(LOSSLESS_EAGER_FIELDS_V270["data/allotmentsV264.json"]).toEqual(["keys"]);
+  const eagerDecodes = 1;
+  expect(parses()).toBe(eagerDecodes);
+  expect(CollectableReference.entries.length).toBe(0);
+  expect(Object.getOwnPropertyDescriptor(source, "keys")).toEqual({ value: source.keys, writable: true, configurable: true, enumerable: true });
   expect(source.keys).toEqual(expected.keys);
   const unrelated = { get nav() { throw Error("unknown garden navigation inspected"); }, get meshes() { throw Error("unknown garden mesh inspected"); } } as unknown as SurroundingCityChunk;
   expect(finish(prepare(unrelated, "outside-retained-city"))).toBe(unrelated);
-  expect(parses()).toBe(0);
+  expect(parses()).toBe(eagerDecodes);
   const existing = { meshes: [{ kind: "allotments-v264" }] } as SurroundingCityChunk;
   expect(finish(prepare(existing, source.keys![0]))).toBe(existing);
-  expect(parses()).toBe(0);
+  expect(parses()).toBe(eagerDecodes);
 
   const first = source.chunks;
   expect(first).toEqual(expected.chunks);
   expect(source.chunks).toBe(first);
-  expect(parses()).toBe(1);
+  expect(parses()).toBe(eagerDecodes + 1);
   const id = source.keys!.find(key => (first[key].drawn?.groups.length ?? 0) >= 4)!;
   const folder = new URL("../public/mesh/surrounding-berlin-v159/", import.meta.url);
   const manifest = JSON.parse(readFileSync(new URL("manifest.json", folder), "utf8"));
@@ -92,18 +98,18 @@ test("real v264 garden recipes stay lazy through early guards and byte-exact acr
   expect(built.meshes.at(-1)).toEqual(baseline.meshes.at(-1));
   expect(built.nav).toBe(packet.nav);
   expect(built.meshes.slice(0, -1)).toEqual(packet.meshes);
-  expect(parses()).toBe(1);
+  expect(parses()).toBe(eagerDecodes + 1);
   const second = source.chunks;
   expect(second).not.toBe(first);
   expect(second).toEqual(expected.chunks);
-  expect(parses()).toBe(2);
+  expect(parses()).toBe(eagerDecodes + 2);
   expect(JSON.stringify(source)).toBe(JSON.stringify(expected));
   const fallback = evaluate(code, null);
   const retained = fallback.window.sources![0].chunks;
   CollectableReference.collect();
   expect(fallback.window.sources![0].chunks).toBe(retained);
   expect(retained).toEqual(expected.chunks);
-  expect(fallback.parses()).toBe(1);
+  expect(fallback.parses()).toBe(eagerDecodes + 1);
 });
 
 test("current Prenzlberg drawn, envelope and native source snapshots preserve exact values and production cache admission", async () => {
@@ -113,8 +119,14 @@ test("current Prenzlberg drawn, envelope and native source snapshots preserve ex
   const { code, expected, originals } = await fixture(names);
   expect(code.length).toBeLessThan(originals.reduce((sum, text) => sum + text.length, 0) / 2);
   const { window, parses } = evaluate(code);
-  expect(parses()).toBe(0);
-  let decoded = 0, weakFields = 0;
+  // The small native sites inventory was already eager before v270's encoding.
+  expect(LOSSLESS_EAGER_FIELDS_V270["data/prenzlbergV264Native.json"]).toEqual(["sites"]);
+  const eagerDecodes = 1;
+  expect(parses()).toBe(eagerDecodes);
+  expect(CollectableReference.entries.length).toBe(0);
+  const nativeSource = window.sources![2];
+  expect(Object.getOwnPropertyDescriptor(nativeSource, "sites")).toEqual({ value: nativeSource.sites, writable: true, configurable: true, enumerable: true });
+  let decoded = eagerDecodes, weakFields = 0;
   for (let i = 0; i < names.length; i++) {
     const source = window.sources![i], want = expected[i];
     expect(Object.keys(source)).toEqual(Object.keys(want));
@@ -139,7 +151,7 @@ test("current Prenzlberg drawn, envelope and native source snapshots preserve ex
     Object.freeze(source);
     expect(() => { source.sites = first; }).toThrow(TypeError);
   }
-  expect(weakFields).toBeGreaterThanOrEqual(2);
+  expect(weakFields).toBe(2);
   const fallback = evaluate(code, null);
   for (let i = 0; i < names.length; i++) {
     const source = fallback.window.sources![i], first = source.sites;
@@ -147,5 +159,5 @@ test("current Prenzlberg drawn, envelope and native source snapshots preserve ex
     expect(source.sites).toBe(first);
     expect(first).toEqual(expected[i].sites);
   }
-  expect(fallback.parses()).toBe(weakFields);
+  expect(fallback.parses()).toBe(eagerDecodes + weakFields);
 });

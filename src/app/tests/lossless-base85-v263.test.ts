@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { gzipSync } from "node:zlib";
 import { encodeLosslessBase85, decodeLosslessBase85, decodeLosslessGzipJson } from "../src/losslessGzipBase85";
 import { LOSSLESS_BASE85_SOURCES_V263 } from "../losslessBase85SourcesV263";
@@ -74,7 +75,24 @@ test("real strong packed strings and weak roof packets retain their source value
 });
 
 test("only the frozen exact source paths select base85; root arrays stay eager and strongly owned", () => {
-  expect(LOSSLESS_BASE85_SOURCES_V263.size).toBe(235);
+  const additionsV274 = [
+    "data/operaTheatresV274.json",
+    "data/operaTheatresV274Navigation.json",
+    "data/operaTheatresV274Ownership.json",
+    "data/schoolsCourtsV274.json",
+    "data/schoolsCourtsV274Navigation.json",
+    "data/centralTheatresV274.json",
+    "data/northCultureV274Source.json",
+    "data/augustFrontsV274.json",
+  ];
+  expect(LOSSLESS_BASE85_SOURCES_V263.size).toBe(243);
+  for (const path of additionsV274) expect(LOSSLESS_BASE85_SOURCES_V263.has(path), path).toBeTrue();
+  const baseline = [...LOSSLESS_BASE85_SOURCES_V263].filter(path => !additionsV274.includes(path)).sort();
+  expect(baseline.length).toBe(235);
+  // Frozen sorted v273 registry: retain every exact previous path while adding
+  // precisely the eight independently audited architectural sources above.
+  expect(createHash("sha256").update(baseline.join("\n")).digest("hex"))
+    .toBe("913ccfbc9555a4ac34c13f5e74df6e7f1bb828665d46e0cf911bf4d6203203a3");
   const text = JSON.stringify(Array.from({ length: 2000 }, () => [1, 2, 3, "exact"]));
   const { data, decodes } = compile(text, "data/westVenuesV260.json", 4);
   expect(decodes()).toBe(1);

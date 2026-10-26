@@ -5,12 +5,14 @@ import source from "../src/data/schoolsV185.json";
 
 test("five schools retain bounded, source-owned static details without another shell", () => {
   const drawn = createSchoolsV185();
-  expect(drawn.children.filter(o => !o.userData.schoolPlaceV205)).toHaveLength(6); // Kastanienbaum's separate front/main houses.
+  // v274 is an independently audited additive group, not a seventh v185 owner.
+  expect(drawn.children.filter(o => o.userData.schoolsCourtsV274)).toHaveLength(1);
+  expect(drawn.children.filter(o => !o.userData.schoolPlaceV205 && !o.userData.schoolsCourtsV274)).toHaveLength(6); // Kastanienbaum's separate front/main houses.
   expect(new Set(source.schools.map(s => s.owner)).size).toBe(6);
   expect(source.boxes.length).toBeGreaterThan(30);
   expect(source.boxes.length).toBeLessThan(300);
   let bytes = 0;
-  for (const object of drawn.children.filter(o => !o.userData.schoolPlaceV205)) {
+  for (const object of drawn.children.filter(o => !o.userData.schoolPlaceV205 && !o.userData.schoolsCourtsV274)) {
     expect(object).toBeInstanceOf(InstancedMesh);
     const mesh = object as InstancedMesh;
     expect(mesh.userData.sourceOwner).toBeTruthy();
@@ -28,7 +30,8 @@ test("native school refinement is only a finite axis-aligned skin", () => {
   const matrix = new Matrix4(), p = new Vector3(), scale = new Vector3();
   expect(root.userData.blockNative).toBe(true);
   expect(source.nativeRows.length).toBeLessThan(1200);
-  for (const object of root.children.filter(o => !o.userData.schoolPlaceV205)) {
+  expect(root.children.filter(o => o.userData.schoolsCourtsV274)).toHaveLength(1);
+  for (const object of root.children.filter(o => !o.userData.schoolPlaceV205 && !o.userData.schoolsCourtsV274)) {
     const mesh = object as InstancedMesh;
     expect(mesh.userData.blockNative).toBe(true);
     for (let i = 0; i < mesh.count; i++) {

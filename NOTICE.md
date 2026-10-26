@@ -2394,3 +2394,21 @@ arches and brick bands. Unseen opening positions remain explicit estimates.
 Original measured envelopes, the modern extension and earlier Aula/courtyard
 models remain intact. Photographs are reference-only and are not distributed.
 See docs/steglitz-windows-v273.md.
+
+
+v1.0.174 school, theatre and northern culture refinement: complete retained
+Geoportal Berlin LoD2 and official DOP/bDOM evidence (dl-de/zero-2-0), with
+existing OSM attribution, supports the measured building envelopes and exact
+old-owner transfer. Operator, architect and LDA references establish identities
+and visual details; small facade/roof fittings are estimated. Reference photos
+are not distributed as runtime textures or assets. Schönhauser Tor reference:
+Jörg Zägel, 2010, “Berlin, Mitte, Torstrasse 49, Wohn- und Geschaeftshaus
+Schoenhauser Tor.jpg”, Wikimedia Commons, CC BY-SA 3.0 (same reference as v166).
+The owner clarified Volksbühne's stage tower and stage roofs; no bookshop or
+recorded concert video is introduced. See docs/culture-schools-v274.md and its
+linked site-specific evidence and source records.
+
+The v274 build uses `@gfx/zopfli` 1.0.15 (Apache-2.0, Fuji Goro and Google)
+for a finite set of lossless Gzip source literals. The compressor and its
+WebAssembly module are build dependencies only; the browser keeps the existing
+Gzip decoder. Source: https://github.com/gfx/universal-zopfli-js.

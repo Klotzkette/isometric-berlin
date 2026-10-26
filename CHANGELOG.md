@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.174 — 2026-10-26
+
+- Restore complete measured Schillertheater and Deutsche Oper building families with exact old-owner transfer and matching walking roofs.
+- Correct Friedrichstadt-Palast stage orientation and roof structures; add bounded DT, Berliner Ensemble, Volksbühne, Böll, GRIPS and opera details.
+- Refine seven school/courtyard sites, including the complete BMS copper upper envelope and its independent native navigation.
+- Add Herz-Jesu’s documented tall campanile and Romanesque front, operator-photo comic-shop details and precise Suhrkamp/Schönhauser Tor fittings.
+- Deepen verified upper window openings on Auguststraße and Oranienburger Straße; preserve protected photo models and all earlier street details.
+- Keep full mobile geometry, existing city coverage and live budgets; encode new immutable source data losslessly. See [evidence and checks](docs/culture-schools-v274.md).
+
 ## 1.0.163 — 2026-10-23
 
 - Apply retained OSM facade/roof colour and material observations to 449 ordinary owners in 15 previously omitted legacy city packets.

@@ -1,0 +1,154 @@
+{
+  "before": {
+    "full": {
+      "hash": "b6640f0cb2f66f853e0487a5337a77534ced66a5a6ed3444c6201e9ae4178c3b",
+      "budget": {
+        "bytes": 370876,
+        "draws": 4,
+        "instances": 4801,
+        "vertices": 288
+      }
+    },
+    "mobile": {
+      "hash": "b6640f0cb2f66f853e0487a5337a77534ced66a5a6ed3444c6201e9ae4178c3b",
+      "budget": {
+        "bytes": 370876,
+        "draws": 4,
+        "instances": 4801,
+        "vertices": 288
+      }
+    }
+  },
+  "current": {
+    "full": {
+      "hash": "39f2d873cd588951ddf05e6f752c8899fd41fe6f1fd3501d0634927338e3e3ce",
+      "budget": {
+        "bytes": 372624,
+        "draws": 4,
+        "instances": 4824,
+        "vertices": 288
+      }
+    },
+    "mobile": {
+      "hash": "39f2d873cd588951ddf05e6f752c8899fd41fe6f1fd3501d0634927338e3e3ce",
+      "budget": {
+        "bytes": 372624,
+        "draws": 4,
+        "instances": 4824,
+        "vertices": 288
+      }
+    }
+  },
+  "plans": {
+    "full:false": {
+      "stone": {
+        "beforeCount": 19,
+        "currentCount": 53,
+        "beforeSha256": "f763905a53ac6e59c08b8d63218494ba4f4b3e75038ddfce34a921b850cd6859",
+        "currentSha256": "85fdbf7ba8c08b72c34e7d566721c9001700ac0ea300c2428847fa8959cea07c",
+        "unrelatedCount": 1957,
+        "unrelatedSha256": "f270c9f37041cd8b44a2f600cc399e914a73b1ab13d414f9597c204cf95aa855"
+      },
+      "glass": {
+        "beforeCount": 11,
+        "currentCount": 0,
+        "beforeSha256": "f1d65e2cfdcfca131a127aedcbf247bb3cf534b3cd3c54d94f188d51fd0231a5",
+        "currentSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "unrelatedCount": 2186,
+        "unrelatedSha256": "4b847617a3f34d90ad0da0d52543bdf3e3edeffd312abda779723c35fe6ab240"
+      },
+      "sign": {
+        "beforeCount": 0,
+        "currentCount": 0,
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "currentSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "unrelatedCount": 628,
+        "unrelatedSha256": "4c47279c26a63321a9be30dc6ab7cd897d4a2c2d1c40847d1ce3015df0b4d1d6"
+      }
+    },
+    "full:true": {
+      "stone": {
+        "beforeCount": 19,
+        "currentCount": 2583,
+        "beforeSha256": "f763905a53ac6e59c08b8d63218494ba4f4b3e75038ddfce34a921b850cd6859",
+        "currentSha256": "909d83e55920cbca386bb2dcf0bf6c3f7fda3407605a662ea3fd094ab4582073",
+        "unrelatedCount": 3517,
+        "unrelatedSha256": "ce928f22d930ea9a802f3f9e51badc3e06a22cb51de21dbbcd6a2a7cae700e3e"
+      },
+      "glass": {
+        "beforeCount": 11,
+        "currentCount": 0,
+        "beforeSha256": "f1d65e2cfdcfca131a127aedcbf247bb3cf534b3cd3c54d94f188d51fd0231a5",
+        "currentSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "unrelatedCount": 2186,
+        "unrelatedSha256": "4b847617a3f34d90ad0da0d52543bdf3e3edeffd312abda779723c35fe6ab240"
+      },
+      "sign": {
+        "beforeCount": 0,
+        "currentCount": 0,
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "currentSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "unrelatedCount": 983,
+        "unrelatedSha256": "9f032f05bbfe6e95c092b255fe6ebab37ce55f9e8401ab2a41c1a7031294a20c"
+      }
+    },
+    "mobile:false": {
+      "stone": {
+        "beforeCount": 19,
+        "currentCount": 53,
+        "beforeSha256": "f763905a53ac6e59c08b8d63218494ba4f4b3e75038ddfce34a921b850cd6859",
+        "currentSha256": "85fdbf7ba8c08b72c34e7d566721c9001700ac0ea300c2428847fa8959cea07c",
+        "unrelatedCount": 1957,
+        "unrelatedSha256": "f270c9f37041cd8b44a2f600cc399e914a73b1ab13d414f9597c204cf95aa855"
+      },
+      "glass": {
+        "beforeCount": 11,
+        "currentCount": 0,
+        "beforeSha256": "f1d65e2cfdcfca131a127aedcbf247bb3cf534b3cd3c54d94f188d51fd0231a5",
+        "currentSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "unrelatedCount": 2186,
+        "unrelatedSha256": "4b847617a3f34d90ad0da0d52543bdf3e3edeffd312abda779723c35fe6ab240"
+      },
+      "sign": {
+        "beforeCount": 0,
+        "currentCount": 0,
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "currentSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "unrelatedCount": 628,
+        "unrelatedSha256": "4c47279c26a63321a9be30dc6ab7cd897d4a2c2d1c40847d1ce3015df0b4d1d6"
+      }
+    },
+    "mobile:true": {
+      "stone": {
+        "beforeCount": 16,
+        "currentCount": 2583,
+        "beforeSha256": "9e4b09f58cda9b7589259d9379ec0a438d8aca1c2bd6f2a53ac774b193104786",
+        "currentSha256": "909d83e55920cbca386bb2dcf0bf6c3f7fda3407605a662ea3fd094ab4582073",
+        "unrelatedCount": 2897,
+        "unrelatedSha256": "b537d6e4bb2b074dafa300fe351a9ea40f60e8cca3378bee26d31ad6f924eb2a"
+      },
+      "glass": {
+        "beforeCount": 11,
+        "currentCount": 0,
+        "beforeSha256": "f1d65e2cfdcfca131a127aedcbf247bb3cf534b3cd3c54d94f188d51fd0231a5",
+        "currentSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "unrelatedCount": 1094,
+        "unrelatedSha256": "9272e61fc361dbe0b0d28898724e606dab450d59fbe85f36c3875abca87ffe50"
+      },
+      "sign": {
+        "beforeCount": 0,
+        "currentCount": 0,
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "currentSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "unrelatedCount": 983,
+        "unrelatedSha256": "9f032f05bbfe6e95c092b255fe6ebab37ce55f9e8401ab2a41c1a7031294a20c"
+      }
+    }
+  },
+  "proof": {
+    "scope": "Only the exactly receipted stage-* recipe; every other plan row is byte-identical in all four full/mobile native/drawn variants.",
+    "beforeRef": "dda65872a904ae6b5f3d54ee78d62862ca4ceeb2",
+    "beforeSourceSha256": "476ba09f9f15a1d8dc30a9317b1703a2ae10893935090fc8568bc69cb80ecf54",
+    "currentSourceSha256": "ab76edbeba2f7ac783bea04482a31ececf32aa2f1c1dfb1486b154c12ca3d302"
+  }
+}
