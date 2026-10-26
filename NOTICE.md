@@ -2412,3 +2412,14 @@ The v274 build uses `@gfx/zopfli` 1.0.15 (Apache-2.0, Fuji Goro and Google)
 for a finite set of lossless Gzip source literals. The compressor and its
 WebAssembly module are build dependencies only; the browser keeps the existing
 Gzip decoder. Source: https://github.com/gfx/universal-zopfli-js.
+
+v1.0.175 Großer Tiergarten Werkhof: complete retained Geoportal Berlin LoD2,
+official DOP 2025 and bDOM evidence (dl-de/zero-2-0), with OpenStreetMap site,
+use and storey data (© OpenStreetMap contributors, ODbL), identify the exact
+compound at Straße des 17. Juni 31. The district's public Werkhof listing and
+the Senate's 10 December 2024 property inventory establish its operational
+uses. Two erroneous LoD2 heights are corrected against independent bDOM roof
+samples; a tree-obscured canopy height and unmeasured fittings/planting remain
+explicit display estimates. All original source sheets are retained. The user's
+viewer screenshot and official orthophoto are references only; no image pixels
+or new textures are bundled. See docs/tiergarten-werkhof-v275.md.

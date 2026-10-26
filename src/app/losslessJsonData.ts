@@ -302,6 +302,7 @@ const PACKED_SOURCE_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
 // in the current worker/main graphs, so lossless source packing avoids duplicated
 // uncompressed base64 literals while preserving the existing source lifetime.
 export const LOSSLESS_PACKED_STRING_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "tiergartenWerkhofV275.json": ["drawnPositions", "drawnColors", "drawnDetails", "nativeDetails"],
   "operaTheatresV274.json": ["sourcePositions", "nativeBoxes"],
   "drawnWaterBoundary.json": ["cells_u32", "triangles_f32", "edges_f32"],
   "altMitteGroundSeamsV206.json": ["cells_u32", "triangles_f32", "edges_f32"],

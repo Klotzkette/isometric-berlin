@@ -16,6 +16,7 @@ const EAGER_FIELDS: Readonly<Record<string, readonly string[]>> = {
 // They remain direct literals; listing them explicitly prevents a shrinking or
 // unexpectedly uncompressed large field from silently bypassing lazy checks.
 const DIRECT_PACKED_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  'tiergartenWerkhofV275.json': ['drawnColors', 'drawnDetails'],
   'pressQuarterV272.json': ['sourcePositions'],
   'theatresV272.json': ['sourcePositions', 'facadeBoxes'],
 };

@@ -1794,3 +1794,20 @@ The finite v274 build-only stronger Gzip encoding must preserve exact JSON
 codecs and eager/strong/weak field contracts. Bind candidates to exact source
 field hashes; keep the compressor outside the runtime and startup graphs.
 Retain both preceding public asset closures and all existing release ceilings.
+
+### Step 10 — v275 Großer Tiergarten maintenance compound
+
+The owner's screenshot identifies the Werkhof at Straße des 17. Juni 31,
+OSM way118034165, rather than an office complex. Correct its exact twenty
+retained source owners using the complete original LoD2 sheets, mapped use and
+storeys, official orthophoto and independent height evidence where available.
+Several official source heights conflict with garage/canopy use; retain those
+original sheets as evidence and clearly distinguish corrected display estimates
+from measurements. Do not flatten the actual house or other evidenced roofs.
+Replace inappropriate glass semantics and only exactly receipted old prisms and
+native columns, with complete replacements and matching walking surfaces.
+Keep open service yards, paths, water and existing trees. Additional illustrative
+shrubs must fit the mapped compound and cannot conceal uncorrected high proxies.
+Keep full mobile detail, independent orthogonal native construction, all prior
+city sources, 93 stops and unchanged residency/decode/prefetch limits. No new
+coverage, texture, animation or external browser.

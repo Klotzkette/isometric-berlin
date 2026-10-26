@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.175 — 2026-10-26
+
+- Correct the exact Großer Tiergarten Werkhof at Straße des 17. Juni 31, including two independently verified low roofs where the original LoD2 source incorrectly reaches 21–24 metres. A third tree-obscured canopy height remains an explicit estimate.
+- Preserve all twenty original source owners as evidence, the actual house roofs and unrelated city geometry. Remove unsupported glass-office materials and add bounded depot fittings and shrubs.
+- Transfer only exactly receipted old building prisms/native columns and matching walking volumes. Full mobile detail, the 93 stops and runtime residency limits remain unchanged. See [source evidence](docs/tiergarten-werkhof-v275.md).
+
 ## 1.0.174 — 2026-10-26
 
 - Restore complete measured Schillertheater and Deutsche Oper building families with exact old-owner transfer and matching walking roofs.

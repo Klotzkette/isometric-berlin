@@ -2030,6 +2030,46 @@
       "pixels_bundled": false,
       "file_url": "https://www.gmp.de/images/3377_221006_MB_0713_Pressecafe_nachher.jpg?w=1600",
       "artist": "Marcus Bredt"
+    },
+    {
+      "landmark_id": "tiergarten_werkhof_v275",
+      "title": "Werkhof / Grünflächenunterhaltung Mitte",
+      "page_url": "https://www.berlin.de/ba-mitte/politik-und-verwaltung/aemter/strassen-und-gruenflaechenamt/gruenflaechen/artikel.336795.php",
+      "credit": "Bezirksamt Mitte von Berlin",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Exact maintenance compound identity and address Straße des 17. Juni 31",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tiergarten_werkhof_v275",
+      "title": "Gesamt-Liegenschaftsverzeichnis, 10 December 2024",
+      "page_url": "https://www.parlament-berlin.de/adosservice/19/Haupt/vorgang/h19-2128-v.pdf",
+      "credit": "Senat von Berlin / Abgeordnetenhaus Berlin",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Pages 53–54: operating, office and residential service buildings, garages, stores and containers; floor areas are not height measurements",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tiergarten_werkhof_v275",
+      "title": "DOP 2025 Frühjahr / bDOM Berlin",
+      "page_url": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr?service=WMS&request=GetCapabilities",
+      "credit": "Geoportal Berlin / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen",
+      "license": "Datenlizenz Deutschland – Zero – Version 2.0",
+      "role": "Exact measured footprints retained; orthophoto roof types and independent bDOM samples distinguish low roofs from erroneous LoD2 heights; tree-obscured canopy height explicitly estimated",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tiergarten_werkhof_v275",
+      "title": "Großer Tiergarten Werkhof viewer screenshot",
+      "page_url": "owner-supplied:CB6DABC7-C934-4260-8A46-9443B308FC93/1-Photo-1.jpg",
+      "credit": "Project owner",
+      "license": "Reference only; no image redistributed",
+      "role": "Identifies the erroneous tall office/glass appearance and requests low operational buildings screened by shrubs",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
     }
   ]
 }

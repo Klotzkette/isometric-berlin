@@ -33,7 +33,9 @@ test("every positive residential receipt matches its complete unchanged source a
     expect(coreHousePaintV273({ ...part, ring: [[part.ring[0][0] + 1, part.ring[0][1]], ...part.ring.slice(1)] })).toBeUndefined();
     expect(coreHousePaintV273({ ...part, holes: [...part.holes ?? [], [[0,0],[1,0],[1,1]]] })).toBeUndefined();
   }
-  expect(selected).toBe(7174);
+  // v275 gives the sole previously generic Werkhof house its complete model.
+  expect(selected).toBe(7173);
+  expect(Object.hasOwn(paint.owners, "K0002RLM")).toBe(false);
   expect(coreHousePaintV273({ id: Object.keys(paint.owners)[0], ring: [[0,0],[1,0],[1,1]] })).toBeUndefined();
 });
 
@@ -81,12 +83,26 @@ test("all 29,818 native sample queries keep mapped caps and exact source ownersh
   expect(unchanged).toBeGreaterThan(19000);
 });
 
-test("the entire native constructor is unchanged except paint on an already existing cap", () => {
+test("the native constructor preserves the historic paint-only change outside exact later ownership hooks", () => {
   const source = readFileSync(new URL("../src/MinecraftVoxelWorld.ts", import.meta.url), "utf8");
   const constructor = source.slice(source.indexOf("export function* buildMinecraftVoxelWorldSteps("));
   const current = "sourceRoofTone ?? toneLookup?.illustrationRoofToneAt?.(worldX, worldZ) ?? layers.cap";
   expect(constructor.split(current)).toHaveLength(2);
-  const normalized = constructor.replace(current, "sourceRoofTone ?? layers.cap");
+  const operaPreparation = "  const operaTheatresColumnAt = options.operaTheatresV274\n    ? createOperaTheatresColumnTesterV274(options.sourcePrisms, cell) : () => false;\n";
+  const operaRetirement = "    if (operaTheatresColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;\n";
+  const werkhofPreparation = "  const werkhofColumnAt = options.tiergartenWerkhofV275\n    ? createTiergartenWerkhofColumnTesterV275(options.sourcePrisms, cell) : () => false;\n";
+  const werkhofRetirement = "    if (werkhofColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;\n";
+  // HEAD already contains the two exact v274 opera ownership hooks; v275
+  // adds the two Werkhof hooks. Their source/column/constructor behaviour has
+  // separate v274/v275 tests. Keep the original v273 fixture hash and preserve
+  // the historical whole-constructor comparison for every other statement.
+  expect(constructor.split(operaPreparation)).toHaveLength(2);
+  expect(constructor.split(operaRetirement)).toHaveLength(2);
+  expect(constructor.split(werkhofPreparation)).toHaveLength(2);
+  expect(constructor.split(werkhofRetirement)).toHaveLength(2);
+  const normalized = constructor.replace(current, "sourceRoofTone ?? layers.cap")
+    .replace(operaPreparation, "").replace(operaRetirement, "")
+    .replace(werkhofPreparation, "").replace(werkhofRetirement, "");
   expect(new Bun.CryptoHasher("sha256").update(normalized).digest("hex")).toBe(before.nativeConstructorSha256);
   // This fixes the complete full/mobile control flow, all original matrix/size
   // writes, cap allocation, window/tree/landmark construction and return path.

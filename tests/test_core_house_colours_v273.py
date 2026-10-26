@@ -20,7 +20,12 @@ def test_all_existing_core_parts_have_an_audited_outcome() -> None:
   assert data["sourceParts"] == len(source["buildings"]) == 29818
   assert sum(data["counts"].values()) == 29818
   assert sum(x["auditedParts"] for x in data["regions"].values()) == 29818
-  assert data["counts"]["selected"] == len(data["selected"]) == 7174
+  # v275 transfers the sole generic Werkhof house to its complete named model.
+  # The 7,173 remaining colour rows are unchanged; the v275 receipt keeps the
+  # removed K0002RLM row and original runtime/evidence hashes independently.
+  assert data["counts"]["selected"] == len(data["selected"]) == 7173
+  assert "K0002RLM" in data["protectedIds"]
+  assert all(row["id"] != "K0002RLM" for row in data["selected"])
   assert data["regions"]["Moabit"]["selected"] == 2599
   assert data["regions"]["Kreuzberg"]["selected"] == 1063
   assert data["regions"]["Schöneberg"]["selected"] == 196
