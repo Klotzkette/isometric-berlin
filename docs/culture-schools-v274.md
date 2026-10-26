@@ -52,3 +52,7 @@ projections, not rendered browser screenshots or an iPhone endurance test.
 Unmeasured joinery, shop signs, roof fittings and colours remain documented
 visual estimates. Existing Kita terrain offsets and the old BMS lower-shell
 approximation are preserved explicitly, rather than mislabeled as surveyed.
+
+## Completed publication checks
+
+The full Python run completed with 2053 passed, 1 failed and 4 historical skips (2058 collected). The single failure caught a temporarily missing dist asset during the final build. After the finished package was staged, all 80 tests in the entire release-readiness file passed, including the original failed node. The full suite was not rerun. Original and follow-up results are preserved separately; their counts are not added together. Targeted JavaScript/model and source-lifetime checks, TypeScript, lint, production build, complete offline archive validation and hosted byte checks are recorded in the [publication receipt](culture-schools-v274-verification.json). This does not replace the unavailable browser/iPhone endurance check.

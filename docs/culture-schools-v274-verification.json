@@ -1,0 +1,498 @@
+{
+  "version": "1.0.174",
+  "tag": "v1.0.174",
+  "sourceCommit": "154466d6a3df93510421e9f10dd4c62c46293f48",
+  "python": {
+    "log": "pytest-full.log",
+    "sha256": "59c74d4b59aaa04528bf6541aaac3ccd5fbf237e429c90a2fae405efe5f56577",
+    "failed": 1,
+    "passed": 2053,
+    "skipped": 4,
+    "collected": 2058,
+    "seconds": 2377.59,
+    "complete": true,
+    "fullRunPassed": false,
+    "status": "completed_with_failure_resolved_by_targeted_follow_up",
+    "failedNodeIds": [
+      "tests/test_release_readiness.py::test_current_tree_is_release_ready"
+    ],
+    "fullSuiteRerunAfterRepairs": false,
+    "repairFollowUp": {
+      "log": "pytest-readiness-followup.log",
+      "sha256": "354dc9242748a510e0a8c5b99218f55008406dccae0232df00d9defe641eb206",
+      "passed": 80,
+      "seconds": 9.98,
+      "coveredOriginalFailedNodeIds": [
+        "tests/test_release_readiness.py::test_current_tree_is_release_ready"
+      ],
+      "scope": "Entire affected release-readiness test file after completed final build and package staging; no test or production logic weakened."
+    }
+  },
+  "targetedJavaScript": [
+    {
+      "log": "bun-final.log",
+      "logSha256": "179b107ed1f7fb07838f40c74f5a9af50e515e7c2fdd264239b59b8d663774ab",
+      "scope": "Eight new v274 architecture, navigation and encoding files",
+      "passed": 39,
+      "failed": 0,
+      "assertions": 489249
+    },
+    {
+      "log": "bun-schools-navigation-repair.log",
+      "logSha256": "a232c73d09e713645f4004a4cd11b822d434e4f8ecb6b4eab204a38735da3af0",
+      "scope": "Fourteen existing school and navigation regression files",
+      "passed": 83,
+      "failed": 0,
+      "assertions": 441569,
+      "originalRun": {
+        "log": "bun-schools-navigation-regression.log",
+        "logSha256": "7163f620ede81e000114abadb91677c610a2811a03214e0a179fbe4d6c6c29d6",
+        "passed": 81,
+        "failed": 2,
+        "assertions": 357039
+      },
+      "repairReason": "v185 child inventory now includes the dedicated v274 group; v205 distinguishes the separately audited pre-existing v273 additions (2611 drawn / 3854 native). Geometry and thresholds were not weakened."
+    },
+    {
+      "scope": "Complete twelve lossless and source-cache regression files, with original failures and complete-file follow-ups retained",
+      "receipt": {
+        "status": "passed",
+        "tests": 45,
+        "files": 12,
+        "assertions": 7179,
+        "baselineHead": "dda65872a904ae6b5f3d54ee78d62862ca4ceeb2",
+        "inventory": {
+          "total": 243,
+          "retained": 235,
+          "additions": 8,
+          "retainedSortedSha256": "913ccfbc9555a4ac34c13f5e74df6e7f1bb828665d46e0cf911bf4d6203203a3"
+        },
+        "zopfliReceipts": 48,
+        "originalFailures": [
+          {
+            "log": "lossless-final-regressions.log",
+            "reason": "outer constructor cold build exceeded original 90000ms test timeout",
+            "followup": "lossless-final-cache-regressions.log",
+            "successfulDurationSeconds": 94.27
+          },
+          {
+            "log": "lossless-final-cache-regressions.log",
+            "reason": "two v264 metadata parse counts expected 0 but received 1",
+            "reproducedAgainstHead": "source-cache-v264-head-baseline.log",
+            "repair": "source-cache-v264-repaired.log"
+          }
+        ],
+        "passingRuns": [
+          {
+            "pass": 5,
+            "fail": 0,
+            "assertions": 708,
+            "files": 1,
+            "duration": "3.11s"
+          },
+          {
+            "pass": 10,
+            "fail": 0,
+            "assertions": 4390,
+            "files": 1,
+            "duration": "41.16s"
+          },
+          {
+            "pass": 2,
+            "fail": 0,
+            "assertions": 299,
+            "files": 1,
+            "duration": "383.00ms"
+          },
+          {
+            "pass": 2,
+            "fail": 0,
+            "assertions": 187,
+            "files": 1,
+            "duration": "470.00ms"
+          },
+          {
+            "pass": 3,
+            "fail": 0,
+            "assertions": 1152,
+            "files": 1,
+            "duration": "467.00ms"
+          },
+          {
+            "pass": 5,
+            "fail": 0,
+            "assertions": 33,
+            "files": 1,
+            "duration": "310.00ms"
+          },
+          {
+            "pass": 9,
+            "fail": 0,
+            "assertions": 51,
+            "files": 1,
+            "duration": "216.00ms"
+          },
+          {
+            "pass": 1,
+            "fail": 0,
+            "assertions": 66,
+            "files": 1,
+            "duration": "93.00ms"
+          },
+          {
+            "pass": 4,
+            "fail": 0,
+            "assertions": 48,
+            "files": 1,
+            "duration": "10.79s"
+          },
+          {
+            "pass": 1,
+            "fail": 0,
+            "assertions": 149,
+            "files": 1,
+            "duration": "94.27s"
+          },
+          {
+            "pass": 2,
+            "fail": 0,
+            "assertions": 75,
+            "files": 1,
+            "duration": "237.00ms"
+          },
+          {
+            "pass": 1,
+            "fail": 0,
+            "assertions": 21,
+            "files": 1,
+            "duration": "166.00ms"
+          }
+        ],
+        "logs": [
+          "lossless-final-regressions.log",
+          "lossless-final-cache-regressions.log",
+          "source-cache-v264-repaired.log",
+          "grey-cluster-source-cache-v263-final.log"
+        ]
+      }
+    },
+    {
+      "scope": "Bounded Palast snapshot reconciliation; not the entire static parity suite",
+      "originalRun": {
+        "log": "bun-palast-static-before-repair.log",
+        "logSha256": "6ade65b53e928154837a08acd1889088bf9a79bd520cd168fb3b40c6d5ce6663",
+        "passed": 0,
+        "failed": 1,
+        "filtered": 35
+      },
+      "followUp": {
+        "log": "bun-palast-static-repair.log",
+        "logSha256": "c7232788f64869cee3e84787ca6929189b678b253d999557fd122197f615bc2f",
+        "passed": 2,
+        "failed": 0,
+        "filtered": 35,
+        "assertions": 86
+      },
+      "repairReason": "Reproduced the previous model baseline and receipted only the corrected Palast stage delta: +23 instances / +1748 bytes. Unrelated geometry hashes remain unchanged."
+    }
+  ],
+  "typeCheck": {
+    "log": "tsc-final.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "command": "bun --smol node_modules/typescript/bin/tsc --noEmit",
+    "exitCode": 0
+  },
+  "format": {
+    "log": "ruff-format.log",
+    "sha256": "63b16bafe253e69af0c5442f9f20f05dadc1e37cd7d41750ffa447383da0cc4f"
+  },
+  "lint": {
+    "log": "ruff.log",
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  "productionBuild": {
+    "log": "build-final.log",
+    "sha256": "b9f5c41004c64dab622b500bcd58231039fb403611aaf7046d797df3988279ed"
+  },
+  "packageReadiness": {
+    "log": "release-readiness-final.log",
+    "sha256": "ab3a73f2e401626def2399e0f04ac0ee3b8e7a5c7b87b4f7730dd8ff00c8ab1a"
+  },
+  "localPackageHttpSmoke": {
+    "log": "smoke-package-final.log",
+    "sha256": "cc02193b2fa1a681cda1ab3e0ebd06b86808f1101c41cc362d7e189efea06ca4"
+  },
+  "losslessCompression": {
+    "fields": 48,
+    "encodedBytesSavedInFinalBuild": 4665550,
+    "encodedBytesSavedInFieldProbe": 4665573,
+    "source": "losslessZopfliFieldsV274.ts",
+    "measurement": {
+      "log": "zopfli-measurement-v274.json",
+      "sha256": "34f5b766e36f5d11eeff3f4810c4f65296a7befb75cca44c04deb014fe34e423"
+    },
+    "decodedGeometryChanged": false,
+    "runtimeCompressorBundled": false
+  },
+  "package": {
+    "packageVersion": "1.0.174",
+    "bytes": 931503493,
+    "fileCount": 4750,
+    "sourceInventorySha256": "2ab65e5ecf9fb170cce6be579194e19e52f59a3716a73234e6c850e78a1c71f3",
+    "MiB": 888.3509569168091,
+    "releaseId": 423782402,
+    "archives": {
+      "isometric-berlin-regierungsviertel-local.zip": {
+        "size": 763063712,
+        "sha256": "33980bccd1c6fdf4cc8ee7ae68daf30e14bc1270522ac9156c99f223a5b6018b",
+        "localValidationPassed": true,
+        "storage": "memory-only",
+        "remoteVerified": true,
+        "assetId": 676666592,
+        "remoteSize": 763063712,
+        "remoteDigest": "sha256:33980bccd1c6fdf4cc8ee7ae68daf30e14bc1270522ac9156c99f223a5b6018b",
+        "remoteState": "uploaded"
+      },
+      "isometric-berlin-viewer-v1.0.174.tar.gz": {
+        "size": 762292333,
+        "sha256": "497b723d3131df4ec7e03ea270463be61be64248713ca19db31576989136dcda",
+        "localValidationPassed": true,
+        "storage": "memory-only",
+        "remoteVerified": true,
+        "assetId": 676670816,
+        "remoteSize": 762292333,
+        "remoteDigest": "sha256:497b723d3131df4ec7e03ea270463be61be64248713ca19db31576989136dcda",
+        "remoteState": "uploaded"
+      }
+    }
+  },
+  "deployment": {
+    "version": "1.0.174",
+    "parent": "92f2d5feaf702652c1486ba8f0bbf942433f801d",
+    "previousTwoAssets": 326,
+    "retainedPreviousOnlyAssets": 32,
+    "retainedPreviousOnlyBytes": 141066528,
+    "removedStaleAssets": 11,
+    "removedBytes": 33798532,
+    "bytes": 1072570021,
+    "headroomBelow1GiB": 1171803,
+    "publishRequested": false
+  },
+  "pagesCommit": "44e8073458fe72da6ac11030faee6b1088a16c10",
+  "workflow": {
+    "conclusion": "success",
+    "databaseId": 40255767682,
+    "headSha": "44e8073458fe72da6ac11030faee6b1088a16c10",
+    "jobs": [
+      {
+        "completedAt": "2026-10-26T01:46:57Z",
+        "conclusion": "success",
+        "databaseId": 121357156238,
+        "name": "build",
+        "startedAt": "2026-10-26T01:45:30Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-26T01:45:32Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-26T01:45:31Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-26T01:45:40Z",
+            "conclusion": "success",
+            "name": "Pull ghcr.io/actions/jekyll-build-pages:v1.0.13",
+            "number": 2,
+            "startedAt": "2026-10-26T01:45:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-26T01:46:07Z",
+            "conclusion": "success",
+            "name": "Checkout",
+            "number": 3,
+            "startedAt": "2026-10-26T01:45:40Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-26T01:46:17Z",
+            "conclusion": "success",
+            "name": "Build with Jekyll",
+            "number": 4,
+            "startedAt": "2026-10-26T01:46:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-26T01:46:54Z",
+            "conclusion": "success",
+            "name": "Upload artifact",
+            "number": 5,
+            "startedAt": "2026-10-26T01:46:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-26T01:46:54Z",
+            "conclusion": "success",
+            "name": "Post Checkout",
+            "number": 10,
+            "startedAt": "2026-10-26T01:46:54Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-26T01:46:54Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 11,
+            "startedAt": "2026-10-26T01:46:54Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/Klotzkette/isometric-berlin/actions/runs/40255767682/job/121357156238"
+      },
+      {
+        "completedAt": "2026-10-26T01:47:03Z",
+        "conclusion": "success",
+        "databaseId": 121357517804,
+        "name": "report-build-status",
+        "startedAt": "2026-10-26T01:46:59Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-26T01:47:00Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-26T01:47:00Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-26T01:47:01Z",
+            "conclusion": "success",
+            "name": "Report Build Status",
+            "number": 2,
+            "startedAt": "2026-10-26T01:47:00Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-26T01:47:01Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 3,
+            "startedAt": "2026-10-26T01:47:01Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/Klotzkette/isometric-berlin/actions/runs/40255767682/job/121357517804"
+      },
+      {
+        "completedAt": "2026-10-26T01:47:46Z",
+        "conclusion": "success",
+        "databaseId": 121357517819,
+        "name": "deploy",
+        "startedAt": "2026-10-26T01:47:00Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-26T01:47:02Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-26T01:47:01Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-26T01:47:44Z",
+            "conclusion": "success",
+            "name": "Deploy to GitHub Pages",
+            "number": 2,
+            "startedAt": "2026-10-26T01:47:02Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-26T01:47:44Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 3,
+            "startedAt": "2026-10-26T01:47:44Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/Klotzkette/isometric-berlin/actions/runs/40255767682/job/121357517819"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/Klotzkette/isometric-berlin/actions/runs/40255767682"
+  },
+  "live": {
+    "withdrawnMedia404": [
+      "columbiahalle-v257-silent.mp4",
+      "columbiahalle-v258-red-silent.mp4",
+      "columbiahalle-v258-portrait-silent.mp4"
+    ],
+    "release": "https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.174",
+    "tag": "v1.0.174",
+    "assetsVerified": 2,
+    "hostedChecks": [
+      {
+        "path": "index.html",
+        "bytes": 3525,
+        "sha256": "4b3fa33f34f06565740ec4f6092f85b8485f8a89b729b38d9bd3869dba96f363"
+      },
+      {
+        "path": "package-manifest.json",
+        "bytes": 6107,
+        "sha256": "9f85367c3050afcf1c98a9756a843413c77b5761f8cd06dff9adfc67f937346f"
+      },
+      {
+        "path": "mesh/surrounding-berlin-v159/manifest.json",
+        "bytes": 2147689,
+        "sha256": "db15e3b722bf64d223eed121aac4986dc48e91207e086e8b8d8f9a43dd074115"
+      },
+      {
+        "path": "dzi/regierungsviertel/visual_reference_attribution.json",
+        "bytes": 102182,
+        "sha256": "dbe44aa0116d8b1d105a4dfefdc8d8e06598c5e0b1d58a7a10ee7d8e8fecb542"
+      },
+      {
+        "path": "assets/ThreeViewer-C34W9rwQ.js",
+        "bytes": 3344335,
+        "sha256": "145848cca8f844459b21402c008ad59d1859a85eb5cc27434cb679f8e7c77c84"
+      },
+      {
+        "path": "assets/index-CVWWYH3w.js",
+        "bytes": 192500,
+        "sha256": "d4afb0647613167d25641782086418e590cb4de21d5d83fc9943ff4f2ea01709"
+      },
+      {
+        "path": "assets/OuterThinOutlines-DEU1RT5M.js",
+        "bytes": 17353114,
+        "sha256": "fa8e366cdee02b350ec3fc8fdd9ace17ab4a92f9e5bd4b87ab8550c339d2b213"
+      },
+      {
+        "path": "assets/RequiredSiteEnvelopesV209-BMt668_G.js",
+        "bytes": 10512117,
+        "sha256": "7aee52cde00a36842cf0dc136c3ad52b23b437ae73bf4d18aa37067e75e02c79"
+      },
+      {
+        "path": "assets/SurroundingCityGeometry-DvIvdRhz.js",
+        "bytes": 14238375,
+        "sha256": "49b24600eb825d686f83e648d9355eb99af00320ced0e58cc114717d38fdf293"
+      },
+      {
+        "path": "assets/progressiveWorld.worker-gG0PIIvK.js",
+        "bytes": 10656000,
+        "sha256": "44da6b6ab6f7b3cfe976717971d0e801f3f711179aed0be727e1a6f00078447a"
+      }
+    ],
+    "passed": true
+  },
+  "limits": [
+    "Internal browser unavailable; no external browser opened.",
+    "Offline geometry projections are not browser screenshots.",
+    "No iPhone or browser endurance test was completed.",
+    "Unmeasured fittings remain documented visual estimates.",
+    "Targeted JavaScript results do not represent the whole historical Bun suite."
+  ]
+}
