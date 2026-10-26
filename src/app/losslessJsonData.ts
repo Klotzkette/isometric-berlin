@@ -58,8 +58,6 @@ const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
  * Do not extend by filename pattern: navigation and mutable source caches have
  * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
-  // New constructors copy these arrays into final mesh buffers; navigation
-  // has its own small strong profiles. No decoded construction graph survives.
   "schoolsCourtsV274.json": ["sites"],
   "centralTheatresV274.json": ["native"],
   "augustFrontsV274.json": ["chunks"],
@@ -304,6 +302,10 @@ const PACKED_SOURCE_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
 // in the current worker/main graphs, so lossless source packing avoids duplicated
 // uncompressed base64 literals while preserving the existing source lifetime.
 export const LOSSLESS_PACKED_STRING_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "bayerCampusV277.json": ["drawnPositions", "drawnColors", "drawnDetails", "nativeDetails"],
+  "bayerCampusV277Legacy.json": ["drawn", "native"],
+  "lehrterV277.json": ["sourcePositions", "sourceColors", "facadeBoxes", "nativeBoxes"],
+  "rkiMoabitV277.json": ["drawnPositions", "drawnColors", "drawnDetails", "nativeDetails", "nativeBodies"],
   "tiergartenWerkhofV275.json": ["drawnPositions", "drawnColors", "drawnDetails", "nativeDetails"],
   "operaTheatresV274.json": ["sourcePositions", "nativeBoxes"],
   "drawnWaterBoundary.json": ["cells_u32", "triangles_f32", "edges_f32"],

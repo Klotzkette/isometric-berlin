@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.177 — 2026-10-26
+
+- Restore complete source bodies and roofs at the RKI Nordufer headquarters, Heizkraftwerk Moabit, Kulturfabrik and the adjoining Lehrter police site.
+- Reconstruct the completed Berlin Decks buildings from current mapped footprints and retained official summer-2025 one-metre height evidence; internal roof-step boundaries and facade fittings remain explicit estimates. Construction building 3 remains separate.
+- Correct the Bayer administration tower with its stepped upper floors, projecting cores, podium and open street bridge, preserving the surrounding campus.
+- Retire only exact audited old owners and exclusive native columns. Keep shared neighbours, complete source evidence, courtyard openings, matching navigation, full mobile detail, 93 stops and runtime budgets.
+- Encode new immutable construction strings losslessly; preserve strong navigation ownership and verify exact reconstructed bytes.
+
 ## 1.0.175 — 2026-10-26
 
 - Correct the exact Großer Tiergarten Werkhof at Straße des 17. Juni 31, including two independently verified low roofs where the original LoD2 source incorrectly reaches 21–24 metres. A third tree-obscured canopy height remains an explicit estimate.

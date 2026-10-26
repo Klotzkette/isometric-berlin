@@ -85,14 +85,26 @@ test('every independent native roof cell has its submitted body and open shelter
   } finally { disposeSurroundingCityRoot(root); }
 });
 
-test('the required-site transaction attaches the complete compound before its first yield in both modes', () => {
+test('the required-site transaction keeps the exact v277 prefix and attaches the complete compound before its own yield in both modes', () => {
   for (const native of [false, true]) {
     const root = new Group(), steps = addRequiredSiteEnvelopesV209Steps(root, native);
     try {
+      const prefix = [
+        'Bayer Schering administration — Müllerstraße 178 — v277',
+        `Lehrter v277 ${native ? 'independent native architecture' : 'complete measured architecture'}`,
+        'RKI Nordufer and Heizkraftwerk Moabit — v277',
+      ];
+      for (let index = 0; index < prefix.length; index++) {
+        expect(steps.next().done).toBe(false);
+        expect(root.children.map(child => child.name)).toEqual(prefix.slice(0, index + 1));
+        expect(root.children.some(child => child.userData.sourceId === 'way/118034165')).toBe(false);
+      }
       expect(steps.next().done).toBe(false);
-      expect(root.children).toHaveLength(1);
-      const attached = root.children[0];
+      expect(root.children).toHaveLength(prefix.length + 1);
+      expect(root.children.slice(0, prefix.length).map(child => child.name)).toEqual(prefix);
+      const attached = root.children[prefix.length];
       expect(attached.userData.sourceId).toBe('way/118034165');
+      expect(root.children.filter(child => child.userData.sourceId === 'way/118034165')).toHaveLength(1);
       const standalone = createTiergartenWerkhofV275(native);
       try { expect(staticGeometryAudit(attached)).toEqual(staticGeometryAudit(standalone)); }
       finally { disposeSurroundingCityRoot(standalone); }

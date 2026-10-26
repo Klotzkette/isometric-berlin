@@ -2437,3 +2437,18 @@ photograph, recording or other new image pixels are distributed. Original
 source sheets and old-owner receipts are retained. Sources and limits are in
 docs/street-curves-v276.md, docs/verkehrskanzel-v276.md, docs/zooWestV276.md and
 docs/tierpark-v276.md.
+
+
+v1.0.177 Nordufer, Moabit, Lehrter Straße and Bayer: complete retained
+Geoportal Berlin LoD2 sheets and official summer-2025 one-metre bDOM data
+(dl-de/zero-2-0), with OpenStreetMap footprints and parts
+(© OpenStreetMap contributors, ODbL 1.0), support the bounded replacements.
+RKI, BEW, Landesdenkmalamt Berlin, BIM, Kulturfabrik/Filmrauschpalast/
+Slaughterhouse, BEOS/Berlin Decks, Implenia and GSE public architectural
+references establish identity, completion and recognition. Unknown facade
+openings, internal Berlin Decks roof boundaries and minor fittings remain
+explicit display estimates. Current height evidence corrects low generic
+Bayer and Decks prisms; no proposed future RKI tower is depicted. Reference
+photographs are not distributed as pixels or textures. Complete original
+source and exact ownership receipts remain. See docs/rki-moabit-v277.md,
+docs/lehrter-v277.md and docs/bayer-campus-v277.md.

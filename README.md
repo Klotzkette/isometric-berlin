@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.176 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.176/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.177 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.177/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.176** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.177** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.177 reconstructs the RKI at Nordufer, Heizkraftwerk Moabit, the completed Berlin Decks buildings, Kulturfabrik and the police complex along Lehrter Straße, and Bayer’s administration tower. Complete source roofs, open courts and the Bayer street bridge replace exact low proxies. Facade details and inferred roof steps remain documented estimates. Full mobile detail and existing runtime limits remain. See [Nordufer and Moabit](docs/rki-moabit-v277.md), [Lehrter Straße](docs/lehrter-v277.md) and [Bayer](docs/bayer-campus-v277.md).
+
+Version 1.0.177 überarbeitet das RKI am Nordufer, das Heizkraftwerk Moabit, die fertiggestellten Berlin Decks, Kulturfabrik und Polizeigebäude an der Lehrter Straße sowie das Bayer-Verwaltungshochhaus. Vollständige Quelldächer, offene Höfe und die Bayer-Straßenbrücke ersetzen die genau zugeordneten niedrigen Ersatzkörper. Fassadendetails und abgeleitete Dachstufen bleiben als Annäherungen dokumentiert. Mobiler Detailgrad und Laufzeitgrenzen bleiben erhalten. Siehe [Nordufer und Moabit](docs/rki-moabit-v277.md), [Lehrter Straße](docs/lehrter-v277.md) und [Bayer](docs/bayer-campus-v277.md).
 
 Version 1.0.176 repairs shared curb joints and selectively smooths proven round-road facets, preserving mapped routes, real corners and markings. The historic Verkehrskanzel opposite Café Kranzler has its open canopy, kiosk and glass cabin. Zoo West gains complete restaurant corrections, aviary details, condors and the current European wolves; Tierpark gains visible bison, flamingos, both camel species and restaurant details. Original sources, full mobile detail and all existing runtime limits remain. Unknown enclosure outlines and unconfirmed roof heights are documented rather than invented. See [roads](docs/street-curves-v276.md), [Verkehrskanzel](docs/verkehrskanzel-v276.md), [Zoo](docs/zooWestV276.md) and [Tierpark](docs/tierpark-v276.md).
 

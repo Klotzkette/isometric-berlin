@@ -916,6 +916,55 @@
       ],
       "source_records_retained": true,
       "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "rki_moabit_v277",
+      "anchor_source": "Retained Geoportal Berlin LoD2/bDOM and OpenStreetMap; primary operator, heritage and architecture references",
+      "geometry_ref": "geo_data/regierungsviertel/rki-moabit-v277-source.json.gz",
+      "documentation_ref": "docs/rki-moabit-v277.md",
+      "conflicts": [
+        "Complete 18 LoD2 parents/87 parts, separate datum per site; historical institute and power station; no proposed future high-rise or unlocated new stack.",
+        "Unmeasured fittings are estimates, not a facade survey; exact old-owner guards preserve unrelated geometry."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "berlin_decks_v277",
+      "anchor_source": "Retained Geoportal Berlin LoD2/bDOM and OpenStreetMap; primary operator, heritage and architecture references",
+      "geometry_ref": "geo_data/regierungsviertel/berlin-decks-v277-source.json.gz",
+      "documentation_ref": "docs/rki-moabit-v277.md",
+      "conflicts": [
+        "Five current mapped owners; retained summer-2025 1m bDOM roof evidence; internal roof boundaries and facade details estimated. Construction owner64895468 unchanged.",
+        "Unmeasured fittings are estimates, not a facade survey; exact old-owner guards preserve unrelated geometry."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "lehrter_v277",
+      "anchor_source": "Retained Geoportal Berlin LoD2/bDOM and OpenStreetMap; primary operator, heritage and architecture references",
+      "geometry_ref": "geo_data/regierungsviertel/lehrter-v277-source.json.gz",
+      "documentation_ref": "docs/lehrter-v277.md",
+      "conflicts": [
+        "Eight complete measured parts/83 original surfaces; Kulturfabrik Lehrter35 and police Kruppstraße2–4. Exact old-only boundary pieces retained.",
+        "Unmeasured fittings are estimates, not a facade survey; exact old-owner guards preserve unrelated geometry."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false
+    },
+    {
+      "feature_id": "bayer_campus_v277",
+      "anchor_source": "Retained Geoportal Berlin LoD2/bDOM and OpenStreetMap; primary operator, heritage and architecture references",
+      "geometry_ref": "geo_data/regierungsviertel/bayer-campus-v277-source.json.gz",
+      "documentation_ref": "docs/bayer-campus-v277.md",
+      "conflicts": [
+        "24 mapped building parts and official bDOM evidence correct the old 24m administration proxy. Complete source evidence and open Fennstraße bridge retained.",
+        "Unmeasured fittings are estimates, not a facade survey; exact old-owner guards preserve unrelated geometry."
+      ],
+      "source_records_retained": true,
+      "display_subdivisions_are_surveyed": false,
+      "references_ref": "docs/bayer-campus-v277-credits.json"
     }
   ],
   "features": [

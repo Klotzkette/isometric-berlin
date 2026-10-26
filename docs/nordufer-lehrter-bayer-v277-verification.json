@@ -1,0 +1,522 @@
+{
+  "version": "1.0.177",
+  "status": "local_qa_complete_publication_pending",
+  "python": {
+    "schema": "berlin-v277-final-pytest-audit-v1",
+    "releaseVersion": "1.0.177",
+    "createdAtUtc": "2026-10-26T14:28:50.731584+00:00",
+    "status": "full-run-failed-follow-up-pending",
+    "singleFullSuiteGreen": false,
+    "combinedVerificationComplete": true,
+    "originalFullRun": {
+      "log": "/Users/klotzkette/.cache/codex-berlin-v277/pytest-full.log",
+      "logBytes": 39794,
+      "logSha256": "372ec8020408e121091c4023d0fdbe79ded8db0e372aec08f59e975da58e062f",
+      "exitFile": "/Users/klotzkette/.cache/codex-berlin-v277/pytest-full.exit",
+      "exitCode": 1,
+      "collected": 2111,
+      "failed": 3,
+      "passed": 2104,
+      "skipped": 4,
+      "warnings": 2,
+      "durationSeconds": 2472.25,
+      "durationDisplay": "0:41:12",
+      "summary": "3 failed, 2104 passed, 4 skipped, 2 warnings in 2472.25s (0:41:12)",
+      "failedNodeIds": [
+        "tests/test_choriner_v250.py::test_generator_replays_without_network_and_does_not_rewrite_source",
+        "tests/test_city_coverage_v183.py::test_v182_packets_survive_except_replayed_exact_station_owner_replacements",
+        "tests/test_release_readiness.py::test_current_tree_is_release_ready"
+      ],
+      "failureDetails": [
+        {
+          "nodeId": "tests/test_choriner_v250.py::test_generator_replays_without_network_and_does_not_rewrite_source",
+          "classification": "infrastructure-storage",
+          "exception": "OSError",
+          "errno": 28,
+          "operation": "io.open(mode=w) via Path.write_text, before generator replay comparison could complete",
+          "location": "scripts/build_choriner_v250.py:388",
+          "path": "/Users/klotzkette/Desktop/Codex Projects/isometric-berlin/src/app/src/data/chorinerV250.json",
+          "tracebackLines": {
+            "first": 426,
+            "last": 461
+          },
+          "errorLines": [
+            "E       OSError: [Errno 28] No space left on device: '/Users/klotzkette/Desktop/Codex Projects/isometric-berlin/src/app/src/data/chorinerV250.json'"
+          ],
+          "tracebackSha256": "8e24cc7e2347977bc092aa1d0621ac3ce4f008153e901ac7cc743679f1feca97",
+          "followUp": {
+            "status": "pending",
+            "requiredExactNode": "tests/test_choriner_v250.py::test_generator_replays_without_network_and_does_not_rewrite_source",
+            "requiredUnmodifiedTest": true,
+            "result": null
+          }
+        },
+        {
+          "nodeId": "tests/test_city_coverage_v183.py::test_v182_packets_survive_except_replayed_exact_station_owner_replacements",
+          "classification": "infrastructure-storage",
+          "exception": "OSError",
+          "errno": 28,
+          "operation": "os.mkdir for tempfile.TemporaryDirectory before station-owner replay",
+          "location": "tests/station_receipts_v183.py:78",
+          "path": "/var/folders/ht/wcrx5tm10112tpkf3n36pg780000gn/T/berlin-v183-owner-proof-pl5bt_i5",
+          "tracebackLines": {
+            "first": 463,
+            "last": 517
+          },
+          "errorLines": [
+            "E               OSError: [Errno 28] No space left on device: '/var/folders/ht/wcrx5tm10112tpkf3n36pg780000gn/T/berlin-v183-owner-proof-pl5bt_i5'"
+          ],
+          "tracebackSha256": "7e728bf050db6f2193706690b56ccdd51df139923f7483eb017d6593c382b526",
+          "followUp": {
+            "status": "pending",
+            "requiredExactNode": "tests/test_city_coverage_v183.py::test_v182_packets_survive_except_replayed_exact_station_owner_replacements",
+            "requiredUnmodifiedTest": true,
+            "result": null
+          }
+        },
+        {
+          "nodeId": "tests/test_release_readiness.py::test_current_tree_is_release_ready",
+          "classification": "release-artifact-precondition",
+          "exception": "AssertionError",
+          "operation": "collect_failures(ROOT) returned one missing-build-artifact diagnostic",
+          "location": "tests/test_release_readiness.py:407",
+          "diagnostic": "Built viewer lacks a hashed main bundle: /Users/klotzkette/Desktop/Codex Projects/isometric-berlin/src/app/dist/assets",
+          "orchestrationContext": {
+            "source": "parent agent message after full run completion",
+            "statement": "Production build had been deferred for memory; serial TypeScript and production build will precede the exact-node rerun."
+          },
+          "tracebackLines": {
+            "first": 519,
+            "last": 531
+          },
+          "errorLines": [
+            "E     AssertionError: assert ['Built viewe.../dist/assets'] == []",
+            "E",
+            "E       Left contains one more item: 'Built viewer lacks a hashed main bundle: /Users/klotzkette/Desktop/Codex Projects/isometric-berlin/src/app/dist/assets'",
+            "E       Use -v to get more diff"
+          ],
+          "tracebackSha256": "5cd40702a4188747eee77da57a70e19f892f38ccca36a749b3bfef3fc20e8596",
+          "followUp": {
+            "status": "pending",
+            "requiredExactNode": "tests/test_release_readiness.py::test_current_tree_is_release_ready",
+            "requiredUnmodifiedTest": true,
+            "result": null
+          }
+        }
+      ],
+      "warningSummary": {
+        "count": 2,
+        "nodeId": "tests/test_surrounding_geometry_audit.py::test_actual_export_retains_road_under_elevated_building",
+        "message": "UserWarning: 'crs' was not provided. The output dataset will not have projection information defined and may not be usable in other systems."
+      }
+    },
+    "affectedFilesIntegrity": {
+      "baseline": "HEAD",
+      "baselineCommit": "252dc3c7690007346babb33f20a485809e55c380",
+      "checkedAfterOriginalRun": true,
+      "trackedChecks": [
+        {
+          "path": "tests/test_choriner_v250.py",
+          "bytes": 2911,
+          "sha256": "1ad26d8bc460fd1f0560a987be8bcc57fb4f1c0fc3b586b7904e1bf91c8af0c8",
+          "headBlobId": "bc3fa4a1ecdab613e99f441026b4d8ace3adb718",
+          "workingTreeBlobId": "bc3fa4a1ecdab613e99f441026b4d8ace3adb718",
+          "unchangedVsHead": true
+        },
+        {
+          "path": "scripts/build_choriner_v250.py",
+          "bytes": 17084,
+          "sha256": "c1d46b609fada2dc170b1d4030b8a6ad68300a79b6d8e7d2247820d11456f125",
+          "headBlobId": "866fa58e39f80ff9834fea71d65b51c21c952ab9",
+          "workingTreeBlobId": "866fa58e39f80ff9834fea71d65b51c21c952ab9",
+          "unchangedVsHead": true
+        },
+        {
+          "path": "src/app/src/data/chorinerV250.json",
+          "bytes": 139841,
+          "sha256": "a4be293daba14f3dbedbc1183d431060673b9a87c09409e7858c5b6ad90e4f8b",
+          "headBlobId": "b402eb7cc459664fcdeef0275e70303cd263b013",
+          "workingTreeBlobId": "b402eb7cc459664fcdeef0275e70303cd263b013",
+          "unchangedVsHead": true
+        },
+        {
+          "path": "geo_data/regierungsviertel/choriner-v250-evidence.json",
+          "bytes": 153620,
+          "sha256": "122c0830b37326ba27fc807a8fc45ab01f207986231c74c75efec3ab016742be",
+          "headBlobId": "6915f02480f2121014c70f858469561605f74669",
+          "workingTreeBlobId": "6915f02480f2121014c70f858469561605f74669",
+          "unchangedVsHead": true
+        },
+        {
+          "path": "tests/test_city_coverage_v183.py",
+          "bytes": 5165,
+          "sha256": "438093cdef6ef2979d8ce83b1a1a875c154786763dd8538d3c20da09158fd0fe",
+          "headBlobId": "c1985bbf64145f1dd7a910ecfaa788dc924e7512",
+          "workingTreeBlobId": "c1985bbf64145f1dd7a910ecfaa788dc924e7512",
+          "unchangedVsHead": true
+        },
+        {
+          "path": "tests/station_receipts_v183.py",
+          "bytes": 4100,
+          "sha256": "633d1dc1d18a8ea9554772cec833d89f3ffc0caf3dad1a683e8e5ab4fb1d26c1",
+          "headBlobId": "21bc566099d9e71c570c46ae11dfc82b2340daae",
+          "workingTreeBlobId": "21bc566099d9e71c570c46ae11dfc82b2340daae",
+          "unchangedVsHead": true
+        },
+        {
+          "path": "scripts/integrate_alexander_stations_v183.py",
+          "bytes": 8034,
+          "sha256": "f554662b68d46a6f0a521e23c5b070d5bea10e97ed63b529dc0edd8676f01eff",
+          "headBlobId": "6954d18b8891e522cf6d024cbbeef2af655c42d0",
+          "workingTreeBlobId": "6954d18b8891e522cf6d024cbbeef2af655c42d0",
+          "unchangedVsHead": true
+        },
+        {
+          "path": "scripts/spree_bridge_lineage_v242.py",
+          "bytes": 3624,
+          "sha256": "ee263a3291663e4e71c1b46c3308ea2436f872aa17c112e30fcd6e59ccf77348",
+          "headBlobId": "f66e4601093829e62c5c000ba991fa266d21472b",
+          "workingTreeBlobId": "f66e4601093829e62c5c000ba991fa266d21472b",
+          "unchangedVsHead": true
+        },
+        {
+          "path": "tests/test_release_readiness.py",
+          "bytes": 57927,
+          "sha256": "bbe56d7680003829fdeb66771f8cc5cd3885b82662ea62bc3c72699806727be5",
+          "headBlobId": "a2837699ff773bf3fb1306a6042f8d39917c8740",
+          "workingTreeBlobId": "a2837699ff773bf3fb1306a6042f8d39917c8740",
+          "unchangedVsHead": true
+        },
+        {
+          "path": "scripts/check_release_readiness.py",
+          "bytes": 91143,
+          "sha256": "164031aba040ebe6ebe7fea255e0a610e8990e5ee68f32aa80dcfecd79235b64",
+          "headBlobId": "01d929d5c4cb8cdb5073762017a8611ebebf3c01",
+          "workingTreeBlobId": "01d929d5c4cb8cdb5073762017a8611ebebf3c01",
+          "unchangedVsHead": true
+        },
+        {
+          "path": "geo_data/regierungsviertel/alt-mitte-v169/source-391_5821-00.json.gz",
+          "bytes": 2568447,
+          "sha256": "c3b039bb7901d350e715867a24281debd6ae57d6018d773bcc85521b4c4711a9",
+          "headBlobId": "590d14bb9120baa10d41c102d98f28d989887379",
+          "workingTreeBlobId": "590d14bb9120baa10d41c102d98f28d989887379",
+          "unchangedVsHead": true
+        },
+        {
+          "path": "src/app/src/data/northV185.json",
+          "bytes": 62770,
+          "sha256": "1ab6f1e7750ed21b4f8daf12cb4edb1af1c3cb4b9caed752dda0427830432ee5",
+          "headBlobId": "65014885dc58f3427b8ee70f376e20e9a19a6e28",
+          "workingTreeBlobId": "65014885dc58f3427b8ee70f376e20e9a19a6e28",
+          "unchangedVsHead": true
+        },
+        {
+          "path": "src/app/src/data/schoolsPlacesV205.json",
+          "bytes": 491728,
+          "sha256": "dc01ad90aef042e1741eedc910813ddd685a83ae4b1d4bc2fec863e270ac9225",
+          "headBlobId": "cb899daf0408a29c990661bb91e57d59e93a7741",
+          "workingTreeBlobId": "cb899daf0408a29c990661bb91e57d59e93a7741",
+          "unchangedVsHead": true
+        },
+        {
+          "path": "src/app/src/data/centralNamedV230.json",
+          "bytes": 409947,
+          "sha256": "0c386920ff865d4d831cebcbc5c62e65605e2985597eec09a42294a915a337df",
+          "headBlobId": "baefd583e90d464dfb90557c01194c4f68a442ab",
+          "workingTreeBlobId": "baefd583e90d464dfb90557c01194c4f68a442ab",
+          "unchangedVsHead": true
+        }
+      ],
+      "allTrackedChecksUnchangedVsHead": true,
+      "chorinerSourceEvidenceChecks": [
+        {
+          "path": "geo_data/regierungsviertel/alt-mitte-v169/source-391_5821-00.json.gz",
+          "bytes": 2568447,
+          "expectedRetainedEvidenceSha256": "c3b039bb7901d350e715867a24281debd6ae57d6018d773bcc85521b4c4711a9",
+          "actualSha256": "c3b039bb7901d350e715867a24281debd6ae57d6018d773bcc85521b4c4711a9",
+          "matchesRetainedEvidence": true,
+          "trackedVsHeadChecked": true
+        },
+        {
+          "path": "geo_data/regierungsviertel/raw/lod2/LoD2_391_5821.zip",
+          "bytes": 7590605,
+          "expectedRetainedEvidenceSha256": "88eec8854862954faacbd6847a89eb73c517dc43be0633f5a7632d6d9e0bb2e7",
+          "actualSha256": "88eec8854862954faacbd6847a89eb73c517dc43be0633f5a7632d6d9e0bb2e7",
+          "matchesRetainedEvidence": true,
+          "trackedVsHeadChecked": false
+        },
+        {
+          "path": "src/app/src/data/northV185.json",
+          "bytes": 62770,
+          "expectedRetainedEvidenceSha256": "1ab6f1e7750ed21b4f8daf12cb4edb1af1c3cb4b9caed752dda0427830432ee5",
+          "actualSha256": "1ab6f1e7750ed21b4f8daf12cb4edb1af1c3cb4b9caed752dda0427830432ee5",
+          "matchesRetainedEvidence": true,
+          "trackedVsHeadChecked": true
+        },
+        {
+          "path": "src/app/src/data/schoolsPlacesV205.json",
+          "bytes": 491728,
+          "expectedRetainedEvidenceSha256": "dc01ad90aef042e1741eedc910813ddd685a83ae4b1d4bc2fec863e270ac9225",
+          "actualSha256": "dc01ad90aef042e1741eedc910813ddd685a83ae4b1d4bc2fec863e270ac9225",
+          "matchesRetainedEvidence": true,
+          "trackedVsHeadChecked": true
+        },
+        {
+          "path": "src/app/src/data/centralNamedV230.json",
+          "bytes": 409947,
+          "expectedRetainedEvidenceSha256": "0c386920ff865d4d831cebcbc5c62e65605e2985597eec09a42294a915a337df",
+          "actualSha256": "0c386920ff865d4d831cebcbc5c62e65605e2985597eec09a42294a915a337df",
+          "matchesRetainedEvidence": true,
+          "trackedVsHeadChecked": true
+        }
+      ],
+      "limitation": "The raw LoD2 ZIP is not tracked by Git; it matches the retained tracked evidence SHA-256 instead. This is a post-run byte comparison, not a claim that no process ever opened a file during the run."
+    },
+    "followUpRequirements": {
+      "status": "pending",
+      "exactNodes": [
+        "tests/test_choriner_v250.py::test_generator_replays_without_network_and_does_not_rewrite_source",
+        "tests/test_city_coverage_v183.py::test_v182_packets_survive_except_replayed_exact_station_owner_replacements",
+        "tests/test_release_readiness.py::test_current_tree_is_release_ready"
+      ],
+      "requiredExitCode": 0,
+      "requiredPassedCount": 3,
+      "requiredFailedCount": 0,
+      "requiredSkippedCount": 0,
+      "mustPreserveOriginalFailureHistory": true,
+      "testsOrModelChangedToPass": false,
+      "pendingAction": "Root runs TypeScript then production build serially, then reruns the three exact unmodified nodes. No tests were run by this audit."
+    },
+    "claimsLimit": "The original full suite failed. Two tracebacks report ENOSPC; the third is an actual release-readiness assertion for a missing built hashed main bundle. No original all-green suite or successful follow-up is claimed.",
+    "followUp": {
+      "status": "passed",
+      "file": "pytest-followup.log",
+      "sha256": "9cc18636f1156f409e34539b982a0d6a6ba637df7d88ba96cf9e0d44fc8ed733",
+      "summary": "3 passed in 197.29s (0:03:17)",
+      "exitCode": 0,
+      "nodes": [
+        "tests/test_choriner_v250.py::test_generator_replays_without_network_and_does_not_rewrite_source",
+        "tests/test_city_coverage_v183.py::test_v182_packets_survive_except_replayed_exact_station_owner_replacements",
+        "tests/test_release_readiness.py::test_current_tree_is_release_ready"
+      ],
+      "testCodeChanged": false,
+      "scope": "Exact three original failed nodes; production build/package now present and disk-space incident recovered without source-byte changes."
+    }
+  },
+  "targetedJavaScript": [
+    {
+      "file": "tiergarten-werkhof-v275.test.ts",
+      "exitCode": 0,
+      "seconds": 6.569,
+      "log": "/Users/klotzkette/.cache/codex-berlin-v277/final-integration-tiergarten-werkhof-v275.log",
+      "passed": 7,
+      "failed": 0,
+      "assertions": 289157
+    },
+    {
+      "file": "tiergarten-werkhof-v275-ownership.test.ts",
+      "exitCode": 0,
+      "seconds": 0.668,
+      "log": "/Users/klotzkette/.cache/codex-berlin-v277/final-integration-tiergarten-werkhof-v275-ownership.log",
+      "passed": 4,
+      "failed": 0,
+      "assertions": 218
+    },
+    {
+      "file": "bayer-campus-v277.test.ts",
+      "exitCode": 0,
+      "seconds": 10.491,
+      "log": "/Users/klotzkette/.cache/codex-berlin-v277/final-integration-bayer-campus-v277.log",
+      "passed": 7,
+      "failed": 0,
+      "assertions": 554626
+    },
+    {
+      "file": "rki-moabit-v277.test.ts",
+      "exitCode": 0,
+      "seconds": 6.651,
+      "log": "/Users/klotzkette/.cache/codex-berlin-v277/final-integration-rki-moabit-v277.log",
+      "passed": 6,
+      "failed": 0,
+      "assertions": 1479385
+    },
+    {
+      "file": "lehrter-v277.test.ts",
+      "exitCode": 0,
+      "seconds": 8.998,
+      "log": "/Users/klotzkette/.cache/codex-berlin-v277/final-integration-lehrter-v277.log",
+      "passed": 4,
+      "failed": 0,
+      "assertions": 96254
+    },
+    {
+      "file": "lehrter-v277-ownership.test.ts",
+      "exitCode": 0,
+      "seconds": 0.671,
+      "log": "/Users/klotzkette/.cache/codex-berlin-v277/final-integration-lehrter-v277-ownership.log",
+      "passed": 4,
+      "failed": 0,
+      "assertions": 161
+    },
+    {
+      "file": "wedding-sites-v210.test.ts",
+      "exitCode": 0,
+      "seconds": 0.077,
+      "log": "/Users/klotzkette/.cache/codex-berlin-v277/final-integration-wedding-sites-v210.log",
+      "passed": 3,
+      "failed": 0,
+      "assertions": 237328
+    },
+    {
+      "file": "isometric-construction-lifecycle.test.ts",
+      "exitCode": 0,
+      "seconds": 0.214,
+      "log": "/Users/klotzkette/.cache/codex-berlin-v277/final-integration-isometric-construction-lifecycle.log",
+      "passed": 49,
+      "failed": 0,
+      "assertions": 4670
+    },
+    {
+      "file": "native-startup-lifetime-v224.test.ts",
+      "exitCode": 0,
+      "seconds": 0.257,
+      "log": "/Users/klotzkette/.cache/codex-berlin-v277/final-integration-native-startup-lifetime-v224.log",
+      "passed": 4,
+      "failed": 0,
+      "assertions": 51
+    },
+    {
+      "file": "alt-mitte-v169-native-preload.test.ts",
+      "exitCode": 0,
+      "seconds": 0.836,
+      "log": "/Users/klotzkette/.cache/codex-berlin-v277/final-integration-alt-mitte-v169-native-preload.log",
+      "passed": 15,
+      "failed": 0,
+      "assertions": 98
+    }
+  ],
+  "losslessSourceTest": {
+    "receipt": {
+      "file": "lossless-sites-final.log",
+      "bytes": 550,
+      "sha256": "56965938729bba7696dde6c6ad9be87cab2dd04f7198d5e4a897f0a2a37a8c87"
+    },
+    "summary": [
+      "",
+      " 4 pass",
+      " 0 fail",
+      " 80 expect() calls",
+      "Ran 4 tests across 1 file. [249.00ms]"
+    ]
+  },
+  "typecheck": {
+    "exitCode": 0,
+    "log": {
+      "file": "typecheck-final.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "productionBuild": {
+    "exitCode": 0,
+    "log": {
+      "file": "build-final.log",
+      "bytes": 31947,
+      "sha256": "4e365deae18e12f0c26fca01134a0d0be86cd2e1d1defdbe800e77cd06399261"
+    },
+    "publicFiles": {
+      "file": "link-public.log",
+      "bytes": 65,
+      "sha256": "62aceb8e02eba964bfb624f3eb24a72c7a171671668bcc6c8db3f0a6d84892fd"
+    },
+    "configuration": "Unchanged production config plus build-only module-size report; immutable public files hardlinked byte-identically after build to avoid duplicate local disk storage."
+  },
+  "format": {
+    "file": "ruff-format.log",
+    "bytes": 25,
+    "sha256": "e46640c62b96cefa6452bf182f48a70fe5511dea7280c0d63647df9608371f13"
+  },
+  "lint": {
+    "file": "ruff-check-final.log",
+    "bytes": 19,
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  "browserModels": {
+    "mode": "development actual model constructors",
+    "places": [
+      "Robert Koch-Institut",
+      "Heizkraftwerk Moabit",
+      "Berlin Decks",
+      "Bayer Hochhaus",
+      "Kulturfabrik",
+      "Polizei"
+    ],
+    "views": [
+      "drawn",
+      "native"
+    ],
+    "consoleErrors": 0,
+    "browser": "Codex internal IAB",
+    "temporaryTabClosed": true,
+    "fullWorldTest": false,
+    "limits": "No mobile physical-device or endurance test. Actual drawn/native model views and mode changes only."
+  },
+  "browserProduction": {
+    "browser": "Codex internal IAB",
+    "packageVersion": "1.0.177",
+    "location": "http://127.0.0.1:51800/",
+    "steps": [
+      "Cold production start in day mode",
+      "Select Berlin Hauptbahnhof through visible sight control",
+      "Mute ambient and soundtrack",
+      "Nine zoom-out button clicks in two batches; large surrounding city visible",
+      "Switch to Minecraft and wait for full canvas",
+      "Return to Day and visually verify restoration"
+    ],
+    "consoleErrors": 0,
+    "consoleWarnings": 0,
+    "temporaryTabClosed": true,
+    "physicalMobileTest": false,
+    "enduranceTest": false,
+    "scope": "Short manual desktop production smoke, not an exhaustive citywide architectural or memory survey."
+  },
+  "httpPackage": {
+    "exitCode": 0,
+    "log": {
+      "file": "package-http.log",
+      "bytes": 145,
+      "sha256": "a394164538d3d5dd741bcee4d9b990a01aaa242fae7347dec7adf4e5c89708b2"
+    }
+  },
+  "package": {
+    "files": 4750,
+    "bytes": 934453959,
+    "MiB": 891.164740562439,
+    "ceilingMiB": 893
+  },
+  "pagesPreflight": {
+    "version": "1.0.177",
+    "parent": "76fa7ce1839b9dd67e82c37627fdb6445e01914b",
+    "previousTwoAssets": 332,
+    "retainedPreviousOnlyAssets": 30,
+    "retainedPreviousOnlyBytes": 133769101,
+    "removedStaleAssets": 10,
+    "removedBytes": 34095905,
+    "bytes": 1068223060,
+    "headroomBelow1GiB": 5518764,
+    "publishRequested": false
+  },
+  "review": {
+    "review": "read-only final v277 review",
+    "integration": "No concrete finding in drawn/native/navigation/worker/fallback/required transaction lifecycle. All 15 v277 packed string fields strongly held, including RKI nativeBodies.",
+    "documentation": "Versions, counts and source hashes consistent. One false statement that the immutable geometry contract contained building4 handover evidence corrected: direct primary reference now in site note and public source ledger. Geometry contracts unchanged.",
+    "limits": "Static review plus previously executed targeted tests; this record is not a browser/endurance test."
+  },
+  "limits": [
+    "Full Python run retains three original failures. The exact three separately passed after storage recovery and production packaging; no single all-green full-suite run is claimed.",
+    "An earlier concurrent typecheck was killed and an incomplete build was stopped during storage pressure; the recorded final serial typecheck/build passed.",
+    "No physical mobile-device or endurance test. Browser checks were short production desktop and actual model-factory checks.",
+    "Small facade fittings and internal Berlin Decks roof-step boundaries remain explicit estimates. Original source conflicts and evidence remain in site documentation."
+  ]
+}

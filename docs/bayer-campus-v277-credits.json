@@ -1,0 +1,71 @@
+{
+  "retrieved": "2026-10-26",
+  "scope": "Existing Bayer administration Müllerstraße178 / K0004qx3 only; public exterior recognition, no future project or bundled photograph",
+  "sources": [
+    {
+      "title": "Bayer Berlin operator page — present administration exterior",
+      "pageUrl": "https://www.bayer.com/de-de/deutschland/standorte/berlin-startseite",
+      "author": "Bayer AG",
+      "license": "Copyright Bayer AG; external reference only",
+      "use": "Public architecture identity, pale structural ribs, blue-grey glazing, stair-core slots, entrance and geometric Bayer cross. No photo pixels bundled.",
+      "referenceSha256": "da24fe7511cb1192ea8def66f81045cd6d2571be52140f700533480068c2fad3",
+      "referenceImageUrl": "https://bag-p-001.sitecorecontenthub.cloud/api/public/content/pharma-hq-berlin-1-951bfa8f05fa420097a7136fa34e61fd?fit=crop&format=webp&transform=true&v=ff8d2971&width=767"
+    },
+    {
+      "title": "Schering-Gebäude, Berlin-Wedding — original structural engineer project sheet",
+      "pageUrl": "https://www.gse-berlin.de/wp-content/uploads/projekt_pdfs/GSE-Projekt-Schering-Gebaeude.pdf",
+      "author": "GSE Ingenieur-Gesellschaft mbH",
+      "license": "External factual reference only; no PDF pages bundled",
+      "use": "S101 identity, external cores, three-storey podium and S102 bridge distinction; no metric tracing of PDF photos."
+    },
+    {
+      "title": "Bayer Berlin Wedding public directions",
+      "pageUrl": "https://www.bayer.com/sites/default/files/anfahrtsbeschreibung-berlin-wedding.pdf",
+      "author": "Bayer AG",
+      "license": "External factual reference only",
+      "use": "Public main entrance Müllerstraße178."
+    }
+  ],
+  "officialGeodata": [
+    {
+      "name": "OpenStreetMap contributors",
+      "url": "https://www.openstreetmap.org/copyright",
+      "license": "ODbL-1.0",
+      "sourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=13.3668,52.5395,13.3700,52.5416",
+      "sourceSha256": "b9c84c1bafca0ef7ca1a3f9e14914528a7b2eedac9c36b4d149eacf1147838e6",
+      "use": "Complete public office parent,24parts with inner rings, main entrance node.",
+      "publicEntranceSourceUrl": "https://api.openstreetmap.org/api/0.6/node/9658049952"
+    },
+    {
+      "name": "Berlin LoD2",
+      "license": "dl-de/zero-2-0",
+      "url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5822.zip",
+      "sha256": "fd3d00f7bc9c4b42ec6207bad354e31ffb8462cb67b4cff83cb10759b4b7a68f",
+      "use": "Complete unchanged old owner and original contradictory23.988m measured-height receipt."
+    },
+    {
+      "name": "Berlin bDOM2025",
+      "license": "dl-de/zero-2-0",
+      "url": "https://gdi.berlin.de/services/wms/bdom",
+      "layer": "b_bdom",
+      "retainedSamples": 96,
+      "use": "Actual roof-height point queries; all outliers retained, chosen sample indices explicit."
+    },
+    {
+      "name": "Berlin DOP2025 spring",
+      "license": "dl-de/zero-2-0",
+      "url": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+      "receipt": {
+        "url": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=dop_2025&STYLES=&CRS=EPSG%3A25833&BBOX=389235%2C5822290%2C389470%2C5822500&WIDTH=940&HEIGHT=840&FORMAT=image%2Fjpeg",
+        "sha256": "903e9411fb85ac65bcd62c8aa2fc077cd35413accf56bcb7f8e06ffe53f56d74",
+        "bbox": [
+          389235,
+          5822290,
+          389470,
+          5822500
+        ]
+      },
+      "use": "External roof-context inspection only, no texture or metric tracing."
+    }
+  ]
+}

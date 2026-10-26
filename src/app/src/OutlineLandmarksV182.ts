@@ -91,6 +91,7 @@ import { createCivicPartyDetailsV246 } from "./CivicPartyDetailsV246";
 export type OutlineLandmarkOwnershipOptions = {
   /** Complete library architecture already belongs to the required world. */
   architectureV241?: boolean;
+  bayerCampusV277?: boolean;
 };
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -262,7 +263,7 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createWestCivicV210(nextNative));
       yield;
-      root.add(createWeddingSitesV210(nextNative));
+      root.add(createWeddingSitesV210(nextNative, { bayerCampusV277: ownership.bayerCampusV277 }));
       yield;
       root.add(createNeukoellnPlacesV210(nextNative));
       yield;

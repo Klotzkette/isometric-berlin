@@ -1,3 +1,6 @@
+import { createBayerCampusV277 } from "./BayerCampusV277";
+import { createLehrterV277 } from "./LehrterV277";
+import { createRkiMoabitV277 } from "./RkiMoabitV277";
 import { createVerkehrskanzelV276 } from "./VerkehrskanzelV276";
 import { createTiergartenWerkhofV275 } from "./TiergartenWerkhofV275";
 import { createCentralTheatresV274 } from "./CentralTheatresV274";
@@ -66,6 +69,12 @@ import { createDistrictCourtsV229 } from "./DistrictCourtsV229";
 /** Attach each complete owner before yielding, so the city's transaction owns
  * and disposes every allocated model even when loading is interrupted. */
 export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false): Generator<void> {
+  root.add(createBayerCampusV277(native));
+  yield;
+  root.add(createLehrterV277(native));
+  yield;
+  root.add(createRkiMoabitV277(native));
+  yield;
   root.add(createTiergartenWerkhofV275(native));
   yield;
   root.add(createVerkehrskanzelV276(native));

@@ -1833,3 +1833,20 @@ native boxes may save memory only with proven identical occupied volume and
 colour, without raster coarsening. Keep full mobile detail, orthogonal native
 geometry, 93 stops, previous source data and all existing runtime/release limits.
 No new coverage, animation, raw media or external browser.
+
+### Step 10 — v277 Nordufer, Moabit power station, Lehrter Straße and Bayer
+
+The owner requests the Robert Koch-Institut at Nordufer, the opposite Moabit
+power station and its adjacent modern working campus, the Lehrter Straße
+streetscape including its police buildings and Kulturfabrik with Filmrauschpalast
+and Slaughterhouse, and the retained Bayer/former Schering works. Identify each
+actual present site with operator, heritage and retained mapped/measured sources.
+Separate existing construction from proposed redevelopment; do not invent the
+proposed RKI high-rise or future office projects. Preserve every complete source
+envelope, earlier facade and roof detail, original road nodes, open yards and
+navigation. Replace only exactly evidenced wrong authored elements or generic
+owners with complete source-receipted replacements and matching walking geometry.
+Small unmeasured recognition details must be explicitly identified as estimates.
+Keep independent orthogonal native construction, full mobile detail, existing
+resident/decode/prefetch limits and the 93-place tour. No new coverage, animation,
+raw media or external browser. Use public exterior architecture only.

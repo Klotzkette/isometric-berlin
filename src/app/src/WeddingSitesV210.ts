@@ -6,6 +6,7 @@ import {
 import data from "./data/weddingSitesV210.json";
 import envelopes from "./data/weddingSitesV210Envelopes.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { retainWeddingRowsV277 } from "./bayerCampusV277Legacy";
 
 export const WEDDING_SITES_V210_CAMERAS = {
   erika: { position: [65, 125, -1910], target: [-56, 12, -2070], spanM: 215 },
@@ -66,8 +67,10 @@ export function createWeddingSitesEnvelopesV210(native = false): Group {
   return freezeStaticSceneTransforms(root);
 }
 /** Additive, bounded public architecture; identical detail on touch and desktop. */
-export function createWeddingSitesV210(native = false): Group {
-  const root = rootGroup(native, false), rows = native ? data.blocks : data.boxes;
+export function createWeddingSitesV210(native = false, options: { bayerCampusV277?: boolean } = {}): Group {
+  const root = rootGroup(native, false);
+  const rows = retainWeddingRowsV277(native ? data.blocks : data.boxes, native, options.bayerCampusV277);
+  root.userData.bayerCampusV277 = options.bayerCampusV277 === true;
   for (const site of data.sites)
     root.add(instances(rows.filter(r => r[native ? 7 : 11] === site), native,
       site === "erika" ? "Erika Hess five concrete pylons, glazed hall and mapped rink" : "Bayer Schering retained source-wall facade rhythm"));
