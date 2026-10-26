@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.180 — 2026-10-26
+
+- Recover stalled outer-city transfers so one nonresponding request cannot indefinitely block the remaining map. Preserve complete geometry, serial decoding and existing memory limits.
+- Audit the existing published Reuter-West, Eiswerder and Zitadelle packets. Identify the separate, still unbuilt Reuter-West plant surroundings; the transport correction does not add that missing coverage. See [diagnosis and checks](docs/outer-loading-v280.md).
+
 ## 1.0.179 — 2026-10-26
 
 - Clear the automatic Serra flight view of the Philharmonie roof by changing only its approach azimuth. Keep its target, height, distance, 16-degree lens and the original explicit 39-degree opening pose.

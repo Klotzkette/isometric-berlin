@@ -1873,3 +1873,15 @@ camera elevation, distance and 16-degree lens. Keep the original explicit
 all source geometry, full mobile detail and runtime/release limits. Verify the
 two plates' sightlines against retained concert-hall geometry and inspect the
 actual built city in the internal browser. No external browser or new coverage.
+
+### Step 10 — v280 outer-city loading recovery
+
+The owner reports slow or stalled outer-city construction near Reuter-West,
+Eiswerder and Zitadelle Spandau. Audit actual regional packets and the shared
+streaming lifecycle. Recover proved transport stalls without abandoning any
+visible source geometry or lowering detail. Keep serial decoding/publication,
+existing bounded prefetch and residency limits, source bytes, both independent
+families and all 93 stops. Cancellation, hidden-page suspension and retries must
+release blocked work safely, with no stale publication or repeated request storm.
+Verify simulated stalls separately from ordinary local/browser timings. Use only
+the internal browser; do not launch external Safari or another browser process.

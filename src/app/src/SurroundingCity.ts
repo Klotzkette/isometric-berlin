@@ -1,3 +1,4 @@
+import { fetchSurroundingTransport, SURROUNDING_TRANSPORT_IDLE_MS } from "./surroundingTransport";
 import { prepareTierparkV276 } from "./TierparkV276";
 import { mierendorffFloorAtV269 } from "./MierendorffV269";
 import { Box3, Frustum, Group, Matrix4, Vector3, type Camera, Material, Mesh, Line, Points } from "three";
@@ -75,6 +76,8 @@ export type SurroundingCityOptions = {
   fetch?: typeof fetch;
   now?: () => number;
   retireMs?: number;
+  /** Network inactivity only; injectable for deterministic liveness tests. */
+  transportIdleMs?: number;
   residentBudgetBytes?: number;
 };
 export type SurroundingCity = {
@@ -136,11 +139,12 @@ export function validateSurroundingManifest(value: unknown): SurroundingCityMani
 
 async function fetchJsonBounded(
   fetcher: typeof fetch, url: URL, signal: AbortSignal, limit: number, asset?: Asset,
+  idleMs = SURROUNDING_TRANSPORT_IDLE_MS,
 ): Promise<unknown> {
   // Manifests are mutable; content fingerprints isolate updated terrain packets
   // from an older immutable browser cache without discarding reusable city data.
-  const response = await fetcher(url, { signal, ...(asset ? {} : { cache: "no-cache" as const }) });
-  if (!response.ok || !response.body) throw new Error(`Surrounding-city data HTTP ${response.status}`);
+  const response = await fetchSurroundingTransport(fetcher, url, signal,
+    asset ? {} : { cache: "no-cache" }, idleMs);
   return readJsonBounded(response.body, response.headers, signal, limit, asset);
 }
 
@@ -226,9 +230,9 @@ const prefetchReservation = (asset: Asset): number => Math.max(asset.bytes + 64,
 
 /** Retain only bounded transport bytes. JSON and geometry are still decoded
  * one at a time, and no visited-city cache survives publication/eviction. */
-async function bufferPacket(fetcher: typeof fetch, url: URL, signal: AbortSignal, asset: Asset): Promise<BufferedPacket> {
-  const response = await fetcher(url, { signal });
-  if (!response.ok || !response.body) throw new Error(`Surrounding-city data HTTP ${response.status}`);
+async function bufferPacket(fetcher: typeof fetch, url: URL, signal: AbortSignal, asset: Asset,
+  idleMs = SURROUNDING_TRANSPORT_IDLE_MS): Promise<BufferedPacket> {
+  const response = await fetchSurroundingTransport(fetcher, url, signal, {}, idleMs);
   const transportDecoded = response.headers.get("content-encoding")?.toLowerCase()
     .split(",").some(value => value.trim() === "gzip");
   const limit = asset.encoding === "gzip"
@@ -347,6 +351,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const fetcher = options.fetch ?? fetch;
   const now = options.now ?? (() => performance.now());
   const retireMs = options.retireMs ?? SURROUNDING_CITY_RETIRE_MS;
+  const transportIdleMs = options.transportIdleMs ?? SURROUNDING_TRANSPORT_IDLE_MS;
   const budget = options.residentBudgetBytes ?? SURROUNDING_CITY_RESIDENT_BUDGET_BYTES;
   const release = options.onRelease ?? disposeSurroundingCityRoot;
   const controller = new AbortController();
@@ -367,8 +372,19 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   let geometryBytes = 0, bufferCount = 0, lastScan = -Infinity;
   let focus: { x: number; z: number } | undefined;
   let navigationTiles: SurroundingNavigationTile[] = [];
-  const activeView = (): boolean => root.visible && options.isActive?.() !== false &&
+  let manifestAttempt: AbortController | null = null;
+  let pageHidden = false;
+  const activityWaiters = new Set<() => void>();
+  const activeView = (): boolean => !pageHidden && root.visible && options.isActive?.() !== false &&
     (typeof document === "undefined" || document.visibilityState !== "hidden");
+  const notifyActivity = (): void => {
+    for (const notify of activityWaiters) notify();
+    activityWaiters.clear();
+  };
+  const awaitActiveView = async (): Promise<boolean> => {
+    while (!disposed && !activeView()) await new Promise<void>(resolve => activityWaiters.add(resolve));
+    return !disposed;
+  };
   const updateNavigation = (): void => {
     navigationTiles = Array.from(residents.values()).filter(entry => !entry.descriptor.detailCompanionOf).map(entry => ({
       origin: entry.origin, bounds: entry.descriptor.bounds, nav: entry.nav,
@@ -412,7 +428,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       const job: Prefetch = { controller: task, reservedBytes, result: null };
       // Handle rejection immediately, even if a camera turn discards this job
       // before it is promoted to the foreground. Aborted bytes are never cached.
-      job.result = bufferPacket(fetcher, packetUrl(asset, options.manifestUrl), task.signal, asset)
+      job.result = bufferPacket(fetcher, packetUrl(asset, options.manifestUrl), task.signal, asset, transportIdleMs)
         .then(packet => ({ packet }), error => ({ error }));
       prefetches.set(descriptor.id, job); prefetchedBytes += reservedBytes;
     }
@@ -434,7 +450,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
         let unpublished: Group | null = null;
         try {
           const loading = prefetched ? consumePrefetch(prefetched, task.signal, asset)
-            : fetchJsonBounded(fetcher, packetUrl(asset, options.manifestUrl), task.signal, asset.bytes + 64, asset);
+            : fetchJsonBounded(fetcher, packetUrl(asset, options.manifestUrl), task.signal, asset.bytes + 64, asset, transportIdleMs);
           fillPrefetches();
           const data = await loading;
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) continue;
@@ -474,8 +490,13 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
 
   const refresh = (timestamp = now(), nextFocus?: { x: number; z: number }): void => {
     if (nextFocus) focus = nextFocus;
-    if (disposed || !manifest) return;
-    if (!activeView()) { active?.controller.abort(); cancelPrefetches(true); queue = []; lastScan = -Infinity; return; }
+    if (disposed) return;
+    if (!activeView()) {
+      manifestAttempt?.abort(); active?.controller.abort(); cancelPrefetches(true);
+      queue = []; lastScan = -Infinity; return;
+    }
+    notifyActivity();
+    if (!manifest) return;
     if (timestamp - lastScan < SURROUNDING_CITY_SCAN_MS) return;
     lastScan = timestamp;
     options.camera.updateMatrixWorld();
@@ -523,6 +544,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     if (disposed) return;
     disposed = true;
     controller.abort();
+    manifestAttempt?.abort();
+    notifyActivity();
     active?.controller.abort();
     cancelPrefetches(true);
     queue = [];
@@ -530,20 +553,38 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     for (const id of residents.keys()) evict(id);
     manifest = null;
     options.signal?.removeEventListener("abort", dispose);
+    if (typeof document !== "undefined") document.removeEventListener("visibilitychange", onVisibilityChange);
+    if (typeof window !== "undefined") {
+      window.removeEventListener("pagehide", onPageHide);
+      window.removeEventListener("pageshow", onPageShow);
+    }
   };
+  const onVisibilityChange = (): void => refresh();
+  const onPageHide = (): void => { pageHidden = true; refresh(); };
+  const onPageShow = (): void => { pageHidden = false; refresh(); };
+  if (typeof document !== "undefined") document.addEventListener("visibilitychange", onVisibilityChange);
+  if (typeof window !== "undefined") {
+    window.addEventListener("pagehide", onPageHide);
+    window.addEventListener("pageshow", onPageShow);
+  }
   options.signal?.addEventListener("abort", dispose, { once: true });
   if (options.signal?.aborted) dispose();
   const loadManifest = async (): Promise<void> => {
-    for (let attempt = 0; attempt <= SURROUNDING_CITY_MANIFEST_RETRY_MS.length; attempt++) {
+    for (let attempt = 0; attempt <= SURROUNDING_CITY_MANIFEST_RETRY_MS.length;) {
+      if (!await awaitActiveView() || disposed) return;
+      const task = new AbortController();
+      manifestAttempt = task;
       try {
-        const value = await fetchJsonBounded(fetcher, options.manifestUrl, controller.signal, SURROUNDING_CITY_MAX_MANIFEST_BYTES);
+        const value = await fetchJsonBounded(fetcher, options.manifestUrl, task.signal, SURROUNDING_CITY_MAX_MANIFEST_BYTES, undefined, transportIdleMs);
         if (!disposed) { manifest = validateSurroundingManifest(value); refresh(); }
         return;
       } catch (error) {
         if (disposed || controller.signal.aborted) return;
+        if (task.signal.aborted) continue;
         if (attempt === SURROUNDING_CITY_MANIFEST_RETRY_MS.length) { report(error); return; }
         if (!await retryDelay(SURROUNDING_CITY_MANIFEST_RETRY_MS[attempt], controller.signal)) return;
-      }
+        attempt++;
+      } finally { if (manifestAttempt === task) manifestAttempt = null; }
     }
   };
   const ready = disposed ? Promise.resolve() : loadManifest();

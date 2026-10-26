@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.179 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.179/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.180 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.180/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.179** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.180** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.180 recovers stalled outer-city transfers without reducing geometry or mobile detail. A nonresponding request no longer holds the entire loading queue indefinitely. The empty plant surroundings at Reuter-West are a separate coverage gap and are not added by this update. See [diagnosis and checks](docs/outer-loading-v280.md).
+
+Version 1.0.180 behebt festhängende Datenanfragen beim Aufbau der Außenbezirke. Die übrige Karte lädt weiter; Geometrie und mobiler Detailgrad bleiben vollständig. Das leere Werksgelände rund um den Reuter-West-Kühlturm ist eine gesonderte Abdeckungslücke und wird mit diesem Update noch nicht ergänzt. Siehe [Diagnose und Prüfungen](docs/outer-loading-v280.md).
 
 Version 1.0.179 turns only the automatic Serra flight approach clear of the Philharmonie roof. The sculpture target, apparent scale, camera height, other starts and all city geometry remain unchanged. See [camera correction and checks](docs/serra-start-v279.md).
 

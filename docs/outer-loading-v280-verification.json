@@ -1,0 +1,474 @@
+{
+  "schemaVersion": 1,
+  "pipelineStep": 10,
+  "iteration": "v280",
+  "version": "1.0.180",
+  "status": "runtime_build_archives_and_internal_browser_checks_passed_full_suite_and_publication_pending",
+  "scope": "Recover stalled surrounding-city transport without changing source geometry, visible quality, coverage or residency budgets. A distinct missing Reuter-West ground footprint is diagnosed; its bounded expansion proposal awaits explicit owner approval.",
+  "runtimeAndTestSha256": {
+    "src/app/src/surroundingTransport.ts": "773efa091bdbe71594cc8581318b2d3db40d0208e0caf199167050d6d13148d9",
+    "src/app/src/SurroundingCity.ts": "c7edf10a6133005287399af5392d33ba6b293d5105f6c0e9591ffafee1728662",
+    "src/app/tests/surrounding-transport-v280.test.ts": "7de25a0c4a578607b201571fe111e13ef6d0f39fce356a8e6f6c1f3b18b9c5c6"
+  },
+  "diagnosis": {
+    "observedFailure": "An unfinished foreground or promoted-prefetch response holds the serial packet pump indefinitely in the previous loader.",
+    "baselineControls": {
+      "expectedFailures": 2,
+      "names": [
+        "stalled foreground releases the serial queue, preserves exact geometry and retries after cooldown",
+        "a prefetched stalled response cannot block the promoted queue"
+      ],
+      "logSha256": "9c1a0bb106661ce4c7c06d35624893e7e8540ad3aabdf3aae25eb3d770a006b3"
+    },
+    "limits": "This reproduces a general failure mode; it does not identify the exact network conditions on the user device.",
+    "distinctFindings": [
+      "Reproducible serial transport head-of-line stall, corrected by v280.",
+      "Existing source-coverage gap around the required Reuter-West cooling-tower model, not filled by the transport correction."
+    ]
+  },
+  "regionalSources": {
+    "centresWorldXZ": [
+      [
+        "reuter",
+        -8922,
+        -1965
+      ],
+      [
+        "eiswerder",
+        -10300,
+        -3590
+      ],
+      [
+        "citadel",
+        -10773,
+        -2632
+      ]
+    ],
+    "radiusMetres": 800,
+    "descriptorCount": 28,
+    "descriptorIds": [
+      "outer187--17_-3",
+      "outer187--18_-3",
+      "outer187--19_-3",
+      "outer187--19_-5",
+      "outer187--19_-6",
+      "outer187--20_-4",
+      "outer187--20_-5",
+      "outer187--20_-6",
+      "outer187--20_-7",
+      "outer187--20_-8",
+      "outer187--21_-4",
+      "outer187--21_-5",
+      "outer187--21_-6",
+      "outer187--21_-7",
+      "outer187--21_-8",
+      "outer187--22_-4",
+      "outer187--22_-5",
+      "outer187--22_-6",
+      "outer187--22_-7",
+      "outer187--22_-8",
+      "outer187--23_-4",
+      "outer187--23_-5",
+      "outer187--23_-6",
+      "outer187--23_-7",
+      "outerfacade230-outer187--22_-4",
+      "outerfacade230-outer187--22_-5",
+      "outerfacade230-outer187--22_-6",
+      "outerfacade230-outer187--23_-5"
+    ],
+    "publishedRequests": 56,
+    "allHttp200": true,
+    "publishedManifestMatchesLocal": true,
+    "manifestSha256": "db15e3b722bf64d223eed121aac4986dc48e91207e086e8b8d8f9a43dd074115",
+    "allPublishedPacketBytesLengthsAndHashesExact": true,
+    "sourceBoundsChecked": 56,
+    "maximumSourceOverhangMetres": 0.0,
+    "sourceMeshAndDataTrackedDiffEmpty": true
+  },
+  "localConstruction": {
+    "measurement": "Real production generator in Bun on this workstation, with geometry parking; no renderer or GPU benchmark.",
+    "packets": {
+      "drawn": {
+        "constructedPackets": 28,
+        "totalConstructorCpuMs": 222.605,
+        "totalInflateAndParseMs": 23.972,
+        "longestGeneratorStepMs": 10.13,
+        "completeGeometryBytes": 4805358
+      },
+      "minecraft": {
+        "constructedPackets": 28,
+        "totalConstructorCpuMs": 386.583,
+        "totalInflateAndParseMs": 49.326,
+        "longestGeneratorStepMs": 6.384,
+        "completeGeometryBytes": 10820130
+      }
+    },
+    "requiredWesternIndustrialConstructorMs": {
+      "drawn": 17.261,
+      "minecraft": 14.04
+    },
+    "coolingTowerIsRequiredBeforeNavigation": true,
+    "coolingTowerDrawnBounds": [
+      [
+        -8989.2939453125,
+        3,
+        -2019.43603515625
+      ],
+      [
+        -8855.1552734375,
+        103,
+        -1909.93798828125
+      ]
+    ],
+    "coolingTowerNativeInstances": 13062,
+    "limits": "Local observations, not physical-phone timings, universal speedup or crash-free guarantees."
+  },
+  "targetedTests": {
+    "passed": 60,
+    "failed": 0,
+    "assertions": 817,
+    "files": 5,
+    "logSha256": "9179020fa2b412122ce7b6f14c1e19150916589d654b872f5844d06ac55dcd0f",
+    "preservation": "Existing gzip/fallback/HTTP-decoded handling, malformed-data rejection, mode switching, cancellation, exact geometry and prefetch budgets pass alongside 12 new liveness/lifecycle tests."
+  },
+  "independentReview": {
+    "actionableFindings": [],
+    "additionalAdversarialChecks": [
+      {
+        "name": "late headers after timeout cancel the stale body exactly once",
+        "passed": true,
+        "ms": 18.466625
+      },
+      {
+        "name": "a stalled byte stream settles even when its cancel never settles",
+        "passed": true,
+        "ms": 14.605125000000001
+      },
+      {
+        "name": "consumer cancellation resolves while source cancellation never settles",
+        "passed": true,
+        "ms": 0.13633399999999796
+      },
+      {
+        "name": "abort after headers but before first read rejects with AbortError",
+        "passed": true,
+        "ms": 0.36129200000000594
+      },
+      {
+        "name": "steady chunks exceeding total deadline remain complete",
+        "passed": true,
+        "ms": 88.32724999999999
+      },
+      {
+        "name": "consumer processing pause has no transport deadline",
+        "passed": true,
+        "ms": 40.641458
+      },
+      {
+        "name": "real source errors are not rewritten as timeouts",
+        "passed": true,
+        "ms": 0.28258400000001416
+      },
+      {
+        "name": "invalid HTTP cancels without waiting on cancellation",
+        "passed": true,
+        "ms": 0.16712500000002706
+      }
+    ],
+    "originalHelperSha256": "15bb3f55352ed226ced6afa607b8921dbf6b59499782712c4af67209e16b1ead",
+    "finalHelperRefinement": "Reviewed explicit success/error discriminant in wait.finish; undefined rejections remain rejections. No other helper change. Two additional direct checks for undefined rejection at headers and body pass on the final hash.",
+    "additionalUndefinedRejectionChecksPassed": 2,
+    "loaderAndRegressionTestHashesStillMatchOriginalReview": true,
+    "contracts": [
+      "Timers exist only around fetch headers and pending raw reads; each completed wait removes its parent abort listener and timer.",
+      "Timeout aborts child network signal, leaving owner signal eligible for ordinary 30-second packet cooldown and finite manifest retries.",
+      "Prefetch reservation and counts are unchanged; wrapper adds no copied transport buffer.",
+      "Hidden page or pagehide aborts pending transport without setting packet cooldown; manifest resumes without burning a failed attempt.",
+      "Dispose aborts waits and removes document/window listeners; initially inactive manifest ready resolves on disposal.",
+      "Raw byte, gzip length, decoded byte and JSON/geometry validation remain in the existing decoder.",
+      "Single serial geometry decode/publication and exact source packet ownership remain unchanged."
+    ]
+  },
+  "typecheck": {
+    "status": "passed",
+    "exitCode": 0,
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "ruff": {
+    "status": "passed",
+    "exitCode": 0,
+    "formatFilesUnchanged": 917,
+    "checkLogSha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "formatLogSha256": "e46640c62b96cefa6452bf182f48a70fe5511dea7280c0d63647df9608371f13"
+  },
+  "preservedLimits": {
+    "offscreenResidentTargetBytes": 25165824,
+    "maximumPacketBytes": 12582912,
+    "prefetchBytes": 4194304,
+    "prefetchCount": 2,
+    "geometryDecodeAndPublicationSerial": true,
+    "fullMobileQuality": true,
+    "tourStops": 93
+  },
+  "pending": {
+    "fullPythonSuite": "running; no final result claimed",
+    "publicationAndLiveVerification": "pending",
+    "reuterCoverageExpansion": "explicit owner approval pending; proposal only, no geometry added"
+  },
+  "cacheReceiptSha256": {
+    "live-packet-audit.json": "3426230b0879dac4b5d6d67bf1b090833a04cadae798f50ec9f7f41cea4cfaff",
+    "outer-packet-audit.json": "3d07912511e8860936d4dfdbfede958a699c89140d0a86b1fe2e4455cc28da70",
+    "packet-bounds-audit.json": "072735ce1d662f83d7975f6b289ba0aca3ca89a01456790742ea5f1e541ea0a9",
+    "west-industrial-audit.json": "cd8824251638b040d55b8e0fe1feb3e282b3bd81d6d5311f70552781ba8edbc2",
+    "independent-transport-review.json": "1401f8c7ae8999bb4c289e5d2c9269201fcf6625ac12604987f971e20e3f89a7",
+    "reuter-runtime-ownership.json": "6eaab7e1284e4e611e97a67e55893d78146c0f04fba22031ffd7ff049ad1499e",
+    "reuter-coverage-proposal.json": "43829519ba0e0b17bd6b0f311be3c71ea907e26f1d613e0035c238805806cbbc",
+    "reuter-coverage-proposal.png": "ae933de05d33423c3c61f1cb6e23424a6d07b9800d97ecf7059c57814a40639d",
+    "exact-stage-receipt.json": "b018cdc9e828e15ab75cf5d844fdb565b1f5dff4cf5495c50da2b55871bfb6e0",
+    "build-enospc.log": "04c426dc17b56a07f0856f0698dc7de252b0fa4b2224ed68a353a97a53bcd63e",
+    "build.log": "1ecac3a0a6d4cd19bb42ce80896b4f550b7bbde6eb07858a1457d2e9f228ec9e",
+    "failed-dist-cleanup-result.json": "7970c0dd0b486e48be1b41c4331f90de8005e231717b021665bb75b06be44036",
+    "archive-prevalidation.json": "65fe4fa179b1bb1002835c701cfff82562968493083f5b11a742948ee3631a2b",
+    "archive-prevalidation.log": "70e1e35abf319640e0d5f4734b2f7f55c375d00314d3892c4b37b5e865bf17dd",
+    "package-smoke.log": "d9d6430ce31beaa7cd5b2dcc674d76a1c0b91e67f0d4f19e16a4e7d34616188d",
+    "pages-preflight.log": "a72c7c984d16fb2a0cbb5a0e77c732440f322523a95cb8cd30d8ba9f42d9b7ed",
+    "qa-stall-events.jsonl": "a2456a4514a52dbb6f75b40914f6bf0c91a092bcf3f5c1376af9290ee227e7cb",
+    "browser-console.json": "87b069aa7221726023d62b8b3d5580dfeec3e27919ad7899b37df58a57811155",
+    "spandau-minecraft-recovered.png": "9cf601eba5d9ede75f65603805071e581c3e65ec46ef90fd0e7c35c562d97acd",
+    "spandau-day-recovered.png": "edf754f039cc2ae60c144e1575bbe7e51263246ee1d86ebb1c60ff7b945350a2"
+  },
+  "reuterCoverageGap": {
+    "classification": "source coverage absent, independently of the fixed transport stall",
+    "existingTowerOnlyAreaM2": 9974.054,
+    "existingTowerOwnership": "required WestIndustrialV230 root, not a missing streamed packet",
+    "distanceToNearestStreamedGroundM": 548.029,
+    "missingTileIds": [
+      "outer187--18_-4",
+      "outer187--18_-5",
+      "outer187--17_-4",
+      "outer187--17_-5",
+      "outer187--19_-4"
+    ],
+    "noDescriptorOfAnySourceFamilyIntersectsThoseTileInteriors": true,
+    "runtimeProbes": [
+      {
+        "name": "tower",
+        "x": -8922,
+        "z": -1965,
+        "scopeGround": 3,
+        "towerGround": 3,
+        "descriptorBoundsOwners": []
+      },
+      {
+        "name": "west-150m",
+        "x": -9072,
+        "z": -1965,
+        "scopeGround": null,
+        "towerGround": null,
+        "descriptorBoundsOwners": []
+      },
+      {
+        "name": "east-150m",
+        "x": -8772,
+        "z": -1965,
+        "scopeGround": null,
+        "towerGround": null,
+        "descriptorBoundsOwners": []
+      },
+      {
+        "name": "north-150m",
+        "x": -8922,
+        "z": -2115,
+        "scopeGround": null,
+        "towerGround": null,
+        "descriptorBoundsOwners": []
+      },
+      {
+        "name": "south-150m",
+        "x": -8922,
+        "z": -1815,
+        "scopeGround": null,
+        "towerGround": null,
+        "descriptorBoundsOwners": []
+      },
+      {
+        "name": "north-700m",
+        "x": -8922,
+        "z": -2665,
+        "scopeGround": null,
+        "towerGround": null,
+        "descriptorBoundsOwners": []
+      },
+      {
+        "name": "south-700m",
+        "x": -8922,
+        "z": -1265,
+        "scopeGround": null,
+        "towerGround": null,
+        "descriptorBoundsOwners": [
+          "outer187--18_-3"
+        ]
+      }
+    ],
+    "interpretation": "The required tower has represented ground, but the four cardinal points only 150 m away have neither runtime ground support nor any candidate stream descriptor. No pending network or geometry queue can fill these points.",
+    "limits": "Descriptor bounds are a broad phase; a bound containing a point does not prove exact source coverage. This is a local runtime/source-ownership probe, not a device timing measurement.",
+    "proposal": {
+      "status": "pending_owner_approval_not_implemented",
+      "ownerHasBeenAsked": true,
+      "siteOsmId": "way/454730438",
+      "siteName": "Heizkraftwerk Reuter West",
+      "newOnlyAreaM2": 328263.2999419949,
+      "totalReviewEnvelopeAreaM2": 339614.4636205188,
+      "retainedOverlapM2": 11351.163678523897,
+      "connectorNames": [
+        "Gro\u00dfer Spreering",
+        "Boltonstra\u00dfe",
+        "Nonnendammallee"
+      ],
+      "connectorLengthM": 1091.163863789711,
+      "connectorHalfWidthM": 25,
+      "connectorWidthIsDisplayEnvelopeNotSurveyedBoundary": true,
+      "intersectingSourceBuildingFootprints": 70,
+      "wholeBoundaryBuildingIds": [
+        "26535886",
+        "26535889",
+        "37431898",
+        "111848438",
+        "50842967",
+        "50842971",
+        "50842978",
+        "44429507",
+        "462162413",
+        "939334098",
+        "462160327",
+        "462160324",
+        "1091857239"
+      ],
+      "sourceBuildingCountIsNotApprovedReplacementCount": true,
+      "lod2TilesNotCached": [
+        "LoD2_380_5822.zip",
+        "LoD2_381_5821.zip",
+        "LoD2_381_5822.zip"
+      ],
+      "completeMeasuredOwnerReviewPending": true,
+      "existingTowerUnchanged": true,
+      "noWholeSiemensstadtOrSpandauExpansion": true,
+      "policyBasis": "AGENTS.md section 11: owner approval and documented bounds revision before new out-of-bounds geometry.",
+      "artifacts": [
+        "reuter-coverage-proposal.json",
+        "reuter-coverage-proposal.png"
+      ]
+    }
+  },
+  "productionBuild": {
+    "status": "passed",
+    "exitCode": 0,
+    "modulesTransformed": 3193,
+    "elapsedSeconds": 213,
+    "normalWriterAttempt": {
+      "status": "failed_enospc",
+      "error": "No space left on device while writing dist/assets/ThreeViewer-BuXGlEor.js",
+      "log": "build-enospc.log",
+      "logSha256": "04c426dc17b56a07f0856f0698dc7de252b0fa4b2224ed68a353a97a53bcd63e",
+      "sourceOrGeometryFailure": false
+    },
+    "storageAdapter": {
+      "buildWrite": false,
+      "allOriginalProjectAndWorkerBudgetPluginsRetained": true,
+      "completeEmittedBundleVerified": true,
+      "emittedFiles": 315,
+      "emittedBytes": 205672179,
+      "newlyWrittenBytes": 12282220,
+      "byteIdenticalHardlinkedBytes": 193389959,
+      "priorPackageVersion": "1.0.179",
+      "sourceBytesAltered": false,
+      "receipt": "exact-stage-receipt.json",
+      "receiptSha256": "b018cdc9e828e15ab75cf5d844fdb565b1f5dff4cf5495c50da2b55871bfb6e0",
+      "publicAssetsCompletedSeparatelyAndCoveredByFullPackageValidators": true,
+      "guardRevisionCaveat": "The all-plugin writeBundle-hook rejection was tightened after this build started. The loaded build used the original later-plugin-only guard; known current plugins have no writeBundle hook. No emitted-byte logic changed. Do not claim the strengthened guard was exercised by this build.",
+      "failedGeneratedFilesUnlinked": 61,
+      "failedGeneratedBytesUnlinked": 63195089,
+      "failedCleanupConfinedToExactReviewedDistSnapshot": true
+    },
+    "buildLogSha256": "1ecac3a0a6d4cd19bb42ce80896b4f550b7bbde6eb07858a1457d2e9f228ec9e"
+  },
+  "completePackageAndArchives": {
+    "status": "local_validation_passed_upload_and_publication_pending",
+    "packageVersion": "1.0.180",
+    "packageFiles": 4750,
+    "packageBytes": 934456238,
+    "contentInventorySha256": "52ab9afe4c4298b98c42da7dd5055c8187135abd58d74fd82017d406aef0d88e",
+    "packageHttpSmokePassed": true,
+    "packageHttpSmokeExitCode": 0,
+    "packageHttpSmokeLogSha256": "d9d6430ce31beaa7cd5b2dcc674d76a1c0b91e67f0d4f19e16a4e7d34616188d",
+    "archiveValidation": "Unchanged complete deterministic ZIP and tar validators, sequentially in RAM; no disk archive copies.",
+    "archives": {
+      "isometric-berlin-regierungsviertel-local.zip": {
+        "bytes": 764718770,
+        "sha256": "9b7e7158fc312440546609b830bfc3479369eb596aa2f59d58281364bbdd2d2c",
+        "completeValidatorPassed": true
+      },
+      "isometric-berlin-viewer-v1.0.180.tar.gz": {
+        "bytes": 763929301,
+        "sha256": "da8a1336e889f808c318dc5c7b7331bbbe378add5212d0329b31df493ca1c574",
+        "completeValidatorPassed": true
+      }
+    },
+    "archivesUploaded": false,
+    "archivesPublished": false,
+    "pagesPreflight": {
+      "version": "1.0.180",
+      "parent": "1fe20feb9dbbf6eb49a69071f5efcc771fc28a72",
+      "previousTwoAssets": 321,
+      "retainedPreviousOnlyAssets": 14,
+      "retainedPreviousOnlyBytes": 24553507,
+      "removedStaleAssets": 10,
+      "removedBytes": 21773789,
+      "bytes": 959009745,
+      "headroomBelow1GiB": 114732079,
+      "publishRequested": false
+    }
+  },
+  "internalBrowser": {
+    "status": "passed_bounded_stall_recovery_and_mode_return",
+    "browser": "Internal app browser only; packaged production viewer on localhost.",
+    "cameraUnchangedDuringDecisiveStallControl": true,
+    "decisiveControlGeneration": 2,
+    "injectedPacket": "outer187--22_-6",
+    "injectedFamily": "minecraft",
+    "initialBytesDelivered": 32,
+    "serverHoldSeconds": 35,
+    "stallStartMonotonicSeconds": 68820.784702,
+    "serverResumeMonotonicSeconds": 68855.790987,
+    "firstSubsequentPacketResponseMonotonicSeconds": 68843.127981,
+    "firstSubsequentPacketResponseAfterStallSeconds": 22.343279,
+    "subsequentPacketResponsesBeforeServerRelease": 26,
+    "serialQueueContinuedBeforeServerReleasedStalledResponse": true,
+    "normalRetryMonotonicSeconds": 68873.159214,
+    "normalRetryAfterStallSeconds": 52.374512,
+    "normalRetryHttpStatus": 200,
+    "lateStalledConnectionResetAfterRelease": true,
+    "consoleErrors": 0,
+    "consoleWarnings": 1,
+    "expectedWarningMessages": [
+      "Berlin surroundings: Surrounding-city transfer stopped making progress; retrying after the normal cooldown"
+    ],
+    "visualChecks": [
+      "Actual Spandau/Zitadelle/Eiswerder city visible in Minecraft after recovery.",
+      "Return to Day displays the retained drawn city."
+    ],
+    "screenshots": [
+      {
+        "file": "spandau-minecraft-recovered.png",
+        "bytes": 129759,
+        "sha256": "9cf601eba5d9ede75f65603805071e581c3e65ec46ef90fd0e7c35c562d97acd"
+      },
+      {
+        "file": "spandau-day-recovered.png",
+        "bytes": 135933,
+        "sha256": "edf754f039cc2ae60c144e1575bbe7e51263246ee1d86ebb1c60ff7b945350a2"
+      }
+    ],
+    "limits": "Bounded desktop internal-browser fault injection, not physical-phone or endurance testing. Transport recovery does not fill the separately diagnosed Reuter source-coverage gap. Observed request timing is not an exact 15-second browser scheduling guarantee."
+  }
+}
