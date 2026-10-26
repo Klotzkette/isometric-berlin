@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.179 — 2026-10-26
+
+- Clear the automatic Serra flight view of the Philharmonie roof by changing only its approach azimuth. Keep its target, height, distance, 16-degree lens and the original explicit 39-degree opening pose.
+- Preserve all other start views, rotation, recovery priority, city geometry, full mobile detail and runtime/release limits. See [camera evidence and checks](docs/serra-start-v279.md).
+
 ## 1.0.178 — 2026-10-26
 
 - Give repeated curb source points one common cross-section, including closed seams, to prevent overlapping zero-length segment tops. Preserve every original route point and the existing mesh/index counts.

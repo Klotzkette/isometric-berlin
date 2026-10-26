@@ -1,0 +1,544 @@
+{
+  "status": "targeted_and_browser_checks_passed_full_suite_running",
+  "version": "1.0.179",
+  "scope": "Only the automatic Serra flight approach azimuth changes; no geometry changes.",
+  "sourceBaseline": "v1.0.178",
+  "runtimeSource": "src/app/src/startupView.ts",
+  "runtimeSourceSha256": "42c46e5231c06db1642739b0fa7a5aba82f5a49ed97a84d9f173be451f1f9801",
+  "originalPose": [
+    -158.139528,
+    31.652751,
+    1001.162176
+  ],
+  "correctedPose": [
+    -173.45032243938877,
+    31.652751061924107,
+    1008.6528241271658
+  ],
+  "target": [
+    -201.017,
+    5.7,
+    932.914
+  ],
+  "fovDegrees": 16,
+  "distanceMetres": 84.67488694754,
+  "azimuthDegrees": 20,
+  "preserved": [
+    "target",
+    "camera height",
+    "camera distance",
+    "field of view",
+    "original explicit 39-degree approach",
+    "other starts",
+    "rotation and recovery",
+    "all city source geometry",
+    "full mobile detail",
+    "runtime and release limits"
+  ],
+  "initialStartTests": {
+    "passed": true,
+    "tests": 28,
+    "assertions": 592,
+    "log": "start-tests-initial.log"
+  },
+  "limits": [
+    "Desktop internal-browser QA is not physical-phone or endurance certification.",
+    "Old standalone smoke_start_views.py has an outdated six-start physical-view contract and is not used."
+  ],
+  "typecheck": {
+    "passed": true,
+    "log": "typecheck.log"
+  },
+  "productionBuild": {
+    "passed": true,
+    "log": "build.log"
+  },
+  "ruff": {
+    "passed": true,
+    "log": [
+      "ruff-format.log",
+      "ruff-check.log"
+    ]
+  },
+  "geometricRegression": {
+    "scope": "Bounded production-model framing regression, no browser, full-scene visibility or physical-phone/endurance claim.",
+    "sourceCommit": "86dc4cd90b7b32e225ff7052fd1168a146d6af0c",
+    "test": "src/app/tests/serra-start-framing-v279.test.ts",
+    "testSha256": "5c97a309917326b47b48d97aa1cfff05349ae20836d2bc65ea2e8fa55e62c84d",
+    "before": {
+      "log": "/Users/klotzkette/.cache/codex-berlin-v279/serra-framing-before.log",
+      "sha256": "221e01aeee8a34ac541feaeaaff0d54dc143f27750cc95846b257ba1d90d9754",
+      "exitCode": 1,
+      "passed": 2,
+      "failed": 3,
+      "assertions": 153524,
+      "durationMs": 435
+    },
+    "after": {
+      "log": "/Users/klotzkette/.cache/codex-berlin-v279/serra-framing-after.log",
+      "sha256": "776ba8766a3998c1b29ac53293c71d4a331f1652ab406974ce9e790c66d26bdc",
+      "exitCode": 0,
+      "passed": 5,
+      "failed": 0,
+      "assertions": 153527,
+      "durationMs": 716
+    },
+    "beforeFailures": "Expected bearing regression, drawn-sightline regression, native-sightline regression with the unchanged prior helper in a cache-only module; no product file was temporarily reverted.",
+    "beforeRoofHit": {
+      "mesh": "Concert halls measured shells bodies",
+      "faceIndex": 195,
+      "distanceM": 3.323375274722142
+    },
+    "afterView": {
+      "landmarkName": "Berliner Philharmonie",
+      "fov": 16,
+      "pose": {
+        "target": [
+          -201.017,
+          5.7,
+          932.914
+        ],
+        "position": [
+          -173.45032243938877,
+          31.652751061924107,
+          1008.6528241271658
+        ]
+      }
+    },
+    "drawnUniqueVertices": 980,
+    "nativeCorners": 18208,
+    "nativeInstances": 2276,
+    "clearance": {
+      "drawnBlockedVertices": 0,
+      "nativeBlockedCorners": 0,
+      "obstacles": "Full actual production ConcertHalls drawn meshes and all actual createMinecraftConcertHalls instance boxes. This does not assert an entirely roof-free screen."
+    },
+    "worldBounds": {
+      "min": [
+        -205.4762392042982,
+        3.9950281572528183,
+        926.4868082280852
+      ],
+      "max": [
+        -198.94547075569523,
+        7.4049718379974365,
+        940.0607755790722
+      ]
+    },
+    "projections": [
+      {
+        "label": "desktop16:9",
+        "aspect": 1.7777777777777777,
+        "minNdc": [
+          -0.14665873583425126,
+          -0.3341406535338512,
+          0.9974472097665503
+        ],
+        "maxNdc": [
+          0.05925857544706974,
+          0.29248549760711234,
+          0.9978390045119852
+        ]
+      },
+      {
+        "label": "portrait390:844",
+        "aspect": 0.46208530805687204,
+        "minNdc": [
+          -0.5642391933634556,
+          -0.3341406535338512,
+          0.9974472097665503
+        ],
+        "maxNdc": [
+          0.22798512901345583,
+          0.29248549760711234,
+          0.9978390045119852
+        ]
+      },
+      {
+        "label": "portrait9:16",
+        "aspect": 0.5625,
+        "minNdc": [
+          -0.46351402930331265,
+          -0.3341406535338512,
+          0.9974472097665503
+        ],
+        "maxNdc": [
+          0.18728636190678832,
+          0.29248549760711234,
+          0.9978390045119852
+        ]
+      }
+    ],
+    "unchanged": [
+      {
+        "path": "src/app/src/simulationStartViews.ts",
+        "sha256": "fd8ce237415ebd232d6a8d8dd7bf497ea57fbdff23eb1f530fa7d8e6d4eac499",
+        "byteIdenticalToHead": true
+      },
+      {
+        "path": "src/app/src/BerlinJunction.ts",
+        "sha256": "15e24f6ca411dadfab5c75b770f56b44019d24847b462c7f278b15f02a9a6815",
+        "byteIdenticalToHead": true
+      },
+      {
+        "path": "src/app/src/ConcertHalls.ts",
+        "sha256": "7f2a5a8aafd85d43db4dc0c469d63c4259b9c65be0ef1c3c09ce2ebfebc7b225",
+        "byteIdenticalToHead": true
+      },
+      {
+        "path": "src/app/src/concertHallsProfile.ts",
+        "sha256": "4e16a3ef743586c071c544690eb90de4f7fee16b1c0103b7c256e66a14e4d3d4",
+        "byteIdenticalToHead": true
+      },
+      {
+        "path": "src/app/src/data/concertHallsSource.json",
+        "sha256": "c642d3fc8ae8a59f5ed08335554a22fcbf14ad606408cc2f472c70d50effc0f1",
+        "byteIdenticalToHead": true
+      },
+      {
+        "path": "src/app/src/data/concertHallsNavigation.json",
+        "sha256": "55bfc22f3c0c1ce3600384cb792b9763b69f4b629eaa02c514e2420d91eccc2f",
+        "byteIdenticalToHead": true
+      }
+    ]
+  },
+  "independentReview": {
+    "schema": 1,
+    "release": "1.0.179",
+    "reviewer": "v273_final_core_checks",
+    "method": "Independent read-only code review and bounded numerical sightline calculations; no browser, build, test suite or production edit by this reviewer.",
+    "baselineSourceCommit": "86dc4cd90b7b32e225ff7052fd1168a146d6af0c",
+    "sourceReceipts": [
+      {
+        "path": "src/app/src/startupView.ts",
+        "bytes": 4129,
+        "sha256": "42c46e5231c06db1642739b0fa7a5aba82f5a49ed97a84d9f173be451f1f9801",
+        "identicalToPublishedV178": false
+      },
+      {
+        "path": "src/app/src/simulationStartViews.ts",
+        "bytes": 2857,
+        "sha256": "fd8ce237415ebd232d6a8d8dd7bf497ea57fbdff23eb1f530fa7d8e6d4eac499",
+        "identicalToPublishedV178": true
+      },
+      {
+        "path": "src/app/src/viewNavigation.ts",
+        "bytes": 4665,
+        "sha256": "ce8d4a077cf1b084a2785d03eb59f87c67b5c6249b1d4f71fc38ad4051a10d74",
+        "identicalToPublishedV178": true
+      },
+      {
+        "path": "src/app/src/App.tsx",
+        "bytes": 164648,
+        "sha256": "c7122eb7b645a4ce74646eb4ddc3ae4d5fd0f1ba2d91b6f388ed262ea006540f",
+        "identicalToPublishedV178": true
+      },
+      {
+        "path": "src/app/src/ThreeViewer.tsx",
+        "bytes": 394549,
+        "sha256": "d6f6eeccf8e0d0ba758349305f4c24fb64e0db816991c8153e8b016435fc2a4c",
+        "identicalToPublishedV178": true
+      },
+      {
+        "path": "src/app/src/BerlinJunction.ts",
+        "bytes": 11520,
+        "sha256": "15e24f6ca411dadfab5c75b770f56b44019d24847b462c7f278b15f02a9a6815",
+        "identicalToPublishedV178": true
+      },
+      {
+        "path": "src/app/src/ConcertHalls.ts",
+        "bytes": 9259,
+        "sha256": "7f2a5a8aafd85d43db4dc0c469d63c4259b9c65be0ef1c3c09ce2ebfebc7b225",
+        "identicalToPublishedV178": true
+      },
+      {
+        "path": "src/app/src/concertHallsProfile.ts",
+        "bytes": 3763,
+        "sha256": "4e16a3ef743586c071c544690eb90de4f7fee16b1c0103b7c256e66a14e4d3d4",
+        "identicalToPublishedV178": true
+      },
+      {
+        "path": "src/app/src/data/concertHallsSource.json",
+        "bytes": 358018,
+        "sha256": "c642d3fc8ae8a59f5ed08335554a22fcbf14ad606408cc2f472c70d50effc0f1",
+        "identicalToPublishedV178": true
+      },
+      {
+        "path": "src/app/src/data/concertHallsNavigation.json",
+        "bytes": 93893,
+        "sha256": "55bfc22f3c0c1ce3600384cb792b9763b69f4b629eaa02c514e2420d91eccc2f",
+        "identicalToPublishedV178": true
+      },
+      {
+        "path": "src/app/public/mesh/regierungsviertel/lod2-prisms.json",
+        "bytes": 6308725,
+        "sha256": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e",
+        "identicalToPublishedV178": true
+      }
+    ],
+    "runtimeChange": {
+      "file": "src/app/src/startupView.ts",
+      "function": "startupFlightView",
+      "scope": "Only existing Berliner Philharmonie automatic flight pose (Serra label); calculate a 20-degree azimuth around unchanged target at unchanged horizontal radius and camera elevation.",
+      "unchanged": [
+        "16-degree vertical FOV",
+        "target",
+        "camera elevation",
+        "camera-to-target distance",
+        "gallery object identity and all other startup branches",
+        "SIMULATION_START_VIEWS 39-degree physical opening",
+        "App automatic/explicit startup selection",
+        "rotation and persistence priority",
+        "source geometry and runtime budgets"
+      ],
+      "codeNotes": [
+        "position and target are fresh arrays; retained simulation pose is not mutated",
+        "No new imports or runtime data",
+        "App.tsx selects startupFlightView for automatic starts or the two STARTUP_ONLY_SIGHTS; an explicit existing Serra/Philharmonie catalogue link retains the physical opening path."
+      ]
+    },
+    "camera": {
+      "target": [
+        -201.017,
+        5.7,
+        932.914
+      ],
+      "beforePosition": [
+        -158.13952768730462,
+        31.652751061924107,
+        1001.162176239153
+      ],
+      "afterPosition": [
+        -173.45032243938877,
+        31.652751061924107,
+        1008.6528241271658
+      ],
+      "beforeAzimuthDegrees": 32.139426832055,
+      "afterAzimuthDegrees": 20,
+      "horizontalRadiusM": 80.59957314959216,
+      "distanceM": 84.67488694753987,
+      "verticalFovDegrees": 16
+    },
+    "oldOccluder": {
+      "sourcePart": "XzEkeXsu",
+      "surface": "RoofSurface",
+      "surfaceGroupIndex": 71,
+      "triangleIndex": 1,
+      "sourceColorHex": "c2c8c8",
+      "distanceFromOldCameraM": 3.3233924692548045,
+      "hitWorld": [
+        -159.82241943622395,
+        30.634135265140344,
+        998.4835133778244
+      ],
+      "triangle": [
+        [
+          -150.743,
+          26.157,
+          1007.528
+        ],
+        [
+          -159.585,
+          32.625,
+          995.068
+        ],
+        [
+          -160.075,
+          30.567,
+          998.564
+        ]
+      ],
+      "original39DegreeCentrelineHits": 0
+    },
+    "independentPlateSampling": {
+      "method": "Existing BerlinJunction parametrization, two plates, all 49 angle stations and five height stations: 490 points. Intersect finite camera-to-sample segments with all 846 retained ConcertHalls source triangles. This calculation does not include the +/- 27.5 mm plate skin thickness or native blocks; the separate production regression handles those.",
+      "sampleCount": 490,
+      "sourceTriangleCount": 846,
+      "beforeOccludedSamples": 490,
+      "afterOccludedSamples": 0,
+      "firstClearTestedAzimuthDegrees": 30,
+      "recommendedAzimuthDegrees": 20,
+      "reason": "Additional angular reserve while preserving camera scale and elevation."
+    },
+    "independentFullViewportSampling": {
+      "method": "13 by 7 viewport ray raster, 16:9 aspect, 16-degree vertical FOV; source-triangle intersections within 200 m. This samples viewport rays, not only the sculpture targets.",
+      "rayCount": 91,
+      "beforeHitCount": 59,
+      "afterHitCount": 13,
+      "afterHitLocation": "All 13 hits are in the bottom raster row.",
+      "beforeRaster": [
+        "........#####",
+        ".......######",
+        "......#######",
+        ".....########",
+        "....#########",
+        "..###########",
+        "#############"
+      ],
+      "afterRaster": [
+        ".............",
+        ".............",
+        ".............",
+        ".............",
+        ".............",
+        ".............",
+        "#############"
+      ],
+      "interpretation": "The corrected approach clears the sculpture and most of the sampled viewport; it intentionally does not claim every visible roof leaves the image."
+    },
+    "independentOtherCoreCheck": {
+      "method": "New camera-to-target centreline against all retained core footprint polygons; exclude the 27 represented concert-hall source IDs and Berlin Junction owner K0003UOE.",
+      "coreRecordCount": 29818,
+      "otherIntersectingFootprintCount": 0,
+      "limitation": "Only the centreline, not every point of the complete sculpture visibility cone. No trees or arbitrary scene props tested independently."
+    },
+    "externalVerification": {
+      "owner": "v273_audit_validation",
+      "test": "src/app/tests/serra-start-framing-v279.test.ts",
+      "receipt": "/Users/klotzkette/.cache/codex-berlin-v279/serra-framing-regression.json",
+      "receiptSha256": "b43ab0e5aaec30aa6288c9a565145b147746f9fbfe0e7e31a62628c82010eca4",
+      "before": {
+        "log": "/Users/klotzkette/.cache/codex-berlin-v279/serra-framing-before.log",
+        "sha256": "221e01aeee8a34ac541feaeaaff0d54dc143f27750cc95846b257ba1d90d9754",
+        "exitCode": 1,
+        "passed": 2,
+        "failed": 3,
+        "assertions": 153524,
+        "durationMs": 435
+      },
+      "after": {
+        "log": "/Users/klotzkette/.cache/codex-berlin-v279/serra-framing-after.log",
+        "sha256": "776ba8766a3998c1b29ac53293c71d4a331f1652ab406974ce9e790c66d26bdc",
+        "exitCode": 0,
+        "passed": 5,
+        "failed": 0,
+        "assertions": 153527,
+        "durationMs": 716
+      },
+      "drawnUniqueVertices": 980,
+      "nativeCorners": 18208,
+      "nativeInstances": 2276,
+      "clearance": {
+        "drawnBlockedVertices": 0,
+        "nativeBlockedCorners": 0,
+        "obstacles": "Full actual production ConcertHalls drawn meshes and all actual createMinecraftConcertHalls instance boxes. This does not assert an entirely roof-free screen."
+      },
+      "projections": [
+        {
+          "label": "desktop16:9",
+          "aspect": 1.7777777777777777,
+          "minNdc": [
+            -0.14665873583425126,
+            -0.3341406535338512,
+            0.9974472097665503
+          ],
+          "maxNdc": [
+            0.05925857544706974,
+            0.29248549760711234,
+            0.9978390045119852
+          ]
+        },
+        {
+          "label": "portrait390:844",
+          "aspect": 0.46208530805687204,
+          "minNdc": [
+            -0.5642391933634556,
+            -0.3341406535338512,
+            0.9974472097665503
+          ],
+          "maxNdc": [
+            0.22798512901345583,
+            0.29248549760711234,
+            0.9978390045119852
+          ]
+        },
+        {
+          "label": "portrait9:16",
+          "aspect": 0.5625,
+          "minNdc": [
+            -0.46351402930331265,
+            -0.3341406535338512,
+            0.9974472097665503
+          ],
+          "maxNdc": [
+            0.18728636190678832,
+            0.29248549760711234,
+            0.9978390045119852
+          ]
+        }
+      ],
+      "interpretation": "Separate production regression independently confirms all represented plate vertices/corners are within desktop and portrait frusta and unobstructed by their corresponding full concert-hall models. No whole-city or tree visibility claim."
+    },
+    "conclusion": "No material objection to the reviewed startup-only implementation. The separate production regression confirms complete plate-vertex/native-corner sightlines and desktop/portrait framing. Actual built-city visual QA remains a separate root-owned check."
+  },
+  "pagesPreflight": {
+    "version": "1.0.179",
+    "parent": "3157543c926d017334277481231009b3736536c9",
+    "previousTwoAssets": 324,
+    "retainedPreviousOnlyAssets": 17,
+    "retainedPreviousOnlyBytes": 34050459,
+    "removedStaleAssets": 12,
+    "removedBytes": 54457472,
+    "bytes": 968504839,
+    "headroomBelow1GiB": 105236985,
+    "publishRequested": false
+  },
+  "archivePrevalidation": {
+    "version": "1.0.179",
+    "inventory": {
+      "bytes": 934454380,
+      "fileCount": 4750,
+      "sourceInventorySha256": "dc81b693b81f976453f6e75deca3aa5d2eb977900187fefcd8d313e20c81a03a"
+    },
+    "archives": {
+      "isometric-berlin-regierungsviertel-local.zip": {
+        "bytes": 764717911,
+        "sha256": "02c1fcd5e2ba8eb479f2c8143a7db05e7f6d2e3ad218ab6cf449b30977938931",
+        "completeValidatorPassed": true
+      },
+      "isometric-berlin-viewer-v1.0.179.tar.gz": {
+        "bytes": 763928615,
+        "sha256": "081bb674babb0f632d87a7c2b7c91af7f53dbf0a7a7ea89041e725db64ddfff3",
+        "completeValidatorPassed": true
+      }
+    }
+  },
+  "packageHttp": {
+    "passed": true,
+    "version": "1.0.179",
+    "log": "package-http.log"
+  },
+  "browserQA": {
+    "browser": "Codex internal IAB only",
+    "build": "Production package 1.0.179",
+    "automaticStart": "Richard Serra \u00b7 Berlin Junction (47/93)",
+    "actions": [
+      "seed the existing last-start key through a temporary local-only QA page to select the ordinary automatic Serra launch",
+      "day startup",
+      "switch Day to Minecraft",
+      "return to Day",
+      "resize existing view to portrait390x844"
+    ],
+    "result": "Both plates visible without the preceding roof occlusion in actual city; native mode and return retain framing; portrait shows complete sculpture. Real roof remains at bottom edge.",
+    "consoleWarningsOrErrors": [],
+    "screenshots": [
+      {
+        "file": "serra-day.jpg",
+        "sha256": "1c45eec489d316eb8e0d5830f9e9afba2648a5577993ec134968ce2a7ef99a35",
+        "storage": "local v279 QA cache"
+      },
+      {
+        "file": "serra-minecraft.jpg",
+        "sha256": "66f7e9a6f8c2235aff13c9047cb15e0e10dcb5d2a8abf302c890d866bd571201",
+        "storage": "local v279 QA cache"
+      },
+      {
+        "file": "serra-portrait.jpg",
+        "sha256": "ff4cefa0024e9ede6b5bbba601d3cca9144e17ceca32c825df623f5e05c45975",
+        "storage": "local v279 QA cache"
+      }
+    ],
+    "cleanup": "Internal tab closed, temporary viewport reset, local QA server stopped. Seed page exists only in the local QA server, not in dist or the package.",
+    "limits": "Desktop responsive viewport, not a physical phone; no endurance guarantee."
+  }
+}

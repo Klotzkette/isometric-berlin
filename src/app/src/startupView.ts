@@ -34,15 +34,25 @@ export function startupOnlySight(name: string) {
 
 export type StartupFlightView = Pick<NavigationSnapshot, "pose" | "fov"> & { landmarkName: string };
 
-/** Retain each established approach and its apparent framing at the ordinary
- * 16-degree flight lens. No pedestrian state is created or enabled. */
+/** Retain each opening's target and apparent scale at the ordinary 16-degree
+ * flight lens. No pedestrian state is created or enabled. */
 export function startupFlightView(name: string): StartupFlightView {
   if (name === GALLERY_FLIGHT_START_V223.landmarkName) return GALLERY_FLIGHT_START_V223;
   const view = SIMULATION_START_VIEWS[name];
   if (!view) return GALLERY_FLIGHT_START_V223;
   const scale = Math.tan(view.fov * Math.PI / 360) / Math.tan(16 * Math.PI / 360);
-  return { landmarkName: name, fov: 16, pose: { target: [...view.target],
-    position: view.target.map((value, i) => value + (view.position[i] - value) * scale) as [number, number, number] } };
+  const position = view.target.map((value, i) => value + (view.position[i] - value) * scale) as [number, number, number];
+  if (name === "Berliner Philharmonie") {
+    // The original 39-degree Serra approach is clear, but its longer flight
+    // dolly enters the Philharmonie roof. Rotate only this flight approach
+    // around the same target, at the same height and radius. The 20-degree
+    // azimuth clears both plates against the retained concert-hall geometry.
+    const azimuth = 20 * Math.PI / 180;
+    const radius = Math.hypot(position[0] - view.target[0], position[2] - view.target[2]);
+    position[0] = view.target[0] + Math.sin(azimuth) * radius;
+    position[2] = view.target[2] + Math.cos(azimuth) * radius;
+  }
+  return { landmarkName: name, fov: 16, pose: { target: [...view.target], position } };
 }
 
 /** The same flight pose for an explicit startup-only place link. */

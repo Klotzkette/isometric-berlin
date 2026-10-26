@@ -1863,3 +1863,13 @@ drawn animal bytes remain unchanged. No new source coverage, descriptor,
 animation, texture, tour stop or runtime/release budget is added. Unconfirmed
 Tierpark roof profiles and Decks bridge undersides remain documented research
 limits rather than inferred new geometry. Use only the internal browser for QA.
+
+### Step 10 — v279 unobstructed Serra flight start
+
+The owner approves correction of the reported Serra startup occlusion. Change
+only the automatic flight approach azimuth, preserving the sculpture target,
+camera elevation, distance and 16-degree lens. Keep the original explicit
+39-degree approach, every other start, rotation/persistence/recovery priority,
+all source geometry, full mobile detail and runtime/release limits. Verify the
+two plates' sightlines against retained concert-hall geometry and inspect the
+actual built city in the internal browser. No external browser or new coverage.
