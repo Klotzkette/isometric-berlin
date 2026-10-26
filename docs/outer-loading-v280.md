@@ -94,7 +94,8 @@ passed. The package contains 4,750 files / 934,456,238 bytes. Both deterministic
 ZIP and tar archives pass their unchanged complete validators, sequentially
 in RAM without additional disk archive copies. Pages preflight retains the
 complete v179/v178 asset closures and totals 959,009,745 bytes, leaving
-114,732,079 bytes below 1 GiB. Upload and publication remain pending.
+114,732,079 bytes below 1 GiB. Both archives and their checksums are uploaded to the verified v1.0.180 draft;
+publication remains pending.
 
 The internal app browser exercised the actual packaged production city with
 a controlled stall in `outer187--22_-6`'s Minecraft response. In the decisive
@@ -113,6 +114,7 @@ returning to Day. This is bounded desktop internal-browser testing, not a
 physical-phone or endurance claim. It does not resolve the separate Reuter
 coverage gap. No external browser was used.
 
-The full Python suite is still running. Final suite, archive upload, publication
-and live verification results will be appended when available; no final success
-is claimed for those pending steps.
+The complete Python suite passes **2,107 tests**, with four skips and two
+existing CRS warnings, in 3,077.14 seconds. Both uploaded archives match the
+validated local bytes and their remote SHA-256 digests. Publication and live
+verification remain pending.

@@ -3,7 +3,7 @@
   "pipelineStep": 10,
   "iteration": "v280",
   "version": "1.0.180",
-  "status": "runtime_build_archives_and_internal_browser_checks_passed_full_suite_and_publication_pending",
+  "status": "all_required_local_checks_passed_publication_pending",
   "scope": "Recover stalled surrounding-city transport without changing source geometry, visible quality, coverage or residency budgets. A distinct missing Reuter-West ground footprint is diagnosed; its bounded expansion proposal awaits explicit owner approval.",
   "runtimeAndTestSha256": {
     "src/app/src/surroundingTransport.ts": "773efa091bdbe71594cc8581318b2d3db40d0208e0caf199167050d6d13148d9",
@@ -211,7 +211,6 @@
     "tourStops": 93
   },
   "pending": {
-    "fullPythonSuite": "running; no final result claimed",
     "publicationAndLiveVerification": "pending",
     "reuterCoverageExpansion": "explicit owner approval pending; proposal only, no geometry added"
   },
@@ -393,7 +392,7 @@
     "buildLogSha256": "1ecac3a0a6d4cd19bb42ce80896b4f550b7bbde6eb07858a1457d2e9f228ec9e"
   },
   "completePackageAndArchives": {
-    "status": "local_validation_passed_upload_and_publication_pending",
+    "status": "validated_and_uploaded_to_draft_publication_pending",
     "packageVersion": "1.0.180",
     "packageFiles": 4750,
     "packageBytes": 934456238,
@@ -414,7 +413,7 @@
         "completeValidatorPassed": true
       }
     },
-    "archivesUploaded": false,
+    "archivesUploaded": true,
     "archivesPublished": false,
     "pagesPreflight": {
       "version": "1.0.180",
@@ -427,7 +426,33 @@
       "bytes": 959009745,
       "headroomBelow1GiB": 114732079,
       "publishRequested": false
-    }
+    },
+    "releaseId": 424600950,
+    "remoteArchiveVerification": {
+      "isometric-berlin-regierungsviertel-local.zip": {
+        "size": 764718770,
+        "sha256": "9b7e7158fc312440546609b830bfc3479369eb596aa2f59d58281364bbdd2d2c",
+        "localValidationPassed": true,
+        "storage": "memory-only",
+        "remoteVerified": true,
+        "assetId": 679039939,
+        "remoteSize": 764718770,
+        "remoteDigest": "sha256:9b7e7158fc312440546609b830bfc3479369eb596aa2f59d58281364bbdd2d2c",
+        "remoteState": "uploaded"
+      },
+      "isometric-berlin-viewer-v1.0.180.tar.gz": {
+        "size": 763929301,
+        "sha256": "da8a1336e889f808c318dc5c7b7331bbbe378add5212d0329b31df493ca1c574",
+        "localValidationPassed": true,
+        "storage": "memory-only",
+        "remoteVerified": true,
+        "assetId": 679045760,
+        "remoteSize": 763929301,
+        "remoteDigest": "sha256:da8a1336e889f808c318dc5c7b7331bbbe378add5212d0329b31df493ca1c574",
+        "remoteState": "uploaded"
+      }
+    },
+    "checksumSha256": "4e2bfc9ee5afb75b3212c6c149824a7dc3991b1b13b6ff2325645012da32341f"
   },
   "internalBrowser": {
     "status": "passed_bounded_stall_recovery_and_mode_return",
@@ -470,5 +495,16 @@
       }
     ],
     "limits": "Bounded desktop internal-browser fault injection, not physical-phone or endurance testing. Transport recovery does not fill the separately diagnosed Reuter source-coverage gap. Observed request timing is not an exact 15-second browser scheduling guarantee."
+  },
+  "sourceImplementationCommit": "5162acbc24cb0ce95e916d62b2a104130edd4f1f",
+  "fullPythonSuite": {
+    "status": "passed",
+    "exitCode": 0,
+    "passed": 2107,
+    "skipped": 4,
+    "warnings": 2,
+    "elapsedSeconds": 3077.14,
+    "logSha256": "a78b64320379b8ca287e63f367c9a0f930e0944b76d3eb830c6f26caa7a14561",
+    "warningsDescription": "Existing geometry-audit fixture writes omit CRS; no runtime or package failure."
   }
 }
