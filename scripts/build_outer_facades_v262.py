@@ -21,6 +21,18 @@ OUTPUT = ROOT / "src/app/src/data/outerFacadesV262.json"
 EVIDENCE = GEO / "outer-facades-v262-evidence.json.gz"
 MAX_TILES, MAX_OWNERS, MAX_DRAWN, MAX_NATIVE = 24, 8, 96, 64
 ROOF_TILES = {"outer187--22_-5", "east200-4_-15", "east200-23_17", "east200-23_18"}
+# These exact v273 files select existing colour cells only. They do not own a
+# facade fitting or replace source geometry. Keep all other files, especially
+# the same-version Steglitz window model, in the authored-geometry inventory.
+COLOUR_ONLY_V273_FILES = frozenset(
+  f"src/app/src/data/{name}.json"
+  for name in (
+    "coreHouseColoursV273",
+    "legacyHouseMaterialsV273",
+    "remainingAltMitteColoursV273",
+    *(f"primaryColoursV273_{index:02d}" for index in range(32)),
+  )
+)
 POLICY = (
   "Only complete existing generic street-wall triangles; prior authored, facade, "
   "door and measured-roof owners excluded. At most 24 sampled tiles, eight owners "
@@ -103,7 +115,10 @@ def protected_owners(context: dict) -> set[str]:
     "src/app/src/*Prisms.json",
   ]:
     for path in ROOT.glob(pattern):
-      if path.name not in {"buildingAttributeSource.json", OUTPUT.name}:
+      if (
+        path.name not in {"buildingAttributeSource.json", OUTPUT.name}
+        and path.relative_to(ROOT).as_posix() not in COLOUR_ONLY_V273_FILES
+      ):
         ids.update(
           re.findall(
             r"\b(?:DEBE[A-Za-z0-9]+|OSM-(?:way|relation)-\d+)", path.read_text()

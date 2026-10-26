@@ -142,7 +142,10 @@ def protected_owners(context: dict) -> set[str]:
     "src/app/src/*Prisms.json",
   ]:
     for path in ROOT.glob(pattern):
-      if path.name not in {"buildingAttributeSource.json", OUTPUT.name}:
+      if (
+        path.name not in {"buildingAttributeSource.json", OUTPUT.name}
+        and path.relative_to(ROOT).as_posix() not in v262.COLOUR_ONLY_V273_FILES
+      ):
         ids.update(
           re.findall(
             r"\b(?:DEBE[A-Za-z0-9]+|OSM-(?:way|relation)-\d+)", path.read_text()

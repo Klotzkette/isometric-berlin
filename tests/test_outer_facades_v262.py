@@ -1,10 +1,65 @@
 """Bounded exact source-wall and previous-owner contracts for outer fittings."""
 
+import json
+
 import numpy as np
+import pytest
 from shapely.geometry import LineString
 
 from scripts import build_district_facades_v188 as base
+from scripts import build_grey_facades_v263 as grey
 from scripts import build_outer_facades_v262 as build
+
+
+@pytest.mark.parametrize("module", [build, grey])
+def test_colour_only_receipts_do_not_claim_fittings_but_authored_models_still_do(
+  tmp_path, monkeypatch, module
+):
+  expected = {
+    "src/app/src/data/coreHouseColoursV273.json",
+    "src/app/src/data/legacyHouseMaterialsV273.json",
+    "src/app/src/data/remainingAltMitteColoursV273.json",
+    *(f"src/app/src/data/primaryColoursV273_{i:02d}.json" for i in range(32)),
+  }
+  assert build.COLOUR_ONLY_V273_FILES == expected
+  colour_ids = set()
+  for index, name in enumerate(sorted(expected)):
+    path = tmp_path / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    owner = f"DEBEColourOnly{index}"
+    colour_ids.add(owner)
+    path.write_text(json.dumps({"owners": [owner]}))
+  authored = {
+    "src/app/src/data/steglitzWindowsV273.json": "DEBESchoolWindows",
+    "src/app/src/data/namedBuildingV273.json": "DEBENamedModel",
+    # A later bank or similarly named future file has no audited exemption.
+    "src/app/src/data/primaryColoursV273_32.json": "DEBEUnauditedBank",
+    "src/app/src/data/legacyHouseMaterialsV274.json": "DEBEFutureModel",
+    "src/app/src/NamedDetails.ts": "DEBEAuthoredDetail",
+    "src/app/src/NamedSource.json": "DEBESourceGeometry",
+  }
+  for name, owner in authored.items():
+    path = tmp_path / name
+    path.write_text(json.dumps({"owner": owner}))
+  preserved = {
+    "faces": [{"owner": "DEBEPreviousWindow"}],
+    "owners": [{"owner": "DEBEPreviousRoof"}],
+    "doors": [{"owner": "DEBEPreviousDoor"}],
+  }
+  monkeypatch.setattr(module, "ROOT", tmp_path)
+  monkeypatch.setattr(base, "read_json", lambda _: preserved)
+  # An independent authored identity still protects the same owner even when
+  # it also appears in a colour receipt; skipping paint cannot erase ownership.
+  independently_authored = min(colour_ids)
+  protected = module.protected_owners({"authoredIds": [independently_authored]})
+  assert protected == {
+    *authored.values(),
+    independently_authored,
+    "DEBEPreviousWindow",
+    "DEBEPreviousRoof",
+    "DEBEPreviousDoor",
+  }
+  assert not (colour_ids - {independently_authored}) & protected
 
 
 def test_only_24_sampled_tiles_and_neighbours_are_read_and_packets_remain_exact():
