@@ -76,3 +76,13 @@ values or weak lifetime. The core hot owner map uses the established eager
 encoding instead: one parse, strong identity and ordinary data properties. Its
 isolated production module saves another 316,272 bytes. Exact-value, production
 retention and tree-shaking tests pass; the existing package ceiling is unchanged.
+
+The complete Python run finished with 2020 passed, 3 failed and 4 skipped out of 2027 collected tests. Its original failures were:
+
+- `tests/test_grey_facades_v263.py::test_exact_existing_street_walls_and_all_previous_fitting_owners_are_protected`
+- `tests/test_outer_facades_v262.py::test_exact_existing_street_walls_and_all_previous_fitting_owners_are_protected`
+- `tests/test_outer_materials_v254.py::test_no_receipt_can_override_an_earlier_material_vertex`
+
+After correcting the offline generator protection inventories, all 17 tests in the affected test files passed in a separate targeted follow-up. The protection-inventory repair changed offline generator classification, with no runtime or model-byte change. The complete suite was not rerun after these repairs; the follow-up count is not added to the full-run count as if it were a distinct set of passing tests.
+Both offline archives and the hosted version are verified byte-for-byte;
+see [publication receipt](city-house-colours-v273-verification.json).
