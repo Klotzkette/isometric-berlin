@@ -1,6 +1,6 @@
 {
   "version": "1.0.178",
-  "status": "prepublication_checks_passed",
+  "status": "published_bounded_changes_verified_separate_start_view_finding_recorded",
   "scope": [
     "Repeated identical curb nodes in two existing drawn street sources",
     "Connected quarter-turn poses for the existing three native Zoo wolves"
@@ -1414,5 +1414,169 @@
     "log": "pytest-full.log",
     "sha256": "db4a035646135052972ad48778d885e04c72e49bbb78a0a49d1d567b7f6378f7",
     "warningScope": "Two pyogrio CRS warnings in test_actual_export_retains_road_under_elevated_building."
+  },
+  "packagePublication": {
+    "packageVersion": "1.0.178",
+    "bytes": 934454213,
+    "fileCount": 4750,
+    "sourceInventorySha256": "18cea4391064ad6797c5c9156040557fba4a27c4580669318006a1c98c9a75ce",
+    "MiB": 891.1649827957153,
+    "releaseId": 424462374,
+    "archives": {
+      "isometric-berlin-regierungsviertel-local.zip": {
+        "size": 764717835,
+        "sha256": "040e07655c0e33519af70c115fc90f5e0913aa0abdf3458868572146a10b6d3c",
+        "localValidationPassed": true,
+        "storage": "memory-only",
+        "remoteVerified": true,
+        "assetId": 678676272,
+        "remoteSize": 764717835,
+        "remoteDigest": "sha256:040e07655c0e33519af70c115fc90f5e0913aa0abdf3458868572146a10b6d3c",
+        "remoteState": "uploaded"
+      },
+      "isometric-berlin-viewer-v1.0.178.tar.gz": {
+        "size": 763928510,
+        "sha256": "c086de32662492907cea6fb96610a3988328266b9d091a6f099135511144f419",
+        "localValidationPassed": true,
+        "storage": "memory-only",
+        "remoteVerified": true,
+        "assetId": 678682847,
+        "remoteSize": 763928510,
+        "remoteDigest": "sha256:c086de32662492907cea6fb96610a3988328266b9d091a6f099135511144f419",
+        "remoteState": "uploaded"
+      }
+    }
+  },
+  "publication": {
+    "sourceCommit": "2c658d3c341b74bc887bbc7974c55f643515e4c0",
+    "tag": "v1.0.178",
+    "releaseId": 424462374,
+    "releaseUrl": "https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.178",
+    "pagesCommit": "3157543c926d017334277481231009b3736536c9",
+    "checksumAssets": [
+      {
+        "id": 678689141,
+        "name": "SHA256SUMS.txt",
+        "size": 217,
+        "digest": "sha256:6d34575c36660c4066b2e817d120a7d4b4d4691bb99c0effa50b05a12e387999",
+        "state": "uploaded"
+      },
+      {
+        "id": 678689139,
+        "name": "SHA256SUMS-v1.0.178.txt",
+        "size": 217,
+        "digest": "sha256:6d34575c36660c4066b2e817d120a7d4b4d4691bb99c0effa50b05a12e387999",
+        "state": "uploaded"
+      }
+    ]
+  },
+  "liveHttpVerification": {
+    "withdrawnMedia404": [
+      "columbiahalle-v257-silent.mp4",
+      "columbiahalle-v258-red-silent.mp4",
+      "columbiahalle-v258-portrait-silent.mp4"
+    ],
+    "release": "https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.178",
+    "tag": "v1.0.178",
+    "assetsVerified": 2,
+    "hostedChecks": [
+      {
+        "path": "index.html",
+        "bytes": 3525,
+        "sha256": "f414a44dc56b4272917de4031a52da0b12da9f18837e1b8f3cdfd43d766554df"
+      },
+      {
+        "path": "package-manifest.json",
+        "bytes": 6107,
+        "sha256": "377aa7f6fc913b337859e14cd4d00234c6743fb58a9387c34f058a69f5784489"
+      },
+      {
+        "path": "mesh/surrounding-berlin-v159/manifest.json",
+        "bytes": 2147689,
+        "sha256": "db15e3b722bf64d223eed121aac4986dc48e91207e086e8b8d8f9a43dd074115"
+      },
+      {
+        "path": "dzi/regierungsviertel/visual_reference_attribution.json",
+        "bytes": 110159,
+        "sha256": "25bcf3496bc5d8432c31256e1cf3be905ec08134be627de7e5f21d6184999c27"
+      },
+      {
+        "path": "assets/ThreeViewer-CFd77eyg.js",
+        "bytes": 3380496,
+        "sha256": "519d403a66b84263d01a19b10ba5680f3e7912794cb96142de142a4fb17800a6"
+      },
+      {
+        "path": "assets/index-uwoiEm3U.js",
+        "bytes": 192500,
+        "sha256": "a4ec46b7c8ab36faa09ef3fd1aa2436184f52c55ec0a37caef74693b86af8c26"
+      },
+      {
+        "path": "assets/OuterThinOutlines-CU4EW7L3.js",
+        "bytes": 17353150,
+        "sha256": "fd22b5bc188a36a99ba1773c2e26e1a0a950d2e82b5db03fe98c5b6dc4c824dc"
+      },
+      {
+        "path": "assets/RequiredSiteEnvelopesV209-BBiIV788.js",
+        "bytes": 10692952,
+        "sha256": "323fbdcd627ee6670038945d9eebe1344fa2dae7e2e01536e824fe4b9f192aac"
+      },
+      {
+        "path": "assets/SurroundingCityGeometry-JjkedZZP.js",
+        "bytes": 14457806,
+        "sha256": "825f00ceda5a25916d981fe14003de369f7afb5bc704460c6234388f1fc939a3"
+      },
+      {
+        "path": "assets/progressiveWorld.worker-Ba_ChFjo.js",
+        "bytes": 10778859,
+        "sha256": "44555918307da80ca21f7b10378d0fba6a61e13d95af1bcf42fe30dea8e3d4f5"
+      },
+      {
+        "path": "assets/ZooGroundsV165-DB2kZyOq.js",
+        "bytes": 960647,
+        "sha256": "c97ccbb3e5bdd05d0adda9c2a529b1adea1f17e263891a3f292ed1e8eea03a11"
+      },
+      {
+        "path": "assets/DistrictStreets-Dk4sg1Q3.js",
+        "bytes": 6884616,
+        "sha256": "3ee6e42291aca78173d6602ce7b7c6bb6d54bd8c97d8cc495bbbe772bcad0cd5"
+      },
+      {
+        "path": "assets/SchlossEastStreets-BE_-N3bv.js",
+        "bytes": 1652110,
+        "sha256": "c758e593809f607bc0ee28c6215d1cd0f302676d5e27cc53cf089ef93d0ccbb5"
+      }
+    ],
+    "scope": "HTTP byte checks and GitHub release assets only; no browser or endurance testing",
+    "passed": true
+  },
+  "liveBrowserQA": {
+    "browser": "Codex internal IAB only",
+    "versionShown": "1.0.178",
+    "startupReachedActiveScene": true,
+    "selectedStart": "Richard Serra \u00b7 Berlin Junction (47/93)",
+    "consoleWarningsOrErrors": [],
+    "visualFinding": "A large grey surface obscures much of the automatically selected Serra opening view. This screenshot is NOT a clean framing pass; record separately from the bounded curb/wolf corrections.",
+    "screenshot": {
+      "file": "live-day-ready.jpg",
+      "sha256": "dedfe03e9e93b37d13597374f0c5efc22aea66784cfdb4ae7e7f1b9798ad3169",
+      "storage": "local v278 QA cache"
+    },
+    "cleanup": "Temporary internal browser tab closed.",
+    "readOnlyFramingDiagnosis": {
+      "status": "separate unresolved finding",
+      "unchangedSinceV177": "All ten inspected startup/viewer/junction/concert-hall code and data files are byte-identical.",
+      "intendedCameraFovDegrees": 16,
+      "targetRayFirstHit": {
+        "partId": "XzEkeXsu",
+        "surface": "Philharmonie RoofSurface",
+        "surfaceGroup": 71,
+        "triangle": 1,
+        "colour": "#c2c8c8",
+        "distanceMetresApprox": 3.323
+      },
+      "original39DegreePose": "No target-ray intersection against any concert-hall source triangle.",
+      "interpretation": "Existing startup camera dolly is the likely cause. Intended-pose geometric collision is verified; exact screenshot-pixel attribution remains an inference without a live raycast.",
+      "implementationChanged": false
+    }
   }
 }

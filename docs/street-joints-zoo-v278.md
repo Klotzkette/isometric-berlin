@@ -66,7 +66,25 @@ results are recorded in `street-joints-zoo-v278-verification.json`.
 
 The full Python suite passes: **2,107 passed, 4 skipped**, in 2,501.56 seconds.
 Two pyogrio CRS warnings originate in the existing elevated-road fixture test.
-Publication and final remote byte verification follow these completed checks.
+Both final archives match their prepublication SHA-256 digests and GitHub
+asset digests. Release v1.0.178 and Pages commit
+`3157543c926d017334277481231009b3736536c9` are public. Live HTTP byte checks
+match the prepared package, including both changed street chunks and the Zoo
+chunk. The three withdrawn Columbiahalle recording URLs still return 404.
+
+The additional public IAB start reached the active v1.0.178 scene without
+captured console warnings/errors. It selected Richard Serra (47/93), where a
+large grey surface obscured much of the opening view. This is recorded as a
+**separate unresolved framing finding**, not a successful visual framing check.
+No camera/startup or nearby building geometry was edited in v278. The existing
+source-bound curb and wolf before/after checks remain independently verified.
+Read-only geometric diagnosis finds the intended 16-degree startup camera's
+target ray intersects Philharmonie roof part `XzEkeXsu` after 3.323 metres
+(surface group 71, triangle 1, colour `#c2c8c8`). The original 39-degree pose
+has no intersection with the concert-hall source triangles on its target ray.
+All ten inspected startup/viewer/junction/concert-hall files are byte-identical
+to v1.0.177. The existing camera dolly is therefore the likely cause; the
+precise screenshot-pixel attribution remains an inference without a live raycast.
 
 ## Research boundaries
 
