@@ -1,0 +1,492 @@
+{
+  "version": "1.0.175",
+  "tag": "v1.0.175",
+  "sourceCommit": "e704caa7f472826677015d345a35bb5f7b4d6a4c",
+  "python": {
+    "mainRun": {
+      "log": "pytest-main.log",
+      "sha256": "ebc875da680de30a8163bd96d84ddc05537a03447565e95fe05843cf2eb90026",
+      "failed": 1,
+      "passed": 1978,
+      "skipped": 4,
+      "seconds": 2389.52,
+      "complete": true,
+      "runPassed": false,
+      "failedNodeIds": [
+        "tests/test_tiergarten_werkhof_v275.py::test_generated_data_is_reproducible_finite_and_bounded"
+      ],
+      "collected": 1983,
+      "exitCode": 1,
+      "exitReceipt": {
+        "log": "pytest-main.exit",
+        "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+      },
+      "scope": "Repository collection excluding tests/test_release_readiness.py. Collected before the new gutter-clearance regression; generator/model changed during this run.",
+      "fullSuiteRun": false,
+      "fullSuiteRerunAfterFinalChanges": false,
+      "status": "completed_with_failures_and_separate_passing_rechecks"
+    },
+    "affectedFollowUp": {
+      "log": "pytest-affected-followup.log",
+      "sha256": "2110786d228618119ab2cc5add8632e82ef6ef4d2878fc84ec8d807a9c8dc79c",
+      "passed": 6,
+      "seconds": 1.23,
+      "complete": true,
+      "runPassed": true,
+      "failedNodeIds": [],
+      "collected": 6,
+      "exitCode": 0,
+      "exitReceipt": {
+        "log": "pytest-affected-followup.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "coveredOriginalFailedNodeIds": [
+        "tests/test_tiergarten_werkhof_v275.py::test_generated_data_is_reproducible_finite_and_bounded"
+      ]
+    },
+    "separateReleaseReadiness": {
+      "log": "pytest-readiness.log",
+      "sha256": "a62be1207609abed2e0a82d02c20ae5dc108ac9ad0f55ab7fd356b339825d8b0",
+      "passed": 80,
+      "seconds": 9.09,
+      "complete": true,
+      "runPassed": true,
+      "failedNodeIds": [],
+      "collected": 80,
+      "exitCode": 0,
+      "exitReceipt": {
+        "log": "pytest-readiness.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      }
+    },
+    "finalModelFile": {
+      "log": "pytest-werkhof-clearance-followup.log",
+      "sha256": "8d88774e9648855be2bc0167cb2d89640312ca3c792b2c8e44339323fcf73176",
+      "passed": 6,
+      "seconds": 0.88,
+      "complete": true,
+      "runPassed": true,
+      "failedNodeIds": [],
+      "originalRegressionFailure": {
+        "log": "pytest-werkhof-clearance-before.log",
+        "sha256": "6d32be7522ae93a0db6bae50ac0d1bcbd18af459fb7b54e31b78699fd33b249a",
+        "failed": 1,
+        "seconds": 0.36,
+        "complete": true,
+        "runPassed": false,
+        "failedNodeIds": [
+          "tests/test_tiergarten_werkhof_v275.py::test_native_surface_fittings_clear_every_compound_body_and_canopy"
+        ]
+      },
+      "scope": "Entire final six-test Werkhof file; includes regression added after main collection"
+    },
+    "finalOwnershipFile": {
+      "log": "core-final-gutter-python.log",
+      "sha256": "1fb274872cfc67ceeaeb263622fe2363ffb334a8bce81d9d70f9ff67bd3cdbc2",
+      "passed": 4,
+      "seconds": 2.95,
+      "complete": true,
+      "runPassed": true,
+      "failedNodeIds": []
+    },
+    "countsAreNotAddedAcrossOverlappingRuns": true,
+    "singleFullSuiteGreenClaim": false
+  },
+  "targetedJavaScript": [
+    {
+      "scope": "Final model/mobile/native/navigation file",
+      "log": "bun-werkhof-clearance-followup.log",
+      "sha256": "edbbe27c1b6085173700fa42014123e53414fc9f1d29737f0a79181372536359",
+      "passed": 7,
+      "failed": 0,
+      "assertions": 289135,
+      "tests": 7,
+      "files": 1,
+      "duration": "6.86s",
+      "failedTests": []
+    },
+    {
+      "scope": "Ownership, historical paint and nearby navigation",
+      "originalRun": {
+        "log": "core-final-colour-navigation.log",
+        "sha256": "71c0501f858227f6b1f1dabd2cf9d9368de2ac1f72dca63c7218a9459d5a33a8",
+        "passed": 29,
+        "failed": 1,
+        "assertions": 743104,
+        "tests": 30,
+        "files": 6,
+        "duration": "3.58s",
+        "failedTests": [
+          "the entire native constructor is unchanged except paint on an already existing cap"
+        ]
+      },
+      "repairFollowUp": {
+        "log": "core-final-colour-ownership-repaired.log",
+        "sha256": "31c2b9339ab663e42ae3b5d62b4815ed490e8b55323d431255bba8a1a2871e2b",
+        "passed": 16,
+        "failed": 0,
+        "assertions": 504431,
+        "tests": 16,
+        "files": 4,
+        "duration": "1.51s",
+        "failedTests": []
+      },
+      "finalGutterFollowUp": {
+        "log": "core-final-gutter-colour-ownership.log",
+        "sha256": "2fcf123db12e83a46d1c0fcc4e51bf250bc5f280044da8f5cf92a6c6aeb7d394",
+        "passed": 9,
+        "failed": 0,
+        "assertions": 157255,
+        "tests": 9,
+        "files": 2,
+        "duration": "1134.00ms",
+        "failedTests": []
+      },
+      "repairEvidence": {
+        "log": "core-final-checks-v275.json",
+        "sha256": "6d6527d4186d5ff1b724b992f55a83fd1197bf0f9250855a89bfae0ea420469d",
+        "data": {
+          "schemaVersion": 1,
+          "originalFailureLog": "core-final-colour-navigation.log",
+          "originalResult": {
+            "pass": 29,
+            "fail": 1,
+            "assertions": 743104
+          },
+          "failure": "Historical v273 whole-native-constructor hash omitted the already shipped two v274 opera ownership hooks.",
+          "historicalCommit": "25904a12b2487fc1008a4c766ef19f0b0980cc16",
+          "historicalHash": "0171073d4600d43cd33edcaae99a7ed3222fb80344bb9c81211120f5d532d7a2",
+          "headCommit": "c7216271d31564febcba43a0a776bbc8b9b047af",
+          "headNormalizedHash": "abbee783eeb2b51338f593a1e97897964633edae7422b13bf0c530050e372f59",
+          "currentWithoutExactlyV275EqualsHead": true,
+          "exactAdditionalNormalization": {
+            "v274": [
+              "  const operaTheatresColumnAt = options.operaTheatresV274\n    ? createOperaTheatresColumnTesterV274(options.sourcePrisms, cell) : () => false;\n",
+              "    if (operaTheatresColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;\n"
+            ],
+            "v275": [
+              "  const werkhofColumnAt = options.tiergartenWerkhofV275\n    ? createTiergartenWerkhofColumnTesterV275(options.sourcePrisms, cell) : () => false;\n",
+              "    if (werkhofColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;\n"
+            ]
+          },
+          "finalNormalizedHash": "0171073d4600d43cd33edcaae99a7ed3222fb80344bb9c81211120f5d532d7a2",
+          "retainedOriginalFixtureHash": true,
+          "repairProductionChanges": [],
+          "successfulFollowUpLog": "core-final-colour-ownership-repaired.log",
+          "successfulFollowUp": {
+            "pass": 16,
+            "fail": 0,
+            "assertions": 504431,
+            "files": 4
+          },
+          "finalEvidencePythonLog": "core-colour-final-python.log",
+          "finalGutterRefresh": {
+            "evidenceSha256": "cdb3c5f88f149d662ae9bd37c9146a5e49fdc2abd62f2926b017dffeaab4297c",
+            "unchangedColourJsonSha256": "4f6384565300fbc08a4c1333d3300fd9fedd0b93532c545b225530ad6a8f5461",
+            "selectedRows": 7173,
+            "bunLog": "core-final-gutter-colour-ownership.log",
+            "pythonLog": "core-final-gutter-python.log",
+            "modelOnlyChange": "native gutter fittings",
+            "originalBeforeBaselinesPreserved": true
+          }
+        }
+      }
+    },
+    {
+      "scope": "Four lossless files with separate complete affected-file follow-up",
+      "originalRun": {
+        "log": "bun-lossless-final.log",
+        "sha256": "a4a3eee52f6ebb3ff39ce33192024481ed184ba204c8894ad530f783c351905f",
+        "passed": 17,
+        "failed": 1,
+        "assertions": 4461,
+        "tests": 18,
+        "files": 4,
+        "duration": "37.10s",
+        "failedTests": [
+          "audited packed strings round-trip every byte with strong ownership and size-bound lazy decoding"
+        ]
+      },
+      "repairFollowUp": {
+        "log": "bun-lossless-followup.log",
+        "sha256": "8ce16c0e48e3e872cf1e40eb19e89381bc74eb139e198f2407953594c2bbd32b",
+        "passed": 3,
+        "failed": 0,
+        "assertions": 250,
+        "tests": 3,
+        "files": 2,
+        "duration": "487.00ms",
+        "failedTests": []
+      },
+      "repairReason": "Only exact direct small-field fixture entries tiergartenWerkhofV275.json: drawnColors/drawnDetails were added; other field assertions remain enforced."
+    }
+  ],
+  "attemptHistory": {
+    "log": "attempt-history-v275.json",
+    "sha256": "533ec61e86a77bc26d52dc34cf2f7b0d83418a789cf617175a89b8b672dd5690",
+    "data": {
+      "attempts": [
+        {
+          "kind": "typecheck",
+          "log": "tsc-interrupted-137.log",
+          "exitCode": 137,
+          "status": "failed",
+          "reason": "Process exited 137 during parallel production build; no TypeScript diagnostics. Repeated serially after build with exit 0.",
+          "evidence": "Coordinator observed exec session 87136 return exit 137; serial exit stored in tsc-final.exit.",
+          "logReceipt": {
+            "log": "tsc-interrupted-137.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "kind": "build",
+          "log": "build.log",
+          "exitCode": 1,
+          "status": "failed",
+          "reason": "No space left on device; removed only already-published generated staging folder and stopped optimizer cache, then rebuilt.",
+          "evidence": "Original build.log and build.exit.",
+          "logReceipt": {
+            "log": "build.log",
+            "sha256": "4192fb5d360c508be5f3e01868049032cc02bdfdb4b6b5d8e71d0a21bacc7fa1"
+          }
+        },
+        {
+          "kind": "build",
+          "log": "build-retry.log",
+          "status": "cancelled",
+          "reason": "Stopped own build process before final native gutter correction to avoid publishing an intermediate model.",
+          "evidence": "Coordinator sent SIGINT to own Bun PID 45921; final corrected build exit stored separately.",
+          "logReceipt": {
+            "log": "build-retry.log",
+            "sha256": "cf60f336186c23856efe8ab79becb09875c6336753116a905e5d2a69e585499b"
+          }
+        },
+        {
+          "kind": "archive",
+          "log": "archive-zip-draft-lookup.log",
+          "exitCode": 1,
+          "status": "failed",
+          "reason": "New draft was not yet available through the tag endpoint; resolved the exact existing draft ID from the authenticated release list. No archive had been created or uploaded in this failed attempt.",
+          "evidence": "Original lookup/parse exception preserved; verified draft ID 424106839 used for subsequent upload.",
+          "logReceipt": {
+            "log": "archive-zip-draft-lookup.log",
+            "sha256": "69d8aca80682b1d7b3f2d71048fc0881c563949f538c8a4460f053918d3d675f"
+          }
+        }
+      ]
+    }
+  },
+  "typeCheck": {
+    "log": "tsc-final.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "exitCode": 0,
+    "command": "bun --smol node_modules/typescript/bin/tsc --noEmit"
+  },
+  "productionBuild": {
+    "log": "build-final.log",
+    "sha256": "8cbfe9a3489390a73036bde704824a32b5371e6dd6719a90aca4a2d2401f30d8",
+    "exitCode": 0
+  },
+  "lint": {
+    "log": "ruff.log",
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  "format": {
+    "log": "ruff-format.log",
+    "sha256": "04c1e0fe93fdc1ca4d11d30ee9ac6990735db7a96ebdcb572fb58ef6a769f4e1"
+  },
+  "packageReadiness": {
+    "log": "release-readiness-final.log",
+    "sha256": "c332615f457339ec6088a2914894211b9535685face43b82d758289877f9d858"
+  },
+  "localPackageHttpSmoke": {
+    "log": "smoke-package-final.log",
+    "sha256": "1c10744202225783f200f5ba8d50f7dc61c80334cc23b27d54957f147e98c9c2"
+  },
+  "modelCorrection": {
+    "log": "werkhof-global-clearance-delta.json",
+    "sha256": "24ddb6d58ce863bcb0596cbf5e1d59d27977ecd311650a9d415c9ee5612bef24",
+    "data": {
+      "beforeSha256": "fcb1fb21f1f05846adf20d891352ee1ca3df9c36a803296d23eafed84a881c75",
+      "afterSha256": "25f95c3912836b3f148232fce23f0ad4091d7bba63dbe935924361704e98651d",
+      "byteIdenticalFields": [
+        "parts",
+        "shrubs",
+        "compoundRing",
+        "sourceSha256",
+        "drawnPositions",
+        "drawnColors",
+        "drawnDetails",
+        "detailRoles",
+        "omittedFittingEstimates"
+      ],
+      "sourceParents": 20,
+      "sourceSurfaces": 160,
+      "repairs": 40,
+      "repositioned": 21,
+      "omittedOccludedNativeSegments": 19,
+      "unchangedNativeRows": 2129,
+      "beforeNativeDetails": 2169,
+      "afterNativeDetails": 2150,
+      "runtimeBytes": 370014,
+      "gzipBytes": 73145
+    }
+  },
+  "package": {
+    "log": "package-verification.json",
+    "sha256": "b343674cfbf20f9ddbb53490ad3a4da7955822f2a436cea26069776a2f8c3e41",
+    "data": {
+      "packageVersion": "1.0.175",
+      "bytes": 931672320,
+      "fileCount": 4750,
+      "sourceInventorySha256": "6156fd2ea112670e81cc5596b8b299298d1d7d032279b30352fb213be523f02b",
+      "MiB": 888.511962890625,
+      "releaseId": 424106839,
+      "archives": {
+        "isometric-berlin-regierungsviertel-local.zip": {
+          "size": 763140537,
+          "sha256": "62bc24f155acdda98be7345239516756a0ba574f2dc18720278d96ed29659215",
+          "localValidationPassed": true,
+          "storage": "memory-only",
+          "remoteVerified": true,
+          "assetId": 677800141,
+          "remoteSize": 763140537,
+          "remoteDigest": "sha256:62bc24f155acdda98be7345239516756a0ba574f2dc18720278d96ed29659215",
+          "remoteState": "uploaded"
+        },
+        "isometric-berlin-viewer-v1.0.175.tar.gz": {
+          "size": 762360227,
+          "sha256": "b6c6fba500d800f640c9bcd83fe17cbb961f813c5334ed12a1322490088dfae2",
+          "localValidationPassed": true,
+          "storage": "memory-only",
+          "remoteVerified": true,
+          "assetId": 677805830,
+          "remoteSize": 762360227,
+          "remoteDigest": "sha256:b6c6fba500d800f640c9bcd83fe17cbb961f813c5334ed12a1322490088dfae2",
+          "remoteState": "uploaded"
+        }
+      }
+    }
+  },
+  "deployment": {
+    "log": "pages-preflight-v275.json",
+    "sha256": "2c7a239b1a9c9209735e4e99d5c4cf43dc09eb0ed99488fb3f96f44f6ee05b3b",
+    "data": {
+      "version": "1.0.175",
+      "parent": "44e8073458fe72da6ac11030faee6b1088a16c10",
+      "previousTwoAssets": 331,
+      "retainedPreviousOnlyAssets": 27,
+      "retainedPreviousOnlyBytes": 108852967,
+      "removedStaleAssets": 15,
+      "removedBytes": 66309466,
+      "bytes": 1040525287,
+      "headroomBelow1GiB": 33216537,
+      "publishRequested": false
+    }
+  },
+  "publicationLog": {
+    "log": "publish-pages.log",
+    "sha256": "43e52cce2ab4384724280c1befa126e3f47fdb655e873aeaf68ebfa7eba0cffd"
+  },
+  "pagesCommit": "d060a48b4ac3c020d7ae95d20a8ad61d92573291",
+  "workflow": {
+    "log": "pages-workflow.json",
+    "sha256": "ccd37a393d9803505057fb1150711ab1fcffc66f6923ffd24a15751680c1f96e",
+    "data": {
+      "conclusion": "success",
+      "databaseId": 40307834335,
+      "headSha": "d060a48b4ac3c020d7ae95d20a8ad61d92573291",
+      "status": "completed",
+      "url": "https://github.com/Klotzkette/isometric-berlin/actions/runs/40307834335"
+    }
+  },
+  "live": {
+    "log": "live-verification.json",
+    "sha256": "74532351c4cf892932252ea97e795e9f0f42dadb6dbdd9b2408a0cd5716b262e",
+    "data": {
+      "withdrawnMedia404": [
+        "columbiahalle-v257-silent.mp4",
+        "columbiahalle-v258-red-silent.mp4",
+        "columbiahalle-v258-portrait-silent.mp4"
+      ],
+      "release": "https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.175",
+      "tag": "v1.0.175",
+      "assetsVerified": 2,
+      "hostedChecks": [
+        {
+          "path": "index.html",
+          "bytes": 3525,
+          "sha256": "be93da41addbe5528d2f15fa4d51d07f612ed292d835dfa566f8d0d69d7e7157"
+        },
+        {
+          "path": "package-manifest.json",
+          "bytes": 6107,
+          "sha256": "c59c3f5dfb6e07da3579ff66403e5de82827837ed87f166cfc807080a7f57f0e"
+        },
+        {
+          "path": "mesh/surrounding-berlin-v159/manifest.json",
+          "bytes": 2147689,
+          "sha256": "db15e3b722bf64d223eed121aac4986dc48e91207e086e8b8d8f9a43dd074115"
+        },
+        {
+          "path": "dzi/regierungsviertel/visual_reference_attribution.json",
+          "bytes": 104446,
+          "sha256": "fcb6905143d62c7bdb3c477db7b6e5885f048cee75f642de0510530758137a16"
+        },
+        {
+          "path": "assets/ThreeViewer-CcH1qHN0.js",
+          "bytes": 3346007,
+          "sha256": "c6c29873706119d1319731c11cc8cc30f03be1e45b2c580fde7995106bd1c205"
+        },
+        {
+          "path": "assets/index-BNfNBjDV.js",
+          "bytes": 192500,
+          "sha256": "197f6ea397ff17c2e690e4e4525b81c6c88ffd92d02e466bd8c783752e2c2b90"
+        },
+        {
+          "path": "assets/OuterThinOutlines-DEU1RT5M.js",
+          "bytes": 17353114,
+          "sha256": "fa8e366cdee02b350ec3fc8fdd9ace17ab4a92f9e5bd4b87ab8550c339d2b213"
+        },
+        {
+          "path": "assets/RequiredSiteEnvelopesV209-Bw_eYY0S.js",
+          "bytes": 10514606,
+          "sha256": "97d77b922e05ada03cdcb52a923a58a093e53d02c08b5e00a6d396040c448c5b"
+        },
+        {
+          "path": "assets/SurroundingCityGeometry-DvIvdRhz.js",
+          "bytes": 14238375,
+          "sha256": "49b24600eb825d686f83e648d9355eb99af00320ced0e58cc114717d38fdf293"
+        },
+        {
+          "path": "assets/progressiveWorld.worker-ZrABLV5s.js",
+          "bytes": 10663723,
+          "sha256": "86e69a20c92afa440cd777c9864ca124bdfe1f473bf9a0ee25cd3163d72c92aa"
+        }
+      ],
+      "passed": true
+    }
+  },
+  "browserInspection": {
+    "scope": "Coordinator inspected the isolated actual Werkhof factory in drawn and native modes in the internal browser, before final native gutter clearance repair; final repair checked by geometry regressions.",
+    "screenshots": [
+      {
+        "log": "werkhof-drawn-internal-browser.jpg",
+        "sha256": "df3c908537658f12c7816c1b617f7cf2e050c1b12263176535fdafa79f2ef2b9"
+      },
+      {
+        "log": "werkhof-native-internal-browser.jpg",
+        "sha256": "15eb67b9f553247579d3ec4f53beb4717651f7b133b150767e7f4db7cbfb9d8b"
+      }
+    ],
+    "fullCityInspection": false,
+    "iPhoneEnduranceTest": false
+  },
+  "limits": [
+    "No complete-city browser or iPhone endurance test was performed.",
+    "Targeted JavaScript results are not the entire historical Bun suite.",
+    "Main Python collection excludes separately checked readiness and predates the new gutter regression; overlapping reruns are not summed.",
+    "Original test/build/typecheck failures remain recorded separately from successful follow-ups.",
+    "Unmeasured fittings and the occluded shelter height are estimates; three retained canopy heights have explicitly documented unresolved bDOM discrepancies."
+  ]
+}

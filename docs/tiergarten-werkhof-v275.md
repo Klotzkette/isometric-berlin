@@ -234,3 +234,24 @@ hooks. The before/after proof is
 
 This is a finite ownership correction, not a city-wide relaxation of authored
 building protection or a recolouring of neighbouring houses.
+
+## Publication verification
+
+Version **1.0.175** is published from source commit
+`e704caa7f472826677015d345a35bb5f7b4d6a4c`, with Pages commit
+`d060a48b4ac3c020d7ae95d20a8ad61d92573291`. The completed Pages workflow and
+ten exact hosted-file checks passed. Both downloadable archives passed the
+complete existing validators and their uploaded sizes and SHA-256 digests match.
+The extracted package is 931,672,320 bytes; the deployed tree, including both
+previous live asset closures, is 1,040,525,287 bytes, below the unchanged limits.
+
+The main Python collection completed with 1,978 passed, four skipped and one
+model-replay failure from the concurrent final model correction. The complete
+affected six-test file then passed against the frozen model; the separate
+80-test release-readiness file also passed. These overlapping runs are not
+summed or presented as a single green full-suite run. Final TypeScript, Ruff,
+production build and local-package HTTP checks passed. Earlier failures and
+their explicit rechecks are retained in
+[`tiergarten-werkhof-v275-verification.json`](tiergarten-werkhof-v275-verification.json).
+Browser evidence covers the isolated actual model in both render modes, not a
+whole-city or iPhone endurance test.
