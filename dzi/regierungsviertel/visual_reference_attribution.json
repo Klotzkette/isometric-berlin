@@ -2070,6 +2070,126 @@
       "role": "Identifies the erroneous tall office/glass appearance and requests low operational buildings screened by shrubs",
       "checked": "2026-10-26",
       "pixels_bundled": false
+    },
+    {
+      "landmark_id": "rki_moabit_v277",
+      "title": "RKI headquarters and historical laboratory",
+      "page_url": "https://www.rki.de/DE/Institut/Das-RKI/Standorte/standorte.html",
+      "credit": "Robert Koch-Institut",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Existing site identity and public architectural recognition",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "rki_moabit_v277",
+      "title": "Heizkraftwerk Moabit",
+      "page_url": "https://industriekultur.berlin/ort/kraftwerk-moabit/",
+      "credit": "Berliner Zentrum Industriekultur",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Historical brick halls and later plant bodies",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "berlin_decks_v277",
+      "title": "Berlin Decks buildings 1 and 2, July 2026",
+      "page_url": "https://www.beos.net/newsroom/pressemitteilungen/innovationscampus-berlin-decks-in-berlin-mitte-vollvermietung-der-gebaeude-1-und-2-mit-planet-labs",
+      "credit": "BEOS AG",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Completed green ceramic campus architecture; not evidence of unbuilt completion",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "berlin_decks_v277",
+      "title": "Berlin Decks construction and facade",
+      "page_url": "https://implenia.com/de-de/referenzen/detail/ref/berlin-decks/",
+      "credit": "Implenia",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Stepped facade and green ceramic recognition; unsurveyed openings estimated",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "lehrter_v277",
+      "title": "Kulturfabrik heritage record 09050403",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050403",
+      "credit": "Landesdenkmalamt Berlin",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Lehrter35 facade axes, arches and stone piers",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "lehrter_v277",
+      "title": "Slaughterhouse",
+      "page_url": "https://kulturfabrik-moabit.de/gruppen/slaughterhouse/",
+      "credit": "Kulturfabrik Moabit",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Ground-floor rear courtyard venue; distinct from former cellar",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "lehrter_v277",
+      "title": "Filmrauschpalast",
+      "page_url": "https://kulturfabrik-moabit.de/gruppen/filmrauschpalast/",
+      "credit": "Kulturfabrik Moabit",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Actual venue identity within Lehrter35",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "bayer_campus_v277",
+      "title": "Schering administration building",
+      "page_url": "https://www.gse-berlin.de/wp-content/uploads/projekt_pdfs/GSE-Projekt-Schering-Gebaeude.pdf",
+      "credit": "GSE Ingenieur-Gesellschaft",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Sixteen-storey tower, projecting cores, podium and street bridge",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "nordufer_lehrter_bayer_v277",
+      "title": "Berlin LoD2 and bDOM summer 2025",
+      "page_url": "https://gdi.berlin.de/data/bdom/docs/dom.pdf",
+      "credit": "Geoportal Berlin / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen",
+      "license": "Datenlizenz Deutschland – Zero – Version 2.0",
+      "role": "Complete building source sheets and independent official 1m height evidence, with acquisition dates and estimation limits retained",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "bayer_campus_v277",
+      "title": "Bayer Berlin operator page — present administration exterior",
+      "page_url": "https://www.bayer.com/de-de/deutschland/standorte/berlin-startseite",
+      "credit": "Bayer AG",
+      "license": "Copyright Bayer AG; external reference only",
+      "role": "Public architecture identity, pale structural ribs, blue-grey glazing, stair-core slots, entrance and geometric Bayer cross. No photo pixels bundled.",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "bayer_campus_v277",
+      "title": "Bayer Berlin Wedding public directions",
+      "page_url": "https://www.bayer.com/sites/default/files/anfahrtsbeschreibung-berlin-wedding.pdf",
+      "credit": "Bayer AG",
+      "license": "External factual reference only",
+      "role": "Public main entrance Müllerstraße178.",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "berlin_decks_v277",
+      "title": "Berlin Decks building 4 rental-space handover, 2026",
+      "page_url": "https://de.linkedin.com/posts/dre%C3%9Fler-bau-gmbh_mit-der-%C3%BCbergabe-des-geb%C3%A4udes-ist-ein-wichtiger-activity-7479795036474384384-S_R2",
+      "credit": "Berlin Decks project account / Dreßler Bau GmbH",
+      "license": "Reference only; no external image pixels redistributed",
+      "role": "Confirms handover of building 4 rental spaces to DFFB; distinct from summer-2025 height acquisition",
+      "checked": "2026-10-26",
+      "pixels_bundled": false
     }
   ]
 }
