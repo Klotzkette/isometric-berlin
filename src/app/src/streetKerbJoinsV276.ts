@@ -12,8 +12,24 @@ export function streetKerbJoinOffsetV276(
   const closed = count > 2 && line[0][0] === line[count - 1][0] && line[0][1] === line[count - 1][1];
   const at = closed && index === count - 1 ? 0 : index;
   const [x, z] = line[at];
-  const previous = line[at > 0 ? at - 1 : closed ? count - 2 : at];
-  const next = line[at + 1 < count ? at + 1 : at];
+  const last = closed ? count - 2 : count - 1;
+  // Centimetre quantisation can repeat a source point, including across a
+  // closed seam. Every copy needs the same two distinct neighbours, otherwise
+  // the retained zero-length segment joins different, crossing cross-sections.
+  let previousIndex = at, nextIndex = at;
+  for (;;) {
+    const candidate = previousIndex > 0 ? previousIndex - 1 : closed ? last : previousIndex;
+    if (candidate === previousIndex || candidate === at) break;
+    previousIndex = candidate;
+    if (line[candidate][0] !== x || line[candidate][1] !== z) break;
+  }
+  for (;;) {
+    const candidate = nextIndex < last ? nextIndex + 1 : closed ? 0 : nextIndex;
+    if (candidate === nextIndex || candidate === at) break;
+    nextIndex = candidate;
+    if (line[candidate][0] !== x || line[candidate][1] !== z) break;
+  }
+  const previous = line[previousIndex], next = line[nextIndex];
   let ux = x - previous[0], uz = z - previous[1];
   let vx = next[0] - x, vz = next[1] - z;
   const before = Math.hypot(ux, uz), after = Math.hypot(vx, vz);

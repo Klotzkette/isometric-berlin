@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.177 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.177/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.178 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.178/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,8 +24,12 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Local v1.0.177** · static viewer and a
+**Status:** Public open-data project · **Local v1.0.178** · static viewer and a
 complete local package for macOS, Windows, and Linux.
+
+Version 1.0.178 corrects twisted curb joints at repeated source points and disconnected parts of one native Zoo wolf. Original street routes, all existing model components, full mobile detail and runtime budgets are retained. See [bounded corrections and evidence](docs/street-joints-zoo-v278.md).
+
+Version 1.0.178 korrigiert verdrehte Bordsteinanschlüsse an wiederholten Quellpunkten und getrennte Körperteile eines Zoo-Wolfs im Minecraft-Modus. Straßenverläufe, vollständige Geometrie, mobiler Detailgrad und Laufzeitgrenzen bleiben erhalten. Siehe [begrenzte Korrekturen und Belege](docs/street-joints-zoo-v278.md).
 
 Version 1.0.177 reconstructs the RKI at Nordufer, Heizkraftwerk Moabit, the completed Berlin Decks buildings, Kulturfabrik and the police complex along Lehrter Straße, and Bayer’s administration tower. Complete source roofs, open courts and the Bayer street bridge replace exact low proxies. Facade details and inferred roof steps remain documented estimates. Full mobile detail and existing runtime limits remain. See [Nordufer and Moabit](docs/rki-moabit-v277.md), [Lehrter Straße](docs/lehrter-v277.md) and [Bayer](docs/bayer-campus-v277.md).
 

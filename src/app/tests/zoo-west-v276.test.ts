@@ -1,4 +1,5 @@
 import { describe,expect,test } from 'bun:test';
+import { createHash } from 'node:crypto';
 import { InstancedMesh,Mesh } from 'three';
 import { createZooGroundsV165,createMinecraftZooGroundsV165 } from '../src/ZooGroundsV165';
 import { compactZooWestV276Rows,appendZooWestV276 } from '../src/zooWestV276';
@@ -14,7 +15,71 @@ import type { VisualMode } from '../src/visualMode';
 function metrics(root:ReturnType<typeof createZooGroundsV165>):{calls:number;bytes:number;instances:number}{
  let calls=0,bytes=0,instances=0;root.traverse(o=>{if(!(o instanceof Mesh))return;calls++;for(const a of Object.values(o.geometry.attributes))bytes+=a.array.byteLength;bytes+=o.geometry.index?.array.byteLength??0;if(o instanceof InstancedMesh){instances+=o.count;bytes+=o.instanceMatrix.array.byteLength+o.instanceColor!.array.byteLength;}});return{calls,bytes,instances};
 }
+function geometryHash(root:ReturnType<typeof createZooGroundsV165>):string {
+ const hash=createHash('sha256');
+ root.traverse(o=>{
+  if(!(o instanceof Mesh))return;
+  hash.update(o.name);
+  for(const [key,attribute] of Object.entries(o.geometry.attributes)){
+   hash.update(key);const a=attribute.array;hash.update(Buffer.from(a.buffer,a.byteOffset,a.byteLength));
+  }
+  if(o.geometry.index){const a=o.geometry.index.array;hash.update(Buffer.from(a.buffer,a.byteOffset,a.byteLength));}
+  if(o instanceof InstancedMesh)for(const a of[o.instanceMatrix.array,o.instanceColor!.array])hash.update(Buffer.from(a.buffer,a.byteOffset,a.byteLength));
+ });
+ return hash.digest('hex');
+}
+function disposeZoo(root:ReturnType<typeof createZooGroundsV165>):void {
+ root.traverse(o=>{if(o instanceof Mesh){o.geometry.dispose();o.userData.dayMaterial?.dispose();o.userData.nightMaterial?.dispose();}});
+}
 describe('Zoo West complete retained sources with finite corrected restaurants',()=>{
+ test('all three complete native wolves stay connected in actual Float32 matrices on pointer and touch',()=>{
+  const originalNavigator=Object.getOwnPropertyDescriptor(globalThis,'navigator');
+  const originalMatchMedia=Object.getOwnPropertyDescriptor(globalThis,'matchMedia');
+  const hashes=new Map<boolean,string>();
+  try {
+   for(const touch of[false,true]){
+    Object.defineProperty(globalThis,'navigator',{configurable:true,value:{maxTouchPoints:touch?5:0}});
+    Object.defineProperty(globalThis,'matchMedia',{configurable:true,value:(query:string)=>({matches:touch&&query.includes('coarse')})});
+    for(const native of[false,true]){
+     const root=native?createMinecraftZooGroundsV165():createZooGroundsV165();
+     try {
+      expect(root.userData.fullStaticDetailOnTouch).toBe(true);
+      const hash=geometryHash(root);
+      if(!touch)hashes.set(native,hash);else expect(hash).toBe(hashes.get(native)!);
+      expect(metrics(root)).toEqual(native?{calls:3,bytes:7_348_608,instances:96_678}:{calls:6,bytes:2_491_692,instances:10_527});
+      if(!native){
+       // Actual pre-fix complete drawn geometry and colours, not a rebuilt fixture.
+       expect(hash).toBe('46a6a56e2697af6a57c1a1a02682d8d7f1a2f481634c5a167ec197223d20e4cd');
+       continue;
+      }
+      const mesh=root.getObjectByName('Zoo native aviaries climbing rocks and furniture') as InstancedMesh;
+      for(const [x,z]of data.wolves){
+       const members:number[][]=[];
+       for(let i=0;i<mesh.count;i++){
+        const matrix=mesh.instanceMatrix.array.subarray(i*16,i*16+16);
+        if(Math.abs(matrix[12]-x)>=1.4||Math.abs(matrix[14]-z)>=1.4||matrix[13]<5.3||matrix[13]>6.7)continue;
+        for(const k of[1,2,4,6,8,9])expect(Math.abs(matrix[k])).toBe(0);
+        members.push([matrix[12],matrix[13],matrix[14],matrix[0],matrix[5],matrix[10]]);
+       }
+       expect(members).toHaveLength(21);
+       // At world X≈−2280 Float32 has a 0.244 mm ULP. Permit only
+       // 0.3 mm roundoff, much smaller than the former 38 mm detached leg.
+       const touches=(a:number[],b:number[])=>[0,1,2].every(axis=>Math.abs(a[axis]-b[axis])<=(a[axis+3]+b[axis+3])/2+.0003);
+       const connected=new Set([0]);
+       for(let pass=0;pass<members.length;pass++)for(let i=0;i<members.length;i++)if(!connected.has(i)&&[...connected].some(j=>touches(members[i],members[j])))connected.add(i);
+       expect(connected.size).toBe(21);
+       // Existing source placement was cleared with a 1.4 m radius. Every
+       // full native member, including feet and ears, must remain inside it.
+       for(const [cx,,cz,w,,d]of members)for(const sx of[-1,1])for(const sz of[-1,1])expect(Math.hypot(cx+sx*w/2-x,cz+sz*d/2-z)).toBeLessThan(1.4);
+      }
+     } finally {disposeZoo(root);}
+    }
+   }
+  } finally {
+   if(originalNavigator)Object.defineProperty(globalThis,'navigator',originalNavigator);else Reflect.deleteProperty(globalThis,'navigator');
+   if(originalMatchMedia)Object.defineProperty(globalThis,'matchMedia',originalMatchMedia);else Reflect.deleteProperty(globalThis,'matchMedia');
+  }
+ });
  test('lossless row joining preserves every actual rendered original native volume and colour',()=>{
   const root=createMinecraftZooGroundsV165(),mesh=root.getObjectByName('Zoo retained native house shells and ground rows') as InstancedMesh;
   expect(mesh.count).toBe(17053);expect(oldNativeZooRowsV276().length).toBe(22439);expectCompleteNativeZooVolumeV276(mesh);

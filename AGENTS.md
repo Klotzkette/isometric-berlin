@@ -1850,3 +1850,16 @@ Small unmeasured recognition details must be explicitly identified as estimates.
 Keep independent orthogonal native construction, full mobile detail, existing
 resident/decode/prefetch limits and the 93-place tour. No new coverage, animation,
 raw media or external browser. Use public exterior architecture only.
+
+
+### Step 10 — v278 bounded continuation: repeated curb nodes and native wolf
+
+The owner's continuation permits correction of two proved defects in existing
+v276 presentation. Repeated consecutive street points must share the same
+cross-section from their nearest distinct neighbours, including closed seams;
+keep all original points, true corners, mesh/index counts and heights. Native
+Zoo wolves retain every component in connected independent orthogonal poses;
+drawn animal bytes remain unchanged. No new source coverage, descriptor,
+animation, texture, tour stop or runtime/release budget is added. Unconfirmed
+Tierpark roof profiles and Decks bridge undersides remain documented research
+limits rather than inferred new geometry. Use only the internal browser for QA.

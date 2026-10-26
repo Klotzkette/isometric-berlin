@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.178 — 2026-10-26
+
+- Give repeated curb source points one common cross-section, including closed seams, to prevent overlapping zero-length segment tops. Preserve every original route point and the existing mesh/index counts.
+- Keep all parts of the three native Zoo wolves connected with independently orthogonal poses; drawn animal geometry remains unchanged.
+- Preserve source data, full mobile detail, 93 stops and all residency/release limits. See [evidence and checks](docs/street-joints-zoo-v278.md).
+
 ## 1.0.177 — 2026-10-26
 
 - Restore complete source bodies and roofs at the RKI Nordufer headquarters, Heizkraftwerk Moabit, Kulturfabrik and the adjoining Lehrter police site.

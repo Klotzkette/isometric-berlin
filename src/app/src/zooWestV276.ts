@@ -80,10 +80,14 @@ function restaurants(d: ZooRecognitionV255Sink): void {
 }
 
 function wolf(d: ZooRecognitionV255Sink,x:number,z:number,yaw:number):void{
-  const at=(u:number,h:number,v:number):P=>[x+Math.cos(yaw)*u+Math.sin(yaw)*v,5.32+h,z-Math.sin(yaw)*u+Math.cos(yaw)*v];
+  // Native poses use one consistent quarter turn for all member centres and
+  // dimensions. Rotating centres alone detached a leg/eye at oblique angles.
+  const turn=Math.round(yaw/(Math.PI/2)),angle=d.native?turn*Math.PI/2:yaw;
+  const at=(u:number,h:number,v:number):P=>[x+Math.cos(angle)*u+Math.sin(angle)*v,5.32+h,z-Math.sin(angle)*u+Math.cos(angle)*v];
   // Natural-size Eurasian wolf: long muzzle, upright ears, low bushy tail;
   // pale grey-buff coat with dark saddle, not a white arctic-wolf assertion.
-  const b=(c:number,u:number,h:number,v:number,w:number,hh:number,dep:number)=>d.box(c,...at(u,h,v),w,hh,dep,d.native?0:yaw);
+  const swap=d.native&&Math.abs(turn)%2===1;
+  const b=(c:number,u:number,h:number,v:number,w:number,hh:number,dep:number)=>d.box(c,...at(u,h,v),swap?dep:w,hh,swap?w:dep,d.native?0:yaw);
   b(0xB4AD91,0,.65,0,1.05,.40,.35);b(0x66695E,-.08,.87,0,.8,.13,.31);
   b(0xC8C2AD,.44,.80,0,.32,.52,.33);b(0xBEB79E,.64,1.01,0,.34,.29,.27);
   b(0xC8C2AD,.87,.94,0,.35,.15,.18);b(0x30372E,1.04,.95,0,.07,.1,.15);
