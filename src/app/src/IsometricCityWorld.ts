@@ -1,3 +1,5 @@
+import { cutUbahnGroundSlabsV281 } from "./UbahnSurfaceAperturesV281";
+import { isWeltkugelSourceV281 } from "./weltkugelV281Ownership";
 import { isBayerCampusSourceV277 } from "./bayerCampusV277Ownership";
 import { isLehrterSourceV277 } from "./lehrterV277Ownership";
 import { isRkiMoabitSourceV277 } from "./rkiMoabitV277Ownership";
@@ -1820,6 +1822,7 @@ export function createDistantBuildingShells(
   group.name = "Complete distant building coverage";
   const visible = buildings.filter(building => !options.architectureV241 || !isAEGCampusCorePrismV241(building))
     .filter(building => !options.zooWestV276 || !isZooWestSourceV276(building))
+    .filter(building => !isWeltkugelSourceV281(building))
     .filter(building => !options.verkehrskanzelV276 || !isVerkehrskanzelSourceV276(building))
     .filter(building => !options.tiergartenWerkhofV275 || !isTiergartenWerkhofSourceV275(building))
     .filter(building => !options.bayerCampusV277 || !isBayerCampusSourceV277(building))
@@ -12009,6 +12012,7 @@ export function createIsometricCityCore(
     geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
   for (const sourceBuilding of buildings) {
+    if (isWeltkugelSourceV281(sourceBuilding)) continue;
     if (options.zooWestV276 && isZooWestSourceV276(sourceBuilding)) continue;
     if (options.verkehrskanzelV276 && isVerkehrskanzelSourceV276(sourceBuilding)) continue;
     if (options.tiergartenWerkhofV275 && isTiergartenWerkhofSourceV275(sourceBuilding)) continue;
@@ -13234,6 +13238,7 @@ export function createIsometricCityCore(
     restoreGrosserSternGatehouseGroundOwnership(slabs);
     if (surfaces?.water.length) restoreDrawnWaterBoundary(slabs, ground);
     restoreAltMitteGroundSeamsV206(slabs, ground);
+    cutUbahnGroundSlabsV281(slabs, false);
     group.add(slabs);
     // Transparent rivers with a visible bed ("Flüsse müssen
     // durchsichtig sein mit Flussbett"): a pale glass-like surface

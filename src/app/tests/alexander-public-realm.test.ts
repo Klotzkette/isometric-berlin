@@ -5,6 +5,7 @@ import { createAlexanderPublicRealm, createMinecraftAlexanderPublicRealm } from 
 import { ALEXANDER_PUBLIC_REALM_PROFILE as P, ALEXANDER_PUBLIC_REALM_SOURCE as S,
   alexanderPublicRealmSolidAt as solid, alexanderPublicRealmSupportHeightAt as support } from "../src/alexanderPublicRealmProfile";
 import { isSchwellenraumGeschuetzt } from "../src/visual-modes/schwellenraum/presentation";
+import { verifyAlexanderRealmRetentionV281 } from "./helpers/alexanderRetentionV281";
 
 function measure(root:Group) {
   const hash=createHash("sha256"),seen=new Set<BufferGeometry>();let bytes=0,instances=0,draws=0;
@@ -23,13 +24,16 @@ const drawn=createAlexanderPublicRealm(),native=createMinecraftAlexanderPublicRe
 test("full mobile and desktop static detail remains identical with additive bounded pavilion batches",()=>{
   const a=measure(drawn),b=measure(createAlexanderPublicRealm(true)),n=measure(native);
   expect(a).toEqual(b);expect(a.draws).toBe(7);expect(n.draws).toBe(2);
-  // v257 adds the requested three named sites to these same batches. Keep the
-  // complete older byte baseline and account for the bounded additions explicitly;
-  // no streaming, transfer, prefetch or live residency limit is changed.
+  // v260 appended Kino International/Cafe Moskau to these existing batches.
+  // Exact frozen tails and the complete pre-v260 prefix replay account for that
+  // published addition; keep every earlier v257 baseline and ceiling unchanged.
+  const d260=verifyAlexanderRealmRetentionV281(drawn,false),n260=verifyAlexanderRealmRetentionV281(native,true);
+  expect(a.bytes-d260.addedBytes).toBe(d260.retained.budget.bytes);
+  expect(n.bytes-n260.addedBytes).toBe(n260.retained.budget.bytes);
   const v257DrawnBytes=(5203+296)*76,v257NativeBytes=24690*76;
-  expect(a.bytes-v257DrawnBytes).toBe(713_024);
-  expect(n.bytes-v257NativeBytes).toBe(1_026_900);
-  expect(a.bytes).toBeLessThan(1_140_000);expect(n.bytes).toBeLessThan(2_910_000);
+  expect(d260.retained.budget.bytes-v257DrawnBytes).toBe(713_024);
+  expect(n260.retained.budget.bytes-v257NativeBytes).toBe(1_026_900);
+  expect(d260.retained.budget.bytes).toBeLessThan(1_140_000);expect(n260.retained.budget.bytes).toBeLessThan(2_910_000);
   expect(native.userData.hiddenSolidInfill).toBeFalse();expect(native.children[0]).toBeInstanceOf(InstancedMesh);
   expect((native.children[0] as Mesh).geometry.getAttribute("position").count).toBe(24);
   expect(measure(createMinecraftAlexanderPublicRealm(true))).toEqual(n);

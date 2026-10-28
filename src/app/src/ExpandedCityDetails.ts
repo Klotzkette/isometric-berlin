@@ -3,6 +3,7 @@ import { appendCharlottenburgerTorV201 } from "./CharlottenburgerTorV201";
 import { CHARLOTTENBURGER_TOR_PROFILE } from "./charlottenburgerTorV201Profile";
 import { createAlterDessauerMonument } from "./AlterDessauerMonument";
 import { createKonradAdenauerHaus } from "./KonradAdenauerHaus";
+import { createWeltGondolaFloorV281, WELT_BALLOON_V281 } from "./WeltBalloonV281";
 import { POTSDAMER_PANORAMA_LANDSCAPE } from "./potsdamerPanoramaPalette";
 import { potsdamerPanoramaRoofBoxes } from "./potsdamerPanoramaRoofs";
 import {
@@ -4232,12 +4233,9 @@ function createWeltBalloon(
     );
   }
 
-  const gondolaFloor = new CylinderGeometry(
-    profile.gondolaDiameterM / 2,
-    profile.gondolaDiameterM / 2,
-    0.28,
-    32,
-  );
+  // The passenger deck is an annulus around the tether opening. Its inner
+  // radius is photo-guided; the 5.90 m outside diameter remains operator data.
+  const gondolaFloor = createWeltGondolaFloorV281();
   gondolaFloor.translate(point.x, bottomY + 0.2, point.z);
   addCustomGeometry(builder, gondolaFloor, gondolaBlue, false);
   const fascia = new CylinderGeometry(
@@ -4250,29 +4248,30 @@ function createWeltBalloon(
   );
   fascia.translate(point.x, bottomY + 0.62, point.z);
   addCustomGeometry(builder, fascia, gondolaBlue, false);
-  for (const ringY of [bottomY + 0.88, gondolaTopY]) {
-    const rail = new TorusGeometry(
-      profile.gondolaDiameterM / 2 - 0.1,
-      0.1,
-      8,
-      48,
-    );
-    rail.rotateX(Math.PI / 2);
-    rail.translate(point.x, ringY, point.z);
-    addCustomGeometry(builder, rail, gondolaSteel, false);
-  }
-  for (let index = 0; index < 16; index += 1) {
-    const angle = (index / 16) * Math.PI * 2;
-    addCylinder(
-      builder,
-      gondolaSteel,
-      point.x + Math.cos(angle) * (profile.gondolaDiameterM / 2 - 0.12),
-      (bottomY + 0.88 + gondolaTopY) / 2,
-      point.z + Math.sin(angle) * (profile.gondolaDiameterM / 2 - 0.12),
-      0.055,
-      gondolaTopY - (bottomY + 0.88),
-      8,
-    );
+  for (const ringRadius of [profile.gondolaDiameterM / 2 - 0.1, WELT_BALLOON_V281.innerGondolaRadius + .08]) {
+    for (const ringY of [bottomY + 0.88, gondolaTopY]) {
+      const rail = new TorusGeometry(ringRadius, 0.1, 8, 48);
+      rail.rotateX(Math.PI / 2);
+      rail.translate(point.x, ringY, point.z);
+      addCustomGeometry(builder, rail, gondolaSteel, false);
+    }
+    for (let index = 0; index < 16; index += 1) {
+      const angle = (index / 16) * Math.PI * 2;
+      addCylinder(
+        builder,
+        gondolaSteel,
+        point.x + Math.cos(angle) * ringRadius,
+        (bottomY + 0.88 + gondolaTopY) / 2,
+        point.z + Math.sin(angle) * ringRadius,
+        0.055,
+        gondolaTopY - (bottomY + 0.88),
+        8,
+      );
+      const nextAngle = ((index + 1) / 16) * Math.PI * 2;
+      addBeamBetween(builder, cableColor,
+        new Vector3(point.x + Math.cos(angle) * ringRadius, bottomY + .95, point.z + Math.sin(angle) * ringRadius),
+        new Vector3(point.x + Math.cos(nextAngle) * ringRadius, gondolaTopY - .08, point.z + Math.sin(nextAngle) * ringRadius), .035);
+    }
   }
   addCylinder(
     builder,
@@ -5346,7 +5345,7 @@ export function createExpandedCityDetails(
 
   group.add(createKonradAdenauerHaus());
 
-  group.add(createCityWestDetails(options.detailProfile ?? "full", false));
+  group.add(createCityWestDetails(options.detailProfile ?? "full", false, "omit"));
 
   addRooftopSigns(group, byName);
   // Tiny warm markers for snow-plough salt and balloon fittings only; this is

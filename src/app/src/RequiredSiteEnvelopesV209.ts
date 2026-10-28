@@ -1,3 +1,12 @@
+import { createWeltkugelV281 } from "./WeltkugelBrunnenV281";
+import { createBmfForecourtV281 } from "./BmfForecourtV281";
+import { createPekingerPlatzV281 } from "./PekingerPlatzV281";
+import { createMoabitCoalV281 } from "./MoabitCoalV281";
+import { createPrisonEnclosuresV281 } from "./PrisonEnclosuresV281";
+import { createMinecraftWeltBalloonV281 } from "./WeltBalloonV281";
+import { createTramRailsV281 } from "./TramRailsV281";
+import { createUbahnEntrancesV281 } from "./UbahnEntrancesV281";
+import { cutUbahnPresentationV281 } from "./UbahnSurfaceAperturesV281";
 import { createBayerCampusV277 } from "./BayerCampusV277";
 import { createLehrterV277 } from "./LehrterV277";
 import { createRkiMoabitV277 } from "./RkiMoabitV277";
@@ -27,6 +36,7 @@ import { createUbahnEntrancesV261 } from "./UbahnEntrancesV261";
 import { cutUbahnPresentationV261 } from "./UbahnSurfaceAperturesV261";
 import { createWestVenuesV260 } from "./WestVenuesV260";
 import { createChariteRailV261 } from "./ChariteRailV261";
+import { addMitteEnsembleV281 } from "./MitteEnsembleV281";
 import { addIHZV241 } from "./IHZV241";
 import { createZooPalastV260, createMinecraftZooPalastV260 } from "./ZooPalastV260";
 import { addAEGCampusV241 } from "./AEGCampusV241";
@@ -77,6 +87,18 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   yield;
   root.add(createTiergartenWerkhofV275(native));
   yield;
+  root.add(createBmfForecourtV281(native));
+  yield;
+  root.add(createMoabitCoalV281(native));
+  yield;
+  root.add(createPekingerPlatzV281(native));
+  yield;
+  root.add(createPrisonEnclosuresV281(native));
+  yield;
+  if (native) {
+    root.add(createMinecraftWeltBalloonV281());
+    yield;
+  }
   root.add(createVerkehrskanzelV276(native));
   yield;
   root.add(createCentralTheatresV274(native));
@@ -92,6 +114,8 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   root.add(createTachelesFrontsV270(native));
   yield;
   root.add(createTachelesRailsV270(native));
+  yield;
+  root.add(createTramRailsV281(native));
   yield;
   root.add(createMoabitLandmarksV269(native));
   yield;
@@ -127,7 +151,10 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   yield;
   root.add(createLibrariesV202(native, true));
   yield;
+  if (!native) root.add(createWeltkugelV281(false));
+  yield;
   yield* addIHZV241(root, native);
+  yield* addMitteEnsembleV281(root, native);
   yield* addAEGCampusV241(root, native);
   yield* addQuartier207V241(root, native);
   yield* addStaatsbibliothekV241(root, native);
@@ -156,6 +183,9 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   yield;
   cutUbahnPresentationV261(root, native);
   root.add(createUbahnEntrancesV261(native));
+  yield;
+  cutUbahnPresentationV281(root, native);
+  root.add(createUbahnEntrancesV281(native));
   yield;
   cutRosenthalerPresentationV228(root, native);
   root.add(createRosenthalerV228(native));

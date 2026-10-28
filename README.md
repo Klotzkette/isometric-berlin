@@ -27,6 +27,10 @@ HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 **Status:** Public open-data project · **Live v1.0.180** · static viewer and a
 complete local package for macOS, Windows, and Linux.
 
+Version 1.0.181 is being prepared locally: source-supported details at Schlosspark Charlottenburg, the Chancellery, Moabit coal handling, Pekinger Platz, prison enclosures, Topography of Terror, WELT balloon and the finance ministry memorial forecourt. It also refines Berliner Ensemble/Ganymed, City West transport, Weltkugelbrunnen, tram rails and U-Bahn entrances. Small unsurveyed fittings remain documented estimates. [Scope and checks](docs/mitte-citywest-transit-v281.md).
+
+Version 1.0.181 wird lokal vorbereitet: quellengestützte Details für Schlosspark Charlottenburg, Kanzleramt, Moabiter Kohleverladung, Pekinger Platz, Gefängnismauern, Topographie des Terrors, WELT-Ballon und den Gedenkplatz am Finanzministerium. Dazu kommen Berliner Ensemble/Ganymed, Verkehrsanlagen in City West, Weltkugelbrunnen, Straßenbahnschienen und U-Bahn-Eingänge. Nicht vermessene kleine Bauteile bleiben dokumentierte Annäherungen. [Umfang und Prüfungen](docs/mitte-citywest-transit-v281.md).
+
 Version 1.0.180 recovers stalled outer-city transfers without reducing geometry or mobile detail. A nonresponding request no longer holds the entire loading queue indefinitely. The empty plant surroundings at Reuter-West are a separate coverage gap and are not added by this update. See [diagnosis and checks](docs/outer-loading-v280.md).
 
 Version 1.0.180 behebt festhängende Datenanfragen beim Aufbau der Außenbezirke. Die übrige Karte lädt weiter; Geometrie und mobiler Detailgrad bleiben vollständig. Das leere Werksgelände rund um den Reuter-West-Kühlturm ist eine gesonderte Abdeckungslücke und wird mit diesem Update noch nicht ergänzt. Siehe [Diagnose und Prüfungen](docs/outer-loading-v280.md).

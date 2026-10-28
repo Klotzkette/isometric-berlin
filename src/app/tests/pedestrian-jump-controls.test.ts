@@ -63,6 +63,7 @@ describe("walking keyboard focus and jump routing", () => {
       const jumps: boolean[] = [];
       let now = 1_000;
       const keyDown = bind(app, "handleKeyDown", {
+        concertInteriorRef: { current: false },
         HTMLElement: FocusTarget, isReservedBrowserChord, isPedestrianJumpKey,
         isPedestrianMode: true, viewerMode: "three", isReferenceOpen: false,
         isHelpOpen: false, isRepositoryOpen: false, isAttributionOpen: false, isReady: true,
@@ -116,6 +117,7 @@ describe("hover keyboard height and movement routing", () => {
     });
     const navigationKey = bind(app, "navigationKey", { isPedestrianJumpKey });
     const keyDown = bind(app, "handleKeyDown", {
+      concertInteriorRef: { current: false },
       HTMLElement: class {},
       isReservedBrowserChord,
       isPedestrianJumpKey,

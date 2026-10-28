@@ -3,6 +3,7 @@ import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { letteringLayout, letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { UBAHN_STAIRS_V261, UBAHN_V261_GROUP } from "./ubahnEntrancesV261Profile";
+import { appendModernTorSignsV281 } from "./transitSignsV281";
 
 type P=[number,number,number];
 
@@ -72,7 +73,9 @@ export function createUbahnEntrancesV261(native=false):Group {
       // Light opaque glass avoids layered alpha sorting on mobile.
       for(const side of [-1,1])box(s.length/2,side*(s.width/2+.11),base+.65,s.length-.14,.66,.035,0xAABDBA);
     }
-    const signU=tor?.45:-.14, signV=tor?s.width/2+.18:0, signY=base+(tor?1.62:3.22);
+    if(tor) appendModernTorSignsV281(rows,rods,native,{...s,base});
+    else {
+    const signU=-.14, signV=0, signY=base+3.22;
     const centre=at(signU,signV,signY);
     // Native signs have their own cardinal construction. Their letters are
     // not swallowed by a broad AABB around the rotated source board.
@@ -84,18 +87,18 @@ export function createUbahnEntrancesV261(native=false):Group {
       if(native)rows.push([...p,Math.abs(nu[0])*w+Math.abs(nv[0])*d,h,Math.abs(nu[1])*w+Math.abs(nv[1])*d,color]);
       else rows.push([...p,w,h,d,yaw,color]);
     };
-    const boardWidth=tor?2.35:s.width+.36, label=ubahnStationLabelV261(s.name,boardWidth);
-    if(!tor) {
+    const boardWidth=s.width+.36, label=ubahnStationLabelV261(s.name,boardWidth);
+    {
       for(const side of [-1,1])box(-.14,side*(s.width/2+.18),base+1.57,.09,3.14,.09,0x3D6559);
       if(native)box(-.14,0,base+2.76,.08,.08,s.width+.36,rail);
       sb(0,0,-.46,.12,.30,boardWidth,0xDEDCCB);
-    } else sb(0,0,-.55,.12,.24,boardWidth,0xDEDCCB);
+    }
     sb(0,0,0,.14,.76,.76,0x23508C);
     for(const face of [-1,1]) {
       for(const side of [-1,1])sb(face*.09,side*.20,.045,.025,.40,.10,0xF2EBCE);
       sb(face*.09,0,-.18,.025,.10,.40,0xF2EBCE);
       // Looking inward from +normal, screen-right is -nv (and vice versa).
-      const textY=(tor?-.55:-.46)-label.capHeight/2;
+      const textY=-.46-label.capHeight/2;
       for(const path of label.paths)for(let i=1;i<path.length;i++) {
         const a=sp(face*.08,-face*path[i-1][0],textY+path[i-1][1]);
         const b=sp(face*.08,-face*path[i][0],textY+path[i][1]);
@@ -105,6 +108,7 @@ export function createUbahnEntrancesV261(native=false):Group {
           for(let j=0;j<count;j++){const t=(j+.5)/count;rows.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t,.021,.021,.021,0x31464D]);}
         }
       }
+    }
     }
     batch(root,rows,rods,native,`${s.name} ${s.ref} ${s.osmWay}: ${s.stepCount} steps and finite landing v261`);
   }

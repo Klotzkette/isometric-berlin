@@ -8,6 +8,7 @@ import {createDistrictStreets} from '../src/DistrictStreets';
 import {createUnterDenLindenBlockStreets} from '../src/UnterDenLindenBlockStreets';
 import {unterDenLindenEntranceFloorAt} from '../src/unterDenLindenEntrancesProfile';
 import ground from '../public/mesh/regierungsviertel/ground-context.json';
+import {letteringLayout,letteringStrokePaths} from '../src/drawnLettering';
 
 describe('U6 Naturkundemuseum and U5 Brandenburger Tor source mouths',()=>{
   it('retains mapped axes and exact step counts',()=>{
@@ -37,12 +38,14 @@ describe('U6 Naturkundemuseum and U5 Brandenburger Tor source mouths',()=>{
   for(const native of [false,true])it(`blue/ivory signs remain visible on both faces: native=${native}`,()=>{
     const root=createUbahnEntrancesV261(native);root.updateMatrixWorld(true);
     for(const s of UBAHN_STAIRS_V261){
-      const tor=s.station==='brandenburger-tor',u=tor?.45:-.14,v=tor?s.width/2+.18:0;
+      const tor=s.station==='brandenburger-tor',u=tor?.92:-.14,v=tor?s.width/2+.19:0;
       const x=s.top[0]+s.ux*u+s.nx*v,z=s.top[1]+s.uz*u+s.nz*v;
-      const y=(native?s.nativeSurfaceY:s.surfaceY)+(tor?1.62:3.22)+.045;
-      const n=native?(Math.abs(s.ux)>Math.abs(s.uz)?[Math.sign(s.ux),0]:[0,Math.sign(s.uz)]):[s.ux,s.uz];
+      const y=(native?s.nativeSurfaceY:s.surfaceY)+(tor?1.52:3.22)+.045;
+      const axis=native?(Math.abs(s.ux)>Math.abs(s.uz)?[Math.sign(s.ux),0]:[0,Math.sign(s.uz)]):[s.ux,s.uz];
+      const n=tor?[-axis[1],axis[0]]:axis;
       for(const face of [-1,1]){
-        const ray=new Raycaster(new Vector3(x-n[1]*.2+n[0]*face*2,y,z+n[0]*.2+n[1]*face*2),new Vector3(-n[0]*face,0,-n[1]*face));
+        const across=tor?-.62:.2;
+        const ray=new Raycaster(new Vector3(x-n[1]*across+n[0]*face*2,y,z+n[0]*across+n[1]*face*2),new Vector3(-n[0]*face,0,-n[1]*face));
         const hit=ray.intersectObject(root,true)[0];expect(hit).toBeDefined();
         const colour=new Color();(hit.object as InstancedMesh).getColorAt(hit.instanceId!,colour);expect(colour.getHex()).toBe(0xF2EBCE);
       }
@@ -52,10 +55,13 @@ describe('U6 Naturkundemuseum and U5 Brandenburger Tor source mouths',()=>{
     const root=createUbahnEntrancesV261(native);
     for(const s of UBAHN_STAIRS_V261){
       const mesh=root.children.find(o=>o.name.includes(s.osmWay)) as InstancedMesh;
-      const tor=s.station==='brandenburger-tor',u=tor?.45:-.14,v=tor?s.width/2+.18:0;
-      const centre=new Vector3(s.top[0]+s.ux*u+s.nx*v,(native?s.nativeSurfaceY:s.surfaceY)+(tor?1.62:3.22),s.top[1]+s.uz*u+s.nz*v);
-      const n=native?(Math.abs(s.ux)>Math.abs(s.uz)?new Vector3(Math.sign(s.ux),0,0):new Vector3(0,0,Math.sign(s.uz))):new Vector3(s.ux,0,s.uz);
-      const boardWidth=tor?2.35:s.width+.36,label=ubahnStationLabelV261(s.name,boardWidth),textY=(tor?-.55:-.46)-label.capHeight/2;
+      const tor=s.station==='brandenburger-tor',u=tor?.92:-.14,v=tor?s.width/2+.19:0;
+      const centre=new Vector3(s.top[0]+s.ux*u+s.nx*v,(native?s.nativeSurfaceY:s.surfaceY)+(tor?1.52:3.22),s.top[1]+s.uz*u+s.nz*v);
+      const axis=native?(Math.abs(s.ux)>Math.abs(s.uz)?new Vector3(Math.sign(s.ux),0,0):new Vector3(0,0,Math.sign(s.uz))):new Vector3(s.ux,0,s.uz);
+      const n=tor?new Vector3(-axis.z,0,axis.x):axis;
+      const boardWidth=tor?1.87:s.width+.36;
+      const cap=.085*Math.min(1,1.65/letteringLayout(s.name.toUpperCase(),.085).totalWidthM);
+      const label=tor?{capHeight:cap,paths:letteringStrokePaths(s.name.toUpperCase(),cap)}:ubahnStationLabelV261(s.name,boardWidth),textY=(tor?-.53:-.46)-label.capHeight/2;
       for(const face of [-1,1]){
         const looking=n.clone().multiplyScalar(-face),right=looking.clone().cross(new Vector3(0,1,0)).normalize();
         const samples:number[][]=[],m=new Matrix4(),colour=new Color();
@@ -69,7 +75,7 @@ describe('U6 Naturkundemuseum and U5 Brandenburger Tor source mouths',()=>{
           for(const cx of [-.5,.5])for(const cy of [-.5,.5])for(const cz of [-.5,.5]){
             const corner=new Vector3(cx,cy,cz).applyMatrix4(m).sub(centre);
             expect(Math.abs(corner.dot(right))).toBeLessThan(boardWidth/2-.07);
-            expect(Math.abs(corner.y-(tor?-.55:-.46))).toBeLessThan((tor?.24:.30)/2-.025);
+            expect(Math.abs(corner.y-(tor?-.53:-.46))).toBeLessThan((tor?.22:.30)/2-.025);
           }
         }
         expect(samples.length).toBeGreaterThan(20);
@@ -100,6 +106,45 @@ describe('U6 Naturkundemuseum and U5 Brandenburger Tor source mouths',()=>{
         const v=(i/30-.5)*(s.width+.36);
         const p=new Vector3(s.top[0]-.14*s.ux+v*s.nx,s.nativeSurfaceY+2.76,s.top[1]-.14*s.uz+v*s.nz);
         expect(supports.some(b=>b.containsPoint(p))).toBe(true);
+      }
+    }
+  });
+  for(const native of [false,true])it(`Brandenburger Tor has supported paired S/U markers, visible from both sides: ${native}`,()=>{
+    const root=createUbahnEntrancesV261(native);root.updateMatrixWorld(true);
+    for(const s of UBAHN_STAIRS_V261.filter(s=>s.station==='brandenburger-tor')){
+      const mesh=root.children.find(o=>o.name.includes(s.osmWay)) as InstancedMesh,base=native?s.nativeSurfaceY:s.surfaceY;
+      const axis=native?(Math.abs(s.ux)>Math.abs(s.uz)?new Vector3(Math.sign(s.ux),0,0):new Vector3(0,0,Math.sign(s.uz))):new Vector3(s.ux,0,s.uz),n=new Vector3(-axis.z,0,axis.x);
+      const centre=new Vector3(s.top[0]+s.ux*.92+s.nx*(s.width/2+.19),base+1.52,s.top[1]+s.uz*.92+s.nz*(s.width/2+.19));
+      const panels:Box3[]=[],supports:Box3[]=[],caps:Box3[]=[],m=new Matrix4(),color=new Color();let green=0,blue=0;
+      for(let i=0;i<mesh.count;i++){
+        mesh.getColorAt(i,color);mesh.getMatrixAt(i,m);
+        const box=new Box3(new Vector3(-.5,-.5,-.5),new Vector3(.5,.5,.5)).applyMatrix4(m).expandByScalar(.0002);
+        if(color.getHex()===0x237447){green++;panels.push(box);}
+        if(color.getHex()===0x23508c){blue++;panels.push(box);}
+        if(color.getHex()===0x858f90&&Math.abs(m.elements[13]-(base+1.06))<.0002&&box.max.y-box.min.y>1.8)supports.push(box);
+        if(color.getHex()===0xaeb5a7)caps.push(box);
+      }
+      expect(green).toBe(1);expect(blue).toBe(1);expect(supports.length).toBe(2);
+      // The actual sign posts descend into the retained wall coping, not air.
+      for(const post of supports)expect(caps.some(cap=>cap.intersectsBox(post))).toBe(true);
+      // The connecting bar intersects both boards and reaches both posts.
+      const barPoint=centre.clone().add(new Vector3(0,-.02,0));
+      const bars:Box3[]=[];
+      for(let i=0;i<mesh.count;i++){
+        mesh.getColorAt(i,color);if(color.getHex()!==0x858f90)continue;mesh.getMatrixAt(i,m);
+        const box=new Box3(new Vector3(-.5,-.5,-.5),new Vector3(.5,.5,.5)).applyMatrix4(m).expandByScalar(.0002);
+        if(box.containsPoint(barPoint))bars.push(box);
+      }
+      expect(bars.length).toBeGreaterThan(0);
+      for(const panel of panels)expect(bars.some(bar=>bar.intersectsBox(panel))).toBe(true);
+      for(const post of supports)expect(bars.some(bar=>bar.intersectsBox(post))).toBe(true);
+      for(const face of [-1,1]){
+        // The top S stroke and a U stem each sit in front of their own opaque panel.
+        for(const [v,y] of [[-.43,.22],[.62,.045]]){
+          const target=centre.clone().addScaledVector(axis,v).add(new Vector3(0,y,0));
+          const hit=new Raycaster(target.addScaledVector(n,face*2),n.clone().multiplyScalar(-face)).intersectObject(mesh)[0];
+          expect(hit).toBeDefined();mesh.getColorAt(hit.instanceId!,color);expect(color.getHex()).toBe(0xf2ebce);
+        }
       }
     }
   });

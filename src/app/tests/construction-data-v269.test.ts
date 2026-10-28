@@ -39,13 +39,19 @@ test("actual v268/v269 construction maps load lazily and reconstruct exactly aft
     const chunk = result.output.find(item => item.type === "chunk" && item.isEntry);
     if (!chunk || chunk.type !== "chunk") throw new Error("Missing entry");
     let parses = 0;
-    const json = { parse(text: string) { parses++; return JSON.parse(text); } };
+    const parsedPayloads: string[] = [];
+    const json = { parse(text: string) { parses++; parsedPayloads.push(text); return JSON.parse(text); } };
     // Deterministic expiry tests the real codec and production tree-shaking
     // without relying on nondeterministic host garbage collection.
     class ExpiredWeakRef { deref() { return undefined; } }
     const window: { models?: Record<string, unknown>[] } = {};
     new Function("window", "JSON", "WeakRef", chunk.code)(window, json, ExpiredWeakRef);
-    expect(parses).toBe(0);
+    // V270 compressed these two already-eager metadata profiles (1,593 and
+    // 3,170 bytes). Construction maps must still remain unparsed at startup.
+    expect(parsedPayloads.slice().sort()).toEqual([
+      JSON.stringify(expected[2].profile), JSON.stringify(expected[4].profile),
+    ].sort());
+    expect(parsedPayloads.map(text => text.length).sort((a, b) => a - b)).toEqual([1593, 3170]);
     for (let i = 0; i < sources.length; i++) {
       const field = sources[i][1], model = window.models![i];
       expect(Object.keys(model)).toEqual(Object.keys(expected[i]));

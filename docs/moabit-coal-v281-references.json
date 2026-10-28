@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "revision": "Step 10 v281 / 1.0.181 Moabit coal handling",
+  "accessed": "2026-10-28",
+  "policy": "Public exterior reference only. No photograph or orthophoto pixels are distributed. Exact mapped plans are distinguished from estimated machine dimensions, static operating pose and stockpile volume. Existing full source buildings remain unchanged.",
+  "sources": [
+    {
+      "title": "Moabit coal yard and handling machinery — complete selected OpenStreetMap ways",
+      "url": "https://api.openstreetmap.org/api/0.6/map?bbox=13.341,52.535,13.350,52.539",
+      "credit": "© OpenStreetMap contributors",
+      "license": "ODbL-1.0",
+      "license_url": "https://www.openstreetmap.org/copyright",
+      "receipt": "geo_data/regierungsviertel/moabit-coal-v281-source.json",
+      "use": "Full rings, nodes, coordinates, tags, versions and timestamps of ways 26624547, 896589831, 896589832, 1124344230 and 1124344231. The large rail-mobile crane polygon denotes its travel envelope, not a solid building. No measured heights are supplied."
+    },
+    {
+      "title": "Geoportal Berlin DOP 2025 spring",
+      "url": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=dop_2025&STYLES=&CRS=EPSG:25833&BBOX=387900,5822035,388100,5822235&WIDTH=1000&HEIGHT=1000&FORMAT=image/jpeg",
+      "credit": "Geoportal Berlin / DOP 2025 spring",
+      "license": "dl-de/zero-2-0",
+      "license_url": "https://www.govdata.de/dl-de/zero-2-0",
+      "use": "Inspected plan alignment: open heap, narrow travelling bridge, unloading portal and quay/road/yard belt course. The north-yard belt is an explicit approximate alignment, not an OSM way. No raster is bundled."
+    },
+    {
+      "title": "Kraftwerk Moabit, monument 09050441",
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050441",
+      "credit": "Landesdenkmalamt Berlin",
+      "use": "Plant identity, location and historical canal/rail coal delivery. Existing measured building sheets remain unchanged."
+    },
+    {
+      "title": "Kraftwerk Moabit",
+      "url": "https://industriekultur.berlin/ort/kraftwerk-moabit/",
+      "credit": "Berliner Zentrum Industriekultur",
+      "use": "Historical plant and waterside transport context; not a machinery dimensional survey."
+    },
+    {
+      "title": "BEW construction operation at Putlitzbrücke, July 2026",
+      "url": "https://www.bew.berlin/aktuelles-und-presse/2026/bauma%C3%9Fnahme-putlitzbruecke/",
+      "credit": "BEW Berliner Energie und Wärme GmbH",
+      "use": "Current modernization context. It does not justify deleting existing full plant bodies or inventing completed replacements."
+    },
+    {
+      "title": "HWK Moabit Berlin 2.JPG",
+      "url": "https://commons.wikimedia.org/wiki/File:HWK_Moabit_Berlin_2.JPG",
+      "imageReference": "https://upload.wikimedia.org/wikipedia/commons/e/e6/HWK_Moabit_Berlin_2.JPG",
+      "credit": "Denis Apel, 22 March 2005",
+      "license": "CC BY-SA 3.0 Germany",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/",
+      "use": "Inspected historical photograph: grey-green open lattice bridge, upper walkway/railing, cab and dark piles. Appearance reference only; no photographic texture, redistributed image or claim of live inventory."
+    }
+  ]
+}

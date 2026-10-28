@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "beforeCommit": "8838ad4862941a6e09d8180066e1a68330029f06",
+  "method": "Source-only complete transitive runtime import inventory at immutable v205 and working tree. Full builder sources replay exactly with all before/after SHA-256 digests; unchanged raw source packets are reused. No model factory or new geometry baseline.",
+  "sourceGraphs": {
+    "before": {
+      "src/app/src/JusticePalaceV183.ts": "34f8f8480a39a6d7bfa1762139c224d44f7535c310514bafa67a1b7f039661a1",
+      "src/app/src/MinecraftJusticePalaceV183.ts": "b19093eb772a553917488d69b2a97fc9ac78a257c9590ab42e77f9cdfa786f54",
+      "src/app/src/NorthParksV198.ts": "5bdc45b27f9f8430bf6035239d72a3eec0fde1c4a7ce76ff4ff2fd8f5c31fad8",
+      "src/app/src/BerAirportV205.ts": "09ac6402775ea6afbc95c2d55db771055ef4829c45b606f655d9ae05edacfcfb",
+      "src/app/src/data/justicePalaceV183.json": "4ac649475876fe5e6dda222f884ac70f7cdca68f644b90d52b7b0b8df74adcb8",
+      "src/app/src/justicePalaceV183Batches.ts": "c6b9437d8dd73c010908505fb533d5f189d16beb80ba549a92780192eb03fb5e",
+      "src/app/src/CharlottenburgCupolaV183.ts": "c0ef245a6e9e31cc82585b6129d396c158c0397882cc8020cf8c5586a7b02026",
+      "src/app/src/staticSceneTransforms.ts": "6eb9410891b711b3de75628acbd80cf397a9e4dba89a6ecdcb56317a42c73bc2",
+      "src/app/src/data/justicePalaceV183Native.json": "2316bedd9a667d938197c29c34537d0db79046d1a105af980b90ec0390adcdcf",
+      "src/app/src/data/northParksV198Drawn0.json": "f79e0c5fd7e2982d5a3e13e89d827ffecae9ed2e0f5afd72194a78acc4cf0fd0",
+      "src/app/src/data/northParksV198Drawn1.json": "d075555ea692e12f486dd68e648e1c1074ce5fa884ce36bd344b64c6b01c4115",
+      "src/app/src/data/northParksV198Native0.json": "b07bab31fce726a44efffe0d7f47ec225e03696643b0af52067935e4874c0a5b",
+      "src/app/src/data/northParksV198Native1.json": "2ec566a5bf77badcef3449c2581b5c69951b2d37ce2daace2e03d3a2e778b23e",
+      "src/app/src/northParksV198Navigation.ts": "405c8cca80ae40830838ad37118fde2ebf4707f478c5c7293b309c949cb401d9",
+      "src/app/src/data/berAirportV205.json": "9395e1e153046220526126925cfde4ce78c422aa57393901ff77fa7ee2dcaa1d",
+      "src/app/src/drawnLettering.ts": "2405690523d38dceeb8b2931efe5e09cd1e1b4a0e2d7e57998f6559c4e1ef384",
+      "src/app/src/data/northParksV198Terrain.json": "b7c8085b2f6b66637251a79303a1b9f2c7b21bb7ac3f0ccb55535304ec25b2de",
+      "src/app/src/data/northParksV198Buildings.json": "0ec134539e429bde06845c7f5df3696c15134964e48ce3b36834412ddb04a6c4"
+    },
+    "current": {
+      "src/app/src/JusticePalaceV183.ts": "d792911d8d352608c6340e7d7301d69bdd252456a5aeec8267f51d7bf8b03928",
+      "src/app/src/MinecraftJusticePalaceV183.ts": "f475969b6d102ecd7e12fa994eea45505a9c66ac25b4244b69e797c529ec0fa5",
+      "src/app/src/NorthParksV198.ts": "5a065232c9d44c66ae240f004dad054503f76e72eb2b1ce92330e4d480ea9b8b",
+      "src/app/src/BerAirportV205.ts": "62973f21331a181afdf807e43268012442d492b6229434ac8fee11b0b0750d5e",
+      "src/app/src/data/justicePalaceV183.json": "4ac649475876fe5e6dda222f884ac70f7cdca68f644b90d52b7b0b8df74adcb8",
+      "src/app/src/justicePalaceV183Batches.ts": "c6b9437d8dd73c010908505fb533d5f189d16beb80ba549a92780192eb03fb5e",
+      "src/app/src/CharlottenburgCupolaV183.ts": "c0ef245a6e9e31cc82585b6129d396c158c0397882cc8020cf8c5586a7b02026",
+      "src/app/src/staticSceneTransforms.ts": "6eb9410891b711b3de75628acbd80cf397a9e4dba89a6ecdcb56317a42c73bc2",
+      "src/app/src/littenInstanzV257.ts": "37dcd02b482ecdbd7b9b2104319b61ad6de6632e7f16eb13a71356f3b9979809",
+      "src/app/src/CharlottenburgParkV281.ts": "88b6b4516c881fd6ab745160432eef469d4469ab8ba83d595b07b2653d7b5d57",
+      "src/app/src/data/justicePalaceV183Native.json": "2316bedd9a667d938197c29c34537d0db79046d1a105af980b90ec0390adcdcf",
+      "src/app/src/data/northParksV198Drawn0.json": "f79e0c5fd7e2982d5a3e13e89d827ffecae9ed2e0f5afd72194a78acc4cf0fd0",
+      "src/app/src/data/northParksV198Drawn1.json": "d075555ea692e12f486dd68e648e1c1074ce5fa884ce36bd344b64c6b01c4115",
+      "src/app/src/data/northParksV198Native0.json": "b07bab31fce726a44efffe0d7f47ec225e03696643b0af52067935e4874c0a5b",
+      "src/app/src/data/northParksV198Native1.json": "2ec566a5bf77badcef3449c2581b5c69951b2d37ce2daace2e03d3a2e778b23e",
+      "src/app/src/parkTerrainGeometryV229.ts": "9e98b9f48d82c5e6c208a38fab957ff7713f1472d30d2fa886a57caa4da9c837",
+      "src/app/src/northParksV198Navigation.ts": "713e69239d101739c2f61eede3c7de51a978f6a1d84960e42ce9a3a76e11c36d",
+      "src/app/src/data/berAirportV205.json": "9395e1e153046220526126925cfde4ce78c422aa57393901ff77fa7ee2dcaa1d",
+      "src/app/src/data/berAirportRoofPatchV236.json": "5cf64f4995080890189bb667142c48997d9cea109c1780b0a585ae6043d82138",
+      "src/app/src/drawnLettering.ts": "2405690523d38dceeb8b2931efe5e09cd1e1b4a0e2d7e57998f6559c4e1ef384",
+      "src/app/src/data/littenInstanzV257.json": "2f217b7822193f4166ba3044ac7a4c79a0d44a7fe5edf0b64e57b23d1c44a77f",
+      "src/app/src/data/charlottenburgParkV281.json": "a2de4241fabb6452504ddd46c4e847a0f8d9a64ae1857f0916a50ca353fd2c5f",
+      "src/app/src/data/parkTerrainV229Changes.json": "fc3588569a3c95ce125a067d657d96d5027e87fc64fff4258a373403d480fd8d",
+      "src/app/src/data/northParksV198Terrain.json": "b7c8085b2f6b66637251a79303a1b9f2c7b21bb7ac3f0ccb55535304ec25b2de",
+      "src/app/src/parkTerrainV229.ts": "be19c1481a8d27a61e3b6ac413b79fa78b1fee9404c39beb12455ee09b384af7",
+      "src/app/src/data/northParksV198Buildings.json": "0ec134539e429bde06845c7f5df3696c15134964e48ce3b36834412ddb04a6c4",
+      "src/app/src/data/parkTerrainV229Profile.json": "d7e59326f299a6faf8050578f1c8ca3ae59f23fee3d616485f9e567d5f7ff49c"
+    }
+  },
+  "sourceReplay": [
+    {
+      "path": "src/app/src/JusticePalaceV183.ts",
+      "beforeSha256": "34f8f8480a39a6d7bfa1762139c224d44f7535c310514bafa67a1b7f039661a1",
+      "currentSha256": "d792911d8d352608c6340e7d7301d69bdd252456a5aeec8267f51d7bf8b03928",
+      "replacements": [
+        {
+          "before": "import { justicePalaceV183Boxes } from \"./justicePalaceV183Batches\";\nimport { createCharlottenburgCupolaV183 } from \"./CharlottenburgCupolaV183\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\n\nexport const JUSTICE_PALACE_V183_GROUP = \"Source-bound Berlin courthouses and Charlottenburg recognition v183\";\n\n",
+          "current": "import { justicePalaceV183Boxes } from \"./justicePalaceV183Batches\";\nimport { createCharlottenburgCupolaV183 } from \"./CharlottenburgCupolaV183\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\nimport { littenInstanzV257Rows } from \"./littenInstanzV257\";\nimport { charlottenburgParkV281Rows, charlottenburgBasinV281Triangles } from \"./CharlottenburgParkV281\";\n\nexport const JUSTICE_PALACE_V183_GROUP = \"Source-bound Berlin courthouses and Charlottenburg recognition v183\";\n\n"
+        },
+        {
+          "before": "  const outlines = new LineSegments(geometry, new LineBasicMaterial({ vertexColors: true, depthWrite: false }));\n  outlines.name = \"Exact source contours and explicitly estimated cupola, caps and roof ridges\";\n  outlines.userData = { textureFree: true, cartographicOutline: true };\n  const members = justicePalaceV183Boxes(source.boxes);\n  members.name = \"Thin facade windows, pale frames and open tower members\";\n  root.add(outlines, members, createCharlottenburgCupolaV183());\n  const roofPositions = new Float32Array(source.roofTriangles.length * 9);\n  const roofColors = new Float32Array(roofPositions.length);\n  const normal = new Vector3(), a = new Vector3(), b = new Vector3(), light = new Vector3(-.5, 1, .5).normalize();\n  source.roofTriangles.forEach((r, i) => {\n    a.set(r[3]-r[0], r[4]-r[1], r[5]-r[2]); b.set(r[6]-r[0], r[7]-r[1], r[8]-r[2]);\n    normal.crossVectors(a, b).normalize(); if (normal.y < 0) normal.negate();\n    color.setHex(r[9]).multiplyScalar(.7 + .3 * Math.max(0, normal.dot(light)));\n",
+          "current": "  const outlines = new LineSegments(geometry, new LineBasicMaterial({ vertexColors: true, depthWrite: false }));\n  outlines.name = \"Exact source contours and explicitly estimated cupola, caps and roof ridges\";\n  outlines.userData = { textureFree: true, cartographicOutline: true };\n  const fittingsV257 = littenInstanzV257Rows();\n  const parkV281=charlottenburgParkV281Rows();\n  const members = justicePalaceV183Boxes([...source.boxes, ...fittingsV257, ...parkV281]);\n  members.userData.charlottenburgParkV281Rows=parkV281.length;\n  members.userData.littenInstanzV257Rows = fittingsV257.length;\n  members.name = \"Thin facade windows, pale frames and open tower members\";\n  root.add(outlines, members, createCharlottenburgCupolaV183());\n  const roofTriangles=[...source.roofTriangles,...charlottenburgBasinV281Triangles()];\n  const roofPositions = new Float32Array(roofTriangles.length * 9);\n  const roofColors = new Float32Array(roofPositions.length);\n  const normal = new Vector3(), a = new Vector3(), b = new Vector3(), light = new Vector3(-.5, 1, .5).normalize();\n  roofTriangles.forEach((r, i) => {\n    a.set(r[3]-r[0], r[4]-r[1], r[5]-r[2]); b.set(r[6]-r[0], r[7]-r[1], r[8]-r[2]);\n    normal.crossVectors(a, b).normalize(); if (normal.y < 0) normal.negate();\n    color.setHex(r[9]).multiplyScalar(.7 + .3 * Math.max(0, normal.dot(light)));\n"
+        }
+      ]
+    },
+    {
+      "path": "src/app/src/MinecraftJusticePalaceV183.ts",
+      "beforeSha256": "b19093eb772a553917488d69b2a97fc9ac78a257c9590ab42e77f9cdfa786f54",
+      "currentSha256": "f475969b6d102ecd7e12fa994eea45505a9c66ac25b4244b69e797c529ec0fa5",
+      "replacements": [
+        {
+          "before": "import { justicePalaceV183Boxes } from \"./justicePalaceV183Batches\";\nimport { createCharlottenburgCupolaV183 } from \"./CharlottenburgCupolaV183\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\n\nexport const JUSTICE_PALACE_V183_NATIVE_GROUP = \"Independent native courthouse and palace recognition v183\";\n\n",
+          "current": "import { justicePalaceV183Boxes } from \"./justicePalaceV183Batches\";\nimport { createCharlottenburgCupolaV183 } from \"./CharlottenburgCupolaV183\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\nimport { littenInstanzV257Rows } from \"./littenInstanzV257\";\nimport { charlottenburgParkV281Rows } from \"./CharlottenburgParkV281\";\n\nexport const JUSTICE_PALACE_V183_NATIVE_GROUP = \"Independent native courthouse and palace recognition v183\";\n\n"
+        },
+        {
+          "before": "  const root = new Group();\n  root.name = JUSTICE_PALACE_V183_NATIVE_GROUP;\n  root.userData = { textureFree: true, additiveOnly: true, blockNative: true, keepInMinecraft: true, sourceGeometryRetained: true, independentNativePayload: true };\n  const blocks = justicePalaceV183Boxes(source.nativeRows, true);\n  blocks.name = \"Orthogonal facade strips and stepped upper architectural contours\";\n  root.add(blocks, createCharlottenburgCupolaV183(true));\n  return freezeStaticSceneTransforms(root);\n",
+          "current": "  const root = new Group();\n  root.name = JUSTICE_PALACE_V183_NATIVE_GROUP;\n  root.userData = { textureFree: true, additiveOnly: true, blockNative: true, keepInMinecraft: true, sourceGeometryRetained: true, independentNativePayload: true };\n  const fittingsV257 = littenInstanzV257Rows(true);\n  const parkV281=charlottenburgParkV281Rows(true);\n  const blocks = justicePalaceV183Boxes([...source.nativeRows, ...fittingsV257, ...parkV281], true);\n  blocks.userData.charlottenburgParkV281Rows=parkV281.length;\n  blocks.userData.littenInstanzV257Rows = fittingsV257.length;\n  blocks.name = \"Orthogonal facade strips and stepped upper architectural contours\";\n  root.add(blocks, createCharlottenburgCupolaV183(true));\n  return freezeStaticSceneTransforms(root);\n"
+        }
+      ]
+    },
+    {
+      "path": "src/app/src/NorthParksV198.ts",
+      "beforeSha256": "5bdc45b27f9f8430bf6035239d72a3eec0fde1c4a7ce76ff4ff2fd8f5c31fad8",
+      "currentSha256": "5a065232c9d44c66ae240f004dad054503f76e72eb2b1ce92330e4d480ea9b8b",
+      "replacements": [
+        {
+          "before": "import nativeB from \"./data/northParksV198Native1.json\";\nimport {justicePalaceV183Boxes} from \"./justicePalaceV183Batches\";\nimport {freezeStaticSceneTransforms} from \"./staticSceneTransforms\";\nimport {northParksV198GroundAt} from \"./northParksV198Navigation\";\nexport {northParksV198GroundAt} from \"./northParksV198Navigation\";\n\n",
+          "current": "import nativeB from \"./data/northParksV198Native1.json\";\nimport {justicePalaceV183Boxes} from \"./justicePalaceV183Batches\";\nimport {freezeStaticSceneTransforms} from \"./staticSceneTransforms\";\nimport {correctParkTerrainV229} from \"./parkTerrainGeometryV229\";\nimport {northParksV198GroundAt} from \"./northParksV198Navigation\";\nexport {northParksV198GroundAt} from \"./northParksV198Navigation\";\n\n"
+        },
+        {
+          "before": "export function createNorthParksV198(native=false):Group {\n  const root=new Group();root.name=\"Schönhausen, mapped Panke and Schönholzer Heide v198\";\n  root.userData={northParksV198:true,textureFree:true,fullStaticDetailOnTouch:true,nativeMinecraft:native,keepInMinecraft:native,blockNative:native,additiveOnly:true,groundAt:(x:number,z:number)=>northParksV198GroundAt(x,z,native)};\n  for(const model of (native?[nativeA,nativeB]:[drawnA,drawnB]))for(const cell of model.cells){\n    if(cell.positions.length){\n      const geometry=new BufferGeometry();\n      geometry.setAttribute(\"position\",new BufferAttribute(new Float32Array(cell.positions),3));\n",
+          "current": "export function createNorthParksV198(native=false):Group {\n  const root=new Group();root.name=\"Schönhausen, mapped Panke and Schönholzer Heide v198\";\n  root.userData={northParksV198:true,textureFree:true,fullStaticDetailOnTouch:true,nativeMinecraft:native,keepInMinecraft:native,blockNative:native,additiveOnly:true,groundAt:(x:number,z:number)=>northParksV198GroundAt(x,z,native)};\n  for(const model of (native?[nativeA,nativeB]:[drawnA,drawnB]))for(const sourceCell of model.cells){\n    const cell=correctParkTerrainV229(sourceCell,native);\n    if(cell.positions.length){\n      const geometry=new BufferGeometry();\n      geometry.setAttribute(\"position\",new BufferAttribute(new Float32Array(cell.positions),3));\n"
+        }
+      ]
+    },
+    {
+      "path": "src/app/src/BerAirportV205.ts",
+      "beforeSha256": "09ac6402775ea6afbc95c2d55db771055ef4829c45b606f655d9ae05edacfcfb",
+      "currentSha256": "62973f21331a181afdf807e43268012442d492b6229434ac8fee11b0b0750d5e",
+      "replacements": [
+        {
+          "before": "} from \"three\";\nimport { mergeGeometries } from \"three/examples/jsm/utils/BufferGeometryUtils.js\";\nimport data from \"./data/berAirportV205.json\";\nimport { justicePalaceV183Boxes } from \"./justicePalaceV183Batches\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\nimport { letteringStrokePaths } from \"./drawnLettering\";\n",
+          "current": "} from \"three\";\nimport { mergeGeometries } from \"three/examples/jsm/utils/BufferGeometryUtils.js\";\nimport data from \"./data/berAirportV205.json\";\nimport roofPatch from \"./data/berAirportRoofPatchV236.json\";\nimport { justicePalaceV183Boxes } from \"./justicePalaceV183Batches\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\nimport { letteringStrokePaths } from \"./drawnLettering\";\n"
+        },
+        {
+          "before": "/** Complete mapped T1 parts, T2/pier roof caps, DFS crown, and two actual runway widths. */\nexport function createBerAirportV205(native = false): Group {\n  const root = new Group(); root.name = \"BER Willy Brandt — mapped terminal parts and runway markings v205\";\n  root.userData = { textureFree: true, additiveOnly: true, fullStaticDetailOnTouch: true,\n    nativeMinecraft: native, blockNative: native, keepInMinecraft: native, sourceSha256: data.sourceSha256 };\n  const rows: Rows = [], caps: BufferGeometry[] = [], glass: number[] = [], solids: number[] = [];\n  for (const p of data.buildings) {\n    if (native) rows.push(...p.native); else caps.push(roof(p.rings, p.top));\n    for (const ring of p.rings) for (let i = 1; i < ring.length; i++) {\n      const a = ring[i - 1], b = ring[i];\n      if (p.column || p.roofBottom < p.top - .31) {\n        if (!native) sheet(solids, a, b, p.roofBottom, p.top);\n",
+          "current": "/** Complete mapped T1 parts, T2/pier roof caps, DFS crown, and two actual runway widths. */\nexport function createBerAirportV205(native = false): Group {\n  const root = new Group(); root.name = \"BER Willy Brandt — mapped terminal parts and runway markings v205\";\n  root.userData = { textureFree: true, additiveOnly: false, fullStaticDetailOnTouch: true,\n    scopedRoofCorrectionV236: roofPatch.id,\n    nativeMinecraft: native, blockNative: native, keepInMinecraft: native, sourceSha256: data.sourceSha256 };\n  const rows: Rows = [], caps: BufferGeometry[] = [], glass: number[] = [], solids: number[] = [];\n  for (const p of data.buildings) {\n    const corrected = p.id === roofPatch.id;\n    if (corrected && data.sourceSha256 !== roofPatch.sourceSha256) throw new Error(\"BER north-pier roof source mismatch\");\n    const capPolygons = corrected ? roofPatch.drawnRings : [p.rings];\n    const edgePolygons = corrected && native ? roofPatch.nativeRings : capPolygons;\n    if (native) rows.push(...(corrected ? roofPatch.nativeRows : p.native));\n    else for (const rings of capPolygons) caps.push(roof(rings, p.top));\n    for (const polygon of edgePolygons) for (const ring of polygon) for (let i = 1; i < ring.length; i++) {\n      const a = ring[i - 1], b = ring[i];\n      if (p.column || p.roofBottom < p.top - .31) {\n        if (!native) sheet(solids, a, b, p.roofBottom, p.top);\n"
+        }
+      ]
+    }
+  ],
+  "commonChanged": [
+    "src/app/src/JusticePalaceV183.ts",
+    "src/app/src/MinecraftJusticePalaceV183.ts",
+    "src/app/src/NorthParksV198.ts",
+    "src/app/src/BerAirportV205.ts",
+    "src/app/src/northParksV198Navigation.ts"
+  ],
+  "unchanged": [
+    "src/app/src/data/justicePalaceV183.json",
+    "src/app/src/justicePalaceV183Batches.ts",
+    "src/app/src/CharlottenburgCupolaV183.ts",
+    "src/app/src/staticSceneTransforms.ts",
+    "src/app/src/data/justicePalaceV183Native.json",
+    "src/app/src/data/northParksV198Drawn0.json",
+    "src/app/src/data/northParksV198Drawn1.json",
+    "src/app/src/data/northParksV198Native0.json",
+    "src/app/src/data/northParksV198Native1.json",
+    "src/app/src/data/berAirportV205.json",
+    "src/app/src/drawnLettering.ts",
+    "src/app/src/data/northParksV198Terrain.json",
+    "src/app/src/data/northParksV198Buildings.json"
+  ]
+}

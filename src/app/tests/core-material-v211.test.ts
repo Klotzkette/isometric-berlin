@@ -1,7 +1,10 @@
 import { expect, test } from "bun:test";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { Color, InstancedMesh, Mesh } from "three";
 import before from "./fixtures/core-material-v211-before.json";
-import native219 from "./fixtures/core-material-native-v219.json";
+import native281 from "./fixtures/core-material-native-v281.json";
+import nativeAudit281 from "./fixtures/core-material-native-v281-audit.json";
 import { buildingAttributes, mappedRoofTone } from "../src/buildingAttributes";
 import { preloadAltMitteNativeV169Source } from "../src/AltMitteNativeCoreV169";
 import { buildColumnToneLookup } from "../src/MinecraftVoxelWorld";
@@ -9,6 +12,26 @@ import { urbanFacadeScope } from "../src/urbanFacadePresentation";
 import { cleanedTone, isoFaceShade } from "../src/IsometricCityWorld";
 import { genericFacadeTone } from "../src/cityColourV184";
 import { coreSourceV211, sourceIdsV211, nativeIdsV211, fixtureV211, drawnV211, nativeV211, snapshotV211, wallColoursV211, disposeV211 } from "./helpers/coreMaterialV211";
+import { coreRecordsV281, fileHashCoreV281, hashCoreV281, retainedInstanceRowsV281 } from "./helpers/coreMaterialV281";
+
+test("v281 native receipt retains frozen historical fixtures, sources and complete pre-change planners", async () => {
+  for (const [file, hash] of Object.entries(nativeAudit281.historicalFixtureSha256))
+    expect(await fileHashCoreV281(new URL(`./fixtures/${file}`, import.meta.url))).toBe(hash);
+  for (const [path, hash] of Object.entries(nativeAudit281.publicSourceSha256))
+    expect(await fileHashCoreV281(new URL(`../../../${path}`, import.meta.url))).toBe(hash);
+  for (const receipt of nativeAudit281.sourceReplay) {
+    let source = readFileSync(new URL(`../../../${receipt.path}`, import.meta.url), "utf8");
+    const digest = (text: string) => createHash("sha256").update(text).digest("hex");
+    expect(digest(source)).toBe(receipt.currentSha256);
+    for (const replacement of receipt.replacements) {
+      expect(source.split(replacement.current)).toHaveLength(2);
+      source = source.replace(replacement.current, replacement.before);
+    }
+    // Replay only the reviewed bounded hunks; all other source bytes must still
+    // equal the independent pre-v281 commit, including the old control planner.
+    expect(digest(source)).toBe(receipt.beforeSha256);
+  }
+});
 
 test("real core owners use retained CSS/material evidence in both construction passes without changing geometry", () => {
   for (const id of sourceIdsV211) {
@@ -100,10 +123,30 @@ test("actual native factories retain all full/mobile matrices, indices, caps and
   for (const profile of ["full", "mobile"] as const) {
     const root = nativeV211(profile);
     try {
-      // The full factory includes later authored buildings. Its current exact
-      // snapshot is audited against release v118; all historical fixtures stay frozen.
-      const actual = snapshotV211(root), previous = native219[profile];
-      expect({ ...actual, colours: previous.colours }).toEqual(previous);
+      // The v219 snapshot predates later authored buildings. A four-capture
+      // HEAD/current audit retains it and accounts for every current difference.
+      // Unlike the former geometry-only assertion, current colours are exact too.
+      // Match capture ordering: resolve pending local/world transforms first.
+      const receipt = nativeAudit281.profiles[profile], records = coreRecordsV281(root);
+      expect(snapshotV211(root)).toEqual(native281[profile]);
+      const reviewed = [...receipt.changed.map(r => r.current), ...receipt.added];
+      const reviewedKeys = new Set(reviewed.map(r => r.key)), byKey = new Map(records.map(r => [r.key, r]));
+      expect(byKey.size).toBe(records.length);
+      expect(receipt.removed).toHaveLength(0);
+      for (const expected of reviewed) expect(byKey.get(expected.key)).toEqual(expected);
+      const unchanged = records.filter(r => !reviewedKeys.has(r.key));
+      expect(unchanged).toHaveLength(receipt.unchangedObjectCount);
+      // Ordered complete records were identical in independently restored HEAD:
+      // attributes, index, local/world matrices, colours, materials and visibility.
+      expect(hashCoreV281(unchanged.map(r => [r.key, r.completeSha256]))).toBe(receipt.unchangedOrderedSha256);
+      for (const retained of receipt.retainedRows) {
+        const mesh = root.getObjectByName(retained.name) as InstancedMesh;
+        const removed = new Set(retained.removeIndices);
+        expect(removed.size).toBe(retained.removeIndices.length);
+        expect([...removed].every(i => i >= 0 && i < mesh.count)).toBeTrue();
+        expect(retainedInstanceRowsV281(mesh, Array.from({ length: mesh.count }, (_, i) => !removed.has(i))))
+          .toEqual(retained.expected);
+      }
       const mesh = root.getObjectByName("Voxel building columns") as InstancedMesh;
       const lookup = buildColumnToneLookup({ buildings: nativeIdsV211.map(fixtureV211) });
       const tone = new Color();

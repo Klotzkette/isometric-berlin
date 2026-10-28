@@ -5,6 +5,7 @@ import { createIsometricCityCore, CHARITE_BETTENHOCHHAUS_IDS, CHARITE_CAMPUS_BRI
 import { staticGeometryAudit, disposeStaticAudit } from "./helpers/staticGeometryAudit";
 import receipt from "./fixtures/civic-charite-v206-preservation-v207.json";
 import foreignControls from "./fixtures/civic-charite-foreign-id-controls-v217.json";
+import { withPalacesBeforeV274 } from "./helpers/palastV274Replay";
 
 const baseline = receipt.baseline;
 const payloadPath = new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url);
@@ -14,8 +15,8 @@ const scene = await Bun.file(scenePath).json();
 const sha = (data: string | Uint8Array) => createHash("sha256").update(data).digest("hex");
 const selected = payload.buildings.filter(p => baseline.chariteIds.includes(p.id));
 const foreignIds = selected.map(p => ({ ...p, id: `v207-control-${p.id}` }));
-const audit = (root: ReturnType<typeof createIsometricCityCore>) => {
-  try { return staticGeometryAudit(root); }
+const audit = (root: ReturnType<typeof createIsometricCityCore>, civicProfile?: "full" | "mobile") => {
+  try { return civicProfile ? withPalacesBeforeV274(root, civicProfile, () => staticGeometryAudit(root)) : staticGeometryAudit(root); }
   finally { disposeStaticAudit(root); }
 };
 
@@ -35,17 +36,17 @@ test("v207 owner inventory starts from unchanged immutable v106 source records",
 
 for (const profile of ["full", "mobile"] as const) {
   test(`${profile}: historical civic recipe and exact non-ministry complement stay byte-identical`, () => {
-    expect(audit(createCentralCivicDetails(scene.landmarks, profile)))
+    expect(audit(createCentralCivicDetails(scene.landmarks, profile), profile))
       .toEqual(baseline.civic[profile].complete);
     const retained = scene.landmarks.filter((p: { name: string }) => p.name !== baseline.ministryName);
     // The education ministry remains present: the first local block is the only
     // authorized ministry replacement, never the complete shared function.
     expect(retained.some((p: { name: string }) => p.name === baseline.educationName)).toBeTrue();
-    expect(audit(createCentralCivicDetails(retained, profile)))
+    expect(audit(createCentralCivicDetails(retained, profile), profile))
       .toEqual(baseline.civic[profile].retainedWithoutMinistry);
     expect(audit(createCentralCivicDetails(scene.landmarks, profile, {
       includeLegacyResearchMinistry: false,
-    }))).toEqual(baseline.civic[profile].retainedWithoutMinistry);
+    }), profile)).toEqual(baseline.civic[profile].retainedWithoutMinistry);
   });
 
   test(`${profile}: every original Charité owner and the separate bridge remain independently reproducible`, () => {

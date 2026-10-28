@@ -115,11 +115,18 @@ describe("Kindertransport memorial at Bahnhof Friedrichstrasse", () => {
       expect(reference.fileUrl).toContain(reference.title);
       expect(reference.role).toContain("not bundled");
     }
-    expect(
-      visualReferenceAttribution.records.map((record) => record.file_url),
-    ).toEqual(
+    // The shared ledger also contains later places. Keep this memorial's
+    // complete five credits exact without excluding unrelated site evidence.
+    const credits = visualReferenceAttribution.records.filter(record =>
+      record.landmark_id === "kindertransport_memorial");
+    expect(credits).toHaveLength(5);
+    expect(credits.map((record) => record.file_url)).toEqual(
       KINDERTRANSPORT_VISUAL_REFERENCES.map((reference) => reference.fileUrl),
     );
+    for (const credit of credits) expect(credit).toMatchObject({
+      artist: "Pauline Ahrens", year: 2021, license: "CC BY 4.0",
+      license_url: "https://creativecommons.org/licenses/by/4.0/",
+    });
     expect(visualReferenceAttribution.required_attribution).toBe(
       "Kindertransport visual references: © Pauline Ahrens, 2021 / Bildhauerei in Berlin (CC BY 4.0)",
     );

@@ -1,9 +1,37 @@
 import { describe, expect, it } from "bun:test";
-import { InstancedMesh, Matrix4 } from "three";
+import { Color, InstancedMesh, Matrix4 } from "three";
 import previous from "../src/data/altMitteEdgesV186.json";
 import source from "../src/data/leipzigerMuenzeV257.json";
+import cinemas from "../src/data/eastCinemasV260.json";
 import { altMitteEdgesV186Batches, nativeContourRows } from "../src/altMitteEdgesV186Batches";
 import { LEIPZIGER_MUENZE_V257, leipzigerMuenzeV257Rows } from "../src/leipzigerMuenzeV257";
+
+// Released in 323d85f8, after this v257 test: only the exact old cinema edge
+// crossing its source-bound nine-metre recess is shortened. Reconstruct its
+// retained endpoint segment independently; do not call the production filter.
+const cinemaEdge = [3520.206, 3.3, -111.545, 37.243, .25, .16, -2.047788, 11644834, -1];
+function retainedV260Profiles(cell: { cell: string; rows: number[][] }): number[][] {
+  if (cell.cell !== "6:-1") return cell.rows;
+  expect(cell.rows[49]).toEqual(cinemaEdge);
+  const face = cinemas.sites.international;
+  expect(face.frontA).toEqual([3476.469, -103.914]);
+  expect(face.inward).toEqual([0.4598258755046059, -0.8880091014265691]);
+  expect(face.cantileverM).toBe(9);
+  const r = cell.rows[49], dx = Math.cos(r[6]), dz = -Math.sin(r[6]);
+  const a = [r[0] - dx * r[3] / 2, r[2] - dz * r[3] / 2];
+  const b = [r[0] + dx * r[3] / 2, r[2] + dz * r[3] / 2];
+  const depth = (p: number[]) => (p[0] - face.frontA[0]) * face.inward[0] + (p[1] - face.frontA[1]) * face.inward[1];
+  expect(depth(a)).toBeGreaterThan(9); expect(depth(b)).toBeLessThan(9);
+  const t = (9 - depth(a)) / (depth(b) - depth(a));
+  const cut = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+  const kept = Math.hypot(cut[0] - a[0], cut[1] - a[1]);
+  const corrected = [(a[0] + cut[0]) / 2, r[1], (a[1] + cut[1]) / 2, kept, ...r.slice(4)];
+  expect(depth(cut)).toBeCloseTo(9, 9);
+  expect(r[3] - kept).toBeGreaterThan(0); expect(r[3] - kept).toBeLessThan(1);
+  expect(corrected[0] - dx * kept / 2).toBeCloseTo(a[0], 9);
+  expect(corrected[2] - dz * kept / 2).toBeCloseTo(a[1], 9);
+  return cell.rows.map((row, i) => i === 49 ? corrected : row);
+}
 
 describe("v257 Alte Münze and Leipziger Straße", () => {
   it("uses only existing spatial cells and independent finite surface rows", () => {
@@ -29,15 +57,19 @@ describe("v257 Alte Münze and Leipziger Straße", () => {
     expect(leipzigerMuenzeV257Rows("missing", false)).toEqual([]);
   });
 
-  it("keeps the exact old instance prefix and the existing draw-call count", () => {
+  it("keeps the old prefix except the exact v260 cinema recess and retains the draw-call count", () => {
     const snapshot = JSON.stringify(previous);
+    expect(previous.cells.flatMap(c => c.rows).filter(r => r.length === cinemaEdge.length && r.every((v,i) => v === cinemaEdge[i]))).toHaveLength(1);
     for (const native of [false, true]) {
       const root = altMitteEdgesV186Batches(previous.cells, native);
       expect(root.children.length).toBe(previous.cells.length);
       let bytes = 0, beforeBytes = 0, geometryBytes = 0;
       for (let i = 0; i < previous.cells.length; i++) {
         const old = previous.cells[i];
-        const rows = native ? nativeContourRows(old.rows) : old.rows;
+        const profiles = retainedV260Profiles(old);
+        const originalRows = native ? nativeContourRows(old.rows) : old.rows;
+        const rows = native ? nativeContourRows(profiles) : profiles;
+        expect(rows.length).toBe(originalRows.length);
         const mesh = root.children[i] as InstancedMesh;
         expect(mesh.count).toBe(rows.length + leipzigerMuenzeV257Rows(old.cell, native).length);
         const actual = new Matrix4(), expected = new Matrix4();
@@ -49,9 +81,11 @@ describe("v257 Alte Münze and Leipziger Straße", () => {
           expected.elements[8] *= r[5]; expected.elements[9] *= r[5]; expected.elements[10] *= r[5];
           expected.setPosition(r[0], r[1], r[2]);
           expect(actual.elements.map(value => value || 0)).toEqual(Array.from(new Float32Array(expected.elements), value => value || 0));
+          expect(Array.from(mesh.instanceColor!.array.slice(j * 3, j * 3 + 3)))
+            .toEqual(Array.from(new Float32Array(new Color(r[native ? 6 : 7]).toArray())));
         });
         bytes += mesh.instanceMatrix.array.byteLength + (mesh.instanceColor?.array.byteLength ?? 0);
-        beforeBytes += rows.length * 76;
+        beforeBytes += originalRows.length * 76;
         geometryBytes += Object.values(mesh.geometry.attributes).reduce((sum, attribute) => sum + attribute.array.byteLength, 0) + (mesh.geometry.index?.array.byteLength ?? 0);
         mesh.geometry.dispose();
         for (const key of ["dayMaterial", "nightMaterial"]) mesh.userData[key]?.dispose();

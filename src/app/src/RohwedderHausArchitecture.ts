@@ -201,12 +201,27 @@ export function planRohwedderHaus(payload?: { buildings: readonly SourcePrism[] 
   for (let k = 1; k < S.entranceFence.points.length; k++) {
     const a = S.entranceFence.points[k - 1], b = S.entranceFence.points[k], length = Math.hypot(b[0] - a[0], b[1] - a[1]), dx = (b[0] - a[0]) / length, dz = (b[1] - a[1]) / length;
     const fence: Wall = { part: parts[0], edge: -1, a: [a[0], a[1]], dx, dz, nx: dz, nz: -dx, length };
-    const pushFence = (u: number, y: number, width: number, height: number, depth: number, color: number, role: string) => blocks.push({ position: at(fence, u, y, 0), size: [width, height, depth], yaw: -Math.atan2(dz, dx), color, role, sourceId: S.entranceFence.osm, normal: [dz, -dx], glass: false });
+    const pushFence = (u: number, y: number, width: number, height: number, depth: number, color: number, role: string, out = 0, cardinal = false) => blocks.push({ position: at(fence, u, y, out), size: [width, height, depth], yaw: cardinal ? 0 : -Math.atan2(dz, dx), color, role, sourceId: S.entranceFence.osm, normal: [dz, -dx], glass: false });
     for (const y of [5.18, 7.2, 9.7]) pushFence(length / 2, y, length, .1, .18, C.dark, "mapped Ehrenhof screen rail");
     const bars = Math.ceil(length / (mc ? .55 : mobile ? .42 : .22));
     for (let i = 0; i <= bars; i++) pushFence(length * i / bars, 7.45, mc ? .14 : .065, 4.7, .16, C.dark, "mapped Ehrenhof iron screen");
     const fields = Math.ceil(length / 4.4);
     for (let i = 0; i <= fields; i++) pushFence(length * i / fields, 7.4, .19, 4.8, .22, C.dark, "screen structural post");
+    // Magnus Manske's current-facing photo shows dark iron, narrow warm metal
+    // highlights and small lower medallions, not a uniformly gilded screen.
+    // Preserve all original axes/members; these are shallow exterior fittings.
+    for (let i = 0; i <= bars; i++) pushFence(length * i / bars, 7.45, mc ? .06 : .025, 4.7, .025, 0xb1aa8c, "v281 screen metal edge", .095, mc);
+    for (let i = 0; i < fields; i++) {
+      const u = length * (i + .5) / fields;
+      if (mc) {
+        pushFence(u, 6.5, .25, .25, .08, 0xa5965d, "v281 lower gate medallion", .13, true);
+      } else {
+        for (let j = 0; j < 12; j++) {
+          const t = j * Math.PI / 6;
+          pushFence(u + Math.cos(t) * .13, 6.5 + Math.sin(t) * .13, .065, .065, .04, 0xb4a363, "v281 lower gate medallion", .13);
+        }
+      }
+    }
   }
   const entrance = walls.find(w => w.part.id === "H1fcpzly" && w.edge === 22);
   if (entrance) {

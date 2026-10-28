@@ -198,20 +198,40 @@ test("v219 exactly reproduces v118 and changes only the Albrechtstraße and Mori
   }
 });
 
-for (const [profile, expected] of Object.entries(current)) {
-  test(`${profile}: interruptible construction matches the current synchronous appearance baseline`, () => {
+for (const profile of ["full", "mobile"] as const) {
+  test(`${profile}: interruptible construction exactly matches the current synchronous full world`, () => {
     const script = fileURLToPath(
       new URL("../scripts/benchmark-minecraft-world.ts", import.meta.url),
     );
-    const run = Bun.spawnSync([
-      process.execPath,
-      script,
-      "--cooperative",
-      ...(profile === "mobile" ? ["--mobile"] : []),
-    ]);
-    expect(run.exitCode).toBe(0);
-    const result = JSON.parse(run.stdout.toString());
-    expect(result).toMatchObject(expected);
+    const measure = (cooperative: boolean) => {
+      // Independent serial processes each load the complete real ground,
+      // source prisms and tunnel. The first world's buffers are gone before
+      // the second starts; no synthetic core fixture stands in for this world.
+      const run = Bun.spawnSync([
+        process.execPath, script,
+        ...(cooperative ? ["--cooperative"] : []),
+        ...(profile === "mobile" ? ["--mobile"] : []),
+      ], { env: { ...process.env, MINECRAFT_REFERENCE_MODULE: "" } });
+      expect(run.exitCode, run.stderr.toString()).toBe(0);
+      return JSON.parse(run.stdout.toString());
+    };
+    const synchronous = measure(false);
+    const result = measure(true);
+    // The immutable v219 fixture and every v200–v219 historical/version audit
+    // above remain unchanged. Later exact payload and authored-model retention
+    // is covered by minecraft-voxel-world, static-native-model-preservation and
+    // core-material-v211. This test compares the two current construction paths
+    // with the original complete-world byte hash and buffer/count contract.
+    const appearance = (value: typeof synchronous) => ({
+      detailProfile: value.detailProfile, instances: value.instances,
+      renderables: value.renderables, bufferBytes: value.bufferBytes, sha256: value.sha256,
+      sourceTrees: value.sourceTrees, visibleTrees: value.visibleTrees, signatureTrees: value.signatureTrees,
+    });
+    expect(synchronous.detailProfile).toBe(profile);
+    expect(synchronous.cooperative).toBeFalse();
+    expect(synchronous.taskCount).toBe(0);
+    expect(result.cooperative).toBeTrue();
+    expect(appearance(result)).toEqual(appearance(synchronous));
     expect(result.taskCount).toBeGreaterThan(2);
   }, 60000);
 }

@@ -2452,3 +2452,79 @@ Bayer and Decks prisms; no proposed future RKI tower is depicted. Reference
 photographs are not distributed as pixels or textures. Complete original
 source and exact ownership receipts remain. See docs/rki-moabit-v277.md,
 docs/lehrter-v277.md and docs/bayer-campus-v277.md.
+
+v1.0.181 Mitte, City West and transit: retained Geoportal Berlin complete source
+sheets (dl-de/zero-2-0) and OpenStreetMap features (© OpenStreetMap contributors,
+ODbL 1.0) support the bounded facade, road, station and fountain refinements.
+Operator, architect, LDA and DEGES references distinguish current buildings and
+ongoing motorway works. Unmeasured fittings and sculpture dimensions remain
+explicit display estimates. Weltkugelbrunnen photographs: © BACW/Farchmin and
+© BACW/KHMM (22 August 2006). Brandenburg Gate station photograph: © David
+Ulrich / S-Bahn Berlin GmbH. Oranienburger Tor portal photograph: © ukamp,
+13 December 2012 (published 15 December 2012). These are visual references only;
+no image pixels, textures, concert recordings or other new media are distributed.
+See docs/weltkugel-v281.md, docs/citywest-transport-v281.md,
+docs/transit-v281.md and docs/transit-v281-references.json.
+
+Mitte v281 visual references: © Dronebrothers / Berliner Ensemble (courtyard);
+Jörg Zägel, “Berlin, Mitte, Schiffbauerdamm 5, Mietshaus.jpg”, 28 April 2010,
+CC BY-SA 3.0; Landesdenkmalamt Berlin photographs of Dorotheenstraße 35 and 37
+(2001). These photos establish recognition only; no photograph or texture is
+redistributed. See docs/mitte-ensemble-v281.md and the public visual credits.
+
+Additional v1.0.181 exterior references: Moabit coal handling uses complete
+OpenStreetMap ways (© OpenStreetMap contributors, ODbL 1.0), Geoportal Berlin
+DOP 2025 (dl-de/zero-2-0), Landesdenkmalamt Berlin, Berliner Zentrum
+Industriekultur and BEW. The historical photograph
+[*HWK Moabit Berlin 2.JPG*](https://commons.wikimedia.org/wiki/File:HWK_Moabit_Berlin_2.JPG)
+is by Denis Apel, 22 March 2005, [CC BY-SA 3.0 Germany](https://creativecommons.org/licenses/by-sa/3.0/de/).
+Machine dimensions, static crane pose and stockpile volumes remain estimates.
+See [source and estimate record](docs/moabit-coal-v281.md) and its reference ledger.
+
+JVA Moabit and the Hohenschönhausen memorial use official justice, memorial
+and heritage accounts, distinguished from the former Lehrter Straße prison.
+Exterior references: [*JVA Moabit.JPG*](https://commons.wikimedia.org/wiki/File:JVA_Moabit.JPG),
+Elkawe, crop/correction by Sir James, 26 August 2009; and
+[*Clp 20100309 Gedenkstätte Berlin-Hohenschönhausen Wachturm.jpg*](https://commons.wikimedia.org/wiki/File:Clp_20100309_Gedenkst%C3%A4tte_Berlin-Hohensch%C3%B6nhausen_Wachturm.jpg),
+Christian Liebscher (Platte), 9 March 2010; both
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
+These historical photographs guide public exterior recognition, not current
+colour or dimensional surveys. See docs/prison-enclosures-v281-references.json.
+
+Charlottenburg parterre: retained OpenStreetMap hedges and fountain, SPSG garden
+and accessible-route accounts, and Berlin's public garden description. The
+Chancellery forecourt uses [BBR / Museum der 1000 Orte](https://www.museum-der-1000-orte.de/kunstwerke/kunstwerk/berlin)
+for Eduardo Chillida's *Berlin* (artwork © Eduardo Chillida / rights holders),
+the [Bundesregierung Ehrenhof account](https://www.bundesregierung.de/breg-de/bundesregierung/bundeskanzleramt/bundeskanzleramt-mit-ehrenhof-975026)
+(photograph RegierungOnline/Krünkelfeld), and the previously credited Sebastian
+Bergmann and Norbert Nagel photographs. The sculpture is an independently
+authored simplified recognition model; small dimensions, grass-island shape
+and fountain jets are estimates. See docs/park-chancellery-v281.md.
+
+The open Topography of Terror exhibition panels follow the
+[institution's Berlin 1933–1945 account](https://www.topographie.de/ausstellungen/berlin-1933-1945).
+Inspected gallery references: *Graben_Ausstellung_01* and *Graben_Ausstellung_05*,
+© Stefan Müller / Stiftung Topographie des Terrors; *Berlin-33-bis-45_DSC8013*
+(2021), © Sebastian Eggler / Stiftung Topographie des Terrors. No historical
+texts, photographs or documents are reproduced. Local panel counts, chapter
+positions, small fittings and colours remain estimates. See
+docs/topography-exhibition-v281.md and the public per-image ledger.
+
+Additional BMF forecourt references from BBR / Museum der 1000 Orte:
+[Wolfgang Rüppel's memorial to the uprising of 17 June 1953](https://www.museum-der-1000-orte.de/kunstwerke/kunstwerk/denkmal-zur-erinnerung-an-den-aufstand-des-17-juni-1953),
+artwork © Wolfgang Rüppel, photographs BBR / Cordia Schlegelmilch (2015);
+and [Detlev-Rohwedder-Haus](https://www.museum-der-1000-orte.de/bauwerke/bauwerk/detlev-rohwedder-haus),
+photograph BBR / Cordia Schlegelmilch (2016). The earlier Magnus Manske window
+and grille references and all other BMF photograph credits remain in force.
+All references above are for identification and visual inspection only: no
+reference image files, pixels, photographic textures or copies of historical
+image content are distributed with these additions.
+
+Pekinger Platz v281: complete OpenStreetMap park/playground outlines and table
+locations (© OpenStreetMap contributors, ODbL 1.0), Geoportal Berlin DOP 2025
+spring (dl-de/zero-2-0), Bezirksamt Mitte's local history and Wedding study,
+and the 2022 Sprengelkiez residents' field statement inform the bounded details.
+Shrub envelopes are orthophoto interpretations; small dimensions, material and
+planting density remain estimates. The Deichgraf operator identifies nearby
+Nordufer 10 as context only. No reference images are bundled. See
+docs/pekinger-platz-v281.md and the public per-source ledger.

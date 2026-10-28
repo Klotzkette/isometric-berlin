@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
-import { planFriedrichstrasseArchitecture, type FriedrichstrasseBlock } from "../src/FriedrichstrasseArchitecture";
+import { planFriedrichstrasseArchitecture, planFriedrichstrasseArchitectureV281Control, type FriedrichstrasseBlock } from "../src/FriedrichstrasseArchitecture";
 import { ALBRECHT_CORNER_V219 as corner, FRIEDRICHSTRASSE_ARCHITECTURE_SOURCE as source } from "../src/friedrichstrasseArchitectureProfile";
 
 const onFace = (b: FriedrichstrasseBlock) => b.sourceId === corner.sourceId && b.normal.every((n, i) => Math.abs(n - corner.normal[i]) < 1e-8);
@@ -8,13 +8,14 @@ const onFace = (b: FriedrichstrasseBlock) => b.sourceId === corner.sourceId && b
 describe("Albrechtstraße 12 photographed corner v219", () => {
   test("preserves the complete ordered v118 plan outside exactly one exterior edge", () => {
     // Captured before editing from c6f7f9d4, including all v218 additions.
+    // The full v281 control preserves that plan before its two audited transfers.
     for (const [minecraft, mobileLike, expected] of [
       [false, false, "3c100bf4c3ac6e1b98332aa782cfc28ede88849068fb0e2b808abc5659015c8c"],
       [false, true, "3c100bf4c3ac6e1b98332aa782cfc28ede88849068fb0e2b808abc5659015c8c"],
       [true, false, "ecff86f2b110aed1fe8c61bf99ff30d81677efe58af04e662764ab9050aa4f19"],
       [true, true, "83bd84eecbe23074a63c873bedad6e906cf9c61ecec7774549dd436c529c353d"],
     ] as const) {
-      const retained = planFriedrichstrasseArchitecture({ minecraft, mobileLike }).filter(b => !onFace(b));
+      const retained = planFriedrichstrasseArchitectureV281Control({ minecraft, mobileLike }).filter(b => !onFace(b));
       expect(createHash("sha256").update(JSON.stringify(retained)).digest("hex")).toBe(expected);
     }
   });

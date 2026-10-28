@@ -1,0 +1,590 @@
+{
+  "schema": 1,
+  "baseCommit": "9fccfb0bfebf5c03a24bf2d3f30a63a16e203059",
+  "historicalFixtureSha256": {
+    "core-material-v211-before.json": "b77dd894c06215d8e438b4762eb513db62c7be86d44dbc1b31b2c01422babc2c",
+    "core-material-native-v219.json": "156bc4813599df43a6248ea431031f5ed8bc8276ddb36a2bd2947cae972de271",
+    "minecraft-world-v219-baseline-audit.json": "d55f555969a0efb57a376e956c7b7b1726d2645f38387a97ab3e56cfb281260f"
+  },
+  "publicSourceSha256": {
+    "src/app/public/mesh/regierungsviertel/minecraft-voxels.json": "343499436d39a1012be687f5ab26782acdc04030d41e32e758d0eea058b059ce",
+    "src/app/public/mesh/regierungsviertel/lod2-prisms.json": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e",
+    "src/app/public/mesh/regierungsviertel/scene.json": "b0d80e2fbced05a258af1f106d41a05e060b1d2f8fa46cbc88b2f5c1f9f459b4"
+  },
+  "captureToolSha256": "215cce248f79da4939616bb920d8c7d361d9a6a6ad7d9c88d4da167a5fac2d1e",
+  "method": "Four isolated serial HEAD/current full/mobile captures; complete transitive HEAD runtime restored with Bun.onLoad/git show. Stable identity is full ancestor-name path, object name and occurrence within that path. All matrix/attribute/index/colour/material/visibility buffers are compared; no same-name collapse.",
+  "sourceReplay": [
+    {
+      "path": "src/app/src/MinecraftArchitecturalLandmarks.ts",
+      "beforeSha256": "a5a0886db37a27d4833f8c4519b8ba5b5d8129e079cf3a83f69afb7f8947fd2a",
+      "currentSha256": "4c938f00ee415fc777f3f24ba7ecb73815a85b6a79c04550ba93d79f379297f3",
+      "replacements": [
+        {
+          "before": "import { CHANCELLERY_ENTRANCE_PROFILE, CHANCELLERY_LAWN_RINGS, chancelleryFenceLimits, chancelleryLawnContains } from \"./ChancelleryEntranceProfile\";\nimport { hbfNativeDescentCuesV252 } from \"./HbfDetailsV252\";\nimport {\n  BoxGeometry,\n",
+          "current": "import { CHANCELLERY_ENTRANCE_PROFILE, CHANCELLERY_LAWN_RINGS, chancelleryFenceLimits, chancelleryLawnContains } from \"./ChancelleryEntranceProfile\";\nimport { chillidaNativeRowsV281, chillidaNativeLawnV281 } from \"./ChancelleryForecourtV281\";\nimport { hbfNativeDescentCuesV252 } from \"./HbfDetailsV252\";\nimport {\n  BoxGeometry,\n"
+        },
+        {
+          "before": "  }\n\n  const [courtX, courtZ] = profile.forecourtOffsetLocal;\n  pushFlagPole(\n    plan,\n    frame,\n",
+          "current": "  }\n\n  const [courtX, courtZ] = profile.forecourtOffsetLocal;\n  const [sculptureWorldX,sculptureWorldZ]=localToWorld(frame,courtX,courtZ);\n  for (const [label,rows] of [\n    [\"Chillida independent stepped iron arms v281\",chillidaNativeRowsV281(courtX,courtZ)],\n    [\"Chillida source-anchored lawn island v281\",chillidaNativeLawnV281(courtX,courtZ)],\n  ] as const) for(const row of rows) {\n    // Cardinal forms are centred at the exact transformed OSM node; the\n    // independent block recipe itself is never rotated with the drawn model.\n    const worldX=sculptureWorldX+row[0]-courtX,worldZ=sculptureWorldZ+row[2]-courtZ;\n    pushWorldBlock(plan,label,[worldX,CHANCELLERY_ENTRANCE_PROFILE.groundWorldY+row[1],worldZ],[row[3],row[4],row[5]],row[6]);\n  }\n  pushFlagPole(\n    plan,\n    frame,\n"
+        }
+      ]
+    },
+    {
+      "path": "src/app/src/RohwedderHausArchitecture.ts",
+      "beforeSha256": "59b96184cd872aa7300d6d93b80ad9f16239e3cf8bcc16cee5327513be0ed010",
+      "currentSha256": "efe644c4e39633e5d034231eda3a9d8f06a4db8305be198fb96281ce9f5a4894",
+      "replacements": [
+        {
+          "before": "  for (let k = 1; k < S.entranceFence.points.length; k++) {\n    const a = S.entranceFence.points[k - 1], b = S.entranceFence.points[k], length = Math.hypot(b[0] - a[0], b[1] - a[1]), dx = (b[0] - a[0]) / length, dz = (b[1] - a[1]) / length;\n    const fence: Wall = { part: parts[0], edge: -1, a: [a[0], a[1]], dx, dz, nx: dz, nz: -dx, length };\n    const pushFence = (u: number, y: number, width: number, height: number, depth: number, color: number, role: string) => blocks.push({ position: at(fence, u, y, 0), size: [width, height, depth], yaw: -Math.atan2(dz, dx), color, role, sourceId: S.entranceFence.osm, normal: [dz, -dx], glass: false });\n    for (const y of [5.18, 7.2, 9.7]) pushFence(length / 2, y, length, .1, .18, C.dark, \"mapped Ehrenhof screen rail\");\n    const bars = Math.ceil(length / (mc ? .55 : mobile ? .42 : .22));\n    for (let i = 0; i <= bars; i++) pushFence(length * i / bars, 7.45, mc ? .14 : .065, 4.7, .16, C.dark, \"mapped Ehrenhof iron screen\");\n    const fields = Math.ceil(length / 4.4);\n    for (let i = 0; i <= fields; i++) pushFence(length * i / fields, 7.4, .19, 4.8, .22, C.dark, \"screen structural post\");\n  }\n  const entrance = walls.find(w => w.part.id === \"H1fcpzly\" && w.edge === 22);\n  if (entrance) {\n",
+          "current": "  for (let k = 1; k < S.entranceFence.points.length; k++) {\n    const a = S.entranceFence.points[k - 1], b = S.entranceFence.points[k], length = Math.hypot(b[0] - a[0], b[1] - a[1]), dx = (b[0] - a[0]) / length, dz = (b[1] - a[1]) / length;\n    const fence: Wall = { part: parts[0], edge: -1, a: [a[0], a[1]], dx, dz, nx: dz, nz: -dx, length };\n    const pushFence = (u: number, y: number, width: number, height: number, depth: number, color: number, role: string, out = 0, cardinal = false) => blocks.push({ position: at(fence, u, y, out), size: [width, height, depth], yaw: cardinal ? 0 : -Math.atan2(dz, dx), color, role, sourceId: S.entranceFence.osm, normal: [dz, -dx], glass: false });\n    for (const y of [5.18, 7.2, 9.7]) pushFence(length / 2, y, length, .1, .18, C.dark, \"mapped Ehrenhof screen rail\");\n    const bars = Math.ceil(length / (mc ? .55 : mobile ? .42 : .22));\n    for (let i = 0; i <= bars; i++) pushFence(length * i / bars, 7.45, mc ? .14 : .065, 4.7, .16, C.dark, \"mapped Ehrenhof iron screen\");\n    const fields = Math.ceil(length / 4.4);\n    for (let i = 0; i <= fields; i++) pushFence(length * i / fields, 7.4, .19, 4.8, .22, C.dark, \"screen structural post\");\n    // Magnus Manske's current-facing photo shows dark iron, narrow warm metal\n    // highlights and small lower medallions, not a uniformly gilded screen.\n    // Preserve all original axes/members; these are shallow exterior fittings.\n    for (let i = 0; i <= bars; i++) pushFence(length * i / bars, 7.45, mc ? .06 : .025, 4.7, .025, 0xb1aa8c, \"v281 screen metal edge\", .095, mc);\n    for (let i = 0; i < fields; i++) {\n      const u = length * (i + .5) / fields;\n      if (mc) {\n        pushFence(u, 6.5, .25, .25, .08, 0xa5965d, \"v281 lower gate medallion\", .13, true);\n      } else {\n        for (let j = 0; j < 12; j++) {\n          const t = j * Math.PI / 6;\n          pushFence(u + Math.cos(t) * .13, 6.5 + Math.sin(t) * .13, .065, .065, .04, 0xb4a363, \"v281 lower gate medallion\", .13);\n        }\n      }\n    }\n  }\n  const entrance = walls.find(w => w.part.id === \"H1fcpzly\" && w.edge === 22);\n  if (entrance) {\n"
+        }
+      ]
+    },
+    {
+      "path": "src/app/src/FriedrichstrasseArchitecture.ts",
+      "beforeSha256": "9a24dcf4ae403028212da3b8b96b897d6c900bc33b10fb6528a53a2995b07df1",
+      "currentSha256": "d5717d5efc3102ef8c1409487874dcb9bab4903cbfe3d3c8b8305d4ab89a3877",
+      "replacements": [
+        {
+          "before": "import { BoxGeometry, BufferGeometry, Float32BufferAttribute, Color, DoubleSide, Group, InstancedMesh, Matrix4, Mesh, MeshStandardMaterial, ShapeUtils, Vector2 } from \"three\";\nimport type { PrismBuilding } from \"./IsometricCityWorld\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\nimport { FRIEDRICHSTRASSE_ARCHITECTURE_SOURCE as S, FRIEDRICHSTRASSE_ARCHITECTURE_GROUP, MINECRAFT_FRIEDRICHSTRASSE_ARCHITECTURE_GROUP, FRIEDRICHSTRASSE_ARCHITECTURE_EVIDENCE, ENSEMBLE_NEIGHBOUR_REFINEMENT_V218, ALBRECHT_CORNER_V219, ADMIRALSPALAST_IDS, admiralspalastRoofAt, admiralspalastSourceColumnAt } from \"./friedrichstrasseArchitectureProfile\";\ntype Point = readonly [number, number];\ntype Triple = [number, number, number];\n",
+          "current": "import { BoxGeometry, BufferGeometry, Float32BufferAttribute, Color, DoubleSide, Group, InstancedMesh, Matrix4, Mesh, MeshStandardMaterial, ShapeUtils, Vector2 } from \"three\";\nimport type { PrismBuilding } from \"./IsometricCityWorld\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\nimport { refineEnsembleFrontagesV281 } from \"./mitteEnsembleV281Plan\";\nimport { FRIEDRICHSTRASSE_ARCHITECTURE_SOURCE as S, FRIEDRICHSTRASSE_ARCHITECTURE_GROUP, MINECRAFT_FRIEDRICHSTRASSE_ARCHITECTURE_GROUP, FRIEDRICHSTRASSE_ARCHITECTURE_EVIDENCE, ENSEMBLE_NEIGHBOUR_REFINEMENT_V218, ALBRECHT_CORNER_V219, ADMIRALSPALAST_IDS, admiralspalastRoofAt, admiralspalastSourceColumnAt } from \"./friedrichstrasseArchitectureProfile\";\ntype Point = readonly [number, number];\ntype Triple = [number, number, number];\n"
+        },
+        {
+          "before": "\n\n/** Exterior-only facade details; no source courtyard or neighbouring mass is filled. */\nexport function planFriedrichstrasseArchitecture(options: FriedrichstrasseOptions = {}): FriedrichstrasseBlock[] {\n  const blocks: FriedrichstrasseBlock[] = [], mc = !!options.minecraft, mobile = mc && !!options.mobileLike, voxel = voxelSampler(options.voxels);\n  const parts = S.prisms as unknown as PrismBuilding[], profiles = new Map(S.profiles.flatMap(p => p.ids.map(id => [id, p] as const)));\n  const nearby = (options.sourcePrisms ?? parts).map(p => ({p, x0: Math.min(...p.ring.map(a=>a[0]))/10, x1: Math.max(...p.ring.map(a=>a[0]))/10, z0: Math.min(...p.ring.map(a=>a[1]))/10, z1: Math.max(...p.ring.map(a=>a[1]))/10})).filter(b=>b.x1>800 && b.x0<1280 && b.z1> -460 && b.z0< -150);\n",
+          "current": "\n\n/** Exterior-only facade details; no source courtyard or neighbouring mass is filled. */\nexport function planFriedrichstrasseArchitectureV281Control(options: FriedrichstrasseOptions = {}): FriedrichstrasseBlock[] {\n  const blocks: FriedrichstrasseBlock[] = [], mc = !!options.minecraft, mobile = mc && !!options.mobileLike, voxel = voxelSampler(options.voxels);\n  const parts = S.prisms as unknown as PrismBuilding[], profiles = new Map(S.profiles.flatMap(p => p.ids.map(id => [id, p] as const)));\n  const nearby = (options.sourcePrisms ?? parts).map(p => ({p, x0: Math.min(...p.ring.map(a=>a[0]))/10, x1: Math.max(...p.ring.map(a=>a[0]))/10, z0: Math.min(...p.ring.map(a=>a[1]))/10, z1: Math.max(...p.ring.map(a=>a[1]))/10})).filter(b=>b.x1>800 && b.x0<1280 && b.z1> -460 && b.z0< -150);\n"
+        },
+        {
+          "before": "  sign(\"ADMIRALSPALAST\",bays[4],base+H*.246,.20,.54,0x665d46);\n  return blocks;\n}\nfunction addAdmiralShell(root: Group, blocks: FriedrichstrasseBlock[], options: FriedrichstrasseOptions): void {\n  if (options.minecraft) {\n    const cell=options.mobileLike?1.55:1.2;\n",
+          "current": "  sign(\"ADMIRALSPALAST\",bays[4],base+H*.246,.20,.54,0x665d46);\n  return blocks;\n}\n/** Complete historical planner remains available as the finite control model. */\nexport function planFriedrichstrasseArchitecture(options: FriedrichstrasseOptions = {}): FriedrichstrasseBlock[] {\n  return refineEnsembleFrontagesV281(planFriedrichstrasseArchitectureV281Control(options));\n}\nfunction addAdmiralShell(root: Group, blocks: FriedrichstrasseBlock[], options: FriedrichstrasseOptions): void {\n  if (options.minecraft) {\n    const cell=options.mobileLike?1.55:1.2;\n"
+        }
+      ]
+    },
+    {
+      "path": "src/app/src/TopographyTerrorArchitecture.ts",
+      "beforeSha256": "c25c442d1a0cdf6d1964d5ce8179556b072de56f47d36d6b9116a06453cfa79e",
+      "currentSha256": "e9c227e31a9c4feb0249e1eb06b995e562dd49d64383925c4f4b0034b1398303",
+      "replacements": [
+        {
+          "before": "import { BoxGeometry, Color, Group, InstancedMesh, Matrix4, Mesh, MeshStandardMaterial, Path, Shape, ShapeGeometry, Vector2, Vector3 } from \"three\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\nimport { TOPOGRAPHY_TERROR_SOURCE as S, TOPOGRAPHY_TERROR_MUSEUM as M, TOPOGRAPHY_TERROR_GROUP, MINECRAFT_TOPOGRAPHY_TERROR_GROUP, TOPOGRAPHY_TERROR_PROFILE, TOPOGRAPHY_TERROR_TOP as TOP, topographySolidContains, topographySiteSurfaceAt, topographySourceGroundAt, type TopographyPoint as Point, type TopographySolid } from \"./topographyTerrorProfile\";\n\ntype Triple = [number, number, number];\n",
+          "current": "import { BoxGeometry, Color, Group, InstancedMesh, Matrix4, Mesh, MeshStandardMaterial, Path, Shape, ShapeGeometry, Vector2, Vector3 } from \"three\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\nimport { planTopographyExhibitionV281 } from \"./TopographyExhibitionV281\";\nimport { TOPOGRAPHY_TERROR_SOURCE as S, TOPOGRAPHY_TERROR_MUSEUM as M, TOPOGRAPHY_TERROR_GROUP, MINECRAFT_TOPOGRAPHY_TERROR_GROUP, TOPOGRAPHY_TERROR_PROFILE, TOPOGRAPHY_TERROR_TOP as TOP, topographySolidContains, topographySiteSurfaceAt, topographySourceGroundAt, type TopographyPoint as Point, type TopographySolid } from \"./topographyTerrorProfile\";\n\ntype Triple = [number, number, number];\n"
+        },
+        {
+          "before": "    emit(north,u,ground+.40,pitch-.035,.58,.72,-.62,i%3?C.brick:C.concrete,\"archaeological retained wall relief\",false,true);\n    emit(north,u,ground+2.23,pitch-.09,.065,7,-3.55,i%3?C.glassLight:C.glass,\"trench protective glass canopy\",true);\n    emit(north,u-pitch/2,ground+2.26,.09,.1,7.1,-3.55,C.steel,\"trench roof transverse frame\");\n    if(i%3===0){emit(north,u,ground+1.23,.10,2,.10,-.5,C.steel,\"trench canopy support\",false,true);emit(south,u,ground+1.31,pitch*.7,1.3,.055,-.35,C.white,\"plain exhibition panel field\");}\n  }\n  for(let i=0;i<n;i++){const u=(i+.5)*pitch,p=at(north,u,0,-3.45),y=topographySourceGroundAt(p[0],p[2])+2.27;for(const d of [-.05,-3.55,-7.05])emit(north,u,y,pitch+.01,.12,.11,d,C.steel,\"trench roof continuous rail\");}\n  const cellar=S.cellar.ring.slice(0,-1) as unknown as Point[],cf=walls(cellar),floorY=5.68;\n",
+          "current": "    emit(north,u,ground+.40,pitch-.035,.58,.72,-.62,i%3?C.brick:C.concrete,\"archaeological retained wall relief\",false,true);\n    emit(north,u,ground+2.23,pitch-.09,.065,7,-3.55,i%3?C.glassLight:C.glass,\"trench protective glass canopy\",true);\n    emit(north,u-pitch/2,ground+2.26,.09,.1,7.1,-3.55,C.steel,\"trench roof transverse frame\");\n    if(i%3===0){emit(north,u,ground+1.23,.10,2,.10,-.5,C.steel,\"trench canopy support\",false,true);blocks.push(...planTopographyExhibitionV281(at(south,u,ground+1.31,-.35),pitch*.7,-Math.atan2(south.dz,south.dx),mc,i/3));}\n  }\n  for(let i=0;i<n;i++){const u=(i+.5)*pitch,p=at(north,u,0,-3.45),y=topographySourceGroundAt(p[0],p[2])+2.27;for(const d of [-.05,-3.55,-7.05])emit(north,u,y,pitch+.01,.12,.11,d,C.steel,\"trench roof continuous rail\");}\n  const cellar=S.cellar.ring.slice(0,-1) as unknown as Point[],cf=walls(cellar),floorY=5.68;\n"
+        }
+      ]
+    }
+  ],
+  "profiles": {
+    "full": {
+      "before": {
+        "geometry": "1307aca65919e6b38af396c2d7cb7ef599640fd097e09d3e451815f4ce98efea",
+        "colours": "7a881debd6c86c07bb7fc2cbe758386e20bf9d02e04774068541242423c87576",
+        "bytes": 182283346,
+        "bufferRecords": 577
+      },
+      "current": {
+        "geometry": "f58ce9b97a63d6ab9ea45f3b5a25d2d6bed9189538fd7066eaad33f9e07681da",
+        "colours": "3c4725d70ada768b024dee00198981f62853d7de6ad9a8a528b12f94146a5c3a",
+        "bytes": 182464874,
+        "bufferRecords": 579
+      },
+      "unchangedObjectCount": 345,
+      "unchangedOrderedSha256": "5ab50d092807aa5f689447074c698014e260cbcb9862d7c6588cb6a3f5a28766",
+      "removed": [],
+      "changed": [
+        {
+          "before": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft block-native architectural landmarks\",\"Minecraft Federal Chancellery block signature\",0]",
+            "instances": 690,
+            "bytes": 53280,
+            "bufferRecords": 2,
+            "completeSha256": "d8df76c6fcbc59b746af490a9d8b51de8721cd1e3b288049621e1a017d275322"
+          },
+          "current": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft block-native architectural landmarks\",\"Minecraft Federal Chancellery block signature\",0]",
+            "instances": 714,
+            "bytes": 55104,
+            "bufferRecords": 2,
+            "completeSha256": "5d7eab1f7836c1b5111d0cdd600653733c8a9307cefd1c13d09cbc4a0f8c35a1"
+          }
+        },
+        {
+          "before": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Detlev Rohwedder Haus architecture\",\"Minecraft Detlev Rohwedder Haus architecture facade blocks\",0]",
+            "instances": 17206,
+            "bytes": 1308304,
+            "bufferRecords": 2,
+            "completeSha256": "0c0503c6f54d07de46f901df35885fc87f9cb1a0885bbb0fe2a54a4354c82cc6"
+          },
+          "current": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Detlev Rohwedder Haus architecture\",\"Minecraft Detlev Rohwedder Haus architecture facade blocks\",0]",
+            "instances": 17305,
+            "bytes": 1315828,
+            "bufferRecords": 2,
+            "completeSha256": "2c28f466e9639f19e956eb6166dc9c7d47a69f884b68dee2398e489a14992208"
+          }
+        },
+        {
+          "before": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Friedrichstrasse and Schiffbauerdamm architecture\",\"Friedrichstrasse masonry and metal\",0]",
+            "instances": 20554,
+            "bytes": 1562752,
+            "bufferRecords": 2,
+            "completeSha256": "a2dcb4b03d6f5aa183e2d396ee31abc4aec9dd3b4eaaaac395529719b93069d4"
+          },
+          "current": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Friedrichstrasse and Schiffbauerdamm architecture\",\"Friedrichstrasse masonry and metal\",0]",
+            "instances": 20478,
+            "bytes": 1556976,
+            "bufferRecords": 2,
+            "completeSha256": "7230d6683145fae2d4262c1881bc19ee7022b51776a1e45888437dc9c8cf5871"
+          }
+        },
+        {
+          "before": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Friedrichstrasse and Schiffbauerdamm architecture\",\"Friedrichstrasse facade glazing\",0]",
+            "instances": 3014,
+            "bytes": 229712,
+            "bufferRecords": 2,
+            "completeSha256": "8582d18ba07c4366de8d4bb2ce5727f508b1367a3f185c8ba94ea6a4fbdbb554"
+          },
+          "current": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Friedrichstrasse and Schiffbauerdamm architecture\",\"Friedrichstrasse facade glazing\",0]",
+            "instances": 2991,
+            "bytes": 227964,
+            "bufferRecords": 2,
+            "completeSha256": "1a50eec05ad6db59791b78a64d4e9dc35fab6e1f9dc6ef7014776c189404fd9c"
+          }
+        },
+        {
+          "before": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Topography of Terror architecture\",\"Topography steel concrete masonry details\",0]",
+            "instances": 4032,
+            "bytes": 307080,
+            "bufferRecords": 2,
+            "completeSha256": "a033dfd5cc224cd0887211fb498b30e944c474587e59d2d89ef889e12e025a1d"
+          },
+          "current": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Topography of Terror architecture\",\"Topography steel concrete masonry details\",0]",
+            "instances": 4200,
+            "bytes": 319848,
+            "bufferRecords": 2,
+            "completeSha256": "74427c3f997eea457a925b6399ce2ca85b551d44246a73f0dee297c24fd77570"
+          }
+        }
+      ],
+      "added": [
+        {
+          "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Weltkugelbrunnen v281 native\",\"\",0]",
+          "instances": 2188,
+          "bytes": 166936,
+          "bufferRecords": 2,
+          "completeSha256": "27957cf5b97f92991cd47d083430e037e298785e48ce3422b22730a32ff923f1"
+        }
+      ],
+      "retainedRows": [
+        {
+          "name": "Minecraft Federal Chancellery block signature",
+          "removeIndices": [
+            688,
+            689,
+            690,
+            691,
+            692,
+            693,
+            694,
+            695,
+            696,
+            697,
+            698,
+            699,
+            700,
+            701,
+            702,
+            703,
+            704,
+            705,
+            706,
+            707,
+            708,
+            709,
+            710,
+            711
+          ],
+          "expected": {
+            "count": 690,
+            "matrices": "3eccb7cc85debb5c6cc7c31a3cd3cac6cc4ae5cd27c10d11d80ae835585a3e5e",
+            "colours": "14ccbcb22d2874abcd3bb9f6b5b8310eb71419b1e084375fe7670d161796b5fb"
+          }
+        },
+        {
+          "name": "Minecraft Detlev Rohwedder Haus architecture facade blocks",
+          "removeIndices": [
+            16777,
+            16778,
+            16779,
+            16780,
+            16781,
+            16782,
+            16783,
+            16784,
+            16785,
+            16786,
+            16880,
+            16881,
+            16882,
+            16883,
+            16884,
+            16885,
+            16886,
+            16887,
+            16888,
+            16889,
+            16890,
+            16891,
+            16892,
+            16893,
+            16894,
+            16895,
+            16896,
+            16897,
+            16898,
+            16899,
+            16900,
+            16901,
+            16902,
+            16903,
+            16904,
+            16905,
+            16906,
+            16907,
+            16908,
+            16909,
+            16910,
+            16911,
+            16912,
+            16913,
+            16914,
+            16915,
+            16916,
+            16917,
+            16918,
+            16919,
+            16920,
+            16921,
+            16922,
+            16923,
+            16924,
+            16925,
+            16926,
+            16927,
+            16928,
+            16929,
+            16930,
+            16931,
+            16932,
+            16933,
+            16934,
+            16935,
+            16936,
+            16937,
+            16938,
+            16939,
+            16940,
+            16941,
+            16942,
+            16943,
+            16944,
+            16945,
+            16946,
+            16947,
+            16948,
+            16949,
+            16950,
+            16951,
+            16952,
+            16953,
+            16954,
+            16955,
+            16956,
+            16957,
+            16958,
+            16959,
+            16960,
+            16961,
+            16962,
+            16963,
+            16964,
+            16965,
+            16966,
+            16967,
+            16968
+          ],
+          "expected": {
+            "count": 17206,
+            "matrices": "5e53c56bec7c57431a76e62fa06229ff6b5c83eeb19595e67cffb95f250244ee",
+            "colours": "3d3dc57e65cf72aa7c22e799dee617fc2dc280207c6d22da72ccc7468e5bf1f4"
+          }
+        }
+      ],
+      "beforeSourceGraphSha256": "ef8d189487285e225aad53877d7ab50909da465b48dd9e49c2724a367ae5e814",
+      "currentSourceGraphSha256": "51cb9e02c86b3aec233643a5ad6534ee8eb3b4296ecbe787f6dcc68b1a1fd0a7"
+    },
+    "mobile": {
+      "before": {
+        "geometry": "9210646d90b5c25f95afac1ad486fa92f6c0b472cb76c3ea4096b49b9ebc23ab",
+        "colours": "3a4389a6a49121644b9c0772770ecf4099b93236decd4e824934a765b6ee3e98",
+        "bytes": 176654046,
+        "bufferRecords": 573
+      },
+      "current": {
+        "geometry": "0586e90947d006c7ffb68107c5f12f53e9bfe03c4bee33dc0ca5adf9de1ee70d",
+        "colours": "d53c99e2719df02a850cb038a33db52f56d9402e5468116ad3248942b1fb950e",
+        "bytes": 176835574,
+        "bufferRecords": 575
+      },
+      "unchangedObjectCount": 343,
+      "unchangedOrderedSha256": "099566f2df0c2636ad90b5044df06cf4b02a9d4f7efdf13040d513a5e9283a25",
+      "removed": [],
+      "changed": [
+        {
+          "before": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft block-native architectural landmarks\",\"Minecraft Federal Chancellery block signature\",0]",
+            "instances": 690,
+            "bytes": 53280,
+            "bufferRecords": 2,
+            "completeSha256": "d8df76c6fcbc59b746af490a9d8b51de8721cd1e3b288049621e1a017d275322"
+          },
+          "current": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft block-native architectural landmarks\",\"Minecraft Federal Chancellery block signature\",0]",
+            "instances": 714,
+            "bytes": 55104,
+            "bufferRecords": 2,
+            "completeSha256": "5d7eab1f7836c1b5111d0cdd600653733c8a9307cefd1c13d09cbc4a0f8c35a1"
+          }
+        },
+        {
+          "before": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Detlev Rohwedder Haus architecture\",\"Minecraft Detlev Rohwedder Haus architecture facade blocks\",0]",
+            "instances": 12067,
+            "bytes": 917740,
+            "bufferRecords": 2,
+            "completeSha256": "de89c798e4a2783da804f85b28955e38114bdbcfb0278ae6e338c51df4801c8f"
+          },
+          "current": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Detlev Rohwedder Haus architecture\",\"Minecraft Detlev Rohwedder Haus architecture facade blocks\",0]",
+            "instances": 12166,
+            "bytes": 925264,
+            "bufferRecords": 2,
+            "completeSha256": "46a59c9dceab7f432f5427456cb350c52573b231a6511127a1cc34090409c0c4"
+          }
+        },
+        {
+          "before": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Friedrichstrasse and Schiffbauerdamm architecture\",\"Friedrichstrasse masonry and metal\",0]",
+            "instances": 17208,
+            "bytes": 1308456,
+            "bufferRecords": 2,
+            "completeSha256": "fa2ab6386926bd573a675a09392f2c708a45e5e8ad35f123f9dd8eb1a61bdb81"
+          },
+          "current": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Friedrichstrasse and Schiffbauerdamm architecture\",\"Friedrichstrasse masonry and metal\",0]",
+            "instances": 17132,
+            "bytes": 1302680,
+            "bufferRecords": 2,
+            "completeSha256": "fd3b02df50324f5b428f3ed578f4aa4a47817ac3d07e55a056f4a11ff2c6dcb7"
+          }
+        },
+        {
+          "before": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Friedrichstrasse and Schiffbauerdamm architecture\",\"Friedrichstrasse facade glazing\",0]",
+            "instances": 3014,
+            "bytes": 229712,
+            "bufferRecords": 2,
+            "completeSha256": "8582d18ba07c4366de8d4bb2ce5727f508b1367a3f185c8ba94ea6a4fbdbb554"
+          },
+          "current": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Friedrichstrasse and Schiffbauerdamm architecture\",\"Friedrichstrasse facade glazing\",0]",
+            "instances": 2991,
+            "bytes": 227964,
+            "bufferRecords": 2,
+            "completeSha256": "1a50eec05ad6db59791b78a64d4e9dc35fab6e1f9dc6ef7014776c189404fd9c"
+          }
+        },
+        {
+          "before": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Topography of Terror architecture\",\"Topography steel concrete masonry details\",0]",
+            "instances": 4020,
+            "bytes": 306168,
+            "bufferRecords": 2,
+            "completeSha256": "b8d983e472d29e199b9d77ca77132c356a2b3a6202a11b1401dc2eb64f3a8d6f"
+          },
+          "current": {
+            "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Minecraft Topography of Terror architecture\",\"Topography steel concrete masonry details\",0]",
+            "instances": 4188,
+            "bytes": 318936,
+            "bufferRecords": 2,
+            "completeSha256": "d8ab932dcc3b5444470ae1927a9b5e224ac952f324b684a55bfdc23cf412b9d7"
+          }
+        }
+      ],
+      "added": [
+        {
+          "key": "[\"Minecraft voxel world (LoD2 + OSM + official tree points)\",\"Weltkugelbrunnen v281 native\",\"\",0]",
+          "instances": 2188,
+          "bytes": 166936,
+          "bufferRecords": 2,
+          "completeSha256": "27957cf5b97f92991cd47d083430e037e298785e48ce3422b22730a32ff923f1"
+        }
+      ],
+      "retainedRows": [
+        {
+          "name": "Minecraft Federal Chancellery block signature",
+          "removeIndices": [
+            688,
+            689,
+            690,
+            691,
+            692,
+            693,
+            694,
+            695,
+            696,
+            697,
+            698,
+            699,
+            700,
+            701,
+            702,
+            703,
+            704,
+            705,
+            706,
+            707,
+            708,
+            709,
+            710,
+            711
+          ],
+          "expected": {
+            "count": 690,
+            "matrices": "3eccb7cc85debb5c6cc7c31a3cd3cac6cc4ae5cd27c10d11d80ae835585a3e5e",
+            "colours": "14ccbcb22d2874abcd3bb9f6b5b8310eb71419b1e084375fe7670d161796b5fb"
+          }
+        },
+        {
+          "name": "Minecraft Detlev Rohwedder Haus architecture facade blocks",
+          "removeIndices": [
+            11638,
+            11639,
+            11640,
+            11641,
+            11642,
+            11643,
+            11644,
+            11645,
+            11646,
+            11647,
+            11741,
+            11742,
+            11743,
+            11744,
+            11745,
+            11746,
+            11747,
+            11748,
+            11749,
+            11750,
+            11751,
+            11752,
+            11753,
+            11754,
+            11755,
+            11756,
+            11757,
+            11758,
+            11759,
+            11760,
+            11761,
+            11762,
+            11763,
+            11764,
+            11765,
+            11766,
+            11767,
+            11768,
+            11769,
+            11770,
+            11771,
+            11772,
+            11773,
+            11774,
+            11775,
+            11776,
+            11777,
+            11778,
+            11779,
+            11780,
+            11781,
+            11782,
+            11783,
+            11784,
+            11785,
+            11786,
+            11787,
+            11788,
+            11789,
+            11790,
+            11791,
+            11792,
+            11793,
+            11794,
+            11795,
+            11796,
+            11797,
+            11798,
+            11799,
+            11800,
+            11801,
+            11802,
+            11803,
+            11804,
+            11805,
+            11806,
+            11807,
+            11808,
+            11809,
+            11810,
+            11811,
+            11812,
+            11813,
+            11814,
+            11815,
+            11816,
+            11817,
+            11818,
+            11819,
+            11820,
+            11821,
+            11822,
+            11823,
+            11824,
+            11825,
+            11826,
+            11827,
+            11828,
+            11829
+          ],
+          "expected": {
+            "count": 12067,
+            "matrices": "1e35d2aa914e053d06516166ae0515a7174e28fcc48c9d7489c2e2842855a1de",
+            "colours": "b34b73fd816880129f2a8fb37f4ac8ffe67c314ad4863a8689415037018ec467"
+          }
+        }
+      ],
+      "beforeSourceGraphSha256": "ef8d189487285e225aad53877d7ab50909da465b48dd9e49c2724a367ae5e814",
+      "currentSourceGraphSha256": "51cb9e02c86b3aec233643a5ad6534ee8eb3b4296ecbe787f6dcc68b1a1fd0a7"
+    }
+  }
+}

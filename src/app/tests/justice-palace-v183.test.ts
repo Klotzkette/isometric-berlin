@@ -12,7 +12,7 @@ describe("courthouses and palace v183", () => {
     expect(root.userData.sourceGeometryRetained).toBe(true);
     expect(root.children.length).toBe(native ? 2 : 4);
     expect(root.children.some(c => c instanceof LineSegments)).toBe(!native);
-    let bytes = 0, count = 0;
+    let bytes = 0, count = 0, laterInstances = 0;
     const materials = new Set<Material>();
     root.children.forEach(child => {
       expect(child.matrixAutoUpdate).toBe(false);
@@ -26,6 +26,13 @@ describe("courthouses and palace v183", () => {
         count += drawable.count;
         bytes += drawable.instanceMatrix.array.byteLength + drawable.instanceColor!.array.byteLength;
         expect(drawable.instanceMatrix.count).toBe(drawable.count);
+        if (drawable.userData.littenInstanzV257Rows !== undefined) {
+          // These separately tested additions already extended the original
+          // v183 batch in v257 and v281. Keep the old component budget intact.
+          expect(drawable.userData.littenInstanzV257Rows).toBe(native ? 7172 : 3681);
+          expect(drawable.userData.charlottenburgParkV281Rows).toBe(native ? 1100 : 244);
+          laterInstances += drawable.userData.littenInstanzV257Rows + drawable.userData.charlottenburgParkV281Rows;
+        }
         if (native) {
           expect(drawable.userData.blockNative).toBe(true);
           const data = drawable.instanceMatrix.array;
@@ -38,8 +45,12 @@ describe("courthouses and palace v183", () => {
       }
       geo.dispose();
     });
-    expect(count).toBe(native ? 57217 : 15407);
-    expect(bytes).toBeLessThan(native ? 4360000 : 3080000);
+    expect(laterInstances).toBe(native ? 8272 : 3925);
+    expect(count - laterInstances).toBe(native ? 57217 : 15407);
+    // Six v281 basin triangles append position, colour and normal Float32s.
+    // Matrices/colours use exactly 76 bytes per appended instance.
+    const laterBytes = laterInstances * 76 + (native ? 0 : 6 * 9 * 4 * 3);
+    expect(bytes - laterBytes).toBeLessThan(native ? 4360000 : 3080000);
     for (const material of materials) material.dispose();
     root.clear();
   });

@@ -1885,3 +1885,36 @@ families and all 93 stops. Cancellation, hidden-page suspension and retries must
 release blocked work safely, with no stale publication or repeated request storm.
 Verify simulated stalls separately from ordinary local/browser timings. Use only
 the internal browser; do not launch external Safari or another browser process.
+
+
+### Step 10 — v281 Mitte, City West and transit detail
+
+The owner requests the existing east/south-IHZ and Berliner Ensemble blocks,
+Ganymed and the rear Kantine, ICC/Funkturm motorway, ZOB, Zoo forecourt,
+Joachimsthaler Straße, Weltkugelbrunnen, tram rails and evidenced U-Bahn portals.
+Keep all source sheets, genuine courtyards, routes and prior details. Only exactly
+receipted obsolete fountain/platform-roof proxies may yield to complete bounded
+replacements with corresponding navigation. Differentiate completed buildings
+from current roadworks; unmeasured small fittings remain explicit estimates.
+Keep full mobile quality, independent orthogonal native geometry, 93 stops, six
+modes and unchanged runtime/package limits. No new geographic coverage is
+authorized by this turn; the Reuter-West proposal remains pending. Use only the
+internal browser and bounded source/build work on this nearly full disk.
+
+The owner's 28 October continuation additionally permits bounded refinements of
+Schlosspark Charlottenburg, the mapped waterside coal handling at Heizkraftwerk
+Moabit, the Kanzleramt entrance lawns/fence and Chillida sculpture, the outer
+enclosures of JVA Moabit and the Hohenschönhausen memorial, Topographie des
+Terrors, the WELT balloon and the BMF/17 June 1953 memorial forecourt. Resolve
+the ambiguous nearby triangular square before changing it. Preserve the open
+Geschichtspark Lehrter Straße as a separate present-day memorial, all source
+owners, public routes and existing runtime/release limits. Publicly documented
+external recognition details only; dimensions lacking measurements are labelled
+display estimates. Continue in the same unpublished v281 release.
+
+The spoken “Pickingplatz” is resolved from the district's explicit triangular
+green square/playground account and the nearby Deichgraf operator address as
+Pekinger Platz at Nordufer (OSM way4751040). The interpretation was stated to
+the owner while the optional clarification remained unanswered. Add only
+bounded source-supported details there; preserve the distinct Sprengelpark,
+existing park/playground/path rings and all prior ground geometry.

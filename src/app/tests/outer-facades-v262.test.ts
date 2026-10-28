@@ -4,6 +4,7 @@ import { gunzipSync } from "node:zlib";
 import { Mesh } from "three";
 import data from "../src/data/outerFacadesV262.json";
 import { prepareOuterFacadesV262, type OuterFacadeSourceV262 } from "../src/outerFacadesV262";
+import { prepareAllotmentsV264 } from "../src/AllotmentsV264";
 import { createSurroundingCityChunk, type SurroundingCityChunk } from "../src/SurroundingCityGeometry";
 import { disposeSurroundingCityRoot } from "../src/SurroundingCity";
 
@@ -83,7 +84,10 @@ test("changed source streams, navigation, origin, missing bindings and over-budg
 test("real outer187-27_6 fittings share existing decoder buffers and retain navigation in both modes", () => {
   for (const native of [false, true]) {
     const key = `${native ? "minecraft" : "drawn"}:outer187-27_6`, p = packet(key);
-    const prepared = finish(prepareOuterFacadesV262(p, "outer187-27_6", native));
+    // This source tile also contains receipted v264 allotments; preserve the
+    // production order while checking the same decoder/buffer contract.
+    const prepared = finish(prepareOuterFacadesV262(
+      finish(prepareAllotmentsV264(p, "outer187-27_6", native)), "outer187-27_6", native));
     const made = createSurroundingCityChunk(prepared, "outer187-27_6", native);
     try {
       expect(made.root.children.filter(child => child instanceof Mesh)).toHaveLength(1);

@@ -1,3 +1,10 @@
+import { UBAHN_BARRIERS_V281 } from "./ubahnEntrancesV281Profile";
+import { isWeltkugelSourceV281 } from "./weltkugelV281Ownership";
+import { weltkugelBodyBlockedV281 } from "./WeltkugelBrunnenV281";
+import { bmfForecourtFloorV281 } from "./BmfForecourtV281";
+import { moabitCoalBodyBlockedV281, moabitCoalFloorV281At } from "./moabitCoalV281Profile";
+import { prisonEnclosuresV281SolidAt } from "./PrisonEnclosuresV281";
+import { pekingerPlatzFloorV281At, pekingerTablesBlockedV281 } from "./PekingerPlatzV281";
 import { isBayerCampusSourceV277 } from "./bayerCampusV277Ownership";
 import { bayerCampusSolidsV277 } from "./bayerCampusV277Profile";
 import { isLehrterSourceV277 } from "./lehrterV277Ownership";
@@ -313,6 +320,8 @@ export type PedestrianObstacleIndex = {
 
 export type PedestrianEnvironment = {
   bounds: PedestrianBounds;
+  /** Enabled only after the complete required v281 models belong to this world. */
+  requiredSitesV281?: boolean;
   /** Independently streamed, source-clipped outer districts; never replace core terrain. */
   extension?: PedestrianExtension;
   /** Source-bound represented bridge decks override water only within their span. */
@@ -708,7 +717,7 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
-  options: { tiergartenWerkhofV275?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { requiredSitesV281?: boolean; tiergartenWerkhofV275?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   if (options.includeAuguststrasseMuralV270) {
@@ -740,6 +749,7 @@ export function compilePedestrianObstacles(
   let lehrterSolids: { native: boolean; solid: ReturnType<typeof lehrterSolidsV277>[number] }[] | undefined;
   let rkiMoabitSolids: { native: boolean; solid: ReturnType<typeof rkiMoabitSolidsV277>[number] }[] | undefined;
   for (const sourceBuilding of prisms.buildings) {
+    if (options.requiredSitesV281 && isWeltkugelSourceV281(sourceBuilding)) continue;
     if (options.bayerCampusV277 && isBayerCampusSourceV277(sourceBuilding)) {
       bayerCampusSolids ??= [false, true].flatMap(native =>
         bayerCampusSolidsV277(native).map(solid => ({ native, solid })));
@@ -1610,6 +1620,9 @@ export function compilePedestrianObstacles(
     }
   }
   if (prisms.buildings.some(b => ALT_MITTE_V169_PRISM_IDS.has(b.id))) {
+    for (const wall of options.requiredSitesV281 ? UBAHN_BARRIERS_V281 : []) {
+      addSegmentObstacle(index, wall.a, wall.b, wall.radius, wall.bottom, wall.top);
+    }
     prepareAltMitteV169Navigation();
     // Preserve every complete source part, including newly supplied parents;
     // ring holes remain walkable and the roof follows the active representation.
@@ -2197,9 +2210,18 @@ export function pedestrianPointIsBlocked(
     | "walkableInteriorAt"
     | "extension"
     | "visualMode"
+    | "requiredSitesV281"
   >,
 ): boolean {
   const bodyTopY = bodyBottomY + PEDESTRIAN_EYE_HEIGHT_M;
+  if (access?.requiredSitesV281 === true) {
+    if (weltkugelBodyBlockedV281(x, z, bodyBottomY, bodyTopY, PEDESTRIAN_BODY_RADIUS_M)) return true;
+    const nativeV281 = access.visualMode?.() === "minecraft";
+    if (pekingerTablesBlockedV281(x, z, bodyBottomY, bodyTopY, PEDESTRIAN_BODY_RADIUS_M, nativeV281)) return true;
+    if (moabitCoalBodyBlockedV281(x, z, bodyBottomY, bodyTopY, PEDESTRIAN_BODY_RADIUS_M, nativeV281)) return true;
+    if (pedestrianBodyTouchesInteriorSolid(x, z, bodyBottomY,
+      (sx, sy, sz, radius) => prisonEnclosuresV281SolidAt(sx, sy, sz, radius, nativeV281))) return true;
+  }
   if (access?.extension && fountainBodyBlockedV248(
     x, z, bodyBottomY, bodyTopY, PEDESTRIAN_BODY_RADIUS_M,
     access.visualMode?.() === "minecraft",
@@ -2355,7 +2377,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
-  options: { tiergartenWerkhofV275?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { requiredSitesV281?: boolean; tiergartenWerkhofV275?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;
@@ -2398,7 +2420,8 @@ export function createPedestrianEnvironment(
       const native = environment.visualMode?.() === "minecraft";
       const finish = steglitzGroundV247At(x, z, native);
       const courtyard = steglitzCourtGroundV251Height(x, z, native);
-      return Math.max(outerGround, finish ?? outerGround, courtyard ?? outerGround);
+      const coal = environment.requiredSitesV281 ? moabitCoalFloorV281At(x, z, native) : null;
+      return Math.max(outerGround, finish ?? outerGround, courtyard ?? outerGround, coal ?? outerGround);
     }
     const xOffset = x / cell - minXIndex;
     const zOffset = z / cell - minZIndex;
@@ -2410,7 +2433,11 @@ export function createPedestrianEnvironment(
     const terrain = spreebogenTerrainYAt(x,z,smoothGround(xOffset, zOffset));
     const site = topographySiteSurfaceAt(x, z);
     const entry = invalidenEntryFloorV257At(x, z, environment.visualMode?.() === "minecraft");
-    return Math.max(terrain, site ?? terrain, entry ?? terrain);
+    const native = environment.visualMode?.() === "minecraft";
+    const coal = environment.requiredSitesV281 ? moabitCoalFloorV281At(x, z, native) : null;
+    const memorial = environment.requiredSitesV281 ? bmfForecourtFloorV281(x, z, native) : null;
+    const pekinger = environment.requiredSitesV281 ? pekingerPlatzFloorV281At(x, z, native) : null;
+    return Math.max(terrain, site ?? terrain, entry ?? terrain, coal ?? terrain, memorial ?? terrain, pekinger ?? terrain);
   };
   const tunnelSegments = tunnel
     ? tunnelWalkCourses(tunnel).flatMap((course) =>
@@ -2496,6 +2523,7 @@ export function createPedestrianEnvironment(
   };
   const environment: PedestrianEnvironment = {
     bounds,
+    requiredSitesV281: options.requiredSitesV281 === true,
     extension,
     groundAt: surfaceGroundAt,
     resolveGround,

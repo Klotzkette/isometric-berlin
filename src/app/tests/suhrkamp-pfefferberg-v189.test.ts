@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { InstancedMesh, Matrix4, Mesh, Texture } from "three";
 import { createSuhrkampPfefferbergV189 } from "../src/SuhrkampPfefferbergV189";
 import source from "../src/data/suhrkampPfefferbergV189.json";
+import refinement from "../src/data/northCultureV274Source.json";
 
 describe("source-bound Suhrkamp and Pfefferberg", () => {
   for (const native of [false, true]) test(native ? "separate axis-aligned native reading" : "full static drawn reading", () => {
@@ -28,8 +29,29 @@ describe("source-bound Suhrkamp and Pfefferberg", () => {
       const materials = [object.userData.dayMaterial, object.userData.nightMaterial];
       for (const material of materials) for (const value of Object.values(material)) expect(value instanceof Texture).toBe(false);
     });
-    expect(count).toBe(native ? 6806 : 2029);
-    expect(bytes).toBeLessThan(native ? 530000 : 170000);
+    const suhrkamp = root.children.find(o => o.userData.site === "suhrkamp")!;
+    let replaced = 0, replacement = 0;
+    const west = refinement.suhrkampFaces.filter(f => f.normal[0] < -.9);
+    expect(west).toHaveLength(2);
+    for (const face of west) {
+      const faceIndex = source.faces.findIndex(f => JSON.stringify(f.a) === JSON.stringify(face.a) && JSON.stringify(f.b) === JSON.stringify(face.b));
+      expect(faceIndex).toBeGreaterThanOrEqual(0);
+      const range = suhrkamp.userData.sourceFaceRanges.find((r: { faceIndex: number }) => r.faceIndex === faceIndex);
+      const length = Math.hypot(face.b[0] - face.a[0], face.b[1] - face.a[1]);
+      const members = (width: number) => native ? Math.max(1, Math.ceil(width / .8)) : 1;
+      const floors = face.top - face.bottom > 22 ? 7 : face.top - face.bottom > 15 ? 5 : face.top - face.bottom > 8 ? 3 : 2;
+      const old = members(length - .04) + members(length - .12) + (floors - 1) * members(length - .1) + members(Math.min(1.7, length * .26));
+      const width = length * .69;
+      const current = members(length - .04) + members(length - .12)
+        + 7 * (members(width + .34) + members(width) + 2 * members(.08) + members(width))
+        + members(.085) + (face.a[1] > -990 ? 0 : 9 * members(width - .08)) + members(length - .08);
+      expect(range.count).toBe(current);
+      replaced += old; replacement += current;
+    }
+    // Keep the original v189 totals and byte ceiling for the entire unchanged
+    // complement; only the two evidenced v274 west-facet recipes are accounted.
+    expect(count - replacement + replaced).toBe(native ? 6806 : 2029);
+    expect(bytes - (replacement - replaced) * 76).toBeLessThan(native ? 530000 : 170000);
     console.log(JSON.stringify({ native, batches: root.children.length, count, renderedVertices: count * 24, bytes }));
     root.traverse(object => {
       if (!(object instanceof Mesh)) return;

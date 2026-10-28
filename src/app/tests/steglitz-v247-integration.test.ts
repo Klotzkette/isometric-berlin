@@ -12,6 +12,7 @@ import plaza from "../src/data/hermannEhlersV247Details.json";
 import street from "../src/data/schlossstrasseV247Details.json";
 import schoolCorrection from "../src/data/steglitzSchoolV250.json";
 import courtyardCorrection from "../src/data/steglitzCourtyardV251.json";
+import windowCorrection from "../src/data/steglitzWindowsV273.json";
 
 function hash(a: ArrayBufferView): string {
   return createHash("sha256").update(new Uint8Array(a.buffer, a.byteOffset, a.byteLength)).digest("hex");
@@ -73,7 +74,7 @@ test("v247 retains every source triangle, normal, edge and all uncorrected colou
   const oldPositions = new Float32Array(old.surfaces.flatMap(s => s.triangles.flat(2)));
   const oldColors = new Float32Array(oldPositions.length), color = new Color();
   let offset = 0;
-  const correctedPaint = new Map([...schoolCorrection.surfaceColors, ...courtyardCorrection.surfaceColors].map(r => [r[0], r[1]]));
+  const correctedPaint = new Map([...schoolCorrection.surfaceColors, ...courtyardCorrection.surfaceColors, ...windowCorrection.surfaceColors].map(r => [r[0], r[1]]));
   for (const [i, s] of old.surfaces.entries()) {
     color.setHex(correctedPaint.get(i) ?? s.color);
     for (const t of s.triangles) for (const _p of t) { color.toArray(oldColors, offset); offset += 3; }
@@ -101,8 +102,8 @@ test("v247 preserves all non-superseded instances, native cells and every scaffo
   const drawn = createSteglitzV182(), native = createMinecraftSteglitzV182();
   const dm = drawn.children[2] as InstancedMesh, nm = native.children[0] as InstancedMesh;
   const remove = schoolCorrection.remove;
-  const oldRemoved = new Set([...remove["v182.boxes"], ...courtyardCorrection.removeSourceBoxes]), detailRemoved = new Set(remove["v246.boxes"]), nativeRemoved = new Set(remove["v246.nativeRows"]);
-  const paints = new Map([...schoolCorrection.nativeColors, ...courtyardCorrection.nativeColors].map(r => [r[0], r[1]]));
+  const oldRemoved = new Set([...remove["v182.boxes"], ...courtyardCorrection.removeSourceBoxes, ...windowCorrection.removeSourceBoxes]), detailRemoved = new Set(remove["v246.boxes"]), nativeRemoved = new Set(remove["v246.nativeRows"]);
+  const paints = new Map([...schoolCorrection.nativeColors, ...courtyardCorrection.nativeColors, ...windowCorrection.nativeColors].map(r => [r[0], r[1]]));
   expectPrefix(dm, [...old.boxes.filter((_, i) => !oldRemoved.has(i)), ...v246.boxes.filter((_, i) => !detailRemoved.has(i)), ...plaza.boxes, ...street.boxes], false);
   expectPrefix(nm, [...oldNative.boxes.map((r, i) => paints.has(i) ? [...r.slice(0, 6), paints.get(i)!] : r), ...v246.nativeRows.filter((_, i) => !nativeRemoved.has(i)), ...plaza.nativeRows, ...street.nativeRows], true);
   const matrices = new Float32Array(old.rods.length * 16), colors = new Float32Array(old.rods.length * 3);

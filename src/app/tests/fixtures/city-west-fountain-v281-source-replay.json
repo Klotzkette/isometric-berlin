@@ -1,0 +1,32 @@
+{
+  "path": "src/app/src/CityWestDetails.ts",
+  "beforeCommit": "9fccfb0bfebf5c03a24bf2d3f30a63a16e203059",
+  "beforeSha256": "16c54ec76f14d73b7bd6a544c54255ea865a744bd7da5f2a1d3ab7d02a91bbac",
+  "currentSha256": "c90c9652442f1b41f2900d18ea01f1048c5b7c985eba8d994bc86554e3fbfd15",
+  "replacements": [
+    {
+      "before": "",
+      "current": "import { createWeltkugelV281 } from \"./WeltkugelBrunnenV281\";\n"
+    },
+    {
+      "before": "  detailProfile: CityWestDetailProfile,\n): void {\n  const profile = CITY_WEST_PROFILE.breitscheidplatz;",
+      "current": "  detailProfile: CityWestDetailProfile,\n  fountain: \"current\" | \"legacy\" | \"omit\",\n): void {\n  // Current fountain has its own small batch to retain Uint16 church indices.\n  if (fountain === \"legacy\") {\n  const profile = CITY_WEST_PROFILE.breitscheidplatz;"
+    },
+    {
+      "before": "  // Ground-light bands and benches cue the unified pedestrian square without",
+      "current": "  }\n\n  // Ground-light bands and benches cue the unified pedestrian square without"
+    },
+    {
+      "before": "  includeUrania = true,\n): Group {",
+      "current": "  includeUrania = true,\n  fountain: \"current\" | \"legacy\" | \"omit\" = \"current\",\n): Group {"
+    },
+    {
+      "before": "  addBreitscheidplatz(breitscheid, detailProfile);",
+      "current": "  addBreitscheidplatz(breitscheid, detailProfile, fountain);"
+    },
+    {
+      "before": "",
+      "current": "    if (fountain === \"current\") breitscheidBatch.add(createWeltkugelV281());\n"
+    }
+  ]
+}

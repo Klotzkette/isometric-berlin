@@ -14,6 +14,9 @@ import ownerDeltaV202 from "./fixtures/minecraft-payload-only-v202-delta.json";
 import ownerDeltaV206 from "./fixtures/minecraft-payload-only-v206-delta.json";
 import ownerDeltaV237 from "./fixtures/minecraft-payload-only-v237-delta.json";
 import ownerDeltaV238 from "./fixtures/minecraft-payload-only-v238-delta.json";
+import ownerDeltaV272 from "./fixtures/minecraft-payload-v272-delta.json";
+import ownerDeltaV246V260 from "./fixtures/minecraft-payload-v246-v260-delta.json";
+import groundDeltaV281 from "./fixtures/minecraft-ground-v281-delta.json";
 import elevatedCoreV238 from "../src/data/elevatedCoreOwnersV238.json";
 import { isElevatedStationReplacementColumnV238 } from "../src/elevatedStationV238Profile";
 import { auditElevatedStationsNativeDeltaV238 } from "./helpers/elevatedStationsNativeDeltaV238";
@@ -148,9 +151,59 @@ function uraniaDelta(profile: "full" | "mobile", name: string): InstanceBufferDe
   return (ownerDeltaV206.profiles[profile] as Record<string, InstanceBufferDelta>)[name];
 }
 
+function historicalPayloadHash(mesh: InstancedMesh, name: string): string {
+  const actual = new Bun.CryptoHasher("sha256").update(mesh.instanceMatrix.array);
+  if (mesh.instanceColor) actual.update(mesh.instanceColor.array);
+  const hash = actual.digest("hex");
+  if (name !== "Voxel ground runs") return hash;
+  const { tintSintiRomaNativeWaterV256: tint, cutUbahnGroundSlabsV281: cut } = groundDeltaV281.stages;
+  expect(mesh.count).toBe(185_228);
+  expect(hash).toBe(cut.afterSha256);
+  expect(tint.afterSha256).toBe(cut.beforeSha256);
+  expect(tint.changed).toHaveLength(3);
+  expect(cut.changed).toHaveLength(16);
+  expect(groundDeltaV281.combined.removed).toHaveLength(19);
+  expect(groundDeltaV281.combined.added).toHaveLength(19);
+  const previous = replayLegacyInstanceHash(mesh, groundDeltaV281.combined);
+  expect(previous).toBe(tint.beforeSha256);
+  expect(previous).toBe(groundDeltaV281.historicalSha256);
+  return previous;
+}
+
+function laterSourceTransferReceipts(profile: "full" | "mobile", name: string) {
+  return [ownerDeltaV272, ownerDeltaV246V260].map(receipt =>
+    (receipt.profiles[profile] as Record<string,
+      InstanceBufferDelta & { beforeSha256: string; afterSha256: string }>)[name]);
+}
+
+/** Count view of the same complete matrix/colour replay checked below. */
+function beforeLaterSourceTransferCount(mesh: InstancedMesh, profile: "full" | "mobile", name: string): number {
+  let count = mesh.count;
+  for (const change of laterSourceTransferReceipts(profile, name)) {
+    if (!change) continue;
+    expect(count).toBe(change.afterCount);
+    expect(change.beforeCount - change.afterCount).toBe(change.removed.length - change.added.length);
+    count = change.beforeCount;
+  }
+  return count;
+}
+
+function beforeLaterSourceTransfers(mesh: InstancedMesh, profile: "full" | "mobile", name: string): InstancedMesh {
+  let previous = mesh;
+  for (const change of laterSourceTransferReceipts(profile, name)) {
+    if (!change) continue;
+    expect(new Bun.CryptoHasher("sha256").update(previous.instanceMatrix.array).update(previous.instanceColor!.array).digest("hex"))
+      .toBe(change.afterSha256);
+    expect(replayLegacyInstanceHash(previous, change)).toBe(change.beforeSha256);
+    previous = restoreLegacyInstances(previous, change);
+  }
+  return previous;
+}
+
 function beforeElevatedStations(mesh: InstancedMesh, profile: "full" | "mobile", name: string): InstancedMesh {
+  const prior = beforeLaterSourceTransfers(mesh, profile, name);
   const delta = (ownerDeltaV238.profiles[profile] as Record<string, InstanceBufferDelta>)[name];
-  return delta ? restoreLegacyInstances(mesh, delta) : mesh;
+  return delta ? restoreLegacyInstances(prior, delta) : prior;
 }
 
 function beforeHansaLibrary(mesh: InstancedMesh, profile: "full" | "mobile", name: string): InstancedMesh {
@@ -171,7 +224,28 @@ describe("true voxel Minecraft world", () => {
     detailProfile: "mobile",
   });
 
+  test("the exact three older water tints and sixteen U6 cuts replay the complete unchanged historical ground", async () => {
+    for (const [path, expected] of Object.entries(groundDeltaV281.sourceSha256)) {
+      const bytes = new Uint8Array(await Bun.file(new URL(`../../../${path}`, import.meta.url)).arrayBuffer());
+      expect(new Bun.CryptoHasher("sha256").update(bytes).digest("hex")).toBe(expected);
+    }
+    for (const root of [world, mobileWorld])
+      expect(historicalPayloadHash(instanced("Voxel ground runs", root), "Voxel ground runs"))
+        .toBe(ownerDeltaV238.previous.full["Voxel ground runs"].sha256);
+  });
+
   test("v238 transfers exactly matched station courses and replays all retained bytes through immutable v237/v206/v202 receipts", async () => {
+    // The later v246/v260 owners retire 836 complete low/high tuples. Twenty-five
+    // taller courses share their XZ cells and remain in both historical hashes.
+    expect(ownerDeltaV246V260.sourceColumns).toHaveLength(836);
+    expect(ownerDeltaV246V260.columnAudit.retainedHigherCourses).toBe(25);
+    expect(ownerDeltaV246V260.windowOwners).toEqual({
+      piazzettaV246: { removed: 3, added: 0 }, westVenuesV260: { removed: 571, added: 59 },
+    });
+    for (const [path, expected] of Object.entries(ownerDeltaV246V260.inputSha256)) {
+      const bytes = new Uint8Array(await Bun.file(new URL(`../../../${path}`, import.meta.url)).arrayBuffer());
+      expect(new Bun.CryptoHasher("sha256").update(bytes).digest("hex")).toBe(expected);
+    }
     for (const [path, sha256] of Object.entries(ownerDeltaV238.inputSha256)) {
       const bytes = new Uint8Array(await Bun.file(new URL(`../${path}`, import.meta.url)).arrayBuffer());
       expect(new Bun.CryptoHasher("sha256").update(bytes).digest("hex")).toBe(sha256);
@@ -203,10 +277,9 @@ describe("true voxel Minecraft world", () => {
         ? ["Voxel building columns","Voxel facade windows"] : ["Voxel building columns"]);
       for (const [name,expected] of Object.entries(ownerDeltaV238.previous[profile])) {
         if (expected === null) { expect(root.getObjectByName(name)).toBeUndefined(); continue; }
-        const mesh = instanced(name,root), change = changes[name];
+        const mesh = beforeLaterSourceTransfers(instanced(name,root),profile,name), change = changes[name];
         if (!change) {
-          const hash = new Bun.CryptoHasher("sha256").update(mesh.instanceMatrix.array).update(mesh.instanceColor!.array);
-          expect({count:mesh.count,sha256:hash.digest("hex")}).toEqual(expected);
+          expect({count:mesh.count,sha256:historicalPayloadHash(mesh,name)}).toEqual(expected);
           continue;
         }
         expect({count:change.beforeCount,sha256:replayLegacyInstanceHash(mesh,change)}).toEqual(expected);
@@ -268,8 +341,7 @@ describe("true voxel Minecraft world", () => {
         if (expected === null) { expect(root.getObjectByName(name)).toBeUndefined(); continue; }
         const mesh = beforeElevatedStations(instanced(name,root),profile,name), change = changes[name];
         if (!change) {
-          const hash = new Bun.CryptoHasher("sha256").update(mesh.instanceMatrix.array).update(mesh.instanceColor!.array);
-          expect({count:mesh.count,sha256:hash.digest("hex")}).toEqual(expected);
+          expect({count:mesh.count,sha256:historicalPayloadHash(mesh,name)}).toEqual(expected);
           continue;
         }
         expect({count:change.beforeCount,sha256:replayLegacyInstanceHash(mesh,change)}).toEqual(expected);
@@ -425,9 +497,7 @@ describe("true voxel Minecraft world", () => {
           expect({ count: delta.beforeCount, sha256: replayLegacyInstanceHash(mesh, delta) }).toEqual(expected);
           continue;
         }
-        const hash = new Bun.CryptoHasher("sha256").update(mesh.instanceMatrix.array);
-        if (mesh.instanceColor) hash.update(mesh.instanceColor.array);
-        expect({ count: mesh.count, sha256: hash.digest("hex") }).toEqual(expected);
+        expect({ count: mesh.count, sha256: historicalPayloadHash(mesh,name) }).toEqual(expected);
       }
     }
   });
@@ -593,7 +663,9 @@ describe("true voxel Minecraft world", () => {
     // envelopes and facades are supplied by the resident/streamed source layers.
     // v174 replaces 64 Bernauer fallback cells: 192 old panes disappear and
     // six neighboring panes become exposed, independently audited above.
-    expect(instanced("Voxel facade windows", world).count).toBe(
+    // Replay exactly 1,980 later v272 panes and 515 v246/v260 panes. The
+    // original expected count and the complete historical hashes stay fixed.
+    expect(beforeLaterSourceTransferCount(instanced("Voxel facade windows", world), "full", "Voxel facade windows")).toBe(
       currentPayloadBaseline.full["Voxel facade windows"].count - 144 + 12 - ownerDeltaV237.audit.panes.netRemoved - ownerDeltaV238.audit.panes.netRemoved,
     );
     expect(instanced("Voxel meadow flowers", world).count).toBe(39_616);
@@ -617,10 +689,10 @@ describe("true voxel Minecraft world", () => {
     // v151 replaces only safe ministry/Potsdamer and open Mall passage cells.
     // v153: 699 owned source columns yield to the two complete native models,
     // exactly 2,097 full stack instances or 699 mobile instances.
-    expect(instanced("Voxel building columns", world).count).toBe(
+    expect(beforeLaterSourceTransferCount(instanced("Voxel building columns", world), "full", "Voxel building columns")).toBe(
       currentPayloadBaseline.full["Voxel building columns"].count - 86 * 3 - ownerDeltaV237.audit.removedColumnInstances.full - ownerDeltaV238.audit.removedColumnInstances.full,
     );
-    expect(instanced("Voxel building columns", mobileWorld).count).toBe(
+    expect(beforeLaterSourceTransferCount(instanced("Voxel building columns", mobileWorld), "mobile", "Voxel building columns")).toBe(
       currentPayloadBaseline.mobile["Voxel building columns"].count - 86 - ownerDeltaV237.audit.removedColumnInstances.mobile - ownerDeltaV238.audit.removedColumnInstances.mobile,
     );
 
@@ -1128,7 +1200,7 @@ describe("true voxel Minecraft world", () => {
     const mesh = panes as InstanceType<typeof InstancedMesh>;
     // Exact source replacements remove duplicate generic panes. Remaining
     // exposed faces still share one batch and keep their measured dimensions.
-    expect(mesh.count).toBe(currentPayloadBaseline.full["Voxel facade windows"].count - 144 + 12 - ownerDeltaV237.audit.panes.netRemoved - ownerDeltaV238.audit.panes.netRemoved);
+    expect(beforeLaterSourceTransferCount(mesh, "full", "Voxel facade windows")).toBe(currentPayloadBaseline.full["Voxel facade windows"].count - 144 + 12 - ownerDeltaV237.audit.panes.netRemoved - ownerDeltaV238.audit.panes.netRemoved);
     const matrix = new Matrix4();
     const scale = new Vector3();
     const position = new Vector3();

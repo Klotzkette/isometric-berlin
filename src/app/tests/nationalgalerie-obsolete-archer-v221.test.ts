@@ -9,6 +9,8 @@ import type { StreetDetailsPayload } from "../src/TrafficSignals";
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import streetData from "../public/mesh/regierungsviertel/street-details.json";
 import groundData from "../public/mesh/regierungsviertel/minecraft-voxels.json";
+import { withExpandedRetentionV281 } from "./helpers/expandedRetentionV281";
+import { withTiergartenBeforeLaterChangesV281 } from "./helpers/tiergartenV281Replay";
 
 for (const detailProfile of ["full", "mobile"] as const) test(`${detailProfile}: replacing the obsolete Archer preserves every other expanded-city byte`, () => {
   expect(receipt.releasedBase).toBe("d7b7a3a7a452fc330950f2cfbc5034e441c59915");
@@ -20,6 +22,7 @@ for (const detailProfile of ["full", "mobile"] as const) test(`${detailProfile}:
   try {
     const before = receipt.profiles[detailProfile].complete;
     const expected = receipt.profiles[detailProfile].withoutExactObsoleteArcher;
+    withExpandedRetentionV281(root, "expanded", () => {
     const records = geometryPreservationV206(root);
     expect(staticGeometryAudit(root)).toEqual(expected.static);
     expect(records).toHaveLength(expected.objects);
@@ -30,6 +33,7 @@ for (const detailProfile of ["full", "mobile"] as const) test(`${detailProfile}:
     expect(before.static.budget.instances).toBe(expected.static.budget.instances);
     expect(before.static.budget.bytes - expected.static.budget.bytes).toBe(12_975);
     expect(before.static.budget.vertices - expected.static.budget.vertices).toBe(641);
+    });
   } finally { disposeStaticAudit(root); }
 });
 
@@ -48,6 +52,7 @@ test("both exact OSM artworks leave the generic monument pass while all unrelate
   }
   const root = createTiergartenMonuments(street, ground)!;
   try {
+    withTiergartenBeforeLaterChangesV281(root, street, ground, () => {
     const expected = receipt.tiergarten.withoutExactObsoleteProxies;
     const records = geometryPreservationV206(root);
     expect(staticGeometryAudit(root)).toEqual(expected.static);
@@ -57,5 +62,6 @@ test("both exact OSM artworks leave the generic monument pass while all unrelate
     expect(root.userData.externallyModelledSourceKeys).toEqual(expected.externallyModelledSourceKeys);
     expect(expected.static.budget.draws).toBe(receipt.tiergarten.complete.static.budget.draws);
     expect(expected.objects).toBe(receipt.tiergarten.complete.objects);
+    });
   } finally { disposeStaticAudit(root); }
 });

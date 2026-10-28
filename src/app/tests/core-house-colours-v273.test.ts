@@ -106,11 +106,17 @@ test("the native constructor preserves the historic paint-only change outside ex
     "    if (lehrterColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;\n",
     "    if (rkiMoabitColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;\n",
   ];
-  // Exact v274/v275/v276/v277 ownership hooks have separate source, column and
+  const v281Hooks = [
+    "  cutUbahnGroundSlabsV281(groundSlabs, true);\n",
+    "  group.add(createWeltkugelV281(true));\n",
+    "  const weltkugelColumnAt = createWeltkugelColumnTesterV281(options.sourcePrisms, cell);\n",
+    "    if (weltkugelColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;\n",
+  ];
+  // Exact v274/v275/v276/v277/v281 ownership hooks have separate source, column and
   // actual-constructor tests. HEAD and the working constructor independently
   // retain the original v273 hash after removing only these exact additions.
   // Every other statement remains covered by the historical full comparison.
-  for (const hook of [...v276Hooks, ...v277Hooks]) expect(constructor.split(hook)).toHaveLength(2);
+  for (const hook of [...v276Hooks, ...v277Hooks, ...v281Hooks]) expect(constructor.split(hook)).toHaveLength(2);
   expect(constructor.split(operaPreparation)).toHaveLength(2);
   expect(constructor.split(operaRetirement)).toHaveLength(2);
   expect(constructor.split(werkhofPreparation)).toHaveLength(2);
@@ -118,7 +124,7 @@ test("the native constructor preserves the historic paint-only change outside ex
   let normalized = constructor.replace(current, "sourceRoofTone ?? layers.cap")
     .replace(operaPreparation, "").replace(operaRetirement, "")
     .replace(werkhofPreparation, "").replace(werkhofRetirement, "");
-  for (const hook of [...v276Hooks, ...v277Hooks]) normalized = normalized.replace(hook, "");
+  for (const hook of [...v276Hooks, ...v277Hooks, ...v281Hooks]) normalized = normalized.replace(hook, "");
   expect(new Bun.CryptoHasher("sha256").update(normalized).digest("hex")).toBe(before.nativeConstructorSha256);
   // This fixes the complete full/mobile control flow, all original matrix/size
   // writes, cap allocation, window/tree/landmark construction and return path.

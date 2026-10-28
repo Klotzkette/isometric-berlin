@@ -6,6 +6,7 @@ import receipt from "./fixtures/outline-warschauer-v225.json";
 import { outlineSignature } from "./helpers/outlineConstructionSignature";
 import { restoreWarschauerRoofAccentV225ForTest } from "./helpers/outlinePreservationV225";
 import { disposeStaticAudit } from "./helpers/staticGeometryAudit";
+import { restoreWeddingStationPreviousV229 } from "./helpers/weddingStationPreviousV229";
 
 test("v225 obsolete roof receipt retains the exact immutable source record and complete rail inputs", async () => {
   expect(receipt.releasedBase).toBe("ee082a820c45e1b7ae3057915f1f4473c0e8ace1");
@@ -22,6 +23,7 @@ test("v225 obsolete roof receipt retains the exact immutable source record and c
 for (const mode of ["day", "minecraft"] as const) {
   test(`${mode}: exact roof span recovers the complete v124 rail hash and restores current attributes`, () => {
     const root = createRailStationsV190(mode === "minecraft"), record = receipt.modes[mode];
+    const restoreWedding = restoreWeddingStationPreviousV229(root);
     try {
       expect(outlineSignature(root)).toEqual(record.after);
       const mesh = root.getObjectByName(record.meshName) as InstancedMesh;
@@ -36,11 +38,12 @@ for (const mode of ["day", "minecraft"] as const) {
       expect(mesh.instanceColor).toBe(color);
       expect(mesh.count).toBe(count);
       expect(outlineSignature(root)).toEqual(record.after);
-    } finally { disposeStaticAudit(root); }
+    } finally { restoreWedding(); disposeStaticAudit(root); }
   });
 
   test(`${mode}: the roof exception still rejects a changed unrelated station byte`, () => {
     const root = createRailStationsV190(mode === "minecraft");
+    const restoreWedding = restoreWeddingStationPreviousV229(root);
     try {
       let other: InstancedMesh | undefined;
       root.traverse(object => {
@@ -53,6 +56,6 @@ for (const mode of ["day", "minecraft"] as const) {
       finally { matrix.array[12] = value; }
       expect(mesh.instanceMatrix).toBe(matrix);
       expect(outlineSignature(root)).toEqual(receipt.modes[mode].after);
-    } finally { disposeStaticAudit(root); }
+    } finally { restoreWedding(); disposeStaticAudit(root); }
   });
 }

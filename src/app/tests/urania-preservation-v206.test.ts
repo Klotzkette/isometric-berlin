@@ -9,6 +9,7 @@ import released from "./fixtures/outline-landmarks-v205-synchronous.json";
 import { geometryPreservationV206, outlineUraniaSubstitutionKeysV206 } from "./helpers/geometryPreservationV206";
 import { disposeStaticAudit } from "./helpers/staticGeometryAudit";
 import { acceptedGalleryRecordsV220, projectPostV210OutlineForTest } from "./helpers/outlineGalleryPreservationV222";
+import { auditCityWestBeforeV281 } from "./helpers/cityWestV281Replay";
 
 test("v206 preservation starts from both unchanged v205 full signatures", () => {
   for (const mode of ["day", "minecraft"] as const) {
@@ -32,7 +33,14 @@ test("Urania opt-out retains every other City West object and the original proxy
   expect(excluded.reduce((sum, record) => sum + record.bytes, 0)).toBe(13_392);
   const retained = old.filter(record => !excluded.includes(record));
   for (const profile of ["full", "mobile"] as const) {
-    const legacy = createCityWestDetails(profile), active = createCityWestDetails(profile, false);
+    // Pin every live byte outside the source-receipted Weltkugelbrunnen change
+    // before comparing the unchanged historical Urania manifests.
+    for (const includeUrania of [true, false]) {
+      const current = createCityWestDetails(profile, includeUrania);
+      try { auditCityWestBeforeV281(current, profile, includeUrania); }
+      finally { disposeStaticAudit(current); }
+    }
+    const legacy = createCityWestDetails(profile, true, "legacy"), active = createCityWestDetails(profile, false, "legacy");
     try {
       expect(geometryPreservationV206(legacy)).toEqual(old);
       expect(geometryPreservationV206(active)).toEqual(retained);

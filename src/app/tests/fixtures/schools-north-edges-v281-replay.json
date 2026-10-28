@@ -1,0 +1,90 @@
+{
+  "releasedBase": "54990de80b75317612b069f974ba753008b54b3d",
+  "method": "Exact inverse source hunks reconstruct the old planners from current modules. Retained source JSON and shared geometric primitives equal the v220 commit byte-for-byte. Tests verify current live batches, preserve identical live instance rows and restore only documented later owner changes before checking unchanged historical complete-root hashes.",
+  "sourceReplay": [
+    {
+      "path": "src/app/src/SchoolsV185.ts",
+      "beforeSha256": "df9e5d7cd660fe38264f597b8c31069fd1b488f9ec81a1b6c2a34c52c2b04a9e",
+      "currentSha256": "7479a56580884881d7feb900c8756e06ad776b49fc896d329c9a394017bb0e8d",
+      "replacements": [
+        {
+          "current": "import { appendSchoolPlaceV205 } from \"./schoolsPlacesV205Batches\";\nimport { Group } from \"three\";\nimport { appendSchoolsCourtsV274 } from \"./SchoolsCourtsV274\";\nimport source from \"./data/schoolsV185.json\";\nimport { justicePalaceV183Boxes } from \"./justicePalaceV183Batches\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\nimport { canRefineLennonV250, createLennonV250 } from \"./LennonV250\";\n\n/** Small source-bound accents, with independent culling for the distant sites. */\nexport function createSchoolsV185(minecraft = false): Group {\n",
+          "before": "import { appendSchoolPlaceV205 } from \"./schoolsPlacesV205Batches\";\nimport { Group } from \"three\";\nimport source from \"./data/schoolsV185.json\";\nimport { justicePalaceV183Boxes } from \"./justicePalaceV183Batches\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\n\n/** Small source-bound accents, with independent culling for the distant sites. */\nexport function createSchoolsV185(minecraft = false): Group {\n"
+        },
+        {
+          "current": "    noHiddenSolidInfill: true,\n  };\n  for (const school of source.schools) {\n    if (school.owner === \"DEBE01YYK000064P\" && canRefineLennonV250()) {\n      root.add(createLennonV250(minecraft));\n      continue;\n    }\n    const start = minecraft ? school.firstNative : school.firstBox;\n    const count = minecraft ? school.nativeCount : school.boxCount;\n    const rows = (minecraft ? source.nativeRows : source.boxes).slice(start, start + count);\n",
+          "before": "    noHiddenSolidInfill: true,\n  };\n  for (const school of source.schools) {\n    const start = minecraft ? school.firstNative : school.firstBox;\n    const count = minecraft ? school.nativeCount : school.boxCount;\n    const rows = (minecraft ? source.nativeRows : source.boxes).slice(start, start + count);\n"
+        },
+        {
+          "current": "    root.add(mesh);\n  }\n  appendSchoolPlaceV205(root, \"schools\", minecraft);\n  appendSchoolsCourtsV274(root, minecraft);\n  return freezeStaticSceneTransforms(root);\n}\n",
+          "before": "    root.add(mesh);\n  }\n  appendSchoolPlaceV205(root, \"schools\", minecraft);\n  return freezeStaticSceneTransforms(root);\n}\n"
+        }
+      ]
+    },
+    {
+      "path": "src/app/src/schoolsPlacesV205Batches.ts",
+      "beforeSha256": "9a4c58f4bf34ad7d0725249a8d773a20df13ab0e934233927aaf7b317deb02ff",
+      "currentSha256": "28450bae4f56c4534f19f832a4b33bdf655301ace100394f1e0d5df747ec765c",
+      "replacements": [
+        {
+          "current": "import { appendSteglitzWindowsV273, steglitzWindowsV273Enabled } from \"./steglitzWindowsV273\";\nimport { Color, Group, InstancedBufferAttribute, Matrix4, Quaternion, Vector3 } from \"three\";\nimport { justicePalaceV183Boxes } from \"./justicePalaceV183Batches\";\nimport { letteringStrokePaths } from \"./drawnLettering\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\nimport source from \"./data/schoolsPlacesV205.json\";\nimport { replacesLennonV250 } from \"./LennonV250\";\nimport { replaceSteglitzSchoolPlaceV250 } from \"./steglitzSchoolV250\";\nimport { appendSteglitzCourtyardV251, steglitzCourtyardV251Enabled } from \"./steglitzCourtyardV251\";\nimport { appendSteglitzCourtGroundV251, steglitzCourtGroundV251Enabled } from \"./steglitzCourtGroundV251\";\nimport { replacesChorinerV250Place } from \"./ChorinerV250\";\n\nimport { appendGipsKoppenV252, gipsKoppenV252Matches } from \"./gipsKoppenV252\";\n\ntype Refinement = typeof source.schools[number] | typeof source.places[number];\n\n/** One exact-count cube batch per site; full detail on mobile, no new shell. */\nexport function appendSchoolPlaceV205(root: Group, kind: \"schools\" | \"places\", native: boolean): void {\n  for (const originalEntry of source[kind] as Refinement[]) {\n    const entry = appendGipsKoppenV252(appendSteglitzCourtGroundV251(\n      appendSteglitzWindowsV273(appendSteglitzCourtyardV251(replaceSteglitzSchoolPlaceV250(originalEntry))),\n    ));\n    if (replacesLennonV250(entry, \"v205\")) continue;\n    if (replacesChorinerV250Place(entry)) continue;\n    const rows = (native ? entry.nativeRows : entry.boxes).map(r => [...r]);\n    const rods: number[][] = native ? [] : entry.rods.map(r => [...r]);\n    for (const label of entry.labels) {\n",
+          "before": "import { Color, Group, InstancedBufferAttribute, Matrix4, Quaternion, Vector3 } from \"three\";\nimport { justicePalaceV183Boxes } from \"./justicePalaceV183Batches\";\nimport { letteringStrokePaths } from \"./drawnLettering\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\nimport source from \"./data/schoolsPlacesV205.json\";\n\ntype Refinement = typeof source.schools[number] | typeof source.places[number];\n\n/** One exact-count cube batch per site; full detail on mobile, no new shell. */\nexport function appendSchoolPlaceV205(root: Group, kind: \"schools\" | \"places\", native: boolean): void {\n  for (const entry of source[kind] as Refinement[]) {\n    const rows = (native ? entry.nativeRows : entry.boxes).map(r => [...r]);\n    const rods: number[][] = native ? [] : entry.rods.map(r => [...r]);\n    for (const label of entry.labels) {\n"
+        },
+        {
+          "current": "      mesh.computeBoundingBox();mesh.computeBoundingSphere();\n    }\n    mesh.name=`${entry.name}: source-bound window heads and material profiles v205`;\n    mesh.userData={...mesh.userData,sourceOwner:entry.owner,schoolPlaceV205:true,sourceGeometryRetained:true,fullStaticDetailOnTouch:true,additiveOnly:true,\n      gipsKoppenV252:gipsKoppenV252Matches(originalEntry),\n      steglitzWindowsV273:entry.owner===\"DEBE06YYB0000AUq\"&&steglitzWindowsV273Enabled(),\n      steglitzCourtyardV251:entry.owner===\"DEBE06YYB0000AUq\"&&steglitzCourtyardV251Enabled(),\n      steglitzCourtGroundV251:entry.owner===\"DEBE06YYB0000AUq\"&&steglitzCourtGroundV251Enabled()};\n    root.add(mesh);\n  }\n  freezeStaticSceneTransforms(root);\n",
+          "before": "      mesh.computeBoundingBox();mesh.computeBoundingSphere();\n    }\n    mesh.name=`${entry.name}: source-bound window heads and material profiles v205`;\n    mesh.userData={...mesh.userData,sourceOwner:entry.owner,schoolPlaceV205:true,sourceGeometryRetained:true,fullStaticDetailOnTouch:true,additiveOnly:true};\n    root.add(mesh);\n  }\n  freezeStaticSceneTransforms(root);\n"
+        }
+      ]
+    },
+    {
+      "path": "src/app/src/NorthV185.ts",
+      "beforeSha256": "dd1ffad5eca442fc0e58fc841b63eb37ada61f52855c75fbc2adb8af38a6e6c6",
+      "currentSha256": "5e4c05c4dc018b5cc2745d043031211eea6f2049bf04babe7304382668214609",
+      "replacements": [
+        {
+          "current": "import { justicePalaceV183Boxes } from \"./justicePalaceV183Batches\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\nimport { buildingTerrainOffset, terrainGroundAt } from \"./weinbergTerrainV176\";\nimport { appendDanzigerTramV249, finishDanzigerTramV249 } from \"./DanzigerTramV249\";\nimport { appendChorinerV250, replacesChorinerV250Face } from \"./ChorinerV250\";\nimport { appendKulturbrauereiV252 } from \"./KulturbrauereiV252\";\nimport { appendNorthShopfrontsV254 } from \"./NorthShopfrontsV254\";\n\nexport const NORTH_V185_GROUP = \"Northern neighbourhoods: bounded source-bound accents v185\";\ntype Face = typeof source.faces[number];\n",
+          "before": "import { justicePalaceV183Boxes } from \"./justicePalaceV183Batches\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\nimport { buildingTerrainOffset, terrainGroundAt } from \"./weinbergTerrainV176\";\n\nexport const NORTH_V185_GROUP = \"Northern neighbourhoods: bounded source-bound accents v185\";\ntype Face = typeof source.faces[number];\n"
+        },
+        {
+          "current": "    sourceStatus: source.sourceStatus, sourceOwnerIds: source.owners.map(p => p.id) };\n  for (const kind of [\"kulturbrauerei\", \"hagenauer\", \"choriner\", \"weinbergspark\"]) {\n    const rows: Rows = [], arches: Rows = [];\n    source.faces.filter(f => f.kind === kind && !replacesChorinerV250Face(f)).forEach(f => facade(rows, arches, f, minecraft));\n    if (kind === \"choriner\") appendChorinerV250(rows, minecraft);\n    if (kind === \"kulturbrauerei\") appendKulturbrauereiV252(rows, minecraft);\n    if (kind === \"weinbergspark\") garden(rows, minecraft);\n    if (kind === \"hagenauer\") {\n      roadEdges(rows, minecraft);\n      appendNorthShopfrontsV254(rows, minecraft);\n      appendDanzigerTramV249(rows, minecraft);\n    }\n    if (!rows.length) continue;\n    const mesh = justicePalaceV183Boxes(rows, minecraft);\n    if (kind === \"hagenauer\") finishDanzigerTramV249(mesh, rows, minecraft);\n    mesh.name = `North v185 ${kind}: source-bound shallow additions`;\n    mesh.userData.northV185 = kind;\n    mesh.userData.kulturbrauereiV252 = kind === \"kulturbrauerei\";\n    mesh.userData.northShopfrontsV254 = kind === \"hagenauer\";\n    root.add(mesh);\n    if (arches.length) {\n      // Every industrial arch reuses one tiny normalized profile; this avoids\n",
+          "before": "    sourceStatus: source.sourceStatus, sourceOwnerIds: source.owners.map(p => p.id) };\n  for (const kind of [\"kulturbrauerei\", \"hagenauer\", \"choriner\", \"weinbergspark\"]) {\n    const rows: Rows = [], arches: Rows = [];\n    source.faces.filter(f => f.kind === kind).forEach(f => facade(rows, arches, f, minecraft));\n    if (kind === \"weinbergspark\") garden(rows, minecraft);\n    if (kind === \"hagenauer\") roadEdges(rows, minecraft);\n    if (!rows.length) continue;\n    const mesh = justicePalaceV183Boxes(rows, minecraft);\n    mesh.name = `North v185 ${kind}: source-bound shallow additions`;\n    mesh.userData.northV185 = kind;\n    root.add(mesh);\n    if (arches.length) {\n      // Every industrial arch reuses one tiny normalized profile; this avoids\n"
+        }
+      ]
+    },
+    {
+      "path": "src/app/src/altMitteEdgesV186Batches.ts",
+      "beforeSha256": "313534b866c5a80af5808f791a54670248269b1b389a0ada6ea8865066dae6b9",
+      "currentSha256": "aa133d6b59959078c23c551df19742082b65a17510879082a56470f54a642e29",
+      "replacements": [
+        {
+          "current": "import { eastCinemasPreviousEdgesV260 } from \"./eastCinemasV260Previous\";\nimport { Group } from \"three\";\nimport { justicePalaceV183Boxes } from \"./justicePalaceV183Batches\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\nimport { leipzigerMuenzeV257Rows } from \"./leipzigerMuenzeV257\";\n\n/** Small final-count batches keep distant 512 m cells independently culled. */\nexport function altMitteEdgesV186Batches(cells: readonly { cell: string; rows: number[][] }[], native: boolean): Group {\n  const root = new Group();\n  root.name = native ? \"Alt-Mitte independent native facade edges v186\" : \"Alt-Mitte measured street-wall edge relief v186\";\n  root.userData = {\n    altMitteEdgesV186: true, textureFree: true, additiveOnly: false,\n    receiptedAuthoredFacadeCorrectionV257: true,\n    sourceGeometryRetained: true, fullStaticDetailOnTouch: true,\n    keepInMinecraft: native, blockNative: native, independentNativeGeometry: native,\n    profileStatus: \"Original measured wall-edge profiles retained. v257 adds bounded street fittings and corrects six exactly receipted generic Münze facade estimates; all measured sources and other authored detail survive.\",\n  };\n  for (const cell of cells) {\n    const profiles = eastCinemasPreviousEdgesV260(cell.cell, cell.rows);\n    const previous = native ? nativeContourRows(profiles) : profiles;\n    const additions = leipzigerMuenzeV257Rows(cell.cell, native);\n    const mesh = justicePalaceV183Boxes(additions.length ? [...previous, ...additions] : previous, native);\n    mesh.name = `Alt-Mitte source wall edge cell ${cell.cell}`;\n    mesh.userData.spatialCell = cell.cell;\n    mesh.userData.leipzigerMuenzeV257 = additions.length;\n    mesh.userData.receiptedAuthoredFacadeCorrectionV257 = cell.cell === \"4:0\";\n    root.add(mesh);\n  }\n  return freezeStaticSceneTransforms(root);\n",
+          "before": "import { Group } from \"three\";\nimport { justicePalaceV183Boxes } from \"./justicePalaceV183Batches\";\nimport { freezeStaticSceneTransforms } from \"./staticSceneTransforms\";\n\n/** Small final-count batches keep distant 512 m cells independently culled. */\nexport function altMitteEdgesV186Batches(cells: readonly { cell: string; rows: number[][] }[], native: boolean): Group {\n  const root = new Group();\n  root.name = native ? \"Alt-Mitte independent native facade edges v186\" : \"Alt-Mitte measured street-wall edge relief v186\";\n  root.userData = {\n    altMitteEdgesV186: true, textureFree: true, additiveOnly: true,\n    sourceGeometryRetained: true, fullStaticDetailOnTouch: true,\n    keepInMinecraft: native, blockNative: native, independentNativeGeometry: native,\n    profileStatus: \"Two thin display edge estimates on existing measured street walls; no new window or entrance claims.\",\n  };\n  for (const cell of cells) {\n    const mesh = justicePalaceV183Boxes(native ? nativeContourRows(cell.rows) : cell.rows, native);\n    mesh.name = `Alt-Mitte source wall edge cell ${cell.cell}`;\n    mesh.userData.spatialCell = cell.cell;\n    root.add(mesh);\n  }\n  return freezeStaticSceneTransforms(root);\n"
+        }
+      ]
+    }
+  ],
+  "retainedSourceSha256": {
+    "src/app/src/data/schoolsV185.json": "cc7f02062db6c84ebba086f0a6757149f03b85b144e767ca0f3b95096104d2df",
+    "src/app/src/data/schoolsPlacesV205.json": "dc01ad90aef042e1741eedc910813ddd685a83ae4b1d4bc2fec863e270ac9225",
+    "src/app/src/data/northV185.json": "1ab6f1e7750ed21b4f8daf12cb4edb1af1c3cb4b9caed752dda0427830432ee5",
+    "src/app/src/data/altMitteEdgesV186.json": "8eab6f5dbaa7d50c30f1f0665f4ad893739716bd816bac3f5e8e080854b4c7da",
+    "src/app/src/justicePalaceV183Batches.ts": "c6b9437d8dd73c010908505fb533d5f189d16beb80ba549a92780192eb03fb5e",
+    "src/app/src/drawnLettering.ts": "2405690523d38dceeb8b2931efe5e09cd1e1b4a0e2d7e57998f6559c4e1ef384",
+    "src/app/src/weinbergTerrainV176.ts": "884da76675163192af0269e0b7e91fd55c978c96583be245db7063fb47cb778f"
+  },
+  "currentDependencySha256": {
+    "src/app/src/LennonV250.ts": "974664a5273f7a869d5369387667b7a6b4c60a7635ba932845e976162676b7df",
+    "src/app/src/ChorinerV250.ts": "494efdaa7b11524ffdbcb127dfddf5ba8d1a5c95f386e161484e8be2990fa689",
+    "src/app/src/KulturbrauereiV252.ts": "c521829fa13f60f91a9224bd91c5697de150f504dd06a0b490968afc1ec3c261",
+    "src/app/src/NorthShopfrontsV254.ts": "a4f6d816945db16b33bd7c3ffec47ed9022ac546f0557b756143c07c99ee1bab",
+    "src/app/src/DanzigerTramV249.ts": "b4ffc8bc720b46ef2c554b13f81a8bfbe7b627b7712d6b27dc0e00cce3e696c6",
+    "src/app/src/steglitzSchoolV250.ts": "3c7be2a6b3eeccd194c76b3fc909bea29c13794726038b1081a60161c67a2284",
+    "src/app/src/steglitzCourtyardV251.ts": "99bf19aab92048e016adb3ba11f8fa470d8b75519169fdd748582f43ae66c53c",
+    "src/app/src/steglitzCourtGroundV251.ts": "52a80aec0e35ffeed2872937c0955764c2cdbc4b6ead18d2bd410209aa7d745e",
+    "src/app/src/steglitzWindowsV273.ts": "8cca24427e1fd59e485946058dc568e5f3e9caaba61ba65bbdfe7603ee426590",
+    "src/app/src/gipsKoppenV252.ts": "4dedd1350f9ce5dc511a9b630499cd7e1b79342f561a15f0899baa60dbbd5261",
+    "src/app/src/SchoolsCourtsV274.ts": "34f46dd0786080d530dd072d5608787a8af42e2b884af93a6c1c832087d22503",
+    "src/app/src/leipzigerMuenzeV257.ts": "57994caaa5bea8260c8be0e664ae55a6882638a29802883a50eaa25936b1aea4",
+    "src/app/src/eastCinemasV260Previous.ts": "196c77d4f10335384c1b824f1784ef0babc14c0654676795e29f9e0c89df3dbf"
+  }
+}

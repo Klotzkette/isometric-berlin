@@ -4,7 +4,8 @@ import { createAlexanderNorthV166, createMinecraftAlexanderNorthV166 } from "../
 import { ALEXANDER_NORTH_V166_PARENT_IDS, alexanderNorthV166RoofAt, alexanderNorthV166SourceColumn } from "../src/alexanderNorthV166Profile";
 import source from "../src/data/alexanderNorthV166Source.json";
 import nav from "../src/data/alexanderNorthV166Navigation.json";
-import { staticGeometryAudit, disposeStaticAudit } from "./helpers/staticGeometryAudit";
+import { disposeStaticAudit } from "./helpers/staticGeometryAudit";
+import { verifyAlexanderNorthRetentionV281 } from "./helpers/alexanderRetentionV281";
 
 describe("source-complete Alexander north",()=>{
   test("all original sheets render with identical full static touch detail",()=>{
@@ -13,7 +14,8 @@ describe("source-complete Alexander north",()=>{
     expect((root.children[1] as InstancedMesh).count).toBe(source.facadeBoxes.length);
     expect(root.userData.sourcePartIds).toHaveLength(107);
     expect(root.userData.fullStaticDetailOnTouch).toBe(true);
-    const audit=staticGeometryAudit(root);expect(audit.budget.draws).toBe(4);expect(audit.budget.bytes).toBeLessThan(3800000);
+    const {full,retained}=verifyAlexanderNorthRetentionV281(root,false);
+    expect(retained.budget.draws).toBe(4);expect(full.budget.bytes).toBeLessThan(3800000);
     disposeStaticAudit(root);
   });
   test("native skin and identity details have orthogonal matrices only",()=>{
@@ -21,7 +23,7 @@ describe("source-complete Alexander north",()=>{
     root.traverse(o=>{expect(o.matrixAutoUpdate).toBe(false);if(!(o instanceof Mesh))return;expect(o instanceof InstancedMesh).toBe(true);
       if(o instanceof InstancedMesh)for(let i=0;i<o.count;i++)for(const k of [1,2,4,6,8,9])expect(Math.abs(o.instanceMatrix.array[16*i+k])).toBe(0);
     });
-    expect(staticGeometryAudit(root).budget.draws).toBe(3);
+    expect(verifyAlexanderNorthRetentionV281(root,true).retained.budget.draws).toBe(3);
     expect((root.children[0] as InstancedMesh).count).toBe(7955);
     disposeStaticAudit(root);
   });

@@ -1,5 +1,6 @@
 import { BoxGeometry, Color, Group, InstancedMesh, Matrix4, Mesh, MeshStandardMaterial, Path, Shape, ShapeGeometry, Vector2, Vector3 } from "three";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { planTopographyExhibitionV281 } from "./TopographyExhibitionV281";
 import { TOPOGRAPHY_TERROR_SOURCE as S, TOPOGRAPHY_TERROR_MUSEUM as M, TOPOGRAPHY_TERROR_GROUP, MINECRAFT_TOPOGRAPHY_TERROR_GROUP, TOPOGRAPHY_TERROR_PROFILE, TOPOGRAPHY_TERROR_TOP as TOP, topographySolidContains, topographySiteSurfaceAt, topographySourceGroundAt, type TopographyPoint as Point, type TopographySolid } from "./topographyTerrorProfile";
 
 type Triple = [number, number, number];
@@ -87,7 +88,7 @@ export function planTopographyTerror(options: TopographyOptions = {}): Topograph
     emit(north,u,ground+.40,pitch-.035,.58,.72,-.62,i%3?C.brick:C.concrete,"archaeological retained wall relief",false,true);
     emit(north,u,ground+2.23,pitch-.09,.065,7,-3.55,i%3?C.glassLight:C.glass,"trench protective glass canopy",true);
     emit(north,u-pitch/2,ground+2.26,.09,.1,7.1,-3.55,C.steel,"trench roof transverse frame");
-    if(i%3===0){emit(north,u,ground+1.23,.10,2,.10,-.5,C.steel,"trench canopy support",false,true);emit(south,u,ground+1.31,pitch*.7,1.3,.055,-.35,C.white,"plain exhibition panel field");}
+    if(i%3===0){emit(north,u,ground+1.23,.10,2,.10,-.5,C.steel,"trench canopy support",false,true);blocks.push(...planTopographyExhibitionV281(at(south,u,ground+1.31,-.35),pitch*.7,-Math.atan2(south.dz,south.dx),mc,i/3));}
   }
   for(let i=0;i<n;i++){const u=(i+.5)*pitch,p=at(north,u,0,-3.45),y=topographySourceGroundAt(p[0],p[2])+2.27;for(const d of [-.05,-3.55,-7.05])emit(north,u,y,pitch+.01,.12,.11,d,C.steel,"trench roof continuous rail");}
   const cellar=S.cellar.ring.slice(0,-1) as unknown as Point[],cf=walls(cellar),floorY=5.68;

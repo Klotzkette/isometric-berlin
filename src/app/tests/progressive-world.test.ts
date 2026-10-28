@@ -138,7 +138,7 @@ describe("progressive exact-world scheduling", () => {
     setIsoNightPresentation(coverage, false, true, "schwellenraum");
     expect(shells.material).toBe(shells.userData.schwellenraumMaterial);
     expect(threeViewerSource).toContain(
-      "createProgressiveBuildingCoverage(prisms, buildingPartition)",
+      "createProgressiveBuildingCoverage(prisms, buildingPartition, {",
     );
     const before = Array.from(shells.geometry.getAttribute("color").array);
     const wire = serializeObject3DForTransfer(coverage);
@@ -386,7 +386,7 @@ describe("progressive exact-world scheduling", () => {
 
   test("publishes complete source coverage before the first interactive frame", () => {
     const initialCoverage = threeViewerSource.indexOf(
-      "isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition))",
+      "isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, {",
     );
     const publish = threeViewerSource.indexOf("runtime.isoWorld = isoWorld", initialCoverage);
     const ready = threeViewerSource.indexOf("notifyPresentationReadyWhenPossible(runtime)", publish);

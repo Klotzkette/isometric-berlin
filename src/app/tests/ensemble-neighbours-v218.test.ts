@@ -1,13 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
-import { planFriedrichstrasseArchitecture } from "../src/FriedrichstrasseArchitecture";
+import { planFriedrichstrasseArchitecture, planFriedrichstrasseArchitectureV281Control } from "../src/FriedrichstrasseArchitecture";
 import { ENSEMBLE_NEIGHBOUR_REFINEMENT_V218 as profile, FRIEDRICHSTRASSE_ARCHITECTURE_SOURCE as source } from "../src/friedrichstrasseArchitectureProfile";
 
 describe("v218 Berliner Ensemble neighbours", () => {
   test("retains previous detail outside the documented Neues Haus and v219 corner corrections", () => {
-    const retained = planFriedrichstrasseArchitecture().filter(b => b.sourceId !== profile.neuesHausFront.sourceId && !b.role.startsWith("v218 ") && !(b.sourceId === "adrXN9LM" && Math.abs(b.normal[0] - .664363838829922) < 1e-8 && Math.abs(b.normal[1] - .7474093186836577) < 1e-8));
+    const retained = planFriedrichstrasseArchitectureV281Control().filter(b => b.sourceId !== profile.neuesHausFront.sourceId && !b.role.startsWith("v218 ") && !(b.sourceId === "adrXN9LM" && Math.abs(b.normal[0] - .664363838829922) < 1e-8 && Math.abs(b.normal[1] - .7474093186836577) < 1e-8));
     // Re-captured before v219 from immutable v118, excluding only its one
-    // corrected face. The dedicated v219 test freezes the complete complement.
+    // corrected face. v281 retains that complete control planner: its new full
+    // model test proves that only the two audited facade grids now yield.
     expect(createHash("sha256").update(JSON.stringify(retained)).digest("hex"))
       .toBe("1d65fa9b2d6383581aa89c76dcc1c90ba6a1a8727a7b98559f62be9d065e10af");
   });

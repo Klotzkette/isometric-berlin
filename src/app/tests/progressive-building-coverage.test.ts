@@ -21,6 +21,7 @@ import {
 import { serializeObject3DForTransfer } from "../src/transferableObject3D";
 import { progressiveCoverageHost } from "./helpers/progressiveCoverageHost";
 import type { VisualMode } from "../src/visualMode";
+import weltkugelReceipt from "../src/data/weltkugelV281Ownership.json";
 
 const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const viewerSource = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
@@ -28,7 +29,11 @@ const viewerSource = await Bun.file(new URL("../src/ThreeViewer.tsx", import.met
 // Suppressed source prisms already have authored hero geometry. They must not
 // reappear as closed boxes (especially the two walk-through train stations).
 function representable(building: PrismBuilding): boolean {
-  return building.ring.length >= 3 && !PRISM_SUPPRESSED_IDS.has(building.id) &&
+  // The precisely receipted false nine-metre fountain prism now has its
+  // complete required fountain model. No neighbouring envelope is suppressed.
+  const obsoleteFountain = weltkugelReceipt.previousPrisms.some(prior =>
+    prior.id === building.id && JSON.stringify(prior) === JSON.stringify(building));
+  return !obsoleteFountain && building.ring.length >= 3 && !PRISM_SUPPRESSED_IDS.has(building.id) &&
     !isInterimOfficeFootprintSuppressed(building) &&
     !isFriedrichstrasseStationFootprintSuppressed(building) &&
     (PRISM_GLASSED_IDS.has(building.id) || !isHauptbahnhofFootprintSuppressed(building));

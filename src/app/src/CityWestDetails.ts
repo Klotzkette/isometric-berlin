@@ -1,3 +1,4 @@
+import { createWeltkugelV281 } from "./WeltkugelBrunnenV281";
 import { addGedaechtniskircheRuin } from "./GedaechtniskircheRuin";
 import { GEDAECHTNISKIRCHE_RUIN_PROFILE } from "./gedaechtniskircheRuinProfile";
 import { GEDAECHTNISKIRCHE_RETAINED_WINGS } from "./gedaechtniskircheSourceParts";
@@ -1856,7 +1857,10 @@ function addGedaechtniskirche(
 function addBreitscheidplatz(
   builder: Builder,
   detailProfile: CityWestDetailProfile,
+  fountain: "current" | "legacy" | "omit",
 ): void {
+  // Current fountain has its own small batch to retain Uint16 church indices.
+  if (fountain === "legacy") {
   const profile = CITY_WEST_PROFILE.breitscheidplatz;
   const center = profile.fountainCenterWorldM;
   addBox(
@@ -1930,6 +1934,8 @@ function addBreitscheidplatz(
       6,
       false,
     );
+  }
+
   }
 
   // Ground-light bands and benches cue the unified pedestrian square without
@@ -2119,6 +2125,7 @@ function finishBatch(
 export function createCityWestDetails(
   detailProfile: CityWestDetailProfile = "full",
   includeUrania = true,
+  fountain: "current" | "legacy" | "omit" = "current",
 ): Group {
   detailProfile = staticModelDetailProfile(detailProfile);
   const group = new Group();
@@ -2145,7 +2152,7 @@ export function createCityWestDetails(
   const breitscheid = createBuilder();
   const churchGlass = createBuilder();
   addGedaechtniskirche(breitscheid, churchGlass, detailProfile);
-  addBreitscheidplatz(breitscheid, detailProfile);
+  addBreitscheidplatz(breitscheid, detailProfile, fountain);
   const breitscheidBatch = finishBatch(
     breitscheid,
     "Gedächtniskirche and Breitscheidplatz ensemble",
@@ -2155,6 +2162,7 @@ export function createCityWestDetails(
     },
   );
   if (breitscheidBatch) {
+    if (fountain === "current") breitscheidBatch.add(createWeltkugelV281());
     const glazing = finishDrawnGroup(churchGlass, {
       name: "Gedächtniskirche blue concrete-glass cells",
       lampEmissive: 0x234bad,

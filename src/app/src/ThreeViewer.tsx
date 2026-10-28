@@ -1,3 +1,5 @@
+import { ubahnV281FloorAt, ubahnV281SolidAt } from "./ubahnEntrancesV281Profile";
+import { cutUbahnPresentationV281 } from "./UbahnSurfaceAperturesV281";
 import { prenzlbergV264GroundAt, prenzlbergV264SolidAt, prenzlbergV264TerrainAt } from "./prenzlbergV264Navigation";
 import { ubahnV261FloorAt, ubahnV261SolidAt } from "./ubahnEntrancesV261Profile";
 import { cutUbahnPresentationV261 } from "./UbahnSurfaceAperturesV261";
@@ -1638,7 +1640,7 @@ function startSurroundingCity(runtime: Runtime): void {
   const city = createSurroundingCity({
     manifestUrl: new URL("../surrounding-berlin-v159/manifest.json", runtime.sceneRootUrl),
     schlossplatzV239: true,
-    operaTheatresV274: true, staatsoperV240: true, architectureV241: true, prenzlbergV264: true, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true,
+    operaTheatresV274: true, staatsoperV240: true, architectureV241: true, mitteEnsembleV281: true, prenzlbergV264: true, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true,
     camera: runtime.camera,
     mode: runtime.lightingMode,
     signal: runtime.loadSignal,
@@ -1767,6 +1769,7 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       centralNamedV230SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       westIndustrialV230SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       districtCourtsV229SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
+      ubahnV281SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       ubahnV261SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       rosenthalerV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       hospitalV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
@@ -3418,6 +3421,7 @@ function attachProgressiveWorldMessage(
   if (message.kind === "surfaces") {
     cutRosenthalerPresentationV228(object, false);
     cutUbahnPresentationV261(object, false);
+    cutUbahnPresentationV281(object, false);
   }
   setIsoNightPresentation(
     object,
@@ -3732,8 +3736,11 @@ function prepareIsoNavigation(
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { northCultureV274: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { requiredSitesV281: true, northCultureV274: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
+  // Compile the future owners now, but keep their authored solids/floors
+  // inactive until the required models finish in the same unpublished transaction.
+  pedestrianEnvironment.requiredSitesV281 = false;
   const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(ground);
   configureNeueNationalgalerieObstaclesV217(pedestrianEnvironment.obstacles);
   pedestrianEnvironment.visualMode = () =>
@@ -3784,6 +3791,7 @@ function prepareIsoNavigation(
     if (districtCourtsV229SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (schoolCultureV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (ubahnV281SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (ubahnV261SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (rosenthalerV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
@@ -3864,6 +3872,8 @@ function prepareIsoNavigation(
     if (hospitalFloor !== null) return hospitalFloor;
     const schoolFloor = schoolCultureV228GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (schoolFloor !== null) return schoolFloor;
+    const v281Floor = ubahnV281FloorAt(x, z, runtime.lightingMode === "minecraft");
+    if (v281Floor !== null) return v281Floor;
     const v261Floor = ubahnV261FloorAt(x, z, runtime.lightingMode === "minecraft");
     if (v261Floor !== null) return v261Floor;
     const rosenthalerFloor = rosenthalerV228FloorAt(x, z, runtime.lightingMode === "minecraft");
@@ -4200,6 +4210,7 @@ function ensureIsoWorld(
         isoWorld.add(northCorridorV208.createHungarianEnvelopeV208());
         yield;
         yield* sitesV209.addRequiredSiteEnvelopesV209Steps(isoWorld);
+        if (provisionalPedestrianEnvironment) provisionalPedestrianEnvironment.requiredSitesV281 = true;
         yield* compactStaticGeometrySteps(isoWorld);
         const initialWater = createInitialDrawnWater(ground, surfaces, runtime.coarsePointer);
         if (initialWater) isoWorld.add(initialWater);
@@ -4312,6 +4323,7 @@ function ensureIsoWorld(
         if (ground) {
           isoWorld.add(createDistrictStreets(ground, new Set(altMitteTransportCorrectionsV206.suppressedMarkingIndices)));
           cutUbahnPresentationV261(isoWorld, false);
+          cutUbahnPresentationV281(isoWorld, false);
           yield;
           isoWorld.add(createSpreeRailings(ground));
           yield;
@@ -4679,7 +4691,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { northCultureV274: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { requiredSitesV281: true, northCultureV274: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   environment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
@@ -4713,6 +4725,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     if (districtCourtsV229SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (schoolCultureV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (ubahnV281SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (ubahnV261SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (rosenthalerV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
@@ -4766,6 +4779,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     districtCourtsV229GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     hospitalV228GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     schoolCultureV228GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
+    ubahnV281FloorAt(x, z, runtime.lightingMode === "minecraft") ??
     ubahnV261FloorAt(x, z, runtime.lightingMode === "minecraft") ??
     rosenthalerV228FloorAt(x, z, runtime.lightingMode === "minecraft") ??
     aegCampusV241GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??

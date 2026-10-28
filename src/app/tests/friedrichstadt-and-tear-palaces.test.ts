@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { staticGeometryAudit } from "./helpers/staticGeometryAudit";
+import { withPalacesBeforeV274 } from "./helpers/palastV274Replay";
 import {
   Box3,
   InstancedMesh,
@@ -179,8 +180,12 @@ describe("Friedrichstadt-Palast and Tränenpalast recognition details", () => {
   test("restores complete drawn detail while preserving the separate native budgets", () => {
     const full = createFriedrichstadtAndTearPalaces("full");
     const mobile = createFriedrichstadtAndTearPalaces("mobile");
-    const fullStats = palaceRenderStats(full);
-    const mobileStats = palaceRenderStats(mobile);
+    // Keep the original budgets and verify the separately receipted v274 stage
+    // delta in both children; do not silently reset the historical counts.
+    const fullStats = withPalacesBeforeV274(full, "full", () => palaceRenderStats(full));
+    const mobileStats = withPalacesBeforeV274(mobile, "mobile", () => palaceRenderStats(mobile));
+    expect(palaceRenderStats(full).instanceCount - fullStats.instanceCount).toBe(2_576);
+    expect(palaceRenderStats(mobile).instanceCount - mobileStats.instanceCount).toBe(2_579);
     expect(fullStats).toEqual({ instanceCount: 17_374, renderedVertices: 418_392, renderables: 9, storedVertices: 1_560 });
     expect(mobileStats).toEqual({ instanceCount: 15_659, renderedVertices: 377_232, renderables: 9, storedVertices: 1_560 });
     // The only remaining profile difference belongs to the native Minecraft

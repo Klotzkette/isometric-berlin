@@ -4,6 +4,7 @@ import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { createCharlottenburgCupolaV183 } from "./CharlottenburgCupolaV183";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { littenInstanzV257Rows } from "./littenInstanzV257";
+import { charlottenburgParkV281Rows, charlottenburgBasinV281Triangles } from "./CharlottenburgParkV281";
 
 export const JUSTICE_PALACE_V183_GROUP = "Source-bound Berlin courthouses and Charlottenburg recognition v183";
 
@@ -31,14 +32,17 @@ export function createJusticePalaceV183(): Group {
   outlines.name = "Exact source contours and explicitly estimated cupola, caps and roof ridges";
   outlines.userData = { textureFree: true, cartographicOutline: true };
   const fittingsV257 = littenInstanzV257Rows();
-  const members = justicePalaceV183Boxes([...source.boxes, ...fittingsV257]);
+  const parkV281=charlottenburgParkV281Rows();
+  const members = justicePalaceV183Boxes([...source.boxes, ...fittingsV257, ...parkV281]);
+  members.userData.charlottenburgParkV281Rows=parkV281.length;
   members.userData.littenInstanzV257Rows = fittingsV257.length;
   members.name = "Thin facade windows, pale frames and open tower members";
   root.add(outlines, members, createCharlottenburgCupolaV183());
-  const roofPositions = new Float32Array(source.roofTriangles.length * 9);
+  const roofTriangles=[...source.roofTriangles,...charlottenburgBasinV281Triangles()];
+  const roofPositions = new Float32Array(roofTriangles.length * 9);
   const roofColors = new Float32Array(roofPositions.length);
   const normal = new Vector3(), a = new Vector3(), b = new Vector3(), light = new Vector3(-.5, 1, .5).normalize();
-  source.roofTriangles.forEach((r, i) => {
+  roofTriangles.forEach((r, i) => {
     a.set(r[3]-r[0], r[4]-r[1], r[5]-r[2]); b.set(r[6]-r[0], r[7]-r[1], r[8]-r[2]);
     normal.crossVectors(a, b).normalize(); if (normal.y < 0) normal.negate();
     color.setHex(r[9]).multiplyScalar(.7 + .3 * Math.max(0, normal.dot(light)));

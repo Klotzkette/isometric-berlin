@@ -1,0 +1,355 @@
+{
+  "revision": "step10-v281",
+  "retrieved": "2026-10-28",
+  "sourceUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=13.341,52.535,13.350,52.539",
+  "sourceSha256": "0d5dd766bbd58beb69e3b5ca6221f537868376d9db185de51bbee0910a6700f7",
+  "sourceLicence": "\u00a9 OpenStreetMap contributors, ODbL 1.0",
+  "frame": "EPSG:25833; x=east-389500; z=5820000-north; existing display ground y=5.2",
+  "features": [
+    {
+      "role": "heap",
+      "osmId": 26624547,
+      "osmVersion": "6",
+      "timestamp": "2022-11-10T06:55:15Z",
+      "tags": {
+        "man_made": "heap",
+        "name": "Kohlenhalde",
+        "resource": "coal"
+      },
+      "nodes": [
+        292022176,
+        292022180,
+        292022181,
+        292022182,
+        292022176
+      ],
+      "lonLat": [
+        [
+          13.3476884,
+          52.5371335
+        ],
+        [
+          13.3475698,
+          52.5377449
+        ],
+        [
+          13.3490606,
+          52.537872
+        ],
+        [
+          13.3492075,
+          52.5372606
+        ],
+        [
+          13.3476884,
+          52.5371335
+        ]
+      ],
+      "worldRing": [
+        [
+          -1565.431316,
+          -2065.226683
+        ],
+        [
+          -1571.917491,
+          -2133.411393
+        ],
+        [
+          -1470.491592,
+          -2145.233538
+        ],
+        [
+          -1462.084776,
+          -2077.005075
+        ],
+        [
+          -1565.431316,
+          -2065.226683
+        ]
+      ]
+    },
+    {
+      "role": "shipUnloader",
+      "osmId": 896589831,
+      "osmVersion": "1",
+      "timestamp": "2021-01-18T14:17:28Z",
+      "tags": {
+        "crane:type": "gantry_crane",
+        "man_made": "crane"
+      },
+      "nodes": [
+        8036550372,
+        8334418637,
+        8334418636,
+        8334418635,
+        8036550372
+      ],
+      "lonLat": [
+        [
+          13.3483762,
+          52.5383756
+        ],
+        [
+          13.3484661,
+          52.5383788
+        ],
+        [
+          13.348487,
+          52.5381606
+        ],
+        [
+          13.3483971,
+          52.5381574
+        ],
+        [
+          13.3483762,
+          52.5383756
+        ]
+      ],
+      "worldRing": [
+        [
+          -1515.623885,
+          -2202.306541
+        ],
+        [
+          -1509.519024,
+          -2202.522913
+        ],
+        [
+          -1508.657063,
+          -2178.22204
+        ],
+        [
+          -1514.761954,
+          -2178.005666
+        ],
+        [
+          -1515.623885,
+          -2202.306541
+        ]
+      ]
+    },
+    {
+      "role": "craneTravel",
+      "osmId": 896589832,
+      "osmVersion": "2",
+      "timestamp": "2021-01-25T15:30:53Z",
+      "tags": {
+        "crane:mobile": "rail",
+        "crane:type": "portal_crane",
+        "man_made": "crane"
+      },
+      "nodes": [
+        8036550368,
+        8334418640,
+        8334418639,
+        8334418638,
+        8036550368
+      ],
+      "lonLat": [
+        [
+          13.3490469,
+          52.5378934
+        ],
+        [
+          13.3491931,
+          52.5372418
+        ],
+        [
+          13.3477626,
+          52.5371231
+        ],
+        [
+          13.3476165,
+          52.5377747
+        ],
+        [
+          13.3490469,
+          52.5378934
+        ]
+      ],
+      "worldRing": [
+        [
+          -1471.366238,
+          -2147.634924
+        ],
+        [
+          -1463.109193,
+          -2074.93646
+        ],
+        [
+          -1560.425663,
+          -2063.954768
+        ],
+        [
+          -1568.674516,
+          -2136.653259
+        ],
+        [
+          -1471.366238,
+          -2147.634924
+        ]
+      ]
+    },
+    {
+      "role": "roadConveyor",
+      "osmId": 1124344230,
+      "osmVersion": "1",
+      "timestamp": "2022-12-23T05:30:43Z",
+      "tags": {
+        "building:part": "yes",
+        "level": "1"
+      },
+      "nodes": [
+        10281692101,
+        10281692102,
+        10281692103,
+        10281692104,
+        10281692101
+      ],
+      "lonLat": [
+        [
+          13.347027,
+          52.5380747
+        ],
+        [
+          13.3469968,
+          52.5378039
+        ],
+        [
+          13.3470514,
+          52.5378011
+        ],
+        [
+          13.3470777,
+          52.5380698
+        ],
+        [
+          13.347027,
+          52.5380747
+        ]
+      ],
+      "worldRing": [
+        [
+          -1607.888673,
+          -2170.935154
+        ],
+        [
+          -1610.626663,
+          -2140.863412
+        ],
+        [
+          -1606.93096,
+          -2140.467176
+        ],
+        [
+          -1604.46283,
+          -2170.311413
+        ],
+        [
+          -1607.888673,
+          -2170.935154
+        ]
+      ]
+    },
+    {
+      "role": "quayConveyor",
+      "osmId": 1124344231,
+      "osmVersion": "1",
+      "timestamp": "2022-12-23T05:30:43Z",
+      "tags": {
+        "building:part": "yes",
+        "level": "1"
+      },
+      "nodes": [
+        10281692105,
+        10281692106,
+        10281692107,
+        3158064000,
+        10281692105
+      ],
+      "lonLat": [
+        [
+          13.3470915,
+          52.5380773
+        ],
+        [
+          13.3485225,
+          52.5381276
+        ],
+        [
+          13.3485214,
+          52.5381575
+        ],
+        [
+          13.3470971,
+          52.5381047
+        ],
+        [
+          13.3470915,
+          52.5380773
+        ]
+      ],
+      "worldRing": [
+        [
+          -1603.507847,
+          -2171.124134
+        ],
+        [
+          -1506.333557,
+          -2174.496648
+        ],
+        [
+          -1506.33205,
+          -2177.823865
+        ],
+        [
+          -1603.058269,
+          -2174.162892
+        ],
+        [
+          -1603.507847,
+          -2171.124134
+        ]
+      ]
+    }
+  ],
+  "retainedBefore": {
+    "src/app/public/mesh/regierungsviertel/lod2-prisms.json": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e",
+    "src/app/src/data/rkiMoabitV277.json": "33dc95d9c19a35b4036515fbaa8c2ce80fd2698268db972f2c08e7062d112a02",
+    "geo_data/regierungsviertel/rki-moabit-v277-source.json.gz": "04ed78aae79ebf256057f4093e2129b6494d18621fe84c83216ec08904bc8701",
+    "src/app/src/data/rkiMoabitV277Ownership.json": "96d9a37e8f7968470f2fbef50718c54ffbbdd38826d5c41fc23339379ee217a0"
+  },
+  "interpretation": "896589832 covers the crane travel envelope, not a 98x73 m solid crane. Official DOP2025 shows one narrow travelling bridge across its north/south rails. Coal surfaces, supports, wheels, hopper, trusses, belts, trolley and grab are explicitly estimated public exterior recognition; no live machinery/stockpile position claim. No source owner is retired.",
+  "dopAlignment": {
+    "source": "Geoportal Berlin DOP2025 spring, dl-de/zero-2-0",
+    "url": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=dop_2025&STYLES=&CRS=EPSG:25833&BBOX=387900,5822035,388100,5822235&WIDTH=1000&HEIGHT=1000&FORMAT=image/jpeg",
+    "yardConveyor": {
+      "id": "dop2025-yard-conveyor",
+      "ring": [
+        [
+          -1608.613027,
+          -2139.070842
+        ],
+        [
+          -1459.532027,
+          -2154.808842
+        ],
+        [
+          -1459.867973,
+          -2157.991158
+        ],
+        [
+          -1608.948973,
+          -2142.253158
+        ],
+        [
+          -1608.613027,
+          -2139.070842
+        ]
+      ]
+    },
+    "method": "The visible north-yard conveyor is absent from selected OSM ways. Its approximate centreline links the full mapped road-conveyor end to the DOP-observed eastern end. 3.2 m width, y=13 m top/belt datum and frame spacing are display estimates. This is separate from all measured building sheets.",
+    "photographicPixelsBundled": false
+  }
+}

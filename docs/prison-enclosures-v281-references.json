@@ -1,0 +1,16 @@
+{
+  "version": "1.0.181",
+  "pipelineStep": 10,
+  "reviewed": "2026-10-28",
+  "primaryReferences": [
+    {"url":"https://www.berlin.de/justizvollzug/anstalten/jva-moabit/die-anstalt/historie/","role":"Distinguishes the surviving 1877–1881 five-wing JVA from the demolished Lehrter Straße prison. Public historical identity only."},
+    {"url":"https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050319","role":"Protected current JVA ensemble and high exterior wall, yellow/red brick and panoptic central hall."},
+    {"url":"https://www.stiftung-hsh.de/","role":"Current Hohenschönhausen memorial identity at Genslerstraße 66, distinct from Normannenstraße."},
+    {"url":"https://www.berlin.de/landesdenkmalamt/denkmale/highlight-denkmale-der-alliierten/udssr/lichtenberg/speziallager-nr-3-648073.php","role":"Protected former detention site and retained historic architecture."},
+    {"url":"https://www.berlin.de/tourismus/parks-und-gaerten/4216129-1740419-geschichtspark-zellengefaengnis-moabit.html","role":"Present-day Geschichtspark identity. Its existing nineteen wall segments and three open entrances stay unchanged."}
+  ],
+  "visualReferences": [
+    {"title":"JVA Moabit.JPG","url":"https://commons.wikimedia.org/wiki/File:JVA_Moabit.JPG","author":"Elkawe; crop and correction by Sir James","license":"CC BY-SA 3.0","licenseUrl":"https://creativecommons.org/licenses/by-sa/3.0/","date":"2009-08-26","observations":"Public street exterior: red-brown perimeter wall, distinct slender round tower, dark upper glazing and shallow cap. Historical photograph is not a present-day colour or dimension survey.","use":"External reference only, inspected at 960 px. No photograph or pixels bundled."},
+    {"title":"Clp 20100309 Gedenkstätte Berlin-Hohenschönhausen Wachturm.jpg","url":"https://commons.wikimedia.org/wiki/File:Clp_20100309_Gedenkst%C3%A4tte_Berlin-Hohensch%C3%B6nhausen_Wachturm.jpg","author":"Christian Liebscher (Platte)","license":"CC BY-SA 3.0","licenseUrl":"https://creativecommons.org/licenses/by-sa/3.0/","date":"2010-03-09","observations":"Pale faceted upper tower, dark glazing band, light mullions and shallow overhanging roof above the retained wall. Source OSM coordinates and height/min-height tags control the geometry; small proportions are estimates.","use":"External reference only, inspected at 960 px. No photograph or pixels bundled."}
+  ]
+}

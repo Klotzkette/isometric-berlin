@@ -125,7 +125,7 @@ describe("block-native Berlin architectural signatures", () => {
     // owns its shallow roof crown and the restored source library body.
     // v1.0.92 adds 24 loggia and eight entrance-frame blocks to existing batches.
     expect(meshes.map(({ count }) => count)).toEqual([
-      489, 690, 2_747, 349, 695, 56, 444,
+      489, 714, 2_747, 349, 695, 56, 444,
     ]);
   });
 

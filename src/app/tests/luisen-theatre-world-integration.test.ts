@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Group } from "three";
+import { Box3, Group, Matrix4, Ray, Vector3 } from "three";
 import { compilePedestrianObstacles, pedestrianPointIsBlocked, createPedestrianState, type PedestrianPolygonObstacle, type PedestrianEnvironment } from "../src/pedestrianNavigation";
 import { BOELL_STIFTUNG_LOW_ID, BOELL_STIFTUNG_CORE_ID } from "../src/boellStiftungProfile";
 import { FRIEDRICHSTADT_PALAST_PRISM_ID, FRIEDRICHSTADT_PALAST_ROOT_NAME, FRIEDRICHSTADT_PALAST_MINECRAFT_NAME, friedrichstadtPalastTopAt, palastFacadePoint, setFriedrichstadtMinecraftPresentation } from "../src/FriedrichstadtPalastDetails";
@@ -10,7 +10,26 @@ import { DEUTSCHES_THEATER_IDS } from "../src/DeutschesTheater";
 import { buildColumnToneLookup } from "../src/MinecraftVoxelWorld";
 import { LUISEN_CORRIDOR_TONES } from "../src/luisenCorridorProfile";
 import source from "../public/mesh/regierungsviertel/lod2-prisms.json";
+import { centralTheatreRowsV274 } from "../src/palastStageV274";
 const payload = source as unknown as PrismPayload;
+
+// Intersect the actual packed box solids submitted by the two v274 renderers,
+// independently of the navigation height function. No world factory is needed.
+function stageSurfaceAt(x: number, z: number, native: boolean): number | null {
+  const rows = centralTheatreRowsV274(native, "palast");
+  const unit = new Box3(new Vector3(-.5, -.5, -.5), new Vector3(.5, .5, .5));
+  const ray = new Ray(new Vector3(x, 100, z), new Vector3(0, -1, 0));
+  const matrix = new Matrix4(), inverse = new Matrix4(), scale = new Vector3(), hit = new Vector3();
+  let top: number | null = null;
+  for (let at = 0; at < rows.length; at += 8) {
+    matrix.makeRotationY(rows[at + 6]).scale(scale.set(rows[at + 3], rows[at + 4], rows[at + 5]));
+    matrix.setPosition(rows[at], rows[at + 1], rows[at + 2]);
+    if (ray.clone().applyMatrix4(inverse.copy(matrix).invert()).intersectBox(unit, hit)) {
+      top = Math.max(top ?? -Infinity, hit.applyMatrix4(matrix).y);
+    }
+  }
+  return top;
+}
 
 describe("Luisen corridor, theatres and foundation world integration", () => {
   test("Minecraft palette uses bounded corridor reference colours without mutating source samples", () => {
@@ -46,7 +65,14 @@ describe("Luisen corridor, theatres and foundation world integration", () => {
     const environment: PedestrianEnvironment = { obstacles, groundAt: () => 5.2, water: [], bounds: {minX:400,maxX:1400,minZ:-800,maxZ:0} };
     for (const out of [-20, -62]) {
       const [x,,z] = palastFacadePoint(-1.5,0,out), top = friedrichstadtPalastTopAt(x,z)!;
-      expect(top).toBeCloseTo(out === -62 ? 37.44 : 25.4, 6);
+      if (out === -62) {
+        // The old 37.44 value was the former full coping slab. V274 retains
+        // that rim height only on the corrected stage perimeter; this exact
+        // interior point must stand on its rendered roof, not on the rim.
+        const surface = stageSurfaceAt(x, z, mode === "minecraft");
+        expect(surface).not.toBeNull();
+        expect(top).toBeCloseTo(surface!, 4); // Packed Float32 transform precision.
+      } else expect(top).toBeCloseTo(25.4, 6);
       expect(pedestrianPointIsBlocked(x,z,20,obstacles)).toBeTrue();
       expect(pedestrianPointIsBlocked(x,z,top,obstacles)).toBeFalse();
       const standing = createPedestrianState(environment,{x,z,yaw:0,groundYHint:top+1,preserveHorizontalPosition:true});

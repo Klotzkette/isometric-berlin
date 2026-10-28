@@ -11,6 +11,22 @@ import { prepareRoofHouseV233 } from "../src/roofHouseV233";
 import { prepareOuterRoofsV262 } from "../src/outerRoofsV262";
 import { prepareOuterFacadesV262 } from "../src/outerFacadesV262";
 import { prepareGreyFacadesV263 } from "../src/greyFacadesV263";
+import { prepareAllotmentsV264 } from "../src/AllotmentsV264";
+import { prepareStreetCurvesV276, streetCurveExtraLineVerticesV276 } from "../src/streetCurvesV276";
+import { prepareCityWestTransportV281 } from "../src/CityWestTransportV281";
+import { prepareMierendorffV269 } from "../src/MierendorffV269";
+import { prepareNordMauerparkV266 } from "../src/NordMauerparkV266";
+import { prepareFriedrichshainV266 } from "../src/FriedrichshainV266";
+import { prepareScheunenV265 } from "../src/ScheunenV265";
+import { prepareKreuzbergStreetsV267 } from "../src/KreuzbergStreetsV267";
+import { prepareFeuerwacheKreuzbergV267 } from "../src/FeuerwacheKreuzbergV267";
+import { prepareKoepenickerLandmarksV268 } from "../src/KoepenickerLandmarksV268";
+import { prepareKoepenickerStreetsV268 } from "../src/KoepenickerStreetsV268";
+import { prepareKraftwerkBerlinV268 } from "../src/KraftwerkBerlinV268";
+import { prepareMoabitHousesV269 } from "../src/MoabitHousesV269";
+import { prepareAugustFrontsV274 } from "../src/AugustFrontsV274";
+import streetCurves from "../src/data/streetCurvesV276.json";
+import cityWestTransport from "../src/data/citywestTransportV281.json";
 import { prepareHouseDoorsV233 } from "../src/houseDoorsV233";
 import { prepareHouseCurbsV233 } from "../src/houseCurbsV233";
 import { prepareBoulevardArchitectureV235 } from "../src/boulevardArchitectureV235";
@@ -37,21 +53,27 @@ function load(key: string): SurroundingCityChunk {
   return JSON.parse(gunzipSync(readFileSync(new URL(descriptors.get(id)[family].url, root))).toString());
 }
 function prepare(chunk: SurroundingCityChunk, id: string, native: boolean): SurroundingCityChunk {
-  // Include every production preparation in its real order: these v233–v235
-  // source tiles can also contain later street/facade additions. Omitting v249
-  // undercounted drawn:-10_-2 by exactly 1,728 bytes before the v262 changes.
-  // V263 contributes 95 windows / 28,500 bytes to drawn:-10_5; account for
-  // those actual appended fittings without changing a limit or byte assertion.
-  for (const prepare of [prepareRoofHouseV233, prepareOuterRoofsV262, prepareOuterFacadesV262, prepareGreyFacadesV263,
+  // Include every production append whose receipts intersect these 486 source
+  // keys, in production order. The old helper omitted later v264–v276 fittings
+  // (including 174,960 bytes of v269 Mierendorff on drawn:-10_-2). V281
+  // CityWest intersects fourteen keys. Tacheles has no intersecting key and its
+  // ownership flag is off here. Counts/byte limits remain unchanged.
+  for (const prepare of [prepareNordMauerparkV266, prepareFriedrichshainV266, prepareScheunenV265,
+    prepareAllotmentsV264, prepareRoofHouseV233, prepareOuterRoofsV262, prepareOuterFacadesV262, prepareGreyFacadesV263,
     prepareHouseDoorsV233, prepareHouseCurbsV233, prepareBoulevardArchitectureV235,
     prepareWestShopfrontsV254, prepareCitywestStreetsV235, prepareCityStreetsV249,
-    prepareMainStreetEdgesV254, prepareNamedSiteV238, prepareEurefTransfersV262]) chunk = finish(prepare(chunk, id, native));
+    prepareMainStreetEdgesV254, prepareNamedSiteV238, prepareEurefTransfersV262,
+    prepareKreuzbergStreetsV267, prepareFeuerwacheKreuzbergV267, prepareKoepenickerLandmarksV268,
+    prepareKoepenickerStreetsV268, prepareKraftwerkBerlinV268, prepareMoabitHousesV269,
+    prepareMierendorffV269, prepareAugustFrontsV274, prepareCityWestTransportV281,
+    prepareStreetCurvesV276]) chunk = finish(prepare(chunk, id, native));
   return chunk;
 }
 function budget(packet: SurroundingCityChunk, native: boolean) {
   const vertices = packet.meshes.reduce((n, p) => n + bytes(p.positions) / 6, 0);
   const indices = packet.meshes.reduce((n, p) => n + bytes(p.indices) / 4, 0);
-  const lineVertices = !native && packet.lines?.positions ? bytes(packet.lines.positions) / 6 : 0;
+  const lineVertices = !native && packet.lines?.positions
+    ? bytes(packet.lines.positions) / 6 + streetCurveExtraLineVerticesV276(packet) : 0;
   return { vertices, indices, buffers: (vertices && indices ? 2 : 0) + (lineVertices ? 1 : 0),
     geometryBytes: vertices * 12 + indices * (vertices <= 65535 ? 2 : 4) + lineVertices * (packet.lines?.colors ? 12 : 6) };
 }
@@ -66,7 +88,16 @@ test("every v233–v235 house and boulevard tile composes safely within unchange
     expect(counts.vertices, key).toBeLessThanOrEqual(400000);
     expect(counts.indices, key).toBeLessThanOrEqual(2400000);
     original.meshes.forEach((part, i) => expect(result.meshes[i], key).toBe(part));
-    expect(result.nav, key).toBe(original.nav); expect(result.lines, key).toBe(original.lines);
+    if (result.nav !== original.nav) {
+      // V276 retains the complete navigation baseline and appends only its
+      // exact mapped corner crescents. No old path, building or hole changes.
+      expect(native, key).toBeFalse();
+      const curve = (streetCurves.chunks as Record<string, { roads: unknown[] }>)[id];
+      expect(curve, key).toBeDefined();
+      expect(result.nav.roads, key).toEqual([...(original.nav.roads ?? []), ...curve.roads]);
+      expect({ ...result.nav, roads: original.nav.roads }, key).toEqual(original.nav);
+    }
+    expect(result.lines, key).toBe(original.lines);
     expect(JSON.stringify(original), key).toBe(snapshot);
     expect(prepare(result, id, native), key).toBe(result);
   }
@@ -75,10 +106,20 @@ test("every v233–v235 house and boulevard tile composes safely within unchange
 test("the integrated decoder accounts for every extra byte and buffer in all affected families", () => {
   for (const key of keys) {
     const [family, id] = key.split(":"), native = family === "minecraft";
-    const original = load(key), expected = budget(prepare(original, id, native), native);
+    const original = load(key), prepared = prepare(original, id, native), expected = budget(prepared, native);
     const built = createSurroundingCityChunk(original, id, native);
     expect(built.geometryBytes, key).toBe(expected.geometryBytes);
     expect(built.bufferCount, key).toBe(expected.buffers);
+    const transport = (cityWestTransport.packets as Record<string, typeof cityWestTransport.packets[keyof typeof cityWestTransport.packets]>)[key];
+    if (transport && prepared.meshes.some(part => part.kind === "citywest-transport-v281")) {
+      // Only the two receipted building=roof proxies yield to their separate
+      // open roof/post solids. Ground, paths, holes and all other owners survive.
+      const owned = new Set(transport.retiredOwners);
+      expect(built.nav.buildings.filter(b => owned.has(b.sourceId)), key).toEqual(transport.buildings);
+      expect(built.nav.buildings.filter(b => !owned.has(b.sourceId)), key)
+        .toEqual(prepared.nav.buildings.filter(b => !owned.has(b.sourceId)));
+      expect({ ...built.nav, buildings: prepared.nav.buildings }, key).toEqual(prepared.nav);
+    }
     const arrays = new Set<ArrayBufferLike>(), geometry = new Set<BufferGeometry>(), materials = new Set<Material>();
     built.root.traverse(object => {
       if (!(object instanceof Mesh || object instanceof LineSegments)) return;
@@ -148,9 +189,15 @@ test("shared tiles retain original vertices and retire exactly the receipted fla
     }
     expect(built.root.userData.siteTransferredTrianglesV209 ?? 0, key).toBe(siteTransferred);
     expect(built.root.userData.panoramaTransferredTriangles ?? 0, key).toBe(panoramaTransferred);
+    // V264 allotments precede the roof append on shared source tiles. Resolve
+    // the exact receipted roof part instead of assuming it is the first append.
+    const roofIndex = prepared.meshes.findIndex(part => part.kind === "roof-house-v233");
+    expect(roofIndex, key).toBeGreaterThanOrEqual(original.meshes.length);
+    expect(prepared.meshes[roofIndex], key).toEqual(receipt.replacement);
+    const roofOffset = prepared.meshes.slice(0, roofIndex).reduce((sum, part) => sum + bytes(part.positions) / 6, 0);
     const roofColours = Buffer.from(receipt.replacement.colors, "base64");
     for (let i = 0; i < roofColours.length; i += 3) {
-      const j = vertexOffset + i / 3;
+      const j = roofOffset + i / 3;
       for (const [a, channel] of [colour.getX(j), colour.getY(j), colour.getZ(j)].entries()) {
         if (Math.abs(channel - roofColours[i + a] / 255) > 1e-7) throw new Error(`${key}: source roof colour altered at ${j}`);
       }

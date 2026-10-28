@@ -1,0 +1,294 @@
+{
+  "schema": 1,
+  "square": {
+    "id": 47161406,
+    "relation": 21599401,
+    "version": 18,
+    "ring": [
+      [
+        796.809,
+        1024.698
+      ],
+      [
+        834.011,
+        1021.859
+      ],
+      [
+        838.99,
+        1038.128
+      ],
+      [
+        804.482,
+        1047.682
+      ],
+      [
+        797.573,
+        1026.662
+      ],
+      [
+        796.809,
+        1024.698
+      ]
+    ]
+  },
+  "memorial": {
+    "id": 48118825,
+    "version": 9,
+    "ring": [
+      [
+        832.837,
+        1032.738
+      ],
+      [
+        808.959,
+        1039.67
+      ],
+      [
+        807.881,
+        1035.985
+      ],
+      [
+        831.765,
+        1029.053
+      ],
+      [
+        832.837,
+        1032.738
+      ]
+    ],
+    "artist": "Wolfgang Rüppel",
+    "architect": "Ute Pieroth",
+    "year": 2000
+  },
+  "ground": {
+    "origin": [
+      788,
+      1004
+    ],
+    "step": 16,
+    "cols": 5,
+    "rows": 5,
+    "heights": [
+      3.7,
+      4,
+      4.8,
+      4.9,
+      4.9,
+      3.3,
+      3.8,
+      4.8,
+      4.9,
+      4.9,
+      3.6,
+      4.3,
+      4.8,
+      4.9,
+      4.9,
+      3.9,
+      4.4,
+      4.8,
+      4.9,
+      4.9,
+      4,
+      4.5,
+      4.8,
+      5,
+      5
+    ]
+  },
+  "provenance": {
+    "osm": "https://api.openstreetmap.org/api/0.6/relation/21599401/full.json",
+    "osmSha256": "ecb058daeed45493642340370158deef16ca2f668323c33eebbc179fe53709bd",
+    "groundSha256": "810798aacd7051ac8f3d8c910fdc086c097c013503df1b9038e62ebe34fe5f3b",
+    "groundOrigin": [
+      -3900,
+      -3620
+    ],
+    "groundCrop": [
+      [
+        293,
+        289
+      ],
+      [
+        297,
+        293
+      ]
+    ],
+    "retrieved": "2026-10-28",
+    "reference": "https://www.museum-der-1000-orte.de/kunstwerke/kunstwerk/denkmal-zur-erinnerung-an-den-aufstand-des-17-juni-1953",
+    "conflict": "OSM natural=water/pond retained as evidence only; BBR and photograph identify laminated glass over an etched photographic image. Dimensions in BBR text 25x3m versus metadata 25x4m; use full mapped ring.",
+    "estimates": "Paving joints, 0.18m border, panel subdivisions and abstract tonal figure marks are display estimates. Original photograph and inscription are not reproduced. Heights follow retained ground; no cut/flattening.",
+    "retainedGround": {
+      "source": "src/app/public/mesh/regierungsviertel/minecraft-voxels.json",
+      "sha256": "343499436d39a1012be687f5ab26782acdc04030d41e32e758d0eea058b059ce",
+      "fields": [
+        "minX",
+        "minZ",
+        "maxX",
+        "maxZ",
+        "topM",
+        "classId",
+        "originalXOffset",
+        "originalRunCells",
+        "originalZOffset"
+      ],
+      "kernel": "terrainPayload.createGroundSlabsSteps: groundTopSampler(originalXOffset + originalRunCells/2, originalZOffset); water uses water_top_y_m",
+      "bounds": [
+        796,
+        1021,
+        840,
+        1049
+      ],
+      "purpose": "Retain actual rendered source-run heights. Native finish uses max(authored finish, retained ground + 0.005m); no source surface is cut or modified."
+    },
+    "drawnSurfaceReview": {
+      "source": "src/app/public/mesh/regierungsviertel/surface-polygons.json",
+      "sha256": "251a98f8f73e77990ef594b468f10bf8f81570970d8d750697a850ea35c60895",
+      "overlappingRoadIndices": [
+        0,
+        51,
+        80,
+        99
+      ],
+      "actualIntersection": "Only road index 0 (asphalt) crosses the source plaza; no old smooth paving covers the inner glass plate.",
+      "kernel": "Original asphalt polygon 0 including all 2566 holes; ShapeGeometry + TessellateModifier(64,12), rotateX(-PI/2), vertex Y=retained smoothGroundTopSampler(x,z)+0.14, Float32 positions. Four triangles touch the review bounds.",
+      "sampledIntersectionPoints": 404,
+      "minNewFinishClearanceM": 0.06977,
+      "review": "The old draped asphalt stays below the new drawn finish in the checked crossing. No drawn terrain lift or source modification was necessary. Drawn navigation now uses the same cell-centre finish classification as its rendered triangles."
+    }
+  },
+  "retainedGroundRuns": [
+    [
+      796,
+      1021,
+      840,
+      1024,
+      3.3,
+      0,
+      1161,
+      25,
+      1160
+    ],
+    [
+      796,
+      1024,
+      840,
+      1028,
+      2.4,
+      0,
+      1148,
+      38,
+      1161
+    ],
+    [
+      796,
+      1028,
+      840,
+      1032,
+      2.2,
+      0,
+      1141,
+      45,
+      1162
+    ],
+    [
+      796,
+      1032,
+      840,
+      1036,
+      2.4,
+      0,
+      1141,
+      46,
+      1163
+    ],
+    [
+      796,
+      1036,
+      840,
+      1040,
+      2.3,
+      0,
+      1141,
+      44,
+      1164
+    ],
+    [
+      796,
+      1040,
+      824,
+      1044,
+      2.3,
+      0,
+      1141,
+      40,
+      1165
+    ],
+    [
+      824,
+      1040,
+      840,
+      1044,
+      4.8,
+      1,
+      1181,
+      5,
+      1165
+    ],
+    [
+      796,
+      1044,
+      812,
+      1048,
+      2.3,
+      0,
+      1141,
+      37,
+      1166
+    ],
+    [
+      812,
+      1044,
+      828,
+      1048,
+      4.8,
+      1,
+      1178,
+      4,
+      1166
+    ],
+    [
+      828,
+      1044,
+      840,
+      1048,
+      4.9,
+      0,
+      1182,
+      5,
+      1166
+    ],
+    [
+      796,
+      1048,
+      816,
+      1049,
+      4.3,
+      1,
+      1174,
+      5,
+      1167
+    ],
+    [
+      816,
+      1048,
+      840,
+      1049,
+      4.8,
+      0,
+      1179,
+      9,
+      1167
+    ]
+  ]
+}

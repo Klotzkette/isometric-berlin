@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "revision": "Step 10 v281 / 1.0.181 transit",
+  "accessed": "2026-10-26",
+  "policy": "References establish appearance and identity, not surveyed fitting dimensions. No reference photograph, raster texture, audio or video is distributed. Original source courses, source entrance identities and measured step counts are retained.",
+  "sources": [
+    {
+      "title": "Retained OpenStreetMap Berlin snapshot",
+      "url": "https://www.openstreetmap.org/copyright",
+      "credit": "© OpenStreetMap contributors; Geofabrik retained berlin-260929.osm.pbf",
+      "license": "ODbL-1.0",
+      "receipt": "geo_data/regierungsviertel/transit-v281-source.json",
+      "receiptSha256": "4f1bb4f223f6fe4b3f1f267bcc2343a80368bc56e564bf7d79856d3967c4853c",
+      "use": "117 selected records: source tram tags and coordinates, three source stair ways and their three top entrance nodes; no inferred elevator or access point becomes a stair. All 107 new rail courses equal their retained core catenary source courses. Four bridge courses keep the previous elevation owner."
+    },
+    {
+      "title": "S- und U-Bahnhof Brandenburger Tor – station entrance and S/U signs",
+      "url": "https://sbahn.berlin/en/about-us/press/press-photos/the-s-bahn-in-berlin-1/?cHash=2874d902a0572dab991199a92c2b0ae5&tx_sbbpressgallery_list%5BcurrentPage%5D=4",
+      "imageReference": "https://sbahn.berlin/fileadmin/_processed_/9/2/csm_sbb_su-5877_du_d584adb323.jpg",
+      "credit": "© David Ulrich / S-Bahn Berlin GmbH",
+      "license": "Operator press photograph; reference only, not redistributed",
+      "use": "Modern stainless/glass entrance identity and paired green S / blue U panels. Existing four mapped A–D stairs and complete geometry remain. Precise fitting sizes and local mounting coordinates are display estimates."
+    },
+    {
+      "title": "Brandenburger Tor station plan",
+      "url": "https://www.bvg.de/dam/jcr%3Afad48f37-4fd1-4c7b-b9ea-619afc5d29e3/brandenburger-tor%20900100025.pdf",
+      "credit": "BVG",
+      "use": "Retained station identity and distinction between mapped A–D stairs and lifts; does not measure sign fittings."
+    },
+    {
+      "title": "Blaue Stunde am Berliner U-Bahnhof Oranienburger Tor",
+      "url": "https://www.bahnbilder.de/bild/deutschland~stadtbahnen-und-u-bahnen~u-bahn-berlin-stationen/649058/blaue-stunde-am-berliner-u-bahnhof-oranienburger.html",
+      "imageReference": "https://www.bahnbilder.de/1024/blaue-stunde-am-berliner-u-bahnhof-649058.jpg",
+      "credit": "© ukamp, photograph taken 2012-12-13, published 2012-12-15",
+      "license": "Copyright photograph, reference only, not redistributed",
+      "use": "Primary photographer reference for the green portal, rounded upper corners and single blue U/name panel. The photograph is historic and establishes the recognition form, not a 2026 dimensional survey."
+    },
+    {
+      "title": "U Oranienburger Tor",
+      "url": "https://www.bvg.de/de/verbindungen/stationsuebersicht/u-oranienburger-tor",
+      "credit": "BVG",
+      "use": "Operator station identity, U6 and tram interchange. Lift access remains distinct from the positively mapped stairs."
+    },
+    {
+      "title": "Oranienburger Tor station plan",
+      "url": "https://www.bvg.de/dam/jcr%3A9daa3d31-35eb-4a63-a2d8-74f255b22e4f/oranienburger-tor%20900100019.pdf",
+      "credit": "BVG, plan dated 2023-10-20",
+      "use": "Station context. Stair axes and counts come from retained OSM, not inferred from a sign or station point."
+    },
+    {
+      "title": "U-Bahnhof Oranienburger Tor, monument 09055020",
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09055020",
+      "credit": "Landesdenkmalamt Berlin",
+      "use": "Historic station identity on Friedrichstraße and architectural attribution. No invented measured portal dimensions."
+    }
+  ]
+}

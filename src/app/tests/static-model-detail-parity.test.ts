@@ -27,6 +27,10 @@ import auditV274 from "./fixtures/palast-static-stage-v274-audit.json";
 import palastV274 from "../src/data/centralTheatresV274.json";
 import { planFriedrichstadtPalast } from "../src/FriedrichstadtPalastDetails";
 import { disposeStaticAudit, staticGeometryAudit } from "./helpers/staticGeometryAudit";
+import { auditRohwedderBeforeV281, auditTopographyBeforeV281 } from "./helpers/rohwedderTopographyV281Replay";
+import { auditFriedrichstrasseBeforeV281 } from "./helpers/friedrichstrasseV281Replay";
+import { auditCityWestBeforeV281 } from "./helpers/cityWestV281Replay";
+import { auditDiplomaticBeforeV246 } from "./helpers/expandedRetentionV281";
 
 const profileEntries = [
   "BendlerblockDetails", "DiplomaticAndRobertKochDetails", "SocialCourtDetails",
@@ -126,6 +130,14 @@ describe("all devices retain the full authored static city detail", () => {
       };
       const full = make("full");
       const expected = staticGeometryAudit(full);
+      // Historical comparisons replay only individually proved v281 changes;
+      // mobile parity below still compares the complete live current model.
+      const historical = name === "RohwedderHausArchitecture" ? auditRohwedderBeforeV281(full, "full", false)
+        : name === "TopographyTerrorArchitecture" ? auditTopographyBeforeV281(full, "full", false)
+        : name === "FriedrichstrasseArchitecture" ? auditFriedrichstrasseBeforeV281(full, "full", false)
+        : name === "CityWestDetails" ? auditCityWestBeforeV281(full)
+        : name === "DiplomaticAndRobertKochDetails" ? auditDiplomaticBeforeV246(full)
+        : expected;
       // Keep v141 frozen. The source-verified v146 correction replaces the
       // wrongly attributed postwar Virology grid with the historic Ruska facade.
       // v147 adds the requested museum ornament while preserving source shells.
@@ -162,8 +174,8 @@ describe("all devices retain the full authored static city detail", () => {
       // These counts were measured from pre-restoration full geometry; matching
       // two equally simplified profiles would not satisfy this regression.
       expect(baseline).toBeDefined();
-      expect(expected.budget).toEqual(baseline);
-      expect(expected.hash).toBe(override?.hash ?? hashes[name as keyof typeof hashes]);
+      expect(historical.budget).toEqual(baseline);
+      expect(historical.hash).toBe(override?.hash ?? hashes[name as keyof typeof hashes]);
       expect(expected.budget.draws).toBeGreaterThan(0);
       disposeStaticAudit(full);
       const mobile = make("mobile");

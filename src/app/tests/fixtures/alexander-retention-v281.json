@@ -1,0 +1,206 @@
+{
+  "schema": 1,
+  "method": "Four isolated small site captures. Complete runtime graph restored from Git for pre-v274/pre-v260 and pinned HEAD. No whole-world factory. Whole static audits include all vertex/index/instance/colour/material buffers and world transforms. Historical projections share immutable buffers and do not alter production objects.",
+  "captureToolSha256": "2ffa7a546d6ef2e645d078af7b758730e51730299973d2b66538c2e29deb9724",
+  "sourceGraphs": {
+    "north": {
+      "beforeCommit": "dda65872a904ae6b5f3d54ee78d62862ca4ceeb2",
+      "headCommit": "9fccfb0bfebf5c03a24bf2d3f30a63a16e203059",
+      "before": {
+        "src/app/src/AlexanderNorthV166.ts": "c13b5507faf798516f662a89f210dc16d91c0fdd854a3d2b4a7086930e9d76e9",
+        "src/app/src/AlexanderNorthV272.ts": "56f914846e54b67861d14a1b9a8659c8fd7ebb61919676d0211687f8a4193d3e",
+        "src/app/src/data/alexanderNorthV166Navigation.json": "56c670b4daf5dd2d089779cd389cd944c4a5fe6447ea136585d9e5b8e9e08de4",
+        "src/app/src/data/alexanderNorthV166Source.json": "d832bc4c07f9ee2450be46b048f76a88c5c1c76ad1d7992a0c4240e2da8f78aa",
+        "src/app/src/data/alexanderNorthV272.json": "b228be90c3a56182333a5045b13162666050d06667b16868a530de37532fd02e",
+        "src/app/src/drawnLettering.ts": "2405690523d38dceeb8b2931efe5e09cd1e1b4a0e2d7e57998f6559c4e1ef384",
+        "src/app/src/staticSceneTransforms.ts": "6eb9410891b711b3de75628acbd80cf397a9e4dba89a6ecdcb56317a42c73bc2"
+      },
+      "current": {
+        "src/app/src/AlexanderNorthV166.ts": "9ef0c6e472be386189a63216af6dbe67f249ebf6e87a68e72f13ec0a7edd7577",
+        "src/app/src/AlexanderNorthV272.ts": "56f914846e54b67861d14a1b9a8659c8fd7ebb61919676d0211687f8a4193d3e",
+        "src/app/src/data/alexanderNorthV166Navigation.json": "56c670b4daf5dd2d089779cd389cd944c4a5fe6447ea136585d9e5b8e9e08de4",
+        "src/app/src/data/alexanderNorthV166Source.json": "d832bc4c07f9ee2450be46b048f76a88c5c1c76ad1d7992a0c4240e2da8f78aa",
+        "src/app/src/data/alexanderNorthV272.json": "b228be90c3a56182333a5045b13162666050d06667b16868a530de37532fd02e",
+        "src/app/src/data/northCultureV274Source.json": "af9bda6fa41d12a41bb7e7584cdf3c77acde55f961b3e733a3857680a36a1ddd",
+        "src/app/src/drawnLettering.ts": "2405690523d38dceeb8b2931efe5e09cd1e1b4a0e2d7e57998f6559c4e1ef384",
+        "src/app/src/herzJesuV274Profile.ts": "d1d8e7f59b627d05145a1e07f898c07549a252ae1178cca50cec0a558abbc4a0",
+        "src/app/src/NorthCultureV274.ts": "4bd6d3a6e02b653f75cfd504d1d3c785aa1087279bacccbcd96c6f4fb2b07697",
+        "src/app/src/staticSceneTransforms.ts": "6eb9410891b711b3de75628acbd80cf397a9e4dba89a6ecdcb56317a42c73bc2"
+      }
+    },
+    "realm": {
+      "beforeCommit": "a1e73288e99264b40085bf4bd107dbaaeccc3ced",
+      "headCommit": "9fccfb0bfebf5c03a24bf2d3f30a63a16e203059",
+      "before": {
+        "src/app/src/AlexanderPublicRealm.ts": "ede7ded6394451141d26de64cbaa1cae9ae02ffaaf038e8f4ea90bdcfe6d47ca",
+        "src/app/src/alexanderPublicRealmProfile.ts": "90155f4b6a961e3c7d7e46622f5f5b230ef47d01fbb6dac9753c3fbb799745d9",
+        "src/app/src/alexanderPublicRealmSource.json": "ce4396e1b4224b81b35b9e25496b71d73a5ce8fff780444b3be1d86a002c9b2c",
+        "src/app/src/AlexanderRecognitionV257.ts": "25757f680c2b1af0f5c3009d15f5b5d732142c46cf4f8c1f02b4d6b119ed966e",
+        "src/app/src/bebelplatzBuildingProfile.ts": "7a5d8bffc0f44b7a06aa517ebf620216792da033d32bec9600710c5dbf827191",
+        "src/app/src/BebelplatzBuildingShells.ts": "3766a97a800362d7523eb3d1f659bad2f04650523dd44238d4ba1ebc6b24f21a",
+        "src/app/src/bebelplatzBuildingSource.json": "2c1394812cde1e92a8ca983176865e002f601a3f8e5f397c56a5aa9a2866ee53",
+        "src/app/src/chancelleryExtensionProfile.ts": "6c7bef4efef3f0846d15cefa715e2c7e3aa6d70f2ef7e7dbe6b2dbbdef71799c",
+        "src/app/src/data/alexanderRecognitionV257.json": "fae6cbb8df87611c7e27683c4bf72fa16fe3bb18cc88a8180355ccf8aed725af",
+        "src/app/src/drawnLettering.ts": "2405690523d38dceeb8b2931efe5e09cd1e1b4a0e2d7e57998f6559c4e1ef384",
+        "src/app/src/fernsehturmPavilionProfile.ts": "56a014dbbc5e2425a2422b579c98a4811a874ba18d7aa5d7c4a5761e4a8a2bf5",
+        "src/app/src/FernsehturmPavilions.ts": "d14f09be2bc2d4f4a508f0b43f9830a8ea8ee958ee434ce0e1e34f8342ecd2a9",
+        "src/app/src/fernsehturmPavilionSource.json": "ea265700fc41b21361e744678c7da09b27eb6018c04c3cae016df2dd04c7b917",
+        "src/app/src/HotelDeRomeV240.ts": "60c97c8a9432e779af4b62e7320c2a230ee1762e9ff23867b92937049c289bd4",
+        "src/app/src/staticSceneTransforms.ts": "6eb9410891b711b3de75628acbd80cf397a9e4dba89a6ecdcb56317a42c73bc2"
+      },
+      "current": {
+        "src/app/src/AlexanderPublicRealm.ts": "a5f0f18bfd5a65812ca41050cfe66b8b57bff4a6eeb4d2f497ecc0d2bab13efe",
+        "src/app/src/alexanderPublicRealmProfile.ts": "90155f4b6a961e3c7d7e46622f5f5b230ef47d01fbb6dac9753c3fbb799745d9",
+        "src/app/src/alexanderPublicRealmSource.json": "ce4396e1b4224b81b35b9e25496b71d73a5ce8fff780444b3be1d86a002c9b2c",
+        "src/app/src/AlexanderRecognitionV257.ts": "25757f680c2b1af0f5c3009d15f5b5d732142c46cf4f8c1f02b4d6b119ed966e",
+        "src/app/src/bebelplatzBuildingProfile.ts": "7a5d8bffc0f44b7a06aa517ebf620216792da033d32bec9600710c5dbf827191",
+        "src/app/src/BebelplatzBuildingShells.ts": "3766a97a800362d7523eb3d1f659bad2f04650523dd44238d4ba1ebc6b24f21a",
+        "src/app/src/bebelplatzBuildingSource.json": "2c1394812cde1e92a8ca983176865e002f601a3f8e5f397c56a5aa9a2866ee53",
+        "src/app/src/chancelleryExtensionProfile.ts": "6c7bef4efef3f0846d15cefa715e2c7e3aa6d70f2ef7e7dbe6b2dbbdef71799c",
+        "src/app/src/data/alexanderRecognitionV257.json": "fae6cbb8df87611c7e27683c4bf72fa16fe3bb18cc88a8180355ccf8aed725af",
+        "src/app/src/data/eastCinemasV260.json": "271d9b6324246999e9e29b0f1beae742ce139d38d5d697cc3d8ef3b49981b209",
+        "src/app/src/drawnLettering.ts": "2405690523d38dceeb8b2931efe5e09cd1e1b4a0e2d7e57998f6559c4e1ef384",
+        "src/app/src/EastCinemasV260.ts": "1fd5cb6fffe0255b8000b63dfcbc1ff80dbe626ab1998c166455c75b7410e055",
+        "src/app/src/fernsehturmPavilionProfile.ts": "56a014dbbc5e2425a2422b579c98a4811a874ba18d7aa5d7c4a5761e4a8a2bf5",
+        "src/app/src/FernsehturmPavilions.ts": "d14f09be2bc2d4f4a508f0b43f9830a8ea8ee958ee434ce0e1e34f8342ecd2a9",
+        "src/app/src/fernsehturmPavilionSource.json": "ea265700fc41b21361e744678c7da09b27eb6018c04c3cae016df2dd04c7b917",
+        "src/app/src/HotelDeRomeV240.ts": "60c97c8a9432e779af4b62e7320c2a230ee1762e9ff23867b92937049c289bd4",
+        "src/app/src/staticSceneTransforms.ts": "6eb9410891b711b3de75628acbd80cf397a9e4dba89a6ecdcb56317a42c73bc2"
+      }
+    }
+  },
+  "north": {
+    "drawn": {
+      "before": {
+        "hash": "3b520d929c852f4faa86e05f7b03ade02baf91baaefb954733b21ca658b6ab13",
+        "budget": {
+          "bytes": 3563436,
+          "draws": 4,
+          "instances": 42006,
+          "vertices": 10323
+        }
+      },
+      "current": {
+        "hash": "7dddb81482d8b54c2b821d730b07ade5c35dd4c290ad5acea01b511fb7a9299f",
+        "budget": {
+          "bytes": 3570848,
+          "draws": 5,
+          "instances": 42095,
+          "vertices": 10347
+        }
+      },
+      "addition": {
+        "hash": "21e323c0cc74d83ebc99c52314bfda9c758c39d59dc538fc31edbf92f8645cfc",
+        "budget": {
+          "bytes": 7412,
+          "draws": 1,
+          "instances": 89,
+          "vertices": 24
+        }
+      }
+    },
+    "native": {
+      "before": {
+        "hash": "35f30f4ace10b1cb35a815ea45eca8e913e5f2b35efab642ad0745bd96b40262",
+        "budget": {
+          "bytes": 1585100,
+          "draws": 3,
+          "instances": 20831,
+          "vertices": 72
+        }
+      },
+      "current": {
+        "hash": "7ec1527ffbd8a2267710d3ce452b5e7888b19a9a9a56c6180eff3eb2c6a5ffae",
+        "budget": {
+          "bytes": 1745880,
+          "draws": 4,
+          "instances": 22938,
+          "vertices": 96
+        }
+      },
+      "addition": {
+        "hash": "ef4bd00d476970ca149c4afb55e0bfaab72be7539ad458243a731ccf6cd623aa",
+        "budget": {
+          "bytes": 160780,
+          "draws": 1,
+          "instances": 2107,
+          "vertices": 24
+        }
+      }
+    }
+  },
+  "realm": {
+    "drawn": {
+      "before": {
+        "hash": "9ce05bf75a6d17b9b4503f6d9378b0d06e875a6310cbf3bbe88de7c201d03869",
+        "budget": {
+          "bytes": 1130948,
+          "draws": 7,
+          "instances": 10112,
+          "vertices": 8355
+        }
+      },
+      "current": {
+        "hash": "00c8cec4969f53a98cc9a7448ff607a4b660b8f66e7cbe53791859223cb0281e",
+        "budget": {
+          "bytes": 1243732,
+          "draws": 7,
+          "instances": 11596,
+          "vertices": 8355
+        }
+      },
+      "suffixes": [
+        {
+          "name": "Alexander public realm blocks",
+          "start": 5272,
+          "count": 596,
+          "matrices": "9b8afa40d57a198652a0f90f1fc6b1a28354711a434b3b8770a6e680cd6af747",
+          "colours": "431883ed0fa3c536c3fcf4b725cb21dc4071d6c6dd086e7d7d6da52b94709684"
+        },
+        {
+          "name": "Alexander public realm round members",
+          "start": 941,
+          "count": 887,
+          "matrices": "a878a9606644aaa262fa3134e9cff38cba34854c793cd3b5a91b938415689464",
+          "colours": "560cbcc6f59c85e01a051e519aadaf12bfdb38c855afdc7568f884fc3fe18e66"
+        },
+        {
+          "name": "Alexander public realm sculpted bronze",
+          "start": 177,
+          "count": 1,
+          "matrices": "60563b790fc3dc42676ae98c4c105db3603a04862aa3febf23187f3cd2fdd0ad",
+          "colours": "ddae16795cfead7fbf4d7eb0b11f0e3b9d7044c4077d3d06d2cfb92425f796a5"
+        }
+      ]
+    },
+    "native": {
+      "before": {
+        "hash": "9be6bb4355f23f94e21d905c5915330e7821db314001ea79026fdf13086fda96",
+        "budget": {
+          "bytes": 2903340,
+          "draws": 2,
+          "instances": 38181,
+          "vertices": 48
+        }
+      },
+      "current": {
+        "hash": "826ce7abc8e9888e3396812d403d63a8db1cbdc8318962237e9fe1d4cb28ee08",
+        "budget": {
+          "bytes": 3562640,
+          "draws": 2,
+          "instances": 46856,
+          "vertices": 48
+        }
+      },
+      "suffixes": [
+        {
+          "name": "Alexander public realm native cubes",
+          "start": 29082,
+          "count": 8675,
+          "matrices": "22910913ea764ca57bcb641deb9af4a469ad832a896091c01cbd65b12dde84bf",
+          "colours": "fc186866390bd2d7acc3f586e4a6b0308525d5bbe64d355c5b17b5f4da060202"
+        }
+      ]
+    }
+  }
+}

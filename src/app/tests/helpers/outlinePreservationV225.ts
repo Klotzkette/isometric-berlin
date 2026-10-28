@@ -2,6 +2,7 @@ import { expect } from "bun:test";
 import { Group, InstancedBufferAttribute, InstancedMesh, type Object3D } from "three";
 import receipt from "../fixtures/outline-warschauer-v225.json";
 import { outlineSignature } from "./outlineConstructionSignature";
+import { restoreWeddingStationPreviousV229 } from "./weddingStationPreviousV229";
 
 /** Reinsert only the independently captured obsolete roof span while checking
  * old fixtures. Every other current rail byte is pinned before this projection. */
@@ -61,10 +62,13 @@ export function projectOutlineV225ForTest(root: Group, mode: "day" | "minecraft"
   expect(addition.userData.requiredBeforeNavigation).toBe(false);
   expect(addition.userData.nativeMinecraft).toBe(native);
   const index = root.children.indexOf(addition);
-  const restoreRoof = restoreWarschauerRoofAccentV225ForTest(root, native);
+  const restoreWedding = restoreWeddingStationPreviousV229(root);
+  let restoreRoof: () => void;
+  try { restoreRoof = restoreWarschauerRoofAccentV225ForTest(root, native); }
+  catch (error) { restoreWedding(); throw error; }
   root.remove(addition);
   return () => {
-    restoreRoof(); root.add(addition);
+    restoreRoof(); restoreWedding(); root.add(addition);
     root.children.splice(root.children.indexOf(addition), 1);
     root.children.splice(index, 0, addition);
   };

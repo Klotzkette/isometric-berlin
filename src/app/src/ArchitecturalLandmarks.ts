@@ -57,6 +57,7 @@ import {
 } from "./HauptbahnhofAccessProfile";
 
 import { CHANCELLERY_ENTRANCE_PROFILE, CHANCELLERY_LAWN_RINGS, chancelleryFenceLimits } from "./ChancelleryEntranceProfile";
+import { CHILLIDA_LAWN_V281, createChillidaSculptureV281, matchesChancelleryForecourtV281 } from "./ChancelleryForecourtV281";
 import {
   chancelleryLoggiaMembersV192,
   createApproachMemberBatchV192,
@@ -3665,6 +3666,25 @@ function addChancelleryForecourt(
     mesh.position.y=.21;mesh.name=`Chancellery curved lawn ${index+1}`;lawns.add(mesh);
   }
   group.add(lawns);
+
+  if (matchesChancelleryForecourtV281(signature)) {
+    const island=new Shape();
+    const ring=CHILLIDA_LAWN_V281;
+    const last=ring[ring.length-1],first=ring[0];
+    island.moveTo(x+(last[0]+first[0])/2,-z-(last[1]+first[1])/2);
+    ring.forEach(([dx,dz],i)=>{
+      const next=ring[(i+1)%ring.length];
+      island.quadraticCurveTo(x+dx,-z-dz,x+(dx+next[0])/2,-z-(dz+next[1])/2);
+    });
+    island.closePath();
+    const lawn=new Mesh(new ShapeGeometry(island).rotateX(-Math.PI/2),grass);
+    lawn.position.y=.21;
+    lawn.name="Chancellery sculpture lawn island v281";
+    lawn.userData.geometryStatus="Photo-guided missing sculpture island at the retained OSM artwork anchor; dimensions are estimates, not a DOP trace";
+    lawns.add(lawn);
+    group.add(createChillidaSculptureV281(x,z));
+    return; // Exact old plinth/two posts/four crossbars only; source shell stays.
+  }
 
   const sculptureHeight = signature.forecourt_sculpture_height_m ?? 5.5;
   const steel = modelMaterial(0x8d4938, {

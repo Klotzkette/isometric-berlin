@@ -62,16 +62,26 @@ test("all named-site sources keep complete tiny eager keys and only audited payl
   expect(READONLY_CONSTRUCTION_JSON_FIELDS["elevatedCoreOwnersV238.json"]).toBeUndefined();
 });
 
-test("production imports hydrate nothing; selected packets and core rehydrate losslessly after collection", async () => {
+test("production imports hydrate only the exact earlier Columbia correction; named packets and core stay weak", async () => {
   CollectableReference.collect();
   const code = await bundle();
   let parses = 0;
+  const parsedPayloads: string[] = [];
   const window = {} as {
     sources: (NamedSiteSourceV238 & { core?: unknown })[];
     prepare: (chunk: SurroundingCityChunk, id: string, native?: boolean) => SurroundingCityChunk;
   };
-  const json = { parse(text: string) { parses++; return JSON.parse(text); } };
+  const json = { parse(text: string) { parses++; parsedPayloads.push(text); return JSON.parse(text); } };
   new Function("window", "JSON", "WeakRef", code)(window, json, CollectableReference);
+  // The v257 facade import brings one 48,612-byte drawn correction. V270
+  // compressed that already-eager field; it is below the unchanged 64 KiB
+  // lazy threshold. Assert its complete identity before counting named-source
+  // hydration, so an unrelated eager decode still fails this startup check.
+  const columbia = JSON.parse(readFileSync(join(dataDirectory, "columbiahalleV257.json"), "utf8"));
+  expect(parsedPayloads).toEqual([JSON.stringify(columbia.drawn)]);
+  expect(parsedPayloads[0].length).toBe(48_612);
+  expect(parses).toBe(1);
+  parses = 0;
   expect(parses).toBe(0);
   const empty = { origin: [0, -10, 0], meshes: [], nav: { groundY: 3, ground: [], buildings: [], roads: [], water: [], bridges: [] } } as unknown as SurroundingCityChunk;
   expect(window.prepare(empty, "no-such-tile")).toBe(empty);

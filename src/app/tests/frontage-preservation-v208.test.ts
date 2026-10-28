@@ -10,11 +10,12 @@ import { HUNGARIAN_EMBASSY_V208_PROXY_IDS } from "../src/hungarianEmbassyOwnersh
 import { staticGeometryAudit, disposeStaticAudit } from "./helpers/staticGeometryAudit";
 import receipt from "./fixtures/frontage-preservation-v208.json";
 import colourAudit from "./fixtures/frontage-preservation-v218-colour-audit.json";
+import { withPalacesBeforeV274 } from "./helpers/palastV274Replay";
 
 const sceneUrl = new URL("../public/mesh/regierungsviertel/scene.json", import.meta.url);
 const scene = await Bun.file(sceneUrl).json();
-function audit(root: ReturnType<typeof createCentralCivicDetails>) {
-  try { return staticGeometryAudit(root); }
+function audit(root: ReturnType<typeof createCentralCivicDetails>, civicProfile?: "full" | "mobile") {
+  try { return civicProfile ? withPalacesBeforeV274(root, civicProfile, () => staticGeometryAudit(root)) : staticGeometryAudit(root); }
   finally { disposeStaticAudit(root); }
 }
 test("v208 facade complements are derived from released v107 with the same source scene", async () => {
@@ -27,11 +28,11 @@ test("v208 facade complements are derived from released v107 with the same sourc
     .toBe(receipt.baseline.sourceSha256["src/app/public/mesh/regierungsviertel/scene.json"]);
 });
 for (const profile of ["full", "mobile"] as const) test(`${profile}: Hungarian replacement keeps every other civic recipe`, () => {
-  expect(audit(createCentralCivicDetails(scene.landmarks, profile, { includeLegacyResearchMinistry: false })))
+  expect(audit(createCentralCivicDetails(scene.landmarks, profile, { includeLegacyResearchMinistry: false }), profile))
     .toEqual(receipt.baseline.civic[profile]);
   expect(audit(createCentralCivicDetails(scene.landmarks, profile, {
     includeLegacyResearchMinistry: false, includeLegacyHungarianFacade: false,
-  }))).toEqual(receipt.retained.civic[profile]);
+  }), profile)).toEqual(receipt.retained.civic[profile]);
 });
 for (const native of [false, true]) test(`${native ? "minecraft" : "day"}: only Quartier206's old decorative family yields`, () => {
   const key = native ? "minecraft" : "day";

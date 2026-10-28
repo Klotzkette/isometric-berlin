@@ -18,6 +18,8 @@ import bendlerblock from "../src/data/bendlerblockV202Evidence.json";
 import panorama from "../src/pergamonPanoramaV202Source.json";
 import uraniaV206 from "../../../geo_data/regierungsviertel/urania-arc-v206-source.json";
 import { laterPrismOwnersV272 } from "./helpers/laterPrismOwnersV272";
+import weltkugelV281 from "../src/data/weltkugelV281Ownership.json";
+import { isWeltkugelSourceV281 } from "../src/weltkugelV281Ownership";
 
 const source = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const fixture = (changes: Partial<PrismBuilding> = {}): PrismBuilding => ({
@@ -182,7 +184,24 @@ describe("complete distant building source envelopes", () => {
       expect(control.userData.visibleBuildingCount).toBe(1);
       for (const child of control.children) if (child instanceof Mesh) child.geometry.dispose();
     }
-    expect(visible + galleryOwners.length + allLaterOwners.length).toBe(23_576);
+    // v281 owns exactly the old mapped fountain prism. Its complete source
+    // record remains retained; a changed record or foreign ID still renders.
+    const fountainOwners = source.buildings.filter(isWeltkugelSourceV281);
+    expect(fountainOwners).toEqual(weltkugelV281.previousPrisms);
+    expect(fountainOwners.map(p => p.id)).toEqual(["20866116"]);
+    expect(fountainOwners[0].holes ?? []).toHaveLength(0);
+    for (const owner of fountainOwners) {
+      const owned = createDistantBuildingShells(source, [owner]);
+      expect(owned.userData.visibleBuildingCount).toBe(0);
+      for (const candidate of [{ ...owner, id: `control-${owner.id}` },
+        { ...owner, ring: owner.ring.map((p, i) => i ? p : [p[0] + 1, p[1]] as [number, number]) }]) {
+        expect(isWeltkugelSourceV281(candidate)).toBe(false);
+        const control = createDistantBuildingShells(source, [candidate]);
+        expect(control.userData.visibleBuildingCount).toBe(1);
+        for (const child of control.children) if (child instanceof Mesh) child.geometry.dispose();
+      }
+    }
+    expect(visible + galleryOwners.length + allLaterOwners.length + fountainOwners.length).toBe(23_576);
     expect(visible + altMitteOwners.length + galleryOwners.length).toBeGreaterThan(28_000);
     // Other individually tested complete models also own source courtyards
     // (e.g. the parliament, Ministry and Moabit families).

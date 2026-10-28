@@ -28,5 +28,5 @@ test("lazy production caller explicitly transfers library ownership through both
   const viewer = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
   expect(outer).toContain("createOutlineLandmarksV182Steps(mode, beforeLandmarkRelease, ownership)");
   expect(outer).toContain("createOuterThinOutlinesSteps(mode, beforeLandmarkRelease, ownership)");
-  expect(viewer).toContain("}, { architectureV241: true }), {");
+  expect(viewer).toContain("}, { architectureV241: true, bayerCampusV277: true }), {");
 });

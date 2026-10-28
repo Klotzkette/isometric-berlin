@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { Mesh } from "three";
 import data from "../src/data/greyFacadesV263.json";
+import streetCurves from "../src/data/streetCurvesV276.json";
 import { prepareGreyFacadesV263, type GreyFacadeSourceV263 } from "../src/greyFacadesV263";
 import { createSurroundingCityChunk, type SurroundingCityChunk } from "../src/SurroundingCityGeometry";
 import { disposeSurroundingCityRoot } from "../src/SurroundingCity";
@@ -121,7 +122,12 @@ test("every selected real packet keeps its new fittings through the full product
     try {
       expect(made.root.userData.sourceKinds).toContain("grey-facades-v263");
       expect(made.root.children.filter(child => child instanceof Mesh)).toHaveLength(1);
-      expect(made.nav).toEqual(p.nav);
+      const curve = native ? undefined : (streetCurves.chunks as Record<string,
+        { roads: typeof p.nav.roads }>)[tile];
+      if (curve) {
+        expect(made.nav.roads).toEqual([...(p.nav.roads ?? []), ...curve.roads!]);
+        expect({ ...made.nav, roads: p.nav.roads }).toEqual(p.nav);
+      } else expect(made.nav).toEqual(p.nav);
       const body = made.root.children.find(child => child instanceof Mesh) as Mesh;
       expect(body.geometry.getAttribute("position").count).toBeLessThanOrEqual(400_000);
       expect(body.geometry.index!.count).toBeLessThanOrEqual(2_400_000);

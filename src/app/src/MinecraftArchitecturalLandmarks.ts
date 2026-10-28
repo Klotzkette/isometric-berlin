@@ -1,4 +1,5 @@
 import { CHANCELLERY_ENTRANCE_PROFILE, CHANCELLERY_LAWN_RINGS, chancelleryFenceLimits, chancelleryLawnContains } from "./ChancelleryEntranceProfile";
+import { chillidaNativeRowsV281, chillidaNativeLawnV281 } from "./ChancelleryForecourtV281";
 import { hbfNativeDescentCuesV252 } from "./HbfDetailsV252";
 import {
   BoxGeometry,
@@ -1171,6 +1172,16 @@ function createChancelleryBlocks(
   }
 
   const [courtX, courtZ] = profile.forecourtOffsetLocal;
+  const [sculptureWorldX,sculptureWorldZ]=localToWorld(frame,courtX,courtZ);
+  for (const [label,rows] of [
+    ["Chillida independent stepped iron arms v281",chillidaNativeRowsV281(courtX,courtZ)],
+    ["Chillida source-anchored lawn island v281",chillidaNativeLawnV281(courtX,courtZ)],
+  ] as const) for(const row of rows) {
+    // Cardinal forms are centred at the exact transformed OSM node; the
+    // independent block recipe itself is never rotated with the drawn model.
+    const worldX=sculptureWorldX+row[0]-courtX,worldZ=sculptureWorldZ+row[2]-courtZ;
+    pushWorldBlock(plan,label,[worldX,CHANCELLERY_ENTRANCE_PROFILE.groundWorldY+row[1],worldZ],[row[3],row[4],row[5]],row[6]);
+  }
   pushFlagPole(
     plan,
     frame,

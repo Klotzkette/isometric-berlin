@@ -10,6 +10,7 @@ import overrides from "./fixtures/static-native-model-overrides-v147.json";
 import baseline from "./fixtures/static-native-models-v141.json";
 import { disposeStaticAudit, staticGeometryAudit } from "./helpers/staticGeometryAudit";
 import { createNativeAuditModel, nativeModelCases } from "./helpers/staticModelFactories";
+import { auditRohwedderBeforeV281, auditTopographyBeforeV281 } from "./helpers/rohwedderTopographyV281Replay";
 
 describe("static-detail restoration preserves the existing native Minecraft models", () => {
   test("v219 native overrides retain the exact v218 chain and both profile budgets", () => {
@@ -32,7 +33,16 @@ describe("static-detail restoration preserves the existing native Minecraft mode
     test(`${entry[0]} ${profile} matches the pre-restoration geometry and materials`, async () => {
       const module = await import(`../src/${entry[0]}.ts`);
       const root = createNativeAuditModel(module, entry, profile);
-      expect(staticGeometryAudit(root)).toEqual(
+      const observed = entry[0] === "FriedrichstrasseArchitecture"
+        ? (await import("./helpers/friedrichstrasseV281Replay")).auditFriedrichstrasseBeforeV281(root, profile)
+        : entry[0] === "RohwedderHausArchitecture" ? auditRohwedderBeforeV281(root, profile, true)
+        : entry[0] === "TopographyTerrorArchitecture" ? auditTopographyBeforeV281(root, profile, true)
+        : entry[0] === "FriedrichstadtPalastDetails"
+        ? (await import("./helpers/palastV274Replay")).auditPalastBeforeV274(root, profile)
+        : staticGeometryAudit(root);
+      expect(observed).toEqual(
+        // v281 restores exactly 99 retired generic-grid rows for this audit;
+        // every live retained byte still has to reproduce the full old hash.
         // v219 changes only the two exact corners; its immutable v118 capture
         // reproduces all four v218 native baselines, which remain frozen.
         // v218 refines only source-verified Ensemble/Luisen street fronts.

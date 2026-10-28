@@ -10,6 +10,8 @@ import { createSceneGpuResidency } from "../src/sceneGpuResidency";
 import { createSceneGeometryGpuResidency } from "../src/sceneGeometryGpuResidency";
 import { createSceneGpuWarmup } from "../src/sceneGpuWarmup";
 import type { VisualMode } from "../src/visualMode";
+import retainedSignals from "../src/data/altMitteTransportV206.json";
+import streetSignals from "../src/data/mainStreetSignalsV254.json";
 
 function renderables(root: Object3D): Array<Mesh | Line> {
   const result: Array<Mesh | Line> = [];
@@ -90,6 +92,13 @@ test("mode families release residency owners, alternate materials and instance b
     expect(instances.residentBuffers).toBeGreaterThan(0);
   };
   const daySignature = signature(root);
+  // V254 extends the same animation owner by exact OSM key. Keep the original
+  // 430-entry source and verify the new source-coordinate inventory as well.
+  expect(retainedSignals.signals).toHaveLength(430);
+  const signalSources = new Map(retainedSignals.signals.map(row => [row.osm_key, row.source_dm]));
+  const addedSignals = streetSignals.signals.filter(row => !signalSources.has(row.osm_key));
+  expect(addedSignals).toHaveLength(28);
+  for (const row of streetSignals.signals) signalSources.set(row.osm_key, row.source_dm);
   let nativeSignature: ReturnType<typeof signature> | undefined;
   try {
     const retained = [...root.children];
@@ -119,7 +128,8 @@ test("mode families release residency owners, alternate materials and instance b
       expect(root.children.filter(child => child.userData.bendlerblockV202)).toHaveLength(mode === "minecraft" ? 1 : 0);
       expect(root.children.filter(child => child.userData.charlottenburgerTor)).toHaveLength(mode === "minecraft" ? 1 : 0);
       const signals = root.getObjectByName("traffic signal poles") as InstancedMesh | undefined;
-      expect(signals?.count ?? 0).toBe(mode === "minecraft" ? 430 : 0);
+      expect(signals?.count ?? 0).toBe(mode === "minecraft" ? 430 + addedSignals.length : 0);
+      if (mode === "minecraft") expect(signals!.parent!.userData.sourceDm).toEqual([...signalSources.values()]);
       activeFamilyCount = root.children.length;
       expect(root.children.every(child => child.userData.nativeMinecraft === (mode === "minecraft"))).toBeTrue();
       if (mode === "day") expect(signature(root)).toEqual(daySignature);

@@ -1,7 +1,7 @@
 import uraniaV206 from "../../../geo_data/regierungsviertel/urania-arc-v206-source.json";
 import { ULAP_QUARTER_PARTS } from "../src/ulapQuarterProfile";
 import { MOABIT_GUARD_HOUSE_SOURCE } from "../src/moabitGuardHouseProfile";
-import { describe, expect, test } from "bun:test";
+import { afterAll, afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { LEIPZIGER_SOURCE_PROFILES } from "../src/leipzigerPlatzSourceProfile";
 import { POTSDAMER_MINISTRY_BUILDINGS } from "../src/potsdamerMinistrySourceProfile";
 import { ALT_MITTE_V169_PRISM_IDS } from "../src/altMitteV169Ownership";
@@ -13,6 +13,8 @@ import bendlerV202 from "../src/data/bendlerblockV202Evidence.json";
 import panoramaV202 from "../src/pergamonPanoramaV202Source.json";
 import { buildingAttributes, mappedStoreyProfile } from "../src/buildingAttributes";
 import { laterPrismOwnersV272 } from "./helpers/laterPrismOwnersV272";
+import weltkugelV281 from "../src/data/weltkugelV281Ownership.json";
+import { isWeltkugelSourceV281 } from "../src/weltkugelV281Ownership";
 
 import {
   Box3,
@@ -103,6 +105,9 @@ import type { SurfacePayload } from "../src/IsometricCityWorld";
 const payload = prismPayload as unknown as PrismPayload;
 const surfacesFixture = surfacePolygonPayload as unknown as SurfacePayload;
 const city = createIsometricCity(payload, null);
+// Reclaim complete temporary worlds between assertions on memory-constrained
+// hosts. This changes test lifetime only; no factory input or assertion shrinks.
+afterEach(() => Bun.gc(true));
 // Task 13 adds another exact 500 m source ring on every side. A small set
 // of regressions deliberately rebuilds the complete city; keep their timeout
 // bounded while allowing for parallel runner load on the larger payload.
@@ -210,7 +215,8 @@ describe("drawn isometric city (LoD2 prisms)", () => {
 });
 
 describe("ligne-claire fenestration", () => {
-  const city = createIsometricCity(payload, null);
+  // The earlier presentation test restores day mode. Reuse that identical
+  // complete fixture instead of retaining a second full city for this block.
 
   test("windowGrid derives real floors and bays from surveyed geometry", () => {
     // A 20 m wall on a 12 m body: bays span the wall, floors the height.
@@ -396,12 +402,22 @@ describe("ligne-claire fenestration", () => {
     // fixture rather than reusing the lighter `city` above. Every test
     // restores day mode at the end so nothing here can bleed into other
     // tests in this file.
-    const litCity = createIsometricCity(
-      payload,
-      voxelGroundPayload as never,
-      null,
-      surfacesFixture,
-    );
+    let litCity: Group;
+    beforeAll(() => {
+      litCity = createIsometricCity(
+        payload,
+        voxelGroundPayload as never,
+        null,
+        surfacesFixture,
+      );
+    }, TASK_13_FULL_CITY_TIMEOUT_MS);
+    afterAll(() => {
+      litCity.traverse(object => {
+        if (object instanceof Mesh || object instanceof LineSegments) object.geometry.dispose();
+      });
+      litCity = undefined as unknown as Group;
+      Bun.gc(true);
+    });
 
     test("turns the facade night strips fully invisible, unlike lights-on night", () => {
       const strips = litCity.getObjectByName(
@@ -846,7 +862,21 @@ describe("ligne-claire fenestration", () => {
       });
     }
     expect(transferredDetails).toBe(19);
-    expect(axes.userData.buildingDetailCoverage.envelopeDetailedParts + galleryOwners.length + laterOwners.length + transferredDetails).toBe(21_896);
+    // v281 corrects one exact false 9 m fountain prism. Verify its retained
+    // source and the same shape with a foreign ID before restoring its former
+    // facade contribution to the unchanged historical total.
+    const fountainOwners = payload.buildings.filter(isWeltkugelSourceV281);
+    expect(fountainOwners).toEqual(weltkugelV281.previousPrisms);
+    expect(fountainOwners).toHaveLength(1);
+    const fountainControl = createIsometricCity(payload, null, null, null, {
+      buildings: [{ ...fountainOwners[0], id: "control-weltkugel-v281" }], includeContext: false,
+    });
+    const fountainDetails = fountainControl.userData.buildingDetailCoverage.envelopeDetailedParts;
+    expect(fountainDetails).toBe(1);
+    fountainControl.traverse(object => {
+      if (object instanceof Mesh || object instanceof LineSegments) object.geometry.dispose();
+    });
+    expect(axes.userData.buildingDetailCoverage.envelopeDetailedParts + galleryOwners.length + laterOwners.length + transferredDetails + fountainDetails).toBe(21_896);
     expect(axes.userData.buildingDetailCoverage.envelopeDetailedParts + altMitteOwners.length + galleryOwners.length).toBeGreaterThan(24_000);
     const transferredStoreys = altMitteOwners.filter(p => mappedStoreyProfile(buildingAttributes(p.id), p.h_dm / 10));
     expect(transferredStoreys).toHaveLength(1_550);

@@ -199,7 +199,7 @@ describe("idle-frame anti-flicker contract", () => {
       viewerSource.match(/moabitPrisonMemorialSolidAt\(x, y, z, 0\)/g),
     ).toHaveLength(2);
     expect(viewerSource).toContain(
-      '{ detailProfile: runtime.coarsePointer ? "mobile" : "full" }',
+      '{ detailProfile: runtime.coarsePointer ? "mobile" : "full", includeLegacyAnhalter: false }',
     );
   });
 

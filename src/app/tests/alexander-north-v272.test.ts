@@ -4,7 +4,8 @@ import { DynamicDrawUsage, Group, InstancedMesh, Mesh, PerspectiveCamera } from 
 import { createAlexanderNorthV166, createMinecraftAlexanderNorthV166 } from "../src/AlexanderNorthV166";
 import { ALEXANDER_NORTH_V272, createPressehausCrownV272, PRESSEHAUS_CROWN_V272 } from "../src/AlexanderNorthV272";
 import { parkStaticInstancesSteps } from "../src/losslessStaticStorage";
-import { staticGeometryAudit, disposeStaticAudit } from "./helpers/staticGeometryAudit";
+import { disposeStaticAudit } from "./helpers/staticGeometryAudit";
+import { verifyAlexanderNorthRetentionV281 } from "./helpers/alexanderRetentionV281";
 
 function camera() {
   const c = new PerspectiveCamera(55, 1, .1, 20000);
@@ -27,7 +28,9 @@ describe("source-retained north Alexander v272", () => {
       const rows = retainedRows(mesh, receipt.count);
       expect(root.userData.alexanderNorthV272.retainedRecognitionCount).toBe(receipt.count);
       expect(createHash("sha256").update(JSON.stringify(rows)).digest("hex")).toBe(receipt.sha256);
-      const audit = staticGeometryAudit(root);
+      // Keep the published v272 limits on its exact retained geometry. The one
+      // separately frozen v274 Tor batch is checked by the same replay helper.
+      const audit = verifyAlexanderNorthRetentionV281(root,native).retained;
       expect(audit.budget.draws).toBe(native ? 3 : 4);
       expect(audit.budget.bytes).toBeLessThan(native ? 1600000 : 3600000);
       expect(root.userData.fullStaticDetailOnTouch).toBe(true);

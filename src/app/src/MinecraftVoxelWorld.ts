@@ -1,3 +1,6 @@
+import { cutUbahnGroundSlabsV281 } from "./UbahnSurfaceAperturesV281";
+import { createWeltkugelV281 } from "./WeltkugelBrunnenV281";
+import { createWeltkugelColumnTesterV281 } from "./weltkugelV281Ownership";
 import { createBayerCampusColumnTesterV277 } from "./bayerCampusV277Ownership";
 import { createLehrterColumnTesterV277 } from "./lehrterV277Ownership";
 import { createRkiMoabitColumnTesterV277 } from "./rkiMoabitV277Ownership";
@@ -2413,6 +2416,7 @@ export function* buildMinecraftVoxelWorldSteps(
   restoreHbfNorthRailGroundOwnership(groundSlabs, payload);
   restoreGrosserSternGatehouseGroundOwnership(groundSlabs);
   tintSintiRomaNativeWaterV256(groundSlabs);
+  cutUbahnGroundSlabsV281(groundSlabs, true);
   group.add(groundSlabs);
   yield;
   group.add(createHbfNorthApproach((x, z) => parkGround(
@@ -2451,6 +2455,7 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftGedaechtniskirche());
   yield;
   group.add(createMinecraftEuropaCenter());
+  group.add(createWeltkugelV281(true));
   yield;
   group.add(createMinecraftBreitscheidTowers());
   yield;
@@ -2638,6 +2643,7 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createHumboldthafenBuildingDetails(options.sourcePrisms ? { buildings: options.sourcePrisms } : undefined, { minecraft: true, mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftEconomicMinistryDetails(undefined, { mobileLike: options.detailProfile === "mobile" }));
   yield;
+  const weltkugelColumnAt = createWeltkugelColumnTesterV281(options.sourcePrisms, cell);
   const sonyRoofColumnTopAt = createSonyRoofColumnTopAt(options.sourcePrisms);
   const aegColumnAt = options.architectureV241
     ? createAEGCampusCoreColumnTesterV241(options.sourcePrisms, cell) : () => false;
@@ -2687,6 +2693,7 @@ export function* buildMinecraftVoxelWorldSteps(
     if (rkiMoabitColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (operaTheatresColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (technikmuseumColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
+    if (weltkugelColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (moabitChurchColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (anhalterColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (campusCanopyColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;

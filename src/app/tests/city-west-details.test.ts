@@ -571,14 +571,15 @@ describe("City West and Urania recognition details", () => {
     expect(bounds.max.y).toBeCloseTo(CITY_WEST_PROFILE.groundY + 103, 3);
   });
 
-  test("retains every non-Europa ensemble byte-for-byte and the full mobile geometry", () => {
-    const root = createCityWestDetails();
+  test("retains the legacy source recipe and full mobile geometry after the bounded fountain replacement", () => {
+    const root = createCityWestDetails("full", true, "legacy");
     // Unrelated church and Urania stay frozen; station and Kranzler have v165 source owners.
     for (const [name, digest] of [
       ["Gedächtniskirche and Breitscheidplatz ensemble", "a7a96bb7f4fe4578fc3ad9d9cce6526cc8c35baf57ec8c17c20ecb389b71a41a"],
       ["Urania mirrored entrance ensemble", "91401346bb807c600ca0b5297af29afd899bb35a6c1f77543d182676e5256f76"],
     ]) expect(geometryDigest(root.getObjectByName(name)!)).toBe(digest);
-    expect(geometryDigest(createCityWestDetails("mobile"))).toBe(geometryDigest(root));
+    expect(geometryDigest(createCityWestDetails("mobile", true, "legacy"))).toBe(geometryDigest(root));
+    expect(geometryDigest(createCityWestDetails("mobile"))).toBe(geometryDigest(createCityWestDetails()));
   });
 
   test("merges ornament into three batches within full and mobile budgets", () => {

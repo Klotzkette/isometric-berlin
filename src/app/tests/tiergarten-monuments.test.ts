@@ -331,7 +331,10 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     expect(wallOwned).toHaveLength(1);
     const bendlerOwned = externallyModelledKeys.filter(key => ["node/7197479254","node/595339119"].includes(key));
     expect(bendlerOwned).toHaveLength(2);
-    expect(renderedKeys.length + alexanderOwned.length + wallOwned.length + bendlerOwned.length).toBeGreaterThanOrEqual(1_400);
+    const juneMemorial = externallyModelledKeys.filter(key => key === "way/48118825");
+    expect(juneMemorial).toHaveLength(1);
+    expect(renderedKeys).not.toContain("way/48118825");
+    expect(renderedKeys.length + alexanderOwned.length + wallOwned.length + bendlerOwned.length + juneMemorial.length).toBeGreaterThanOrEqual(1_400);
     expect(externallyModelledKeys).toContain("node/262455591");
     expect(renderedKeys).not.toContain("node/262455591");
     expect(externallyModelledKeys.length).toBeGreaterThan(0);

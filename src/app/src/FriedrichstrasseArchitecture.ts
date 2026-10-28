@@ -1,6 +1,7 @@
 import { BoxGeometry, BufferGeometry, Float32BufferAttribute, Color, DoubleSide, Group, InstancedMesh, Matrix4, Mesh, MeshStandardMaterial, ShapeUtils, Vector2 } from "three";
 import type { PrismBuilding } from "./IsometricCityWorld";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { refineEnsembleFrontagesV281 } from "./mitteEnsembleV281Plan";
 import { FRIEDRICHSTRASSE_ARCHITECTURE_SOURCE as S, FRIEDRICHSTRASSE_ARCHITECTURE_GROUP, MINECRAFT_FRIEDRICHSTRASSE_ARCHITECTURE_GROUP, FRIEDRICHSTRASSE_ARCHITECTURE_EVIDENCE, ENSEMBLE_NEIGHBOUR_REFINEMENT_V218, ALBRECHT_CORNER_V219, ADMIRALSPALAST_IDS, admiralspalastRoofAt, admiralspalastSourceColumnAt } from "./friedrichstrasseArchitectureProfile";
 type Point = readonly [number, number];
 type Triple = [number, number, number];
@@ -101,7 +102,7 @@ function voxelSampler(payload?: Voxels): (w: Wall, u: number, width: number, y: 
 
 
 /** Exterior-only facade details; no source courtyard or neighbouring mass is filled. */
-export function planFriedrichstrasseArchitecture(options: FriedrichstrasseOptions = {}): FriedrichstrasseBlock[] {
+export function planFriedrichstrasseArchitectureV281Control(options: FriedrichstrasseOptions = {}): FriedrichstrasseBlock[] {
   const blocks: FriedrichstrasseBlock[] = [], mc = !!options.minecraft, mobile = mc && !!options.mobileLike, voxel = voxelSampler(options.voxels);
   const parts = S.prisms as unknown as PrismBuilding[], profiles = new Map(S.profiles.flatMap(p => p.ids.map(id => [id, p] as const)));
   const nearby = (options.sourcePrisms ?? parts).map(p => ({p, x0: Math.min(...p.ring.map(a=>a[0]))/10, x1: Math.max(...p.ring.map(a=>a[0]))/10, z0: Math.min(...p.ring.map(a=>a[1]))/10, z1: Math.max(...p.ring.map(a=>a[1]))/10})).filter(b=>b.x1>800 && b.x0<1280 && b.z1> -460 && b.z0< -150);
@@ -323,6 +324,10 @@ export function planFriedrichstrasseArchitecture(options: FriedrichstrasseOption
   emit(bays[4],base+H*.26,3.4,.75,.16,.42,0xc8b68b,"Admiral entrance name panel");
   sign("ADMIRALSPALAST",bays[4],base+H*.246,.20,.54,0x665d46);
   return blocks;
+}
+/** Complete historical planner remains available as the finite control model. */
+export function planFriedrichstrasseArchitecture(options: FriedrichstrasseOptions = {}): FriedrichstrasseBlock[] {
+  return refineEnsembleFrontagesV281(planFriedrichstrasseArchitectureV281Control(options));
 }
 function addAdmiralShell(root: Group, blocks: FriedrichstrasseBlock[], options: FriedrichstrasseOptions): void {
   if (options.minecraft) {

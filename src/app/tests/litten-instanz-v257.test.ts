@@ -56,7 +56,10 @@ test("complete drawn and independent native detail share the existing exact-coun
   for(const native of [false,true]) {
     const additions=littenInstanzV257Rows(native),root=native?createMinecraftJusticePalaceV183():createJusticePalaceV183();
     const batch=root.children.find(o=>o.userData.littenInstanzV257Rows) as InstancedMesh;
-    expect(batch.count).toBe((native?previousNative.nativeRows:previous.boxes).length+additions.length);
+    // The separately source/geometry-tested park rows append after every
+    // original courthouse and v257 row in this same exact-sized batch.
+    expect(batch.userData.charlottenburgParkV281Rows).toBe(native?1100:244);
+    expect(batch.count-batch.userData.charlottenburgParkV281Rows).toBe((native?previousNative.nativeRows:previous.boxes).length+additions.length);
     expect(additions.length).toBeLessThan(native?8000:4000);
     for(const row of additions){expect(row.every(Number.isFinite)).toBeTrue();expect(Math.min(...row.slice(3,6))).toBeGreaterThan(0);expect(row[1]+row[4]/2).toBeLessThan(31);}
     const matrix=new Matrix4();
