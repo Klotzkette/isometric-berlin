@@ -241,7 +241,19 @@ export function nativeFernsehturmCoverageBands(blocks: readonly NativeBlock[]): 
       const r=Math.max(Math.abs(b.p[0])+b.s[0]/2, Math.abs(b.p[2])+b.s[2]/2);
       if (r>radius) { radius=r; color=b.color; }
     }
-    if (radius>0) bands.push({bottom,top,bottomRadius:radius,topRadius:radius,color});
+    if (radius>0) {
+      const previous = bands.at(-1);
+      // Adjacent rows with the same radius and paint form one exact rectangle.
+      // Integrate it once: otherwise each tiny blend can round back to the
+      // 8-bit sky independently. No silhouette, colour or source block changes.
+      if (previous && previous.top === bottom &&
+          previous.bottomRadius === radius && previous.topRadius === radius &&
+          previous.color === color) {
+        previous.top = top;
+      } else {
+        bands.push({bottom,top,bottomRadius:radius,topRadius:radius,color});
+      }
+    }
   }
   return bands;
 }

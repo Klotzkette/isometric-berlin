@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { BufferGeometry, Frustum, InstancedMesh, Matrix4, Mesh, PerspectiveCamera, ShaderLib, ShaderMaterial, Vector3, Vector4 } from "three";
+import { BufferGeometry, Color, Frustum, InstancedMesh, Matrix4, Mesh, PerspectiveCamera, ShaderLib, ShaderMaterial, Vector3, Vector4 } from "three";
 import { createFernsehturmArchitecture, createMinecraftFernsehturmArchitecture, updateFernsehturmLighting } from "../src/FernsehturmArchitecture";
 import { FERNSEHTURM_DETAIL_PROFILE as P } from "../src/fernsehturmDetailProfile";
 import { nativeFernsehturmCoverageBands } from "../src/FernsehturmHorizon";
@@ -50,7 +50,8 @@ describe("Fernsehturm horizon area coverage",()=>{
     expect(mesh.material.transparent).toBeTrue();
     expect(geometry.attributes.uv).toBeUndefined();
     const bytes=Object.values(geometry.attributes).reduce((n,a)=>n+a.array.byteLength,geometry.index!.array.byteLength);
-    expect(bytes).toBeLessThan(native?100_000:12_000);
+    expect(bytes).toBe(native ? 25_500 : 9_588);
+    expect(geometry.attributes.position.count / 4).toBe(native ? 125 : 47);
     expect(geometry.boundingBox!.min.y).toBeCloseTo(P.groundY,3);
     expect(geometry.boundingBox!.max.y).toBeCloseTo(P.groundY+368,3);
     expect(geometry.boundingBox!.max.x-P.x).toBeLessThan(17.4);
@@ -96,6 +97,73 @@ describe("Fernsehturm horizon area coverage",()=>{
       {bottom:1.5,top:2,bottomRadius:1,topRadius:1,color:1},
       {bottom:3,top:5,bottomRadius:.5,topRadius:.5,color:3},
     ]);
+  });
+
+  test("native coverage joins only contiguous equal-radius equal-colour rows",()=>{
+    expect(nativeFernsehturmCoverageBands([
+      {p:[0,.5,0],s:[2,1,2],color:1},
+      {p:[0,1.5,0],s:[2,1,2],color:1},
+      {p:[0,2.5,0],s:[2,1,2],color:2},
+      {p:[0,3.5,0],s:[4,1,4],color:2},
+      {p:[0,5.5,0],s:[4,1,4],color:2},
+    ])).toEqual([
+      {bottom:0,top:2,bottomRadius:1,topRadius:1,color:1},
+      {bottom:2,top:3,bottomRadius:1,topRadius:1,color:2},
+      {bottom:3,top:4,bottomRadius:2,topRadius:2,color:2},
+      {bottom:5,top:6,bottomRadius:2,topRadius:2,color:2},
+    ]);
+  });
+
+  test("native BER coverage survives unsigned-byte blending through fractional-pixel pans",()=>{
+    const mesh=coverageMesh(createMinecraftFernsehturmArchitecture());
+    const profile=mesh.geometry.attributes.coverageProfile;
+    const color=mesh.geometry.attributes.color;
+    // The offscreen composer uses linear working colour and unsigned bytes.
+    // BER lies before native fog begins; this checks the filter independently
+    // of occasional original-geometry raster hits and subsequent SMAA.
+    const sky=new Color(0xdcf3f9).toArray().map(c=>Math.round(c*255));
+    for(const dpr of [1,1.35,1.75]) {
+      const width=Math.floor(568*dpr),height=Math.floor(224*dpr);
+      const camera=new PerspectiveCamera(66,568/224,.25,91000);
+      camera.position.set(8820,80,17260);
+      camera.lookAt(P.x,P.groundY+212,P.z);
+      camera.updateMatrixWorld();
+      const head=new Vector4(P.x,P.groundY+212,P.z,1).applyMatrix4(camera.matrixWorldInverse);
+      const diameter=32*camera.projectionMatrix.elements[5]*height/(-2*head.z);
+      expect(diameter).toBeLessThan(.75);
+      const bands:{quad:Point[];paint:number[]}[]=[];
+      for(let i=0;i<profile.count;i+=4) {
+        const bottom=profile.getX(i),top=profile.getY(i);
+        const rb=profile.getZ(i),rt=profile.getW(i);
+        bands.push({
+          paint:[color.getX(i),color.getY(i),color.getZ(i)],
+          quad:[[-rb,bottom],[rb,bottom],[rt,top],[-rt,top]].map(([r,y])=>{
+            const v=new Vector4(P.x,P.groundY+y,P.z,1).applyMatrix4(camera.matrixWorldInverse);
+            v.x+=r;
+            v.applyMatrix4(camera.projectionMatrix);
+            return [(v.x/v.w*.5+.5)*width,(v.y/v.w*.5+.5)*height] as Point;
+          }),
+        });
+      }
+      for(let phase=0;phase<10;phase++) {
+        const pixels=new Map<string,number[]>();
+        for(const {quad,paint} of bands) {
+          const shifted=quad.map(([x,y])=>[x+phase*.1*dpr,y] as Point);
+          const xs=shifted.map(p=>p[0]),ys=shifted.map(p=>p[1]);
+          for(let x=Math.floor(Math.min(...xs));x<=Math.floor(Math.max(...xs));x++)
+            for(let y=Math.floor(Math.min(...ys));y<=Math.floor(Math.max(...ys));y++) {
+              const alpha=areaInPixel(shifted,x+.5,y+.5);
+              if(alpha<=.000001)continue;
+              const key=`${x}:${y}`,old=pixels.get(key)??sky;
+              pixels.set(key,paint.map((c,i)=>Math.round(c*255*alpha+old[i]*(1-alpha))));
+            }
+        }
+        let maximumContrast=0;
+        for(const pixel of pixels.values())
+          maximumContrast=Math.max(maximumContrast,...pixel.map((v,i)=>Math.abs(v-sky[i])));
+        expect(maximumContrast).toBeGreaterThanOrEqual(9);
+      }
+    }
   });
 
   test("distant Snow preserves a byte-level coverage contribution without changing its alpha",()=>{
