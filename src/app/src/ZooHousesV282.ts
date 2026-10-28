@@ -6,6 +6,9 @@ import {
 import data from './data/zooHousesV282.json';
 import { letteringStrokePaths } from './drawnLettering';
 import { freezeStaticSceneTransforms } from './staticSceneTransforms';
+import { createBrehmTropicalHallV282 } from './BrehmTropicalHallV282';
+import { hasBrehmTropicalHallParentV282 } from './brehmTropicalHallV282Profile';
+import type { SurroundingCityChunk } from './SurroundingCityGeometry';
 
 type P = [number, number, number];
 type Member = { position: P; scale: P; quaternion: Quaternion; color: number };
@@ -104,20 +107,45 @@ function entry(details: Details, e: Entry, ground: number): void {
   }
 }
 
-/** Required Penguin replacement and separate source-preserving Brehm details.
- * No animal, ground, navigation, texture or private animation lifetime is added.
+function aviary(details: Details): void {
+  // All five source planes survive as an open lattice. Mesh gauge/spacing are
+  // recognition estimates; measured corners, slopes and the rigid datum remain.
+  const mix = (a: number[], b: number[], t: number): P =>
+    [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+  const edges = new Set<string>();
+  for (const surface of data.aviary.surfaces) for (const ring of surface.rings) {
+    for (let i = 0; i < ring.length; i++) {
+      const a = ring[i], b = ring[(i + 1) % ring.length];
+      const key = [a.join(','), b.join(',')].sort().join('/');
+      if (edges.has(key)) continue;
+      edges.add(key); details.line(0x59675C, a as P, b as P, .08);
+    }
+    const [a, b, c, d] = ring;
+    // This exact source consists of five quadrilaterals, without openings.
+    // Interpolation spans the original planes rather than an invented box.
+    const across = Math.ceil(Math.max(Math.hypot(...b.map((v, i) => v - a[i])), Math.hypot(...c.map((v, i) => v - d[i]))) / .55);
+    const along = Math.ceil(Math.max(Math.hypot(...d.map((v, i) => v - a[i])), Math.hypot(...c.map((v, i) => v - b[i]))) / .55);
+    for (let i = 1; i < across; i++) details.line(0x788376, mix(a, b, i / across), mix(d, c, i / across), .025);
+    for (let i = 1; i < along; i++) details.line(0x788376, mix(a, d, i / along), mix(b, c, i / along), .025);
+  }
+}
+
+/** Required Penguin replacement, additive measured aviary and Brehm details.
+ * No animal, ground, texture or separate animation/navigation lifetime is added.
  * The required-site transaction must construct Zoo before retiring its receipts.
  */
-export function createZooHousesV282(site: 'zoo' | 'tierpark', native = false): Group {
+export function createZooHousesV282(site: 'zoo' | 'tierpark', native = false, tropicalHall = false): Group {
   const root = new Group(), details = new Details(native);
   root.name = `${site === 'zoo' ? 'Pinguinwelt complete measured shell' : 'Regenwaldhaus retained facade recognition'} v282 ${native ? 'native' : 'drawn'}`;
   if (site === 'zoo') {
     if (native) for (const [x, y, z, w, h, d, color] of data.penguin.nativeRows) details.box(color, x, y, z, w, h, d);
     else { const body = shell(); body.name = 'All four retained Penguin source parts'; root.add(body); }
     for (const e of data.penguin.entries) entry(details, e, data.penguin.groundY);
+    aviary(details);
   } else {
     // Preserve the 124 individually measured curved/recessed facade edges.
-    // No invented greenhouse roof is placed above the retained flat source.
+    // The complete lower source remains unchanged beneath the separately
+    // witnessed, official-surface-sampled upper hall.
     const ring = data.brehm.ring, top = data.brehm.topY;
     for (let i = 0; i < ring.length; i++) {
       const a = ring[i], b = ring[(i + 1) % ring.length];
@@ -126,15 +154,22 @@ export function createZooHousesV282(site: 'zoo' | 'tierpark', native = false): G
         details.line(0xBCBBAA, [a[0], data.brehm.groundY + .15, a[1]], [a[0], top, a[1]], .09);
     }
     for (const e of data.brehm.entries) entry(details, e, data.brehm.groundY);
+    if (tropicalHall) {
+      const hall = createBrehmTropicalHallV282(native);
+      root.add(hall);
+      root.userData.brehmTropicalHallSolidAt = hall.userData.solidAt;
+    }
   }
   const trim = instances(details); trim.name = 'Independent source-bound house fittings'; root.add(trim);
-  root.userData = { zooHousesV282: true, site, native, fullStaticDetailOnTouch: true, textureFree: true,
-    measuredPenguinParts: site === 'zoo' ? 4 : 0, preservedBrehmEnvelope: site === 'tierpark' };
+  root.userData = { ...root.userData, zooHousesV282: true, site, native, fullStaticDetailOnTouch: true, textureFree: true,
+    measuredPenguinParts: site === 'zoo' ? 4 : 0, measuredAviarySheets: site === 'zoo' ? 5 : 0,
+    preservedBrehmEnvelope: site === 'tierpark' };
   freezeStaticSceneTransforms(root);
   return root;
 }
 
 /** Attaches to the existing bounded Tierpark packet, never a new global loader. */
-export function createTierparkHouseV282(id: string, native = false): Group | null {
-  return id === data.brehm.packetId ? createZooHousesV282('tierpark', native) : null;
+export function createTierparkHouseV282(id: string, native = false, chunk?: Pick<SurroundingCityChunk, 'origin' | 'nav'>): Group | null {
+  return id === data.brehm.packetId ? createZooHousesV282('tierpark', native,
+    !!chunk && hasBrehmTropicalHallParentV282(chunk, id)) : null;
 }

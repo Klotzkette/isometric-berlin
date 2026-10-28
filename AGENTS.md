@@ -1953,3 +1953,22 @@ eager strong ownership, ordinary property descriptors, named-export identity,
 per-field tree shaking, exact numbers and all original source files. Keep the
 existing codec/admission rules and initial startup budget; do not change the
 classification or lifetime of any lazy/weak field or raise a release limit.
+
+The owner's further continuation permits the exactly identified low rear aviary
+at the Zoo Hühner-/Taubenhaus (LoD2 `DEBE01YYK0003Uqa`), with one illustrative
+chicken on a fully contained route. Retain all five measured source sheets as
+evidence and their complete edges in an open wire interpretation, with one
+documented rigid park-datum alignment. The main house and existing native corner
+column remain untouched; routes must clear both. Add matching cage collision
+within the existing required-house transaction, without retiring unrelated owners.
+
+The same continuation permits the upper Regenwaldhaus hall on the complete
+retained OSM roof ring `way/520730043`, previously missed in the source's lines
+layer. Bounded official bDOM/DGM samples establish the raised roof; preserve
+every original lower LoD2 sheet. Align heights with the local ground samples,
+not the old lower-envelope datum. Label interpolated roof surfaces, robust eave
+estimates and small frame spacing as such; do not claim a surveyed structural
+grid. Use independent native roof geometry and matching navigation. No new
+coverage, residency limit, photograph, raw media or external browser is permitted.
+New drawn limb movement and paused family synchronization use the existing
+shared clock and dynamic buffers, with retained animal geometry unchanged.

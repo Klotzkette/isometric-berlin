@@ -2681,7 +2681,57 @@
       "page_url": "https://www.haas-architekten.de/projekte/glashaeuser/alfred-brehm-haus-im-tierpark-berlin",
       "credit": "Haas Architekten",
       "license": "Factual reference only",
-      "role": "Architectural factual reference. Upper tropical-hall roof is not reconstructed without a verified profile; no plans or pixels redistributed.",
+      "role": "Architectural factual reference for the upper tropical hall. Roof heights come from bounded official bDOM/DGM measurements and the retained OSM roof ring; no plans or pixels redistributed.",
+      "checked": "2026-10-28",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "zoo_chicken_aviary_v282",
+      "title": "Hühner- und Taubenhaus: rear aviaries",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050439",
+      "credit": "Landesdenkmalamt Berlin",
+      "license": "Factual reference only",
+      "role": "Historic house and rear-aviary identity. One complete retained LoD2 cage is rendered as open wire geometry; lattice spacing and one chicken are illustrative.",
+      "checked": "2026-10-28",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "zoo_chicken_aviary_v282",
+      "title": "Zoo Berlin annual report 2025, page 35",
+      "page_url": "https://www.zoo-berlin.de/fileadmin/zoo-berlin/downloads/Investor_Relations/Geschaeftsberichte/Geschaeftsbericht_2025_digital.pdf",
+      "credit": "Zoo Berlin",
+      "license": "Factual reference only",
+      "role": "Indexed operator text confirms domestic chickens at the historic house. Direct PDF retrieval returned 404. No claim of a current census or breed assignment to the modeled compartment.",
+      "checked": "2026-10-28",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tierpark_brehm_house_v282",
+      "title": "Berlin bDOM 2025: dataset documentation",
+      "page_url": "https://gdi.berlin.de/data/bdom/docs/dom.pdf",
+      "credit": "Geoportal Berlin / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen",
+      "license": "Datenlizenz Deutschland – Zero – Version 2.0 (dl-de/zero-2-0)",
+      "role": "Bounded official bDOM and DGM WMS point elevations support the upper hall roof and local terrain datum. Surface interpolation and eave height remain estimates; no raster or photographic pixels bundled.",
+      "checked": "2026-10-28",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tierpark_brehm_house_v282",
+      "title": "Energetische Sanierung des Alfred-Brehm-Hauses",
+      "page_url": "https://www.klimaschutzpartner-berlin.de/projekt/energetische-sanierung-des-alfred-brehm-hauses-im-tierpark-berlin-76",
+      "credit": "Klimaschutzpartner Berlin / Haas Architekten / Tierpark Berlin",
+      "license": "Factual reference only",
+      "role": "Published 16 m tropical-hall height checks the elevation scale independently; published interior area does not replace or scale the complete mapped roof footprint.",
+      "checked": "2026-10-28",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tierpark_brehm_house_v282",
+      "title": "Alfred-Brehm-Haus conversion",
+      "page_url": "https://danpearlman.com/work/alfred-brehm-haus/",
+      "credit": "dan pearlman",
+      "license": "Factual reference only",
+      "role": "2020 conversion and retained glass-roof structure support current architectural identity. No drawings, photos or photographic textures redistributed.",
       "checked": "2026-10-28",
       "pixels_bundled": false
     }

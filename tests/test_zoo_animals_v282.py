@@ -340,3 +340,43 @@ def test_retained_routes_preserve_owner_ids_without_new_duplicate_animals(
     assert_body_clearance(route["routeXZ"], route["bodyRadius"] + 0.39, original)
     peers = [r for r in routes if r["species"] == route["species"]]
     assert len({r["phase"] for r in peers}) == len(peers)
+
+
+def test_chicken_has_visible_measured_aviary_and_clears_retained_native_corner() -> (
+  None
+):
+  data = json.loads(build.OUTPUT.read_bytes())
+  chicken = [a for a in data["animals"] if a["species"] == "chicken"]
+  assert len(chicken) == 1
+  animal = chicken[0]
+  assert animal["sourceId"] == build.CHICKEN_SOURCE
+  assert animal["bodyRadius"] == 0.4
+  assert animal["variant"] == "domestic"
+  features, paths = build.west_features()
+  original, tags = features[build.CHICKEN_SOURCE]
+  assert build.is_wire_aviary(tags)
+  solid_house = features["way/17957388"][0].buffer(0.15)
+  water = unary_union([g for g, t in features.values() if t.get("natural") == "water"])
+  allowed = original.difference(
+    unary_union(
+      [
+        paths,
+        solid_house,
+        water,
+        build.additional_obstacles(build.CHICKEN_SOURCE),
+      ]
+    )
+  )
+  assert_body_clearance(animal["routeXZ"], 0.8, allowed)
+  assert build.rectangle_route(allowed, 0.4) is None
+  assert build.rectangle_route(allowed, 0.4, compact=True) == animal["routeXZ"]
+  # Negative control: the old unguarded route crossed the retained native cell.
+  unguarded = [
+    [-2420.498, 1200.716],
+    [-2419.098, 1200.716],
+    [-2419.098, 1201.716],
+    [-2420.498, 1201.716],
+  ]
+  with pytest.raises(AssertionError):
+    assert_body_clearance(unguarded, 0.8, allowed)
+  assert not any(u["species"] == "chicken" for u in data["unresolved"])

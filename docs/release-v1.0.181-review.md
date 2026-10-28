@@ -9,8 +9,11 @@ The separate Reuter-West coverage proposal remains pending.
 
 The continuation adds [zoo animal movement](zoo-animals-v282.md) in every
 presentation and [Penguin World / Regenwaldhaus details](zoo-houses-v282.md).
-Unverified animal locations and the upper tropical-hall roof remain explicit
-limits, not claimed reconstructions.
+Unverified animal locations remain explicit limits. The further continuation
+adds one measured rear aviary with an illustrative chicken, connected drawn
+leg movement, paused-family pose continuity and the source-supported upper
+tropical-hall roof. Its interpolated roof surface and eave estimate are
+distinguished from the retained footprint and official elevation samples.
 
 ## Completed v281 checks before the animal continuation
 
@@ -53,7 +56,7 @@ At that earlier checkpoint, production build/package validation, browser checks
 and publication were pending. The continuation below supersedes the build and
 package blocker. Earlier logs and cleanup receipts remain in the v281 task cache.
 
-## v282 continuation checks
+## Earlier v282 package checks, before the aviary and upper-roof continuation
 
 - Production TypeScript passed. The focused application run passed all 145 tests
   in 18 files, with 3,493,163 assertions. It includes both constructor lifecycles,
@@ -104,3 +107,60 @@ visual review, endurance or physical-phone check is claimed either. Publication
 remains pending; no v181 release or tag was created and the live viewer is still
 v1.0.180. Technical implementation and the complete local package are ready for
 those remaining browser checks once permitted access is restored.
+
+## Further v282 continuation: aviary, upper hall and motion
+
+This section supersedes the earlier package measurements. The final checks
+below refer to this further continuation. The live viewer remains v1.0.180.
+
+- The new animal inventory has 51 illustrative figures, 37 habitats and 50
+  retained movement routes. One chicken occupies the complete measured low
+  western rear aviary; the main Hühnerhaus and its retained native corner column
+  remain unchanged. All five aviary planes survive as an open wire model.
+- New drawn limb vertices move around fixed body attachments. Connected feet,
+  legs and hands are checked for every new figure and all four headings. Mode
+  changes under paused/reduced motion synchronize the destination pose once,
+  without restarting continuous rendering or advancing the shared clock.
+- The Regenwaldhaus gains its complete mapped upper roof, using 199 retained
+  official elevation queries and the exact 16-corner OSM ring. All 125 original
+  lower sheets and both packet source hashes remain unchanged. The added model
+  uses 250 roof triangles or 1,275 independent native columns; its runtime data
+  is 18,252 bytes. Interpolation and the eave estimate are explicitly documented.
+- House/animal Python checks passed 24 tests; the new roof derivation passed
+  four further tests. All three offline generators reproduce their outputs.
+  The house/shape/motion/scene Bun group passed 27 tests / 234,410 assertions.
+  The roof geometry, streamed-lifetime and existing-house group passed 14 tests /
+  169,294 assertions, with the existing-house checks intentionally overlapping.
+  Independent review checked source ownership, full-body route clearance,
+  material disposal, resident-only collision, abort and mode-change behavior.
+- Production TypeScript passed. Global Ruff formatting/lint passed with all
+  935 Python files already formatted. No previous full-suite result is presented
+  as a rerun against this continuation.
+- A fresh complete inventory guarded removal of exactly 4,743 old generated
+  dist names. The retained v181 package and every protected source hardlink were
+  verified unchanged before and after cleanup. The new storage adapter retains
+  the original Vite plugins and budgets and verifies every final emitted byte.
+- The new production build passed in 3m25s: 3,238 modules, 317 emitted files,
+  206,373,316 emitted bytes. Exactly identical bytes reused 182,042,570 bytes;
+  24,330,746 bytes were written as new output. All 4,426 public files were linked
+  unchanged, and the original startup and worker budgets passed.
+- Final package: **4,752 files / 935,187,547 bytes / 891.864 MiB**, leaving
+  1,190,821 bytes under 893 MiB. Manifest SHA-256:
+  `bcba824c17a07b9662fa2e6ed75737e3d35cf1fac4b4250784855fa3902f789e`.
+  Source/build/extracted-package readiness returned no failures. The local
+  HTTP startup smoke passed for v1.0.181; this is not a real-browser test.
+- Both full archives were independently generated and validated sequentially
+  in RAM, without a duplicate disk archive or upload. ZIP: 765,469,289 bytes,
+  SHA-256 `7ce9e338b5dd644ae980b6b3880c6a43f0849539704f462137fa24e3b619b8e5`.
+  TAR.GZ: 764,700,171 bytes, SHA-256
+  `6b142e0678ba88eae514028d8b40d1cc73f964e8ea4f9f86fa20b740c7161bf7`.
+- Read-only Pages preflight passed against the unchanged v180 parent. The
+  proposed complete package and both preceding live asset closures total
+  1,021,994,110 bytes, leaving 51,747,714 bytes under 1 GiB. No remote writes,
+  new tag, release, upload or Pages publication occurred.
+
+Fresh build, package and archive receipts are in the local
+`codex-berlin-v282-continuation` task cache. All cleanup snapshots are consumed;
+they must not be reused on this new dist. The previously rejected internal
+browser access was not retried or circumvented. The required startup/mobile
+browser gates remain open, so v1.0.181 remains local and unpublished.

@@ -2533,8 +2533,16 @@ Zoo animals and houses v282: retained OpenStreetMap enclosure rings, holes and
 entrances (© OpenStreetMap contributors, ODbL 1.0) and complete Geoportal Berlin
 LoD2 building sheets (dl-de/zero-2-0) anchor the additions. Zoo Berlin and Tierpark
 Berlin operator publications establish species and house identities. SKP Berlin
-supports the Penguin World's architectural scale; Haas Architekten documents the
-Regenwaldhaus tropical hall, whose unverified upper roof remains unresolved.
+supports the Penguin World's architectural scale. Haas Architekten, the
+Klimaschutzpartner project account and dan pearlman document the Regenwaldhaus
+tropical hall and its conversion. Its complete retained OSM roof ring and
+bounded official Berlin bDOM/DGM point elevations (dl-de/zero-2-0) support the
+upper roof; interpolated surfaces, eave height and frame spacing remain estimates.
+The Berlin monument inventory identifies the Hühner-/Taubenhaus rear aviaries;
+one complete LoD2 cage is represented with estimated open wire spacing. Indexed
+text of Zoo Berlin's 2025 report, page 35, confirms domestic chickens there;
+direct PDF retrieval returned 404. The one modeled chicken is not a surveyed
+breed assignment or count for that individual compartment.
 Animal bodies, counts, poses and routes are illustrative independent models,
 not a current census. The Penguin height alignment and small house fittings
 remain documented display interpretations. No photographs, illustrated plans,

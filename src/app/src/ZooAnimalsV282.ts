@@ -24,10 +24,11 @@ type Placement = Route & { species: ZooAnimalSpeciesV282; variant?: string; habi
 type Data = { animals: Placement[]; retainedRoutes?: Route[] };
 const data = placements as Data;
 type Member = { row: number[]; gait: number; linear: boolean };
+type DrawnLimb = { start: number; end: number; gait: number; top: number };
 type Actor = {
   id: string; route: ZooAnimalRouteV282 | null; anchor: [number, number, number];
   pose: ZooAnimalPoseV282; members: Member[]; start: number; end: number;
-  nativeStart: number; nativeEnd: number; heading: number;
+  nativeStart: number; nativeEnd: number; heading: number; drawnLimbs: DrawnLimb[];
 };
 export type ZooAnimalHandleV282 = {
   root: Group; siteId: string; native: boolean; bounds: Sphere;
@@ -67,12 +68,12 @@ export function createZooAnimalsV282(
   const chamfered = zooAnimalChamferedBoxV282();
   rounded.setAttribute('position', new BufferAttribute(new Float32Array(chamfered.positions), 3));
   rounded.setIndex([...chamfered.indices]);
-  const triangle = (actor: Actor, c: number, points: number[][], linear = false): void => {
+  const triangle = (actor: Actor, c: number, points: number[][], linear = false, memberKey = ''): void => {
     if (linear) color.setRGB((c >> 16 & 255) / 255, (c >> 8 & 255) / 255, (c & 255) / 255);
     else color.setHex(c);
     for (const p of points) {
       const x = p[0] - actor.anchor[0], y = p[1] - actor.anchor[1], z = p[2] - actor.anchor[2];
-      const key = actor.id + ':' + x + ',' + y + ',' + z + ':' + c + ':' + linear;
+      const key = actor.id + ':' + memberKey + ':' + x + ',' + y + ',' + z + ':' + c + ':' + linear;
       let index = vertexMap.get(key);
       if (index === undefined) {
         index = positions.length / 3; vertexMap.set(key, index);
@@ -84,11 +85,13 @@ export function createZooAnimalsV282(
   const actorFor = (id: string, anchor: [number, number, number], route?: Route): Actor => {
     const actor: Actor = { id, route: route ? prepare(route) : null, anchor,
       pose: { x: anchor[0], y: anchor[1], z: anchor[2], quarterTurn: 0, gait: 0 }, members: [],
-      start: positions.length / 3, end: 0, nativeStart: 0, nativeEnd: 0, heading: 0 };
+      start: positions.length / 3, end: 0, nativeStart: 0, nativeEnd: 0, heading: 0, drawnLimbs: [] };
     actors.push(actor); return actor;
   };
-  const addBox = (actor: Actor, row: number[], organic = false, gait = 0, linear = false): void => {
+  const addBox = (actor: Actor, row: number[], organic = false, gait = 0, linear = false,
+    joint?: { part: string; top: number }): void => {
     if (native) { actor.members.push({ row, gait, linear }); return; }
+    const start = positions.length / 3;
     const g = organic ? rounded : cube, p = g.getAttribute('position'), ii = g.index;
     const count = ii ? ii.count : p.count, co = Math.cos(row[6]), si = Math.sin(row[6]);
     for (let i = 0; i < count; i += 3) {
@@ -97,8 +100,9 @@ export function createZooAnimalsV282(
         const k = ii ? ii.getX(i + j) : i + j, x = p.getX(k) * row[3], z = p.getZ(k) * row[5];
         tri.push([row[0] + co * x + si * z, row[1] + p.getY(k) * row[4], row[2] - si * x + co * z]);
       }
-      triangle(actor, row[7], tri, linear);
+      triangle(actor, row[7], tri, linear, joint?.part);
     }
+    if (gait && joint) actor.drawnLimbs.push({ start, end: positions.length / 3, gait, top: joint.top });
   };
   for (const old of retained) {
     const route = data.retainedRoutes?.find(r => r.id === old.id && r.siteId === siteId);
@@ -112,9 +116,14 @@ export function createZooAnimalsV282(
     if (item.siteId !== siteId || !belongs(item.routeXZ[0][0], item.routeXZ[0][1], tileId)) continue;
     const anchor: [number, number, number] = [item.routeXZ[0][0], item.groundY, item.routeXZ[0][1]];
     const actor = actorFor(item.id, anchor, item);
-    for (const part of zooAnimalShapeV282(item.species, item.variant)) {
+    const shape = zooAnimalShapeV282(item.species, item.variant), jointTops = new Map<string, number>();
+    for (const part of shape) if (gaitFor(part.part))
+      jointTops.set(part.part, Math.max(jointTops.get(part.part) ?? 0, part.y + part.h / 2));
+    for (const part of shape) {
+      const top = jointTops.get(part.part);
       addBox(actor, [anchor[0] + part.x, anchor[1] + part.y, anchor[2] + part.z,
-        part.w, part.h, part.d, 0, part.color], part.part === 'body' || part.part === 'head', gaitFor(part.part));
+        part.w, part.h, part.d, 0, part.color], part.part === 'body' || part.part === 'head', gaitFor(part.part), false,
+        top === undefined ? undefined : { part: part.part, top });
     }
     actor.end = positions.length / 3;
   }
@@ -191,6 +200,15 @@ export function createZooAnimalsV282(
           live[i + 1] = pose.y + baseline[i + 1];
           live[i + 2] = pose.z + (native ? quarterZ(baseline[i], baseline[i + 2], q) : -si * baseline[i] + co * baseline[i + 2]);
         }
+        // All members of one limb share an affine shear: its body attachment
+        // stays fixed while its foot moves, without separating foot and leg.
+        // Sparse ranges own only new drawn limbs; retained source vertices
+        // and the orthogonal native geometry keep their existing treatment.
+        for (const limb of actor.drawnLimbs) for (let i = limb.start * 3; i < limb.end * 3; i += 3) {
+          const stride = pose.gait * limb.gait * .05 * Math.max(0, 1 - baseline[i + 1] / limb.top);
+          live[i] += co * stride;
+          live[i + 2] -= si * stride;
+        }
         if (instances) for (let i = 0; i < actor.members.length; i++) {
           const { row, gait } = actor.members[i], x = row[0] - actor.anchor[0] + pose.gait * gait * .05,
             z = row[2] - actor.anchor[2];
@@ -212,7 +230,7 @@ export function createZooAnimalsV282(
 
 /** One runtime registry and one clock per zoo survive presentation remounts. */
 export function createZooAnimalRuntimeV282() {
-  const handles = new Set<ZooAnimalHandleV282>();
+  const handles = new Map<ZooAnimalHandleV282, number>();
   const clocks = new Map<string, ZooAnimalClockV282>();
   const frustum = new Frustum(), projection = new Matrix4(), cameraPosition = new Vector3();
   const visible = (h: ZooAnimalHandleV282, camera: Camera, native: boolean): boolean => {
@@ -228,9 +246,10 @@ export function createZooAnimalRuntimeV282() {
       root.traverse(object => {
         const h = object.userData.zooAnimalsV282 as (ZooAnimalHandleV282 & { unregister?: () => void }) | undefined;
         if (!h || h.disposed || handles.has(h)) return;
-        handles.add(h); h.unregister = () => handles.delete(h);
+        h.unregister = () => handles.delete(h);
         if (!clocks.has(h.siteId)) clocks.set(h.siteId, createZooAnimalClockV282());
-        h.update(clocks.get(h.siteId)!.elapsedSeconds);
+        const seconds = clocks.get(h.siteId)!.elapsedSeconds;
+        handles.set(h, seconds); h.update(seconds);
       });
     },
     update(timestamp: number, camera: Camera, native: boolean, suspended: boolean): boolean {
@@ -240,13 +259,19 @@ export function createZooAnimalRuntimeV282() {
       frustum.setFromProjectionMatrix(projection, camera.coordinateSystem);
       for (const [site, clock] of clocks) {
         let active = false;
-        if (!suspended) for (const h of handles) if (h.siteId === site && visible(h, camera, native)) { active = true; break; }
-        if (!advanceZooAnimalClockV282(clock, timestamp, active)) continue;
-        for (const h of handles) if (h.siteId === site && visible(h, camera, native)) { h.update(clock.elapsedSeconds); changed = true; }
+        if (!suspended) for (const h of handles.keys()) if (h.siteId === site && visible(h, camera, native)) { active = true; break; }
+        const due = advanceZooAnimalClockV282(clock, timestamp, active);
+        if (!due && !suspended) continue;
+        for (const h of handles.keys()) if (h.siteId === site && visible(h, camera, native)
+          && (due || handles.get(h) !== clock.elapsedSeconds)) {
+          // A paused family switch still publishes the same shared pose once.
+          // It neither advances the clock nor requests continuous frames.
+          h.update(clock.elapsedSeconds); handles.set(h, clock.elapsedSeconds); changed = true;
+        }
       }
       return changed;
     },
-    dispose(): void { for (const h of handles) h.dispose(); handles.clear(); clocks.clear(); },
+    dispose(): void { for (const h of handles.keys()) h.dispose(); handles.clear(); clocks.clear(); },
     get size(): number { return handles.size; },
   };
 }

@@ -28,6 +28,8 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "src/app/src/data/zooAnimalsV282.json"
 WEST = ROOT / "geo_data/regierungsviertel/raw/zoo-v165/osm-map.xml"
 EAST = ROOT / "geo_data/regierungsviertel/raw/east-v187/candidate.gpkg"
+HOUSES = ROOT / "src/app/src/data/zooHousesV282.json"
+CHICKEN_SOURCE = "lod2/DEBE01YYK0003Uqa"
 FLOORS = {"zoo": 5.32, "tierpark": 3.12}
 MARGIN = 0.4
 
@@ -54,6 +56,7 @@ PLANS = [
   ("zoo", "way/48374319", "stork", "white", 1, 1.0, 0.28),
   ("zoo", "way/32995991", "stork", "black", 1, 1.0, 0.28),
   ("zoo", "way/618256710", "marabou", "african", 1, 1.0, 0.26),
+  ("zoo", CHICKEN_SOURCE, "chicken", "domestic", 1, 0.4, 0.20),
   ("tierpark", "way/278213451", "elephant-african", "african", 2, 3.2, 0.45),
   ("tierpark", "way/1315101316", "tiger", "sumatran", 1, 1.8, 0.50),
   ("tierpark", "way/238003065", "tiger", "sumatran", 1, 1.8, 0.50),
@@ -90,10 +93,6 @@ UNRESOLVED = [
     "reason": "Current snakes belong in Aquarium/Regenwaldhaus; precise terrarium ownership is unavailable. Closed former snake farm is excluded.",
   },
   {
-    "species": "chicken",
-    "reason": "Domestic breeds in Zoo house way/17957388 confirmed by the 2025 operator report; a visible outdoor enclosure or measured interior route is not yet identified.",
-  },
-  {
     "species": "ibis",
     "siteId": "zoo",
     "reason": "Zoo colony has node/14068130250 but no verified motion polygon. Solid-roof Tierpark Waldrapp building way/217186470 is also excluded; only the separately mapped wire ibis aviary is used.",
@@ -110,6 +109,7 @@ UNRESOLVED = [
   },
 ]
 IDENTITY_EVIDENCE = {
+  CHICKEN_SOURCE: "One generic domestic chicken in the measured rear-aviary band around Hühner- und Taubenhaus way/17957388. Berlin's monument inventory locates these aviaries and the operator's 2025 report confirms chicken keeping; exact breed-per-cage stock is not asserted.",
   "way/48374319": "Operator 2022 white-stork location at the ape-house aviary, spatially matched to this retained aviary; illustrative present-day interpretation, not a census.",
   "way/32995991": "Operator 2022 black-stork location at the Landwehrkanal marsh-bird aviary, matched to this named retained footprint; illustrative present-day interpretation, not a census.",
   "way/618256710": "Specific retained 2026 Marabu POI node/13901500128 lies inside this older generically labelled birds-of-prey polygon; specific animal identity takes precedence, without asserting the whole aviary stock.",
@@ -181,6 +181,16 @@ def west_features():
     if inner:
       shape = shape.difference(unary_union(list(polygonize(unary_union(inner)))))
     features["relation/" + relation.get("id")] = (valid_polygon(shape), tags)
+  aviary = json.loads(HOUSES.read_bytes())["aviary"]
+  features[CHICKEN_SOURCE] = (
+    Polygon(aviary["ring"], aviary["holes"]),
+    {
+      "name": "Hühnerhaus rear aviary",
+      "building": "yes",
+      "building:material": "wire_fence",
+      "roof:material": "wire_fence",
+    },
+  )
   return features, unary_union(paths)
 
 
@@ -216,7 +226,7 @@ def east_features():
   return features, unary_union(paths)
 
 
-def rectangle_route(allowed, radius, large=False):
+def rectangle_route(allowed, radius, large=False, compact=False):
   """Find a genuinely contained loop with a full square body sweep at turns."""
   inset = allowed.buffer(-radius - MARGIN)
   for component in sorted(polygons(inset), key=lambda p: (-p.area, p.bounds)):
@@ -229,7 +239,7 @@ def rectangle_route(allowed, radius, large=False):
           (xmin + (xmax - xmin) * ix / 10, zmin + (zmax - zmin) * iz / 10)
         )
     sizes = ((20, 14), (16, 10), (12, 8), (9, 6)) if large else ()
-    for half_x, half_z in sizes + (
+    sizes += (
       (6, 4),
       (4, 3),
       (3, 2),
@@ -237,7 +247,10 @@ def rectangle_route(allowed, radius, large=False):
       (1.5, 1),
       (1, 0.7),
       (0.7, 0.5),
-    ):
+    )
+    if compact:
+      sizes += ((0.5, 0.3),)
+    for half_x, half_z in sizes:
       for raw_x, raw_z in candidates:
         x, z = round(raw_x, 3), round(raw_z, 3)
         # Check the WHOLE inflated rectangle, not endpoints or AABB
@@ -265,6 +278,27 @@ def serial_polygon(poly):
       [[round(x, 3), round(z, 3)] for x, z in ring.coords] for ring in poly.interiors
     ],
   }
+
+
+def additional_obstacles(source_id: str) -> Polygon:
+  """Retain the actual coarse main-house prism and native corner column."""
+  if source_id != CHICKEN_SOURCE:
+    return Polygon()
+  aviary = json.loads(HOUSES.read_bytes())["aviary"]
+  cell = aviary["nativeCellM"]
+  return unary_union(
+    [
+      Polygon(
+        [[x / 10, z / 10] for x, z in p["ring"]],
+        [[[x / 10, z / 10] for x, z in h] for h in p["holes"]],
+      ).buffer(0.15)
+      for p in aviary["retainedPrisms"]
+    ]
+    + [
+      box(x * cell, z * cell, (x + 1) * cell, (z + 1) * cell)
+      for x, z, *_ in aviary["retainedNativeColumns"]
+    ]
+  )
 
 
 def build():
@@ -303,9 +337,15 @@ def build():
       if surface == "water"
       else original.difference(source["waters"])
     )
-    obstacles = unary_union([source["paths"], source["buildings"].buffer(0.15)])
+    obstacles = unary_union(
+      [
+        source["paths"],
+        source["buildings"].buffer(0.15),
+        additional_obstacles(source_id),
+      ]
+    )
     allowed = valid_polygon(allowed.difference(obstacles))
-    route = rectangle_route(allowed, radius)
+    route = rectangle_route(allowed, radius, compact=species == "chicken")
     if not route:
       skipped.append(
         {
@@ -499,6 +539,7 @@ def verify(data, evidence):
     assert original.covers(swept), animal["id"]
     assert swept.disjoint(source["buildings"].buffer(0.15)), animal["id"]
     assert swept.disjoint(source["paths"]), animal["id"]
+    assert swept.disjoint(additional_obstacles(animal["sourceId"])), animal["id"]
     if habitat["routeSurface"] == "water":
       assert source["waters"].covers(swept), animal["id"]
     else:

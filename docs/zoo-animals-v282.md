@@ -32,11 +32,17 @@ body sweep and turns, not just endpoints or bounding-box overlap. They are repea
 against the rounded serialized polygon. Lemur clearance is 1.3 m, exceeding the
 measured atlas radius 1.239 m. Water routes do not invent measured basin depths.
 
-The sole building-classification exception is a mapped wire aviary, where both
+The ordinary building-classification exception is a mapped wire aviary, where both
 wall and roof materials explicitly say `wire_fence`: the visible birds occupy
 the enclosed floor rather than walking on a solid roof. Tierpark ibis way
 `122451065` uses this rule and a genus-level illustrative ibis, without inventing
 a narrower taxon. The distinct solid-roof Waldrapp building `217186470` is excluded.
+One separately evidenced LoD2 rear aviary at the historic Hühnerhaus is represented
+as an open wire cage in the required house module. Its complete source planes,
+material interpretation and retained coarse neighbours are documented in the
+[house evidence](zoo-houses-v282.md). The small chicken route additionally excludes
+those actual retained prism/native footprints and uses a 1.0 × 0.6 m circuit;
+only this small-species case enables the compact route search.
 
 The Katta route in Tierpark way `36737079` fails the full-body exclusions and is
 rejected. Other verified lemur habitats are used: `220264684` contains *Varecia
@@ -69,6 +75,13 @@ with at most 0.04 m walking bob; snow and flood do not lift animals onto a new
 surface. Existing terrain/perch owners without verified routes retain only their
 bounded idle movement.
 
+New drawn limbs now have a small height-dependent gait: their upper attachment
+stays fixed while the feet move by at most 0.05 m. All members of one limb share
+the same shear, keeping feet, hands and legs connected. Sparse vertex ranges
+reuse the existing dynamic position buffer; retained source members stay rigid
+and unchanged. A family switch during reduced motion publishes the destination's
+shared pose once without advancing its clock or starting continuous rendering.
+
 Moving position and instance buffers remain separate from static geometry
 parking/interleaving. Frames invalidate presentation only, not the static shadow
 atlas. Drawn night rendering uses the alternate lit material; the same geometry
@@ -80,11 +93,23 @@ without increasing the existing residency budgets.
 
 Focused checks completed on 2026-10-28:
 
-- `tests/test_zoo_animals_v282.py`: 18 passing tests, including incomplete OSM
+- Earlier follow-up scene/transfer/stream checks: 21 passing tests, 76,136 assertions.
+  All 50 new drawn figures remain connected during a substantial stride in all
+  four route headings; feet move relative to the rigid body. Suspended family
+  changes synchronize once while hidden/distant owners remain untouched, and
+  disposed owners cannot re-register. Exact retained ownership and GPU-buffer
+  accounting still pass.
+
+- `tests/test_zoo_animals_v282.py`: 19 passing tests, including incomplete OSM
   relations, holes, disconnected components, full-body collisions despite clear
   route centres, land/water separation, solid versus wire roofs, and retained IDs.
   Targeted Ruff formatting/lint passed. The offline generator `--check` matched
-  all 66,488 bytes: 50 new figures, 50 retained routes and 36 habitats.
+  all 67,227 bytes: 51 new figures, 50 retained routes and 37 habitats. The added
+  chicken test checks complete body clearance against the measured aviary,
+  retained main house and native corner block, including a failing control route.
+- Current combined house/animal Python suites: 24 passing tests. Current
+  house/shape/motion/scene runtime suites: 27 passing tests, 234,410 assertions,
+  covering all 51 new figures, including the chicken's drawn gait and native body.
 - `tierpark-animal-transfer-v282.test.ts`: exact removal of only the 47 transferred
   animal owners, unchanged remaining indices and coordinates/colours in both
   families, source immutability and fail-closed receipt guards.
@@ -163,13 +188,21 @@ records the end of manatee keeping and the last two animals' move to Beauval.
 
 Current snakes belong in Aquarium/Regenwaldhaus, but exact terrarium geometry is
 unresolved; the closed old snake farm is excluded. No current alligator location
-is verified, and gavials are not relabelled alligators. The [2025 operator report](https://www.zoo-berlin.de/fileadmin/zoo-berlin/downloads/Investor_Relations/Geschaeftsberichte/Geschaeftsbericht_2025_digital.pdf)
-confirms domestic chicken breeds in Hühnerhaus `17957388`, but a visible outdoor
-enclosure or measured interior route is not yet identified. Zoo Waldrapp has a
-specific point but no verified movement polygon. Tierpark stork way `36770071`
+is verified, and gavials are not relabelled alligators. The
+[Aquarium's August 2026 operator account](https://www.aquarium-berlin.de/de/aktuelles/news/artikel/113-dinge-die-du-noch-nicht-ueber-das-aquarium-berlin-wusstest)
+confirms current snakes and reptiles on the first upper floor, but does not
+provide a terrarium layout. The [Tierpark's 2021 relocation account](https://www.tierpark-berlin.de/de/aktuelles/news/artikel/von-berlin-nach-budapest)
+records the American alligator's transfer to Budapest. Neither the former
+snake farm nor the old crocodile house supports a current invented route.
+Zoo Waldrapp has a specific point but no verified movement polygon. Tierpark stork way `36770071`
 has a conflicting Goliath-heron species tag. The Tierpark Marabu savanna records
 do not establish a precise current motion polygon. These cases remain explicit
 rather than being placed at invented coordinates.
+
+Domestic chicken is now represented by one generic figure in the exact measured
+western rear aviary `lod2/DEBE01YYK0003Uqa`; the current breed identity of that
+individual compartment is not asserted. This source addition supersedes the
+earlier unresolved chicken entry. See the [complete aviary evidence](zoo-houses-v282.md).
 
 ## House identities and separate reconstruction
 

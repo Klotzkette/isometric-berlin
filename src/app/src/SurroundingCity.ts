@@ -351,11 +351,15 @@ export async function createStreamedSurroundingCityChunkV255(
       entry.geometryBytes += handle.geometryBytes;
       entry.bufferCount += handle.bufferCount;
     }
-    const house = createTierparkHouseV282(id, minecraft);
+    const house = createTierparkHouseV282(id, minecraft, chunk);
     if (house) {
       house.position.set(-chunk.origin[0], -chunk.origin[1], -chunk.origin[2]);
       house.updateMatrix();
       entry.root.add(house);
+      // The collision callback is published atomically with this packet's
+      // guarded roof. Eviction/abort/family switches remove both together.
+      if (house.userData.brehmTropicalHallSolidAt)
+        entry.root.userData.brehmTropicalHallSolidAt = house.userData.brehmTropicalHallSolidAt;
       house.traverse(object => {
         if (!(object instanceof Mesh)) return;
         const geometry: BufferGeometry = object.geometry;
@@ -676,6 +680,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       for (const entry of residents.values()) {
         const b = entry.descriptor.bounds;
         if (x + radius < b[0] || z + radius < b[1] || x - radius > b[2] || z - radius > b[3]) continue;
+        if (entry.root.userData.brehmTropicalHallSolidAt?.(x, y, z, radius)) return true;
         if (spreeBridgeSolidAtV242(entry.nav, x - entry.origin[0], y, z - entry.origin[2], radius)) return true;
         if (surroundingBuildingSolidAt(entry.nav, x - entry.origin[0], y, z - entry.origin[2], radius)) return true;
       }

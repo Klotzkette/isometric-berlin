@@ -25,3 +25,15 @@ export function zooHouseSolidsV282(native = false): TiergartenWerkhofSolidV275[]
       topAt: (x, z) => cells ? cells.get(`${Math.floor(x)}:${Math.floor(z)}`) ?? null : penguinRoofAtV282(p.roofTriangles, x, z) };
   });
 }
+
+/** The full cage protects its enclosed animal floor; no visitor path is closed.
+ * Both open lattices follow the same measured envelope and roof slope. */
+export function zooAviarySolidsV282(): TiergartenWerkhofSolidV275[] {
+  const p = data.aviary;
+  return [{ sourceId: p.sourceId, ring: p.ring, holes: p.holes,
+    minY: p.minY, maxY: p.maxY + .04,
+    topAt: (x, z) => {
+      const roof = penguinRoofAtV282(p.roofTriangles, x, z);
+      return roof === null ? null : roof + .04;
+    } }];
+}

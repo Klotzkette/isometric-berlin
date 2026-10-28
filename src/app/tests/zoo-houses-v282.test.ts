@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { InstancedMesh, Mesh } from 'three';
 import { createTierparkHouseV282, createZooHousesV282 } from '../src/ZooHousesV282';
 import { createZooHouseColumnTesterV282, isZooHouseSourceV282 } from '../src/zooHousesV282Ownership';
-import { penguinRoofAtV282, zooHouseSolidsV282 } from '../src/zooHousesV282Profile';
+import { penguinRoofAtV282, zooAviarySolidsV282, zooHouseSolidsV282 } from '../src/zooHousesV282Profile';
 import { compilePedestrianObstacles, pedestrianPointIsBlocked } from '../src/pedestrianNavigation';
 import type { PrismPayload } from '../src/IsometricCityWorld';
 import type { VisualMode } from '../src/visualMode';
@@ -17,6 +17,7 @@ describe('v282 complete Penguin house and retained Brehm recognition', () => {
       try {
         expect(root.userData.fullStaticDetailOnTouch).toBe(true);
         expect(root.userData.measuredPenguinParts).toBe(site === 'zoo' ? 4 : 0);
+        expect(root.userData.measuredAviarySheets).toBe(site === 'zoo' ? 5 : 0);
         root.traverse(o => {
           expect(o.matrixAutoUpdate).toBe(false);
           if (!(o instanceof Mesh)) return;
@@ -98,5 +99,43 @@ describe('v282 complete Penguin house and retained Brehm recognition', () => {
     }
     const modified = { ...source, buildings: source.buildings.map(p => ({ ...p, h_dm: p.h_dm + 1 })) };
     expect(pedestrianPointIsBlocked(x, z, 14, compilePedestrianObstacles(modified, () => mode, { zooHousesV282: true }))).toBe(true);
+  });
+
+  test('the added aviary is transaction-gated and keeps surrounding paths open', () => {
+    const source = { schema_version: 1, classes: ['concrete'], buildings: [] } as unknown as PrismPayload;
+    let mode: VisualMode = 'day';
+    const before = compilePedestrianObstacles(source);
+    const after = compilePedestrianObstacles(source, () => mode, { zooHousesV282: true });
+    const [solid] = zooAviarySolidsV282();
+    expect(solid.ring).toEqual(data.aviary.ring);
+    expect(solid.maxY).toBeCloseTo(8.67, 6);
+    expect(pedestrianPointIsBlocked(-2420.3, 1201.1, 5.32, before)).toBe(false);
+    for (mode of ['day', 'night', 'minecraft', 'day']) {
+      expect(pedestrianPointIsBlocked(-2420.3, 1201.1, 5.32, after)).toBe(true);
+      expect(pedestrianPointIsBlocked(-2420.3, 1201.1, 9, after)).toBe(false);
+      expect(pedestrianPointIsBlocked(-2423, 1201.1, 5.32, after)).toBe(false);
+    }
+    expect(solid.topAt(0, 0)).toBeNull();
+    const root = createZooHousesV282('zoo', true);
+    try {
+      const batch = root.children.find(o => o instanceof InstancedMesh) as InstancedMesh;
+      const matrices = batch.instanceMatrix.array;
+      let bars = 0;
+      for (let i = 0; i < batch.count; i++) {
+        const x = matrices[i * 16 + 12], z = matrices[i * 16 + 14];
+        if (x < -2417 && x > -2423 && z > 1199 && z < 1204) {
+          bars++;
+          // A diagonal wire is independently stepped into <=.4 m cardinal
+          // cells; its narrowest dimension is at most .4/sqrt(3).
+          expect(Math.min(matrices[i * 16], matrices[i * 16 + 5], matrices[i * 16 + 10])).toBeLessThanOrEqual(.232);
+          expect(Math.max(matrices[i * 16], matrices[i * 16 + 5], matrices[i * 16 + 10])).toBeLessThanOrEqual(.401);
+        }
+      }
+      expect(bars).toBeGreaterThan(100);
+      // Native is a permeable wire lattice, never a hidden solid-filled cage.
+      expect(bars).toBeLessThan(1200);
+    } finally {
+      root.traverse(o => { if (o instanceof Mesh) { o.geometry.dispose(); o.userData.dayMaterial.dispose(); o.userData.nightMaterial.dispose(); } });
+    }
   });
 });

@@ -118,6 +118,76 @@ describe('v282 bounded animal scene integration', () => {
       }
     } finally { dispose(root); }
   });
+  test('drawn feet move relative to their bodies in all four headings without detaching any members', () => {
+    let checked = 0;
+    for (const site of ['zoo', 'tierpark'] as const) {
+      const root = createZooAnimalsV282(site, false);
+      try {
+        const geometry = mesh(root).geometry;
+        let offset = 0;
+        for (const animal of data.animals.filter(a => a.siteId === site)) {
+          const shape = zooAnimalShapeV282(animal.species as ZooAnimalSpeciesV282, animal.variant);
+          const members = shape.map(part => {
+            const count = part.part === 'body' || part.part === 'head'
+              ? zooAnimalChamferedBoxV282().indices.length : 36;
+            const member = { part, start: offset, count }; offset += count; return member;
+          });
+          const route = prepareZooAnimalRouteV282({ ...animal, animalId: animal.id,
+            routeXZ: animal.routeXZ as [number, number][] });
+          const headings = new Set<number>();
+          for (const segment of route.segments) {
+            // Pick a substantial stride inside this actual route segment, away
+            // from its turn. This exercises every animal's own phase and speed.
+            let seconds = 0, strongest = 0;
+            const pose = { x: 0, y: 0, z: 0, quarterTurn: 0 as 0 | 1 | 2 | 3, gait: 0 };
+            for (let step = 1; step < 64; step++) {
+              const cycle = (segment.startDistance + segment.length * step / 64) / route.length;
+              const candidate = ((cycle - route.phase + 1) % 1) * route.periodSeconds;
+              sampleZooAnimalPoseV282(route, candidate, pose);
+              if (Math.abs(pose.gait) > strongest) { strongest = Math.abs(pose.gait); seconds = candidate; }
+            }
+            expect(strongest).toBeGreaterThan(.7);
+            sampleZooAnimalPoseV282(route, seconds, pose); headings.add(pose.quarterTurn);
+            handle(root).update(seconds);
+            const hulls = members.map(member => animalConvexHullV282(geometry, member.start, member.count));
+            const connected = new Set([0]);
+            for (let pass = 0; pass < hulls.length; pass++) {
+              const before = connected.size;
+              for (let i = 0; i < hulls.length; i++) if (!connected.has(i)
+                && [...connected].some(j => animalHullsTouchV282(hulls[i], hulls[j]))) connected.add(i);
+              if (connected.size === before) break;
+            }
+            expect(members.flatMap((member, i) => connected.has(i) ? []
+              : [`${animal.id} heading ${pose.quarterTurn}: ${member.part.part}`])).toEqual([]);
+            const angle = pose.quarterTurn * Math.PI / 2, co = Math.cos(angle), si = Math.sin(angle);
+            const localX = (p: readonly number[]) => co * (p[0] - pose.x) - si * (p[2] - pose.z);
+            // The first body is symmetric: its centre stays rigid while feet
+            // visibly slide in opposite directions relative to that centre.
+            const bodyX = hulls[0].points.reduce((sum, p) => sum + localX(p), 0) / hulls[0].points.length;
+            expect(bodyX).toBeCloseTo(shape[0].x, 3);
+            const footMoves: number[] = [];
+            for (let i = 0; i < members.length; i++) {
+              const part = members[i].part;
+              if (!part.part.startsWith('leg-') || Math.abs(part.y - part.h / 2) > .00001) continue;
+              const foot = hulls[i].points.filter(p => Math.abs(p[1] - pose.y) < .001);
+              expect(foot).toHaveLength(4);
+              const footX = foot.reduce((sum, p) => sum + localX(p), 0) / foot.length;
+              const movement = footX - bodyX - (part.x - shape[0].x);
+              expect(Math.abs(movement)).toBeGreaterThan(.034);
+              expect(Math.abs(movement)).toBeLessThan(.052);
+              footMoves.push(movement);
+            }
+            expect(footMoves.some(x => x > 0)).toBe(true);
+            expect(footMoves.some(x => x < 0)).toBe(true);
+            checked++;
+          }
+          expect(headings.size).toBe(4);
+        }
+        expect(offset).toBe(geometry.index!.count);
+      } finally { dispose(root); }
+    }
+    expect(checked).toBe(data.animals.length * 4);
+  });
   test('retained cuboids and triangle vertices survive the exact zero pose in both families', () => {
     for (const native of [false, true]) {
       const root = createZooAnimalsV282('zoo', native, [fixture], 'no-new-figures');
@@ -268,6 +338,39 @@ describe('v282 bounded animal scene integration', () => {
       expect(runtime.update(100000, returned, true, false)).toBe(true);
       expect(firstBodyCenter(root)).toEqual(before);
     } finally { runtime.dispose(); dispose(root); }
+  });
+
+  test('a reduced-motion family switch publishes its shared pose once without animating hidden or distant owners', () => {
+    const drawn = createZooAnimalsV282('zoo', false), native = createZooAnimalsV282('zoo', true);
+    const parent = new Group(), runtime = createZooAnimalRuntimeV282();
+    parent.add(drawn, native);
+    const camera = cameraFor(drawn);
+    try {
+      runtime.register(parent);
+      runtime.update(0, camera, false, false); runtime.update(100, camera, false, false);
+      const current = firstBodyCenter(drawn), stale = firstBodyCenter(native);
+      expect(current).not.toEqual(stale);
+      parent.visible = false;
+      expect(runtime.update(1000, camera, true, true)).toBe(false);
+      expect(firstBodyCenter(native)).toEqual(stale);
+      parent.visible = true;
+      camera.position.copy(handle(drawn).bounds.center).add(new Vector3(6000, 0, 0));
+      camera.lookAt(handle(drawn).bounds.center); camera.updateMatrixWorld();
+      expect(runtime.update(2000, camera, true, true)).toBe(false);
+      expect(firstBodyCenter(native)).toEqual(stale);
+      const returned = cameraFor(drawn);
+      expect(runtime.update(3000, returned, true, true)).toBe(true);
+      sameCenter(firstBodyCenter(native), current);
+      expect(runtime.update(3001, returned, true, true)).toBe(false);
+      expect(runtime.update(100000000, returned, true, true)).toBe(false);
+      expect(runtime.update(100000001, returned, false, true)).toBe(false);
+      sameCenter(firstBodyCenter(drawn), current);
+      handle(native).dispose(); expect(runtime.size).toBe(1);
+      expect(runtime.update(100000002, returned, true, true)).toBe(false);
+      runtime.register(native); expect(runtime.size).toBe(1);
+      runtime.dispose(); expect(runtime.size).toBe(0);
+      expect(runtime.update(100000003, returned, false, true)).toBe(false);
+    } finally { runtime.dispose(); dispose(drawn); dispose(native); }
   });
 
   test('lossless static parking leaves animated positions and matrices writable and intact', () => {

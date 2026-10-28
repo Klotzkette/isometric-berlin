@@ -4,6 +4,7 @@ import gzip
 import json
 
 import pytest
+from shapely.geometry import Polygon, box
 
 from scripts.build_zoo_houses_v282 import (
   DATA,
@@ -91,3 +92,32 @@ def test_brehm_full_existing_body_and_real_entrance_witnesses(
     assert entry["offsetDistance"] < 3
   # Existing complete shell/navigation inputs are untouched by recognition.
   assert (DATA / "eastLandmarksV187Navigation.json").exists()
+
+
+def test_additive_aviary_preserves_all_source_planes_and_existing_owners(
+  replay: tuple[dict, dict, dict],
+) -> None:
+  runtime, receipt, evidence = replay
+  aviary, source = runtime["aviary"], evidence["aviary"]["original"]
+  assert source["id"] == "DEBE01YYK0003Uqa"
+  assert evidence["aviary"]["retiredOwners"] == []
+  assert evidence["aviary"]["displayOffsetY"] == pytest.approx(0.885)
+  assert aviary["ring"] == source["ring"]
+  assert aviary["holes"] == source["holes"] == []
+  assert len(aviary["surfaces"]) == len(source["surfaces"]) == 5
+  assert aviary["maxY"] - aviary["minY"] == pytest.approx(3.430)
+  for old, new in zip(source["surfaces"], aviary["surfaces"], strict=True):
+    assert new["kind"] == old["kind"]
+    for before, after in zip(old["rings"], new["rings"], strict=True):
+      assert len(before) == len(after) == 4
+      for (x, y, z), (nx, ny, nz) in zip(before, after, strict=True):
+        assert (x, z) == (nx, nz)
+        assert ny - y == pytest.approx(0.885)
+  # The pre-existing coarse main-house column clips a corner. Retain it and
+  # make the route avoid its full visible footprint, rather than deleting it.
+  assert [p["id"] for p in aviary["retainedPrisms"]] == ["17957388"]
+  assert aviary["retainedNativeColumns"] == [[-605, 299, 52, 172, 3]]
+  area = Polygon(aviary["ring"])
+  assert area.intersection(box(-2420, 1196, -2416, 1200)).area > 0
+  assert "17957388" not in {p["id"] for p in receipt["previousPrisms"]}
+  assert aviary["retainedNativeColumns"][0] not in receipt["columns"]

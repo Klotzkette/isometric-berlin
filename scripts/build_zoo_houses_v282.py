@@ -39,6 +39,7 @@ PRISMS = ["ne1cFFjo", "PKel9P5i", "nTRvf4vG", "K0003Uyx"]
 # the whole complex connected; never raise every basement to the park surface.
 EXPOSED_SOURCE_Y = 3.690
 OFFSET = 5.2 - EXPOSED_SOURCE_Y
+AVIARY_PARENT = "DEBE01YYK0003Uqa"
 
 
 def digest(path: Path) -> str:
@@ -93,6 +94,73 @@ def ownership() -> dict:
     columns=columns,
     retainedSharedColumns=shared,
   )
+
+
+def chicken_aviary() -> tuple[dict, dict]:
+  """Add one complete absent rear aviary; retain all existing opaque owners."""
+  original = part_profile(extract_parent(SOURCE, AVIARY_PARENT))
+  area = Polygon(original["ring"], original["holes"])
+  offset = 5.2 - original["ground_y_m"]
+  prisms = json.loads((BASE / "lod2-prisms.json").read_bytes())["buildings"]
+  assert not any(p["id"] == AVIARY_PARENT[-8:] for p in prisms)
+  nearby = [p for p in prisms if old_polygon(p).intersects(area.buffer(1))]
+  previous = json.loads((DATA / "zooGroundsV165Source.json").read_bytes())
+  assert not any(
+    Polygon(p["ring"], p["holes"]).intersects(area) for p in previous["parts"]
+  )
+  voxel = json.loads((BASE / "minecraft-voxels.json").read_bytes())
+  cell, grid = voxel["cell_m"], voxel["grid"]
+  assert cell == 4 and voxel["schema_version"] == 2
+  columns = []
+  xmin, zmin, xmax, zmax = area.bounds
+  for row, runs in enumerate(voxel["building_rows"]):
+    iz = grid["min_z_idx"] + row
+    if not zmin - cell <= iz * cell <= zmax:
+      continue
+    for start, count, low, high, kind in runs:
+      for ix in range(grid["min_x_idx"] + start, grid["min_x_idx"] + start + count):
+        if not xmin - cell <= ix * cell <= xmax:
+          continue
+        if (
+          area.intersection(
+            box(ix * cell, iz * cell, (ix + 1) * cell, (iz + 1) * cell)
+          ).area
+          > 0.001
+        ):
+          columns.append([ix, iz, low, high, kind])
+  surfaces, roofs = [], []
+  for surface in original["surfaces"]:
+    rings = [
+      [[x, round(y + offset, 3), z] for x, y, z in ring] for ring in surface["rings"]
+    ]
+    surfaces.append(dict(kind=surface["kind"], rings=rings))
+    if surface["kind"] == "RoofSurface":
+      roofs.extend(triangles_for(rings))
+  runtime = dict(
+    sourceId="lod2/" + AVIARY_PARENT,
+    ring=original["ring"],
+    holes=original["holes"],
+    minY=5.2,
+    maxY=round(original["top_y_m"] + offset, 3),
+    surfaces=surfaces,
+    roofTriangles=roofs,
+    retainedPrisms=nearby,
+    retainedNativeColumns=columns,
+    nativeCellM=cell,
+  )
+  evidence = dict(
+    original=original,
+    sourcePath=str(SOURCE.relative_to(ROOT)),
+    sha256=digest(SOURCE),
+    displayOffsetY=offset,
+    retiredOwners=[],
+    interpretation="One low measured polygon in the rear aviary band identified by Berlin's monument inventory. Full planes and slopes retained; wire material, lattice spacing and one generic domestic chicken are illustrative, not a breed-per-cage census.",
+    references=[
+      "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050439",
+      "https://www.zoo-berlin.de/fileadmin/zoo-berlin/downloads/Investor_Relations/Geschaeftsberichte/Geschaeftsbericht_2025_digital.pdf",
+    ],
+  )
+  return runtime, evidence
 
 
 def entry(ring: list, point: list, ident: str, label: str) -> dict:
@@ -225,6 +293,7 @@ def build() -> tuple[dict, dict, dict]:
       entries=brehm_entries,
     ),
   )
+  runtime["aviary"], aviary_evidence = chicken_aviary()
   receipt = ownership()
   assert {p["sourceId"] for p in parts} == set(PRISMS)
   preserved = [
@@ -256,6 +325,7 @@ def build() -> tuple[dict, dict, dict]:
       unchangedSourceHeight=owner["height"],
       limitation="Flat retained roof is preserved; a reliable current upper tropical-hall roof profile remains unresolved. No invented new hall.",
     ),
+    aviary=aviary_evidence,
   )
   return runtime, receipt, evidence
 

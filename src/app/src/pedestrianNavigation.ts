@@ -14,7 +14,7 @@ import { rkiMoabitSolidsV277 } from "./rkiMoabitV277Profile";
 import { isZooWestSourceV276 } from "./zooWestV276Ownership";
 import { zooWestSolidsV276 } from "./zooWestV276Profile";
 import { isZooHouseSourceV282 } from "./zooHousesV282Ownership";
-import { zooHouseSolidsV282 } from "./zooHousesV282Profile";
+import { zooAviarySolidsV282, zooHouseSolidsV282 } from "./zooHousesV282Profile";
 import { isVerkehrskanzelSourceV276 } from "./verkehrskanzelV276Ownership";
 import { verkehrskanzelSolidsV276 } from "./verkehrskanzelV276Profile";
 import { isTiergartenWerkhofSourceV275 } from "./tiergartenWerkhofV275Ownership";
@@ -751,6 +751,13 @@ export function compilePedestrianObstacles(
   let bayerCampusSolids: { native: boolean; solid: ReturnType<typeof bayerCampusSolidsV277>[number] }[] | undefined;
   let lehrterSolids: { native: boolean; solid: ReturnType<typeof lehrterSolidsV277>[number] }[] | undefined;
   let rkiMoabitSolids: { native: boolean; solid: ReturnType<typeof rkiMoabitSolidsV277>[number] }[] | undefined;
+  // This source-bound aviary was absent from the old prism inventory. Add it
+  // once only after the required-site transaction installs its complete cage.
+  if (options.zooHousesV282) for (const solid of zooAviarySolidsV282()) {
+    addPolygonObstacle(index, solid.ring, solid.holes ?? [], solid.minY, solid.maxY,
+      solid.sourceId, 1, (x, z) => solid.topAt(x, z) ?? Number.NEGATIVE_INFINITY);
+    index.buildingCount += 1;
+  }
   for (const sourceBuilding of prisms.buildings) {
     if (options.requiredSitesV281 && isWeltkugelSourceV281(sourceBuilding)) continue;
     if (options.bayerCampusV277 && isBayerCampusSourceV277(sourceBuilding)) {
