@@ -209,3 +209,46 @@ describe("Fernsehturm horizon area coverage",()=>{
     }
   });
 });
+
+test("coverage owns fog uniforms matching Three without adding shared-engine exports", async () => {
+  const source = await Bun.file(
+    new URL("../src/FernsehturmHorizon.ts", import.meta.url),
+  ).text();
+  // New production helper exports rename shared aliases and unchanged chunks.
+  expect(source).not.toMatch(/\bUniforms(?:Lib|Utils)\b/);
+  const { UniformsLib, UniformsUtils } = await import("three");
+  const { createFernsehturmHorizonCoverage } =
+    await import("../src/FernsehturmHorizon");
+  const reference = UniformsUtils.clone(UniformsLib.fog);
+  const bands = [
+    { bottom: 0, top: 1, bottomRadius: 1, topRadius: 1, color: 0xffffff },
+  ];
+  for (const native of [false, true]) {
+    const first = createFernsehturmHorizonCoverage(bands, native);
+    const second = createFernsehturmHorizonCoverage(bands, native);
+    try {
+      expect(first.material.fog).toBeTrue();
+      for (const key of Object.keys(reference)) {
+        expect(first.material.uniforms[key]).toEqual(reference[key]);
+        expect(first.material.uniforms[key])
+          .not.toBe(second.material.uniforms[key]);
+      }
+      expect(first.material.uniforms.fogColor.value)
+        .not.toBe(second.material.uniforms.fogColor.value);
+      expect(first.material.uniforms.fogColor.value)
+        .not.toBe(reference.fogColor.value);
+      first.material.uniforms.fogDensity.value = .002;
+      first.material.uniforms.fogNear.value = 540;
+      first.material.uniforms.fogFar.value = 2250;
+      first.material.uniforms.fogColor.value.setHex(0xbfc9d0);
+      for (const key of Object.keys(reference)) {
+        expect(second.material.uniforms[key]).toEqual(reference[key]);
+        expect(UniformsLib.fog[key as keyof typeof UniformsLib.fog])
+          .toEqual(reference[key]);
+      }
+    } finally {
+      first.geometry.dispose(); first.material.dispose();
+      second.geometry.dispose(); second.material.dispose();
+    }
+  }
+});

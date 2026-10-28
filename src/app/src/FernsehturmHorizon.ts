@@ -1,6 +1,6 @@
 import {
   BufferGeometry, Color, Float32BufferAttribute, Mesh, ShaderMaterial,
-  UniformsLib, UniformsUtils, Vector2, Vector4, type Material,
+  Vector2, Vector4, type Material,
 } from "three";
 import { FERNSEHTURM_DETAIL_PROFILE as P } from "./fernsehturmDetailProfile";
 
@@ -79,7 +79,12 @@ export function createFernsehturmHorizonCoverage(
   const material = new ShaderMaterial({
     vertexColors: true, transparent: true, depthWrite: false, depthTest: true, fog: true,
     uniforms: {
-      ...UniformsUtils.clone(UniformsLib.fog),
+      // Keep the standard fog uniforms local: exporting the two helper tables
+      // would rename Three's shared exports and duplicate unchanged city chunks.
+      fogDensity: { value: 0.00025 },
+      fogNear: { value: 1 },
+      fogFar: { value: 2000 },
+      fogColor: { value: new Color(0xffffff) },
       coverageViewport: { value: new Vector4(0, 0, 1, 1) },
       coverageDaylight: daylight,
     },

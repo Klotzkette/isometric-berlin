@@ -58,10 +58,16 @@ No additional residency, streaming, scene traversal or animation loop is added.
 
 ## Validation evidence and remaining gates
 
-Before final native coalescing, the focused suite passed10 tests/24,924
-assertions. The two additional coalescing/quantization regressions await the
-candidate CI run, expected total12 tests. Original hashes and proposed native
-coalescing were also evaluated in memory. At BER66 degrees, centered DPR1,
+GitHub Actions run 40669639544 passed 45 tests across seven focused files,
+including all 12 final tower tests, then the full TypeScript/Vite build,
+archive readiness checks and HTTP package smoke test. Both uploaded archives
+were SHA256-verified and all 4,752 ZIP entries checked. That candidate was not
+published: a shared Three.js export-table change duplicated unchanged city
+chunks and exceeded the complete Pages retention limit. The follow-up keeps
+the four standard fog uniforms local, with identical independent values and
+unchanged shaders, avoiding the two new shared-library exports. Its additional
+regression and rebuild must pass before publication.
+Original hashes and native coalescing were also evaluated in memory. At BER66 degrees, centered DPR1,
 the uncoalesced filter changed zero8-bit pixels; coalescing changed6 pixels
 with maximum9 channel levels. All10 phases survived at DPR1/1.35/1.75.
 Per-pixel integrated-area differences stayed below3.8e-14.
@@ -77,7 +83,8 @@ The initial Snow zero-pixel failure prompted its contrast correction. The
 corrected BER16-degree screenshot and seven subsequent pan screenshots are
 valid and retain nonzero tower contrast. ENOSPC interrupted phase7 saving;
 that truncated file and absent later frames are not counted. Final wide-angle
-native visual confirmation and final full-city/package QA remain pending.
+native visual confirmation and final full-city/physical-device browser QA remain
+pending; the prior remote package checks above did pass.
 Screenshots and temporary harnesses are local evidence, not shipped assets.
 A small horizon feature remains faint; visibility is not promised through
 buildings, outside the field of view, underwater or at arbitrarily tiny size.
@@ -85,4 +92,7 @@ buildings, outside the field of view, underwater or at arbitrarily tiny size.
 The Mac exhausted writable storage during final validation. A separate
 candidate branch was created through the Git Data API without changing main,
 Pages or the retained181 package. Remote CI results are distinct from local
-build evidence; no local build receipt is fabricated.
+build evidence; no local build receipt is fabricated. Full pytest could not
+start with its normal temporary-file capture on this full disk; the three
+new shelter Python tests passed with capture disabled. Other Python tests
+require ignored original source archives absent from a fresh CI checkout.
