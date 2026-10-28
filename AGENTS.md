@@ -1994,3 +1994,10 @@ unrelated geometry, coverage, 93 stops and existing runtime/release limits.
 Use one internal browser view at a time and atomic replacement for any
 hardlinked public source file. Preserve the verified v181 package until the
 v182 replacement is validated; no redundant disk archives or broad cleanup.
+
+
+The v283 remote-build portability correction fixes only the operating-system
+metadata byte of standard build-time gzip output to the established v181 marker.
+Keep every compressed payload/CRC/length byte, prepared Zopfli stream, codec,
+admission rule, source value and field ownership unchanged. This prevents
+platform-only asset renaming; no source reduction or release-limit increase.

@@ -32,6 +32,7 @@ jobs:
         run: |
           bun install --frozen-lockfile
           BUN_RUNTIME_TRANSPILER_CACHE_PATH=0 bun test --isolate --max-concurrency 1 --timeout 60000 tests/fernsehturm-detail.test.ts tests/fernsehturm-horizon.test.ts tests/steppengarten-shelter-v283.test.ts tests/tiergarten-werkhof-v275-ownership.test.ts tests/progressive-building-coverage.test.ts tests/world-camera-depth.test.ts tests/required-sites-navigation-v281.test.ts
+          BUN_RUNTIME_TRANSPILER_CACHE_PATH=0 bun test --isolate --max-concurrency 1 --timeout 60000 tests/lossless-gzip-header-v283.test.ts tests/lossless-json-data.test.ts tests/lossless-base85-v263.test.ts tests/lossless-packed-packets-v177.test.ts tests/lossless-source-cache.test.ts tests/lossless-zopfli-v274.test.ts tests/lossless-eager-v282.test.ts
           BUN_RUNTIME_TRANSPILER_CACHE_PATH=0 bun run build
 
       - name: Package static site

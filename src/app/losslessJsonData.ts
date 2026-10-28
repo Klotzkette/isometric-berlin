@@ -397,6 +397,9 @@ export function transformLosslessJsonData(
   // a field is eager/lazy, compressed or retained strongly/weakly.
   const pack = (json: string) => {
     const original = gzipSync(json, { level: 9 });
+    // Preserve the v181 gzip OS marker across macOS/Linux builds. Only this
+    // metadata byte changes; compressed data, admission and prepared bytes do not.
+    original[9] = 0x13;
     const bytes = preparedGzip?.get(json) ?? original;
     return { encoded: base85 ? encodeLosslessBase85(bytes) : Buffer.from(bytes).toString("base64"),
       admissionLength: Math.ceil(original.length / 3) * 4 };
