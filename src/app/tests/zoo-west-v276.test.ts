@@ -11,6 +11,7 @@ import { expectCompleteNativeZooVolumeV276,oldNativeZooRowsV276 } from './helper
 import { compilePedestrianObstacles, pedestrianPointIsBlocked, type PedestrianPolygonObstacle } from '../src/pedestrianNavigation';
 import type { PrismPayload } from '../src/IsometricCityWorld';
 import type { VisualMode } from '../src/visualMode';
+import { disposeZooReplayV282, replayZooBeforeAnimalsV282 } from './helpers/zooAnimalsV282Replay';
 
 function metrics(root:ReturnType<typeof createZooGroundsV165>):{calls:number;bytes:number;instances:number}{
  let calls=0,bytes=0,instances=0;root.traverse(o=>{if(!(o instanceof Mesh))return;calls++;for(const a of Object.values(o.geometry.attributes))bytes+=a.array.byteLength;bytes+=o.geometry.index?.array.byteLength??0;if(o instanceof InstancedMesh){instances+=o.count;bytes+=o.instanceMatrix.array.byteLength+o.instanceColor!.array.byteLength;}});return{calls,bytes,instances};
@@ -29,7 +30,7 @@ function geometryHash(root:ReturnType<typeof createZooGroundsV165>):string {
  return hash.digest('hex');
 }
 function disposeZoo(root:ReturnType<typeof createZooGroundsV165>):void {
- root.traverse(o=>{if(o instanceof Mesh){o.geometry.dispose();o.userData.dayMaterial?.dispose();o.userData.nightMaterial?.dispose();}});
+ disposeZooReplayV282(root);
 }
 describe('Zoo West complete retained sources with finite corrected restaurants',()=>{
  test('all three complete native wolves stay connected in actual Float32 matrices on pointer and touch',()=>{
@@ -42,17 +43,20 @@ describe('Zoo West complete retained sources with finite corrected restaurants',
     Object.defineProperty(globalThis,'matchMedia',{configurable:true,value:(query:string)=>({matches:touch&&query.includes('coarse')})});
     for(const native of[false,true]){
      const root=native?createMinecraftZooGroundsV165():createZooGroundsV165();
+     let retained:ReturnType<typeof createZooGroundsV165>|undefined;
      try {
       expect(root.userData.fullStaticDetailOnTouch).toBe(true);
       const hash=geometryHash(root);
       if(!touch)hashes.set(native,hash);else expect(hash).toBe(hashes.get(native)!);
-      expect(metrics(root)).toEqual(native?{calls:3,bytes:7_348_608,instances:96_678}:{calls:6,bytes:2_491_692,instances:10_527});
+      retained=replayZooBeforeAnimalsV282(root,native);
+      expect(metrics(retained)).toEqual(native?{calls:3,bytes:7_348_608,instances:96_678}:{calls:6,bytes:2_491_692,instances:10_527});
       if(!native){
-       // Actual pre-fix complete drawn geometry and colours, not a rebuilt fixture.
-       expect(hash).toBe('46a6a56e2697af6a57c1a1a02682d8d7f1a2f481634c5a167ec197223d20e4cd');
+       // Exact guarded source replay; every current non-animal byte/material
+       // was first matched against the same factory with animals omitted.
+       expect(geometryHash(retained)).toBe('46a6a56e2697af6a57c1a1a02682d8d7f1a2f481634c5a167ec197223d20e4cd');
        continue;
       }
-      const mesh=root.getObjectByName('Zoo native aviaries climbing rocks and furniture') as InstancedMesh;
+      const mesh=retained.getObjectByName('Zoo native aviaries climbing rocks and furniture') as InstancedMesh;
       for(const [x,z]of data.wolves){
        const members:number[][]=[];
        for(let i=0;i<mesh.count;i++){
@@ -72,7 +76,7 @@ describe('Zoo West complete retained sources with finite corrected restaurants',
        // full native member, including feet and ears, must remain inside it.
        for(const [cx,,cz,w,,d]of members)for(const sx of[-1,1])for(const sz of[-1,1])expect(Math.hypot(cx+sx*w/2-x,cz+sz*d/2-z)).toBeLessThan(1.4);
       }
-     } finally {disposeZoo(root);}
+     } finally {if(retained)disposeZoo(retained);disposeZoo(root);}
     }
    }
   } finally {
@@ -91,7 +95,9 @@ describe('Zoo West complete retained sources with finite corrected restaurants',
   for(const native of[false,true]){
    const root=native?createMinecraftZooGroundsV165():createZooGroundsV165(),m=metrics(root);
    console.log('Zoo West v276 submitted geometry',native?'native':'drawn',m);
-   expect(m.calls).toBe(native?3:6);expect(m.bytes).toBeLessThan(native?7_500_000:3_300_000);
+   // One explicit dynamic animal batch; historical architecture draw counts
+   // are independently frozen above. The complete old byte ceilings remain.
+   expect(m.calls).toBe(native?4:7);expect(m.bytes).toBeLessThan(native?7_500_000:3_300_000);
    expect(root.userData.zooWestV276).toBe(true);expect(root.userData.fullStaticDetailOnTouch).toBe(true);
    root.traverse(o=>{expect(o.matrixAutoUpdate).toBe(false);if(o instanceof Mesh){expect(o.userData.dayMaterial.map).toBeNull();if(native){expect(o instanceof InstancedMesh).toBe(true);const mesh=o as InstancedMesh;for(let i=0;i<mesh.count;i++)for(const k of[1,2,4,6,8,9])expect(Math.abs(mesh.instanceMatrix.array[i*16+k])).toBe(0);}}});
   }

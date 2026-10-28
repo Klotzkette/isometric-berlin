@@ -35,7 +35,9 @@ describe("Zoo Berlin complete source architecture and current mapped grounds",()
         }else expect(native).toBe(false);
       });
       expect(root.userData.fullStaticDetailOnTouch).toBe(true);
-      expect(calls).toBe(native?3:6);expect(bytes).toBeLessThan(native?7_500_000:3_300_000);
+      // One dynamic animal batch is separate from the unchanged 3/6 static
+      // architecture batches; the historical complete byte ceilings stay.
+      expect(calls).toBe(native?4:7);expect(bytes).toBeLessThan(native?7_500_000:3_300_000);
       expect(axisAligned).toBe(true);
     }
   });

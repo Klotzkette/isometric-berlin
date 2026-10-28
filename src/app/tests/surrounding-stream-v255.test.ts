@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
-import { BufferGeometry, type Group, type Mesh } from "three";
+import { BufferGeometry, InstancedMesh, type Group, type Mesh } from "three";
 import data from "../src/data/tierparkV255.json";
 import playgrounds from "../src/data/playgroundsV255.json";
 import { prepareTierparkV255, tierparkGroundGuardV255, type TierparkSourceV255 } from "../src/TierparkV255";
@@ -10,6 +10,9 @@ import { prepareTierparkV276 } from "../src/TierparkV276";
 import { houseCurbGroundGuardV233 } from "../src/houseCurbsV233";
 import { createSurroundingCityChunkCooperatively, type SurroundingCityChunk } from "../src/SurroundingCityGeometry";
 import { createStreamedSurroundingCityChunkV255, disposeSurroundingCityRoot } from "../src/SurroundingCity";
+import { transferTierparkAnimalsV282 } from "../src/tierparkAnimalTransferV282";
+import type { ZooAnimalHandleV282 } from "../src/ZooAnimalsV282";
+import { createTierparkHouseV282 } from "../src/ZooHousesV282";
 
 const source = data as TierparkSourceV255;
 const dir = path.resolve(import.meta.dir, "../public/mesh/surrounding-berlin-v159");
@@ -30,8 +33,26 @@ function digest(root: Group): string {
     }
     const index = mesh.geometry.index?.array;
     if (index) hash.update(new Uint8Array(index.buffer, index.byteOffset, index.byteLength));
+    if (mesh instanceof InstancedMesh) for (const attribute of [mesh.instanceMatrix, mesh.instanceColor]) {
+      const values = attribute?.array;
+      if (values) hash.update(new Uint8Array(values.buffer, values.byteOffset, values.byteLength));
+    }
   });
   return hash.digest("hex");
+}
+function measured(root: Group): { bytes: number; buffers: number } {
+  const arrays = new Set<ArrayBufferView>();
+  root.traverse(object => {
+    const mesh = object as Mesh;
+    if (!mesh.geometry) return;
+    for (const attribute of Object.values(mesh.geometry.attributes)) arrays.add("data" in attribute ? attribute.data.array : attribute.array);
+    if (mesh.geometry.index) arrays.add(mesh.geometry.index.array);
+    if (mesh instanceof InstancedMesh) {
+      arrays.add(mesh.instanceMatrix.array);
+      if (mesh.instanceColor) arrays.add(mesh.instanceColor.array);
+    }
+  });
+  return { bytes: [...arrays].reduce((n, array) => n + array.byteLength, 0), buffers: arrays.size };
 }
 
 test("streamed Tierpark additions exactly match explicit preparation for all ten existing packets", async () => {
@@ -48,16 +69,39 @@ test("streamed Tierpark additions exactly match explicit preparation for all ten
     const v276Steps = prepareTierparkV276(v255, id, native);
     let v276 = v276Steps.next(); while (!v276.done) v276 = v276Steps.next();
     expect(v276.value.meshes.slice(0, v255.meshes.length)).toEqual(v255.meshes);
-    const explicit = await createSurroundingCityChunkCooperatively(v276.value, id, native);
+    const transferred = transferTierparkAnimalsV282(v276.value, id, native);
+    const explicit = await createSurroundingCityChunkCooperatively(transferred.chunk, id, native);
     const streamed = await createStreamedSurroundingCityChunkV255(raw, id, native);
+    const figures = streamed.root.children.filter(child => child.userData.zooAnimalsV282);
+    const houses = streamed.root.children.filter(child => child.userData.zooHousesV282) as Group[];
+    const explicitHouse = createTierparkHouseV282(id, native);
     try {
       expect(streamed.root.userData.sourceKinds).toContain("tierpark-v255");
-      expect(streamed.geometryBytes).toBe(explicit.geometryBytes);
-      expect(streamed.bufferCount).toBe(explicit.bufferCount);
+      const handles = figures.map(child => child.userData.zooAnimalsV282 as ZooAnimalHandleV282);
+      expect(houses).toHaveLength(explicitHouse ? 1 : 0);
+      if (explicitHouse) {
+        explicitHouse.position.set(-raw.origin[0], -raw.origin[1], -raw.origin[2]);
+        explicitHouse.updateMatrix();
+        expect(digest(houses[0])).toBe(digest(explicitHouse));
+        expect(houses[0].userData.preservedBrehmEnvelope).toBe(true);
+        streamed.root.updateMatrixWorld(true);
+        expect(houses[0].matrixWorld.elements).toEqual([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+      }
+      const houseMemory = explicitHouse ? measured(explicitHouse) : { bytes: 0, buffers: 0 };
+      expect(streamed.geometryBytes).toBe(explicit.geometryBytes + handles.reduce((n, handle) => n + handle.geometryBytes, 0) + houseMemory.bytes);
+      expect(streamed.bufferCount).toBe(explicit.bufferCount + handles.reduce((n, handle) => n + handle.bufferCount, 0) + houseMemory.buffers);
+      expect(measured(streamed.root)).toEqual({ bytes: streamed.geometryBytes, buffers: streamed.bufferCount });
       expect(streamed.nav).toEqual(explicit.nav);
+      // The separate v282 owner is allowed to move. All retained architecture,
+      // paths and static surface bytes still match the full explicit decoder.
+      if (figures.length) streamed.root.remove(...figures);
+      if (houses.length) streamed.root.remove(...houses);
       expect(digest(streamed.root)).toBe(digest(explicit.root));
       expect(JSON.stringify(raw)).toBe(unchanged);
     } finally {
+      if (figures.length) streamed.root.add(...figures);
+      if (houses.length) streamed.root.add(...houses);
+      if (explicitHouse) disposeSurroundingCityRoot(explicitHouse);
       disposeSurroundingCityRoot(explicit.root);
       disposeSurroundingCityRoot(streamed.root);
     }

@@ -4,6 +4,7 @@ import { isBayerCampusSourceV277 } from "./bayerCampusV277Ownership";
 import { isLehrterSourceV277 } from "./lehrterV277Ownership";
 import { isRkiMoabitSourceV277 } from "./rkiMoabitV277Ownership";
 import { isZooWestSourceV276 } from "./zooWestV276Ownership";
+import { isZooHouseSourceV282 } from "./zooHousesV282Ownership";
 import { isVerkehrskanzelSourceV276 } from "./verkehrskanzelV276Ownership";
 import { isTiergartenWerkhofSourceV275 } from "./tiergartenWerkhofV275Ownership";
 import { isOperaTheatrePreviousPrismV274 } from "./operaTheatresV274Ownership";
@@ -417,7 +418,7 @@ export type IsometricCityBuildOptions = {
   technikmuseumV272?: boolean;
   operaTheatresV274?: boolean;
   /** Required source-bound Werkhof model replaces only exact old envelopes. */
-  tiergartenWerkhofV275?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean;
+  tiergartenWerkhofV275?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean;
   moabitLandmarksV269?: boolean;
   tempodromAnhalterV266?: boolean;
   northernSitesV266?: boolean;
@@ -1816,12 +1817,13 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
   const visible = buildings.filter(building => !options.architectureV241 || !isAEGCampusCorePrismV241(building))
     .filter(building => !options.zooWestV276 || !isZooWestSourceV276(building))
+    .filter(building => !options.zooHousesV282 || !isZooHouseSourceV282(building))
     .filter(building => !isWeltkugelSourceV281(building))
     .filter(building => !options.verkehrskanzelV276 || !isVerkehrskanzelSourceV276(building))
     .filter(building => !options.tiergartenWerkhofV275 || !isTiergartenWerkhofSourceV275(building))
@@ -12014,6 +12016,7 @@ export function createIsometricCityCore(
   for (const sourceBuilding of buildings) {
     if (isWeltkugelSourceV281(sourceBuilding)) continue;
     if (options.zooWestV276 && isZooWestSourceV276(sourceBuilding)) continue;
+    if (options.zooHousesV282 && isZooHouseSourceV282(sourceBuilding)) continue;
     if (options.verkehrskanzelV276 && isVerkehrskanzelSourceV276(sourceBuilding)) continue;
     if (options.tiergartenWerkhofV275 && isTiergartenWerkhofSourceV275(sourceBuilding)) continue;
     if (options.bayerCampusV277 && isBayerCampusSourceV277(sourceBuilding)) continue;

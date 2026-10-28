@@ -9,6 +9,7 @@ import {
 import { completeCooperatively } from "../src/cooperativeWork";
 import { compactStaticGeometrySteps } from "../src/compactStaticGeometry";
 import { objectMaterialsIncludingTransferredAlternates } from "../src/transferableObject3D";
+import { createZooAnimalRuntimeV282 } from "../src/ZooAnimalsV282";
 import {
   createMinecraftMaterialState, releaseMinecraftMaterialBindings,
 } from "../src/visual-modes/minecraft/materialMode";
@@ -149,6 +150,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
   const expectedImports = [...declarations[0].matchAll(/loadAddon\("([^"]+)"\)/g)].map(match => match[1]);
   expect(Object.keys(modules).sort()).toEqual(expectedImports.sort());
   const bindings = {
+    createZooAnimalRuntimeV282,
     createCoreSpreeBridgesV242: coreSpreeBridgeFactory,
     parkStaticGeometrySteps, parkStaticInstancesSteps,
     interleaveStaticGeometry,

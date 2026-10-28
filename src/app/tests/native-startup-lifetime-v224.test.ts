@@ -4,6 +4,7 @@ import ts from "typescript";
 import { BoxGeometry, Group, InstancedMesh, Matrix4, MeshBasicMaterial } from "three";
 import { completeCooperatively } from "../src/cooperativeWork";
 import { parkStaticInstancesSteps } from "../src/losslessStaticStorage";
+import { createZooAnimalRuntimeV282 } from "../src/ZooAnimalsV282";
 
 const source = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
 const parsed = ts.createSourceFile("ThreeViewer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
@@ -43,6 +44,7 @@ async function run(cancellation?: "mode" | "disposed" | "parking-failure") {
   }
   const bindings = {
     Group,
+    createZooAnimalRuntimeV282,
     fetchVoxelPayload: async () => ({}), fetchPrismPayload: async () => ({ buildings: [] }),
     voxelWorldIntentActive: () => runtime.lightingMode === "minecraft",
     preloadAltMitteNativeV169Source: async () => {},

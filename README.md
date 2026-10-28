@@ -24,12 +24,24 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Live v1.0.180** · static viewer and a
-complete local package for macOS, Windows, and Linux.
+**Status:** Public open-data project · **Live v1.0.180** · **Local v1.0.181
+(unpublished / unveröffentlicht)** · static viewer for macOS, Windows, and Linux.
+
+The [reserved v1.0.181 ZIP link](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.181/isometric-berlin-regierungsviertel-local.zip)
+is not available until publication. Der vorgesehene Download ist erst nach der
+Veröffentlichung verfügbar; die Links oben führen weiterhin zur aktuellen Fassung.
 
 Version 1.0.181 is being prepared locally: source-supported details at Schlosspark Charlottenburg, the Chancellery, Moabit coal handling, Pekinger Platz, prison enclosures, Topography of Terror, WELT balloon and the finance ministry memorial forecourt. It also refines Berliner Ensemble/Ganymed, City West transport, Weltkugelbrunnen, tram rails and U-Bahn entrances. Small unsurveyed fittings remain documented estimates. [Scope and checks](docs/mitte-citywest-transit-v281.md).
 
 Version 1.0.181 wird lokal vorbereitet: quellengestützte Details für Schlosspark Charlottenburg, Kanzleramt, Moabiter Kohleverladung, Pekinger Platz, Gefängnismauern, Topographie des Terrors, WELT-Ballon und den Gedenkplatz am Finanzministerium. Dazu kommen Berliner Ensemble/Ganymed, Verkehrsanlagen in City West, Weltkugelbrunnen, Straßenbahnschienen und U-Bahn-Eingänge. Nicht vermessene kleine Bauteile bleiben dokumentierte Annäherungen. [Umfang und Prüfungen](docs/mitte-citywest-transit-v281.md).
+
+The same unpublished update adds 50 illustrative animal figures and movement routes for 50 existing animals in Zoo Berlin and Tierpark. All presentations share animal identities and paths; Minecraft retains separate orthogonal bodies. Routes preserve mapped enclosure boundaries, buildings and water. Historical or unverified animal locations remain explicitly unresolved. [Animal evidence and checks](docs/zoo-animals-v282.md).
+
+Dieselbe noch unveröffentlichte Fassung ergänzt 50 beispielhafte Tierfiguren und Bewegungswege für 50 vorhandene Tiere in Zoo und Tierpark. Alle Ansichten verwenden dieselben Tiere und Wege; Minecraft erhält eigenständige Blockkörper. Kartierte Gehegegrenzen, Gebäude und Wasserflächen bleiben berücksichtigt. Historische oder unbelegte Tierstandorte sind ausdrücklich als offen dokumentiert. [Tierbestand, Quellen und Prüfungen](docs/zoo-animals-v282.md).
+
+The Penguin World also gains its complete measured building surfaces with a documented height alignment, separate native geometry and matching walking surfaces. The former Alfred Brehm House, now the rainforest house, gains mapped entrances and facade details; its unverified upper tropical-hall roof remains unresolved. [House evidence and limits](docs/zoo-houses-v282.md).
+
+Die Pinguinwelt erhält außerdem ihre vollständigen vermessenen Bauflächen mit dokumentierter Höhenkorrektur, eigener Minecraft-Geometrie und passenden begehbaren Flächen. Am früheren Alfred-Brehm-Haus, heute Regenwaldhaus, kommen kartierte Eingänge und Fassadendetails hinzu; die unbelegte Dachform der oberen Tropenhalle bleibt offen. [Gebäudequellen und Grenzen](docs/zoo-houses-v282.md).
 
 Version 1.0.180 recovers stalled outer-city transfers without reducing geometry or mobile detail. A nonresponding request no longer holds the entire loading queue indefinitely. The empty plant surroundings at Reuter-West are a separate coverage gap and are not added by this update. See [diagnosis and checks](docs/outer-loading-v280.md).
 

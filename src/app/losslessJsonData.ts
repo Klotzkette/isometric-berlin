@@ -5,6 +5,7 @@ import { encodeLosslessBase85 } from "./src/losslessGzipBase85";
 import { LOSSLESS_BASE85_SOURCES_V263 } from "./losslessBase85SourcesV263";
 import { LOSSLESS_EAGER_FIELDS_V270 } from "./losslessEagerFieldsV270";
 import { LOSSLESS_EAGER_FIELDS_V274 } from "./losslessEagerFieldsV274";
+import { LOSSLESS_EAGER_FIELDS_V282 } from "./losslessEagerFieldsV282";
 import { createLosslessZopfliPreparation, type LosslessZopfliField } from "./losslessZopfliV274";
 import { LOSSLESS_ZOPFLI_FIELDS_V274 } from "./losslessZopfliFieldsV274";
 
@@ -384,7 +385,8 @@ export function transformLosslessJsonData(
   const eagerRetainedSource = EAGER_RETAINED_SOURCE_NAMES.some(name => name === retainedName);
   const sourcePath = normalizedId.match(/\/src\/app\/src\/(.+)$/)?.[1] ?? "";
   const eagerV274 = LOSSLESS_EAGER_FIELDS_V274[sourcePath] ?? [];
-  const eagerFields = eagerV274.length ? eagerV274 : LOSSLESS_EAGER_FIELDS_V270[sourcePath] ?? [];
+  const eagerV282 = LOSSLESS_EAGER_FIELDS_V282[sourcePath] ?? [];
+  const eagerFields = eagerV282.length ? eagerV282 : eagerV274.length ? eagerV274 : LOSSLESS_EAGER_FIELDS_V270[sourcePath] ?? [];
   if ((!DATA_JSON.test(normalizedId) && !eagerRetainedSource && !eagerFields.length) ||
       (!eagerRetainedSource && !eagerFields.length && source.length < thresholdBytes)) {
     return undefined;
@@ -462,7 +464,7 @@ export function transformLosslessJsonData(
     // ordinary object and navigation identity remains eager and unchanged.
     const constructionObject = weakFields.includes(key) && value !== null && typeof value === "object";
     const packedString = typeof value === "string" && packedStrings.includes(key);
-    if (DATA_JSON.test(normalizedId) && !packedPacket && !eagerV274.includes(key) && (!packedFields.includes(key) || packedString) && (Array.isArray(value) || constructionObject || packedString) && json.length >= thresholdBytes) {
+    if (DATA_JSON.test(normalizedId) && !packedPacket && !eagerV274.includes(key) && !eagerV282.includes(key) && (!packedFields.includes(key) || packedString) && (Array.isArray(value) || constructionObject || packedString) && json.length >= thresholdBytes) {
       lazyFields += 1;
       const cache = `__cache${index}`;
       const loaded = `__loaded${index}`;

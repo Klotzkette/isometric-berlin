@@ -2624,6 +2624,66 @@
       "role": "Nearby Nordufer10 documented only; no speculative storefront or terrace added.",
       "checked": "2026-10-28",
       "pixels_bundled": false
+    },
+    {
+      "landmark_id": "zoo_animals_v282",
+      "title": "Zoo Berlin: animals and habitats",
+      "page_url": "https://www.zoo-berlin.de/de/zoo-erleben/tiere-erlebniswelten",
+      "credit": "Zoo Berlin",
+      "license": "Factual reference only",
+      "role": "Species and house identity; illustrative independently authored figures, counts and routes, not a current census.",
+      "checked": "2026-10-28",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tierpark_animals_v282",
+      "title": "Tierpark Berlin: animals and habitats",
+      "page_url": "https://www.tierpark-berlin.de/de/tierpark-erleben/tiere-erlebniswelten",
+      "credit": "Tierpark Berlin",
+      "license": "Factual reference only",
+      "role": "Species and habitat identity; retained mapped enclosure rings govern routes, unresolved locations remain excluded.",
+      "checked": "2026-10-28",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "zoo_penguin_house_v282",
+      "title": "Zoo Berlin: Robben und Pinguine",
+      "page_url": "https://www.zoo-berlin.de/de/zoo-erleben/tiere-erlebniswelten/robben-pinguine",
+      "credit": "Zoo Berlin",
+      "license": "Factual reference only",
+      "role": "Penguin house identity and outdoor penguin distinction; no reference pixels.",
+      "checked": "2026-10-28",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "zoo_penguin_house_v282",
+      "title": "Pinguinwelt Zoo Berlin: architecture",
+      "page_url": "https://skp-berlin.com/zooberlin/",
+      "credit": "SKP Berlin",
+      "license": "Factual reference only",
+      "role": "Published diameter, single storey, basement levels and dome scale support a documented source-datum alignment; no plans or pixels redistributed.",
+      "checked": "2026-10-28",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tierpark_brehm_house_v282",
+      "title": "Tierpark Berlin: Regenwaldhaus",
+      "page_url": "https://www.tierpark-berlin.de/de/tierpark-erleben/tiere-erlebniswelten/regenwaldhaus",
+      "credit": "Tierpark Berlin",
+      "license": "Factual reference only",
+      "role": "Present house identity and animals; not a current lion house.",
+      "checked": "2026-10-28",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "tierpark_brehm_house_v282",
+      "title": "Alfred-Brehm-Haus: tropical hall",
+      "page_url": "https://www.haas-architekten.de/projekte/glashaeuser/alfred-brehm-haus-im-tierpark-berlin",
+      "credit": "Haas Architekten",
+      "license": "Factual reference only",
+      "role": "Architectural factual reference. Upper tropical-hall roof is not reconstructed without a verified profile; no plans or pixels redistributed.",
+      "checked": "2026-10-28",
+      "pixels_bundled": false
     }
   ]
 }

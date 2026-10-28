@@ -2528,3 +2528,15 @@ Shrub envelopes are orthophoto interpretations; small dimensions, material and
 planting density remain estimates. The Deichgraf operator identifies nearby
 Nordufer 10 as context only. No reference images are bundled. See
 docs/pekinger-platz-v281.md and the public per-source ledger.
+
+Zoo animals and houses v282: retained OpenStreetMap enclosure rings, holes and
+entrances (© OpenStreetMap contributors, ODbL 1.0) and complete Geoportal Berlin
+LoD2 building sheets (dl-de/zero-2-0) anchor the additions. Zoo Berlin and Tierpark
+Berlin operator publications establish species and house identities. SKP Berlin
+supports the Penguin World's architectural scale; Haas Architekten documents the
+Regenwaldhaus tropical hall, whose unverified upper roof remains unresolved.
+Animal bodies, counts, poses and routes are illustrative independent models,
+not a current census. The Penguin height alignment and small house fittings
+remain documented display interpretations. No photographs, illustrated plans,
+recordings or photographic textures are redistributed. See
+docs/zoo-animals-v282.md and docs/zoo-houses-v282.md.

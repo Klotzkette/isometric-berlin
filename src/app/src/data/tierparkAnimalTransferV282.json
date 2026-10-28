@@ -1,0 +1,1365 @@
+{
+  "schemaVersion": 1,
+  "packetId": "outer187-20_4",
+  "sourceEvidence": "geo_data/regierungsviertel/tierpark-v276-evidence.json.gz",
+  "sourceEvidenceSha256": "93ddab1ec296d184bd17345dc6ccac496d364f568538c7a9524da677c671b751",
+  "sourceJsonSha256": "05f951a6802118f6a218ee3f814e3fe7bce58cafc1bd130852628a86f4cb933b",
+  "families": {
+    "drawn": {
+      "origin": [
+        10240,
+        -10,
+        2048
+      ],
+      "groundY": 3,
+      "meshSha256": "2e8a23d1439802b03f2beb5aa5a7c63f94fb2eac0a4063f2b5ce4b7925bea29e",
+      "meshGuard": 2574023483,
+      "encodedLengths": [
+        57680,
+        28840,
+        163008
+      ],
+      "vertexCount": 7210,
+      "indexCount": 30564,
+      "animalTriangleCount": 7036,
+      "animals": [
+        {
+          "id": "tierpark-v276-wood-bison-0",
+          "sourceId": "way/336032294",
+          "species": "wood-bison",
+          "anchor": [
+            10369.228,
+            3.12,
+            2436.093
+          ],
+          "triangleRange": [
+            0,
+            180
+          ]
+        },
+        {
+          "id": "tierpark-v276-wood-bison-1",
+          "sourceId": "way/336032294",
+          "species": "wood-bison",
+          "anchor": [
+            10369.228,
+            3.12,
+            2427.593
+          ],
+          "triangleRange": [
+            180,
+            360
+          ]
+        },
+        {
+          "id": "tierpark-v276-wood-bison-2",
+          "sourceId": "way/336032294",
+          "species": "wood-bison",
+          "anchor": [
+            10360.728,
+            3.12,
+            2436.093
+          ],
+          "triangleRange": [
+            360,
+            540
+          ]
+        },
+        {
+          "id": "tierpark-v276-wood-bison-3",
+          "sourceId": "way/336032294",
+          "species": "wood-bison",
+          "anchor": [
+            10377.728,
+            3.12,
+            2436.093
+          ],
+          "triangleRange": [
+            540,
+            720
+          ]
+        },
+        {
+          "id": "tierpark-v276-wood-bison-4",
+          "sourceId": "way/336032294",
+          "species": "wood-bison",
+          "anchor": [
+            10369.228,
+            3.12,
+            2444.593
+          ],
+          "triangleRange": [
+            720,
+            900
+          ]
+        },
+        {
+          "id": "tierpark-v276-wood-bison-5",
+          "sourceId": "way/336032294",
+          "species": "wood-bison",
+          "anchor": [
+            10360.728,
+            3.12,
+            2427.593
+          ],
+          "triangleRange": [
+            900,
+            1080
+          ]
+        },
+        {
+          "id": "tierpark-v276-wood-bison-6",
+          "sourceId": "way/336032294",
+          "species": "wood-bison",
+          "anchor": [
+            10377.728,
+            3.12,
+            2427.593
+          ],
+          "triangleRange": [
+            1080,
+            1260
+          ]
+        },
+        {
+          "id": "tierpark-v276-bactrian-camel-0",
+          "sourceId": "relation/15095452",
+          "species": "bactrian-camel",
+          "anchor": [
+            10678.935,
+            3.12,
+            2135.505
+          ],
+          "triangleRange": [
+            1260,
+            1468
+          ]
+        },
+        {
+          "id": "tierpark-v276-bactrian-camel-1",
+          "sourceId": "relation/15095452",
+          "species": "bactrian-camel",
+          "anchor": [
+            10678.935,
+            3.12,
+            2127.005
+          ],
+          "triangleRange": [
+            1468,
+            1676
+          ]
+        },
+        {
+          "id": "tierpark-v276-bactrian-camel-2",
+          "sourceId": "relation/15095452",
+          "species": "bactrian-camel",
+          "anchor": [
+            10670.435,
+            3.12,
+            2135.505
+          ],
+          "triangleRange": [
+            1676,
+            1884
+          ]
+        },
+        {
+          "id": "tierpark-v276-bactrian-camel-3",
+          "sourceId": "relation/15095452",
+          "species": "bactrian-camel",
+          "anchor": [
+            10687.435,
+            3.12,
+            2135.505
+          ],
+          "triangleRange": [
+            1884,
+            2092
+          ]
+        },
+        {
+          "id": "tierpark-v276-bactrian-camel-4",
+          "sourceId": "relation/15095452",
+          "species": "bactrian-camel",
+          "anchor": [
+            10678.935,
+            3.12,
+            2144.005
+          ],
+          "triangleRange": [
+            2092,
+            2300
+          ]
+        },
+        {
+          "id": "tierpark-v276-bactrian-camel-5",
+          "sourceId": "relation/15095452",
+          "species": "bactrian-camel",
+          "anchor": [
+            10670.435,
+            3.12,
+            2127.005
+          ],
+          "triangleRange": [
+            2300,
+            2508
+          ]
+        },
+        {
+          "id": "tierpark-v276-dromedary-0",
+          "sourceId": "relation/15095451",
+          "species": "dromedary",
+          "anchor": [
+            10660.701,
+            3.12,
+            2231.146
+          ],
+          "triangleRange": [
+            2508,
+            2684
+          ]
+        },
+        {
+          "id": "tierpark-v276-dromedary-1",
+          "sourceId": "relation/15095451",
+          "species": "dromedary",
+          "anchor": [
+            10660.701,
+            3.12,
+            2222.646
+          ],
+          "triangleRange": [
+            2684,
+            2860
+          ]
+        },
+        {
+          "id": "tierpark-v276-dromedary-2",
+          "sourceId": "relation/15095451",
+          "species": "dromedary",
+          "anchor": [
+            10652.201,
+            3.12,
+            2231.146
+          ],
+          "triangleRange": [
+            2860,
+            3036
+          ]
+        },
+        {
+          "id": "tierpark-v276-dromedary-3",
+          "sourceId": "relation/15095451",
+          "species": "dromedary",
+          "anchor": [
+            10669.201,
+            3.12,
+            2231.146
+          ],
+          "triangleRange": [
+            3036,
+            3212
+          ]
+        },
+        {
+          "id": "tierpark-v276-dromedary-4",
+          "sourceId": "relation/15095451",
+          "species": "dromedary",
+          "anchor": [
+            10660.701,
+            3.12,
+            2239.646
+          ],
+          "triangleRange": [
+            3212,
+            3388
+          ]
+        },
+        {
+          "id": "tierpark-v276-dromedary-5",
+          "sourceId": "relation/15095451",
+          "species": "dromedary",
+          "anchor": [
+            10652.201,
+            3.12,
+            2222.646
+          ],
+          "triangleRange": [
+            3388,
+            3564
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-0",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10685.239,
+            3.12,
+            2067.38
+          ],
+          "triangleRange": [
+            3564,
+            3688
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-1",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10685.239,
+            3.12,
+            2063.58
+          ],
+          "triangleRange": [
+            3688,
+            3812
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-2",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10681.439,
+            3.12,
+            2067.38
+          ],
+          "triangleRange": [
+            3812,
+            3936
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-3",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10689.039,
+            3.12,
+            2067.38
+          ],
+          "triangleRange": [
+            3936,
+            4060
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-4",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10685.239,
+            3.12,
+            2071.18
+          ],
+          "triangleRange": [
+            4060,
+            4184
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-5",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10681.439,
+            3.12,
+            2063.58
+          ],
+          "triangleRange": [
+            4184,
+            4308
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-6",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10689.039,
+            3.12,
+            2063.58
+          ],
+          "triangleRange": [
+            4308,
+            4432
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-7",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10681.439,
+            3.12,
+            2071.18
+          ],
+          "triangleRange": [
+            4432,
+            4556
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-8",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10685.239,
+            3.12,
+            2059.78
+          ],
+          "triangleRange": [
+            4556,
+            4680
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-9",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10677.639,
+            3.12,
+            2067.38
+          ],
+          "triangleRange": [
+            4680,
+            4804
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-10",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10681.439,
+            3.12,
+            2059.78
+          ],
+          "triangleRange": [
+            4804,
+            4928
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-11",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10689.039,
+            3.12,
+            2059.78
+          ],
+          "triangleRange": [
+            4928,
+            5052
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-12",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10677.639,
+            3.12,
+            2063.58
+          ],
+          "triangleRange": [
+            5052,
+            5176
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-13",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10692.839,
+            3.12,
+            2063.58
+          ],
+          "triangleRange": [
+            5176,
+            5300
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-14",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10677.639,
+            3.12,
+            2071.18
+          ],
+          "triangleRange": [
+            5300,
+            5424
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-15",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10681.439,
+            3.12,
+            2074.98
+          ],
+          "triangleRange": [
+            5424,
+            5548
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-16",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10677.639,
+            3.12,
+            2059.78
+          ],
+          "triangleRange": [
+            5548,
+            5672
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-17",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10692.839,
+            3.12,
+            2059.78
+          ],
+          "triangleRange": [
+            5672,
+            5796
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-18",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10677.639,
+            3.12,
+            2074.98
+          ],
+          "triangleRange": [
+            5796,
+            5920
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-19",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10685.239,
+            3.12,
+            2055.98
+          ],
+          "triangleRange": [
+            5920,
+            6044
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-20",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10673.839,
+            3.12,
+            2067.38
+          ],
+          "triangleRange": [
+            6044,
+            6168
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-21",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10681.439,
+            3.12,
+            2055.98
+          ],
+          "triangleRange": [
+            6168,
+            6292
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-22",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10689.039,
+            3.12,
+            2055.98
+          ],
+          "triangleRange": [
+            6292,
+            6416
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-23",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10673.839,
+            3.12,
+            2063.58
+          ],
+          "triangleRange": [
+            6416,
+            6540
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-24",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10696.639,
+            3.12,
+            2063.58
+          ],
+          "triangleRange": [
+            6540,
+            6664
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-25",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10673.839,
+            3.12,
+            2071.18
+          ],
+          "triangleRange": [
+            6664,
+            6788
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-26",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10677.639,
+            3.12,
+            2055.98
+          ],
+          "triangleRange": [
+            6788,
+            6912
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-27",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10692.839,
+            3.12,
+            2055.98
+          ],
+          "triangleRange": [
+            6912,
+            7036
+          ]
+        }
+      ]
+    },
+    "minecraft": {
+      "origin": [
+        10240,
+        -10,
+        2048
+      ],
+      "groundY": 3,
+      "meshSha256": "563bfa64d7b637b21ca97f4dccc7f645bb49667e8725750d316dd1a64b53a1a1",
+      "meshGuard": 100595059,
+      "encodedLengths": [
+        63584,
+        31792,
+        153792
+      ],
+      "vertexCount": 7948,
+      "indexCount": 28836,
+      "animalTriangleCount": 4416,
+      "animals": [
+        {
+          "id": "tierpark-v276-wood-bison-0",
+          "sourceId": "way/336032294",
+          "species": "wood-bison",
+          "anchor": [
+            10369.228,
+            3.12,
+            2436.093
+          ],
+          "triangleRange": [
+            0,
+            120
+          ]
+        },
+        {
+          "id": "tierpark-v276-wood-bison-1",
+          "sourceId": "way/336032294",
+          "species": "wood-bison",
+          "anchor": [
+            10369.228,
+            3.12,
+            2427.593
+          ],
+          "triangleRange": [
+            120,
+            240
+          ]
+        },
+        {
+          "id": "tierpark-v276-wood-bison-2",
+          "sourceId": "way/336032294",
+          "species": "wood-bison",
+          "anchor": [
+            10360.728,
+            3.12,
+            2436.093
+          ],
+          "triangleRange": [
+            240,
+            360
+          ]
+        },
+        {
+          "id": "tierpark-v276-wood-bison-3",
+          "sourceId": "way/336032294",
+          "species": "wood-bison",
+          "anchor": [
+            10377.728,
+            3.12,
+            2436.093
+          ],
+          "triangleRange": [
+            360,
+            480
+          ]
+        },
+        {
+          "id": "tierpark-v276-wood-bison-4",
+          "sourceId": "way/336032294",
+          "species": "wood-bison",
+          "anchor": [
+            10369.228,
+            3.12,
+            2444.593
+          ],
+          "triangleRange": [
+            480,
+            600
+          ]
+        },
+        {
+          "id": "tierpark-v276-wood-bison-5",
+          "sourceId": "way/336032294",
+          "species": "wood-bison",
+          "anchor": [
+            10360.728,
+            3.12,
+            2427.593
+          ],
+          "triangleRange": [
+            600,
+            720
+          ]
+        },
+        {
+          "id": "tierpark-v276-wood-bison-6",
+          "sourceId": "way/336032294",
+          "species": "wood-bison",
+          "anchor": [
+            10377.728,
+            3.12,
+            2427.593
+          ],
+          "triangleRange": [
+            720,
+            840
+          ]
+        },
+        {
+          "id": "tierpark-v276-bactrian-camel-0",
+          "sourceId": "relation/15095452",
+          "species": "bactrian-camel",
+          "anchor": [
+            10678.935,
+            3.12,
+            2135.505
+          ],
+          "triangleRange": [
+            840,
+            948
+          ]
+        },
+        {
+          "id": "tierpark-v276-bactrian-camel-1",
+          "sourceId": "relation/15095452",
+          "species": "bactrian-camel",
+          "anchor": [
+            10678.935,
+            3.12,
+            2127.005
+          ],
+          "triangleRange": [
+            948,
+            1056
+          ]
+        },
+        {
+          "id": "tierpark-v276-bactrian-camel-2",
+          "sourceId": "relation/15095452",
+          "species": "bactrian-camel",
+          "anchor": [
+            10670.435,
+            3.12,
+            2135.505
+          ],
+          "triangleRange": [
+            1056,
+            1164
+          ]
+        },
+        {
+          "id": "tierpark-v276-bactrian-camel-3",
+          "sourceId": "relation/15095452",
+          "species": "bactrian-camel",
+          "anchor": [
+            10687.435,
+            3.12,
+            2135.505
+          ],
+          "triangleRange": [
+            1164,
+            1272
+          ]
+        },
+        {
+          "id": "tierpark-v276-bactrian-camel-4",
+          "sourceId": "relation/15095452",
+          "species": "bactrian-camel",
+          "anchor": [
+            10678.935,
+            3.12,
+            2144.005
+          ],
+          "triangleRange": [
+            1272,
+            1380
+          ]
+        },
+        {
+          "id": "tierpark-v276-bactrian-camel-5",
+          "sourceId": "relation/15095452",
+          "species": "bactrian-camel",
+          "anchor": [
+            10670.435,
+            3.12,
+            2127.005
+          ],
+          "triangleRange": [
+            1380,
+            1488
+          ]
+        },
+        {
+          "id": "tierpark-v276-dromedary-0",
+          "sourceId": "relation/15095451",
+          "species": "dromedary",
+          "anchor": [
+            10660.701,
+            3.12,
+            2231.146
+          ],
+          "triangleRange": [
+            1488,
+            1584
+          ]
+        },
+        {
+          "id": "tierpark-v276-dromedary-1",
+          "sourceId": "relation/15095451",
+          "species": "dromedary",
+          "anchor": [
+            10660.701,
+            3.12,
+            2222.646
+          ],
+          "triangleRange": [
+            1584,
+            1680
+          ]
+        },
+        {
+          "id": "tierpark-v276-dromedary-2",
+          "sourceId": "relation/15095451",
+          "species": "dromedary",
+          "anchor": [
+            10652.201,
+            3.12,
+            2231.146
+          ],
+          "triangleRange": [
+            1680,
+            1776
+          ]
+        },
+        {
+          "id": "tierpark-v276-dromedary-3",
+          "sourceId": "relation/15095451",
+          "species": "dromedary",
+          "anchor": [
+            10669.201,
+            3.12,
+            2231.146
+          ],
+          "triangleRange": [
+            1776,
+            1872
+          ]
+        },
+        {
+          "id": "tierpark-v276-dromedary-4",
+          "sourceId": "relation/15095451",
+          "species": "dromedary",
+          "anchor": [
+            10660.701,
+            3.12,
+            2239.646
+          ],
+          "triangleRange": [
+            1872,
+            1968
+          ]
+        },
+        {
+          "id": "tierpark-v276-dromedary-5",
+          "sourceId": "relation/15095451",
+          "species": "dromedary",
+          "anchor": [
+            10652.201,
+            3.12,
+            2222.646
+          ],
+          "triangleRange": [
+            1968,
+            2064
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-0",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10685.239,
+            3.12,
+            2067.38
+          ],
+          "triangleRange": [
+            2064,
+            2148
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-1",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10685.239,
+            3.12,
+            2063.58
+          ],
+          "triangleRange": [
+            2148,
+            2232
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-2",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10681.439,
+            3.12,
+            2067.38
+          ],
+          "triangleRange": [
+            2232,
+            2316
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-3",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10689.039,
+            3.12,
+            2067.38
+          ],
+          "triangleRange": [
+            2316,
+            2400
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-4",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10685.239,
+            3.12,
+            2071.18
+          ],
+          "triangleRange": [
+            2400,
+            2484
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-5",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10681.439,
+            3.12,
+            2063.58
+          ],
+          "triangleRange": [
+            2484,
+            2568
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-6",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10689.039,
+            3.12,
+            2063.58
+          ],
+          "triangleRange": [
+            2568,
+            2652
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-7",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10681.439,
+            3.12,
+            2071.18
+          ],
+          "triangleRange": [
+            2652,
+            2736
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-8",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10685.239,
+            3.12,
+            2059.78
+          ],
+          "triangleRange": [
+            2736,
+            2820
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-9",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10677.639,
+            3.12,
+            2067.38
+          ],
+          "triangleRange": [
+            2820,
+            2904
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-10",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10681.439,
+            3.12,
+            2059.78
+          ],
+          "triangleRange": [
+            2904,
+            2988
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-11",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10689.039,
+            3.12,
+            2059.78
+          ],
+          "triangleRange": [
+            2988,
+            3072
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-12",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10677.639,
+            3.12,
+            2063.58
+          ],
+          "triangleRange": [
+            3072,
+            3156
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-13",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10692.839,
+            3.12,
+            2063.58
+          ],
+          "triangleRange": [
+            3156,
+            3240
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-14",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10677.639,
+            3.12,
+            2071.18
+          ],
+          "triangleRange": [
+            3240,
+            3324
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-15",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10681.439,
+            3.12,
+            2074.98
+          ],
+          "triangleRange": [
+            3324,
+            3408
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-16",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10677.639,
+            3.12,
+            2059.78
+          ],
+          "triangleRange": [
+            3408,
+            3492
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-17",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10692.839,
+            3.12,
+            2059.78
+          ],
+          "triangleRange": [
+            3492,
+            3576
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-18",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10677.639,
+            3.12,
+            2074.98
+          ],
+          "triangleRange": [
+            3576,
+            3660
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-19",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10685.239,
+            3.12,
+            2055.98
+          ],
+          "triangleRange": [
+            3660,
+            3744
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-20",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10673.839,
+            3.12,
+            2067.38
+          ],
+          "triangleRange": [
+            3744,
+            3828
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-21",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10681.439,
+            3.12,
+            2055.98
+          ],
+          "triangleRange": [
+            3828,
+            3912
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-22",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10689.039,
+            3.12,
+            2055.98
+          ],
+          "triangleRange": [
+            3912,
+            3996
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-23",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10673.839,
+            3.12,
+            2063.58
+          ],
+          "triangleRange": [
+            3996,
+            4080
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-24",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10696.639,
+            3.12,
+            2063.58
+          ],
+          "triangleRange": [
+            4080,
+            4164
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-25",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10673.839,
+            3.12,
+            2071.18
+          ],
+          "triangleRange": [
+            4164,
+            4248
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-26",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10677.639,
+            3.12,
+            2055.98
+          ],
+          "triangleRange": [
+            4248,
+            4332
+          ]
+        },
+        {
+          "id": "tierpark-v276-flamingo-27",
+          "sourceId": "way/1500282455",
+          "species": "flamingo",
+          "anchor": [
+            10692.839,
+            3.12,
+            2055.98
+          ],
+          "triangleRange": [
+            4332,
+            4416
+          ]
+        }
+      ]
+    }
+  }
+}

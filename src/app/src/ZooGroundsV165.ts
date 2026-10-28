@@ -10,6 +10,7 @@ import { pointInWorldRing, type WorldRing } from "./chancelleryExtensionProfile"
 import { appendZooRecognitionV255 } from "./ZooRecognitionV255";
 import { appendZooHippoV256 } from "./ZooHippoV256";
 import { appendZooWestV276, compactZooWestV276Rows } from "./zooWestV276";
+import { createZooAnimalsV282, type RetainedZooAnimalV282 } from './ZooAnimalsV282';
 
 type P = [number, number, number];
 type Sheet = { color: number; triangles: number[][][] };
@@ -45,7 +46,15 @@ function sheets(rows: readonly Sheet[],glass=false,indexed=false): Mesh {
 }
 class Details {
   boxes:number[][]=[];surfaces:Sheet[]=[];
+  animals = new Map<string, RetainedZooAnimalV282>();
   constructor(readonly native:boolean){}
+  animal(id:string,x:number,y:number,z:number,emit:()=>void,heading=0):void {
+    const boxes=this.boxes.length,surfaces=this.surfaces.length;
+    emit();
+    let owner=this.animals.get(id);
+    if(!owner){owner={id,anchor:[x,y,z],boxes:[],surfaces:[],heading};this.animals.set(id,owner);}
+    owner.boxes.push(...this.boxes.splice(boxes));owner.surfaces.push(...this.surfaces.splice(surfaces));
+  }
   box(c:number,x:number,y:number,z:number,w:number,h:number,d:number,yaw=0):void {
     if(!this.native||yaw===0){this.boxes.push([x,y,z,w,h,d,yaw,c]);return;}
     const n=Math.ceil(w/.65),m=Math.ceil(d/.65);
@@ -107,7 +116,7 @@ function mountain(d:Details,identity:string,height:number,kind:"ibex"|"takin"|"t
       }
     }
   }
-  for(const [dx,dz,yaw] of [[-3,2,.1],[2,-3,2.3],[5,3,-.8]]){const x=cx+dx,z=cz+dz;if(pointInWorldRing(x,z,ring))animal(d,x,h(x,z)+.12,z,kind,yaw);}
+  for(const [dx,dz,yaw] of [[-3,2,.1],[2,-3,2.3],[5,3,-.8]]){const x=cx+dx,z=cz+dz;if(pointInWorldRing(x,z,ring))d.animal('zoo-mountain-'+identity+'-'+dx,x,h(x,z)+.12,z,()=>animal(d,x,h(x,z)+.12,z,kind,yaw));}
 }
 function aviary(d:Details,identity:string,height:number):void {
   const habitat=source.habitats.find(h=>h.id===identity)!;
@@ -123,7 +132,7 @@ function aviary(d:Details,identity:string,height:number):void {
     for(let j=0;j<n;j++){const x=a[0]+(b[0]-a[0])*j/n,z=a[1]+(b[1]-a[1])*j/n,top=roofAt(x,z);d.line(0x667069,[x,5.2,z],[x,top,z],j===0?.12:.022);d.line(0x68746b,[x,top,z],[cx,roofAt(cx,cz),cz],.026);}
     for(const h of[3,6,9])if(h<height)d.line(0x6a756c,[a[0],5.2+h,a[1]],[b[0],5.2+h,b[1]],.025);
   }
-  if(identity==="32995989")for(const [dx,dz,yaw] of [[-4,-1,.4],[4,5,2.1]]){d.line(0x685444,[cx+dx,5.4,cz+dz],[cx+dx+1,8.1,cz+dz],.23);d.line(0x685444,[cx+dx-.9,8.1,cz+dz],[cx+dx+1.8,8.1,cz+dz],.17);animal(d,cx+dx,8.2,cz+dz,"condor",yaw);}
+  if(identity==="32995989")for(const [dx,dz,yaw] of [[-4,-1,.4],[4,5,2.1]]){d.line(0x685444,[cx+dx,5.4,cz+dz],[cx+dx+1,8.1,cz+dz],.23);d.line(0x685444,[cx+dx-.9,8.1,cz+dz],[cx+dx+1.8,8.1,cz+dz],.17);d.animal('zoo-condor-'+dx,cx+dx,8.2,cz+dz,()=>animal(d,cx+dx,8.2,cz+dz,"condor",yaw));}
 }
 function sign(d:Details,text:string,x:number,y:number,z:number,width:number,height:number,yaw:number,color:number):void {
   const letters=letteringStrokePaths(text,height),xs=letters.flatMap(path=>path.map(p=>p[0])),min=Math.min(...xs),max=Math.max(...xs),scale=Math.min(1,width/(max-min));
@@ -170,6 +179,7 @@ function create(native:boolean):Group {
   beerGarden(details);birdhouse(details);appendZooRecognitionV255(details,source);appendZooHippoV256(details);
   const beforeV276={boxes:details.boxes.length,triangles:details.surfaces.reduce((n,s)=>n+s.triangles.length,0)};
   appendZooWestV276(details);
+  group.add(createZooAnimalsV282('zoo',native,[...details.animals.values()]));
   if(native){
     const rows=[...source.nativeRows.filter(r=>r[6]!==0x758c86),...source.groundRuns].map(r=>[r[0],r[1],r[2],r[3],r[4],r[5],0,r[6]]);
     const model=batch(compactZooWestV276Rows(rows));model.name="Zoo retained native house shells and ground rows";group.add(model);

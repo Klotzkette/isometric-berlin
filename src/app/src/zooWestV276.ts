@@ -101,6 +101,7 @@ function condorDetails(d:ZooRecognitionV255Sink):void{
   const cx=profile.ring.reduce((s,p)=>s+p[0],0)/profile.ring.length,cz=profile.ring.reduce((s,p)=>s+p[1],0)/profile.ring.length;
   for(const [dx,dz,yaw] of[[-4,-1,.4],[4,5,2.1]]){
     const x=cx+dx,z=cz+dz,at=(u:number,h:number,v:number):P=>[x+Math.cos(yaw)*u+Math.sin(yaw)*v,8.2+h,z-Math.sin(yaw)*u+Math.cos(yaw)*v];
+    const emit=()=>{
     d.box(0xB6AC91,...at(.65,.38,0),.18,.1,.12,d.native?0:yaw); // hooked pale bill
     d.box(0xCABFA2,...at(.39,.51,0),.14,.07,.13,d.native?0:yaw); // male comb
     for(const side of[-1,1]){
@@ -112,6 +113,8 @@ function condorDetails(d:ZooRecognitionV255Sink):void{
       d.box(0x8D8A74,...at(-.1,-.05,side*.13),.075,.26,.07);
       d.box(0x8D8A74,...at(.02,-.16,side*.13),.3,.055,.095);
     }
+    };
+    if(d.animal)d.animal('zoo-condor-'+dx,x,8.2,z,emit);else emit();
   }
 }
 
@@ -132,7 +135,7 @@ function aviaryBracing(d:ZooRecognitionV255Sink):void{
 
 export function appendZooWestV276(d:ZooRecognitionV255Sink):void{
   restaurants(d);aviaryBracing(d);condorDetails(d);
-  for(const [x,z,yaw] of data.wolves)wolf(d,x,z,yaw);
+  data.wolves.forEach(([x,z,yaw],index)=>{const emit=()=>wolf(d,x,z,yaw);if(d.animal)d.animal('zoo-v276-wolf-'+index,x,5.32,z,emit,d.native?Math.round(yaw/(Math.PI/2))*Math.PI/2:yaw);else emit();});
   for(const [x,z]of data.shrubs){
     if(d.native){d.box(0x526F44,x,5.9,z,2.1,1.2,2.1);d.box(0x607A4A,x,6.65,z,1.5,.6,1.5);}
     else for(let i=0;i<8;i++){const a=i*Math.PI/4,b=(i+1)*Math.PI/4;d.face(i%2?0x607A4A:0x526F44,[[x+Math.cos(a)*1.25,5.4,z+Math.sin(a)*1.25],[x+Math.cos(b)*1.25,5.4,z+Math.sin(b)*1.25],[x+Math.cos(b)*.85,6.7,z+Math.sin(b)*.85],[x+Math.cos(a)*.85,6.7,z+Math.sin(a)*.85]]);d.face(0x6B824E,[[x+Math.cos(a)*.85,6.7,z+Math.sin(a)*.85],[x+Math.cos(b)*.85,6.7,z+Math.sin(b)*.85],[x,7,z]]);}

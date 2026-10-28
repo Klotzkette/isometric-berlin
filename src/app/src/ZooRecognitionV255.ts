@@ -7,6 +7,8 @@ export interface ZooRecognitionV255Sink {
   box(c: number, x: number, y: number, z: number, w: number, h: number, d: number, yaw?: number): void;
   line(c: number, a: P, b: P, width?: number): void;
   face(c: number, ring: P[]): void;
+  /** Optional exact owner capture; ordinary static/test sinks stay unchanged. */
+  animal?(id: string, x: number, y: number, z: number, emit: () => void, heading?: number): void;
 }
 interface Source {
   parts: { id: string; ring: Ring; osm: string; top_y_m: number }[];

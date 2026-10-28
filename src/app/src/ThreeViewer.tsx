@@ -102,6 +102,7 @@ import {
 } from "./PotsdamerTrafficTower";
 import { POTSDAMER_TOWER_ROOT_NAME } from "./potsdamerTrafficTowerProfile";
 import { updateVisiblePotsdamerTrafficTower } from "./potsdamerTrafficTowerMotion";
+import { createZooAnimalRuntimeV282 } from './ZooAnimalsV282';
 import {
   createProgressiveBuildingCoverage,
   hideReplacedBuildingPreview,
@@ -803,6 +804,7 @@ type Runtime = {
   gpuResidency?: SceneGpuResidency;
   geometryResidency?: SceneGeometryGpuResidency;
   surroundingCity?: SurroundingCity;
+  zooAnimalsV282?: ReturnType<typeof createZooAnimalRuntimeV282>;
   outerThinOutlines?: Group;
   scheduleGpuWarmup?: () => void;
   /** A visual mutation waiting for one deterministic on-demand render. */
@@ -1646,6 +1648,7 @@ function startSurroundingCity(runtime: Runtime): void {
     signal: runtime.loadSignal,
     isActive: () => !runtime.contextLost,
     onAttach: (root) => {
+      (runtime.zooAnimalsV282 ??= createZooAnimalRuntimeV282()).register(root);
       setIsoNightPresentation(root, runtime.lightingMode === "night",
         runtime.nightLightsOn, runtime.lightingMode);
       runtime.gpuResidency?.enqueue(root);
@@ -3736,7 +3739,7 @@ function prepareIsoNavigation(
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { requiredSitesV281: true, northCultureV274: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { requiredSitesV281: true, northCultureV274: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   // Compile the future owners now, but keep their authored solids/floors
   // inactive until the required models finish in the same unpublished transaction.
@@ -4184,7 +4187,7 @@ function ensureIsoWorld(
           {
             buildings: initialBuildings,
             includeLegacyChariteFacade: false,
-            includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
+            includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
             includeLegacyHungarianEnvelope: false,
             architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
             includeKulturforumAndNorthRail: false,
@@ -4336,7 +4339,7 @@ function ensureIsoWorld(
           yield;
           pendingPathTerrainAt = prepareDistrictPathTerrain(ground, runtime.tunnelPortalCourse);
         }
-        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
+        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
         yield;
         isoWorld.add(komischeOper.createKomischeOperSourceGeometry());
         yield;
@@ -4576,6 +4579,7 @@ function ensureIsoWorld(
         );
       }
       runtime.scene.add(isoWorld);
+      (runtime.zooAnimalsV282 ??= createZooAnimalRuntimeV282()).register(isoWorld);
       runtime.progressiveWorldInput = progressiveInput ?? undefined;
       collectFarZoomAntiFlickerTargets(runtime);
       loadedParts += 1;
@@ -4691,7 +4695,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { requiredSitesV281: true, northCultureV274: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { requiredSitesV281: true, northCultureV274: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   environment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
@@ -4919,7 +4923,7 @@ function ensureVoxelWorld(
           {
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             sourcePrisms: prisms?.buildings,
-            includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
+            includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
             staatsoperV240: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
           },
         ),
@@ -4975,6 +4979,7 @@ function ensureVoxelWorld(
       runtime.minecraftLootBoxes = provisionalLootBoxes;
       runtime.minecraftMobs = provisionalMinecraftMobs;
       runtime.scene.add(provisionalVoxelWorld);
+      (runtime.zooAnimalsV282 ??= createZooAnimalRuntimeV282()).register(provisionalVoxelWorld);
       runtime.scene.add(provisionalLootBoxes.group);
       runtime.scene.add(provisionalMinecraftMobs.group);
       if (provisionalBridges) runtime.signatures.add(provisionalBridges);
@@ -5697,6 +5702,7 @@ function disposeObject3D(runtime: Runtime, root: Object3D): void {
   root.traverse((object) => {
     // Permanent root retirement is distinct from reusable GPU-buffer eviction.
     object.userData.disposePressehausV272?.();
+    object.userData.disposeZooAnimalsV282?.();
     if (object === runtime.schwellenraumTowerSteam) {
       runtime.schwellenraumTowerSteam = null;
     }
@@ -8247,6 +8253,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         frame = window.requestAnimationFrame(animate);
         if (!activeRef.current || document.hidden || runtime.contextLost) {
+          runtime.zooAnimalsV282?.update(timestamp, camera, runtime.lightingMode === 'minecraft', true);
           runtime.columbiahalleV257?.suspend();
           updatePressehausV272(timestamp, true);
           // Hidden mobile tabs must not advance navigation or GPU work when
@@ -8256,6 +8263,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         if (runtime.columbiahalleV257?.entered) applyPendingViewport();
         if (runtime.columbiahalleV257?.update(timestamp)) {
+          runtime.zooAnimalsV282?.update(timestamp, camera, runtime.lightingMode === 'minecraft', true);
           lastAnimateAt = timestamp;
           return;
         }
@@ -8511,6 +8519,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.gpuResidency?.refresh(timestamp);
         runtime.geometryResidency?.refresh(timestamp);
         runtime.surroundingCity?.refresh(timestamp, runtime.controls.target);
+        if (runtime.zooAnimalsV282?.update(timestamp, camera, runtime.lightingMode === 'minecraft',
+          reducedMotion || runtime.underside)) runtime.renderInvalidated = true;
         runtime.gpuWarmup?.refreshView();
         updatePressehausV272(timestamp, false);
         runtime.scheduleGpuWarmup?.();
@@ -9527,6 +9537,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         onPedestrianPoseChangeRef.current(null);
         runtime.surroundingCity?.dispose();
         runtime.surroundingCity = undefined;
+        runtime.zooAnimalsV282?.dispose();
+        runtime.zooAnimalsV282 = undefined;
         if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
         runtime.gpuWarmup?.dispose();
         runtime.gpuWarmup = undefined;

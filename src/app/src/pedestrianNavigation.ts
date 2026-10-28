@@ -13,6 +13,8 @@ import { isRkiMoabitSourceV277 } from "./rkiMoabitV277Ownership";
 import { rkiMoabitSolidsV277 } from "./rkiMoabitV277Profile";
 import { isZooWestSourceV276 } from "./zooWestV276Ownership";
 import { zooWestSolidsV276 } from "./zooWestV276Profile";
+import { isZooHouseSourceV282 } from "./zooHousesV282Ownership";
+import { zooHouseSolidsV282 } from "./zooHousesV282Profile";
 import { isVerkehrskanzelSourceV276 } from "./verkehrskanzelV276Ownership";
 import { verkehrskanzelSolidsV276 } from "./verkehrskanzelV276Profile";
 import { isTiergartenWerkhofSourceV275 } from "./tiergartenWerkhofV275Ownership";
@@ -717,7 +719,7 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
-  options: { requiredSitesV281?: boolean; tiergartenWerkhofV275?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { requiredSitesV281?: boolean; tiergartenWerkhofV275?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   if (options.includeAuguststrasseMuralV270) {
@@ -745,6 +747,7 @@ export function compilePedestrianObstacles(
   let werkhofSolids: { native: boolean; solid: ReturnType<typeof tiergartenWerkhofSolidsV275>[number] }[] | undefined;
   let kanzelSolids: { native: boolean; solid: ReturnType<typeof verkehrskanzelSolidsV276>[number] }[] | undefined;
   let zooWestSolids: { native: boolean; solid: ReturnType<typeof zooWestSolidsV276>[number] }[] | undefined;
+  let zooHouseSolids: { native: boolean; solid: ReturnType<typeof zooHouseSolidsV282>[number] }[] | undefined;
   let bayerCampusSolids: { native: boolean; solid: ReturnType<typeof bayerCampusSolidsV277>[number] }[] | undefined;
   let lehrterSolids: { native: boolean; solid: ReturnType<typeof lehrterSolidsV277>[number] }[] | undefined;
   let rkiMoabitSolids: { native: boolean; solid: ReturnType<typeof rkiMoabitSolidsV277>[number] }[] | undefined;
@@ -785,6 +788,18 @@ export function compilePedestrianObstacles(
           solid.sourceId, 1, (x, z) => (visualMode() === "minecraft") === native
             ? solid.topAt(x, z) ?? Number.NEGATIVE_INFINITY : Number.NEGATIVE_INFINITY,
           (x, z) => solid.bottomAt?.(x, z) ?? solid.minY);
+        index.buildingCount += 1;
+      }
+      continue;
+    }
+    if (options.zooHousesV282 && isZooHouseSourceV282(sourceBuilding)) {
+      zooHouseSolids ??= [false, true].flatMap(native =>
+        zooHouseSolidsV282(native).map(solid => ({ native, solid })));
+      for (const { native, solid } of zooHouseSolids) {
+        if (solid.sourceId !== sourceBuilding.id) continue;
+        addPolygonObstacle(index, solid.ring, solid.holes ?? [], solid.minY, solid.maxY,
+          solid.sourceId, 1, (x, z) => (visualMode() === "minecraft") === native
+            ? solid.topAt(x, z) ?? Number.NEGATIVE_INFINITY : Number.NEGATIVE_INFINITY);
         index.buildingCount += 1;
       }
       continue;
@@ -2377,7 +2392,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
-  options: { requiredSitesV281?: boolean; tiergartenWerkhofV275?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { requiredSitesV281?: boolean; tiergartenWerkhofV275?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;

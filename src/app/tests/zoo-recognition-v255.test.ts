@@ -3,28 +3,37 @@ import { Color, InstancedMesh, Mesh } from "three";
 import { createZooGroundsV165, createMinecraftZooGroundsV165 } from "../src/ZooGroundsV165";
 import { zooRecognitionV255TowerRoofAt } from "../src/zooRecognitionV255Profile";
 import anchors from "../src/data/zooRecognitionV255Source.json";
+import { disposeZooReplayV282, replayZooBeforeAnimalsV282 } from "./helpers/zooAnimalsV282Replay";
 
 describe("v255 Zoo Berlin additive recognition", () => {
   test("keeps the existing render calls and fixed buffer ceilings", () => {
     for (const native of [false, true]) {
       const root = native ? createMinecraftZooGroundsV165() : createZooGroundsV165();
-      let calls = 0, bytes = 0;
-      root.traverse(object => {
-        if (!(object instanceof Mesh)) return;
-        calls++;
-        for (const a of Object.values(object.geometry.attributes)) bytes += a.array.byteLength;
-        bytes += object.geometry.index?.array.byteLength ?? 0;
-        if (object instanceof InstancedMesh) {
-          bytes += object.instanceMatrix.array.byteLength + (object.instanceColor?.array.byteLength ?? 0);
-          if (native) for (let i = 0; i < object.count; i++)
-            for (const index of [1, 2, 4, 6, 8, 9])
-              expect(Math.abs(object.instanceMatrix.array[i * 16 + index])).toBe(0);
-        }
-      });
-      expect(calls).toBe(native ? 3 : 6);
-      expect(bytes).toBeLessThan(native ? 7_500_000 : 3_300_000);
-      expect(root.userData.zooRecognitionV255).toBe(true);
-      expect(root.userData.fullStaticDetailOnTouch).toBe(true);
+      const retained = replayZooBeforeAnimalsV282(root, native);
+      try {
+        let calls = 0, bytes = 0;
+        root.traverse(object => {
+          if (!(object instanceof Mesh)) return;
+          calls++;
+          for (const a of Object.values(object.geometry.attributes)) bytes += a.array.byteLength;
+          bytes += object.geometry.index?.array.byteLength ?? 0;
+          if (object instanceof InstancedMesh) {
+            bytes += object.instanceMatrix.array.byteLength + (object.instanceColor?.array.byteLength ?? 0);
+            if (native) for (let i = 0; i < object.count; i++)
+              for (const index of [1, 2, 4, 6, 8, 9])
+                expect(Math.abs(object.instanceMatrix.array[i * 16 + index])).toBe(0);
+          }
+        });
+        let retainedCalls = 0;
+        retained.traverse(object => { if (object instanceof Mesh) retainedCalls++; });
+        expect(retainedCalls).toBe(native ? 3 : 6);
+        // One animal-only dynamic batch; all original static calls remain
+        // source-guarded, while the complete current byte ceiling is unchanged.
+        expect(calls).toBe(retainedCalls + 1);
+        expect(bytes).toBeLessThan(native ? 7_500_000 : 3_300_000);
+        expect(root.userData.zooRecognitionV255).toBe(true);
+        expect(root.userData.fullStaticDetailOnTouch).toBe(true);
+      } finally { disposeZooReplayV282(retained); disposeZooReplayV282(root); }
     }
   });
 

@@ -1,3 +1,4 @@
+import { createZooHousesV282 } from "./ZooHousesV282";
 import { createWeltkugelV281 } from "./WeltkugelBrunnenV281";
 import { createBmfForecourtV281 } from "./BmfForecourtV281";
 import { createPekingerPlatzV281 } from "./PekingerPlatzV281";
@@ -86,6 +87,8 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   root.add(createRkiMoabitV277(native));
   yield;
   root.add(createTiergartenWerkhofV275(native));
+  yield;
+  root.add(createZooHousesV282('zoo', native));
   yield;
   root.add(createBmfForecourtV281(native));
   yield;

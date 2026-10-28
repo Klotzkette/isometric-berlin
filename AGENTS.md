@@ -1918,3 +1918,38 @@ Pekinger Platz at Nordufer (OSM way4751040). The interpretation was stated to
 the owner while the optional clarification remained unanswered. Add only
 bounded source-supported details there; preserve the distinct Sprengelpark,
 existing park/playground/path rings and all prior ground geometry.
+
+### Step 10 — v282 moving zoo animals in every presentation
+
+The owner's continuation explicitly authorizes moving animals in Zoo Berlin
+and Tierpark Berlin in every existing presentation, including Minecraft, night,
+snow and underwater. Use one shared species/route identity across independent
+drawn and orthogonal native models. Transfer precisely identified existing
+animal members rather than duplicating them or changing unrelated architecture.
+Keep full mapped enclosure boundaries, source buildings, water and navigation;
+movement routes must include body clearance. Verify species and distinguish
+historical stock from current holdings. Retain existing residency/package limits,
+full mobile detail and 93 stops. Use the existing animation loop with bounded
+updates, shared clocks, offscreen/hidden/reduced-motion suspension and permanent
+disposal. Animal animation must not rebuild the city shadow atlas. Only use the
+internal browser. This remains part of the unpublished v1.0.181 work; storage
+remains critically constrained, so avoid redundant packages and heavy parallel
+builds.
+
+The same request includes Pinguinwelt and the former Alfred-Brehm lion house,
+now Regenwaldhaus. Correct only the four exactly receipted Penguin prisms and
+their exclusively owned native columns using all retained official source
+sheets, with a documented rigid datum alignment that keeps the basement below
+the park and matching roof-aware navigation. Construct the complete replacement
+inside the required-site transaction. Keep the Brehm envelope intact; bounded
+source-edge entrance/eaves recognition does not authorize an invented upper
+tropical hall roof. Preserve the original source evidence and all unrelated
+geometry. These houses add no new geographic coverage or tour stop.
+
+The v282 package-size correction may losslessly encode only the six audited
+eager fields in City West transport, Mitte Ensemble, tram ground rails,
+Gendarmenmarkt perimeter buildings and east-outline native cells. Preserve
+eager strong ownership, ordinary property descriptors, named-export identity,
+per-field tree shaking, exact numbers and all original source files. Keep the
+existing codec/admission rules and initial startup budget; do not change the
+classification or lifetime of any lazy/weak field or raise a release limit.

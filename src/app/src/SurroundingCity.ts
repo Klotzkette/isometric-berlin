@@ -1,7 +1,10 @@
 import { fetchSurroundingTransport, SURROUNDING_TRANSPORT_IDLE_MS } from "./surroundingTransport";
 import { prepareTierparkV276 } from "./TierparkV276";
+import { createZooAnimalsV282, type ZooAnimalHandleV282 } from './ZooAnimalsV282';
+import { transferTierparkAnimalsV282 } from './tierparkAnimalTransferV282';
+import { createTierparkHouseV282 } from './ZooHousesV282';
 import { mierendorffFloorAtV269 } from "./MierendorffV269";
-import { Box3, Frustum, Group, Matrix4, Vector3, type Camera, Material, Mesh, Line, Points } from "three";
+import { Box3, Frustum, Group, InstancedMesh, Matrix4, Vector3, type BufferGeometry, type Camera, Material, Mesh, Line, Points } from "three";
 import {
   createSurroundingCityChunkCooperatively, surroundingBuildingSolidAt, surroundingPolygonContains, validSurroundingPolygon,
   type SurroundingCityChunk, type SurroundingChunkGeometry, type SurroundingNavigation, type SurroundingPolygon,
@@ -271,7 +274,9 @@ async function consumePrefetch(job: Prefetch, signal: AbortSignal, asset: Asset)
 export function disposeSurroundingCityRoot(root: Group): void {
   const materials = new Set<Material>();
   root.traverse(object => {
+    object.userData.disposeZooAnimalsV282?.();
     if (!(object instanceof Mesh || object instanceof Line || object instanceof Points)) return;
+    if (object instanceof InstancedMesh) object.dispose();
     object.geometry.dispose();
     for (const material of Array.isArray(object.material) ? object.material : [object.material]) materials.add(material);
     for (const value of Object.values(object.userData)) if (value instanceof Material) materials.add(value);
@@ -331,8 +336,38 @@ export async function createStreamedSurroundingCityChunkV255(
   } finally { iterator.return(undefined as never); }
   }
   checkAbort();
+  const animals = transferTierparkAnimalsV282(chunk, id, minecraft);
+  chunk = animals.chunk;
   const entry = await createSurroundingCityChunkCooperatively(chunk, id, minecraft, schedule, ownership);
   try {
+    checkAbort();
+    // Figure construction is bounded by this tile and retained owners. Attach
+    // before publication so ordinary cancellation/disposal owns every buffer.
+    const figures = createZooAnimalsV282('tierpark', minecraft, animals.animals, id);
+    const handle = figures.userData.zooAnimalsV282 as ZooAnimalHandleV282 | undefined;
+    if (handle) {
+      figures.position.set(-chunk.origin[0], -chunk.origin[1], -chunk.origin[2]);
+      entry.root.add(figures);
+      entry.geometryBytes += handle.geometryBytes;
+      entry.bufferCount += handle.bufferCount;
+    }
+    const house = createTierparkHouseV282(id, minecraft);
+    if (house) {
+      house.position.set(-chunk.origin[0], -chunk.origin[1], -chunk.origin[2]);
+      house.updateMatrix();
+      entry.root.add(house);
+      house.traverse(object => {
+        if (!(object instanceof Mesh)) return;
+        const geometry: BufferGeometry = object.geometry;
+        const arrays = Object.values(geometry.attributes).map(attribute => attribute.array);
+        if (object.geometry.index) arrays.push(object.geometry.index.array);
+        if (object instanceof InstancedMesh) {
+          arrays.push(object.instanceMatrix.array);
+          if (object.instanceColor) arrays.push(object.instanceColor.array);
+        }
+        for (const array of arrays) { entry.geometryBytes += array.byteLength; entry.bufferCount++; }
+      });
+    }
     checkAbort();
     annotatePlaygroundPacketV255(entry.root, id);
     return entry;
