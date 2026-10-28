@@ -1,6 +1,6 @@
 # Distant Fernsehturm rendering — v283
 
-Step 10, targeted for v1.0.182. The owner's bounded request concerns the existing
+Step 10, released in v1.0.182. The owner's bounded request concerns the existing
 tower viewed toward Mitte from BER, Teufelsberg, Spandau and Marzahn.
 Original architectural evidence remains in fernsehturm-detail-v149.md.
 No new geographic coverage or changed tower dimensions are introduced.
@@ -58,15 +58,20 @@ No additional residency, streaming, scene traversal or animation loop is added.
 
 ## Validation evidence and remaining gates
 
-GitHub Actions run 40669639544 passed 45 tests across seven focused files,
-including all 12 final tower tests, then the full TypeScript/Vite build,
-archive readiness checks and HTTP package smoke test. Both uploaded archives
-were SHA256-verified and all 4,752 ZIP entries checked. That candidate was not
-published: a shared Three.js export-table change duplicated unchanged city
-chunks and exceeded the complete Pages retention limit. The follow-up keeps
-the four standard fog uniforms local, with identical independent values and
-unchanged shaders, avoiding the two new shared-library exports. Its additional
-regression and rebuild must pass before publication.
+The final release source `b4d19da3e9a4aa187b849acffeddb834c8ef263e` passed GitHub Actions
+[run 40677648990](https://github.com/Klotzkette/isometric-berlin/actions/runs/40677648990):
+46 model/horizon tests and 33 lossless/portability tests, with no failures,
+followed by the full TypeScript/Vite build, archive readiness and HTTP package
+smoke. Both final archives were completely SHA256-verified; all 4,752 ZIP entries
+passed CRC, length and SHA checks. The complete retained Pages tree is
+1,056,661,631 bytes, below the unchanged 1 GiB limit, with every old asset kept.
+
+The four standard fog uniforms use local independent defaults, avoiding new
+shared-library exports while retaining identical shaders and renderer updates.
+A build-only gzip OS marker correction prevents platform-only data chunk names
+from changing; compressed payloads and prepared streams remain unchanged.
+See [release receipts and remaining limits](release-v1.0.182-review.md).
+
 Original hashes and native coalescing were also evaluated in memory. At BER66 degrees, centered DPR1,
 the uncoalesced filter changed zero8-bit pixels; coalescing changed6 pixels
 with maximum9 channel levels. All10 phases survived at DPR1/1.35/1.75.
@@ -84,14 +89,15 @@ corrected BER16-degree screenshot and seven subsequent pan screenshots are
 valid and retain nonzero tower contrast. ENOSPC interrupted phase7 saving;
 that truncated file and absent later frames are not counted. Final wide-angle
 native visual confirmation and final full-city/physical-device browser QA remain
-pending; the prior remote package checks above did pass.
+uncompleted; the final remote package checks above did pass.
 Screenshots and temporary harnesses are local evidence, not shipped assets.
 A small horizon feature remains faint; visibility is not promised through
 buildings, outside the field of view, underwater or at arbitrarily tiny size.
 
 The Mac exhausted writable storage during final validation. A separate
-candidate branch was created through the Git Data API without changing main,
-Pages or the retained181 package. Remote CI results are distinct from local
+candidate branch was created through the Git Data API while main and Pages
+still served v181. After final validation the release source and Pages advanced
+separately; the retained local v181 package remains unchanged. Remote CI results are distinct from local
 build evidence; no local build receipt is fabricated. Full pytest could not
 start with its normal temporary-file capture on this full disk; the three
 new shelter Python tests passed with capture disabled. Other Python tests
