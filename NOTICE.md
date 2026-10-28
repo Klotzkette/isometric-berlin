@@ -2548,3 +2548,17 @@ not a current census. The Penguin height alignment and small house fittings
 remain documented display interpretations. No photographs, illustrated plans,
 recordings or photographic textures are redistributed. See
 docs/zoo-animals-v282.md and docs/zoo-houses-v282.md.
+
+Steppengarten shelter v283: the retained complete Geoportal Berlin LoD2 roof
+plan and original sheets (dl-de/zero-2-0), together with the exact OpenStreetMap
+shelter node (© OpenStreetMap contributors, ODbL 1.0), anchor the correction.
+[Arbeitskreis Steppengarten's history](https://www.steppengarten.de/home/geschichte)
+identifies the limestone shelter and terrace built between January and May 1953.
+The captioned [Schutzhütte am Steppengarten photograph](https://www.xn--brger-fr-denkmale-22bg.de/images/IMG_2518.jpg),
+credited **Kieback/Holst**, is published by
+[Stiftung Denkmalschutz Berlin / Arbeitskreis Steppengarten](https://www.xn--brger-fr-denkmale-22bg.de/arbeitskreis-steppengarten.html).
+It informs the low limestone walls, open gable and shallow dark pitched roof.
+Heights, masonry thicknesses and small fittings are photographic recognition
+estimates, not surveyed dimensions. No free redistribution licence is asserted
+for the photograph; no photographs, image pixels or photographic textures are
+bundled. See docs/steppengarten-shelter-v283.md and the public per-source ledger.

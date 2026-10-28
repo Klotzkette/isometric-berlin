@@ -2734,6 +2734,27 @@
       "role": "2020 conversion and retained glass-roof structure support current architectural identity. No drawings, photos or photographic textures redistributed.",
       "checked": "2026-10-28",
       "pixels_bundled": false
+    },
+    {
+      "landmark_id": "steppengarten_shelter_v283",
+      "title": "Schutzhütte am Steppengarten — IMG_2518",
+      "page_url": "https://www.xn--brger-fr-denkmale-22bg.de/arbeitskreis-steppengarten.html",
+      "file_url": "https://www.xn--brger-fr-denkmale-22bg.de/images/IMG_2518.jpg",
+      "credit": "Kieback/Holst; Stiftung Denkmalschutz Berlin / Arbeitskreis Steppengarten",
+      "license": "Visual reference only; no photographic pixels redistributed",
+      "role": "Captioned primary photograph supports the low limestone shelter, open gable and shallow dark pitched roof. Eave, ridge and small fittings are photographic recognition estimates, not measured dimensions. No photo, texture or image pixels are bundled.",
+      "checked": "2026-10-28",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "steppengarten_shelter_v283",
+      "title": "Geschichte des Steppengartens",
+      "page_url": "https://www.steppengarten.de/home/geschichte",
+      "credit": "Arbeitskreis Steppengarten",
+      "license": "Factual reference only",
+      "role": "The garden stewardship group identifies the limestone shelter and terrace constructed between January and May 1953. Supports site identity and material; does not establish exact present-day dimensions. No historical text or photographic content is redistributed.",
+      "checked": "2026-10-28",
+      "pixels_bundled": false
     }
   ]
 }

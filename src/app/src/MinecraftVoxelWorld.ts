@@ -7,6 +7,7 @@ import { createRkiMoabitColumnTesterV277 } from "./rkiMoabitV277Ownership";
 import { createZooWestColumnTesterV276 } from "./zooWestV276Ownership";
 import { createZooHouseColumnTesterV282 } from "./zooHousesV282Ownership";
 import { createVerkehrskanzelColumnTesterV276 } from "./verkehrskanzelV276Ownership";
+import { createSteppengartenShelterColumnTesterV283 } from "./steppengartenShelterV283Ownership";
 import { createTiergartenWerkhofColumnTesterV275 } from "./tiergartenWerkhofV275Ownership";
 import { createOperaTheatresColumnTesterV274 } from "./operaTheatresV274Ownership";
 import { createTechnikmuseumColumnTesterV272 } from "./TechnikmuseumV272Profile";
@@ -332,7 +333,7 @@ export type MinecraftVoxelWorldOptions = {
   tachelesFrontsV270?: boolean;
   technikmuseumV272?: boolean;
   operaTheatresV274?: boolean;
-  tiergartenWerkhofV275?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean;
+  tiergartenWerkhofV275?: boolean; steppengartenShelterV283?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean;
   moabitLandmarksV269?: boolean;
   tempodromAnhalterV266?: boolean;
   northernSitesV266?: boolean;
@@ -2666,6 +2667,8 @@ export function* buildMinecraftVoxelWorldSteps(
   const bayerCampusColumnAt = options.bayerCampusV277 ? createBayerCampusColumnTesterV277(options.sourcePrisms, cell) : () => false;
   const lehrterColumnAt = options.lehrterV277 ? createLehrterColumnTesterV277(options.sourcePrisms, cell) : () => false;
   const rkiMoabitColumnAt = options.rkiMoabitV277 ? createRkiMoabitColumnTesterV277(options.sourcePrisms, cell) : () => false;
+  const steppengartenColumnAt = options.steppengartenShelterV283
+    ? createSteppengartenShelterColumnTesterV283(options.sourcePrisms, cell) : () => false;
   const werkhofColumnAt = options.tiergartenWerkhofV275
     ? createTiergartenWerkhofColumnTesterV275(options.sourcePrisms, cell) : () => false;
   const operaTheatresColumnAt = options.operaTheatresV274
@@ -2690,6 +2693,7 @@ export function* buildMinecraftVoxelWorldSteps(
     if (zooWestColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (zooHouseColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (kanzelColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
+    if (steppengartenColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (werkhofColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (bayerCampusColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (lehrterColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;

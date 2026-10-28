@@ -257,7 +257,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
       const buildings = batches.read(id);
       const root = createIsometricCityCore(prisms, null, null, null, {
         buildings, includeContext: false, smoothSurfaces: null,
-        architectureV241: true, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
+        architectureV241: true, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
         includeLegacyChariteFacade: false,
         includeLegacyHungarianEnvelope: false,
         includeLegacyTownhallEnvelopes: false,

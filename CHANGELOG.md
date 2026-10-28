@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.182 — 2026-10-28
+
+- Stabilize the distant Fernsehturm silhouette during camera movement and retain it through skyline haze at its original location and scale. Keep ordinary building occlusion and the submerged-water veil.
+- Replace the erroneous tall Steppengarten canopy near the Beethoven–Haydn–Mozart memorial with its low limestone shelter and open gable. Preserve complete source evidence; replacement heights remain explicit photographic estimates.
+- Keep independent native models, matching shelter navigation, all previous city geometry and existing runtime/package limits. See [release checks](docs/release-v1.0.182-review.md).
+
 ## 1.0.181 — 2026-10-28
 
 - Animate source-supported zoo animals in all six presentations, with separate Minecraft models, connected drawn limbs and shared poses across paused mode changes.

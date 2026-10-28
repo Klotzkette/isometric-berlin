@@ -17,7 +17,7 @@ function signature(root: ReturnType<typeof createFernsehturmArchitecture>) {
     draws = 0,
     instances = 0;
   root.traverse((o) => {
-    if (!(o instanceof Mesh)) return;
+    if (!(o instanceof Mesh) || o.userData.fernsehturmHorizonCoverage) return;
     draws++;
     expect(o.matrixAutoUpdate).toBeFalse();
     for (const a of Object.values(o.geometry.attributes)) {
@@ -67,6 +67,9 @@ describe("Fernsehturm measured silhouette and bounded details", () => {
       expect(stats.draws).toBe(native ? 3 : 4);
       expect(stats.bytes).toBeLessThan(native ? 2_000_000 : 1_700_000);
       expect(stats.instances).toBeLessThan(native ? 24000 : 1000);
+      expect(stats.hash).toBe(native
+        ? "7cd716b8317d35b43f30bf12e27735e2199c246f74a8bf1b4a91a4d6c977b247"
+        : "63bd34dd23fa2da7dd50d77ddf129865eb152753df290aa8a9a4586711d914dc");
       const box = new Box3().setFromObject(root);
       expect(box.min.y).toBeCloseTo(P.groundY, 3);
       expect(box.max.y).toBeCloseTo(P.groundY + 368, 3);
@@ -76,7 +79,7 @@ describe("Fernsehturm measured silhouette and bounded details", () => {
       expect(typeof root.userData.setFernsehturmLighting).toBe("function");
       if (native)
         root.traverse((o) => {
-          if (o instanceof Mesh) {
+          if (o instanceof Mesh && !o.userData.fernsehturmHorizonCoverage) {
             expect(o instanceof InstancedMesh).toBeTrue();
             expect(o.geometry.attributes.position.count).toBe(24);
           }

@@ -12,6 +12,7 @@ import { createBayerCampusV277 } from "./BayerCampusV277";
 import { createLehrterV277 } from "./LehrterV277";
 import { createRkiMoabitV277 } from "./RkiMoabitV277";
 import { createVerkehrskanzelV276 } from "./VerkehrskanzelV276";
+import { createSteppengartenShelterV283 } from "./SteppengartenShelterV283";
 import { createTiergartenWerkhofV275 } from "./TiergartenWerkhofV275";
 import { createCentralTheatresV274 } from "./CentralTheatresV274";
 import { createOperaTheatresV274 } from "./OperaTheatresV274";
@@ -85,6 +86,8 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   root.add(createLehrterV277(native));
   yield;
   root.add(createRkiMoabitV277(native));
+  yield;
+  root.add(createSteppengartenShelterV283(native));
   yield;
   root.add(createTiergartenWerkhofV275(native));
   yield;

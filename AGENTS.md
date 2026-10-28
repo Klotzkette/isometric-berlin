@@ -1972,3 +1972,25 @@ grid. Use independent native roof geometry and matching navigation. No new
 coverage, residency limit, photograph, raw media or external browser is permitted.
 New drawn limb movement and paused family synchronization use the existing
 shared clock and dynamic buffers, with retained animal geometry unchanged.
+
+### Step 10 — v283 Fernsehturm horizon and Steppengarten shelter
+
+The owner requests that the Fernsehturm remain visible when looking toward
+central Berlin from distant existing coverage, including BER, Teufelsberg,
+Spandau and Marzahn. Correct evidenced rendering or atmosphere defects while
+retaining its real source position, dimensions, normal scene occlusion and
+independent native geometry. This does not authorize broader world residency,
+an enlarged tower, an always-on-top icon or lower city detail.
+
+The same request identifies the incorrectly tall small building northeast of
+the Beethoven-Haydn-Mozart memorial. Correct only the verified Steppengarten
+shelter owner DEBE00YYT600005H using its full retained footprint and original
+source sheets, mapped shelter use and public photographic evidence. Original
+source heights and tree-contaminated surface elevations must remain evidence;
+unmeasured replacement eaves, ridge and fittings are explicit display estimates.
+Use an open shelter model, independent native geometry and matching walking
+surfaces. Retire only exactly receipted old prisms/native columns. Keep all
+unrelated geometry, coverage, 93 stops and existing runtime/release limits.
+Use one internal browser view at a time and atomic replacement for any
+hardlinked public source file. Preserve the verified v181 package until the
+v182 replacement is validated; no redundant disk archives or broad cleanup.

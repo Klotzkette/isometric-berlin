@@ -21,6 +21,10 @@ import {
 } from "./fernsehturmDetailProfile";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { schwellenraumMaterialFor } from "./visual-modes/schwellenraum/materialGrade";
+import {
+  createFernsehturmHorizonCoverage, drawnFernsehturmCoverageBands,
+  nativeFernsehturmCoverageBands, retainFernsehturmHorizonContrast,
+} from "./FernsehturmHorizon";
 type Point = [number, number, number];
 type Block = {
   p: Point;
@@ -269,6 +273,15 @@ function setupSteel(mesh: Mesh, state: SunState): void {
     metalness: 0.45,
   });
 }
+function retainHorizonContrast(root: Group): void {
+  root.traverse((o) => {
+    if (!(o instanceof Mesh) || !o.userData.dayMaterial) return;
+    const day = o.userData.dayMaterial;
+    const graded = schwellenraumMaterialFor(o, day);
+    for (const material of [day, o.userData.nightMaterial, graded])
+      retainFernsehturmHorizonContrast(material);
+  });
+}
 /** Complete identical detail for touch and desktop; no distance residency. */
 export function createFernsehturmArchitecture(_mobileLike = false): Group {
   const { root, state } = prepareRoot(false),
@@ -423,6 +436,8 @@ export function createFernsehturmArchitecture(_mobileLike = false): Group {
       "Fernsehturm window mullions and open maintenance rails",
     ),
   );
+  retainHorizonContrast(root);
+  root.add(createFernsehturmHorizonCoverage(drawnFernsehturmCoverageBands(), false, state.daylight));
   return freezeStaticSceneTransforms(root);
 }
 /** Deterministic native surface rings avoid allocating or rendering hidden solid infill. */
@@ -531,6 +546,8 @@ export function createMinecraftFernsehturmArchitecture(
     emissiveIntensity: 0.6,
   });
   root.add(glass);
+  retainHorizonContrast(root);
+  root.add(createFernsehturmHorizonCoverage(nativeFernsehturmCoverageBands([...body, ...steel, ...windows]), true, state.daylight));
   root.traverse((o) => {
     if (o instanceof Mesh) o.userData.blockNative = true;
   });

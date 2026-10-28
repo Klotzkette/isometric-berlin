@@ -7,6 +7,7 @@
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.181 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.181/isometric-berlin-regierungsviertel-local.zip |
+| Prepared v1.0.182 ZIP (available after publication) | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.182/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,9 +25,13 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Live v1.0.181** · static viewer for macOS, Windows, and Linux.
+**Status:** Public open-data project · **Live v1.0.181** · **Local v1.0.182** (validation in progress) · static viewer for macOS, Windows, and Linux.
 
 The hosted viewer and both release packages are v1.0.181. Online-Ansicht und beide Downloadpakete enthalten v1.0.181. [Release checks and remaining limits](docs/release-v1.0.181-review.md).
+
+Local v1.0.182 stabilizes the distant Fernsehturm silhouette and corrects the low Steppengarten shelter near the composers' memorial. Its measured plan is retained; roof and masonry heights are photo-based estimates. [Checks and publication status](docs/release-v1.0.182-review.md).
+
+Lokal stabilisiert v1.0.182 den Fernsehturm in der Fernsicht und korrigiert die niedrige Schutzhütte am Steppengarten beim Komponistendenkmal. Der vermessene Grundriss bleibt erhalten; Dach- und Mauerhöhen sind Annäherungen nach Fotografien. [Prüfungen und Veröffentlichungsstand](docs/release-v1.0.182-review.md).
 
 Version 1.0.181 adds: source-supported details at Schlosspark Charlottenburg, the Chancellery, Moabit coal handling, Pekinger Platz, prison enclosures, Topography of Terror, WELT balloon and the finance ministry memorial forecourt. It also refines Berliner Ensemble/Ganymed, City West transport, Weltkugelbrunnen, tram rails and U-Bahn entrances. Small unsurveyed fittings remain documented estimates. [Scope and checks](docs/mitte-citywest-transit-v281.md).
 

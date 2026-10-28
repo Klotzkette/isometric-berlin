@@ -3739,7 +3739,7 @@ function prepareIsoNavigation(
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { requiredSitesV281: true, northCultureV274: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { requiredSitesV281: true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   // Compile the future owners now, but keep their authored solids/floors
   // inactive until the required models finish in the same unpublished transaction.
@@ -4187,7 +4187,7 @@ function ensureIsoWorld(
           {
             buildings: initialBuildings,
             includeLegacyChariteFacade: false,
-            includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
+            includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
             includeLegacyHungarianEnvelope: false,
             architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
             includeKulturforumAndNorthRail: false,
@@ -4339,7 +4339,7 @@ function ensureIsoWorld(
           yield;
           pendingPathTerrainAt = prepareDistrictPathTerrain(ground, runtime.tunnelPortalCourse);
         }
-        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
+        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
         yield;
         isoWorld.add(komischeOper.createKomischeOperSourceGeometry());
         yield;
@@ -4695,7 +4695,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { requiredSitesV281: true, northCultureV274: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { requiredSitesV281: true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   environment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
@@ -4923,7 +4923,7 @@ function ensureVoxelWorld(
           {
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             sourcePrisms: prisms?.buildings,
-            includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
+            includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
             staatsoperV240: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
           },
         ),

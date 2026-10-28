@@ -17,6 +17,8 @@ import { isZooHouseSourceV282 } from "./zooHousesV282Ownership";
 import { zooAviarySolidsV282, zooHouseSolidsV282 } from "./zooHousesV282Profile";
 import { isVerkehrskanzelSourceV276 } from "./verkehrskanzelV276Ownership";
 import { verkehrskanzelSolidsV276 } from "./verkehrskanzelV276Profile";
+import { isSteppengartenShelterSourceV283 } from "./steppengartenShelterV283Ownership";
+import { steppengartenShelterSolidsV283 } from "./steppengartenShelterV283Profile";
 import { isTiergartenWerkhofSourceV275 } from "./tiergartenWerkhofV275Ownership";
 import { tiergartenWerkhofSolidsV275 } from "./tiergartenWerkhofV275Profile";
 import { herzJesuV274Solids } from "./herzJesuV274Profile";
@@ -719,7 +721,7 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
-  options: { requiredSitesV281?: boolean; tiergartenWerkhofV275?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { requiredSitesV281?: boolean; tiergartenWerkhofV275?: boolean; steppengartenShelterV283?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   if (options.includeAuguststrasseMuralV270) {
@@ -830,6 +832,16 @@ export function compilePedestrianObstacles(
       for (const { native, solid } of kanzelSolids) {
         if (solid.sourceId !== sourceBuilding.id) continue;
         addPolygonObstacle(index, solid.ring, solid.holes ?? [], solid.minY, solid.maxY,
+          solid.sourceId, 1, (x, z) => (visualMode() === "minecraft") === native
+            ? solid.topAt(x, z) ?? Number.NEGATIVE_INFINITY : Number.NEGATIVE_INFINITY,
+          (x, z) => solid.bottomAt?.(x, z) ?? solid.minY);
+        index.buildingCount += 1;
+      }
+      continue;
+    }
+    if (options.steppengartenShelterV283 && isSteppengartenShelterSourceV283(sourceBuilding)) {
+      for (const native of [false, true]) for (const solid of steppengartenShelterSolidsV283(native)) {
+        addPolygonObstacle(index, solid.ring, solid.holes, solid.minY, solid.maxY,
           solid.sourceId, 1, (x, z) => (visualMode() === "minecraft") === native
             ? solid.topAt(x, z) ?? Number.NEGATIVE_INFINITY : Number.NEGATIVE_INFINITY,
           (x, z) => solid.bottomAt?.(x, z) ?? solid.minY);
@@ -2399,7 +2411,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
-  options: { requiredSitesV281?: boolean; tiergartenWerkhofV275?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { requiredSitesV281?: boolean; tiergartenWerkhofV275?: boolean; steppengartenShelterV283?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;
