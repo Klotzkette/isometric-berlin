@@ -6,7 +6,7 @@
 |---|---|
 | **Open the hosted viewer** | https://klotzkette.github.io/isometric-berlin/ |
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
-| Versioned v1.0.180 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.180/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.181 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.181/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -24,20 +24,17 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Live v1.0.180** · **Local v1.0.181
-(unpublished / unveröffentlicht)** · static viewer for macOS, Windows, and Linux.
+**Status:** Public open-data project · **Live v1.0.181** · static viewer for macOS, Windows, and Linux.
 
-The [reserved v1.0.181 ZIP link](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.181/isometric-berlin-regierungsviertel-local.zip)
-is not available until publication. Der vorgesehene Download ist erst nach der
-Veröffentlichung verfügbar; die Links oben führen weiterhin zur aktuellen Fassung.
+The hosted viewer and both release packages are v1.0.181. Online-Ansicht und beide Downloadpakete enthalten v1.0.181. [Release checks and remaining limits](docs/release-v1.0.181-review.md).
 
-Version 1.0.181 is being prepared locally: source-supported details at Schlosspark Charlottenburg, the Chancellery, Moabit coal handling, Pekinger Platz, prison enclosures, Topography of Terror, WELT balloon and the finance ministry memorial forecourt. It also refines Berliner Ensemble/Ganymed, City West transport, Weltkugelbrunnen, tram rails and U-Bahn entrances. Small unsurveyed fittings remain documented estimates. [Scope and checks](docs/mitte-citywest-transit-v281.md).
+Version 1.0.181 adds: source-supported details at Schlosspark Charlottenburg, the Chancellery, Moabit coal handling, Pekinger Platz, prison enclosures, Topography of Terror, WELT balloon and the finance ministry memorial forecourt. It also refines Berliner Ensemble/Ganymed, City West transport, Weltkugelbrunnen, tram rails and U-Bahn entrances. Small unsurveyed fittings remain documented estimates. [Scope and checks](docs/mitte-citywest-transit-v281.md).
 
-Version 1.0.181 wird lokal vorbereitet: quellengestützte Details für Schlosspark Charlottenburg, Kanzleramt, Moabiter Kohleverladung, Pekinger Platz, Gefängnismauern, Topographie des Terrors, WELT-Ballon und den Gedenkplatz am Finanzministerium. Dazu kommen Berliner Ensemble/Ganymed, Verkehrsanlagen in City West, Weltkugelbrunnen, Straßenbahnschienen und U-Bahn-Eingänge. Nicht vermessene kleine Bauteile bleiben dokumentierte Annäherungen. [Umfang und Prüfungen](docs/mitte-citywest-transit-v281.md).
+Version 1.0.181 ergänzt: quellengestützte Details für Schlosspark Charlottenburg, Kanzleramt, Moabiter Kohleverladung, Pekinger Platz, Gefängnismauern, Topographie des Terrors, WELT-Ballon und den Gedenkplatz am Finanzministerium. Dazu kommen Berliner Ensemble/Ganymed, Verkehrsanlagen in City West, Weltkugelbrunnen, Straßenbahnschienen und U-Bahn-Eingänge. Nicht vermessene kleine Bauteile bleiben dokumentierte Annäherungen. [Umfang und Prüfungen](docs/mitte-citywest-transit-v281.md).
 
-The same unpublished update adds 51 illustrative animal figures and movement routes for 50 existing animals in Zoo Berlin and Tierpark, including a chicken in a measured rear aviary. All presentations share animal identities and paths; Minecraft retains separate orthogonal bodies. Drawn legs move while keeping their joints connected, and paused mode changes preserve the shared pose. Routes preserve mapped enclosure boundaries, buildings and water. Historical or unverified animal locations remain explicitly unresolved. [Animal evidence and checks](docs/zoo-animals-v282.md).
+The same update adds 51 illustrative animal figures and movement routes for 50 existing animals in Zoo Berlin and Tierpark, including a chicken in a measured rear aviary. All presentations share animal identities and paths; Minecraft retains separate orthogonal bodies. Drawn legs move while keeping their joints connected, and paused mode changes preserve the shared pose. Routes preserve mapped enclosure boundaries, buildings and water. Historical or unverified animal locations remain explicitly unresolved. [Animal evidence and checks](docs/zoo-animals-v282.md).
 
-Dieselbe noch unveröffentlichte Fassung ergänzt 51 beispielhafte Tierfiguren und Bewegungswege für 50 vorhandene Tiere in Zoo und Tierpark, darunter ein Huhn in einer vermessenen rückwärtigen Voliere. Alle Ansichten verwenden dieselben Tiere und Wege; Minecraft erhält eigenständige Blockkörper. Bewegte Beine bleiben am Körper verbunden; auch bei pausierter Bewegung bleibt die Pose beim Ansichtswechsel erhalten. Kartierte Gehegegrenzen, Gebäude und Wasserflächen bleiben berücksichtigt. Historische oder unbelegte Tierstandorte sind ausdrücklich als offen dokumentiert. [Tierbestand, Quellen und Prüfungen](docs/zoo-animals-v282.md).
+Dieselbe Fassung ergänzt 51 beispielhafte Tierfiguren und Bewegungswege für 50 vorhandene Tiere in Zoo und Tierpark, darunter ein Huhn in einer vermessenen rückwärtigen Voliere. Alle Ansichten verwenden dieselben Tiere und Wege; Minecraft erhält eigenständige Blockkörper. Bewegte Beine bleiben am Körper verbunden; auch bei pausierter Bewegung bleibt die Pose beim Ansichtswechsel erhalten. Kartierte Gehegegrenzen, Gebäude und Wasserflächen bleiben berücksichtigt. Historische oder unbelegte Tierstandorte sind ausdrücklich als offen dokumentiert. [Tierbestand, Quellen und Prüfungen](docs/zoo-animals-v282.md).
 
 The Penguin World also gains its complete measured building surfaces with a documented height alignment, separate native geometry and matching walking surfaces. The former Alfred Brehm House, now the rainforest house, gains mapped entrances, facade details and its raised tropical-hall roof. The roof follows the complete mapped footprint and official surface/terrain elevations; interpolation and the eave height remain documented estimates. [House evidence and limits](docs/zoo-houses-v282.md).
 

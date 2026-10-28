@@ -111,7 +111,8 @@ those remaining browser checks once permitted access is restored.
 ## Further v282 continuation: aviary, upper hall and motion
 
 This section supersedes the earlier package measurements. The final checks
-below refer to this further continuation. The live viewer remains v1.0.180.
+below refer to this further continuation. At that local checkpoint the live viewer
+was still v1.0.180; the publication record below supersedes that status.
 
 - The new animal inventory has 51 illustrative figures, 37 habitats and 50
   retained movement routes. One chicken occupies the complete measured low
@@ -161,6 +162,55 @@ below refer to this further continuation. The live viewer remains v1.0.180.
 
 Fresh build, package and archive receipts are in the local
 `codex-berlin-v282-continuation` task cache. All cleanup snapshots are consumed;
-they must not be reused on this new dist. The previously rejected internal
-browser access was not retried or circumvented. The required startup/mobile
-browser gates remain open, so v1.0.181 remains local and unpublished.
+they must not be reused on this new dist. The browser restriction and unpublished
+status described above were the state at that earlier checkpoint; the following
+record supersedes them.
+
+## Browser continuation and publication — 2026-10-28
+
+The owner explicitly authorized continuing the internal-browser check and
+publication. The local production package was served from a fresh local-port
+origin in the Codex in-app browser. Actual UI clicks reached a nonzero,
+presentation-ready city canvas on first startup and after reload, with no startup
+curtain or recovery panel. The captured proof shows the rendered Brandenburger
+Tor view; no external Safari was needed.
+
+The mode menu's visible targets and hit areas were checked at 390×664, 320×568,
+844×390, 568×320 and 1024×768. Recorded mode transitions selected Nacht,
+Schneesturm, Schwellenraum and Minecraft and closed their sheet. Versunken kept
+its sheet open while the 6 m → 21 m → 3 m sequence selected exactly one depth.
+Day was the recorded initial selection. The inspected console warning/error log
+was empty. Two automation-command timeouts during a heavy transition and reload
+were followed by a ready DOM without application warnings or errors; these are
+recorded rather than described as a wholly timeout-free run.
+
+These checks used real UI clicks, not injected touch events. The available
+embedded-browser API did not provide strict-autoplay emulation. They therefore
+do not claim the separate Playwright touch/autoplay profiles, a physical iPhone,
+a city-wide visual audit or an endurance run. In particular, the zoo geometry and
+animal-route tests above are not being presented as a direct visual inspection
+of every zoo enclosure. Local evidence is in `browser-qa.json` and
+`local-browser-proof.png` in the continuation cache.
+
+The v1.0.181 release and matching GitHub Pages deployment are now published.
+The two published archive formats and hosted bytes are checked against the
+prepared package; see the final `package-verification.json` and
+`live-verification.json` receipts in the same continuation cache. Existing
+unverified species/enclosure locations and the separate Reuter-West coverage gap
+remain explicit limits. This publication does not claim that every earlier
+requested geographic refinement is complete.
+
+Pages commit `60eaee29f0ecf6675757d5bb2d654f64f177d98c` deployed successfully
+in GitHub run `40657684073`. The live manifest matches SHA-256
+`bcba824c17a07b9662fa2e6ed75737e3d35cf1fac4b4250784855fa3902f789e`.
+Release `426415023` has both remotely verified archives and checksum files.
+The independent HTTP check passed for current owning chunks and confirms the
+three withdrawn Columbiahalle recordings remain unavailable (404).
+
+The same internal-browser startup, reload, five viewport checks, mode transitions
+and 6 m → 21 m → 3 m controls also passed on the public site. The console log
+was empty. One browser-command timeout during Minecraft construction recovered
+before the next successful interaction. `live-browser-qa.json` and
+`live-browser-proof.png` record that separate public check with the same
+click-only, device and endurance limits stated above. Both test city tabs were
+closed afterward to free memory. Safari was not opened.

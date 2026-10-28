@@ -123,11 +123,12 @@ Focused checks completed on 2026-10-28:
   assertions, using the real animal registry without weakening prior ownership,
   publication-order or rollback checks.
 
-These are source, CPU geometry and lifecycle checks. Whole-city visual review in
-the internal browser was blocked by its security rejection. No completed browser
-visual review, endurance run or physical-phone validation is claimed here.
-Unlocated and historical species listed below remain unresolved; these checks do
-not establish present-day animal stock or supply missing enclosure evidence.
+These are source, CPU geometry and lifecycle checks. Subsequent production
+startup and mode-menu interaction checks ran in the internal browser; see the
+[release review](release-v1.0.181-review.md). They are not a visual inspection of
+every zoo enclosure, an endurance run or physical-phone validation. Unlocated
+and historical species listed below remain unresolved; these checks do not
+establish present-day animal stock or supply missing enclosure evidence.
 
 ## Retained sources and ownership
 

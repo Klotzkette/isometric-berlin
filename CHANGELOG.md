@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.181 — 2026-10-28
+
+- Animate source-supported zoo animals in all six presentations, with separate Minecraft models, connected drawn limbs and shared poses across paused mode changes.
+- Restore measured Penguin World surfaces, add the complete rear chicken aviary and reconstruct the mapped Regenwaldhaus upper roof using official height samples; interpolation and unsurveyed details remain explicit estimates.
+- Refine Schlosspark Charlottenburg, the Chancellery, Moabit coal handling, Pekinger Platz, prison and memorial sites, Berliner Ensemble/Ganymed, City West transport, tram rails and U-Bahn entrances.
+- Preserve complete source geometry, full mobile detail, 93 tour stops, all six modes and existing runtime/package limits. See [release checks and limits](docs/release-v1.0.181-review.md).
+
 ## 1.0.180 — 2026-10-26
 
 - Recover stalled outer-city transfers so one nonresponding request cannot indefinitely block the remaining map. Preserve complete geometry, serial decoding and existing memory limits.
