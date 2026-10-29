@@ -70,10 +70,16 @@ tour stop, texture, animation or runtime residency allowance is added.
 - Actual drawn/native model, native orthogonality, open navigation, fail-closed
   retirement and distant-coverage integration: 4 Bun tests passed, 1,665 assertions.
 - Focused Ruff formatting/lint passed. An initial project TypeScript check
-  passed; a later repeat was killed by the OS under severe disk/memory pressure
-  and is not counted as a final pass. Root integration owns the serial final check.
-- No production build or browser was launched by this subtask. Browser visual
-  QA and release verification belong to the integrating coordinator.
+  passed; a later local repeat was killed by the OS under severe disk/memory
+  pressure and is not counted as a final pass. The integrating coordinator's
+  [final release CI](release-v1.0.182-review.md) subsequently passed TypeScript,
+  the production build and package verification.
+- The [29 October full-city follow-up](visual-qa-v283-20261029.md) confirms the low
+  replacement at 39 degrees in Day and Minecraft. A small tree/roof overlap
+  remains an unresolved source-placement detail; the photograph does not justify
+  tree removal, relocation or a roof notch. Pale native posts were identified
+  as existing tree bark, not a surviving old building owner. No physical mobile
+  device was tested.
 
 Reproduction:
 

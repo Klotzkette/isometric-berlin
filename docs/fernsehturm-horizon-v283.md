@@ -87,9 +87,15 @@ block changed zero pixels, confirming normal occlusion.
 The initial Snow zero-pixel failure prompted its contrast correction. The
 corrected BER16-degree screenshot and seven subsequent pan screenshots are
 valid and retain nonzero tower contrast. ENOSPC interrupted phase7 saving;
-that truncated file and absent later frames are not counted. Final wide-angle
-native visual confirmation and final full-city/physical-device browser QA remain
-uncompleted; the final remote package checks above did pass.
+that truncated file and absent later frames are not counted. At publication,
+the final native wide-angle and full-city follow-up remained incomplete; the
+final remote package checks above did pass. The [29 October visual follow-up](visual-qa-v283-20261029.md)
+now records four full-city Day anchors, BER pans and Snow, plus an independent
+native 66-degree GPU comparison at DPR 1: all eleven pixel phases retain nonzero
+contrast, and an opaque blocker yields zero changed pixels when coverage is
+toggled. The tiny full-city native screenshot alone is inconclusive; no physical
+mobile device was tested. Actual camera poses and the source/built distinction
+are documented in that follow-up.
 Screenshots and temporary harnesses are local evidence, not shipped assets.
 A small horizon feature remains faint; visibility is not promised through
 buildings, outside the field of view, underwater or at arbitrarily tiny size.

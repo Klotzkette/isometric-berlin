@@ -40,12 +40,15 @@ model families. The discovered shader literal and Snow contrast failures were
 fixed before the passing follow-up checks. Final native row coalescing and local
 fog-uniform defaults were additionally checked numerically and by regression.
 
-A final full-city browser session, physical-device check and final native
-wide-angle visual check were not completed: the Mac exhausted writable space.
-These are explicit visual verification limits, not claimed passes. A normal
-full Python test invocation could not start because temporary-file capture hit
-ENOSPC. The three new shelter tests passed with capture disabled; other Python
-tests require ignored original source archives not present in fresh CI.
+At publication, the Mac's exhausted writable space prevented the final full-city
+browser and native wide-angle follow-up. The [29 October visual follow-up](visual-qa-v283-20261029.md)
+now records full-city site checks and a separate native subpixel GPU comparison,
+including normal foreground occlusion. The tiny full-city native screenshot
+alone remains inconclusive, and no physical mobile device was tested. A small
+tree/shelter placement conflict remains documented. A normal full Python test
+invocation could not start because temporary-file capture hit ENOSPC. The three
+new shelter tests passed with capture disabled; other Python tests require
+ignored original source archives not present in fresh CI.
 
 ## Build and storage handling
 
@@ -53,7 +56,11 @@ The release was built and packaged on GitHub, pinned to `b4d19da3e9a4aa187b849ac
 local production build or local archive receipt is claimed. The retained v181
 package was not replaced on the full Mac. Only exact task-generated cache files
 were removed, with inventories; no personal files or original source data were
-deleted. Final remote source changes remain ahead of the local dirty checkout.
+deleted. On 29 October the local source checkout was safely fast-forwarded to
+`2b04d99d0ee65a75c18032fb57f7388ea8816fbc`. All 30 earlier local source changes
+matched the existing backup and were copied before synchronization; all six QA
+harness files were preserved. The retained v181 package and dist remain unchanged.
+This synchronization is not a new local production build or package receipt.
 
 Two earlier candidates passed their focused tests, build, package readiness
 and HTTP smoke but were not published because their complete retained Pages
@@ -116,6 +123,8 @@ returned HTTP 200 with the exact expected lengths, SHA256 and Git blob IDs.
 Both public archive URLs returned HEAD 200 with exact sizes; 64-byte Range 206
 responses confirmed ZIP/GZIP signatures without downloading the archives again.
 
-This is a representative public HTTP check, not a second download of all 4,790
-public files or a new visual browser/device check. The full package and proposed
-Pages inventory were independently checked before publication.
+These publication receipts describe representative public HTTP checks, not a
+second download of all 4,790 public files. The full package and proposed Pages
+inventory were independently checked before publication. The later internal
+browser checks and their limits are recorded separately in the
+[visual follow-up](visual-qa-v283-20261029.md).
