@@ -2592,3 +2592,17 @@ estimate/measurement boundary are recorded in
 `geo_data/regierungsviertel/reichstag-photo-v285-evidence.json`. The existing
 official dome dimensions, source sheets, building envelope and prior details
 remain. See `docs/reichstag-photo-v285.md` and the public reference ledger.
+
+
+Government-quarter street furniture v286: seven photographs supplied by the
+project owner on 29 October 2026 guide tilted disc lights along Heinrich-von-
+Gagern-Straße and the immediate Paul-Löbe-Allee corner, plus the seven-label
+cycleway fingerpost. All images remain references only. Ten exact municipal
+lighting records (Geoportal Berlin, dl-de/zero-2-0) are kept in full, including
+their 6.8 m display-height fallback; ten further lamp intervals and all small
+fittings are unmeasured estimates. OpenStreetMap contributors (ODbL-1.0) supply
+the western guidepost node 10298343088. A bounded official DOP 2025 comparison
+confirms the road verges without establishing surveyed private pole locations.
+See `geo_data/regierungsviertel/government-street-furniture-v286-evidence.json`
+and `docs/government-street-furniture-v286.md`. No photo, aerial pixels or
+new runtime media download is included.

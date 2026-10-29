@@ -7,6 +7,9 @@ import { appendBvgBusV253, BVG_BUS_V253 } from './BvgBusV253';
 import { appendReichstagPublicRealmV256, REICHSTAG_PUBLIC_REALM_V256 } from './ReichstagPublicRealmV256';
 import { appendUnityVisitorV256 } from './UnityVisitorV256';
 import { appendInvalidenCivicV257 } from './InvalidenCivicV257';
+import { appendGovernmentStreetLampsV286 } from './GovernmentStreetLampsV286';
+import { bakeGovernmentWayfindingV286 } from './GovernmentWayfindingV286';
+import { GOVERNMENT_STREET_LAMP_ANCHORS_V286, GOVERNMENT_WAYFINDING_PLACEMENT_V286 } from './governmentStreetFurnitureV286Profile';
 type Point=readonly number[];
 type Vec=[number,number,number];
 const UP=new Vector3(0,1,0),FORWARD=new Vector3(0,0,1);
@@ -141,5 +144,19 @@ export function createHbfNorthApproach(terrainAt:(x:number,z:number)=>number,nat
   root.userData.hbfStreetDetailsV252 = HBF_DETAILS_V252.source;
   root.userData.bvgBusV253 = { ...BVG_BUS_V253, members: appendBvgBusV253(parts, terrainAt) };
   root.userData.invalidenCivicV257 = appendInvalidenCivicV257(parts);
+  // The drawn lamps replace their exact generic owners inside ParkDetails.
+  // Native has no generic lighting-payload masts; append its independent
+  // orthogonal construction here, preserving every earlier batch prefix.
+  if (native) root.userData.governmentStreetLampsV286 = {
+    anchors: GOVERNMENT_STREET_LAMP_ANCHORS_V286,
+    members: appendGovernmentStreetLampsV286(parts, terrainAt, GOVERNMENT_STREET_LAMP_ANCHORS_V286),
+  };
+  const post = GOVERNMENT_WAYFINDING_PLACEMENT_V286;
+  const wayfinding = bakeGovernmentWayfindingV286({
+    native, anchorWorld: [post.x, terrainAt(post.x, post.z), post.z], directions: post.directions,
+  });
+  for (const value of wayfinding.matrices) parts.matrices.push(value);
+  for (const value of wayfinding.colors) parts.colors.push(value);
+  root.userData.governmentWayfindingV286 = { ...wayfinding.metadata, sourceNodeId: post.sourceNodeId };
   parts.finish(root);return freezeStaticSceneTransforms(root);
 }

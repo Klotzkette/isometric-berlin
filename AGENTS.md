@@ -2041,3 +2041,23 @@ every existing residency/decode/prefetch and release limit. This authorizes no
 new geographic coverage, animation or photographic texture. The supplied photograph
 remains reference-only; no image pixels, media files or downloads ship. Use only
 the internal browser, one full-city view at a time.
+
+### Step 10 — v286 government-quarter street-furniture photographs
+
+The owner's seven photographs permit bounded street-lamp refinement along
+Heinrich-von-Gagern-Straße and at its Paul-Löbe-Allee corner, plus one mapped
+guidepost after its photographic identity is audited. Preserve the ten exact
+municipal lamp-owner receipts (three Heinrich points and seven immediate
+Paul-Löbe-Allee corner points visible in the same photographs); their former 6.8 m height is a display fallback,
+not a measured source height. Ten further photo-estimated lamp anchors remain
+bounded to the evidenced verges and must be labelled estimates rather than
+surveyed municipal points. Keep all original source records, kerbs, roads,
+trees, measured geometry and earlier details. Only exactly matched generic drawn
+lamps may yield within the same ParkDetails construction transaction, after the
+complete replacement passes its guarded factory; a failure preserves the
+original owners. Keep independent orthogonal native models, full drawn touch
+detail, all six modes, 93 tour stops and every existing residency/decode/prefetch
+and release limit. No new geographic coverage, animation or photographic
+texture is authorized. All seven photographs remain reference-only; no image
+pixels, media files or downloads ship. Use only the internal browser, one
+full-city view at a time.

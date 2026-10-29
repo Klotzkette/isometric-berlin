@@ -9354,6 +9354,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   }
                   const options = {
                     pathTerrainAt: runtime.districtPathTerrainAt,
+                    streetFurnitureTerrainAt: (x: number, z: number, sourceY: number) =>
+                      runtime.pedestrian.environment?.groundAt(x, z) ?? sourceY,
                     detailProfile: runtime.coarsePointer ? "mobile" as const : "full" as const,
                     settledDetail: !runtime.coarsePointer,
                     tunnel: manifest.tiergartentunnel ?? null,

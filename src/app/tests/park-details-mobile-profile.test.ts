@@ -50,11 +50,28 @@ const FULL_BUDGET_BEFORE_MEASURED_HILLS: ParkGeometryBudget = {
 
 // Keep the old inventory budget and add only audited collinear hill samples:
 // v182 Humboldthain +6,752 vertices /256,576 B; v183 Fritz +4,756 /180,728 B.
-const FROZEN_FULL_BUDGET: ParkGeometryBudget = {
+const FROZEN_FULL_BUDGET_BEFORE_V286: ParkGeometryBudget = {
   ...FULL_BUDGET_BEFORE_MEASURED_HILLS,
   geometryBytes: FULL_BUDGET_BEFORE_MEASURED_HILLS.geometryBytes + 256_576 + 180_728,
   triangles: FULL_BUDGET_BEFORE_MEASURED_HILLS.triangles + 6_752 + 4_756,
   vertices: FULL_BUDGET_BEFORE_MEASURED_HILLS.vertices + 6_752 + 4_756,
+};
+
+// Exact v286 inventory accounting, not a change to a runtime/release limit:
+// the bounded twenty-lamp family adds 1,100 coloured box instances and three
+// meshes, replacing precisely ten generic poles and ten generic heads.
+// All old cone instances and shared primitive geometry remain present.
+const V286_LAMP_INSTANCE_DELTA = 1_100 - 10 * 2;
+const FROZEN_FULL_BUDGET: ParkGeometryBudget = {
+  ...FROZEN_FULL_BUDGET_BEFORE_V286,
+  geometryBytes: FROZEN_FULL_BUDGET_BEFORE_V286.geometryBytes + 90_648,
+  instanceBytes: FROZEN_FULL_BUDGET_BEFORE_V286.instanceBytes + 1_100 * 76 - 20 * 64,
+  instances: FROZEN_FULL_BUDGET_BEFORE_V286.instances + V286_LAMP_INSTANCE_DELTA,
+  instancedMeshes: FROZEN_FULL_BUDGET_BEFORE_V286.instancedMeshes + 1,
+  meshes: FROZEN_FULL_BUDGET_BEFORE_V286.meshes + 3,
+  objects: FROZEN_FULL_BUDGET_BEFORE_V286.objects + 4,
+  triangles: FROZEN_FULL_BUDGET_BEFORE_V286.triangles + 2_052,
+  vertices: FROZEN_FULL_BUDGET_BEFORE_V286.vertices + 2_184,
 };
 
 function geometryBudget(root: Object3D): ParkGeometryBudget {
@@ -162,7 +179,7 @@ function drawableCount(root: Object3D): number {
 }
 
 describe("coarse-pointer ParkDetails profile", () => {
-  test("keeps geometry/instance storage unchanged with the full spatial batch budget", () => {
+  test("retains the exact old inventory plus only the bounded v286 photo-lamp replacement", () => {
     const implicit = createParkDetails(payload, { settledDetail: false });
     const explicit = createParkDetails(payload, {
       detailProfile: "full",
@@ -174,6 +191,17 @@ describe("coarse-pointer ParkDetails profile", () => {
     expect(explicit.children.map((child) => child.name)).toEqual(
       implicit.children.map((child) => child.name),
     );
+    disposeStaticAudit(implicit); disposeStaticAudit(explicit);
+    // A rejected atomic replacement must reproduce the complete pre-v286
+    // inventory. This guards every retained tree/path/other source component
+    // and verifies the delta above comes solely from the approved lamp family.
+    const retained = createParkDetails(payload, {
+      settledDetail: false,
+      streetFurnitureTerrainAt: () => { throw new Error("test rejected furniture ground"); },
+    });
+    expect(retained.getObjectByName("Government-quarter photo street lamps v286")).toBeUndefined();
+    expect(geometryBudget(retained)).toEqual(FROZEN_FULL_BUDGET_BEFORE_V286);
+    disposeStaticAudit(retained);
   });
 
   test("touch retains the full path, tree, shrub, wall and playground geometry", () => {
@@ -235,7 +263,7 @@ describe("coarse-pointer ParkDetails profile", () => {
   test("settled touch foliage also keeps every full crown subdivision", () => {
     const full = createParkDetails(payload, { detailProfile: "full", settledDetail: true });
     const expected = staticGeometryAudit(full);
-    expect(expected.budget.instances).toBe(500_033);
+    expect(expected.budget.instances).toBe(500_033 + V286_LAMP_INSTANCE_DELTA);
     disposeStaticAudit(full);
     const mobile = createParkDetails(payload, { detailProfile: "mobile", settledDetail: true });
     expect(staticGeometryAudit(mobile)).toEqual(expected);

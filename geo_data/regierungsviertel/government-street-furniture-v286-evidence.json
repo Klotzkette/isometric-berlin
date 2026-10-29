@@ -1,0 +1,690 @@
+{
+  "schemaVersion": 1,
+  "pipelineStep": 10,
+  "evidenceId": "government-street-furniture-v286",
+  "date": "2026-10-29",
+  "scope": {
+    "street": "Heinrich-von-Gagern-Straße",
+    "northJunction": "Paul-Löbe-Allee",
+    "southJunction": "Scheidemannstraße",
+    "boundedWorldXZ": [
+      -56,
+      -72,
+      -18,
+      103
+    ],
+    "roadWayIds": [
+      "4381082",
+      "35670765"
+    ],
+    "westFootwayWayId": "1117948011",
+    "eastFootwayWayId": "1126200757",
+    "northRoadJunctionWorldXZ": [
+      -38.24510929245,
+      -57.295682657
+    ],
+    "southRoadJunctionWorldXZ": [
+      -45.723207245,
+      123.050215233
+    ],
+    "photographedStreetSegmentWorldZ": [
+      -57,
+      123
+    ],
+    "paulLoebeCornerSourceIds": [
+      "244884",
+      "92930",
+      "92928",
+      "92927",
+      "92931",
+      "92925",
+      "92926"
+    ],
+    "extensionPolicy": "Only seven existing municipal points around the photographed Paul-Löbe crossing join the same family. Photo 7 shows the same tilted-disc type at the crossing; no full Paul-Löbe row or inactive source is adopted."
+  },
+  "coordinateFrame": {
+    "crs": "EPSG:25833",
+    "origin": [
+      389500,
+      5820000,
+      30
+    ],
+    "worldAxes": [
+      "east",
+      "up",
+      "south"
+    ],
+    "horizontalAlignment": "Retained municipal source XZ for ten lamps and OSM point for one guidepost; ten other lamp positions remain explicitly unmeasured estimates."
+  },
+  "ownerPhotos": [
+    {
+      "number": 1,
+      "filename": "1-Photo-1.jpg",
+      "sha256": "fa875339c73b3aff30e8e8d0a9ad86018ef0fcd6bd3672396a0b620a23868bf0",
+      "bytes": 2566020,
+      "referenceOnly": true,
+      "pixelsBundled": false
+    },
+    {
+      "number": 2,
+      "filename": "2-Photo-2.jpg",
+      "sha256": "8244736be2f487aab3ff238319d3db5bc004211d51d6432abcc1345f37474034",
+      "bytes": 1904713,
+      "referenceOnly": true,
+      "pixelsBundled": false
+    },
+    {
+      "number": 3,
+      "filename": "3-Photo-3.jpg",
+      "sha256": "ef7e0544ba0f2ab09e19f34e40b7b794142b494b0a777d979aa777d08d589c29",
+      "bytes": 1516571,
+      "referenceOnly": true,
+      "pixelsBundled": false
+    },
+    {
+      "number": 4,
+      "filename": "4-Photo-4.jpg",
+      "sha256": "08811cb6111c7b448c789c0bf338e0cbaec2e51bab86dedda95b7dc30440ec88",
+      "bytes": 2833952,
+      "referenceOnly": true,
+      "pixelsBundled": false
+    },
+    {
+      "number": 5,
+      "filename": "5-Photo-5.jpg",
+      "sha256": "90734e2e9dd47aaf7b28a4404333289e02716b4a9f25dfea9c52b6b1fcd8e45e",
+      "bytes": 1273439,
+      "referenceOnly": true,
+      "pixelsBundled": false
+    },
+    {
+      "number": 6,
+      "filename": "6-Photo-6.jpg",
+      "sha256": "4382de10e13784a777d9b1c20bd19214f156d5bbe6a62eb686176c2ece4ed850",
+      "bytes": 2147940,
+      "referenceOnly": true,
+      "pixelsBundled": false
+    },
+    {
+      "number": 7,
+      "filename": "7-Photo-7.jpg",
+      "sha256": "b3267261300622216f69a7c9e6335a9dd4c2f377035489f8d5cc82af7f7ff635",
+      "bytes": 2002114,
+      "referenceOnly": true,
+      "pixelsBundled": false
+    }
+  ],
+  "photographicPixelsBundled": false,
+  "runtimeMediaRequests": false,
+  "sourceFiles": [
+    {
+      "path": "src/app/public/mesh/regierungsviertel/park-details.json",
+      "sha256": "13a3c88c62cc589b113d9147721ecd74390a6533bd0ea649678b436454cdec27"
+    },
+    {
+      "path": "geo_data/regierungsviertel/official_details.gpkg",
+      "sha256": "9b39e8352ed78575e8cca095b13c6ffe4bbe70df43719a564738a716eab634d8"
+    },
+    {
+      "path": "geo_data/regierungsviertel/osm.gpkg",
+      "sha256": "ce74144176cd9aa64565aead67374c22d505392ab1103feb905f1844a01797cf"
+    }
+  ],
+  "municipalLampReceipts": [
+    {
+      "id": "231349",
+      "position": [
+        -31.99,
+        4.834,
+        -49.36
+      ],
+      "height_m": 6.8,
+      "light_type": "Elektrische Beleuchtung allgemein",
+      "rotation_degrees": 0,
+      "street": "Heinrich-von-Gagern-Straße"
+    },
+    {
+      "id": "231363",
+      "position": [
+        -46.17,
+        4.848,
+        -46.44
+      ],
+      "height_m": 6.8,
+      "light_type": "Elektrische Beleuchtung allgemein",
+      "rotation_degrees": 0,
+      "street": "Heinrich-von-Gagern-Straße"
+    },
+    {
+      "id": "231319",
+      "position": [
+        -49.39,
+        4.285,
+        102.99
+      ],
+      "height_m": 6.8,
+      "light_type": "Elektrische Beleuchtung allgemein",
+      "rotation_degrees": 0,
+      "street": "Heinrich-von-Gagern-Straße"
+    },
+    {
+      "id": "244884",
+      "position": [
+        -55.31,
+        4.969,
+        -71.55
+      ],
+      "height_m": 6.8,
+      "light_type": "Lichtmast mit Aufsatzleuchte",
+      "rotation_degrees": 90.68,
+      "street": "Paul-Löbe-Allee"
+    },
+    {
+      "id": "92930",
+      "position": [
+        -46.29,
+        4.941,
+        -71.33
+      ],
+      "height_m": 6.8,
+      "light_type": "Lichtmast mit Aufsatzleuchte",
+      "rotation_degrees": 90.68,
+      "street": "Paul-Löbe-Allee"
+    },
+    {
+      "id": "92928",
+      "position": [
+        -31.22,
+        4.906,
+        -68.88
+      ],
+      "height_m": 6.8,
+      "light_type": "Lichtmast mit Aufsatzleuchte",
+      "rotation_degrees": 90.15,
+      "street": "Paul-Löbe-Allee"
+    },
+    {
+      "id": "92927",
+      "position": [
+        -31.33,
+        4.884,
+        -66.0
+      ],
+      "height_m": 6.8,
+      "light_type": "Lichtmast mit Aufsatzleuchte",
+      "rotation_degrees": 90.35,
+      "street": "Paul-Löbe-Allee"
+    },
+    {
+      "id": "92931",
+      "position": [
+        -55.45,
+        4.958,
+        -62.24
+      ],
+      "height_m": 6.8,
+      "light_type": "Lichtmast mit Aufsatzleuchte",
+      "rotation_degrees": 90.31,
+      "street": "Paul-Löbe-Allee"
+    },
+    {
+      "id": "92925",
+      "position": [
+        -19.44,
+        4.909,
+        -63.82
+      ],
+      "height_m": 6.8,
+      "light_type": "Lichtmast mit Aufsatzleuchte",
+      "rotation_degrees": 90.35,
+      "street": "Paul-Löbe-Allee"
+    },
+    {
+      "id": "92926",
+      "position": [
+        -18.74,
+        4.972,
+        -70.76
+      ],
+      "height_m": 6.8,
+      "light_type": "Lichtmast mit Aufsatzleuchte",
+      "rotation_degrees": 90.15,
+      "street": "Paul-Löbe-Allee"
+    }
+  ],
+  "heightStatus": "Every 6.8 m height is the retained old display fallback, not a surveyed source height. Original delivered ground Y and complete six-key records remain unchanged as receipts.",
+  "lampAnchors": [
+    {
+      "id": "231349",
+      "x": -31.99,
+      "z": -49.36,
+      "yawRadians": -0.02936,
+      "heightM": 6.8
+    },
+    {
+      "id": "231363",
+      "x": -46.17,
+      "z": -46.44,
+      "yawRadians": 3.112232653589793,
+      "heightM": 6.8
+    },
+    {
+      "id": "231319",
+      "x": -49.39,
+      "z": 102.99,
+      "yawRadians": 3.112232653589793,
+      "heightM": 6.8
+    },
+    {
+      "id": "244884",
+      "x": -55.31,
+      "z": -71.55,
+      "yawRadians": 1.5707963267948966,
+      "heightM": 6.8
+    },
+    {
+      "id": "92930",
+      "x": -46.29,
+      "z": -71.33,
+      "yawRadians": 1.5707963267948966,
+      "heightM": 6.8
+    },
+    {
+      "id": "92928",
+      "x": -31.22,
+      "z": -68.88,
+      "yawRadians": 1.5707963267948966,
+      "heightM": 6.8
+    },
+    {
+      "id": "92927",
+      "x": -31.33,
+      "z": -66.0,
+      "yawRadians": -0.02936,
+      "heightM": 6.8
+    },
+    {
+      "id": "92931",
+      "x": -55.45,
+      "z": -62.24,
+      "yawRadians": -1.5707963267948966,
+      "heightM": 6.8
+    },
+    {
+      "id": "92925",
+      "x": -19.44,
+      "z": -63.82,
+      "yawRadians": -1.5707963267948966,
+      "heightM": 6.8
+    },
+    {
+      "id": "92926",
+      "x": -18.74,
+      "z": -70.76,
+      "yawRadians": 1.5707963267948966,
+      "heightM": 6.8
+    },
+    {
+      "id": "photo-west-01",
+      "x": -47.852,
+      "z": -21.5,
+      "yawRadians": 3.112232653589793,
+      "heightM": 6.8
+    },
+    {
+      "id": "photo-west-02",
+      "x": -48.584,
+      "z": 3.4,
+      "yawRadians": 3.112232653589793,
+      "heightM": 6.8
+    },
+    {
+      "id": "photo-west-03",
+      "x": -49.315,
+      "z": 28.3,
+      "yawRadians": 3.112232653589793,
+      "heightM": 6.8
+    },
+    {
+      "id": "photo-west-04",
+      "x": -50.046,
+      "z": 53.2,
+      "yawRadians": 3.112232653589793,
+      "heightM": 6.8
+    },
+    {
+      "id": "photo-west-05",
+      "x": -50.778,
+      "z": 78.1,
+      "yawRadians": 3.112232653589793,
+      "heightM": 6.8
+    },
+    {
+      "id": "photo-east-01",
+      "x": -32.818,
+      "z": -21.5,
+      "yawRadians": -0.02936,
+      "heightM": 6.8
+    },
+    {
+      "id": "photo-east-02",
+      "x": -33.55,
+      "z": 3.4,
+      "yawRadians": -0.02936,
+      "heightM": 6.8
+    },
+    {
+      "id": "photo-east-03",
+      "x": -34.281,
+      "z": 28.3,
+      "yawRadians": -0.02936,
+      "heightM": 6.8
+    },
+    {
+      "id": "photo-east-04",
+      "x": -35.012,
+      "z": 53.2,
+      "yawRadians": -0.02936,
+      "heightM": 6.8
+    },
+    {
+      "id": "photo-east-05",
+      "x": -35.744,
+      "z": 78.1,
+      "yawRadians": -0.02936,
+      "heightM": 6.8
+    }
+  ],
+  "lampAnchorStatus": {
+    "exactMunicipalXZIds": [
+      "231349",
+      "231363",
+      "231319",
+      "244884",
+      "92930",
+      "92928",
+      "92927",
+      "92931",
+      "92925",
+      "92926"
+    ],
+    "estimatedPrivateUnmappedIds": [
+      "photo-west-01",
+      "photo-west-02",
+      "photo-west-03",
+      "photo-west-04",
+      "photo-west-05",
+      "photo-east-01",
+      "photo-east-02",
+      "photo-east-03",
+      "photo-east-04",
+      "photo-east-05"
+    ],
+    "estimatePolicy": "Five paired intervals of 24.9 m follow the photographed double verge and retained kerb/footway courses. These are display/spacing estimates, not individually surveyed private or municipal lamp locations. No new anchors are suppressed from foreign source inventories.",
+    "heightM": 6.8,
+    "headYawConvention": "The lamp head extends towards local -X. Heinrich west yaw PI-0.02936/east -0.02936 face the carriageway. Paul-Löbe north-row yaw +PI/2 faces South; south-row 92931/92925 yaw -PI/2 faces North. Eastern corner 92927 faces West at -0.02936 towards Heinrich, matching its east verge. All bearings are photo/context estimates, not surveyed directions.",
+    "modelPolicy": "Slender pole, curved S-neck, tilted disc, sections and material tones are owner-photo display interpretations; no manufacturer, exact survey or present operating state is asserted.",
+    "corner92927Correction": {
+      "id": "92927",
+      "retainedXZ": [
+        -31.33,
+        -66
+      ],
+      "retainedHeightM": 6.8,
+      "previousEstimatedYawRadians": -1.5707963267948966,
+      "yawRadians": -0.02936,
+      "interpretation": "This eastern island-end head faces inward to the nearer Heinrich-von-Gagern carriageway, like east-row source 231349. The photograph does not survey individual board/head azimuths; this is a bounded road-facing contextual estimate.",
+      "reason": "Opposed estimated headings for 92928/92927 caused their 2.88 m-separated discs to intersect. Source positions, heights, records and the neighbouring south-facing 92928 remain unchanged.",
+      "drawnHorizontalDishClearanceM": 0.5181713909646555,
+      "previousDrawnHorizontalOverlapM2": 0.2256423870889303
+    }
+  },
+  "excludedMunicipalRecords": [
+    {
+      "id": "231368",
+      "worldXZ": [
+        -46.82,
+        -18.831
+      ],
+      "sourceStatus": "Ausser Betrieb",
+      "policy": "Not present in delivered runtime lights; do not revive."
+    },
+    {
+      "id": "231334",
+      "worldXZ": [
+        -35.401,
+        103.626
+      ],
+      "sourceStatus": "In Betrieb (Provi)",
+      "policy": "Excluded provisional source; do not revive."
+    }
+  ],
+  "wayfinding": {
+    "sourceNodeId": "10298343088",
+    "x": -51.299,
+    "z": -51.259,
+    "sourceIdentityStatus": "Photos 1 and 4 show the same mast: identical owl, green triangle/two circles and pale-blue torn sticker sequence. Nearby tree, hydrant and west verge context support the western source post. Stickers are identity evidence only and are not reproduced.",
+    "directions": {
+      "potsdamerTor": -1.6001567363,
+      "hauptbahnhofMoabit": 1.5414359173,
+      "reichstag": -0.0198751526,
+      "schoenebergSiegessaeule": 3.121717501
+    },
+    "directionStatus": "Display estimates along retained north/south and east/west route axes; not a surveyed board orientation.",
+    "boards": [
+      {
+        "key": "hauptbahnhofMoabit",
+        "destinations": [
+          {
+            "label": "Hauptbahnhof",
+            "distanceKm": 0.6
+          },
+          {
+            "label": "Moabit",
+            "distanceKm": 0.3
+          }
+        ]
+      },
+      {
+        "key": "potsdamerTor",
+        "destinations": [
+          {
+            "label": "Potsdamer Platz",
+            "distanceKm": 1.4
+          },
+          {
+            "label": "Brandenburger Tor",
+            "distanceKm": 0.8
+          }
+        ]
+      },
+      {
+        "key": "reichstag",
+        "destinations": [
+          {
+            "label": "Reichstag",
+            "distanceKm": 0.2
+          }
+        ]
+      },
+      {
+        "key": "schoenebergSiegessaeule",
+        "destinations": [
+          {
+            "label": "Schöneberg",
+            "distanceKm": 3.3
+          },
+          {
+            "label": "Siegessäule",
+            "distanceKm": 1.7
+          }
+        ]
+      }
+    ],
+    "separateGuideposts": [
+      {
+        "id": "10298343088",
+        "url": "https://www.openstreetmap.org/node/10298343088",
+        "role": "adopted west guidepost",
+        "version": 1,
+        "sourceTimestamp": "2023-01-01T15:26:45Z",
+        "lon": 13.3706732,
+        "lat": 52.5193444,
+        "worldXZFullPrecision": [
+          -51.299069744651206,
+          -51.25862573739141
+        ],
+        "worldXZM": [
+          -51.299,
+          -51.259
+        ],
+        "tags": {
+          "bicycle": "yes",
+          "information": "guidepost",
+          "tourism": "information"
+        }
+      },
+      {
+        "id": "5151420229",
+        "url": "https://www.openstreetmap.org/node/5151420229",
+        "role": "separate east guidepost, unchanged",
+        "version": 1,
+        "sourceTimestamp": "2017-10-06T10:25:47Z",
+        "lon": 13.3709648,
+        "lat": 52.5192881,
+        "worldXZFullPrecision": [
+          -31.65644425537903,
+          -44.55034478753805
+        ],
+        "worldXZM": [
+          -31.656,
+          -44.55
+        ],
+        "tags": {
+          "guidepost": "bicycle",
+          "information": "guidepost",
+          "tourism": "information"
+        }
+      }
+    ],
+    "secondPostPolicy": "Do not copy the photographed seven labels to node 5151420229 merely because another mapped guidepost exists."
+  },
+  "bluePedestrianSigns": {
+    "photoNumber": 6,
+    "status": "Read-only audit; separate from the modelled cycle mast. Small reverse-facing panel is illegible.",
+    "legible": [
+      {
+        "label": "Schloss Bellevue",
+        "distanceM": 1250
+      },
+      {
+        "label": "Haus der Kulturen der Welt",
+        "distanceM": 350
+      },
+      {
+        "label": "Tipi am Kanzleramt",
+        "distanceM": 250
+      },
+      {
+        "label": "Skulpturengarten",
+        "distanceM": null,
+        "distanceStatus": "Blurred; omit unverified distance."
+      }
+    ],
+    "arrowDirectionInPhoto": "right",
+    "pixelsBundled": false,
+    "probableMastSourceId": "231363",
+    "placementStatus": "Photo-context estimate only: the verified guidepost is 7.04 m northwest of this west corner mast. The narrow behind-left projection fits better than the separate east mast 19.4 m away. No separate blue-sign placement is claimed as a survey."
+  },
+  "references": [
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/map",
+      "kind": "bounded primary OSM response",
+      "requestBboxEPSG25833": [
+        389435,
+        5820037,
+        389490,
+        5820058
+      ],
+      "responseSha256": "9745f6cf5289a46ab5c7ae2f0cb5f57ec35b758eaa9e0d6dc18611fd77aa11bc",
+      "responseBytes": 318108,
+      "retainedNodeEvidence": [
+        {
+          "id": "10298343088",
+          "url": "https://www.openstreetmap.org/node/10298343088",
+          "role": "adopted west guidepost",
+          "version": 1,
+          "sourceTimestamp": "2023-01-01T15:26:45Z",
+          "lon": 13.3706732,
+          "lat": 52.5193444,
+          "worldXZFullPrecision": [
+            -51.299069744651206,
+            -51.25862573739141
+          ],
+          "worldXZM": [
+            -51.299,
+            -51.259
+          ],
+          "tags": {
+            "bicycle": "yes",
+            "information": "guidepost",
+            "tourism": "information"
+          }
+        },
+        {
+          "id": "5151420229",
+          "url": "https://www.openstreetmap.org/node/5151420229",
+          "role": "separate east guidepost, unchanged",
+          "version": 1,
+          "sourceTimestamp": "2017-10-06T10:25:47Z",
+          "lon": 13.3709648,
+          "lat": 52.5192881,
+          "worldXZFullPrecision": [
+            -31.65644425537903,
+            -44.55034478753805
+          ],
+          "worldXZM": [
+            -31.656,
+            -44.55
+          ],
+          "tags": {
+            "guidepost": "bicycle",
+            "information": "guidepost",
+            "tourism": "information"
+          }
+        }
+      ],
+      "license": "ODbL-1.0 © OpenStreetMap contributors"
+    },
+    {
+      "url": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+      "kind": "one bounded official DOP reference, no image shipped",
+      "layer": "dop_2025:dop_2025",
+      "crs": "EPSG:25833",
+      "bbox": [
+        389430,
+        5819870,
+        389490,
+        5820060
+      ],
+      "widthPx": 600,
+      "heightPx": 1900,
+      "responseSha256": "566eba077b823ad9183132a774a0c0e90166e58df1005b13accc8bf0a7b41645",
+      "responseBytes": 128899,
+      "pixelsBundled": false,
+      "interpretationLimit": "The aerial comparison supports the two retained verges; private pole bases cannot reliably be separated from bollards, so the ten intervals remain display estimates.",
+      "license": "Geoportal Berlin, dl-de/zero-2-0"
+    }
+  ],
+  "admissionPolicy": "Require each of the ten original owner IDs exactly once and its six original own keys, complete position and values unchanged. Each coordinate must be an enumerable own data property. Any missing, duplicate, changed, installation, unknown-key or accessor owner rejects the complete family. Only after construction of all twenty replacements may the ten exact generic drawn owners yield. All foreign source records, including those near estimated anchors, remain untouched.",
+  "preservation": {
+    "originalSourceRecordsRetained": true,
+    "roadsKerbsPathsTreesUnchanged": true,
+    "fullDrawnDetailOnTouch": true,
+    "independentOrthogonalNativeModels": true,
+    "tourCount": 93,
+    "coverageExpanded": false,
+    "runtimeBudgetsRaised": false,
+    "animationAdded": false
+  }
+}

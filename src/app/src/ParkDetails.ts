@@ -1,3 +1,4 @@
+import { createGovernmentStreetLampBatchV286, type GovernmentStreetFurnitureTerrainAtV286 } from "./GovernmentStreetLampBatchV286";
 import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   AdditiveBlending,
@@ -583,6 +584,8 @@ export type ParkPathTerrainAt = (path: ParkPath, x: number, z: number, sourceY: 
 
 export type ParkDetailOptions = {
   pathTerrainAt?: ParkPathTerrainAt;
+  /** Footway ground for photo-estimated furniture; exact municipal datums stay unchanged. */
+  streetFurnitureTerrainAt?: GovernmentStreetFurnitureTerrainAtV286;
   detailProfile?: ParkDetailProfile;
   settledDetail?: boolean;
   /** Immutable batching only: all authored instances retain exact matrices/colors. */
@@ -1986,10 +1989,16 @@ function addStreetLights(
   group: Group,
   lights: StreetLight[],
   includeLightCones = true,
+  furnitureTerrainAt?: GovernmentStreetFurnitureTerrainAtV286,
 ): void {
   if (lights.length === 0) {
     return;
   }
+  // Build the entire admitted family synchronously before its exact admitted
+  // generic poles/heads yield. The existing cone pass remains unchanged.
+  const governmentLamps = createGovernmentStreetLampBatchV286(lights, furnitureTerrainAt);
+  const replaced = new Set<string>(governmentLamps?.userData.replacementSourceIds ?? []);
+  if (governmentLamps) group.add(governmentLamps);
   const poles: Transform[] = [];
   const heads: Transform[] = [];
   const cones: Transform[] = [];
@@ -2009,23 +2018,25 @@ function addStreetLights(
       });
       continue;
     }
-    poles.push({
-      position: [x, y + height / 2, z],
-      rotation: [0, yaw, 0],
-      scale: [0.095, height, 0.095],
-    });
-    const headCount = lampHeadCount(light.light_type);
-    for (let index = 0; index < headCount; index += 1) {
-      const offset = (index - (headCount - 1) / 2) * 0.72;
-      heads.push({
-        position: [
-          x + Math.cos(yaw) * offset,
-          y + height,
-          z - Math.sin(yaw) * offset,
-        ],
+    if (!replaced.has(light.id)) {
+      poles.push({
+        position: [x, y + height / 2, z],
         rotation: [0, yaw, 0],
-        scale: [0.42, 0.22, 0.28],
+        scale: [0.095, height, 0.095],
       });
+      const headCount = lampHeadCount(light.light_type);
+      for (let index = 0; index < headCount; index += 1) {
+        const offset = (index - (headCount - 1) / 2) * 0.72;
+        heads.push({
+          position: [
+            x + Math.cos(yaw) * offset,
+            y + height,
+            z - Math.sin(yaw) * offset,
+          ],
+          rotation: [0, yaw, 0],
+          scale: [0.42, 0.22, 0.28],
+        });
+      }
     }
     if (includeLightCones) {
       const coneHeight = Math.max(2.8, height * 0.86);
@@ -2913,7 +2924,7 @@ function* createParkDetailsSteps(
     detailProfile === "full",
   );
   yield;
-  addStreetLights(group, streetLights, detailProfile === "full");
+  addStreetLights(group, streetLights, detailProfile === "full", options.streetFurnitureTerrainAt);
   yield;
   group.userData.wallStoneCount =
     detailProfile === "mobile"
