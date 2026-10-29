@@ -2582,3 +2582,13 @@ its original building=yes tag and unmeasured display-height fallback. A bounded
 Geoportal Berlin DOP 2025 Frühjahr comparison supports an independent open edge
 frame rather than the old solid mass. Roof alignment to the measured station
 roof is a documented visual/context estimate. No aerial imagery is redistributed.
+
+
+Reichstag v285: the project owner's west-elevation photograph supplied on
+29 October 2026 informs additional window glazing divisions, arch-joint marks
+and small dome steel profiles. The image remains a reference only: no pixels,
+photographic textures or media requests are included. Its SHA256 and the
+estimate/measurement boundary are recorded in
+`geo_data/regierungsviertel/reichstag-photo-v285-evidence.json`. The existing
+official dome dimensions, source sheets, building envelope and prior details
+remain. See `docs/reichstag-photo-v285.md` and the public reference ledger.

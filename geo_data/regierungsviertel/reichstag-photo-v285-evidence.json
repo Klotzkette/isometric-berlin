@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "owner_photo": {
+    "id": "reichstag-owner-photo-v285",
+    "filename": "1-Photo-5.jpg",
+    "sha256": "b84f4ca702bde0af90631aa637cd339a07105646d4ae62d493f1453f199c5875",
+    "credit": "Project owner, supplied 29 October 2026",
+    "page_url": "owner-supplied:56639FDC-3EA4-459D-B03A-C16502001D93/1-Photo-5.jpg",
+    "photo_bundled": false,
+    "landmark_id": "reichstag_v285",
+    "license": "Owner-supplied visual reference only; no photographic pixels redistributed",
+    "checked": "2026-10-29",
+    "pixels_bundled": false,
+    "role": "West elevation reference for glazing subdivisions, arch joints and dome steel visibility. Small fitting dimensions and tone are display estimates; original source geometry and measured dimensions retained."
+  },
+  "visible_members": {
+    "portico_columns": 6,
+    "portico_intercolumniations": 5,
+    "wing_opening_axes_per_side": 5,
+    "front_tower_arcade_openings_per_tower": 3
+  },
+  "scope": "Bounded additive facade fittings and corrected small steel profiles; no source, envelope, massing, footprint, navigation or public-realm replacement.",
+  "photo_estimates": {
+    "dome_horizontal_steel_section_radius_m": 0.12,
+    "dome_horizontal_steel_surface_offset_m": 0.25,
+    "dome_rib_surface_offset_m": 0.2,
+    "dome_steel_color": "#71848b",
+    "facade_fittings": "Subdivision locations and thin members are procedural photo-guided estimates anchored to existing openings."
+  },
+  "retained_official_dome": {
+    "diameter_m": 40,
+    "height_m": 23.5,
+    "vertical_ribs": 24,
+    "horizontal_rings": 17,
+    "crown_opening_diameter_m": 10,
+    "mirror_rows": 30,
+    "mirrors_per_row": 12,
+    "ramps": 2,
+    "ramp_length_m": 230
+  },
+  "excluded_context": [
+    "temporary construction cabins",
+    "foreground people",
+    "weather and sky",
+    "new claims about unseen facades or surveyed fitting dimensions"
+  ]
+}

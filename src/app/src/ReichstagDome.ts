@@ -45,6 +45,19 @@ const PLATFORM_INNER_RADIUS_M = 7.8;
 const PLATFORM_OUTER_RADIUS_M = Math.sqrt(EVIDENCE.platformAreaM2 / Math.PI + PLATFORM_INNER_RADIUS_M ** 2);
 const UNGLAZED_LOWER_ROWS = 4;
 
+// Owner's 29 October 2026 west-elevation photograph: the horizontal steel
+// bands read clearly in front of the glazing. Their small sections and tone
+// are photo-guided display estimates; the official 40 m / 23.5 m envelope,
+// 24 ribs, 17 rings, open crown and complete interior remain unchanged.
+const PHOTO_STEEL = {
+  horizontalSectionRadiusM: 0.12,
+  horizontalSurfaceOffsetM: 0.25,
+  ribSurfaceOffsetM: 0.2,
+  color: 0x71848b,
+  metalness: 0.4,
+  roughness: 0.42,
+} as const;
+
 export function domeRadius(
   normalizedHeight: number,
   diameterM: number,
@@ -65,7 +78,7 @@ function domeCurvePoints(
 ): Vector3[] {
   return Array.from({ length: samples + 1 }, (_, index) => {
     const t = index / samples;
-    const radius = domeRadius(t, signature.diameter_m) + 0.12;
+    const radius = domeRadius(t, signature.diameter_m) + PHOTO_STEEL.ribSurfaceOffsetM;
     return new Vector3(
       Math.cos(angle) * radius,
       t * signature.height_m,
@@ -364,6 +377,11 @@ export function createOfficialReichstagDome(
     heightM: signature.height_m,
     sourceUrl: signature.source_url,
     sourceDetail: EVIDENCE,
+    photoSteelDetail: {
+      ...PHOTO_STEEL,
+      geometryStatus: "owner-photo-guided fitting estimates; official envelope unchanged",
+      photoEvidenceId: "reichstag-owner-photo-v285",
+    },
   };
 
   const firstGlazedRow = UNGLAZED_LOWER_ROWS / signature.horizontal_rings;
@@ -419,11 +437,11 @@ export function createOfficialReichstagDome(
   group.add(nightGlassGlow);
 
   const steel = new MeshStandardMaterial({
-    color: 0x90a5ad,
+    color: PHOTO_STEEL.color,
     emissive: 0x1c3038,
     emissiveIntensity: 0.1,
-    metalness: 0.82,
-    roughness: 0.19,
+    metalness: PHOTO_STEEL.metalness,
+    roughness: PHOTO_STEEL.roughness,
   });
   steel.userData.nightEmissive = 0xb5d5ea;
   steel.userData.nightEmissiveIntensity = 2.2;
@@ -460,8 +478,8 @@ export function createOfficialReichstagDome(
     const t = index / (signature.horizontal_rings + 1);
     const ring = new Mesh(
       new TorusGeometry(
-        domeRadius(t, signature.diameter_m) + 0.12,
-        0.055,
+        domeRadius(t, signature.diameter_m) + PHOTO_STEEL.horizontalSurfaceOffsetM,
+        PHOTO_STEEL.horizontalSectionRadiusM,
         6,
         96,
       ),

@@ -2024,3 +2024,20 @@ photo/context estimate, not a surveyed strip height. Keep independent orthogonal
 full drawn mobile detail, the 93-place tour and existing live/release limits.
 Photographs remain reference-only; no pixels, textures or media downloads ship.
 Use only the internal browser, one full-city view at a time.
+
+### Step 10 — v285 Reichstag owner photograph
+
+The owner's 29 October Reichstag photograph permits bounded refinement of the
+existing photographed facade, roof and glass dome within its retained site.
+Preserve measured anchors, complete source envelopes, roof hierarchy, courts,
+existing architectural detail and walking approaches. The official dome envelope,
+rib/ring counts, open crown and complete interior remain authoritative; small
+steel sections, facade subdivisions and material tones guided by the photograph are
+explicit display estimates, not surveyed dimensions. Correct only exactly
+identified erroneous authored fittings with complete bounded replacements;
+retain unrelated geometry and earlier details. Keep independent orthogonal
+native construction, full drawn mobile detail, all six modes, 93 tour stops and
+every existing residency/decode/prefetch and release limit. This authorizes no
+new geographic coverage, animation or photographic texture. The supplied photograph
+remains reference-only; no image pixels, media files or downloads ship. Use only
+the internal browser, one full-city view at a time.

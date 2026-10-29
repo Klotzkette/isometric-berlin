@@ -48,6 +48,7 @@ import {
 import { QUADRIGA_DIMENSIONS, createQuadriga } from "./Quadriga";
 import { BRANDENBURG_GATE_RELIEF_EVIDENCE as GATE_RELIEFS } from "./HeroArchitectureEvidence";
 import { createDedicationTexture } from "./reichstagInscription";
+import { appendReichstagPhotoFacade } from "./ReichstagPhotoFacade";
 import { markWindFlag, markWindFlagInstances } from "./WindFlags";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { HBF_DETAILS_V252, hbfFlightEndpointsV252, hbfHorizontalTreadsV252 } from "./HbfDetailsV252";
@@ -2528,6 +2529,7 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
     stoneAccent,
     stoneRelief,
   );
+  appendReichstagPhotoFacade(group, signature.width_m);
 
   return group;
 }

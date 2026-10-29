@@ -2847,6 +2847,19 @@
       "role": "Official orthophoto cross-check identifies the station roof and thin east edge instead of a separate solid tower. Does not establish an independently surveyed strip roof height. No imagery is bundled.",
       "checked": "2026-10-29",
       "pixels_bundled": false
+    },
+    {
+      "id": "reichstag-owner-photo-v285",
+      "filename": "1-Photo-5.jpg",
+      "sha256": "b84f4ca702bde0af90631aa637cd339a07105646d4ae62d493f1453f199c5875",
+      "credit": "Project owner, supplied 29 October 2026",
+      "page_url": "owner-supplied:56639FDC-3EA4-459D-B03A-C16502001D93/1-Photo-5.jpg",
+      "photo_bundled": false,
+      "landmark_id": "reichstag_v285",
+      "license": "Owner-supplied visual reference only; no photographic pixels redistributed",
+      "checked": "2026-10-29",
+      "pixels_bundled": false,
+      "role": "West elevation reference for glazing subdivisions, arch joints and dome steel visibility. Small fitting dimensions and tone are display estimates; original source geometry and measured dimensions retained."
     }
   ]
 }

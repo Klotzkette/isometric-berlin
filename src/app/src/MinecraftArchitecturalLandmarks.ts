@@ -975,6 +975,16 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
     pushLocalBlock(plan, frame, "stepped aluminium sunshade", [2.8 + 5.4*t, domeBaseY + 18*t, 0], [0.5, 0.75, 2.8+4.8*t], BLOCK.marbleShadow);
   }
 
+  // The frontal owner photograph shows divided glazing. Four coarse bars
+  // articulate the existing west-wing lower panes without replacing their
+  // blocks or copying the drawn window geometry. Sizes are display estimates;
+  // each rear face meets its existing pane's west face exactly. Appending
+  // preserves every preceding matrix and colour, including the dome interior.
+  for (const z of [-48, -32, 32, 48]) {
+    pushLocalBlock(plan, frame, "owner-photo west-wing glazing transoms",
+      [-profile.widthM / 2 - 3.095, 9, z], [.24, .34, 7.2], BLOCK.iron);
+  }
+
   return finishPlan(
     "Minecraft Reichstag block signature",
     "reichstag",

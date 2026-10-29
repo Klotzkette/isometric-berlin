@@ -9,6 +9,7 @@
 | Versioned v1.0.181 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.181/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.182 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.182/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.183 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.183/isometric-berlin-regierungsviertel-local.zip |
+| Candidate v1.0.184 ZIP (unpublished / noch nicht veröffentlicht) | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.184/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -26,7 +27,9 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Live v1.0.183** · Local v1.0.183 · static viewer for macOS, Windows, and Linux.
+**Status:** Public open-data project · **Live v1.0.183** · Local v1.0.184 candidate sources (unpublished / unveröffentlichter Quellstand) · static viewer for macOS, Windows, and Linux.
+
+Local v1.0.184 contains bounded Reichstag refinements from the owner photograph. Production, offline-package and browser checks passed; publication is pending. Der lokale Kandidat v1.0.184 enthält geprüfte Reichstagsverfeinerungen anhand des bereitgestellten Fotos; die Veröffentlichung steht noch aus.
 
 The hosted viewer and both release packages are v1.0.183. Online-Ansicht und beide Downloadpakete enthalten v1.0.183. [Source evidence, checks and publication](docs/potsdamer-photos-v284.md).
 
