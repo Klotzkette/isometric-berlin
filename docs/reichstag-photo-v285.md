@@ -64,5 +64,40 @@ The manifest SHA256 is
 `3422e4fb9aee1311a17a30f8d12441486f93604749c77b72a6fee942d50087d0`.
 The audited prospective Pages tree retains all 333 v182/v183 dependency assets
 and retires exactly 11 v181-only assets (34,552,256 bytes). Its 4,776 files use
-1,002,302,993 bytes, leaving 71,438,831 bytes below 1 GiB. Publication remains
-pending until the exact prepared remote tree and deployment are verified.
+1,002,302,993 bytes, leaving 71,438,831 bytes below 1 GiB. Publication and the public HTTP verification both passed as recorded below.
+
+
+## Published v1.0.184
+
+The tested source is commit `cd608ba2527b35b3317edf38645cd05f872da69f`,
+tag `v1.0.184`. Pages commit `367bdcfec2cc41863532418bea3e8f33dc6a165d`
+has sole parent `227e368a94df4b0f4aea4715ab07a0f322ceaf93` and tree
+`3cdd6c40b2a16895994b76b04d20167e41264929`. Before the compare-and-swap
+branch update, every remote path, mode, blob and size matched the complete
+audited target. All three executable launcher/server modes remain `100755`.
+
+[Pages deployment 40963626304](https://github.com/Klotzkette/isometric-berlin/actions/runs/40963626304)
+completed successfully. Fresh public HTTP verification checked 14 files /
+34,981,933 bytes: every new path, index, manifest, scene and both retained
+v182/v183 workers. All sizes, SHA256 and Git blob hashes matched; the expected
+Pages ref remained current before and after verification.
+
+[Release v1.0.184](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.184)
+was published at 2026-10-29 22:12:42 UTC and confirmed as latest. Both uploaded
+server digests and sizes match the locally validated archives:
+
+| Archive | Bytes | SHA256 |
+| --- | ---: | --- |
+| `isometric-berlin-regierungsviertel-local.zip` | 765,500,136 | `81f75e0a25e5568460976986eca24c39a73f1051e1a6b627d73d7bc9a75ce6c8` |
+| `isometric-berlin-viewer-v1.0.184.tar.gz` | 764,727,248 | `95197a90faa8d83e2a7089c3d3101cc412059c63c2d4100a61a140e217b3f522` |
+
+The draft was published only after exact asset verification, successful Pages
+deployment and public HTTP checks. Detailed local receipts are retained in the
+task's `release-plan-v184` folder. Previous live dependency closures remain
+available; no source detail or release limit was reduced.
+
+The public internal-browser view reports v1.0.184 and shows the Reichstag at
+Day with the new facade divisions and stronger dome bands. No new live-origin
+console warning/error was recorded. The live screenshot is retained as
+`reichstag-v285-qa/live-reichstag-v184.jpg` in the task folder; the live tab is
+left open for the owner. No physical mobile-device claim is made.

@@ -9,7 +9,7 @@
 | Versioned v1.0.181 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.181/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.182 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.182/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.183 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.183/isometric-berlin-regierungsviertel-local.zip |
-| Candidate v1.0.184 ZIP (unpublished / noch nicht veröffentlicht) | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.184/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.184 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.184/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -27,11 +27,11 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Live v1.0.183** · Local v1.0.184 candidate sources (unpublished / unveröffentlichter Quellstand) · static viewer for macOS, Windows, and Linux.
+**Status:** Public open-data project · **Live v1.0.184** · Local v1.0.184 · static viewer for macOS, Windows, and Linux.
 
-Local v1.0.184 contains bounded Reichstag refinements from the owner photograph. Production, offline-package and browser checks passed; publication is pending. Der lokale Kandidat v1.0.184 enthält geprüfte Reichstagsverfeinerungen anhand des bereitgestellten Fotos; die Veröffentlichung steht noch aus.
+Local v1.0.184 refines Reichstag window divisions, stone arch joints and dome steel from the owner photograph. Production, offline-package, browser and publication checks passed. v1.0.184 präzisiert Fensterteilungen, Steinbogenfugen und die Kuppelstruktur anhand des bereitgestellten Fotos; Build, Paket und Live-Stand sind geprüft.
 
-The hosted viewer and both release packages are v1.0.183. Online-Ansicht und beide Downloadpakete enthalten v1.0.183. [Source evidence, checks and publication](docs/potsdamer-photos-v284.md).
+The hosted viewer and both release packages are v1.0.184. Online-Ansicht und beide Downloadpakete enthalten v1.0.184. [Source evidence, checks and publication](docs/reichstag-photo-v285.md).
 
 Version 1.0.183 refines Potsdamer Platz from three owner photographs: source-aligned Torhaus and TRION facade grids, the Beisheim office podium, and the south station pavilion. Its source height included a basement; the roof now uses the original absolute elevation. Window divisions, steel fittings and tones are photographic estimates. The hosted viewer and both archives passed their publication checks. [Source evidence and checks](docs/potsdamer-photos-v284.md).
 
