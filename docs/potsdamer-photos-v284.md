@@ -128,8 +128,10 @@ field of view, not a calibrated pixel-for-pixel reconstruction.
 The final TypeScript build and Vite 8.1.4 production build passed. The build
 contains 4,745 files / 935,310,388 bytes, with 318 hashed assets. It was built in
 a separate temporary directory; the prior v181 canonical dist was retained by
-rename before installing the fresh build. Package and live publication checks
-are still in progress; neither is claimed yet.
+rename before installing the fresh build. Both archive readiness and the HTTP package smoke passed. The selected Python
+package/readiness tests passed 101 cases, including the current-tree check after
+the fresh dist and package were installed. This is not a complete repository-wide
+Python test run.
 
 ## References
 
@@ -148,3 +150,50 @@ are still in progress; neither is claimed yet.
 - [Beisheim Center: background](https://www.beisheim-center.de/de/background).
 - Existing station reference links and credits remain in the station profile and
   public `visual_reference_attribution.json`.
+
+
+## Publication evidence — 29 October 2026
+
+Tested source and version tag: `dbb27c18d8711adfd662e47cf2897d74fc7e12e6`,
+[v1.0.183](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.183).
+This record and the README are a subsequent documentation-only update; the tag
+remains on the tested build source.
+
+Release ID 428416446 was published at 2026-10-29T21:39:16Z and independently
+confirmed as the latest public release. GitHub's uploaded asset byte counts and
+server SHA256 digests match both locally verified archives:
+
+| Archive | Asset ID | Bytes | SHA256 |
+| --- | ---: | ---: | --- |
+| isometric-berlin-regierungsviertel-local.zip | 689969389 | 765,498,850 | `68d23652840a86c629803a8651a8a7961d69f7434b888d7ccdf7207d1f2b1f3f` |
+| isometric-berlin-viewer-v1.0.183.tar.gz | 689969388 | 764,729,167 | `3e5ff17223fdf17a3bab3d570c30b034506d0aa03c997e8200dcef315bdaac56` |
+
+The extracted package contains 4,754 files / 935,331,533 bytes. Manifest SHA256:
+`6dc17f480ee75ac2017a86f8b4ca7266ff0449dec53a9ae15f5fc5b25c770b2c`.
+The prior v181 package and dist were preserved by rename, not overwritten during
+candidate construction.
+
+Pages commit `227e368a94df4b0f4aea4715ab07a0f322ceaf93` has sole parent
+`5d5fab22dbae7c8e60f64588ef6bb713acef0836` and tree
+`174258cf3f5e97c6e52b6972571d5a21a3a8c927`. Its complete 4,780-file tree was
+checked against every expected path, mode, Git blob and byte count before the
+non-force, expected-parent ref advance. It contains 1,024,544,103 bytes,
+49,197,721 bytes below the unchanged 1 GiB limit.
+
+Both actual previous live closures, v181 and v182, retain all 327 distinct assets.
+An independent broad filename graph reconstructed v181/v182/v183 as respectively
+316/316/318 complete asset chains, including their workers and the unchanged
+street NDJSON. Exactly 20 exclusively v180 assets (74,529,726 bytes) were retired;
+none is referenced by any retained chain. All three executable launcher/server
+modes remain `100755`. Only 21 new blobs / 54,844,310 bytes were uploaded.
+The complete target path/mode/blob/size fingerprint is
+`675fe159ce3cfe623a0f58ab957d9d3fd49c6a77bf596759937f958e52d8cd96`.
+
+[Pages deployment 40959023930](https://github.com/Klotzkette/isometric-berlin/actions/runs/40959023930)
+completed successfully on this exact Pages commit. Public HTTP verification at
+2026-10-29T21:38:22Z checked all 21 newly uploaded paths (including index and
+manifest), plus the scene and both prior worker URLs: 24 distinct files / 77,301,180 bytes, all matching the
+expected content hashes and sizes. The normal public index and manifest expose
+v1.0.183. A separate full production-package browser check confirmed the runtime
+v1.0.183 label, 93 sights, the delivered city and no new console errors from that
+origin. The final live viewer is opened in the task's internal browser.
