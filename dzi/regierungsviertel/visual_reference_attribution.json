@@ -2860,6 +2860,121 @@
       "checked": "2026-10-29",
       "pixels_bundled": false,
       "role": "West elevation reference for glazing subdivisions, arch joints and dome steel visibility. Small fitting dimensions and tone are display estimates; original source geometry and measured dimensions retained."
+    },
+    {
+      "id": "government-street-furniture-v286-owner-photo-1",
+      "landmark_id": "government_street_furniture_v286",
+      "title": "Government-quarter lamps and cycleway guidepost, owner photograph 1",
+      "page_url": "owner-supplied:1303331C-93B2-498C-AB81-65876AF0D9C7/1-Photo-1.jpg",
+      "sha256": "fa875339c73b3aff30e8e8d0a9ad86018ef0fcd6bd3672396a0b620a23868bf0",
+      "credit": "Project owner, supplied 29 October 2026",
+      "license": "Owner-supplied visual reference only; no photographic pixels redistributed",
+      "role": "Reference for tilted disc lamps, curved necks, site context and seven cycleway destinations/distances. Ten original municipal positions retained; ten intermediate intervals and small fittings are display estimates.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "id": "government-street-furniture-v286-owner-photo-2",
+      "landmark_id": "government_street_furniture_v286",
+      "title": "Government-quarter lamps and cycleway guidepost, owner photograph 2",
+      "page_url": "owner-supplied:1303331C-93B2-498C-AB81-65876AF0D9C7/2-Photo-2.jpg",
+      "sha256": "8244736be2f487aab3ff238319d3db5bc004211d51d6432abcc1345f37474034",
+      "credit": "Project owner, supplied 29 October 2026",
+      "license": "Owner-supplied visual reference only; no photographic pixels redistributed",
+      "role": "Reference for tilted disc lamps, curved necks, site context and seven cycleway destinations/distances. Ten original municipal positions retained; ten intermediate intervals and small fittings are display estimates.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "id": "government-street-furniture-v286-owner-photo-3",
+      "landmark_id": "government_street_furniture_v286",
+      "title": "Government-quarter lamps and cycleway guidepost, owner photograph 3",
+      "page_url": "owner-supplied:1303331C-93B2-498C-AB81-65876AF0D9C7/3-Photo-3.jpg",
+      "sha256": "ef7e0544ba0f2ab09e19f34e40b7b794142b494b0a777d979aa777d08d589c29",
+      "credit": "Project owner, supplied 29 October 2026",
+      "license": "Owner-supplied visual reference only; no photographic pixels redistributed",
+      "role": "Reference for tilted disc lamps, curved necks, site context and seven cycleway destinations/distances. Ten original municipal positions retained; ten intermediate intervals and small fittings are display estimates.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "id": "government-street-furniture-v286-owner-photo-4",
+      "landmark_id": "government_street_furniture_v286",
+      "title": "Government-quarter lamps and cycleway guidepost, owner photograph 4",
+      "page_url": "owner-supplied:1303331C-93B2-498C-AB81-65876AF0D9C7/4-Photo-4.jpg",
+      "sha256": "08811cb6111c7b448c789c0bf338e0cbaec2e51bab86dedda95b7dc30440ec88",
+      "credit": "Project owner, supplied 29 October 2026",
+      "license": "Owner-supplied visual reference only; no photographic pixels redistributed",
+      "role": "Reference for tilted disc lamps, curved necks, site context and seven cycleway destinations/distances. Ten original municipal positions retained; ten intermediate intervals and small fittings are display estimates.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "id": "government-street-furniture-v286-owner-photo-5",
+      "landmark_id": "government_street_furniture_v286",
+      "title": "Government-quarter lamps and cycleway guidepost, owner photograph 5",
+      "page_url": "owner-supplied:1303331C-93B2-498C-AB81-65876AF0D9C7/5-Photo-5.jpg",
+      "sha256": "90734e2e9dd47aaf7b28a4404333289e02716b4a9f25dfea9c52b6b1fcd8e45e",
+      "credit": "Project owner, supplied 29 October 2026",
+      "license": "Owner-supplied visual reference only; no photographic pixels redistributed",
+      "role": "Reference for tilted disc lamps, curved necks, site context and seven cycleway destinations/distances. Ten original municipal positions retained; ten intermediate intervals and small fittings are display estimates.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "id": "government-street-furniture-v286-owner-photo-6",
+      "landmark_id": "government_street_furniture_v286",
+      "title": "Government-quarter lamps and cycleway guidepost, owner photograph 6",
+      "page_url": "owner-supplied:1303331C-93B2-498C-AB81-65876AF0D9C7/6-Photo-6.jpg",
+      "sha256": "4382de10e13784a777d9b1c20bd19214f156d5bbe6a62eb686176c2ece4ed850",
+      "credit": "Project owner, supplied 29 October 2026",
+      "license": "Owner-supplied visual reference only; no photographic pixels redistributed",
+      "role": "Reference for tilted disc lamps, curved necks, site context and seven cycleway destinations/distances. Ten original municipal positions retained; ten intermediate intervals and small fittings are display estimates.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "id": "government-street-furniture-v286-owner-photo-7",
+      "landmark_id": "government_street_furniture_v286",
+      "title": "Government-quarter lamps and cycleway guidepost, owner photograph 7",
+      "page_url": "owner-supplied:1303331C-93B2-498C-AB81-65876AF0D9C7/7-Photo-7.jpg",
+      "sha256": "b3267261300622216f69a7c9e6335a9dd4c2f377035489f8d5cc82af7f7ff635",
+      "credit": "Project owner, supplied 29 October 2026",
+      "license": "Owner-supplied visual reference only; no photographic pixels redistributed",
+      "role": "Reference for tilted disc lamps, curved necks, site context and seven cycleway destinations/distances. Ten original municipal positions retained; ten intermediate intervals and small fittings are display estimates.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "government_street_furniture_v286",
+      "title": "Western cycleway guidepost, OSM node 10298343088",
+      "page_url": "https://www.openstreetmap.org/node/10298343088",
+      "credit": "OpenStreetMap contributors",
+      "license": "ODbL-1.0",
+      "license_url": "https://www.openstreetmap.org/copyright",
+      "role": "Retained mapped mast point at Heinrich-von-Gagern-Straße/Paul-Löbe-Allee. Owner photographs 1 and 4 show the same pole. The separate eastern post is not given copied labels; board bearings, dimensions and heights are display estimates.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "government_street_furniture_v286",
+      "title": "Berlin municipal lighting, exact ten government-quarter points",
+      "page_url": "https://gdi.berlin.de/services/wfs/beleuchtung",
+      "credit": "Geoportal Berlin / Senatsverwaltung für Mobilität, Verkehr, Klimaschutz und Umwelt",
+      "license": "dl-de/zero-2-0",
+      "role": "Original ten bounded operating-light records retained. Only their generic display fittings yield atomically to a complete photo-guided family. The 6.8m heights are original display fallbacks, not surveyed lighting heights.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "government_street_furniture_v286",
+      "title": "DOP 2025, bounded Heinrich-von-Gagern-Straße verge comparison",
+      "page_url": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+      "credit": "Geoportal Berlin",
+      "license": "Visual reference only; no aerial image pixels redistributed",
+      "role": "Confirms the two road verges. Individual private pole bases are not reliably separable from bollards, so the ten intermediate anchors remain explicit spacing estimates.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
     }
   ]
 }
