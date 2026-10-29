@@ -4,6 +4,7 @@ export type SonyFacadeRun = Readonly<{
   groundY: number;
   heightM: number;
   chain: readonly SonyFacadePoint[];
+  ownerPhotoV284?: true;
 }>;
 export type SonyFacadeStyle =
   | "filmhaus"
@@ -307,6 +308,20 @@ export const SONY_SURROUNDING_BUILDINGS: readonly SonySurroundingBuilding[] = [
           [290.4, 931.9],
         ],
       },
+      // The photographed lower Ebertstrasse wing is a separate retained part,
+      // not a continuation of the 66.9 m tower. Original decimetre source
+      // edges, ground and height remain unchanged; window rhythms are estimates.
+      {
+        prismId: "gAwitON0",
+        groundY: 5.1,
+        heightM: 34.6,
+        ownerPhotoV284: true,
+        chain: [
+          [321.8, 922],
+          [313.9, 972.3],
+          [308.2, 972.9],
+        ],
+      },
     ],
   },
   {
@@ -399,7 +414,7 @@ export const SONY_SURROUNDINGS_PROFILE = {
     "https://www.beisheim-center.de/de/living/parkside-apartments",
   ],
   visualReferenceStatus:
-    "External licensed photographs only; no image or texture bundled",
+    "External credited photographs and three owner photos received 29 October 2026; reference only, no image or texture bundled",
   subdivisionStatus:
     "Procedural facade recognition; not surveyed window or balcony dimensions",
   underlyingLoD2Retained: true,

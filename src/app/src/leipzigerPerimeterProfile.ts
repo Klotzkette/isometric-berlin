@@ -5,6 +5,29 @@ import { leipzigerTranslatedPart } from "./leipzigerPlatzSourceProfile";
 export const LEIPZIGER_PERIMETER_KEYS = ["northWest", "mosse", "northEast", "west", "southWest", "southMiddleWest", "southMiddleWestLowerFront", "southMiddleWestUpperFront", "southMiddleEast", "southEast", "eastChamfer", "east"] as const;
 export type LeipzigerPerimeterKey = typeof LEIPZIGER_PERIMETER_KEYS[number];
 export type PerimeterRun = { key: LeipzigerPerimeterKey; partId: string; a: [number, number]; b: [number, number]; normal: [number, number]; length: number; bottom: number; top: number; ground: number; wallIndex: number };
+/** Photo-visible Torhaus north/west walls omitted by the earlier plaza-only test.
+ * These identify complete retained WallSurfaces, not a new facade rectangle.
+ * The source parent includes LP1–3, so no broad parent-wide style replacement.
+ */
+export const TORHAUS_PHOTO_WALLS: Readonly<Record<string, readonly number[]>> = {
+  DEBE3DOZuBxzaEDr: [1, 7, 8],
+  DEBE3DjIomtjGFLa: [3, 6, 8, 12],
+  DEBE3DsjTZxEWmPH: [2, 5, 6, 14],
+};
+export function isTorhausPhotoWall(run: Pick<PerimeterRun, "key" | "partId" | "wallIndex">): boolean {
+  return run.key === "southWest" && (TORHAUS_PHOTO_WALLS[run.partId]?.includes(run.wallIndex) ?? false);
+}
+/** TRION's west and south street fronts are visible from the supplied camera
+ * position; they are separate from the square-facing east source planes.
+ */
+export const TRION_PHOTO_WALLS: Readonly<Record<string, readonly number[]>> = {
+  DEBE3DOYIgXK45SS: [3, 6],
+  DEBE3DAkNw77TCkc: [0, 1, 3],
+  DEBE3Da00PTaPEWE: [11],
+};
+export function isTrionPhotoWall(run: Pick<PerimeterRun, "key" | "partId" | "wallIndex">): boolean {
+  return run.key === "west" && (TRION_PHOTO_WALLS[run.partId]?.includes(run.wallIndex) ?? false);
+}
 export const LEIPZIGER_PERIMETER_EVIDENCE = {
   northWest: "Conservative pale stone/window grid from Commons panorama; no unverified tenant sign",
   mosse: "Modern Mosse-Palais: warm stone, grouped windows, central glazed bay and curved roof retained in LoD2",
@@ -39,12 +62,13 @@ function sourceRuns(): PerimeterRun[] {
       const mid=[(a[0]+b[0])/2,(a[1]+b[1])/2],normal:[number,number]=[(b[1]-a[1])/length,-(b[0]-a[0])/length];
       if(bebelplatzPartContains(part,mid[0]+normal[0]*.05,mid[1]+normal[1]*.05)){normal[0]*=-1;normal[1]*=-1;}
       const delta=[plaza[0]-mid[0],plaza[1]-mid[1]],dot=normal[0]*delta[0]+normal[1]*delta[1];
-      if(dot<Math.hypot(...delta)*.35)return;
+      const photoWall=isTorhausPhotoWall({key,partId:part.id,wallIndex})||isTrionPhotoWall({key,partId:part.id,wallIndex});
+      if(dot<Math.hypot(...delta)*.35&&!photoWall)return;
       // This is an additive square-facing relief pass. Backyard/court windows are
       // deliberately not invented. Existing full source walls remain untouched.
       if((key==="northWest"||key==="mosse"||key==="northEast")&&mid[1]<948)return;
-      if(key==="west"&&mid[0]<357)return;
-      if(key==="southWest"&&mid[1]>1130)return;
+      if(key==="west"&&mid[0]<357&&!photoWall)return;
+      if(key==="southWest"&&mid[1]>1130&&!photoWall)return;
       if((key.startsWith("southMiddleWest")||key==="southMiddleEast"||key==="southEast")&&mid[1]>1128)return;
       if(key==="eastChamfer"&&(mid[0]>542||mid[1]>1107))return;
       if(key==="east"&&mid[0]>541)return;

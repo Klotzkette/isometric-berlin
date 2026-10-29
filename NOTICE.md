@@ -2562,3 +2562,23 @@ Heights, masonry thicknesses and small fittings are photographic recognition
 estimates, not surveyed dimensions. No free redistribution licence is asserted
 for the photograph; no photographs, image pixels or photographic textures are
 bundled. See docs/steppengarten-shelter-v283.md and the public per-source ledger.
+
+
+Potsdamer Platz v284: three photographs supplied by the project owner on
+29 October 2026 are visual references only. Their SHA256 identities and the
+complete original station LoD2 sheets are retained in
+`geo_data/regierungsviertel/potsdamer-photos-v284-evidence.json`. No photographic
+pixels, image textures or runtime media requests are bundled. Müller Reimann
+Architekten's Leipziger Platz 1–3 project, SCHOLLGLAS's TRION reference and the
+Beisheim Center operator's background page support building identity and exterior
+rhythm; their credits and reference URLs are recorded in the public
+`visual_reference_attribution.json`. Small facade divisions, steel profiles and
+material tones are estimates. Exact source footprints and absolute station roof
+elevation derive from Geoportal Berlin LoD2, dl-de/zero-2-0. See
+`docs/potsdamer-photos-v284.md` for source ownership and remaining limits.
+
+The adjoining station-edge source OSM way 464904393 is retained in full, including
+its original building=yes tag and unmeasured display-height fallback. A bounded
+Geoportal Berlin DOP 2025 Frühjahr comparison supports an independent open edge
+frame rather than the old solid mass. Roof alignment to the measured station
+roof is a documented visual/context estimate. No aerial imagery is redistributed.

@@ -294,10 +294,12 @@ describe("task-10 expanded city recognition details", () => {
     expect(halls).toBeDefined();
     const bounds = new Box3().setFromObject(halls!);
     expect(bounds.min.x).toBeCloseTo(267.4, 1);
-    expect(bounds.max.x).toBeCloseTo(310.2, 1);
+    expect(bounds.max.x).toBeCloseTo(311.9, 1);
     expect(bounds.min.z).toBeCloseTo(999.9, 1);
     expect(bounds.max.z).toBeCloseTo(1152.8, 1);
-    expect(bounds.max.y).toBeCloseTo(20.1, 1);
+    // The south hall's source H includes its below-street walls. Its actual
+    // absolute roof is 14.178 m; the unchanged north model remains tallest.
+    expect(bounds.max.y).toBeCloseTo(14.8, 1);
     expect(
       details.getObjectByName("Potsdamer Platz north hall fascia lettering"),
     ).toBeDefined();

@@ -26,13 +26,17 @@ describe("Leipziger Platz perimeter source-bound relief",()=>{
       expect(model.userData.noHiddenSolidInfill).toBeTrue();expect(model.userData.sourcePartIds).toHaveLength(64);
       for(const key of LEIPZIGER_PERIMETER_KEYS)expect(model.userData.profileInstances[key]).toBeGreaterThan(100);
       const mesh=model.children[0] as InstancedMesh;expect(mesh).toBeInstanceOf(InstancedMesh);
-      expect(mesh.geometry.type).toBe("BoxGeometry");expect(mesh.count).toBeGreaterThan(7000);expect(mesh.count).toBeLessThan(12000);
+      expect(mesh.geometry.type).toBe("BoxGeometry");expect(mesh.count).toBeGreaterThan(7000);expect(mesh.count).toBeLessThan(12500); // 76 bytes/instance within the unchanged 950-KB cap.
       expect(mesh.instanceMatrix.array.byteLength+mesh.instanceColor!.array.byteLength).toBeLessThan(950_000);
       expect(mesh.geometry.getAttribute("uv")).toBeUndefined();expect(mesh.matrixAutoUpdate).toBeFalse();
       for(const v of mesh.instanceMatrix.array)expect(Number.isFinite(v)).toBeTrue();
       model.traverse(o=>{if(o instanceof Mesh)expect((o.material as {map?:unknown}).map).toBeFalsy();});
       const size=new Box3().setFromObject(model).getSize(new Vector3());expect(size.x).toBeLessThan(200);expect(size.z).toBeLessThan(250);expect(size.y).toBeLessThan(50);
     }
-    expect(a.userData.blockNative).toBeFalse();expect(b.userData.blockNative).toBeTrue();expect((a.children[0] as InstancedMesh).count).toBe((b.children[0] as InstancedMesh).count);
+    expect(a.userData.blockNative).toBeFalse();expect(b.userData.blockNative).toBeTrue();
+    // The photo-refined TRION/Torhaus walls now have an independently stepped,
+    // orthogonal native construction; each family keeps the original byte cap.
+    expect((a.children[0] as InstancedMesh).count).toBeGreaterThan(7000);
+    expect((b.children[0] as InstancedMesh).count).toBeGreaterThan(7000);
   });
 });

@@ -1,4 +1,5 @@
 import { ubahnV281FloorAt, ubahnV281SolidAt } from "./ubahnEntrancesV281Profile";
+import { canReplacePotsdamerSouthStationPhoto } from "./potsdamerStationPhotoOwnership";
 import { cutUbahnPresentationV281 } from "./UbahnSurfaceAperturesV281";
 import { prenzlbergV264GroundAt, prenzlbergV264SolidAt, prenzlbergV264TerrainAt } from "./prenzlbergV264Navigation";
 import { ubahnV261FloorAt, ubahnV261SolidAt } from "./ubahnEntrancesV261Profile";
@@ -3739,7 +3740,7 @@ function prepareIsoNavigation(
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { requiredSitesV281: true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { requiredSitesV281: true, potsdamerStationPhoto: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerStationPhoto === true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   // Compile the future owners now, but keep their authored solids/floors
   // inactive until the required models finish in the same unpublished transaction.
@@ -4015,6 +4016,7 @@ function ensureIsoWorld(
   const unterDenLindenDetails = import("./UnterDenLindenDetails");
   const northCorridorDetails = import("./NorthCorridorV208");
   const requiredSites = import("./RequiredSiteEnvelopesV209");
+  const potsdamerStationPhoto = import("./PotsdamerStationDrawn");
   const abgeordnetenhausDetails = import("./AbgeordnetenhausDetails");
   const gropiusBauDetails = import("./GropiusBauDetails");
   const perimeterDetails = import("./GendarmenmarktPerimeterShells");
@@ -4091,9 +4093,9 @@ function ensureIsoWorld(
     kulturforumMuseumDetails,
     northRailDetails,
     breitscheidDetails, westSquaresDetails, eastSquaresDetails, hackescherDetails,
-    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details, neueSynagogeV167Details, tachelesV167Details, monbijouBathV167Details, humboldtMainV168Details, teehausRuinV168Details, tuWaterV168Details, altMitteCoreV169Details, bndV174Details, weinbergV174Details, zionV174Details, wallV174Details, zionFrontagesV175Details, northCorridorDetails, requiredSites,
+    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details, neueSynagogeV167Details, tachelesV167Details, monbijouBathV167Details, humboldtMainV168Details, teehausRuinV168Details, tuWaterV168Details, altMitteCoreV169Details, bndV174Details, weinbergV174Details, zionV174Details, wallV174Details, zionFrontagesV175Details, northCorridorDetails, requiredSites, potsdamerStationPhoto,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208, sitesV209]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208, sitesV209, stationPhoto]) => {
       if (runtime.disposed) {
         return;
       }
@@ -4105,6 +4107,7 @@ function ensureIsoWorld(
         return;
       }
       const pendingSignatures = new Group();
+      const stationPhotoAdmitted = canReplacePotsdamerSouthStationPhoto(prisms.buildings);
       const pendingStaffage = new Group();
       const pendingUnderground = new Group();
       const pendingCatenary = new Group();
@@ -4143,6 +4146,7 @@ function ensureIsoWorld(
             buildingPartition.omitted.length > 0
             ? {
                 detailProfile: "mobile",
+                potsdamerStationPhoto: stationPhotoAdmitted,
                 groundUrl: new URL(GROUND_CONTEXT_FILE, runtime.sceneRootUrl).toString(),
                 surfacesUrl: new URL(SURFACE_WORLD_FILE, runtime.sceneRootUrl).toString(),
                 requestedBatchIds: runtime.mobileBuildingWanted,
@@ -4158,6 +4162,7 @@ function ensureIsoWorld(
           : ground && surfaces
             ? {
                 detailProfile: "full",
+                potsdamerStationPhoto: stationPhotoAdmitted,
                 groundUrl: new URL(
                   GROUND_CONTEXT_FILE,
                   runtime.sceneRootUrl,
@@ -4186,6 +4191,7 @@ function ensureIsoWorld(
           surfaces,
           {
             buildings: initialBuildings,
+            potsdamerStationPhoto: stationPhotoAdmitted,
             includeLegacyChariteFacade: false,
             includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
             includeLegacyHungarianEnvelope: false,
@@ -4207,6 +4213,16 @@ function ensureIsoWorld(
           },
         );
         provisionalIsoWorld = isoWorld;
+        // The exact south-hall prism yields only inside this unpublished
+        // transaction. Construct and attach its complete replacement before
+        // yielding; cancellation disposes it with the provisional city.
+        if (stationPhotoAdmitted) {
+          const southHall = stationPhoto.createPotsdamerSouthStationPhotoDrawn(prisms.buildings);
+          if (!southHall) throw new Error("Required Potsdamer south-hall source changed during construction");
+          isoWorld.add(southHall);
+          isoWorld.userData.potsdamerStationPhoto = true;
+        }
+        yield;
         // A complete measured Hungarian envelope replaces six exact proxies.
         // Attach it in the required transaction before publishing the city;
         // optional facade imports must never leave a source-building hole.
@@ -4339,7 +4355,7 @@ function ensureIsoWorld(
           yield;
           pendingPathTerrainAt = prepareDistrictPathTerrain(ground, runtime.tunnelPortalCourse);
         }
-        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
+        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { potsdamerStationPhoto: stationPhotoAdmitted, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
         yield;
         isoWorld.add(komischeOper.createKomischeOperSourceGeometry());
         yield;
@@ -4695,7 +4711,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { requiredSitesV281: true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { requiredSitesV281: true, potsdamerStationPhoto: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerStationPhoto === true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   environment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
@@ -9209,7 +9225,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.culturalDetails = createCulturalLandmarks(manifest.landmarks);
           const expandedDetails = createExpandedCityDetails(
             manifest.landmarks,
-            { detailProfile: runtime.coarsePointer ? "mobile" : "full", includeLegacyAnhalter: false },
+            { detailProfile: runtime.coarsePointer ? "mobile" : "full", includeLegacyAnhalter: false, includePotsdamerSouthHall: false },
           );
           setInvalidenfriedhofSnow(
             expandedDetails,

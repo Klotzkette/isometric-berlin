@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.183 — 2026-10-29
+
+- Refine the photographed Potsdamer Platz view with complete source-bound Torhaus/Stadtpalais and TRION window grids and the missing Beisheim office-podium facade.
+- Correct only the south station pavilion's displayed roof to its original absolute LoD2 elevation, preserving the basement evidence and complete source sheets. Add charcoal steel, visible fascia lettering and independently orthogonal native geometry.
+- Admit the complete station in the required city transaction before replacing exactly receipted owners; retain foreign native columns, the north hall, all earlier details, full mobile geometry and existing runtime/package limits. [Evidence and checks](docs/potsdamer-photos-v284.md).
+
 ## 1.0.182 — 2026-10-28
 
 - Stabilize the distant Fernsehturm silhouette during camera movement and retain it through skyline haze at its original location and scale. Keep ordinary building occlusion and the submerged-water veil.

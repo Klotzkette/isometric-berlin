@@ -8,6 +8,7 @@ import { createZooWestColumnTesterV276 } from "./zooWestV276Ownership";
 import { createZooHouseColumnTesterV282 } from "./zooHousesV282Ownership";
 import { createVerkehrskanzelColumnTesterV276 } from "./verkehrskanzelV276Ownership";
 import { createSteppengartenShelterColumnTesterV283 } from "./steppengartenShelterV283Ownership";
+import { preparePotsdamerSouthStationPhotoTransfer } from "./PotsdamerStationPhotoDetails";
 import { createTiergartenWerkhofColumnTesterV275 } from "./tiergartenWerkhofV275Ownership";
 import { createOperaTheatresColumnTesterV274 } from "./operaTheatresV274Ownership";
 import { createTechnikmuseumColumnTesterV272 } from "./TechnikmuseumV272Profile";
@@ -2645,6 +2646,14 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createHumboldthafenBuildingDetails(options.sourcePrisms ? { buildings: options.sourcePrisms } : undefined, { minecraft: true, mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftEconomicMinistryDetails(undefined, { mobileLike: options.detailProfile === "mobile" }));
   yield;
+  // Publish the complete independent south hall before only its immutable
+  // coarse tuples yield. A changed/ambiguous source retains the old world.
+  const potsdamerStationPhoto = preparePotsdamerSouthStationPhotoTransfer(options.sourcePrisms, payload);
+  if (potsdamerStationPhoto) group.add(potsdamerStationPhoto.group);
+  // Navigation may opt into the measured cap only after this complete native
+  // family has actually been attached to the unpublished world.
+  group.userData.potsdamerStationPhoto = Boolean(potsdamerStationPhoto);
+  yield;
   const weltkugelColumnAt = createWeltkugelColumnTesterV281(options.sourcePrisms, cell);
   const sonyRoofColumnTopAt = createSonyRoofColumnTopAt(options.sourcePrisms);
   const aegColumnAt = options.architectureV241
@@ -2689,6 +2698,7 @@ export function* buildMinecraftVoxelWorldSteps(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
+    if (potsdamerStationPhoto?.replacesColumn(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (tachelesFrontColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (zooWestColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (zooHouseColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;

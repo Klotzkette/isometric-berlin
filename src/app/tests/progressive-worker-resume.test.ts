@@ -27,7 +27,7 @@ const compiled = ts.transpileModule([...declarations, receiver.getText(parsed)].
 
 // Execute the production Worker and receiver. Only geometry constructors and
 // network are instrumented: source partitions, ACKs, resume and readiness are real.
-function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload) {
+function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload, stationPhotoAdmitted = false, stationSourceMatches = true) {
   const messages: ProgressiveWorldWorkerOutput[] = [];
   const attachedBatchResolvers = new Map<string, () => void>();
   const attachedBatchPromises = new Map<string, Promise<void>>();
@@ -83,6 +83,7 @@ function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload) {
     },
   };
   const bindings = {
+    canReplacePotsdamerSouthStationPhoto: () => stationSourceMatches,
     Group, performance, setTimeout,
     BuildingDetailWorker, PackedBuildingDistrictStore, buildingDetailProfile,
     buildingDetailDistricts, selectBuildingDetailDistricts,
@@ -92,10 +93,11 @@ function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload) {
     mobileDetailWorker: undefined, latestMobileView: undefined,
     smoothGroundTopSampler: groundSource ? smoothGroundTopSampler : () => () => 0,
     createIsometricCityCore: (_prisms: unknown, _ground: unknown, _tunnel: unknown,
-      _surfaces: unknown, options: { buildings: PrismBuilding[]; architectureV241?: boolean }) => {
+      _surfaces: unknown, options: { buildings: PrismBuilding[]; architectureV241?: boolean; potsdamerStationPhoto?: boolean }) => {
       // Later district loads must honor the same exact AEG proxy replacement
       // as the initial core; otherwise traveling back creates duplicate shells.
       expect(options.architectureV241).toBeTrue();
+      expect(options.potsdamerStationPhoto).toBe(stationPhotoAdmitted && stationSourceMatches);
       buildingSources.push(options.buildings.map((building) => building.id));
       return new Group();
     },
@@ -165,6 +167,7 @@ function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload) {
   async function start(completedBatchIds: string[] = [], surfacesComplete = false): Promise<void> {
     const common = {
       type: "build" as const, initialBuildingCount: 1, prismUrl: "prisms",
+      potsdamerStationPhoto: stationPhotoAdmitted,
       groundUrl: "ground", surfacesUrl: "surfaces", completedBatchIds, surfacesComplete,
     };
     await build(profile === "mobile" ? { ...common, detailProfile: profile } : {
@@ -204,6 +207,13 @@ async function runWorker(profile: "full" | "mobile", retained: string[] = []) {
 
 describe("complete source detail and resumable worker surfaces", () => {
   for (const profile of ["mobile", "full"] as const) {
+    for (const sourceMatches of [false, true]) {
+      test(`${profile}: south-station retirement requires both committed admission and unchanged worker source (${sourceMatches})`, async () => {
+        const host = workerHost(profile, undefined, true, sourceMatches);
+        await host.start();
+        expect(host.buildingSources.length).toBeGreaterThan(0);
+      });
+    }
     test(`${profile}: resuming a settled surface world decodes only missing buildings`, async () => {
       const initial = await runWorker(profile);
       const retainedSurfaces = initial.batches().filter(batch => batch.kind === "surfaces").map(batch => batch.id);

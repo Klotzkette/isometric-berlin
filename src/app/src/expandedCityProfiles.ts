@@ -309,6 +309,15 @@ export const POTSDAMER_DETAIL_PROFILE = {
   stationEntranceHalls: {
     geometryStatus:
       "Berlin LoD2 footprint rings and heights anchor two inset steel-glass frame reconstructions; grid, open fronts, stairs and braces are source-bounded presentation detail, not a component survey",
+    ownerPhotoRecognition: {
+      sourceBuildingId: "DEBE01YYK0000BRX",
+      evidence: "Three owner-supplied Potsdamer Platz street photographs, 29 October 2026; reference only",
+      geometryStatus: "Original LoD2 absolute roof datum; charcoal steel, low base, brace junctions and fascia lettering are photo-guided display estimates, not a component survey",
+      steelTone: 0x42474a,
+      baseHeightM: 0.30,
+      sideLettering: "BAHNHOF POTSDAMER PLATZ",
+      sideLetteringNormal: 1,
+    },
     halls: [
       {
         centerWorldM: [281.832837, 1014.305612] as const,
@@ -351,6 +360,9 @@ export const POTSDAMER_DETAIL_PROFILE = {
         groundY: 5.4,
         key: "south",
         officialHeightM: 14.696,
+        sourceGroundYM: -0.518,
+        sourceRoofYM: 14.178,
+        sourceArchiveSha256: "827a94eda224f55ec638b1b4de8c440c80405ea6797068efe7558c83a4fd30c1",
         rotationY: 0.105006,
         sourceBuildingId: "DEBE01YYK0000BRX",
       },

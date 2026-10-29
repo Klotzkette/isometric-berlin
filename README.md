@@ -8,6 +8,7 @@
 | **Download ZIP for Mac/Windows/Linux** | https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.181 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.181/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.182 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.182/isometric-berlin-regierungsviertel-local.zip |
+| Prepared v1.0.183 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.183/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -25,9 +26,13 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Live v1.0.182** · static viewer for macOS, Windows, and Linux.
+**Status:** Public open-data project · **Local v1.0.183 · Live v1.0.182** · static viewer for macOS, Windows, and Linux.
 
 The hosted viewer and both release packages are v1.0.182. Online-Ansicht und beide Downloadpakete enthalten v1.0.182. [Release checks and remaining limits](docs/release-v1.0.182-review.md).
+
+Version 1.0.183 refines Potsdamer Platz from three owner photographs: source-aligned Torhaus and TRION facade grids, the Beisheim office podium, and the south station pavilion. Its source height included a basement; the roof now uses the original absolute elevation. Window divisions, steel fittings and tones are photographic estimates. The local candidate is being verified; publication is not yet claimed. [Source evidence and checks](docs/potsdamer-photos-v284.md).
+
+Version 1.0.183 präzisiert den Potsdamer Platz anhand dreier eigener Fotos: Fassadenraster von Torhaus und TRION, den Beisheim-Bürosockel und den südlichen Bahnhofspavillon. Dessen Quellhöhe enthielt das Untergeschoss; das Dach folgt jetzt der ursprünglichen absoluten Höhe. Fensterteilung, Stahlprofile und Farbtöne sind Annäherungen nach den Fotos. Der lokale Kandidat wird geprüft; eine Veröffentlichung ist noch nicht bestätigt. [Quellen und Prüfungen](docs/potsdamer-photos-v284.md).
 
 Version 1.0.182 stabilizes the distant Fernsehturm silhouette and corrects the low Steppengarten shelter near the composers' memorial. Its measured plan is retained; roof and masonry heights are photo-based estimates. [Checks and publication status](docs/release-v1.0.182-review.md).
 

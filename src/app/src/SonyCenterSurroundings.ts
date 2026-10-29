@@ -23,6 +23,7 @@ type FacadeBox = {
   size: [number, number, number];
   rotationY: number;
   color: number;
+  ownerPhotoV284?: true;
 };
 
 const SILVER = 0xd0d9d9;
@@ -61,6 +62,12 @@ function facadeBoxes(
         for (let part = 0; part < divisions; part += 1) {
           for (let course = 0; course < courses; course += 1) {
             const along = u - width / 2 + ((part + 0.5) * width) / divisions;
+            const partWidth = width / divisions;
+            const partDepth = voxel ? Math.max(depth, 0.35) : depth;
+            const photoNative = voxel && run.ownerPhotoV284;
+            // This new source-bound wing has its own axis-aligned native
+            // interpretation. Short exterior bricks step along the source edge;
+            // no rotated smooth facade is introduced into the native model.
             boxes.push({
               position: [
                 start[0] + (dx * along + dz * offset) / length,
@@ -73,11 +80,19 @@ function facadeBoxes(
               size: [
                 width / divisions,
                 height / courses,
-                voxel ? Math.max(depth, 0.35) : depth,
+                partDepth,
               ],
-              rotationY,
+              rotationY: photoNative ? 0 : rotationY,
               color,
+              ...(run.ownerPhotoV284 ? { ownerPhotoV284: true as const } : {}),
             });
+            if (photoNative) {
+              boxes[boxes.length - 1].size = [
+                (Math.abs(dx) * partWidth + Math.abs(dz) * partDepth) / length,
+                height / courses,
+                (Math.abs(dz) * partWidth + Math.abs(dx) * partDepth) / length,
+              ];
+            }
           }
         }
       };
@@ -155,7 +170,9 @@ function addSegment(
         floorHeight * (glazed || style === "parkside" ? 0.84 : 0.68);
       if (style === "filmhaus" && Math.abs(u - length * 0.43) < length * 0.13)
         continue;
-      const paneTone = (column + floor * 3) % 5 === 0 ? GLASS_LIGHT : GLASS;
+      const paneTone = run.ownerPhotoV284
+        ? (column + floor * 3) % 5 === 0 ? 0x8b9693 : 0x536463
+        : (column + floor * 3) % 5 === 0 ? GLASS_LIGHT : GLASS;
       if (style === "art-deco" || (style === "stone-office" && y > 36)) {
         for (const half of [-1, 1]) {
           add(u + half * bay * 0.19, y, bay * 0.29, windowHeight, paneTone);
@@ -340,9 +357,13 @@ function createSurroundings(voxel: boolean): Group {
   // unit cube would turn facades black on drivers without a default attribute.
   const day = voxel ? night : new MeshBasicMaterial({ color: 0xffffff });
   const voxelBoxes: FacadeBox[] = [];
+  const photoInstanceIndices: number[] = [];
   let instanceCount = 0;
   for (const building of SONY_SURROUNDING_BUILDINGS) {
     const boxes = facadeBoxes(building, voxel);
+    boxes.forEach((box, index) => {
+      if (box.ownerPhotoV284) photoInstanceIndices.push(instanceCount + index);
+    });
     instanceCount += boxes.length;
     if (voxel) voxelBoxes.push(...boxes);
     else {
@@ -364,6 +385,7 @@ function createSurroundings(voxel: boolean): Group {
     );
   group.userData.instanceCount = instanceCount;
   group.userData.instanceBufferBytes = instanceCount * (16 + 3) * 4;
+  group.userData.ownerPhotoV284InstanceIndices = photoInstanceIndices;
   return group;
 }
 

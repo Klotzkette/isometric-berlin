@@ -26,6 +26,30 @@ import weltkugelReceipt from "../src/data/weltkugelV281Ownership.json";
 const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const viewerSource = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
 
+test("required south hall and its separate edge owner reach every fallback partition without affecting north or changed evidence", () => {
+  const south = payload.buildings.find(building => building.id === "K0000BRX")!;
+  const strip = payload.buildings.find(building => building.id === "64904393")!;
+  const north = payload.buildings.find(building => building.id === "K0002SCt")!;
+  expect(south).toBeDefined(); expect(strip).toBeDefined(); expect(north).toBeDefined();
+  const changed = { ...south, h_dm: south.h_dm + 1 };
+  const changedStrip = { ...strip, h_dm: strip.h_dm + 1 };
+  const sources = [south, strip, north, changed, changedStrip];
+  const partition = { initial: [], remaining: [sources], omitted: sources };
+  const retained = createProgressiveBuildingCoverage(payload, partition);
+  const replaced = createProgressiveBuildingCoverage(payload, partition, { potsdamerStationPhoto: true });
+  for (const child of retained.children) expect(child.userData.visibleBuildingCount).toBe(5);
+  for (const child of replaced.children) {
+    expect(child.userData.sourceBuildingCount).toBe(5);
+    expect(child.userData.visibleBuildingCount).toBe(3);
+  }
+  for (const root of [retained, replaced]) root.traverse(object => {
+    if (!(object instanceof Mesh)) return;
+    object.geometry.dispose();
+    const materials = Array.isArray(object.material) ? object.material : [object.material];
+    for (const material of materials) material.dispose();
+  });
+});
+
 // Suppressed source prisms already have authored hero geometry. They must not
 // reappear as closed boxes (especially the two walk-through train stations).
 function representable(building: PrismBuilding): boolean {

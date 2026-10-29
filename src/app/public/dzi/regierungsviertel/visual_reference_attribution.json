@@ -2755,6 +2755,98 @@
       "role": "The garden stewardship group identifies the limestone shelter and terrace constructed between January and May 1953. Supports site identity and material; does not establish exact present-day dimensions. No historical text or photographic content is redistributed.",
       "checked": "2026-10-28",
       "pixels_bundled": false
+    },
+    {
+      "id": "potsdamer-owner-photo-v284-1",
+      "filename": "1-Photo-1.jpg",
+      "sha256": "93bd07d3914f264081cb30e0037a7f6b0479696c62ae6010e37cb520defb023b",
+      "credit": "Project owner, supplied 29 October 2026",
+      "page_url": "owner-supplied:961F59B5-F86F-415D-91AF-23A66A475B49/1-Photo-1.jpg",
+      "photo_bundled": false,
+      "role": "Architectural reference only; no photo pixels or textures in viewer",
+      "landmark_id": "potsdamer_platz_v284",
+      "license": "Owner-supplied visual reference only; no photographic pixels redistributed",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "id": "potsdamer-owner-photo-v284-2",
+      "filename": "2-Photo-2.jpg",
+      "sha256": "1076e802fb16aaa07bab6333baa7dc06728f8799a6075774ea5d7041a6e0057b",
+      "credit": "Project owner, supplied 29 October 2026",
+      "page_url": "owner-supplied:961F59B5-F86F-415D-91AF-23A66A475B49/2-Photo-2.jpg",
+      "photo_bundled": false,
+      "role": "Architectural reference only; no photo pixels or textures in viewer",
+      "landmark_id": "potsdamer_platz_v284",
+      "license": "Owner-supplied visual reference only; no photographic pixels redistributed",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "id": "potsdamer-owner-photo-v284-3",
+      "filename": "3-Photo-3.jpg",
+      "sha256": "de6a03990c1ab90cd78b933bc0569943cbe7a5b1e4e09f181bd62e1d0488e8dc",
+      "credit": "Project owner, supplied 29 October 2026",
+      "page_url": "owner-supplied:961F59B5-F86F-415D-91AF-23A66A475B49/3-Photo-3.jpg",
+      "photo_bundled": false,
+      "role": "Architectural reference only; no photo pixels or textures in viewer",
+      "landmark_id": "potsdamer_platz_v284",
+      "license": "Owner-supplied visual reference only; no photographic pixels redistributed",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer_platz_v284",
+      "title": "Leipziger Platz 1–3: Torhaus and Stadtpalais",
+      "page_url": "https://www.mueller-reimann.de/projekte/leipziger-platz",
+      "file_url": "https://www.mueller-reimann.de/sites/default/files/2017-11/133-lpl-leipziger-platz_ansicht-komplett-potsdamer-platz.jpg",
+      "credit": "Müller Reimann Architekten",
+      "license": "Visual reference only; no photographic pixels redistributed",
+      "role": "Architect primary exterior views resolve the slender Torhaus piers and broader Stadtpalais street continuation; measured source wall planes retained. Window divisions and material tones remain estimates.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer_platz_v284",
+      "title": "Büro- und Geschäftshaus TRION, Berlin",
+      "page_url": "https://www.schollglas.com/referenzen/buero-und-geschaeftshaus-trion-berlin-de/",
+      "file_url": "https://www.schollglas.com/wp-content/uploads/schollglas-referenzen-trion-berlin-am-abend-obere-etagen-scaled.webp",
+      "credit": "SCHOLLGLAS",
+      "license": "Visual reference only; no photographic pixels redistributed",
+      "role": "Supplier primary reference identifies the white framed corner in the owner photographs. Pane, pier and mullion subdivisions are photographic estimates on complete existing source walls.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer_platz_v284",
+      "title": "Beisheim Center background",
+      "page_url": "https://www.beisheim-center.de/de/background",
+      "credit": "Beisheim Center",
+      "license": "Factual reference only",
+      "role": "Operator reference resolves Ritz/Tower Apartments and the neighboring stepped office building. The added office podium facade follows original consecutive source edges.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer_platz_v284",
+      "title": "Potsdamer station east strip, OSM way 464904393",
+      "page_url": "https://www.openstreetmap.org/way/464904393",
+      "credit": "OpenStreetMap contributors",
+      "license": "ODbL-1.0",
+      "license_url": "https://www.openstreetmap.org/copyright",
+      "role": "Complete mapped four-vertex strip retained. The building=yes tag contains no height or levels; the old 9 m display fallback and 12 m native rounding are not measured building heights. Station-edge recognition uses complete independent open geometry; roof alignment is a documented estimate.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
+    },
+    {
+      "landmark_id": "potsdamer_platz_v284",
+      "title": "Geoportal Berlin DOP 2025 Frühjahr, bounded Potsdamer station comparison",
+      "page_url": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+      "credit": "Geoportal Berlin / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen",
+      "license": "Visual reference only; no aerial image pixels redistributed",
+      "role": "Official orthophoto cross-check identifies the station roof and thin east edge instead of a separate solid tower. Does not establish an independently surveyed strip roof height. No imagery is bundled.",
+      "checked": "2026-10-29",
+      "pixels_bundled": false
     }
   ]
 }

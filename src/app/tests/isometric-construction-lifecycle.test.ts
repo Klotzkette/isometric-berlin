@@ -10,6 +10,8 @@ import { completeCooperatively } from "../src/cooperativeWork";
 import { compactStaticGeometrySteps } from "../src/compactStaticGeometry";
 import { objectMaterialsIncludingTransferredAlternates } from "../src/transferableObject3D";
 import { createZooAnimalRuntimeV282 } from "../src/ZooAnimalsV282";
+import type { ProgressiveWorldWorkerInput } from "../src/progressiveWorld";
+import { canReplacePotsdamerSouthStationPhoto, POTSDAMER_SOUTH_STATION_PHOTO_RECEIPT, POTSDAMER_STATION_PHOTO_STRIP_RECEIPT } from "../src/potsdamerStationPhotoOwnership";
 import {
   createMinecraftMaterialState, releaseMinecraftMaterialBindings,
 } from "../src/visual-modes/minecraft/materialMode";
@@ -30,7 +32,7 @@ const compiled = ts.transpileModule(declarations.join("\n"), {
 
 // Execute the production transaction and disposal. Only model constructors,
 // downloading and unrelated presentation hooks are replaced by bounded fixtures.
-function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTask?: number; failCommit?: boolean; failHungarianImport?: boolean; failRequiredSitesImport?: boolean; initialWater?: boolean } = {}) {
+function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTask?: number; failCommit?: boolean; failHungarianImport?: boolean; failRequiredSitesImport?: boolean; failStationPhotoImport?: boolean; failStationPhotoConstruction?: boolean; stationSource?: "missing" | "changed" | "duplicate"; stationStripSource?: "missing" | "changed" | "duplicate"; progressiveDistrict?: boolean; initialWater?: boolean } = {}) {
   const built: Mesh[] = [];
   const disposed = new Map<Mesh, number>();
   const warnings: string[] = [];
@@ -47,6 +49,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
   const loadController = new AbortController();
   const runtime = {
     disposed: false, loadSignal: loadController.signal,
+    sceneRootUrl: "https://local.invalid/",
     worldFailureReported: false, isoWorldState: "idle", coarsePointer: true,
     lightingMode: "schwellenraum", nightLightsOn: true, underside: false,
     scene: new Scene(), isoWorld: null as Group | null,
@@ -57,7 +60,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     controls: { target: { x: 0, z: 0 } }, camera: {},
     pedestrian: { environment: null, requested: false },
     minecraftMaterialState: createMinecraftMaterialState(),
-    progressiveWorldBatches: [], progressiveWorldState: "idle", progressiveWorldInput: undefined,
+    progressiveWorldBatches: [], progressiveWorldState: "idle", progressiveWorldInput: undefined as ProgressiveWorldWorkerInput | undefined,
     reportCoreProgress: () => {}, startDeferredDetails: () => {},
     reportWorldFailure: () => { reported++; },
     gpuWarmup: { release: () => { releaseCount++; } },
@@ -135,6 +138,10 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     "./SpreeMuseumDetails": { createSpreeMuseumDetails: () => model("Spree") },
     "./UnterDenLindenDetails": { createUnterDenLindenDetails: () => model("Unter den Linden") },
     "./NorthCorridorV208": { createHungarianEnvelopeV208: () => model("Complete Hungarian measured envelope v208") },
+    "./PotsdamerStationDrawn": { createPotsdamerSouthStationPhotoDrawn: () => {
+      if (options.failStationPhotoConstruction) throw new Error("Required south hall construction failed");
+      return model("Required Potsdamer south hall");
+    } },
     "./RequiredSiteEnvelopesV209": { addRequiredSiteEnvelopesV209Steps: function* (root: Group) {
       for (const name of ["Required Volksbuehne v209", "Required Helmholtz v209", "Required prison sites v209"]) {
         root.add(model(name)); yield;
@@ -150,6 +157,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
   const expectedImports = [...declarations[0].matchAll(/loadAddon\("([^"]+)"\)/g)].map(match => match[1]);
   expect(Object.keys(modules).sort()).toEqual(expectedImports.sort());
   const bindings = {
+    canReplacePotsdamerSouthStationPhoto,
     createZooAnimalRuntimeV282,
     createCoreSpreeBridgesV242: coreSpreeBridgeFactory,
     parkStaticGeometrySteps, parkStaticInstancesSteps,
@@ -179,22 +187,34 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
       if (taskCount === options.modeAtTask) runtime.lightingMode = "minecraft";
     },
     loadAddon: (path: keyof typeof modules) => {
+      if (options.failStationPhotoImport && path === "./PotsdamerStationDrawn") return Promise.reject(new Error("Required south hall import failed"));
       if (options.failRequiredSitesImport && path === "./RequiredSiteEnvelopesV209") return Promise.reject(new Error("Required sites import failed"));
       if (options.failHungarianImport && path === "./NorthCorridorV208") return Promise.reject(new Error("Hungarian envelope import failed"));
       if (!modules[path]) throw new Error(`Missing lifecycle fixture for production addon ${path}`);
       return Promise.resolve(modules[path]);
     },
-    fetchPrismPayload: async () => ({ buildings: [] }),
+    fetchPrismPayload: async () => {
+      const source = POTSDAMER_SOUTH_STATION_PHOTO_RECEIPT.previousPrism;
+      const strip = POTSDAMER_STATION_PHOTO_STRIP_RECEIPT.previousPrism;
+      const hallSources = options.stationSource === "missing" ? [] :
+        options.stationSource === "changed" ? [{ ...source, h_dm: source.h_dm + 1 }] :
+        options.stationSource === "duplicate" ? [source, source] : [source];
+      const stripSources = options.stationStripSource === "missing" ? [] :
+        options.stationStripSource === "changed" ? [{ ...strip, h_dm: strip.h_dm + 1 }] :
+        options.stationStripSource === "duplicate" ? [strip, strip] : [strip];
+      return { buildings: [...hallSources, ...stripSources] };
+    },
     fetchGroundPayload: async () => null, fetchStreetPayload: async () => null,
     fetchSurfacePayload: async () => null, fetchRailPayload: async () => null,
     isoWorldIntentActive: () => runtime.lightingMode !== "minecraft",
     createSchwellenraumMemorialProtectionIndex: () => ({}),
-    splitProgressiveBuildings: () => ({ initial: [], remaining: [], omitted: [] }),
+    splitProgressiveBuildings: () => ({ initial: [], remaining: options.progressiveDistrict ? [[]] : [], omitted: [] }),
     buildingDetailProfile: () => ({ batchSize: 240 }),
     buildingDetailDistricts: () => [], selectBuildingDetailDistricts: () => [], buildingDetailViewPoints: () => [],
-    createIsometricCity: (_prisms: unknown, _ground: unknown, _tunnel: unknown, _surfaces: unknown, buildOptions: { includeAltMitteCoreV169: boolean; coreSpreeBridgeFactoryV242: unknown }) => {
+    createIsometricCity: (_prisms: unknown, _ground: unknown, _tunnel: unknown, _surfaces: unknown, buildOptions: { includeAltMitteCoreV169: boolean; coreSpreeBridgeFactoryV242: unknown; potsdamerStationPhoto?: boolean }) => {
       expect(buildOptions.includeAltMitteCoreV169).toBe(false);
       expect(buildOptions.coreSpreeBridgeFactoryV242).toBe(coreSpreeBridgeFactory);
+      expect(buildOptions.potsdamerStationPhoto).toBe(options.stationSource === undefined && options.stationStripSource === undefined);
       const city = model("core"); city.add(model("drawn bridge structures")); return city;
     },
     createInitialDrawnWater: () => options.initialWater ? model("source-bound drawn water") : null,
@@ -208,7 +228,10 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     createBehren42Architecture: () => model("Behrenstrasse 42 architecture"),
     createNeueWache: () => model("Neue Wache"),
     createBebelplatzBuildingShells: () => model("Bebelplatz shells"),
-    createProgressiveBuildingCoverage: () => model("coverage"),
+    createProgressiveBuildingCoverage: (_prisms: unknown, _partition: unknown, buildOptions: { potsdamerStationPhoto?: boolean }) => {
+      expect(buildOptions.potsdamerStationPhoto).toBe(options.stationSource === undefined && options.stationStripSource === undefined);
+      return model("coverage");
+    },
     setWeidendammerBridgePresentation: () => {}, setSandkrugBridgePresentation: () => {},
     setCoreBridgeRoadPresentationV242: () => {}, setCoreSpreeBridgePresentationV242: () => {},
     capturePedestrianAttachment: () => { savedPose = pose; return { underside: false, pose }; },
@@ -223,6 +246,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     performance: { mark: () => {} },
     MOBILE_INITIAL_BUILDING_COUNT: 1, DESKTOP_INITIAL_BUILDING_COUNT: 1,
     MOBILE_DETAIL_BATCH_SIZE: 1, DESKTOP_TOTAL_BUILDING_LIMIT: Infinity,
+    PRISM_WORLD_FILE: "prisms", GROUND_CONTEXT_FILE: "ground", SURFACE_WORLD_FILE: "surfaces",
   };
   // The production loader intentionally returns void. A settled promise task
   // runs after its private chain's success/catch without exposing production APIs.
@@ -253,7 +277,7 @@ test("drawn construction publishes all staged geometry at the current pose", asy
   // Explicit names check ownership and duplicate construction, rather than a
   // magic total which could hide a missing recent source-bound layer.
   const expectedNames = [
-    "core", "drawn bridge structures", "Complete Hungarian measured envelope v208", "Required Volksbuehne v209", "Required Helmholtz v209", "Required prison sites v209", "Gendarmenmarkt shells", "Gendarmenmarkt architecture",
+    "core", "drawn bridge structures", "Required Potsdamer south hall", "Complete Hungarian measured envelope v208", "Required Volksbuehne v209", "Required Helmholtz v209", "Required prison sites v209", "Gendarmenmarkt shells", "Gendarmenmarkt architecture",
     "Gendarmenmarkt perimeter shells", "Gendarmenmarkt perimeter facades",
     "Leipziger source shells", "Leipziger perimeter facades", "Potsdamer ministry architecture",
     "Bikini source architecture", "Breitscheid towers", "West squares v163", "East squares v163",
@@ -465,11 +489,79 @@ test("Alt-Mitte resident core is staged once before publication and cancelled ow
 test("required Hungarian source replacement is owned and disposed before any optional facade phase", async () => {
   const h = host({ stopAfterModel: "Complete Hungarian measured envelope v208" });
   await h.finished;
-  expect(h.built.map(mesh => mesh.name)).toEqual(["core", "drawn bridge structures", "Complete Hungarian measured envelope v208"]);
-  expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual([1, 1, 1]);
+  expect(h.built.map(mesh => mesh.name)).toEqual(["core", "drawn bridge structures", "Required Potsdamer south hall", "Complete Hungarian measured envelope v208"]);
+  expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual([1, 1, 1, 1]);
   expect(h.runtime.isoWorld).toBeNull();
   expect(h.ready).toBe(0);
 });
+
+test("required Potsdamer south hall belongs to the unpublished city before its first yield", async () => {
+  const h = host({ stopAfterModel: "Required Potsdamer south hall" });
+  await h.finished;
+  expect(h.built.map(mesh => mesh.name)).toEqual(["core", "drawn bridge structures", "Required Potsdamer south hall"]);
+  expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual([1, 1, 1]);
+  expect(h.runtime.isoWorld).toBeNull();
+  expect(h.ready).toBe(0);
+  expect(h.warnings).toHaveLength(0);
+});
+
+test("failed required south-hall import preserves the earlier scene without allocating a replacement city", async () => {
+  const h = host({ failStationPhotoImport: true });
+  await h.finished;
+  expect(h.built).toHaveLength(0);
+  expect(h.runtime.isoWorld).toBeNull();
+  expect(h.runtime.isoWorldState).toBe("failed");
+  expect(h.runtime.signatures.children).toEqual([h.existing]);
+  expect(h.reported).toBe(1);
+});
+
+test("failed required south-hall construction disposes the provisional core without exposing a source hole", async () => {
+  const h = host({ failStationPhotoConstruction: true });
+  await h.finished;
+  expect(h.built.map(mesh => mesh.name)).toEqual(["core", "drawn bridge structures"]);
+  expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual([1, 1]);
+  expect(h.runtime.isoWorld).toBeNull();
+  expect(h.runtime.isoWorldState).toBe("failed");
+  expect(h.runtime.signatures.children).toEqual([h.existing]);
+  expect(h.reported).toBe(1);
+});
+
+for (const stationSource of ["missing", "changed", "duplicate"] as const) {
+  test(`${stationSource} south-station source keeps its fallback without constructing a duplicate required model`, async () => {
+    const h = host({ stationSource });
+    await h.finished;
+    expect(h.runtime.isoWorld?.parent).toBe(h.runtime.scene);
+    expect(h.ready).toBe(1);
+    expect(h.built.some(mesh => mesh.name === "Required Potsdamer south hall")).toBeFalse();
+    expect(h.runtime.isoWorld?.userData.potsdamerStationPhoto).not.toBeTrue();
+    expect(h.warnings).toHaveLength(0);
+    h.disposeScene();
+  });
+}
+
+for (const stationStripSource of ["missing", "changed", "duplicate"] as const) {
+  test(`${stationStripSource} station-edge source retains both owners without constructing a partial station replacement`, async () => {
+    const h = host({ stationStripSource });
+    await h.finished;
+    expect(h.runtime.isoWorld?.parent).toBe(h.runtime.scene);
+    expect(h.ready).toBe(1);
+    expect(h.built.some(mesh => mesh.name === "Required Potsdamer south hall")).toBeFalse();
+    expect(h.runtime.isoWorld?.userData.potsdamerStationPhoto).not.toBeTrue();
+    expect(h.warnings).toHaveLength(0);
+    h.disposeScene();
+  });
+}
+
+for (const admitted of [false, true]) {
+  test(`the published worker request carries completed two-owner station admission (${admitted})`, async () => {
+    const h = host({ progressiveDistrict: true, ...(admitted ? {} : { stationStripSource: "missing" as const }) });
+    await h.finished;
+    expect(h.runtime.isoWorld?.parent).toBe(h.runtime.scene);
+    expect(h.runtime.progressiveWorldInput?.potsdamerStationPhoto).toBe(admitted);
+    expect(h.runtime.isoWorld?.userData.potsdamerStationPhoto === true).toBe(admitted);
+    h.disposeScene();
+  });
+}
 
 test("a failed required Hungarian import cannot publish a city with an empty embassy site", async () => {
   const h = host({ failHungarianImport: true });

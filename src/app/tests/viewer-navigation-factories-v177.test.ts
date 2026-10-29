@@ -64,6 +64,17 @@ for (const native of [false, true]) {
     expect(argumentsSeen[0][3]).toBe(prisms);
     expect(argumentsSeen[0][4]).toBe("surrounding exact policy");
     expect(argumentsSeen[0][5]).toMatchObject({ golgathaV270: true, includeAuguststrasseMuralV270: true, replaceTachelesFrontPrisms: true });
+    const stationAdmission = (argumentsSeen[0][5] as { potsdamerStationPhoto: () => boolean }).potsdamerStationPhoto;
+    expect(stationAdmission()).toBeFalse();
+    runtime.isoWorld = { userData: { potsdamerStationPhoto: true } };
+    runtime.voxelWorld = { userData: { potsdamerStationPhoto: false } };
+    runtime.lightingMode = "day";
+    expect(stationAdmission()).toBeTrue();
+    runtime.lightingMode = "minecraft";
+    expect(stationAdmission()).toBeFalse();
+    runtime.voxelWorld.userData.potsdamerStationPhoto = true;
+    expect(stationAdmission()).toBeTrue();
+    runtime.lightingMode = native ? "minecraft" : "day";
     expect(published.visualMode()).toBe(runtime.lightingMode);
     expect(bridgeMode!()).toBe(runtime.lightingMode);
     runtime.lightingMode = "minecraft";

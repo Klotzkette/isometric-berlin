@@ -2001,3 +2001,26 @@ metadata byte of standard build-time gzip output to the established v181 marker.
 Keep every compressed payload/CRC/length byte, prepared Zopfli stream, codec,
 admission rule, source value and field ownership unchanged. This prevents
 platform-only asset renaming; no source reduction or release-limit increase.
+
+### Step 10 — v284 Potsdamer Platz owner photographs
+
+The owner's three 29 October street photographs permit bounded refinement of
+the existing Torhaus/Leipziger Platz 1, TRION, Beisheim office podium and southern
+station entrance. Resolve the photographed southern hall separately from the
+northern pavilion. Its original LoD2 minimum includes a subterranean floor;
+preserve the complete sheets and original minimum/height, but place the roof at
+its actual source elevation rather than adding the full height to street level.
+Retain every source footprint, unrelated roof, courtyard, previous detail and
+walking approach. New facade subdivisions, steel fittings and material tones are
+explicit photo-guided estimates. Exact native station columns may yield only to
+a complete source-receipted open replacement after exclusive ownership is proved;
+unexpected foreign columns remain unchanged. The exactly audited adjoining OSM
+way 464904393 is a separate narrow roof-edge/support strip with a 9 m display
+fallback, not measured massing. Retain its complete original four-vertex ring
+and source metadata; only its two exact native columns and exact drawn proxy
+may yield to a complete independent open frame in the same required transaction.
+Aligning this strip with the adjacent measured station roof is a labelled
+photo/context estimate, not a surveyed strip height. Keep independent orthogonal native additions,
+full drawn mobile detail, the 93-place tour and existing live/release limits.
+Photographs remain reference-only; no pixels, textures or media downloads ship.
+Use only the internal browser, one full-city view at a time.
