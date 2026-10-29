@@ -10,7 +10,7 @@
 | Versioned v1.0.182 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.182/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.183 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.183/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.184 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.184/isometric-berlin-regierungsviertel-local.zip |
-| Candidate v1.0.185 ZIP (unpublished / noch nicht veröffentlicht) | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.185/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.185 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.185/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -28,13 +28,13 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Live v1.0.184** · Local v1.0.185 candidate sources (unpublished / unveröffentlichter Quellstand) · static viewer for macOS, Windows, and Linux.
+**Status:** Public open-data project · **Live v1.0.185** · Local v1.0.185 · static viewer for macOS, Windows, and Linux.
 
-Local v1.0.185 prepares street-lamp and wayfinding refinements near Heinrich-von-Gagern-Straße and Paul-Löbe-Allee from seven owner photographs. Production, archive, local-package and browser checks passed; publication is pending. Der lokale Kandidat v1.0.185 bereitet anhand sieben eigener Fotos präzisierte Straßenleuchten und einen Wegweiser an Heinrich-von-Gagern-Straße und Paul-Löbe-Allee vor; Produktions-, Archiv-, Paket- und Browserprüfungen sind bestanden; die Veröffentlichung steht noch aus.
+v1.0.185 refines twenty tilted-disc street lamps and the western seven-destination cycle guidepost near Heinrich-von-Gagern-Straße and Paul-Löbe-Allee using seven owner photographs. Production, archive, package, browser and live-publication checks passed. v1.0.185 präzisiert zwanzig Scheibenleuchten und den westlichen Radwegweiser mit sieben Zielen an Heinrich-von-Gagern-Straße und Paul-Löbe-Allee anhand sieben eigener Fotos. Produktionsbuild, Archive, Paket, Browser und Live-Veröffentlichung sind geprüft. [Sources, checks and publication / Quellen, Prüfungen und Veröffentlichung](docs/government-street-furniture-v286.md).
 
 Local v1.0.184 refines Reichstag window divisions, stone arch joints and dome steel from the owner photograph. Production, offline-package, browser and publication checks passed. v1.0.184 präzisiert Fensterteilungen, Steinbogenfugen und die Kuppelstruktur anhand des bereitgestellten Fotos; Build, Paket und Live-Stand sind geprüft.
 
-The hosted viewer and both release packages are v1.0.184. Online-Ansicht und beide Downloadpakete enthalten v1.0.184. [Source evidence, checks and publication](docs/reichstag-photo-v285.md).
+The hosted viewer and both release packages are v1.0.185. Online-Ansicht und beide Downloadpakete enthalten v1.0.185.
 
 Version 1.0.183 refines Potsdamer Platz from three owner photographs: source-aligned Torhaus and TRION facade grids, the Beisheim office podium, and the south station pavilion. Its source height included a basement; the roof now uses the original absolute elevation. Window divisions, steel fittings and tones are photographic estimates. The hosted viewer and both archives passed their publication checks. [Source evidence and checks](docs/potsdamer-photos-v284.md).
 

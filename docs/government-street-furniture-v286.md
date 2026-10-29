@@ -2,12 +2,12 @@
 
 ## Scope and publication status
 
-This unpublished candidate refines twenty street lamps along
+Version v1.0.185 refines twenty street lamps along
 Heinrich-von-Gagern-Straße and its Paul-Löbe-Allee crossing, and one western
 cycle-wayfinding mast. Seven owner photographs guide recognition. Existing
 source geometry, roads, kerbs, paths, trees, coverage, all six presentations and
-the 93-place tour remain retained. Production-build, archive, offline-package and internal-browser checks pass;
-public deployment remains pending, with the published viewer still v1.0.184.
+the 93-place tour remain retained. Production-build, archive, offline-package, internal-browser and public
+deployment checks pass; the published viewer and both downloads are v1.0.185.
 
 The [evidence ledger](../geo_data/regierungsviertel/government-street-furniture-v286-evidence.json)
 records all seven photo identities, source-file hashes, lamp receipts, estimated
@@ -124,16 +124,49 @@ full/touch equality, night switching, cooperative construction, lettering and
 retained instance prefixes. All three source-file SHA256 values in the ledger
 were independently rechecked without modifying those files.
 
-These constructor/source checks do not establish production-package integrity,
-full-city rendering or physical mobile-device compatibility. Those checks and
-publication receipts remain pending.
+Constructor/source checks are supplemented by the production, full-city and
+publication checks below. They do not establish physical mobile-device compatibility.
 
 ## Final integrated validation
 
-The frozen combined run passed 71 tests in ten files, with 146,955 assertions and no failures. The old ParkDetails inventory is still checked exactly when the guarded replacement is rejected; the authorised new inventory adds only 1,080 net instances. Independent review also checked all 190 lamp pairs without dish/native-box overlaps. Ruff lint/format and 100 package/readiness unit tests pass. Internal-browser full-city day and night views show the new lamps, retained trees and working light switch; the green guidepost is readable at its west-side anchor. Production and publication receipts follow after completion.
+The frozen combined run passed 71 tests in ten files, with 146,955 assertions and no failures. The old ParkDetails inventory is still checked exactly when the guarded replacement is rejected; the authorised new inventory adds only 1,080 net instances. Independent review also checked all 190 lamp pairs without dish/native-box overlaps. Ruff lint/format and 100 package/readiness unit tests pass. Internal-browser full-city day and night views show the new lamps, retained trees and working light switch; the green guidepost is readable at its west-side anchor. Production and publication receipts are recorded below.
 
 ## Production candidate
 
 The complete TypeScript/Vite production build passes. The validated package contains 4,754 files / 935,366,695 bytes (1,011,673 bytes below the unchanged 893 MiB cap), manifest SHA256 `55e2bea3a8ca13cbf4909110464547365d7b9ff42032c71b984cab4653e5e99e`. Archive contents/CRC, local HTTP smoke and the actual production main-app start pass; the UI reports v1.0.185 and has no errors from the production origin. Day, night on/off, native street and green-sign views were inspected in the internal browser, one complete city at a time. No physical-device compatibility claim is made.
 
 The reviewed Pages candidate has 4,770 files / 971,354,921 bytes, retaining all 325 assets of the actual preceding v183/v184 closures. Only 15 proven v182-only assets / 54,660,314 bytes are removed.
+
+## Published v1.0.185
+
+Tested source commit `de4928d25ce0c9dc0e601d9125ad3d6ff4d6da48` is tagged
+`v1.0.185`. Pages commit `25ea122469376badef3e30bce87584e92d408c73`
+uses tree `c1a1591ca86c9856658ef888d06134e829193f34`, fast-forwarded with
+an exact-parent lease from `367bdcfec2cc41863532418bea3e8f33dc6a165d`.
+An independent audit and the complete downloaded remote tree both match all
+4,770 expected path/mode/blob/size records before publication.
+
+[Pages deployment 40969972739](https://github.com/Klotzkette/isometric-berlin/actions/runs/40969972739)
+completed successfully for that exact commit. Live HTTP verification at
+2026-10-29 23:02 UTC compared 15 files / 35,154,803 bytes, including every new
+asset, index, manifest, scene metadata and the shared preceding v183/v184 worker.
+The Pages ref remained current before and after the check. The new worker is
+11,235,398 bytes and startup index 195,460 bytes, below their unchanged limits.
+
+[Release v1.0.185](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.185),
+ID `428477402`, was made public and latest at 2026-10-29 23:03:07 UTC, after
+archive digests, exact-tree checks and successful Pages deployment. Public tag
+and latest-release endpoints both return that same ID and these exact assets:
+
+| Archive | Bytes | SHA256 |
+| --- | ---: | --- |
+| `isometric-berlin-regierungsviertel-local.zip` | 765,508,140 | `afd9b5dd47d0546d5fdccaf131a904f663be03e83ebcaa54e536f34b688850cb` |
+| `isometric-berlin-viewer-v1.0.185.tar.gz` | 764,716,774 | `41a168029e2df1d4de4d07427f119aed76087ab9622e1f950ddbe8c85de55988` |
+
+The public main application was started in the internal browser, reports
+v1.0.185, shows the complete government quarter and has no production-origin
+console warnings/errors. Audio was left off. The local QA street views prove
+the new dishes by day, emission on/off at night and the independent native
+construction; the separate sign view shows the seven destination labels.
+Photographs remain references only. The 12 existing/local QA entry files are
+untracked and not included in the build or release.
