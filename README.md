@@ -11,7 +11,7 @@
 | Versioned v1.0.183 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.183/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.184 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.184/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.185 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.185/isometric-berlin-regierungsviertel-local.zip |
-| Candidate v1.0.186 ZIP (unpublished / noch nicht veröffentlicht) | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.186/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.186 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.186/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -29,15 +29,15 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Live v1.0.185** · Local v1.0.186 candidate sources (unpublished / unveröffentlichter Quellstand) · static viewer for macOS, Windows, and Linux.
+**Status:** Public open-data project · **Live v1.0.186** · Local v1.0.186 · static viewer for macOS, Windows, and Linux.
 
-Local v1.0.186 adds green climbing foliage, photo-guided facade-window details and five forked existing trees at the Chancellery from nine owner photographs. Production build and 101 focused geometry/integration tests passed; package checks passed; publication is pending. Der lokale Kandidat v1.0.186 ergänzt anhand von neun eigenen Fotos grüne Kletterpflanzen, verfeinerte Fassadenfenster und Verzweigungen an fünf vorhandenen Bäumen am Kanzleramt. Produktionsbuild und 101 gezielte Geometrie-/Integrationstests sind bestanden; Paketprüfung ist bestanden; die Veröffentlichung steht noch aus. [Evidence and checks / Quellen und Prüfungen](docs/chancellery-photo-v287.md).
+v1.0.186 refines the Chancellery from nine owner photographs: green climbing foliage, large louvred windows and narrow companion slits, plus low forks on five existing trees. Complete source geometry, tree positions and earlier detail remain. Production, package, browser and live-publication checks passed. v1.0.186 präzisiert das Kanzleramt anhand von neun eigenen Fotos: grüner Wildwein, große Lamellenfenster mit schmalen Nebenfenstern und tiefe Verzweigungen an fünf vorhandenen Bäumen. Quellgeometrie, Baumstandorte und bisherige Details bleiben erhalten. Build, Paket, Browser und Live-Veröffentlichung sind geprüft. [Evidence, checks and publication / Quellen, Prüfungen und Veröffentlichung](docs/chancellery-photo-v287.md).
 
 v1.0.185 refines twenty tilted-disc street lamps and the western seven-destination cycle guidepost near Heinrich-von-Gagern-Straße and Paul-Löbe-Allee using seven owner photographs. Production, archive, package, browser and live-publication checks passed. v1.0.185 präzisiert zwanzig Scheibenleuchten und den westlichen Radwegweiser mit sieben Zielen an Heinrich-von-Gagern-Straße und Paul-Löbe-Allee anhand sieben eigener Fotos. Produktionsbuild, Archive, Paket, Browser und Live-Veröffentlichung sind geprüft. [Sources, checks and publication / Quellen, Prüfungen und Veröffentlichung](docs/government-street-furniture-v286.md).
 
 Local v1.0.184 refines Reichstag window divisions, stone arch joints and dome steel from the owner photograph. Production, offline-package, browser and publication checks passed. v1.0.184 präzisiert Fensterteilungen, Steinbogenfugen und die Kuppelstruktur anhand des bereitgestellten Fotos; Build, Paket und Live-Stand sind geprüft.
 
-The hosted viewer and both release packages are v1.0.185. Online-Ansicht und beide Downloadpakete enthalten v1.0.185.
+The hosted viewer and both release packages are v1.0.186. Online-Ansicht und beide Downloadpakete enthalten v1.0.186.
 
 Version 1.0.183 refines Potsdamer Platz from three owner photographs: source-aligned Torhaus and TRION facade grids, the Beisheim office podium, and the south station pavilion. Its source height included a basement; the roof now uses the original absolute elevation. Window divisions, steel fittings and tones are photographic estimates. The hosted viewer and both archives passed their publication checks. [Source evidence and checks](docs/potsdamer-photos-v284.md).
 
@@ -1216,8 +1216,8 @@ reproducible outputs, not a separate hidden codebase.
 
 ## Current Viewer
 
-The public package is **v1.0.38**, built from `main`. It contains one freely
-orbitable isometric scene with five visual styles. Changing a visual style
+The public package is **v1.0.186**, built from `main`. It contains one freely
+orbitable isometric scene with six visual styles. Changing a visual style
 preserves location, view and walking/flight state. The launch guide opens this
 same viewer through local HTTP.
 

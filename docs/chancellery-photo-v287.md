@@ -1,12 +1,12 @@
 # Step 10 — Chancellery owner photographs (v287)
 
-## Candidate and source scope
+## Release and source scope
 
-The v1.0.186 candidate refines the existing eastern Chancellery
+Published v1.0.186 refines the existing eastern Chancellery
 Ehrenhof and five retained Forum trees from nine photographs supplied by the
-owner on 31 October 2026. Production build, complete ownership/lifecycle checks and internal full-city
-inspection have passed. Package validation has passed; publication remains pending. This
-is not yet a published release or proof of physical mobile-device compatibility.
+owner on 31 October 2026. Production build, exact ownership/lifecycle checks, internal full-city inspection,
+complete package/archive validation and public deployment passed. Internal-browser
+and full/touch construction tests do not claim physical mobile-device certification.
 
 The [evidence record](../geo_data/regierungsviertel/chancellery-photo-v287-evidence.json)
 contains all nine JPEG identities, original source-file hashes, seven selected
@@ -158,47 +158,62 @@ batch adds 4,448 bytes, fifty instances and one draw; native limbs append to the
 existing trunk batch without an extra draw. No resident/decode/prefetch ceiling
 changes.
 
-## Verification and remaining release work
+## Verification and publication
 
-An independent preparation run observed **17 passing tests, 36,378 assertions,
-zero failures** across `chancellery-photo-v287` and `chancellery-trees-v287`.
-These check the retained planes/signature, real opening holes and clear leaf
-margins, independent native courses, exact five-tree admission, full/touch
-retention, supported limbs and filtered native parents. All seven original
-source-file hashes in the evidence record were rechecked, as were the nine
-photo identities and five source/runtime tree receipts.
+The frozen-tree checks passed **101 focused tests / 233,917 assertions** across
+sixteen geometry, source-admission, exact authored-owner transfer, cooperative
+construction, tree retention, night-mode and prior street-furniture suites.
+Both full and mobile native worlds have identical synchronous and cooperative
+buffer hashes. All seven original source-file hashes remain unchanged. All
+1,811 new native facade/fitting boxes clear the 195 retained source columns and
+twelve existing support members. Python package/release checks passed 101 tests,
+including the fresh current-tree case. Ruff and the 116-package offline lock
+check pass. The TypeScript and Vite production build passed (Vite 3m 30s).
 
-An independent host review subsequently observed **nine passing integration
-and cooperative ParkDetails tests, 398 assertions, zero failures**. These check
-exact authored transfers and fallbacks, branded native completion, preservation
-of unrelated buffers, equal synchronous/cooperative construction and partial
-root ownership on cancellation. The review's detached native-group cleanup gap
-was corrected by immediate staged-root attachment, and native admission now
-also requires the frozen actual source-column guard.
+One internal full-city view was used at a time. Drawn and native Ehrenhof
+overviews, night frontal lighting on/off, and the Paul-Löbe/Reichstag view after
+its retained tree layer completed were inspected without console warnings or
+errors. The ordinary packaged and public entry flows both opened v1.0.186, and
+the normal Chancellery selection worked. Music and soundtrack were left off.
+No photos or textures ship.
 
-The final frozen-tree root run passed **101 tests, 233,917 assertions, zero
-failures** across sixteen focused geometry, authored-owner integration,
-cooperative construction, tree retention, night-mode and previous street-furniture
-suites. Both full and mobile native construction have identical synchronous and
-cooperative buffer hashes. Python package/release suites passed 100 tests, with
-the current-package case reserved for the fresh v186 artifact; Ruff and the
-116-package offline lock check also pass.
+The complete offline package passed release readiness and local HTTP smoke:
+**4,754 files / 935,430,321 bytes**, below the unchanged 936,378,368-byte ceiling.
+Manifest SHA-256:
+`5263185cba2d6e825d7a4eb2de74c14e243587a7c275375bb76dfec10d93a99e`.
+The independent retention audit freshly hashed every package file. The 4,424 unchanged mesh/dzi source files retain their exact bytes. The
+separately credited visual-reference ledger preserves all previous 299 records
+before sixteen new reference credits (315 total).
 
-Internal full-city day and native overview inspections and night frontal
-inspection passed without console warnings or errors. The night light toggle
-was checked in both states. The Paul-Löbe/Reichstag view was inspected after
-its retained tree layer completed. Production build, package/archive and public HTTP
-checks are pending. Their receipts and publication pins are
-added only after they pass.
+The exact prepared and deployed Pages tree contains **4,772 files /
+982,816,486 bytes**, with 90,925,338 bytes below the fixed 1 GiB ceiling. Both
+actual v184/v185 dependency closures remain: 327 protected assets including
+distinct prior workers. Only seven proven v183-exclusive files / 12,306,543
+bytes were removed. The complete target path/mode/blob/size fingerprint is
+`46131824c3afc23fc13cd564b3500240ad390a9101c9e88b4609958a337207be`.
+
+Publication pins:
+
+- Tested source/tag target: `60b833ea319c6512bdee9748d48a0ac261c5a660`.
+- Pages commit: `18ed98cd9ba32c5eaa3cc6e16d15c3eaa75b4b99`, parent
+  `25ea122469376badef3e30bce87584e92d408c73`.
+- Pages tree: `8b60fb5b3df5f4cb22bea354aefb90c9a77e54d2`.
+- Exact [Pages run 41209407387](https://github.com/Klotzkette/isometric-berlin/actions/runs/41209407387)
+  completed successfully.
+- Public HTTP verification freshly matched sixteen files / 46,453,827 bytes,
+  including all new files, manifest, scene metadata and both retained workers;
+  the Pages ref matched before and after.
+- [Release v1.0.186](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.186),
+  ID `429978425`, published `2026-10-31T14:20:47Z`; the tag and `latest` endpoints
+  resolve to that same release. Both uploaded asset sizes and server SHA-256
+  digests exactly match the local archives.
+
+| Archive | Bytes |
+| --- | ---: |
+| `isometric-berlin-regierungsviertel-local.zip` | 765,525,575 |
+| `isometric-berlin-viewer-v1.0.186.tar.gz` | 764,756,724 |
+
+The exact archive digests are in
+[SHA256SUMS-v1.0.186.txt](../releases/SHA256SUMS-v1.0.186.txt).
 The 93-place tour, coverage, six presentations, full drawn touch quality and
 all existing residency, decode, prefetch and release ceilings remain fixed.
-
-
-The complete v186 offline package passed release readiness, HTTP smoke and the
-current-tree Python test. The normal built entry screen opened version 1.0.186,
-and its ordinary Chancellery navigation worked without console errors. Both
-music controls were left off. The package contains 4,754 files / 935,430,321
-bytes, below 936,378,368 bytes. Its manifest SHA-256 is
-`5263185cba2d6e825d7a4eb2de74c14e243587a7c275375bb76dfec10d93a99e`.
-The prepared Pages tree retains both exact v184/v185 dependency closures;
-publication and final tree/HTTP pins are still pending.
