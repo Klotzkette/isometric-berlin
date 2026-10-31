@@ -66,7 +66,9 @@ describe("source-bound park and Ehrenhof v281",()=>{
   test("native sculpture/lawn remain cardinal inside the unchanged 5500 budget",()=>{
     const root=createMinecraftArchitecturalLandmarks();
     const meshes=root.children as InstancedMesh[];
-    expect(meshes.reduce((sum,m)=>sum+m.count,0)).toBe(5494);
+    // v285 already added four independently authored Reichstag details.
+    expect(meshes.reduce((sum,m)=>sum+m.count,0)).toBe(5498);
+    expect(meshes.reduce((sum,m)=>sum+m.count,0)).toBeLessThanOrEqual(5500);
     const mesh=meshes.find(m=>m.userData.landmarkId==="bundeskanzleramt")!;
     expect(mesh.userData.cueCounts["Chillida independent stepped iron arms v281"]).toBe(15);
     expect(mesh.userData.cueCounts["Chillida source-anchored lawn island v281"]).toBe(9);

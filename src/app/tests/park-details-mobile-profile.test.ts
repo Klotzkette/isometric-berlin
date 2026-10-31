@@ -62,7 +62,7 @@ const FROZEN_FULL_BUDGET_BEFORE_V286: ParkGeometryBudget = {
 // meshes, replacing precisely ten generic poles and ten generic heads.
 // All old cone instances and shared primitive geometry remain present.
 const V286_LAMP_INSTANCE_DELTA = 1_100 - 10 * 2;
-const FROZEN_FULL_BUDGET: ParkGeometryBudget = {
+const FROZEN_FULL_BUDGET_BEFORE_V287: ParkGeometryBudget = {
   ...FROZEN_FULL_BUDGET_BEFORE_V286,
   geometryBytes: FROZEN_FULL_BUDGET_BEFORE_V286.geometryBytes + 90_648,
   instanceBytes: FROZEN_FULL_BUDGET_BEFORE_V286.instanceBytes + 1_100 * 76 - 20 * 64,
@@ -72,6 +72,21 @@ const FROZEN_FULL_BUDGET: ParkGeometryBudget = {
   objects: FROZEN_FULL_BUDGET_BEFORE_V286.objects + 4,
   triangles: FROZEN_FULL_BUDGET_BEFORE_V286.triangles + 2_052,
   vertices: FROZEN_FULL_BUDGET_BEFORE_V286.vertices + 2_184,
+};
+
+// Exact v287 additive inventory: five guarded retained trees gain fifty low
+// fork boxes. No old trunk, crown, path or other instance is retired.
+const V287_TREE_BRANCH_INSTANCE_DELTA = 50;
+const FROZEN_FULL_BUDGET: ParkGeometryBudget = {
+  ...FROZEN_FULL_BUDGET_BEFORE_V287,
+  geometryBytes: FROZEN_FULL_BUDGET_BEFORE_V287.geometryBytes + 648,
+  instanceBytes: FROZEN_FULL_BUDGET_BEFORE_V287.instanceBytes + 3_800,
+  instances: FROZEN_FULL_BUDGET_BEFORE_V287.instances + V287_TREE_BRANCH_INSTANCE_DELTA,
+  instancedMeshes: FROZEN_FULL_BUDGET_BEFORE_V287.instancedMeshes + 1,
+  meshes: FROZEN_FULL_BUDGET_BEFORE_V287.meshes + 1,
+  objects: FROZEN_FULL_BUDGET_BEFORE_V287.objects + 2,
+  triangles: FROZEN_FULL_BUDGET_BEFORE_V287.triangles + 12,
+  vertices: FROZEN_FULL_BUDGET_BEFORE_V287.vertices + 24,
 };
 
 function geometryBudget(root: Object3D): ParkGeometryBudget {
@@ -179,7 +194,7 @@ function drawableCount(root: Object3D): number {
 }
 
 describe("coarse-pointer ParkDetails profile", () => {
-  test("retains the exact old inventory plus only the bounded v286 photo-lamp replacement", () => {
+  test("retains the exact old inventory plus only bounded v286 photo lamps and v287 additive tree forks", () => {
     const implicit = createParkDetails(payload, { settledDetail: false });
     const explicit = createParkDetails(payload, {
       detailProfile: "full",
@@ -193,15 +208,19 @@ describe("coarse-pointer ParkDetails profile", () => {
     );
     disposeStaticAudit(implicit); disposeStaticAudit(explicit);
     // A rejected atomic replacement must reproduce the complete pre-v286
-    // inventory. This guards every retained tree/path/other source component
-    // and verifies the delta above comes solely from the approved lamp family.
+    // inventory after detaching only the new v287 additive group. This guards
+    // every retained tree/path/other source component and keeps both audited
+    // deltas separate from the frozen original inventory.
     const retained = createParkDetails(payload, {
       settledDetail: false,
       streetFurnitureTerrainAt: () => { throw new Error("test rejected furniture ground"); },
     });
     expect(retained.getObjectByName("Government-quarter photo street lamps v286")).toBeUndefined();
+    const forks = retained.getObjectByName("Chancellery Forum five retained-tree low forks v287")!;
+    expect(forks.userData).toMatchObject({ treeCount: 5, memberCount: 50, originalGeometryRetained: true });
+    retained.remove(forks);
     expect(geometryBudget(retained)).toEqual(FROZEN_FULL_BUDGET_BEFORE_V286);
-    disposeStaticAudit(retained);
+    disposeStaticAudit(forks); disposeStaticAudit(retained);
   });
 
   test("touch retains the full path, tree, shrub, wall and playground geometry", () => {
@@ -263,7 +282,7 @@ describe("coarse-pointer ParkDetails profile", () => {
   test("settled touch foliage also keeps every full crown subdivision", () => {
     const full = createParkDetails(payload, { detailProfile: "full", settledDetail: true });
     const expected = staticGeometryAudit(full);
-    expect(expected.budget.instances).toBe(500_033 + V286_LAMP_INSTANCE_DELTA);
+    expect(expected.budget.instances).toBe(500_033 + V286_LAMP_INSTANCE_DELTA + V287_TREE_BRANCH_INSTANCE_DELTA);
     disposeStaticAudit(full);
     const mobile = createParkDetails(payload, { detailProfile: "mobile", settledDetail: true });
     expect(staticGeometryAudit(mobile)).toEqual(expected);

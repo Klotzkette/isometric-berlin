@@ -1,4 +1,5 @@
 import { createGovernmentStreetLampBatchV286, type GovernmentStreetFurnitureTerrainAtV286 } from "./GovernmentStreetLampBatchV286";
+import { createChancelleryTreeBranchesV287 } from "./ChancelleryTreesV287";
 import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   AdditiveBlending,
@@ -2905,6 +2906,11 @@ function* createParkDetailsSteps(
       options.settledDetail ?? true,
       packedScratch,
     );
+  }
+  const chancelleryBranches = createChancelleryTreeBranchesV287(genericTrees);
+  if (chancelleryBranches) {
+    group.add(chancelleryBranches);
+    group.userData.chancelleryTreeBranchesV287 = chancelleryBranches.userData;
   }
   yield;
   if (lenneOak) {

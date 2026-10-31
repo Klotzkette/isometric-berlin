@@ -10,6 +10,8 @@ import { appendInvalidenCivicV257 } from './InvalidenCivicV257';
 import { appendGovernmentStreetLampsV286 } from './GovernmentStreetLampsV286';
 import { bakeGovernmentWayfindingV286 } from './GovernmentWayfindingV286';
 import { GOVERNMENT_STREET_LAMP_ANCHORS_V286, GOVERNMENT_WAYFINDING_PLACEMENT_V286 } from './governmentStreetFurnitureV286Profile';
+import { appendChancelleryPhotoNativeOwnedV287 } from './ChancelleryPhotoV287Batch';
+import chancelleryPhotoOwnersV287 from './data/chancelleryPhotoV287Owners.json';
 type Point=readonly number[];
 type Vec=[number,number,number];
 const UP=new Vector3(0,1,0),FORWARD=new Vector3(0,0,1);
@@ -59,7 +61,7 @@ function ribbon(parts:Parts,points:Point[],width:number,height:(x:number,z:numbe
   }
 }
 /** Exact source horizontal geometry; height/sections remain documented estimates. */
-export function createHbfNorthApproach(terrainAt:(x:number,z:number)=>number,native=false):Group{
+export function createHbfNorthApproach(terrainAt:(x:number,z:number)=>number,native=false,options:{chancelleryPhotoV287?:boolean}={}):Group{
   const root=new Group();root.name=native?'Minecraft Hauptbahnhof north rail portals and Döberitzer Grünzug':'Hauptbahnhof north rail portals and Döberitzer Grünzug';
   root.userData={sourceBound:true,sourceUrl:source.source_url,sourceSha256:source.source_sha256,fullStaticDetailOnTouch:true,keepInMinecraft:native,blockNative:native,textureFree:true,geometryStatus:source.geometry_status};
   const parts=new Parts(native),concrete=0xaaa99c,rail=0x65625b,iron=0x66726b;
@@ -158,5 +160,6 @@ export function createHbfNorthApproach(terrainAt:(x:number,z:number)=>number,nat
   for (const value of wayfinding.matrices) parts.matrices.push(value);
   for (const value of wayfinding.colors) parts.colors.push(value);
   root.userData.governmentWayfindingV286 = { ...wayfinding.metadata, sourceNodeId: post.sourceNodeId };
+  if (native && options.chancelleryPhotoV287 !== false) root.userData.chancelleryPhotoV287 = appendChancelleryPhotoNativeOwnedV287(parts, chancelleryPhotoOwnersV287.sourceSignature);
   parts.finish(root);return freezeStaticSceneTransforms(root);
 }

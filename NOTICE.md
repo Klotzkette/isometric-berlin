@@ -2606,3 +2606,29 @@ confirms the road verges without establishing surveyed private pole locations.
 See `geo_data/regierungsviertel/government-street-furniture-v286-evidence.json`
 and `docs/government-street-furniture-v286.md`. No photo, aerial pixels or
 new runtime media download is included.
+
+
+Chancellery owner photographs v287: nine photographs supplied by the project
+owner on 31 October 2026 guide bounded Ehrenhof climbing cover, facade fittings
+and additive branch recognition on five retained municipal trees. The owner's
+requested green interpretation replaces the photographed autumn-red leaf
+colour; it is not a claim of evergreen botany. All nine photo hashes and exact
+source identities are retained in
+`geo_data/regierungsviertel/chancellery-photo-v287-evidence.json`.
+The [Bundestag Paul-Löbe-Haus account](https://www.bundestag.de/besuche/architektur/loebehaus/architektur)
+identifies the photographed west entrance; the separate
+[Marie-Elisabeth-Lüders-Haus account](https://www.bundestag.de/besuche/architektur/luedershaus/architektur)
+places that building across the Spree. The existing
+[Bundesregierung architecture account](https://www.bundesregierung.de/breg-de/bundesregierung/bundeskanzleramt/geschichte-bundeskanzleramt-975040)
+and Ehrenhof photograph (Bundesregierung/Krünkelfeld) support the retained
+composition. Lorenz von Ehren's 2024 Baumjournal, printed pages 36–37, supplies
+historical multi-stem planting context; Tobias Chilla's 2004 Cologne geography
+publication supplies historical climbing-plant context. Neither establishes a
+current botanical survey or measured individual plant dimensions.
+The five exact tree catalogue points, heights and circumferences derive from
+Geoportal Berlin Baumbestand (dl-de/zero-2-0); complete source records and all
+previous crowns/trunks remain. Small facade subdivisions, green patches and
+added branches are explicit display estimates. Photographs and institutional
+images remain references only: no image pixels, photographic textures or media
+downloads are distributed. See `docs/chancellery-photo-v287.md` and the public
+per-source visual-reference ledger.

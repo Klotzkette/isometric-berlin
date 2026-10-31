@@ -1,0 +1,967 @@
+{
+  "schemaVersion": 1,
+  "pipelineStep": 10,
+  "evidenceId": "chancellery-owner-photos-v287",
+  "date": "2026-10-31",
+  "baselineCommit": "183dd4ec7a263cb08be863922c8bf76fda4755c2",
+  "scope": {
+    "site": "Existing eastern Chancellery Ehrenhof, Forum public-space trees and the view to the Paul-Löbe-Haus/Reichstag",
+    "newGeographicCoverage": false,
+    "buildingRelocation": false,
+    "treeOrBuildingRemovalForVisibility": false,
+    "photoNumbersForChancelleryFaces": [
+      2,
+      5,
+      6,
+      7,
+      8
+    ],
+    "photoNumbersForPaulLoebeIdentity": [
+      1,
+      9
+    ],
+    "photoNumbersAlreadyCoveredByV286": [
+      3,
+      4
+    ]
+  },
+  "coordinateFrame": {
+    "crs": "EPSG:25833",
+    "origin": [
+      389500,
+      5820000,
+      30
+    ],
+    "worldAxes": [
+      "east",
+      "up",
+      "south"
+    ],
+    "photoCameraPositions": "Unavailable: all nine attachments lack GPS and capture-date metadata. Any proposed QA camera frame is only a display estimate."
+  },
+  "ownerPhotos": [
+    {
+      "number": 1,
+      "filename": "1-Photo-1.jpg",
+      "bytes": 3379192,
+      "sha256": "c5a55c640f313c705e8c9b500c223fb6a04243cebfa19c1d1eb823812c7a72ff",
+      "widthPixels": 3840,
+      "heightPixels": 2880,
+      "exifScalarFields": {
+        "296": 2,
+        "34665": 90,
+        "274": 1
+      },
+      "gpsOrCaptureDateAvailable": false,
+      "identity": "Paul-Löbe-Haus west entrance, seen across the Forum from the Chancellery side",
+      "identityStatus": "Photo/context inference cross-checked against retained source anchors and primary descriptions; not GPS geolocation.",
+      "observations": [
+        "Broad projecting canopy, slender round supports and glass front reflecting the opposite Chancellery identify the west entrance.",
+        "Parallel lawn/ground strips and foreground trees frame the retained public space."
+      ],
+      "referenceIds": [
+        2
+      ],
+      "referenceOnly": true,
+      "pixelsBundled": false
+    },
+    {
+      "number": 2,
+      "filename": "2-Photo-2.jpg",
+      "bytes": 1998503,
+      "sha256": "c972a8a88f0a4c248ad86f9cdb5fb2fdd7c6e78fb11d912a2bacadfa489c3fa6",
+      "widthPixels": 3840,
+      "heightPixels": 2880,
+      "exifScalarFields": {
+        "296": 2,
+        "34665": 90,
+        "274": 1
+      },
+      "gpsOrCaptureDateAvailable": false,
+      "identity": "Bundeskanzleramt eastern Ehrenhof, looking west",
+      "identityStatus": "Photo/context inference cross-checked against retained source anchors and primary descriptions; not GPS geolocation.",
+      "observations": [
+        "Both inner office-wing faces carry patchy climbing vegetation with bare stems and exposed pale wall.",
+        "Tall louvred openings, narrow slits and roof-edge slots stay visible; central canopy, planted uprights, Chillida sculpture, fence and lawns are separate retained elements."
+      ],
+      "referenceIds": [
+        1,
+        3
+      ],
+      "referenceOnly": true,
+      "pixelsBundled": false
+    },
+    {
+      "number": 3,
+      "filename": "3-Photo-3.jpg",
+      "bytes": 1302455,
+      "sha256": "e48eb9f0ba3067d966b16b6767e3da7b451ac44acf1f767fe921f2d18441535a",
+      "widthPixels": 3840,
+      "heightPixels": 2880,
+      "exifScalarFields": {
+        "296": 2,
+        "34665": 90,
+        "274": 1
+      },
+      "gpsOrCaptureDateAvailable": false,
+      "identity": "Heinrich-von-Gagern-Straße / Paul-Löbe-Allee street-corner context",
+      "identityStatus": "Photo/context inference cross-checked against retained source anchors and primary descriptions; not GPS geolocation.",
+      "observations": [
+        "Existing tilted-disc street lamps and wayfinding context belong to the bounded v286 family.",
+        "No new lamp source owner or identification of a distant pale background tower is established here."
+      ],
+      "referenceIds": [],
+      "referenceOnly": true,
+      "pixelsBundled": false
+    },
+    {
+      "number": 4,
+      "filename": "4-Photo-4.jpg",
+      "bytes": 2029115,
+      "sha256": "72141d4b7d8dee4c439af460935deb4f1c58d1cdbe7a0fbf18c90618a8291c79",
+      "widthPixels": 3840,
+      "heightPixels": 2880,
+      "exifScalarFields": {
+        "296": 2,
+        "34665": 90,
+        "274": 1
+      },
+      "gpsOrCaptureDateAvailable": false,
+      "identity": "Heinrich-von-Gagern-Straße / Paul-Löbe-Allee street-corner context",
+      "identityStatus": "Photo/context inference cross-checked against retained source anchors and primary descriptions; not GPS geolocation.",
+      "observations": [
+        "Paul-Löbe-Allee street name is legible; the pictured lamp type is already covered by v286.",
+        "Background trees and remote structures are context rather than new measured geometry."
+      ],
+      "referenceIds": [],
+      "referenceOnly": true,
+      "pixelsBundled": false
+    },
+    {
+      "number": 5,
+      "filename": "5-Photo-5.jpg",
+      "bytes": 2867723,
+      "sha256": "c0b31665510b55f720ba6529e08906ea33cccefc39bc5babf98e368f9c0e45ac",
+      "widthPixels": 3840,
+      "heightPixels": 2880,
+      "exifScalarFields": {
+        "296": 2,
+        "34665": 90,
+        "274": 1
+      },
+      "gpsOrCaptureDateAvailable": false,
+      "identity": "Bundeskanzleramt Ehrenhof, nearer north inner office-wing face",
+      "identityStatus": "Photo/context inference cross-checked against retained source anchors and primary descriptions; not GPS geolocation.",
+      "observations": [
+        "Close view shows a tall louvred opening, companion narrow slit, eaves slots, fine stems and irregular patches of climbing leaves.",
+        "Exposed white gaps between climbing patches are part of the pictured character."
+      ],
+      "referenceIds": [
+        1,
+        3
+      ],
+      "referenceOnly": true,
+      "pixelsBundled": false
+    },
+    {
+      "number": 6,
+      "filename": "6-Photo-6.jpg",
+      "bytes": 2723787,
+      "sha256": "c76663c305d89729a69e9dcab0ed85b2405170ad51ac1265f37c9ae794ae31a5",
+      "widthPixels": 3840,
+      "heightPixels": 2880,
+      "exifScalarFields": {
+        "296": 2,
+        "34665": 90,
+        "274": 1
+      },
+      "gpsOrCaptureDateAvailable": false,
+      "identity": "Bundeskanzleramt Ehrenhof, north wing nearest right and south wing behind left",
+      "identityStatus": "Photo/context inference cross-checked against retained source anchors and primary descriptions; not GPS geolocation.",
+      "observations": [
+        "Central entrance, lower canopy, sculpture and green planted uprights remain distinct from the wall cover.",
+        "The picture does not establish wrapping all four 36 m leadership pylons or exact botanical stem counts."
+      ],
+      "referenceIds": [
+        1,
+        3
+      ],
+      "referenceOnly": true,
+      "pixelsBundled": false
+    },
+    {
+      "number": 7,
+      "filename": "7-Photo-7.jpg",
+      "bytes": 2394083,
+      "sha256": "439cc0a2dc6e11c3154f72e60dca8cd004fe1f36595684a2628926598c25ab3e",
+      "widthPixels": 3840,
+      "heightPixels": 2880,
+      "exifScalarFields": {
+        "296": 2,
+        "34665": 90,
+        "274": 1
+      },
+      "gpsOrCaptureDateAvailable": false,
+      "identity": "Bundeskanzleramt Ehrenhof, opposite/south inner office-wing face with flags",
+      "identityStatus": "Photo/context inference cross-checked against retained source anchors and primary descriptions; not GPS geolocation.",
+      "observations": [
+        "Climbing cover is interrupted by tall dark louvred openings, narrow slits and exposed white strips.",
+        "The photographed run includes cropped edge bays and does not establish a surveyed complete opening count."
+      ],
+      "referenceIds": [
+        1,
+        3
+      ],
+      "referenceOnly": true,
+      "pixelsBundled": false
+    },
+    {
+      "number": 8,
+      "filename": "8-Photo-8.jpg",
+      "bytes": 2128571,
+      "sha256": "014116a52d615cd2b51528362703188a4a545b8dbe25460d03f447c0cfe5a2d7",
+      "widthPixels": 3840,
+      "heightPixels": 2880,
+      "exifScalarFields": {
+        "296": 2,
+        "34665": 90,
+        "274": 1
+      },
+      "gpsOrCaptureDateAvailable": false,
+      "identity": "Bundeskanzleramt south wing and flags with Forum walkway/trees in the foreground",
+      "identityStatus": "Photo/context inference cross-checked against retained source anchors and primary descriptions; not GPS geolocation.",
+      "observations": [
+        "Foreground planting frames the approach; no photographed tree can be assigned a new surveyed stem count or moved to clear the view.",
+        "Retained public paths, fence and lawn edges remain authoritative."
+      ],
+      "referenceIds": [
+        1,
+        3
+      ],
+      "referenceOnly": true,
+      "pixelsBundled": false
+    },
+    {
+      "number": 9,
+      "filename": "9-Photo-9.jpg",
+      "bytes": 4227917,
+      "sha256": "efe073eeac3fd456788dbb5bf7b2e2ca04cbd8b1e98f025d1222c333d79b02f8",
+      "widthPixels": 3840,
+      "heightPixels": 2880,
+      "exifScalarFields": {
+        "296": 2,
+        "34665": 90,
+        "274": 1
+      },
+      "gpsOrCaptureDateAvailable": false,
+      "identity": "Paul-Löbe-Haus west entrance with Reichstag visible to the right/south",
+      "identityStatus": "Photo/context inference cross-checked against retained source anchors and primary descriptions; not GPS geolocation.",
+      "observations": [
+        "The west canopy and glass front match photo 1 and the official west-entrance description.",
+        "Reichstag dome and facade appear beyond the foreground airy multi-stem trees; this is not proof that the pictured building is Marie-Elisabeth-Lüders-Haus."
+      ],
+      "referenceIds": [
+        2,
+        4
+      ],
+      "referenceOnly": true,
+      "pixelsBundled": false
+    }
+  ],
+  "photographicPixelsBundled": false,
+  "runtimeMediaRequests": false,
+  "newPhotographicTexture": false,
+  "primaryAndInstitutionalReferences": [
+    {
+      "id": 1,
+      "publisher": "Bundesregierung",
+      "title": "Geschichte und Architektur des Kanzleramts",
+      "url": "https://www.bundesregierung.de/breg-de/bundesregierung/bundeskanzleramt/geschichte-bundeskanzleramt-975040",
+      "accessed": "2026-10-31",
+      "supports": [
+        "Two office bands at 18 m surround a 36 m central cube; these official authoring anchors already belong to the retained scene.",
+        "Ehrenhof and the 5.5 m Chillida sculpture are distinct architectural elements."
+      ],
+      "limit": "Descriptive dimensions do not replace the full retained LoD2 sheets or establish new fitting measurements."
+    },
+    {
+      "id": 2,
+      "publisher": "Deutscher Bundestag",
+      "title": "Architektur des Paul-Löbe-Hauses",
+      "url": "https://www.bundestag.de/besuche/architektur/loebehaus/architektur",
+      "accessed": "2026-10-31",
+      "supports": [
+        "The main entrance is on the west side; its large glass front reflects the opposite Chancellery.",
+        "The eastward view instead crosses the Spree toward the Marie-Elisabeth-Lüders library."
+      ],
+      "limit": "Establishes photo identity and relative orientation, not a newly surveyed canopy or column inventory."
+    },
+    {
+      "id": 3,
+      "publisher": "Bundesregierung",
+      "title": "Bundeskanzleramt mit Ehrenhof",
+      "url": "https://www.bundesregierung.de/breg-de/bundesregierung/bundeskanzleramt/bundeskanzleramt-mit-ehrenhof-975026",
+      "accessed": "2026-10-31",
+      "supports": [
+        "Official exterior photo reference for the existing Ehrenhof composition."
+      ],
+      "limit": "Reference-only public image; no pixels, tracing, texture or metric extraction is bundled."
+    },
+    {
+      "id": 4,
+      "publisher": "Deutscher Bundestag",
+      "title": "Architektur des Marie-Elisabeth-Lüders-Hauses",
+      "url": "https://www.bundestag.de/besuche/architektur/luedershaus/architektur",
+      "accessed": "2026-10-31",
+      "supports": [
+        "Marie-Elisabeth-Lüders-Haus is across the Spree from Paul-Löbe-Haus, with a library rotunda, circular opening and broad exterior stair."
+      ],
+      "limit": "The prospective extension paragraph is historical and is not current construction evidence for this task."
+    },
+    {
+      "id": 5,
+      "publisher": "Lorenz von Ehren Baumschulen",
+      "title": "Baumjournal 2024, Chancellery exterior planting reference",
+      "url": "https://www.lve-baumschule.com/media/a3/6b/7c/1733321132/241104-baumjournal-web.pdf",
+      "accessed": "2026-10-31",
+      "pdfPageZeroBased": 18,
+      "printedPages": [
+        36,
+        37
+      ],
+      "supports": [
+        "Supplier description supports multi-stem umbrella planting at the Chancellery entrance."
+      ],
+      "limit": "Does not identify individual municipal catalogue points, exact plant dimensions or photographed stem counts."
+    },
+    {
+      "id": 6,
+      "publisher": "Geographisches Institut Universität zu Köln",
+      "author": "Tobias Chilla",
+      "year": 2004,
+      "title": "Natur-Elemente in der Stadtgestaltung, contents/excerpt of Kölner Geographische Arbeiten 85",
+      "url": "https://geographie.uni-koeln.de/sites/geographie/Forschung/Publikationen_KGA/Heft085.pdf",
+      "accessed": "2026-10-31",
+      "supports": [
+        "The figure-list caption associates Parthenocissus tricuspidata with the Chancellery entrance flanks."
+      ],
+      "limit": "Historical botanical context only, not a current site survey or proof that all photographed climbing cover is that species. The supplied PDF is a contents excerpt."
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "geo_data/regierungsviertel/buildings.gpkg",
+      "bytes": 9359360,
+      "sha256": "03d6c43bf4351728dc29ebcdb86b43c6f434df95e3c55615e4ad5e4de5e39573",
+      "retainedUnchanged": true
+    },
+    {
+      "path": "geo_data/regierungsviertel/official_details.gpkg",
+      "bytes": 4493312,
+      "sha256": "9b39e8352ed78575e8cca095b13c6ffe4bbe70df43719a564738a716eab634d8",
+      "retainedUnchanged": true
+    },
+    {
+      "path": "geo_data/regierungsviertel/osm.gpkg",
+      "bytes": 12333056,
+      "sha256": "ce74144176cd9aa64565aead67374c22d505392ab1103feb905f1844a01797cf",
+      "retainedUnchanged": true
+    },
+    {
+      "path": "src/app/public/mesh/regierungsviertel/scene.json",
+      "bytes": 49388,
+      "sha256": "b0d80e2fbced05a258af1f106d41a05e060b1d2f8fa46cbc88b2f5c1f9f459b4",
+      "retainedUnchanged": true
+    },
+    {
+      "path": "src/app/public/mesh/regierungsviertel/park-details.json",
+      "bytes": 6107835,
+      "sha256": "13a3c88c62cc589b113d9147721ecd74390a6533bd0ea649678b436454cdec27",
+      "retainedUnchanged": true
+    },
+    {
+      "path": "src/app/public/mesh/regierungsviertel/lod2-prisms.json",
+      "bytes": 6308725,
+      "sha256": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e",
+      "retainedUnchanged": true
+    },
+    {
+      "path": "geo_data/regierungsviertel/raw/lod2/LoD2_389_5820.zip",
+      "bytes": 3042390,
+      "sha256": "dcbbcf6837ec0b767bdabba8ad03e4d1384de3b506982b1d97c23405f0022068",
+      "retainedUnchanged": true
+    }
+  ],
+  "identityResolution": {
+    "photos1And9": "Paul-Löbe-Haus west entrance. Canopy/glass composition, opposite-Chancellery reflection, Reichstag to south and retained western source owner agree with the primary Bundestag west-entrance description.",
+    "notEstablishedInThesePhotos": "The Marie-Elisabeth-Lüders-Haus across the Spree is a different retained site; photos 1/9 do not justify moving either building.",
+    "paulLoebeParent": "DEBE01YYK0002Kn7",
+    "paulLoebeWestSourceParent": "DEBE01YYK0003UDf",
+    "paulLoebeWestSourcePart": "DEBE3DnrHA7mKuzG",
+    "paulLoebeMainBarPart": "DEBE3DO70sVYAxtY",
+    "marieElisabethLuedersParent": "DEBE01YYK00003Ey",
+    "paulLoebeSceneLandmarkWorld": [
+      230.686299,
+      8,
+      -132.101762
+    ],
+    "marieElisabethLuedersSceneLandmarkWorld": [
+      416.374718,
+      8,
+      -205.898885
+    ],
+    "reichstagSceneAnchorWorld": [
+      317.729,
+      3.595,
+      40.477
+    ],
+    "preserveAllSourceParents": true,
+    "sourceParentPartCounts": {
+      "DEBE01YYK0002KKb": 31,
+      "DEBE01YYK0002Kn7": 31,
+      "DEBE01YYK0003UDf": 4,
+      "DEBE01YYK00003Ey": 12
+    }
+  },
+  "seasonAndBotany": {
+    "photoAppearance": "The supplied climbing leaves include red/orange autumn colour.",
+    "requestedInterpretation": "Green climbing cover follows the explicit owner instruction.",
+    "geometryPolicy": "Maintain irregular patch margins, bare stems, white gaps and clear openings rather than a continuous rectangular green curtain.",
+    "botanyLimit": "Do not claim evergreen Hedera helix from these images. Historical Parthenocissus context is compatible with autumn colour; all green presentation remains a requested seasonal interpretation.",
+    "streetTrees": "No authority to recolour every public tree, infer exact species from photos, move measured anchors or clear a photographic sightline."
+  },
+  "retainedChancellerySignature": {
+    "id": "bundeskanzleramt-model",
+    "kind": "chancellery_model",
+    "landmark_name": "Bundeskanzleramt",
+    "geometry_status": "Metric recognition model from Berlin LoD2 extents and the official 36 m cube / 18 m office-band heights",
+    "anchor_world": [
+      -220.236,
+      1.554,
+      -145.806
+    ],
+    "rotation_y_degrees": -1.337,
+    "overall_width_m": 342.676,
+    "overall_depth_m": 102.074,
+    "office_height_m": 18,
+    "cube_width_m": 55.211,
+    "cube_depth_m": 55.103,
+    "cube_height_m": 36,
+    "cube_offset_world": [
+      66.373,
+      0,
+      0.042
+    ],
+    "forecourt_offset_world": [
+      158.413,
+      0,
+      -7.51
+    ],
+    "forecourt_sculpture_height_m": 5.5,
+    "office_segments": [
+      {
+        "width_m": 219.532,
+        "depth_m": 23.463,
+        "height_m": 18,
+        "offset_world": [
+          61.563,
+          0,
+          39.306
+        ]
+      },
+      {
+        "width_m": 203.2,
+        "depth_m": 23.536,
+        "height_m": 18,
+        "offset_world": [
+          69.738,
+          0,
+          -39.269
+        ]
+      },
+      {
+        "width_m": 135.151,
+        "depth_m": 21.027,
+        "height_m": 18,
+        "offset_world": [
+          -103.762,
+          0,
+          40.523
+        ]
+      }
+    ],
+    "focus_camera": {
+      "distance_m": 190,
+      "polar_degrees": 77,
+      "azimuth_degrees": 88,
+      "target_height_m": 15.5
+    },
+    "source_url": "https://www.bundesregierung.de/breg-de/bundesregierung/bundeskanzleramt/geschichte-bundeskanzleramt-975040"
+  },
+  "sourceParts": [
+    {
+      "building_id": "DEBE3DmmqroWLJfL",
+      "parent_building_id": "DEBE01YYK0002KKb",
+      "building_name": "Bundeskanzleramt",
+      "source_creation_date": "2026-03-02",
+      "lod2_role": "building_part",
+      "tile_id": "389_5820",
+      "function": "31001_3011",
+      "roof_type": "1000",
+      "measured_height_m": 21.119,
+      "ground_plan_date": "2023-03-11",
+      "roof_height_source": "5000",
+      "position_source": "1000",
+      "source_zip": "geo_data/regierungsviertel/raw/lod2/LoD2_389_5820.zip",
+      "source_url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5820.zip",
+      "footprintBoundsEPSG25833": [
+        389107.282,
+        5820095.735,
+        389242.737,
+        5820118.766
+      ],
+      "completeGpkgGeometryBlobSha256": "d9bce27d1208f054345b0d36648ea7cb20b5e2438ff01a8a4a730a3da9b30060",
+      "retirementAuthorizedByThisAudit": false
+    },
+    {
+      "building_id": "DEBE3DZEo2mpm3tp",
+      "parent_building_id": "DEBE01YYK0002KKb",
+      "building_name": "Bundeskanzleramt",
+      "source_creation_date": "2026-03-02",
+      "lod2_role": "building_part",
+      "tile_id": "389_5820",
+      "function": "31001_3011",
+      "roof_type": "1000",
+      "measured_height_m": 21.832,
+      "ground_plan_date": "2023-03-11",
+      "roof_height_source": "5000",
+      "position_source": "1000",
+      "source_zip": "geo_data/regierungsviertel/raw/lod2/LoD2_389_5820.zip",
+      "source_url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5820.zip",
+      "footprintBoundsEPSG25833": [
+        389230.802,
+        5820090.785,
+        389450.01,
+        5820117.335
+      ],
+      "completeGpkgGeometryBlobSha256": "938149143be251ffa3784a0437412f8c371c87c734b2a83ceb0449797d0f89c5",
+      "retirementAuthorizedByThisAudit": false
+    },
+    {
+      "building_id": "DEBE3Db4EUNWDW97",
+      "parent_building_id": "DEBE01YYK0002KKb",
+      "building_name": "Bundeskanzleramt",
+      "source_creation_date": "2026-03-02",
+      "lod2_role": "building_part",
+      "tile_id": "389_5820",
+      "function": "31001_3011",
+      "roof_type": "1000",
+      "measured_height_m": 21.59,
+      "ground_plan_date": "2023-03-11",
+      "roof_height_source": "5000",
+      "position_source": "1000",
+      "source_zip": "geo_data/regierungsviertel/raw/lod2/LoD2_389_5820.zip",
+      "source_url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5820.zip",
+      "footprintBoundsEPSG25833": [
+        389248.61,
+        5820171.107,
+        389452.246,
+        5820196.96
+      ],
+      "completeGpkgGeometryBlobSha256": "a111b14136d8d12ab7cd5d15a335899c71919d98d7fbd99a7f3c305c20ce394c",
+      "retirementAuthorizedByThisAudit": false
+    },
+    {
+      "building_id": "DEBE3DAJMLwG4KW9",
+      "parent_building_id": "DEBE01YYK0002KKb",
+      "building_name": "Bundeskanzleramt",
+      "source_creation_date": "2026-03-02",
+      "lod2_role": "building_part",
+      "tile_id": "389_5820",
+      "function": "31001_3011",
+      "roof_type": "1000",
+      "measured_height_m": 39.882,
+      "ground_plan_date": "2023-03-11",
+      "roof_height_source": "5000",
+      "position_source": "1000",
+      "source_zip": "geo_data/regierungsviertel/raw/lod2/LoD2_389_5820.zip",
+      "source_url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5820.zip",
+      "footprintBoundsEPSG25833": [
+        389328.001,
+        5820127.518,
+        389364.23,
+        5820160.911
+      ],
+      "completeGpkgGeometryBlobSha256": "e791098f18700af94bc8f1e8962f61206612c1494b438e054c0a2147b3f3f32e",
+      "retirementAuthorizedByThisAudit": false
+    },
+    {
+      "building_id": "DEBE3DDfACpCR1Y7",
+      "parent_building_id": "DEBE00YYIJ00003e",
+      "building_name": null,
+      "source_creation_date": "2026-03-02",
+      "lod2_role": "building_part",
+      "tile_id": "389_5820",
+      "function": "51009_1610",
+      "roof_type": "1000",
+      "measured_height_m": 21.092,
+      "ground_plan_date": "2023-03-11",
+      "roof_height_source": "5000",
+      "position_source": "1000",
+      "source_zip": "geo_data/regierungsviertel/raw/lod2/LoD2_389_5820.zip",
+      "source_url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5820.zip",
+      "footprintBoundsEPSG25833": [
+        389107.282,
+        5820095.735,
+        389242.737,
+        5820118.766
+      ],
+      "completeGpkgGeometryBlobSha256": "c66731358562f389d415158b857c3f69b5f68e415978d4d1b6923ac53a47fef6",
+      "retirementAuthorizedByThisAudit": false
+    },
+    {
+      "building_id": "DEBE3DnrHA7mKuzG",
+      "parent_building_id": "DEBE01YYK0003UDf",
+      "building_name": null,
+      "source_creation_date": "2026-03-02",
+      "lod2_role": "building_part",
+      "tile_id": "389_5820",
+      "function": "51009_1610",
+      "roof_type": "5000",
+      "measured_height_m": 26.053,
+      "ground_plan_date": "2023-03-11",
+      "roof_height_source": "5000",
+      "position_source": "1000",
+      "source_zip": "geo_data/regierungsviertel/raw/lod2/LoD2_389_5820.zip",
+      "source_url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5820.zip",
+      "footprintBoundsEPSG25833": [
+        389629.755,
+        5820086.016,
+        389657.158,
+        5820188.528
+      ],
+      "completeGpkgGeometryBlobSha256": "d569f3bcab7042db0dcc6fc693acaf0564587b631c2367ca4ba60b896ee2eab9",
+      "retirementAuthorizedByThisAudit": false
+    },
+    {
+      "building_id": "DEBE3DO70sVYAxtY",
+      "parent_building_id": "DEBE01YYK0002Kn7",
+      "building_name": "Deutscher Bundestag; Paul-Löbe-Haus",
+      "source_creation_date": "2026-03-02",
+      "lod2_role": "building_part",
+      "tile_id": "389_5820",
+      "function": "31001_3011",
+      "roof_type": "1000",
+      "measured_height_m": 29.016,
+      "ground_plan_date": "2023-03-11",
+      "roof_height_source": "5000",
+      "position_source": "1000",
+      "source_zip": "geo_data/regierungsviertel/raw/lod2/LoD2_389_5820.zip",
+      "source_url": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5820.zip",
+      "footprintBoundsEPSG25833": [
+        389654.563,
+        5820117.313,
+        389812.083,
+        5820152.994
+      ],
+      "completeGpkgGeometryBlobSha256": "e20be7924c258f790f0fa9e7c9fb5988d74a1679138de1e8ee5cfd1ff103135a",
+      "retirementAuthorizedByThisAudit": false
+    }
+  ],
+  "heightDatum": {
+    "courtyardGroundWorldY": 5.15,
+    "courtyardStatus": "Existing bounded entrance-profile estimate aligned with prior DGM context; retained unchanged.",
+    "modelAnchorWorldY": 1.554,
+    "warning": "The scene anchor includes lower building geometry. It is not the exposed Ehrenhof pavement datum. Retain all original LoD2 source heights even where they differ from official 18/36 m recognition dimensions. No photo-based height correction is authorised."
+  },
+  "boundedFacadeAssessment": {
+    "sourceFrame": "The two source/model office bands retain their original planes and scene rotation. The previous ivy and large authored panes followed a diagonal court-forward frame, visibly offset from these flat inner faces.",
+    "photographedPlanes": [
+      {
+        "segmentIndex": 0,
+        "identity": "South wing inner face",
+        "localZ": 27.5745,
+        "towardCourt": -1,
+        "localXRangeM": [
+          104,
+          170.629
+        ]
+      },
+      {
+        "segmentIndex": 1,
+        "identity": "North wing inner face",
+        "localZ": -27.501,
+        "towardCourt": 1,
+        "localXRangeM": [
+          104,
+          170.638
+        ]
+      }
+    ],
+    "newRecognitionStatus": "Thin pale fitting, louvred tall openings, companion narrow slits and patchy green cover are bounded photo-guided display estimates. The regular four bays per wing are not a surveyed complete window count.",
+    "observedOpeningCountLimit": "Photos 2/5/7 contain three complete openings with cropped edge portions; perspective and cropping do not establish the full source opening inventory.",
+    "plantableUprights": "Two already-authored 15.4 m colonnade end anchors only. The images do not establish wrapping all four 36 m leadership pylons. No new stone column is justified.",
+    "existingFeaturesRetained": [
+      "Complete source masses, roof/end bounds and original source sheets",
+      "Central cube, concave roof, entrance canopy and existing colonnade",
+      "Existing lawns, grille, flags, Chillida sculpture and walking routes",
+      "Existing street furniture refined in v286",
+      "Unrelated earlier facade and winter-garden detail"
+    ],
+    "permittedExactAuthoredTransfer": {
+      "ivyPatchInstances": 40,
+      "largeLouvredPaneInstances": 8,
+      "innerWinterGardenRevealInstances": 2,
+      "innerWinterGardenVoidInstances": 2,
+      "rule": "Only exact frozen matrix/colour/geometry receipts may yield after complete guarded construction. The two reveal and two void owners are bounded inner-wing authored fittings; all other host instances and full source sheets remain.",
+      "receiptPath": "src/app/src/data/chancelleryPhotoV287Owners.json"
+    },
+    "implementationRecipeEvidence": {
+      "module": "src/app/src/ChancelleryPhotoV287.ts",
+      "photoEvidenceId": "chancellery-owner-photos-v287",
+      "drawnMembers": 1799,
+      "nativeMembers": 1811,
+      "nativeGeometry": "Independent short orthogonal slices and stepped leaf/stem courses, not rotated smooth geometry.",
+      "status": "Module reviewed read-only; host admission, lifecycle and final browser/release validation belong to root integration. Counts are implementation receipts, not physical plant or facade measurements."
+    }
+  },
+  "publicSpaceAndTrees": {
+    "boundedForumAuditWorldXZ": [
+      -80,
+      -195,
+      120,
+      -95
+    ],
+    "officialTreesInFrame": 234,
+    "unmatchedOsmTreesInFrame": 11,
+    "duplicateFinding": "No exact source-proven duplicate among the eleven unmatched OSM trees. No deletion or relocation is justified.",
+    "selectedRetainedParents": [
+      {
+        "tree_id": "00008100_0015baf1",
+        "catalogue": "anlagenbaum",
+        "species_de": "Flügelnuss",
+        "species_botanical": "Pterocarya fraxinifolia",
+        "tree_group": "Laubbäume",
+        "height_m": 7.0,
+        "crown_diameter_m": null,
+        "trunk_circumference_cm": 403.0,
+        "planting_year": "1997",
+        "owner": "Land Berlin",
+        "sourcePointEPSG25833": [
+          389480.93599995,
+          5820162.91249966
+        ],
+        "completeGpkgGeometryBlobSha256": "eebc0425034644ad8963b0272167349bbcaed2bd0b8abf67c999868d3a41866a",
+        "runtimeReceipt": {
+          "catalogue": "anlagenbaum",
+          "crown_radius_m": 2.17,
+          "height_m": 7,
+          "id": "tree-13058",
+          "leaf_type": null,
+          "position": [
+            -19.06,
+            5.168,
+            -162.91
+          ],
+          "source": "berlin_official",
+          "species": "Flügelnuss",
+          "tree_group": "Laubbäume",
+          "trunk_radius_m": 0.641,
+          "variant": 2
+        },
+        "heightStatus": "Retained municipal measured/source value.",
+        "crownStatus": "Source crown_diameter_m is null. Existing generated crown radius remains a display estimate, not a measured crown or a photo-derived survey.",
+        "photoRefinementPolicy": "Retain complete original parent, position, measured height and crown. Only bounded additive fork details are supported; exact photographed stem count, branch direction and botanical identification are not established by pixels."
+      },
+      {
+        "tree_id": "00008100_0015baf5",
+        "catalogue": "anlagenbaum",
+        "species_de": "Japanischer Schnurbaum",
+        "species_botanical": "Sophora japonica",
+        "tree_group": "Laubbäume",
+        "height_m": 8.0,
+        "crown_diameter_m": null,
+        "trunk_circumference_cm": 91.0,
+        "planting_year": "1991",
+        "owner": "Land Berlin",
+        "sourcePointEPSG25833": [
+          389485.07239995,
+          5820130.86499966
+        ],
+        "completeGpkgGeometryBlobSha256": "6a78640597304294b6446bbf39fe3c0b9e7eac7ffcf871c4097af52ad11e44dd",
+        "runtimeReceipt": {
+          "catalogue": "anlagenbaum",
+          "crown_radius_m": 2.4,
+          "height_m": 8,
+          "id": "tree-13062",
+          "leaf_type": null,
+          "position": [
+            -14.93,
+            5.098,
+            -130.86
+          ],
+          "source": "berlin_official",
+          "species": "Japanischer Schnurbaum",
+          "tree_group": "Laubbäume",
+          "trunk_radius_m": 0.145,
+          "variant": 0
+        },
+        "heightStatus": "Retained municipal measured/source value.",
+        "crownStatus": "Source crown_diameter_m is null. Existing generated crown radius remains a display estimate, not a measured crown or a photo-derived survey.",
+        "photoRefinementPolicy": "Retain complete original parent, position, measured height and crown. Only bounded additive fork details are supported; exact photographed stem count, branch direction and botanical identification are not established by pixels."
+      },
+      {
+        "tree_id": "00008100_0015baf6",
+        "catalogue": "anlagenbaum",
+        "species_de": "Japanischer Schnurbaum",
+        "species_botanical": "Sophora japonica",
+        "tree_group": "Laubbäume",
+        "height_m": 9.0,
+        "crown_diameter_m": null,
+        "trunk_circumference_cm": 132.0,
+        "planting_year": "1985",
+        "owner": "Land Berlin",
+        "sourcePointEPSG25833": [
+          389475.82129995,
+          5820125.17829966
+        ],
+        "completeGpkgGeometryBlobSha256": "2f29af99beba873fbdba4355677fcbd00d38ea5501760548db7beb925123f9f4",
+        "runtimeReceipt": {
+          "catalogue": "anlagenbaum",
+          "crown_radius_m": 2.61,
+          "height_m": 9,
+          "id": "tree-13063",
+          "leaf_type": null,
+          "position": [
+            -24.18,
+            5.092,
+            -125.18
+          ],
+          "source": "berlin_official",
+          "species": "Japanischer Schnurbaum",
+          "tree_group": "Laubbäume",
+          "trunk_radius_m": 0.21,
+          "variant": 2
+        },
+        "heightStatus": "Retained municipal measured/source value.",
+        "crownStatus": "Source crown_diameter_m is null. Existing generated crown radius remains a display estimate, not a measured crown or a photo-derived survey.",
+        "photoRefinementPolicy": "Retain complete original parent, position, measured height and crown. Only bounded additive fork details are supported; exact photographed stem count, branch direction and botanical identification are not established by pixels."
+      },
+      {
+        "tree_id": "00008100_0015b7ef",
+        "catalogue": "anlagenbaum",
+        "species_de": "Japanischer Schnurbaum",
+        "species_botanical": "Sophora japonica",
+        "tree_group": "Laubbäume",
+        "height_m": 9.0,
+        "crown_diameter_m": null,
+        "trunk_circumference_cm": 100.0,
+        "planting_year": "1989",
+        "owner": "Land Berlin",
+        "sourcePointEPSG25833": [
+          389590.12869995,
+          5820122.28039966
+        ],
+        "completeGpkgGeometryBlobSha256": "02b8dee73953a88f6ea9fe780f9f70d0a5ce46dc3a425f3d0c24d9e1905ba541",
+        "runtimeReceipt": {
+          "catalogue": "anlagenbaum",
+          "crown_radius_m": 2.7,
+          "height_m": 9,
+          "id": "tree-12809",
+          "leaf_type": null,
+          "position": [
+            90.13,
+            5.11,
+            -122.28
+          ],
+          "source": "berlin_official",
+          "species": "Japanischer Schnurbaum",
+          "tree_group": "Laubbäume",
+          "trunk_radius_m": 0.159,
+          "variant": 1
+        },
+        "heightStatus": "Retained municipal measured/source value.",
+        "crownStatus": "Source crown_diameter_m is null. Existing generated crown radius remains a display estimate, not a measured crown or a photo-derived survey.",
+        "photoRefinementPolicy": "Retain complete original parent, position, measured height and crown. Only bounded additive fork details are supported; exact photographed stem count, branch direction and botanical identification are not established by pixels."
+      },
+      {
+        "tree_id": "00008100_0015b7f1",
+        "catalogue": "anlagenbaum",
+        "species_de": "Japanischer Schnurbaum",
+        "species_botanical": "Sophora japonica",
+        "tree_group": "Laubbäume",
+        "height_m": 8.0,
+        "crown_diameter_m": null,
+        "trunk_circumference_cm": 79.0,
+        "planting_year": "1989",
+        "owner": "Land Berlin",
+        "sourcePointEPSG25833": [
+          389596.92939995,
+          5820116.42319966
+        ],
+        "completeGpkgGeometryBlobSha256": "42a87f86e1f00ceb93a352002e7d8adfa54f206525c720b9116793eb668e7ad3",
+        "runtimeReceipt": {
+          "catalogue": "anlagenbaum",
+          "crown_radius_m": 2.56,
+          "height_m": 8,
+          "id": "tree-12810",
+          "leaf_type": null,
+          "position": [
+            96.93,
+            5.122,
+            -116.42
+          ],
+          "source": "berlin_official",
+          "species": "Japanischer Schnurbaum",
+          "tree_group": "Laubbäume",
+          "trunk_radius_m": 0.126,
+          "variant": 0
+        },
+        "heightStatus": "Retained municipal measured/source value.",
+        "crownStatus": "Source crown_diameter_m is null. Existing generated crown radius remains a display estimate, not a measured crown or a photo-derived survey.",
+        "photoRefinementPolicy": "Retain complete original parent, position, measured height and crown. Only bounded additive fork details are supported; exact photographed stem count, branch direction and botanical identification are not established by pixels."
+      }
+    ],
+    "policy": "All existing parent anchors, heights and crowns stay. Bounded additive fork detail may improve recognition while preserving the measured and previous generated inventory; branch direction, fork count and leaf silhouette remain display estimates."
+  },
+  "paulLoebeRetainedModel": {
+    "westFaceX": 129.8,
+    "centreZ": -137.25,
+    "groundY": 5.1,
+    "spanM": 106,
+    "canopyReachM": 13.5,
+    "canopyTopY": 28.6,
+    "canopySlabM": 0.55,
+    "existingColumnCount": 13,
+    "columnRadiusM": 0.42,
+    "glassTopY": 27.4,
+    "mullionPitchM": 2.7,
+    "transomPitchM": 4.35,
+    "status": "Existing authored recognition parameters are retained, not remeasured from the nine photographs. No photo-guided building move, artificial tree clearing, or extra facade source-owner transfer is warranted."
+  },
+  "qaFramingEstimate": {
+    "purpose": "Optional photo-9-like inspection only",
+    "cameraWorldXRange": [
+      -85,
+      -40
+    ],
+    "cameraWorldZRange": [
+      -175,
+      -110
+    ],
+    "eyeAboveGroundM": 1.6,
+    "lookDirection": "E/ESE toward the Paul-Löbe west front and Reichstag together",
+    "status": "Unsurveyed bounded camera suggestion; not EXIF, a source position or a building placement."
+  },
+  "preservationContract": {
+    "sourceGeometryRetained": true,
+    "allEarlierStreetFurnitureRetained": true,
+    "fullDrawnTouchDetail": true,
+    "independentNativeRequired": true,
+    "tourStopCountUnchanged": 93,
+    "residencyDecodePrefetchAndReleaseCapsUnchanged": true,
+    "newAnimation": false,
+    "newCoverage": false,
+    "mediaBundled": false
+  }
+}

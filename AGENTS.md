@@ -2061,3 +2061,22 @@ and release limit. No new geographic coverage, animation or photographic
 texture is authorized. All seven photographs remain reference-only; no image
 pixels, media files or downloads ship. Use only the internal browser, one
 full-city view at a time.
+
+
+### Step 10 — v287 Chancellery owner photographs
+
+The owner's nine 31 October photographs permit bounded recognition refinement
+of the Chancellery Ehrenhof climbing vegetation, photographed facade fittings
+and source-bound surrounding trees/public-space context. Render the depicted
+red autumn Wildwein as green foliage as explicitly requested. Preserve the
+measured building anchors, envelopes, openings, existing lawns, grille, Chillida
+sculpture, routes, recent street lamps and all earlier detail. Resolve the
+photographed Paul-Löbe-Haus separately from Marie-Elisabeth-Lüders-Haus; no
+relocation of buildings or artificial visibility clearing is authorised. Any
+correction to old authored ivy or generic trees requires exact ownership and
+a complete guarded replacement, with original source records retained.
+Unsurveyed foliage profiles, branches and small facade sections are labelled
+photo-guided estimates. Keep full drawn touch quality, independent orthogonal
+native geometry, 93 tour stops, every runtime/release cap and one internal
+full-city browser view at a time. All nine photographs remain reference-only;
+no image pixels, photographic textures, animation or new coverage is added.

@@ -59,6 +59,7 @@ import {
 
 import { CHANCELLERY_ENTRANCE_PROFILE, CHANCELLERY_LAWN_RINGS, chancelleryFenceLimits } from "./ChancelleryEntranceProfile";
 import { CHILLIDA_LAWN_V281, createChillidaSculptureV281, matchesChancelleryForecourtV281 } from "./ChancelleryForecourtV281";
+import { applyChancelleryPhotoDrawnV287 } from "./ChancelleryPhotoV287Batch";
 import {
   chancelleryLoggiaMembersV192,
   createApproachMemberBatchV192,
@@ -3841,7 +3842,7 @@ function addChancelleryPolice(
   );
 }
 
-function createChancelleryModel(signature: ChancelleryModelSignature): Group {
+function createChancelleryModel(signature: ChancelleryModelSignature, photoDetail = true): Group {
   const group = new Group();
   group.name = "Metre-scale Federal Chancellery recognition model";
   placeMetricGroup(group, signature);
@@ -4056,6 +4057,7 @@ function createChancelleryModel(signature: ChancelleryModelSignature): Group {
   addChancelleryForecourt(group, signature);
   addChancelleryPolice(group, signature);
   for (const child of group.children.slice(forecourtStart)) child.position.y += CHANCELLERY_ENTRANCE_PROFILE.groundWorldY - signature.anchor_world[1];
+  if (photoDetail) applyChancelleryPhotoDrawnV287(group, signature);
   return group;
 }
 
@@ -8401,6 +8403,7 @@ function createBrandenburgGateModel(
 
 export function createArchitecturalSignature(
   signature: ArchitecturalSignature,
+  options: { chancelleryPhotoV287?: boolean } = {},
 ): Group | null {
   let model: Group;
   switch (signature.id) {
@@ -8411,7 +8414,7 @@ export function createArchitecturalSignature(
       model = createReichstagModel(signature as ReichstagModelSignature);
       break;
     case "bundeskanzleramt-model":
-      model = createChancelleryModel(signature as ChancelleryModelSignature);
+      model = createChancelleryModel(signature as ChancelleryModelSignature, options.chancelleryPhotoV287 !== false);
       break;
     case "hauptbahnhof-model":
       model = createHauptbahnhofModel(signature as HauptbahnhofModelSignature);

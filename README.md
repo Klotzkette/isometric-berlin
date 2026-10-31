@@ -11,6 +11,7 @@
 | Versioned v1.0.183 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.183/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.184 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.184/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.185 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.185/isometric-berlin-regierungsviertel-local.zip |
+| Candidate v1.0.186 ZIP (unpublished / noch nicht veröffentlicht) | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.186/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -28,7 +29,9 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Live v1.0.185** · Local v1.0.185 · static viewer for macOS, Windows, and Linux.
+**Status:** Public open-data project · **Live v1.0.185** · Local v1.0.186 candidate sources (unpublished / unveröffentlichter Quellstand) · static viewer for macOS, Windows, and Linux.
+
+Local v1.0.186 adds green climbing foliage, photo-guided facade-window details and five forked existing trees at the Chancellery from nine owner photographs. Production build and 101 focused geometry/integration tests passed; package checks passed; publication is pending. Der lokale Kandidat v1.0.186 ergänzt anhand von neun eigenen Fotos grüne Kletterpflanzen, verfeinerte Fassadenfenster und Verzweigungen an fünf vorhandenen Bäumen am Kanzleramt. Produktionsbuild und 101 gezielte Geometrie-/Integrationstests sind bestanden; Paketprüfung ist bestanden; die Veröffentlichung steht noch aus. [Evidence and checks / Quellen und Prüfungen](docs/chancellery-photo-v287.md).
 
 v1.0.185 refines twenty tilted-disc street lamps and the western seven-destination cycle guidepost near Heinrich-von-Gagern-Straße and Paul-Löbe-Allee using seven owner photographs. Production, archive, package, browser and live-publication checks passed. v1.0.185 präzisiert zwanzig Scheibenleuchten und den westlichen Radwegweiser mit sieben Zielen an Heinrich-von-Gagern-Straße und Paul-Löbe-Allee anhand sieben eigener Fotos. Produktionsbuild, Archive, Paket, Browser und Live-Veröffentlichung sind geprüft. [Sources, checks and publication / Quellen, Prüfungen und Veröffentlichung](docs/government-street-furniture-v286.md).
 

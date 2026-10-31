@@ -151,6 +151,9 @@ import { isJamesSimonReplacementColumn } from "./jamesSimonProfile";
 import { restoreJamesSimonGroundOwnership } from "./JamesSimonGroundOwnership";
 import { restoreHbfNorthRailGroundOwnership } from "./HbfNorthRailGroundOwnership";
 import { createHbfNorthApproach } from "./HbfNorthApproach";
+import { admitsChancelleryPhotoNativeV287, applyChancelleryPhotoNativeV287 } from "./ChancelleryPhotoV287Batch";
+import { bakeChancelleryNativeTreeBranchesV287 } from "./ChancelleryTreesV287";
+import { matchesNativeChancellerySourceV287 } from "./ChancelleryPhotoV287";
 import { tintSintiRomaNativeWaterV256 } from "./SintiRomaNativeWaterV256";
 import { createMinecraftSchlossNaturkundeShells } from "./SchlossNaturkundeShells";
 import { createMinecraftSchlossNaturkundeFacades } from "./SchlossNaturkundeFacades";
@@ -2422,9 +2425,16 @@ export function* buildMinecraftVoxelWorldSteps(
   cutUbahnGroundSlabsV281(groundSlabs, true);
   group.add(groundSlabs);
   yield;
-  group.add(createHbfNorthApproach((x, z) => parkGround(
+  // Own every completed result immediately in the unpublished staged root.
+  // Failure or cancellation can dispose it before any later fallible step.
+  const architecturalV287 = createMinecraftArchitecturalLandmarks();
+  group.add(architecturalV287);
+  const photoAdmissionV287 = matchesNativeChancellerySourceV287(payload) && admitsChancelleryPhotoNativeV287(architecturalV287);
+  const northApproachV287 = createHbfNorthApproach((x, z) => parkGround(
     x / cell - payload.grid.min_x_idx, z / cell - payload.grid.min_z_idx,
-  ), true));
+  ), true, { chancelleryPhotoV287: photoAdmissionV287 });
+  group.add(northApproachV287);
+  if (photoAdmissionV287 && !applyChancelleryPhotoNativeV287(architecturalV287, northApproachV287.userData.chancelleryPhotoV287)) throw new Error("Incomplete Chancellery photo ownership transaction");
   yield;
   group.add(createMinecraftSpreebogenPark(payload, { mobileLike: mobileDetail }));
   yield;
@@ -2432,7 +2442,8 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftZollpackhofDetails());
   group.add(createMinecraftKonradAdenauerHaus());
   yield;
-  group.add(createMinecraftArchitecturalLandmarks());
+  // Reappend the already-owned staged model at its original final child slot.
+  group.add(architecturalV287);
   yield;
   group.add(createEmbassyGateV264(true));
   yield;
@@ -3171,6 +3182,19 @@ export function* buildMinecraftVoxelWorldSteps(
         shadeFor(leafShades, xIdx, zIdx, 3, leafPaint),
       );
     }
+  }
+  const chancelleryForksV287 = bakeChancelleryNativeTreeBranchesV287(payload, visibleTrees);
+  if (chancelleryForksV287 && trunks.mesh.instanceColor) {
+    const oldCount = trunks.mesh.count;
+    const matrices = new Float32Array(oldCount * 16 + chancelleryForksV287.matrices.length);
+    const colors = new Float32Array(oldCount * 3 + chancelleryForksV287.colors.length);
+    matrices.set((trunks.mesh.instanceMatrix.array as Float32Array).subarray(0, oldCount * 16));
+    colors.set((trunks.mesh.instanceColor.array as Float32Array).subarray(0, oldCount * 3));
+    matrices.set(chancelleryForksV287.matrices, oldCount * 16); colors.set(chancelleryForksV287.colors, oldCount * 3);
+    trunks.mesh.instanceMatrix = new InstancedBufferAttribute(matrices, 16);
+    trunks.mesh.instanceColor = new InstancedBufferAttribute(colors, 3);
+    trunks.mesh.count = colors.length / 3;
+    trunks.mesh.userData.chancelleryTreeBranchesV287 = chancelleryForksV287.metadata;
   }
   if (lenneOakVoxel) {
     group.add(
