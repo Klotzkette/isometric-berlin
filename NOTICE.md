@@ -2632,3 +2632,47 @@ added branches are explicit display estimates. Photographs and institutional
 images remain references only: no image pixels, photographic textures or media
 downloads are distributed. See `docs/chancellery-photo-v287.md` and the public
 per-source visual-reference ledger.
+
+
+City fidelity v288: retained complete Geoportal Berlin LoD2 sheets
+(dl-de/zero-2-0) and OpenStreetMap owners (© OpenStreetMap contributors,
+ODbL-1.0) anchor bounded facade and Stadtbahn recognition. Landesdenkmalamt
+Berlin and the IRS Erkner collections identify the Wilhelmstraße housing,
+Nikolaiviertel and former Schwalbennest; the latter's historical photograph is
+credited Bundesarchiv / Peter Heinz Junge (CC BY-SA 3.0 DE), with exterior
+references by Chainwit. (CC BY 4.0) and Minderbinder (CC BY-SA 4.0). Ngon Berlin
+and Wilde Matilde establish distinct current operator context. China embassy
+photography is credited Roy Zuo, 4 June 2026 (CC BY-SA 4.0); DPRK references
+Ankermast, 9 April 2024 (CC BY 4.0), and Daniel Michael Perry, 16 April 2019
+(CC0-1.0). Embassy and Auswärtiges Amt publications establish site addresses.
+
+Historic-core references include Radisson Hotel Group, DomAquarée / Union
+Investment, Priedemann Fassadenberatung / nps tchoban voss, Berlin Dungeon,
+Berlin.de, Bezirksamt Mitte / Klosterruine, Patzschke Architekten, B&B HOTELS,
+Landesdenkmalamt Berlin (Litten exterior photograph Bittner, 2008) and
+Landgericht Berlin. Potsdamer Straße references include POLIS Immobilien AG
+and the Bezirksämter Mitte / Tempelhof-Schöneberg 2026 ISEK, with photography
+credited forward / Studio AAD. J. MAYER H. und Partner's VOLTAIR project
+gallery credits Laurian Ghinițoiu and Stirling Elmendorf; inspected image 3537
+also supplies public exterior context beside the viaduct. The S-Bahn Berlin
+punkt3 issue of 25 January 2007 supplies historical Stadtbahn context only.
+Copyright remains with the respective publishers and credited photographers
+unless the explicit licence above applies; unnamed gallery photographers are
+not attributed speculatively.
+
+Small facade subdivisions, curved-oriel interpretations, material tones and
+native exterior fits are documented display estimates. Existing source datums,
+roof hierarchies, courts, routes and earlier details remain; only explicitly
+receipted coarse owners may yield to complete guarded replacements. The
+interstation rail fit is not a common surveyed rail elevation, and occupied
+commercial arches are not invented pedestrian tunnels. Historical photographs
+and publications do not establish current tenants or construction. All images
+and documents remain reference-only: no photographs, document pages, pixels,
+photographic textures or runtime media requests are distributed. See
+`docs/city-fidelity-v288.md` and its component notes; the per-source ledger
+records precise pages, credits, licences and estimate boundaries.
+
+The v288 Klosterkirche ruin recognition also uses reference-only photographs
+from the Landesdenkmalamt Berlin archive (Bittner, 2006/2008) and the LDA
+photograph credited to Gunnar Nath. Copyright remains with the named archive
+and photographers; no photograph pixels or textures are redistributed.

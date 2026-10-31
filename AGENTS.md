@@ -2080,3 +2080,31 @@ photo-guided estimates. Keep full drawn touch quality, independent orthogonal
 native geometry, 93 tour stops, every runtime/release cap and one internal
 full-city browser view at a time. All nine photographs remain reference-only;
 no image pixels, photographic textures, animation or new coverage is added.
+
+
+### Step 10 — v288 owner-requested city fidelity pass
+
+The owner requests photographic/source comparison and bounded recognition
+correction of the actual DDR housing east of the Holocaust memorial, the
+Schwalbennest restaurant oriels and Nikolaiviertel, the Littenstraße courts,
+Klosterruine and neighbouring modern buildings, DomAquarée, Potsdamer Straße
+through existing Schöneberg/Südkreuz coverage, the Chinese and DPRK embassies,
+and the elevated Stadtbahn between Alexanderplatz and Jannowitzbrücke.
+Preserve complete source sheets, source datums, rings/holes, roofs, neighbouring
+owners and prior detail. Exactly receipted height-fallback owners may yield
+only after the complete drawn/native replacement is constructed, with full-cell
+exclusive native ownership and guarded original fallback. Do not remove whole
+bindings or source families because one legacy prism overlaps a new model.
+
+The explicit request for more windows permits restrained, labelled estimated
+openings on already authored ordinary-house storey/bay axes; retain special
+facades, covered party walls and source-mapped materials. Unknown fallback
+swatches may be muted while preserving explicit recorded colour evidence.
+The Stadtbahn's original local-ground LoD2 normalization is not a common rail
+height survey: retain those sheets and label any bounded interstation fit to
+existing station rail anchors as a display estimate. Keep mapped road bridge
+gaps open; occupied commercial arches are not invented pedestrian tunnels.
+No photographic pixels/textures, new coverage, animation, lower touch quality,
+new tour stops or higher runtime/release limits. Use one internal full-city
+browser view at a time. Append reference credits; replace hardlinked public
+ledgers atomically.

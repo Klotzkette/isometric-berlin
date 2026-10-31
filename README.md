@@ -12,6 +12,7 @@
 | Versioned v1.0.184 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.184/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.185 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.185/isometric-berlin-regierungsviertel-local.zip |
 | Versioned v1.0.186 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.186/isometric-berlin-regierungsviertel-local.zip |
+| Versioned v1.0.187 ZIP | https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.187/isometric-berlin-regierungsviertel-local.zip |
 | Latest release page | https://github.com/Klotzkette/isometric-berlin/releases/latest |
 | **Public repository / öffentliches Repository** | **https://github.com/Klotzkette/isometric-berlin** |
 | Local start instructions | [Run locally / Lokal starten](#run-locally) |
@@ -29,7 +30,9 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Live v1.0.186** · Local v1.0.186 · static viewer for macOS, Windows, and Linux.
+**Status:** Public open-data project · **Live v1.0.186** · Local v1.0.187 · static viewer for macOS, Windows, and Linux.
+
+Local v1.0.187 refines the DDR housing, Nikolaiviertel oriels, DomAquarée, Littenstraße and Klosterkirche ruin, Potsdamer Straße corridor, Chinese/DPRK embassies and elevated eastern Stadtbahn. Source geometry and runtime limits remain; new unsurveyed details are documented estimates. [Scope and checks](docs/city-fidelity-v288.md). Publication is being verified.
 
 v1.0.186 refines the Chancellery from nine owner photographs: green climbing foliage, large louvred windows and narrow companion slits, plus low forks on five existing trees. Complete source geometry, tree positions and earlier detail remain. Production, package, browser and live-publication checks passed. v1.0.186 präzisiert das Kanzleramt anhand von neun eigenen Fotos: grüner Wildwein, große Lamellenfenster mit schmalen Nebenfenstern und tiefe Verzweigungen an fünf vorhandenen Bäumen. Quellgeometrie, Baumstandorte und bisherige Details bleiben erhalten. Build, Paket, Browser und Live-Veröffentlichung sind geprüft. [Evidence, checks and publication / Quellen, Prüfungen und Veröffentlichung](docs/chancellery-photo-v287.md).
 

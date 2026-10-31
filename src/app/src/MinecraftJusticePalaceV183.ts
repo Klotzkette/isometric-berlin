@@ -1,3 +1,4 @@
+import { berlinHistoricCoreV288Rows } from "./BerlinHistoricCoreV288";
 import { Group } from "three";
 import source from "./data/justicePalaceV183Native.json";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
@@ -15,10 +16,13 @@ export function createMinecraftJusticePalaceV183(): Group {
   root.userData = { textureFree: true, additiveOnly: true, blockNative: true, keepInMinecraft: true, sourceGeometryRetained: true, independentNativePayload: true };
   const fittingsV257 = littenInstanzV257Rows(true);
   const parkV281=charlottenburgParkV281Rows(true);
-  const blocks = justicePalaceV183Boxes([...source.nativeRows, ...fittingsV257, ...parkV281], true);
+  const fidelityV288 = berlinHistoricCoreV288Rows(true);
+  const blocks = justicePalaceV183Boxes([...source.nativeRows, ...fittingsV257, ...parkV281, ...fidelityV288], true);
+  blocks.userData.berlinHistoricCoreV288Rows = fidelityV288.length;
   blocks.userData.charlottenburgParkV281Rows=parkV281.length;
   blocks.userData.littenInstanzV257Rows = fittingsV257.length;
   blocks.name = "Orthogonal facade strips and stepped upper architectural contours";
   root.add(blocks, createCharlottenburgCupolaV183(true));
+  root.userData.klosterruineV288 = true;
   return freezeStaticSceneTransforms(root);
 }

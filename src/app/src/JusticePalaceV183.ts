@@ -1,3 +1,4 @@
+import { berlinHistoricCoreV288Rows } from "./BerlinHistoricCoreV288";
 import { BufferAttribute, BufferGeometry, Color, DoubleSide, Group, LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector3 } from "three";
 import source from "./data/justicePalaceV183.json";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
@@ -33,7 +34,9 @@ export function createJusticePalaceV183(): Group {
   outlines.userData = { textureFree: true, cartographicOutline: true };
   const fittingsV257 = littenInstanzV257Rows();
   const parkV281=charlottenburgParkV281Rows();
-  const members = justicePalaceV183Boxes([...source.boxes, ...fittingsV257, ...parkV281]);
+  const fidelityV288 = berlinHistoricCoreV288Rows(false);
+  const members = justicePalaceV183Boxes([...source.boxes, ...fittingsV257, ...parkV281, ...fidelityV288]);
+  members.userData.berlinHistoricCoreV288Rows = fidelityV288.length;
   members.userData.charlottenburgParkV281Rows=parkV281.length;
   members.userData.littenInstanzV257Rows = fittingsV257.length;
   members.name = "Thin facade windows, pale frames and open tower members";
@@ -60,5 +63,6 @@ export function createJusticePalaceV183(): Group {
   roofs.userData = { dayMaterial: day, nightMaterial: night, textureFree: true, surfaceOnly: true,
     hiddenSolidInfill: false, estimatedShell: true, sourceProfiles: source.estimatedRoofSkins };
   root.add(roofs);
+  root.userData.klosterruineV288 = true;
   return freezeStaticSceneTransforms(root);
 }

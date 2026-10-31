@@ -31,7 +31,8 @@ describe("courthouses and palace v183", () => {
           // v183 batch in v257 and v281. Keep the old component budget intact.
           expect(drawable.userData.littenInstanzV257Rows).toBe(native ? 7172 : 3681);
           expect(drawable.userData.charlottenburgParkV281Rows).toBe(native ? 1100 : 244);
-          laterInstances += drawable.userData.littenInstanzV257Rows + drawable.userData.charlottenburgParkV281Rows;
+          expect(drawable.userData.berlinHistoricCoreV288Rows).toBe(native ? 2074 : 7311);
+          laterInstances += drawable.userData.littenInstanzV257Rows + drawable.userData.charlottenburgParkV281Rows + drawable.userData.berlinHistoricCoreV288Rows;
         }
         if (native) {
           expect(drawable.userData.blockNative).toBe(true);
@@ -45,7 +46,7 @@ describe("courthouses and palace v183", () => {
       }
       geo.dispose();
     });
-    expect(laterInstances).toBe(native ? 8272 : 3925);
+    expect(laterInstances).toBe(native ? 10346 : 11236);
     expect(count - laterInstances).toBe(native ? 57217 : 15407);
     // Six v281 basin triangles append position, colour and normal Float32s.
     // Matrices/colours use exactly 76 bytes per appended instance.

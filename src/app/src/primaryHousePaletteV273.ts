@@ -5,10 +5,14 @@ type Palette = { wall: Rgb; roof: Rgb };
 const linear = (hex: number): Rgb => new Color(hex).toArray().map(v => Math.round(v * 255)) as [number, number, number];
 
 // Contextual estimates for unknown default plaster only, never observations of
-// individual houses. Separate cap colours retain each measured roof's geometry.
+// individual houses. v288 keeps twelve stable choices but mutes the former pink,
+// cyan and green fallback families into ordinary plaster/limestone/stone tones.
+// Exact mapped material receipts still run after this fallback; no source or
+// individually authored colour is classified by resemblance to these swatches.
+// Separate cap colours retain each measured roof's geometry.
 export const PRIMARY_WALL_SWATCHES_V273 = [
-  0xe8ddc7, 0xdcc5a6, 0xeee8d8, 0xcdd4c3, 0xddbdb3, 0xc4d1d0,
-  0xe5cf9e, 0xd4d1c7, 0xe7d4bd, 0xcfc2b3, 0xdcdccf, 0xd8c4c8,
+  0xe0d8c9, 0xd1c3ae, 0xe8e3d8, 0xc9c9bf, 0xcec0b4, 0xc2c6c3,
+  0xd7c69e, 0xcdcbc2, 0xd9cdbb, 0xc5bbac, 0xd5d5ca, 0xc7bfba,
 ] as const;
 export const PRIMARY_ROOF_SWATCHES_V273 = [
   0x7b6961, 0x8e7165, 0x6b7376, 0x8f6953,

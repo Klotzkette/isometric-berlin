@@ -1,3 +1,5 @@
+import { matchesBerlinHistoricDomOwnersV288 } from "./BerlinHistoricCoreV288Ownership";
+import { admitsPotsdamerCorridorCoreV288 } from "./PotsdamerCorridorV288Ownership";
 import { Group } from "three";
 import { canReplacePotsdamerSouthStationPhoto } from "./potsdamerStationPhotoOwnership";
 import { compactStaticGeometry } from "./compactStaticGeometry";
@@ -229,6 +231,8 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     viewRevision: input.viewRevision ?? 0,
   };
   const prisms = await loadPrismPayload(input.prismUrl);
+  const historicDomV288 = input.historicDomV288 === true && matchesBerlinHistoricDomOwnersV288(prisms.buildings);
+  const potsdamerCorridorV288 = input.potsdamerCorridorV288 === true && admitsPotsdamerCorridorCoreV288(prisms);
   const stationPhotoAdmitted = input.potsdamerStationPhoto === true &&
     canReplacePotsdamerSouthStationPhoto(prisms.buildings);
   const profile = buildingDetailProfile(input.detailProfile);
@@ -261,7 +265,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
       const root = createIsometricCityCore(prisms, null, null, null, {
         buildings, includeContext: false, smoothSurfaces: null,
         // Never retire this source when its main-thread replacement was rejected.
-        potsdamerStationPhoto: stationPhotoAdmitted,
+        potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288, potsdamerCorridorV288,
         architectureV241: true, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
         includeLegacyChariteFacade: false,
         includeLegacyHungarianEnvelope: false,

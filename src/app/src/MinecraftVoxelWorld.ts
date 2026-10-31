@@ -1,3 +1,6 @@
+import { prepareRequiredFidelityV288 } from "./RequiredFidelityV288";
+import { isBerlinHistoricDomColumnV288 } from "./BerlinHistoricCoreV288Ownership";
+import { isPotsdamerCorridorOldNativeColumnV288 } from "./PotsdamerCorridorV288Ownership";
 import { cutUbahnGroundSlabsV281 } from "./UbahnSurfaceAperturesV281";
 import { createWeltkugelV281 } from "./WeltkugelBrunnenV281";
 import { createWeltkugelColumnTesterV281 } from "./weltkugelV281Ownership";
@@ -2659,6 +2662,10 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   // Publish the complete independent south hall before only its immutable
   // coarse tuples yield. A changed/ambiguous source retains the old world.
+  const fidelityV288 = prepareRequiredFidelityV288({buildings:options.sourcePrisms ?? []}, payload, true);
+  group.add(fidelityV288.root);
+  group.userData.historicDomV288 = fidelityV288.historicDom;
+  group.userData.potsdamerCorridorV288 = fidelityV288.potsdamerCorridor;
   const potsdamerStationPhoto = preparePotsdamerSouthStationPhotoTransfer(options.sourcePrisms, payload);
   if (potsdamerStationPhoto) group.add(potsdamerStationPhoto.group);
   // Navigation may opt into the measured cap only after this complete native
@@ -2709,6 +2716,8 @@ export function* buildMinecraftVoxelWorldSteps(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
+    if (fidelityV288.historicDom && isBerlinHistoricDomColumnV288(xIdx,zIdx,y0dm,y1dm,classId)) continue;
+    if (fidelityV288.potsdamerCorridor && isPotsdamerCorridorOldNativeColumnV288([xIdx,zIdx,y0dm,y1dm,classId])) continue;
     if (potsdamerStationPhoto?.replacesColumn(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (tachelesFrontColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (zooWestColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;

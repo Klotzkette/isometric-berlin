@@ -1,3 +1,6 @@
+import { isBerlinHistoricDomOldCoreV288 } from "./BerlinHistoricCoreV288Ownership";
+import { isPotsdamerCorridorOldCoreV288 } from "./PotsdamerCorridorV288Ownership";
+import { createOrdinaryWindowsV288, ordinaryWindowExposureV288, ORDINARY_WINDOWS_V288_LIMIT, type OrdinaryPaneV288 } from "./ordinaryWindowsV288";
 import { cutUbahnGroundSlabsV281 } from "./UbahnSurfaceAperturesV281";
 import { isWeltkugelSourceV281 } from "./weltkugelV281Ownership";
 import { isBayerCampusSourceV277 } from "./bayerCampusV277Ownership";
@@ -404,6 +407,7 @@ export type PrismPayload = {
 export type IsometricCityBuildOptions = {
   /** Published only with the complete required photo-guided south station. */
   potsdamerStationPhoto?: boolean;
+  historicDomV288?: boolean; potsdamerCorridorV288?: boolean;
   /** The shared bridge root may already have been installed by cold Minecraft. */
   bridgeStructures?: boolean;
   /** Required main-thread source bridge transaction; never imported by the geometry Worker. */
@@ -1821,11 +1825,13 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "potsdamerStationPhoto" | "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "steppengartenShelterV283" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "historicDomV288" | "potsdamerCorridorV288" | "potsdamerStationPhoto" | "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "steppengartenShelterV283" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
-  const visible = buildings.filter(building => !options.potsdamerStationPhoto || !isPotsdamerStationPhotoSource(building))
+  const visible = buildings.filter(building => !options.historicDomV288 || !isBerlinHistoricDomOldCoreV288(building))
+    .filter(building => !options.potsdamerCorridorV288 || !isPotsdamerCorridorOldCoreV288(building))
+    .filter(building => !options.potsdamerStationPhoto || !isPotsdamerStationPhotoSource(building))
     .filter(building => !options.architectureV241 || !isAEGCampusCorePrismV241(building))
     .filter(building => !options.zooWestV276 || !isZooWestSourceV276(building))
     .filter(building => !options.zooHousesV282 || !isZooHouseSourceV282(building))
@@ -11863,6 +11869,8 @@ export function createIsometricCityCore(
   const mullionPositions: number[] = [];
   // Slender facade glazing axes: ink lines by day, warm strips by night.
   const buildings = options.buildings ?? prisms.buildings;
+  const ordinaryPanesV288: OrdinaryPaneV288[] = [];
+  const exposedOrdinaryPaneV288 = ordinaryWindowExposureV288(prisms.buildings);
   const facadeAxisPositions = new Float32Accumulator(buildings.length * 180);
   const facadeAxisDistances = new Uint16Accumulator(buildings.length * 60);
   const buildingDetailCoverage = {
@@ -12020,6 +12028,8 @@ export function createIsometricCityCore(
     geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
   for (const sourceBuilding of buildings) {
+    if (options.historicDomV288 && isBerlinHistoricDomOldCoreV288(sourceBuilding)) continue;
+    if (options.potsdamerCorridorV288 && isPotsdamerCorridorOldCoreV288(sourceBuilding)) continue;
     if (options.potsdamerStationPhoto && isPotsdamerStationPhotoSource(sourceBuilding)) continue;
     if (isWeltkugelSourceV281(sourceBuilding)) continue;
     if (options.zooWestV276 && isZooWestSourceV276(sourceBuilding)) continue;
@@ -12493,6 +12503,20 @@ export function createIsometricCityCore(
                 }
               }
             }
+            // The owner now requests more legible ordinary-house windows.
+            // Reuse the existing mapped storeys and bay axes; exact opening
+            // positions remain estimates. Covered party walls/part seams and
+            // all pinned hero formats keep their existing interpretation.
+            if (sourceStoreys && !hasPinnedFacadeFormat && urbanFacadeScope(building) && wall.length >= 6 && !GENERIC_FACADE_TRIM_SUPPRESSED_IDS.has(building.id)) {
+              for (let floor = 0; floor < grid.floors; floor++) for (let bay = 0; bay < grid.bays; bay++) {
+                if (ordinaryPanesV288.length >= ORDINARY_WINDOWS_V288_LIMIT) break;
+                const along = grid.firstOffset + bay * format.bayPitch;
+                const px = wall.x1 + wall.dirX * along, pz = wall.z1 + wall.dirZ * along;
+                const py = sillOf(floor) + format.height / 2;
+                if (!exposedOrdinaryPaneV288(building.id, px + wall.nx * .45, py, pz + wall.nz * .45)) continue;
+                ordinaryPanesV288.push({ x: px + ox * 2, y: py, z: pz + oz * 2, dx: wall.dirX, dz: wall.dirZ, nx: wall.nx, nz: wall.nz, width: Math.min(1.2, format.bayPitch * .38), height: Math.min(1.85, format.height) });
+              }
+            }
             if (KOLLHOFF_TOWER_PRISM_IDS.has(building.id)) {
               const paneOx = wall.nx * KOLLHOFF_WINDOW_FACE_OFFSET_M;
               const paneOz = wall.nz * KOLLHOFF_WINDOW_FACE_OFFSET_M;
@@ -12526,12 +12550,9 @@ export function createIsometricCityCore(
             const z = wall.z1 + wall.dirZ * along + oz;
             // Slender glazing line as ink (the facade axis).
             pushFacadeAxis(x, axisBottom, z, x, axisTop, z);
-            // NO invented panes: LoD2 carries no real window positions,
-            // so a pane per bay/floor was fabrication ("keine
-            // schwachsinnigen nichtexistierenden Quadratfenster"). The
-            // facade rhythm is carried by the drawn axes and storey
-            // bands above. Exact entrance coordinates are absent from
-            // this payload, so ordinary prisms deliberately add no doors.
+            // The original axes remain. v288 adds explicitly estimated
+            // glazing only on the mapped-storey ordinary faces above.
+            // Exact entrance coordinates remain absent from this payload.
             // A warm-lit vertical strip on ~38% of axes at night.
             const roll =
               hash32(building.id, wall.index * 2801 + axis * 53) % 1000;
@@ -12890,6 +12911,8 @@ export function createIsometricCityCore(
   };
   group.userData.plazaFacadeDetails = plazaFacadeDetails;
   group.userData.buildingDetailCoverage = buildingDetailCoverage;
+  if (ordinaryPanesV288.length) group.add(createOrdinaryWindowsV288(ordinaryPanesV288));
+  group.userData.ordinaryWindowsV288 = { count: ordinaryPanesV288.length, budget: ORDINARY_WINDOWS_V288_LIMIT, geometryStatus: "estimated glazing and frames on existing mapped-storey axes; covered party walls excluded", native: "independent native source-column windows retained" };
 
   // Facade glazing axes: fine ink lines (day). A subtle grey so they
   // articulate without weighing the pale panels down.

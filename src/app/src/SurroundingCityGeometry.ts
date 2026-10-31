@@ -1,3 +1,6 @@
+import { prepareChinaEmbassyV288 } from "./MitteEmbassiesV288";
+import { preparePotsdamerCorridorV288 } from "./PotsdamerCorridorV288";
+import { prepareEastStadtbahnV288 } from "./EastStadtbahnV288";
 import { transferMitteEnsembleTrianglesV281 } from "./mitteEnsembleV281Ownership";
 import { prepareStreetCurvesV276, streetCurveExtraLineVerticesV276, applyStreetCurveLinesV276 } from "./streetCurvesV276";
 import { prepareCityWestTransportV281, applyCityWestTransportV281Triangles, applyCityWestTransportV281Lines, cityWestTransportNavigationV281 } from "./CityWestTransportV281";
@@ -307,6 +310,9 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareAugustFrontsV274(chunk, id, minecraft);
   chunk = yield* prepareCityWestTransportV281(chunk, id, minecraft);
   chunk = yield* prepareStreetCurvesV276(chunk, id, minecraft);
+  chunk = yield* preparePotsdamerCorridorV288(chunk, id, minecraft);
+  chunk = yield* prepareChinaEmbassyV288(chunk, id, minecraft);
+  chunk = yield* prepareEastStadtbahnV288(chunk, id, minecraft);
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;

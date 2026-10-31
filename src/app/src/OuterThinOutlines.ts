@@ -132,6 +132,8 @@ export function* createOuterThinOutlinesSteps(
     yield; // End the source-position decode task before preparing landmark families.
     const landmarks = yield* createOutlineLandmarksV182Steps(mode, beforeLandmarkRelease, ownership);
     root.add(landmarks);
+    root.userData.hasKlosterruineV288 = (next: VisualMode) =>
+      root.visible && landmarks.parent === root && landmarks.visible && landmarks.userData.hasKlosterruineV288(next) === true;
     root.userData.update = (timestamp: number, camera: import("three").Camera, reducedMotion = false, floodLevel?: number) =>
       root.visible && landmarks.userData.update(timestamp, camera, reducedMotion, floodLevel);
     root.userData.updateTrafficSignals = (timestamp: number, camera: import("three").Camera, reducedMotion = false, lightsOn = true) =>

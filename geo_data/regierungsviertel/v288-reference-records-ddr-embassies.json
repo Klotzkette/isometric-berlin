@@ -1,0 +1,148 @@
+[
+  {
+    "id": "mitte-ddr-v288-reference-01",
+    "landmark_id": "mitte_ddr_v288",
+    "title": "Wohnquartier an der Wilhelmstraße unter Denkmalschutz",
+    "page_url": "https://www.berlin.de/landesdenkmalamt/aktivitaeten/kurzmeldungen/2021/wohnquartier-an-der-wilhelmstrasse-unter-denkmalschutz-1128089.php",
+    "credit": "Landesdenkmalamt Berlin; photograph Gunnar Klack",
+    "license": "Reference-only primary publication; no photographic or document pixels redistributed",
+    "role": "1987–92 DDR-quarter identity and characteristic oriels, balconies, dormers and open courts. Photo is general quarter context, not proof of the selected exact west-face opening grid.",
+    "checked": "2026-10-31",
+    "pixels_bundled": false
+  },
+  {
+    "id": "mitte-ddr-v288-reference-02",
+    "landmark_id": "mitte_ddr_v288",
+    "title": "Nikolaiviertel, monument ensemble09011266",
+    "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011266",
+    "credit": "Landesdenkmalamt Berlin",
+    "license": "Reference-only primary publication; no photographic or document pixels redistributed",
+    "role": "Distinguishes historical/reconstructed houses from 1980s adapted panel buildings; all v169/v239 measured and authored detail stays.",
+    "checked": "2026-10-31",
+    "pixels_bundled": false
+  },
+  {
+    "id": "mitte-ddr-v288-reference-03",
+    "landmark_id": "mitte_ddr_v288",
+    "title": "Bundesarchiv Bild183-1986-0522-007",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Bundesarchiv_Bild_183-1986-0522-007,_Berlin,_Marx-Engels-Forum,_Gaststätte.jpg",
+    "credit": "Bundesarchiv / Peter Heinz Junge,22May1986",
+    "license": "CC BY-SA3.0DE",
+    "role": "Six rounded restaurant oriels across4front+2returnbays; historical architectural form, not current tenant or material survey.",
+    "checked": "2026-10-31",
+    "pixels_bundled": false
+  },
+  {
+    "id": "mitte-ddr-v288-reference-04",
+    "landmark_id": "mitte_ddr_v288",
+    "title": "Current street photograph2023",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Cafes_%22Schwalbennest%22_am_Marx-Engels-Forum_Berlin_(2023)_01.jpg",
+    "credit": "Chainwit.,11October2023",
+    "license": "CC BY4.0",
+    "role": "Continued rounded oriels, dark frames, seams and muted grey/bronze/olive tone; copper material not established.",
+    "checked": "2026-10-31",
+    "pixels_bundled": false,
+    "inspected_reference_sha256": "e28c1dcd26a61a28c0f083f6fd9f9cb1a867567225e71fdf54fa6427aa89afde"
+  },
+  {
+    "id": "mitte-ddr-v288-reference-05",
+    "landmark_id": "mitte_ddr_v288",
+    "title": "Current Rathausstraße23 exterior2022",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Rathausstraße_23_in_Berlin-Mitte_(1).jpg",
+    "credit": "Minderbinder,29May2022",
+    "license": "CC BY-SA4.0",
+    "role": "Current retained exterior rather than historical tenant branding.",
+    "checked": "2026-10-31",
+    "pixels_bundled": false,
+    "inspected_reference_sha256": "cb8d95054b06d13e32aaaa3279efc23a6e5efebae72c3ae863f01518dc638475"
+  },
+  {
+    "id": "mitte-ddr-v288-reference-06",
+    "landmark_id": "mitte_ddr_v288",
+    "title": "IRS architectural archive C004_33_6-100",
+    "page_url": "https://stadt-raum-geschichte.de/item/185f908c-e66e-43ea-8f61-7a40eb6ad7f9",
+    "credit": "IRS Erkner Wissenschaftliche Sammlungen / Hans Bogatzky",
+    "license": "Reference-only primary publication; no photographic or document pixels redistributed",
+    "role": "Historical restaurant Schwalbennest identity at Rathausstraße/Poststraße.",
+    "checked": "2026-10-31",
+    "pixels_bundled": false
+  },
+  {
+    "id": "mitte-ddr-v288-reference-07",
+    "landmark_id": "mitte_ddr_v288",
+    "title": "Current upper restaurant operator",
+    "page_url": "https://ngonberlin.de/de/index.html",
+    "credit": "Ngon Berlin",
+    "license": "Reference-only primary publication; no photographic or document pixels redistributed",
+    "role": "Current operator/address corroboration only; no lettering or logo reproduced.",
+    "checked": "2026-10-31",
+    "pixels_bundled": false
+  },
+  {
+    "id": "mitte-ddr-v288-reference-08",
+    "landmark_id": "mitte_ddr_v288",
+    "title": "Ground-floor coffeehouse operator",
+    "page_url": "https://wildematilde.de/kaffeehaus-in-berlin-mitte/",
+    "credit": "Wilde Matilde",
+    "license": "Reference-only primary publication; no photographic or document pixels redistributed",
+    "role": "Distinct ground-floor address corroboration; not copied as an upper-oriel label.",
+    "checked": "2026-10-31",
+    "pixels_bundled": false
+  },
+  {
+    "id": "mitte-embassies-v288-reference-01",
+    "landmark_id": "mitte_embassies_v288",
+    "title": "China embassy contacts,8January2026",
+    "page_url": "https://de.china-embassy.gov.cn/det/sgjj/lxwm/202409/t20240909_11487671.htm",
+    "credit": "Embassy ofthe PeoplesRepublicofChina",
+    "license": "Reference-only primary publication; no photographic or document pixels redistributed",
+    "role": "Current mainembassyMärkischesUfer54; distinctfromconsulardepartmentBrückenstraße10.",
+    "checked": "2026-10-31",
+    "pixels_bundled": false
+  },
+  {
+    "id": "mitte-embassies-v288-reference-02",
+    "landmark_id": "mitte_embassies_v288",
+    "title": "DPRK embassy identity",
+    "page_url": "https://www.auswaertiges-amt.de/de/reiseundsicherheit/vertretungen-anderer-staaten/216194-216194",
+    "credit": "Auswärtiges Amt",
+    "license": "Reference-only primary publication; no photographic or document pixels redistributed",
+    "role": "Current Glinkastraße5–7 address.",
+    "checked": "2026-10-31",
+    "pixels_bundled": false
+  },
+  {
+    "id": "mitte-embassies-v288-reference-03",
+    "landmark_id": "mitte_embassies_v288",
+    "title": "(20260604) China embassy demo2653.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:(20260604)_China_embassy_demo_2653.jpg",
+    "credit": "Roy Zuo,4June2026",
+    "license": "CCBY-SA4.0",
+    "role": "Pale silver sheet panels, faceted bays, paired dark rails, reflective glazing and central stack; all roofgeometryretained. People, demonstrations and signs excluded.",
+    "checked": "2026-10-31",
+    "pixels_bundled": false,
+    "inspected_reference_sha256": "c462eac5093e20b2591a2b85aa439b2266a5eb98c9475b05e771dc0b3b056fd8"
+  },
+  {
+    "id": "mitte-embassies-v288-reference-04",
+    "landmark_id": "mitte_embassies_v288",
+    "title": "Nordkoreanische Botschaft,Berlin.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Nordkoreanische_Botschaft,_Berlin.jpg",
+    "credit": "Ankermast,9April2024",
+    "license": "CCBY4.0",
+    "role": "Pale recessed squared rectangular frame grids, sloping reveals, dark plinth and stair glazing; no surveyed fitting dimensions.",
+    "checked": "2026-10-31",
+    "pixels_bundled": false
+  },
+  {
+    "id": "mitte-embassies-v288-reference-05",
+    "landmark_id": "mitte_embassies_v288",
+    "title": "DPRK Embassy Berlin.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:DPRK_Embassy_Berlin.jpg",
+    "credit": "DanielMichaelPerry,16April2019",
+    "license": "CC0-1.0",
+    "role": "Public exterior/portal context only.",
+    "checked": "2026-10-31",
+    "pixels_bundled": false
+  }
+]

@@ -103,6 +103,10 @@ export function* createOutlineLandmarksV182Steps(
   const root = new Group();
   root.name = "Berlin outline landmark additions v182";
   let native: boolean | undefined;
+  let justice: Group | undefined;
+  root.userData.hasKlosterruineV288 = (mode: VisualMode) =>
+    root.visible && justice?.parent === root && justice.visible && justice.userData.klosterruineV288 === true &&
+    (justice.userData.blockNative === true) === (mode === "minecraft");
   let kites: Group | undefined;
   let helicopter: Group | undefined;
   let nativeSignals: Group | null | undefined;
@@ -120,6 +124,7 @@ export function* createOutlineLandmarksV182Steps(
       // intentionally retain CPU owners for re-upload. Unregister the old
       // family while all its children are still reachable, before rebuilding.
       if (root.children.length) beforeRelease?.(root);
+      justice = undefined;
       disposeOutlineConstruction(root);
       root.add(nextNative ? createMinecraftSteglitzV182() : createSteglitzV182());
       yield;
@@ -127,7 +132,8 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createCityRecognitionV182(nextNative, false, true, true, true, true));
       yield;
-      root.add(nextNative ? createMinecraftJusticePalaceV183() : createJusticePalaceV183());
+      justice = nextNative ? createMinecraftJusticePalaceV183() : createJusticePalaceV183();
+      root.add(justice);
       yield;
       root.add(createNeueNationalgalerieV183(nextNative));
       yield;
