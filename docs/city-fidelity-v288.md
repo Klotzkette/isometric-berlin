@@ -100,3 +100,6 @@ Stadtbahn and the corrected China front; additional drawn views cover the DDR
 memorial fronts, DPRK embassy, Potsdamer/Mercator and Bülow, Klostergärten and
 the open ruin. A mapped street opening remains visible beneath the rail deck.
 These are desktop browser checks, not claims of physical phone/tablet testing.
+The final open ruin was checked in both drawn and independent native views.
+The published viewer and downloads are verified in the
+[v1.0.187 release receipts](release-v1.0.187-review.md).

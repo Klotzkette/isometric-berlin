@@ -34,5 +34,29 @@ All 327 protected assets from the actual v185/v186 dependency closures
 The exact plan has 18 changed paths, nine removals and 18 new unique blobs.
 Plan SHA-256 `8009e7eb1d51d8c2d0f64b6940675b08e4b6017de51a9734b193c7e1b5691448`.
 
-At this candidate commit, live deployment is still pending. Final remote
-commit, deployment and release receipts are recorded after successful checks.
+## Verified publication
+
+Validated source/tag commit: `c3c489544c49fd1852ff810a6f20aac6bea68f8f`.
+Annotated tag object: `e59983b2e4b8a191ca5e03d14e4af2a49a046b43`.
+Created Pages tree `0342dcd9f274a451817910ffdde27c003b489506` was read back
+recursively with `truncated:false`; every path, blob, mode and byte size matches
+the complete reviewed target. Metadata SHA-256:
+`7dee5a4a48a1fcf4453cd03a4672501b749a6b3043aa04c209fbba7f94c51623`.
+
+Pages child commit `c2478ef3f34e536484860890b45f16246bc9f2ed` was advanced
+with an exact-parent, non-force compare-and-swap. The
+[exact-head deployment 41219804336](https://github.com/Klotzkette/isometric-berlin/actions/runs/41219804336)
+completed successfully. Public HTTP checks match every changed file, the package
+manifest and scene metadata, with both prior workers fetched and verified;
+the Pages ref is unchanged before and after verification.
+
+[Release v1.0.187](https://github.com/Klotzkette/isometric-berlin/releases/tag/v1.0.187),
+ID `430047670`, was published at `2026-10-31T16:32:45Z` only after those checks.
+Both tag and `latest` return that exact public release, its two uploaded archive
+assets and the byte counts/server SHA-256 digests recorded above.
+
+The public IAB viewer subsequently loaded at the Rotes Rathaus place link,
+reported v1.0.187 in its ordinary repository/download dialog and logged no own
+warnings/errors. Music remained off. The drawn and independent native ruin
+were also visually checked in the complete local city before production build.
+No physical mobile-device or arbitrary tenant-by-tenant survey is claimed.
