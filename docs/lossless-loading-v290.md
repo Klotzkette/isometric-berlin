@@ -67,7 +67,14 @@ reproducibility. Historical public releases and usable downloads remain intact.
 Only exact hosted files outside the current-plus-two-live-release dependency
 window may be retired. The v189 retention audit protects all 326 v187/v188 assets
 and identifies fourteen v186-only candidates totalling 70,780,099 bytes. Final
-publication evidence records the actual target tree and net saving.
+publication evidence records the actual target tree and net storage change.
+
+The complete candidate has 4,754 files / 936,374,015 bytes, 270 bytes smaller
+than v188. Its audited hosted tree has 4,831 files / 1,057,168,015 bytes, within
+the unchanged 1 GiB ceiling. Although fourteen obsolete files yield 70,780,099
+bytes, changed hashed modules retained alongside v187/v188 make that temporary
+three-version store 26,013,542 bytes larger overall. This is not reported as a
+net hosted-storage reduction; compatibility for existing tabs is preserved.
 
 Local `git gc --no-prune` packs the same repository objects more efficiently.
 Every Git ref remains byte-for-byte unchanged and connectivity verification
@@ -89,3 +96,19 @@ Release verification includes the normal TypeScript/Vite budget gates, package
 and archive inventory checks, and a single internal full-city browser. The
 publication report records actual results; physical phones and every network
 condition are outside this workstation verification.
+
+The normal production build passes in 3m30s with unchanged startup/worker gates.
+The release-focused frontend set passes 45 tests / 6,128 assertions. Complete
+ZIP and TAR validators, 111 focused Python tests and the extracted-package HTTP
+launch pass. A quiet
+single-tab local browser comparison records preview readiness at 7,117 ms for
+both v188 and v189, and exact readiness at 13,667 versus 13,676 ms. That sample
+supports no overall startup-speed claim. The measured gain is in the repeated
+district work above.
+
+The internal browser renders Day, Night, Minecraft, Snowstorm, Schwellenraum and
+Flooded Berlin and checks five seconds of upward flight. Entering Schwellenraum
+logs Three's `Unable to serialize Texture` warning in both the unchanged v188
+and v189 builds; no new application error is observed. A separate MutationObserver
+observation error originates in the browser tool while navigating the old
+comparison page; the application contains no MutationObserver use.
