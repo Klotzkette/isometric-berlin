@@ -94,8 +94,8 @@ reported as passing or changed to hide it.
 
 Release verification includes the normal TypeScript/Vite budget gates, package
 and archive inventory checks, and a single internal full-city browser. The
-publication report records actual results; physical phones and every network
-condition are outside this workstation verification.
+[publication report](release-v1.0.189-review.md) records actual results; physical
+phones and every network condition are outside this workstation verification.
 
 The normal production build passes in 3m30s with unchanged startup/worker gates.
 The release-focused frontend set passes 45 tests / 6,128 assertions. Complete
