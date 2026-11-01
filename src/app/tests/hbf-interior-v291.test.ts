@@ -31,7 +31,7 @@ describe("Hauptbahnhof bounded connected interior v291",()=>{
 
   test("uses current evidenced tenants and levels, with estimated individual bays",()=>{
     expect(HBF_INTERIOR_V291.geometryStatus).toContain("not surveyed geometry");
-    expect(HBF_INTERIOR_V291.shops).toHaveLength(13);
+    expect(HBF_INTERIOR_V291.shops).toHaveLength(16);
     const shop=(id:string)=>HBF_INTERIOR_V291.shops.find(s=>s.id===id)!;
     expect(shop("apotheke").levelId).toBe("upper-gallery");
     expect(shop("starbucks").locationEvidence).toContain("Washingtonplatz");
@@ -40,11 +40,11 @@ describe("Hauptbahnhof bounded connected interior v291",()=>{
     expect(shop("relay-eg").levelId).toBe("ground-concourse");
     for(const root of[drawn,native]) {
       for(const record of root.userData.shops) {
-        expect(record.sourceUrl).toStartWith("https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/");
+        expect(record.sourceUrl).toStartWith("https://www.bahnhof.de/berlin-hauptbahnhof/");
         expect(record.placementStatus).toContain("estimates");
       }
       const labels=root.userData.labels.map((label:{text:string})=>label.text);
-      for(const text of["REWE","APOTHEKE","STARBUCKS","EINSTEIN KAFFEE","FATIH SERVET DÖNER","SIXT","EUROPCAR","REISEBANK","MCDONALD'S","RELAY","KAMPS","HEBERER"])
+      for(const text of["REWE","APOTHEKE","STARBUCKS","EINSTEIN KAFFEE","FATIH SERVET DÖNER","SIXT","EUROPCAR","REISEBANK","MCDONALD'S","RELAY","KAMPS","HEBERER","BLUMEN RÖWER","BUNDESPOLIZEI","DITSCH"])
         expect(labels).toContain(text);
       expect(labels).not.toContain("DUSSMANN");
       expect(labels).not.toContain("STEINECKE");
@@ -53,19 +53,64 @@ describe("Hauptbahnhof bounded connected interior v291",()=>{
     }
   });
 
-  test("replaces exactly thirteen named panes plus the overlapping Einstein pane and rejects changed coordinates",()=>{
+  test("replaces exactly sixteen named panes plus the overlapping Einstein pane and rejects changed coordinates",()=>{
     const matches:number[][]=[];
     for(const y of[4.6,0,-5.4])for(const arm of[-1,1])for(const edge of[-1,1])for(let i=0;i<5;i++) {
       const point=[edge*19.55,y+1.75,arm*(28+i*13)];
       if(replacesHbfShopfrontV291(...point as [number,number,number]))matches.push(point);
     }
-    expect(matches).toHaveLength(14);
+    expect(matches).toHaveLength(17);
     for(const point of matches) {
       expect(replacesHbfShopfrontV291(point[0]+.001,point[1],point[2])).toBe(false);
       expect(replacesHbfShopfrontV291(point[0],point[1]+.001,point[2])).toBe(false);
       expect(replacesHbfShopfrontV291(point[0],point[1],point[2]+.001)).toBe(false);
     }
     expect(replacesHbfShopfrontV291(NaN,1.75,-67)).toBe(false);
+  });
+
+  test("the northwestern OG1 florist has flowers beside police and bakery while the public aisle stays open",()=>{
+    const florist=HBF_INTERIOR_V291.shops.find(s=>s.id==="blumen-roewer")!;
+    const police=HBF_INTERIOR_V291.shops.find(s=>s.id==="bundespolizei")!;
+    const bakery=HBF_INTERIOR_V291.shops.find(s=>s.id==="ditsch")!;
+    for(const shop of[florist,police,bakery]) {
+      expect(shop.levelId).toBe("upper-gallery");expect(shop.edge).toBe(-1);
+      expect(shop.z).toBeLessThan(-45);
+    }
+    expect(police.z).toBeLessThan(florist.z);expect(bakery.z).toBeGreaterThan(florist.z);
+    expect(HBF_INTERIOR_V291.shops.find(s=>s.id==="apotheke")!.edge).toBe(1);
+    for(const root of[drawn,native]) {
+      expect(root.userData.labels.filter((label:{text:string})=>label.text==="BLUMEN RÖWER")).toHaveLength(1);
+      expect(roleMatrices(root,"shop:blumen-roewer:flower-pot")).toHaveLength(12);
+      expect(roleMatrices(root,"shop:blumen-roewer:flower-stem")).toHaveLength(12);
+      expect(roleMatrices(root,"shop:blumen-roewer:flower-blossom")).toHaveLength(24);
+      expect(roleMatrices(root,"shop:blumen-roewer:potted-plant")).toHaveLength(8);
+      expect(roleMatrices(root,"shop:ditsch:shelves").length).toBeGreaterThan(0);
+      root.updateMatrixWorld(true);
+      for(const x of[-15.5,-16])for(const y of[5.2,6.25,7]) {
+        const a=root===native?hbfLocalToWorldV291([x,y,-86]):[x,y,-86];
+        const b=root===native?hbfLocalToWorldV291([x,y,-47]):[x,y,-47];
+        const origin=new Vector3(...a),delta=new Vector3(...b).sub(origin);
+        const hits=new Raycaster(origin,delta.clone().normalize(),0,delta.length()).intersectObjects(batches(root));
+        expect(hits).toHaveLength(0);
+      }
+    }
+  });
+
+  test("native north-side signage is visible in front of its cardinal fascia courses",()=>{
+    native.updateMatrixWorld(true);
+    const yaw=HBF_CIRCULATION_V291.frame.rotationDegrees*Math.PI/180;
+    const inward=new Vector3(Math.cos(yaw),0,-Math.sin(yaw));
+    for(const id of["blumen-roewer","bundespolizei","ditsch"]) {
+      const role=`shop:${id}:lettering`,rows=roleMatrices(native,role);
+      expect(rows.length).toBeGreaterThan(20);
+      for(let i=0;i<rows.length;i+=Math.ceil(rows.length/8)) {
+        const centre=new Vector3().setFromMatrixPosition(rows[i]);
+        const ray=new Raycaster(centre.clone().addScaledVector(inward,1.2),inward.clone().negate(),0,1.6);
+        const first=ray.intersectObjects(batches(native))[0];
+        expect(first).toBeDefined();
+        expect(first.object.userData.roles[first.instanceId!]).toBe(role);
+      }
+    }
   });
 
   test("provides visible horizontal treads for every shared fixed stair",()=>{

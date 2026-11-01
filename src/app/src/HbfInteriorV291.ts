@@ -15,8 +15,8 @@ type Member = { matrix: Matrix4; color: number; role: string; batch: Batch; shap
 type Shop = {
   id: string; text: string; levelId: "upper-gallery" | "ground-concourse" | "lower-gallery";
   edge: -1 | 1; z: number; widthM: number; field: number; ink: number;
-  category: "food" | "coffee" | "pharmacy" | "supermarket" | "books" | "rental" | "bank" | "bakery";
-  sourceSlug: string; locationEvidence: string;
+  category: "food" | "coffee" | "pharmacy" | "supermarket" | "books" | "rental" | "bank" | "bakery" | "flowers" | "police";
+  sourceSlug: string; sourceUrl?: string; locationEvidence: string;
 };
 
 /** The legacy four railway cues yield only to these complete independent
@@ -45,7 +45,10 @@ export const HBF_INTERIOR_V291 = {
   deepColumnCentresLocalZ: HBF_CIRCULATION_V291.deepColumnCentresLocalZ,
   deepColumnRadiusM: HBF_CIRCULATION_V291.deepColumnRadiusM,
   shops: [
-    { id: "apotheke", text: "APOTHEKE", levelId: "upper-gallery", edge: -1, z: -67, widthM: 11.5, field: 0xf1eee7, ink: 0xc5212c, category: "pharmacy", sourceSlug: "apotheke", locationEvidence: "1. Obergeschoss, Ausgang Europaplatz" },
+    { id: "apotheke", text: "APOTHEKE", levelId: "upper-gallery", edge: 1, z: -67, widthM: 11.5, field: 0xf1eee7, ink: 0xc5212c, category: "pharmacy", sourceSlug: "apotheke", locationEvidence: "1. Obergeschoss, Ausgang Europaplatz; pharmacy-class area on the opposite eastern strip in DB plan" },
+    { id: "blumen-roewer", text: "BLUMEN RÖWER", levelId: "upper-gallery", edge: -1, z: -67, widthM: 11.5, field: 0x31553e, ink: 0xf5efdf, category: "flowers", sourceSlug: "blumen-roewer", locationEvidence: "1. Obergeschoss, Ausgang Europaplatz; western police/bakery cluster from owner observation and DB category plan; exact bay estimated" },
+    { id: "bundespolizei", text: "BUNDESPOLIZEI", levelId: "upper-gallery", edge: -1, z: -80, widthM: 11.5, field: 0x234f7b, ink: 0xf3f0e6, category: "police", sourceSlug: "bundespolizei", sourceUrl: "https://www.bahnhof.de/berlin-hauptbahnhof/bundespolizei", locationEvidence: "1. Obergeschoss, Ausgang Europaplatz; western police icon in DB plan; exact bay estimated" },
+    { id: "ditsch", text: "DITSCH", levelId: "upper-gallery", edge: -1, z: -54, widthM: 11.5, field: 0x8f292d, ink: 0xf3d8a3, category: "bakery", sourceSlug: "brezelbaeckerei-ditsch", locationEvidence: "1. Obergeschoss, Zugang Gleis 15/16; bakery-class area near the western police cluster; exact bay estimated" },
     { id: "starbucks", text: "STARBUCKS", levelId: "upper-gallery", edge: 1, z: 67, widthM: 11.5, field: 0x124d39, ink: 0xf1eee3, category: "coffee", sourceSlug: "starbucks", locationEvidence: "1. Obergeschoss, Ausgang Washingtonplatz" },
     { id: "reisebank", text: "REISEBANK", levelId: "upper-gallery", edge: 1, z: -28, widthM: 11.5, field: 0x1a4471, ink: 0xf4ca4b, category: "bank", sourceSlug: "reisebank", locationEvidence: "1. Obergeschoss, Zugang Gleis 13/14" },
     { id: "heberer", text: "HEBERER", levelId: "upper-gallery", edge: -1, z: 54, widthM: 11.5, field: 0x8b2528, ink: 0xf6e8ca, category: "bakery", sourceSlug: "wiener-feinbaecker-heberer", locationEvidence: "1. Obergeschoss; side not specified" },
@@ -69,7 +72,7 @@ export type HbfInteriorPlacementV291 = {
   rotationDegrees?: number;
 };
 
-/** Exact old generic storefront owner keys. The other 46 panels remain. */
+/** Exact old generic storefront owner keys. Unrelated panels remain. */
 export function replacesHbfShopfrontV291(x: number, y: number, z: number): boolean {
   // Its former generic pane would otherwise obscure the complete retained
   // Einstein fascia after the evidenced relocation to Europaplatz.
@@ -223,15 +226,37 @@ function appendShop(plan: Plan, shop: Shop): void {
   }
   for(const yy of[.20,2.48])plan.box([x-side*.36,y+yy,shop.z],[.13,.10,shop.widthM-.1],0xb5bab3,`shop:${shop.id}:transom`);
   plan.box([x-side*.32,y+2.98,shop.z],[.18,.83,shop.widthM],shop.field,`shop:${shop.id}:fascia`);
-  plan.text(shop.text,[x-side*.44,y+2.71,shop.z],shop.widthM-1,.53,shop.ink,`shop:${shop.id}:lettering`,"z",side);
+  // Cardinal fascia courses project beyond the smooth face at this station's
+  // yaw. Keep native lettering fully in front of that represented volume.
+  plan.text(shop.text,[x-side*(plan.native?1.05:.44),y+2.71,shop.z],shop.widthM-1,.53,shop.ink,`shop:${shop.id}:lettering`,"z",side);
   plan.box([x-side*.46,y+2.52,shop.z],[.07,.065,shop.widthM-.7],0xffe0a0,`shop:${shop.id}:light`,"light");
   if(shop.category==="pharmacy") {
     plan.box([x-side*.47,y+1.6,shop.z-3.9],[.07,.8,.22],0xc5212c,"pharmacy-cross","light");
     plan.box([x-side*.48,y+1.6,shop.z-3.9],[.08,.22,.8],0xc5212c,"pharmacy-cross","light");
+  } else if(shop.category==="flowers") {
+    // Countertop bouquets and taller potted plants stay inside the existing
+    // display windows. Independent cardinal members also serve native mode;
+    // no new texture, draw batch or object in the public aisle is needed.
+    const blossoms=[0xe4c554,0xb74463,0xe9ddd0,0x9174b7];
+    for(const flank of[-1,1])for(let i=0;i<6;i++) {
+      const z=shop.z+flank*3.9+(i-2.5)*.43,base=y+.82,height=.48+(i%3)*.14;
+      plan.box([x-side*.61,base+.11,z],[.28,.27,.29],i%2?0x9d7453:0x68746a,`shop:${shop.id}:flower-pot`);
+      plan.box([x-side*.61,base+.25+height/2,z],[.035,height,.035],0x477348,`shop:${shop.id}:flower-stem`);
+      for(const leaf of[-1,1])plan.box([x-side*(.61+leaf*.065),base+.30+height*.30,z+leaf*.06],[.17,.055,.12],0x557f47,`shop:${shop.id}:flower-leaf`);
+      const top=base+.25+height,tone=blossoms[i%blossoms.length];
+      plan.box([x-side*.61,top,z],[.21,.085,.09],tone,`shop:${shop.id}:flower-blossom`);
+      plan.box([x-side*.61,top,z],[.09,.10,.21],tone,`shop:${shop.id}:flower-blossom`);
+      plan.box([x-side*.61,top+.055,z],[.065,.035,.065],0xe9bd52,`shop:${shop.id}:flower-centre`);
+    }
+    for(const flank of[-1,1]) {
+      const z=shop.z+flank*5.15;
+      plan.box([x-side*.64,y+.30,z],[.38,.55,.38],0x9c8264,`shop:${shop.id}:plant-pot`);
+      for(let leaf=0;leaf<4;leaf++)plan.box([x-side*(.60+(leaf%2)*.12),y+.70+leaf*.19,z+(leaf%2?-.10:.10)],[.29,.30,.28],leaf%2?0x426f45:0x66884e,`shop:${shop.id}:potted-plant`);
+    }
   } else if(shop.category==="books"||shop.category==="supermarket"||shop.category==="bakery") {
     for(const flank of[-1,1])for(let i=0;i<6;i++)for(const shelf of[.89,1.42,1.95])
       plan.box([x-side*.34,y+shelf,shop.z+flank*3.9+(i-2.5)*.40],[.08,shop.category==="books"?.38:.20,.26],shop.category==="bakery"?0xc79755:[0x847454,0x983d36,0x54745e,0x596c92][i%4],`shop:${shop.id}:shelves`);
-  } else if(shop.category==="rental"||shop.category==="bank") {
+  } else if(shop.category==="rental"||shop.category==="bank"||shop.category==="police") {
     for(const flank of[-1,1])plan.box([x-side*.4,y+.93,shop.z+flank*3.9],[.10,.42,.71],0x2c3438,`shop:${shop.id}:service-screen`);
   } else if(shop.category==="food"||shop.category==="coffee") {
     for(const flank of[-1,1])for(let i=0;i<3;i++)plan.box([x-side*.37,y+1.05,shop.z+flank*3.9+(i-1)*.73],[.10,.48,.43],i===1?0x554536:0xd6bc91,`shop:${shop.id}:menu`);
@@ -530,6 +555,6 @@ export function createHbfInteriorV291(placement: HbfInteriorPlacementV291 = {}):
     renderBytes+=geometry.index?.array.byteLength??0;
     for(const attribute of Object.values(geometry.attributes))renderBytes+=attribute.array.byteLength;
   }
-  Object.assign(root.userData,{profile:HBF_INTERIOR_V291,nativeMinecraft:native,keepInMinecraft:native,blockNative:native,textureFree:true,fullStaticDetailOnTouch:true,shops:HBF_INTERIOR_V291.shops.map(shop=>({...shop,sourceUrl:HBF_INTERIOR_V291.shopSourceBase+shop.sourceSlug,placementStatus:"Individual bay and side are display estimates within the evidenced level/exit."})),labels:plan.labels,memberCount:plan.members.length,renderBytes});
+  Object.assign(root.userData,{profile:HBF_INTERIOR_V291,nativeMinecraft:native,keepInMinecraft:native,blockNative:native,textureFree:true,fullStaticDetailOnTouch:true,shops:HBF_INTERIOR_V291.shops.map(shop=>({...shop,sourceUrl:"sourceUrl" in shop?shop.sourceUrl:HBF_INTERIOR_V291.shopSourceBase+shop.sourceSlug,placementStatus:"Individual bay offsets are display estimates within the evidenced level/exit and documented side."})),labels:plan.labels,memberCount:plan.members.length,renderBytes});
   return freezeStaticSceneTransforms(root);
 }

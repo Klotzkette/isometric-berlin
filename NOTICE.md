@@ -2689,3 +2689,9 @@ or runtime media downloads are distributed. Small fittings, shop bays,
 connected stair dimensions and mechanical timing are display estimates.
 See `docs/hauptbahnhof-evidence-v291.md` and
 `geo_data/regierungsviertel/hbf-interior-v291-evidence.json`.
+
+Hauptbahnhof flower-shop follow-up v292 additionally uses the current DB entries
+for Blumen Röwer, Bundespolizei and Brezelbäckerei Ditsch, together with the
+same official reference-only station plan. Storefront positions and geometric
+flower arrangements are display estimates; no source pixels or logos are copied.
+See `geo_data/regierungsviertel/hbf-flowers-v292-evidence.json`.

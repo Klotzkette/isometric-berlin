@@ -267,3 +267,40 @@ the older guards expect
 That file is unchanged by this work. These pre-existing mismatches are not
 treated as passing tests, and the full Python suite is not reported as green.
 The bounded Hauptbahnhof checks above are separate from those historical guards.
+
+
+## Flower-shop follow-up — v292, release v1.0.191
+
+[Blumen Röwer](https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/blumen-roewer)
+is confirmed on OG1 at the Europaplatz exit. The current directory also places
+[Bundespolizei](https://www.bahnhof.de/berlin-hauptbahnhof/bundespolizei) on
+OG1 at Europaplatz and [Ditsch](https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/brezelbaeckerei-ditsch)
+on OG1 toward tracks 15/16. The official 1071 plan was fetched again and has
+the same SHA-256 recorded above. Its compass locates the northern police icon
+and adjacent service/shop/bakery category areas on the western strip. The
+opposite northern strip contains the large E health/pharmacy category block.
+
+The owner's explicit western-side identification is consistent with that
+cluster. Visitor-left while facing south would mean east; that conflicting
+word is not used to reverse the evidenced western police neighbourhood.
+The plan uses category letters, not individual shop names. Exact Röwer bay,
+shop widths and the precise three-bay arrangement remain display estimates.
+The previous estimated Apotheke bay moves to the opposite eastern strip;
+its identity, floor, frontage, fittings and neighbouring tenants remain.
+
+The western OG1 frontages now identify police, Blumen Röwer and Ditsch. The
+florist has twelve colourful geometric countertop bouquets and two taller
+potted plants behind its existing display-window line. Both drawn and native
+families reuse their existing structure/glazing/light batches. The public
+walkway, shared station geometry, source data, animation clock, full touch
+detail and all runtime/offline limits remain unchanged. No texture or new
+media request is introduced. Evidence and the estimate boundary are retained
+in `geo_data/regierungsviertel/hbf-flowers-v292-evidence.json`.
+
+The native shop lettering sits in front of the actual cardinal fascia envelope,
+whose yaw-projected courses extend beyond the smooth face. The previous flush
+letter placement hid most strokes. Bounded inward separation now preserves
+readable pixel lettering without extra batches or changing the public aisle;
+real ray tests check visible letters ahead of their backing panels. Both
+families were inspected in the temporary close-up viewer, which is excluded
+from the build and removed after inspection.

@@ -2208,3 +2208,16 @@ at higher continuous cardinal resolution. The two outer courses are retained.
 Drawn rails and original source data remain intact. This removes an exact
 replaced owner and keeps the seven legacy architecture batches below their
 unchanged 5,500-instance ceiling; no runtime limit is raised.
+
+
+### Step 10 — v292 Hauptbahnhof flower shop follow-up
+
+The owner identifies the missing flower shop on the upper shopping level near
+Europaplatz, the police station and a bakery. Add the current evidenced Blumen
+Röwer tenant with a bounded, recognisable flower/plant display and matching
+independent native geometry. Resolve the contradictory visitor-left/west wording
+against the official station plan; keep exact local bay offsets labelled display
+estimates. Neighbouring police/bakery recognition must follow current evidence.
+Preserve all existing tenants, circulation, sources, station motion, six modes,
+full mobile detail and every live/offline release limit. No plan/photo pixels,
+new media fetch, coverage, timer or unrelated station rebuild is authorised.

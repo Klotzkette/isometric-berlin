@@ -1,0 +1,80 @@
+{
+  "checkedAtUtc": "2026-11-01T22:23:06.820151+00:00",
+  "followup": "v292 flower shop",
+  "sources": [
+    {
+      "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/blumen-roewer",
+      "publisher": "DB InfraGO / bahnhof.de",
+      "verifiedName": "Blumen Röwer",
+      "verifiedType": "Dienstleistungen / flower shop",
+      "verifiedLevel": "1. Obergeschoss",
+      "verifiedExitAsWritten": "Ausgang Europlatz",
+      "note": "DB entry uses Europlatz spelling; station exit is Europaplatz. No east/west bay stated."
+    },
+    {
+      "url": "https://www.bahnhof.de/berlin-hauptbahnhof/bundespolizei",
+      "publisher": "DB InfraGO / bahnhof.de",
+      "verifiedName": "Bundespolizei",
+      "verifiedLevel": "1. Obergeschoss",
+      "verifiedExit": "Ausgang Europaplatz"
+    },
+    {
+      "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/brezelbaeckerei-ditsch",
+      "publisher": "DB InfraGO / bahnhof.de",
+      "verifiedName": "Brezelbäckerei Ditsch",
+      "verifiedLevel": "1. Obergeschoss",
+      "verifiedLocation": "Zugang Gleis 15/16"
+    },
+    {
+      "url": "https://www.bahnhof.de/downloads/station-plans/1071.pdf",
+      "publisher": "DB InfraGO / bahnhof.de",
+      "status": 200,
+      "resolvedUrl": "https://www.bahnhof.de/downloads/station-plans/1071.pdf",
+      "lastModified": "Tue, 07 Oct 2025 13:15:04 GMT",
+      "bytes": 1682611,
+      "sha256": "854a5aece5cdef7477f9d9fa1b2ce548ccac97aed0b8baa4a9cf29ff86c9d00e",
+      "sameBytesAsPreviouslyInspectedReference": true
+    }
+  ],
+  "planObservations": {
+    "orientation": "Compass north points screen-up/left; east points screen-up/right, west screen-down/left. Europaplatz is the north entrance. The screen-left/down OG1 strip is the west side of the north/Europaplatz end.",
+    "northWestCluster": "Police icon at the outer C (services) unit; next D (shop) unit, then B (bakery) units by the access marked 15/16. The opposite screen-up/right northern arm includes the large E health/pharmacy category block.",
+    "tenantResolutionLimit": "1071 is a category diagram (C services, B bakery, E health), not a tenant-labelled surveyed plan. It does not individually label Blumen Röwer or Ditsch; the exact Röwer bay is not independently established by this PDF.",
+    "flowerPlacementAssessment": "North/OG1 is directly verified by the florist DB entry. West-side placement near police/bakery follows the user's explicit west-side instruction and is consistent with the official western police/bakery cluster; exact bay and adjacency are model estimates.",
+    "leftRightAmbiguity": "A person entering from the north and facing south has east on their left, not west. Do not convert the user's word left into an east-side claim when the explicit western side and official police cluster indicate west.",
+    "coordinates": "No measured store coordinates or dimensions supplied. Any model x/z/bay positions remain labelled display estimates."
+  },
+  "implementationSuggestion": "Use western/northern OG1 cluster for flower shop, police frontage and bakery. Review the existing estimated west pharmacy position: the official plan's northern E category block is on the opposite/eastern side. Keep exact shop-bay positions as estimates.",
+  "mediaPolicy": "Reference-only PDF/image inspection. No source pixels or store photographs are copied into the app/repo.",
+  "modelPlacement": {
+    "level": "upper-gallery",
+    "localFloorTopM": 4.85,
+    "metricStatus": "All exact bay centres and widths are estimated within the evidenced level/side, not surveyed",
+    "westFrontages": [
+      {
+        "id": "bundespolizei",
+        "edge": -1,
+        "localZ": -80
+      },
+      {
+        "id": "blumen-roewer",
+        "edge": -1,
+        "localZ": -67
+      },
+      {
+        "id": "ditsch",
+        "edge": -1,
+        "localZ": -54
+      }
+    ],
+    "pharmacyCorrection": {
+      "id": "apotheke",
+      "previousEstimatedEdge": -1,
+      "newEdge": 1,
+      "localZ": -67,
+      "reason": "Opposite northern E health/pharmacy class block in official plan"
+    },
+    "display": "Twelve countertop bouquets and two taller potted plants; authored geometric fittings, not copied logos, photos or plan pixels",
+    "preserved": "Every previous tenant identity, all station floors, rails, source apertures, circulation, doors and motion are retained"
+  }
+}
