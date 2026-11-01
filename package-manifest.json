@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "package_name": "isometric-berlin-regierungsviertel-local",
-  "package_version": "1.0.189",
+  "package_version": "1.0.190",
   "start_page": "START-HERE.html",
   "start_page_mode": "3d-launch-guide",
   "full_3d_start_page": "index.html",
@@ -45,6 +45,10 @@
     "contextual-rain-or-snowfall-toggle-in-all-surface-modes",
     "native-and-ios-safe-pseudo-fullscreen",
     "manual-tiergartentunnel-entry-both-directions",
+    "hauptbahnhof-both-entrances-camera-triggered-sliding-doors",
+    "hauptbahnhof-five-level-connected-stairs-and-escalators",
+    "hauptbahnhof-six-moving-panoramic-lift-cabins",
+    "hauptbahnhof-current-verified-tenant-interiors",
     "minecraft-roaming-creepers-zombies-and-skeletons",
     "opt-in-seven-variant-procedural-audio",
     "selected-landmark-only-marker",
@@ -86,8 +90,8 @@
     },
     "visual_reference_attribution": {
       "path": "dzi/regierungsviertel/visual_reference_attribution.json",
-      "bytes": 190912,
-      "sha256": "46b0358ad72eb2cdbd0e9151dc971a4936427cf75218bf540fa5bf78b59d9c38"
+      "bytes": 192484,
+      "sha256": "b4a84a3cf6dc0607ff8a641e23d04d5c034ef6e5818111ea748f718e3bf23fec"
     },
     "wikimedia_attribution": {
       "path": "dzi/regierungsviertel/wikimedia_attribution.json",
