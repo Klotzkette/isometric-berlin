@@ -41,6 +41,8 @@ import {
 } from "./GovernmentApproachesV192";
 
 import { hbfBoxFragmentsV291, hbfCompactNativeBayFragmentsV291, hbfFlightOpeningsV291, hbfOfficeRailUnderpassV291, hbfSlabOpeningsV291, type HbfBoxV291, type HbfOpeningV291 } from "./HbfGeometryOpeningsV291";
+import { HBF_INTERIOR_V291 } from "./HbfInteriorV291";
+import { HBF_CIRCULATION_V291 } from "./HbfCirculationV291";
 
 type Point2 = readonly [number, number];
 type Point3 = readonly [number, number, number];
@@ -1221,6 +1223,7 @@ function createChancelleryBlocks(
 
 function createHauptbahnhofBlocks(
   resources: BlockRenderResources,
+  hbfRetailV292 = false,
 ): InstancedMesh {
   const profile = MINECRAFT_ARCHITECTURAL_PROFILES.hauptbahnhof;
   const frame: LocalFrame = profile;
@@ -1565,6 +1568,19 @@ function createHauptbahnhofBlocks(
   const flightCuts = hbfFlightOpeningsV291();
   const officeCuts = [-35, 35].map(x => hbfOfficeRailUnderpassV291(x, 21));
   const sideCuts = [-19.2, 19.2].map(x => hbfOfficeRailUnderpassV291(x, 1.4, 20));
+  // Only a completed independent retail interior may open its exact old
+  // opaque wall cues. Keep every other facade, the intervening wall strips,
+  // source geometry and all upper office rooms. The native Einstein front
+  // is the already complete retained 13.8m bay at the northern entrance.
+  const retailCuts: HbfOpeningV291[] = !hbfRetailV292 ? [] : [
+    ...HBF_INTERIOR_V291.shops,
+    { edge: -1, z: -51.3, widthM: 13.8, levelId: "ground-concourse" },
+  ].map(shop => {
+    const y = HBF_CIRCULATION_V291.levels.find(level => level.id === shop.levelId)!.topLocalY;
+    const x = shop.edge * 19.2;
+    const box: HbfBoxV291 = { min: [x - .7, y, shop.z - shop.widthM / 2], max: [x + .7, y + 3.6, shop.z + shop.widthM / 2] };
+    return { id: `hbf-retail-${shop.edge}-${shop.levelId}-${shop.z}`, bounds: box, planes: [], nativeBoxes: [box] };
+  });
   const clippedGroups = new Map<string, { cue: string; color: number; rotationY: number; boxes: HbfBoxV291[] }>();
   for (const block of plan.blocks) {
     const dx = block.position[0] - frame.anchorWorld[0];
@@ -1574,7 +1590,7 @@ function createHauptbahnhofBlocks(
     let cuts: HbfOpeningV291[] = [];
     if (block.cue === "five-block-wide raised railway deck")
       cuts = hbfSlabOpeningsV291(local[1] - block.size[1] / 2, local[1] + block.size[1] / 2, true);
-    else if (block.cue === "two-course north-south side glazing") cuts = [...flightCuts, ...sideCuts];
+    else if (block.cue === "two-course north-south side glazing") cuts = [...flightCuts, ...sideCuts, ...retailCuts];
     else if (block.cue === "coarse twin 46 m office bridges" || block.cue === "five coarse office floor bands") cuts = [...flightCuts, ...officeCuts];
     if (!cuts.length) {
       pushBlock(opened, block.cue, block.position, block.size, block.color, block.rotationY);
@@ -2782,7 +2798,7 @@ function createPariserPlatzBlocks(
  * except where a deliberately open signature owns the source cells itself:
  * Reichstag portico, Chancellery leadership cube, Hauptbahnhof and Gate.
  */
-export function createMinecraftArchitecturalLandmarks(): Group {
+export function createMinecraftArchitecturalLandmarks(options: { hbfRetailV292?: boolean } = {}): Group {
   const group = new Group();
   group.name = "Minecraft block-native architectural landmarks";
   group.userData = {
@@ -2808,7 +2824,7 @@ export function createMinecraftArchitecturalLandmarks(): Group {
   group.add(
     createReichstagBlocks(resources),
     createChancelleryBlocks(resources),
-    createHauptbahnhofBlocks(resources),
+    createHauptbahnhofBlocks(resources, options.hbfRetailV292 === true),
     createBrandenburgGateBlocks(resources),
     createParliamentaryBandBlocks(resources),
     createBerlinerEnsembleBlocks(resources),

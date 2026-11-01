@@ -304,3 +304,15 @@ readable pixel lettering without extra batches or changing the public aisle;
 real ray tests check visible letters ahead of their backing panels. Both
 families were inspected in the temporary close-up viewer, which is excluded
 from the build and removed after inspection.
+
+A subsequent full native assembly check found that the retained legacy opaque
+side-glazing cue still concealed the new flower display. The completed native
+interior now replaces only that exact old wall owner at the current authored
+retail frontage widths and floor-to-3.6 m intervals, including Einstein. The
+legacy factory keeps its wall by default; the world enables these bounded
+openings only after attaching the complete independent interior. Every outside
+wall fragment and the other six landmark models remain. Combined legacy plus
+interior rays now reach all 24 flower blossoms and every shop body, fascia and
+lettering before any old wall; rays also retain wall strips above and between
+the bays. The seven legacy batches contain 5,266 instances, below the unchanged
+5,500 limit. Exact bay dimensions remain display estimates.

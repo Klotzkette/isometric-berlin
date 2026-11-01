@@ -2438,7 +2438,7 @@ export function* buildMinecraftVoxelWorldSteps(
   // interior before the legacy signature retires its exact four coarse cues.
   // Both remain owned by this unpublished staged root until admission succeeds.
   group.add(createHbfInteriorV291({ native: true, ...HBF_CIRCULATION_V291.frame }));
-  const architecturalV287 = createMinecraftArchitecturalLandmarks();
+  const architecturalV287 = createMinecraftArchitecturalLandmarks({ hbfRetailV292: true });
   group.add(architecturalV287);
   group.add(createHbfNativeMovingFixturesV291());
   const photoAdmissionV287 = matchesNativeChancellerySourceV287(payload) && admitsChancelleryPhotoNativeV287(architecturalV287);

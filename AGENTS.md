@@ -2221,3 +2221,12 @@ estimates. Neighbouring police/bakery recognition must follow current evidence.
 Preserve all existing tenants, circulation, sources, station motion, six modes,
 full mobile detail and every live/offline release limit. No plan/photo pixels,
 new media fetch, coverage, timer or unrelated station rebuild is authorised.
+
+The complete native retail interior may replace the exact old opaque
+`two-course north-south side glazing` cue only through the current authored
+shop-bay widths, from each represented floor top to 3.6 m above it, including
+the retained complete Einstein frontage. The legacy factory remains closed by
+default; enable this bounded complement only after the independent full native
+interior is attached to the same unpublished world transaction. Preserve every
+outside wall fragment, upper office, other landmark and original source record.
+The seven legacy batches retain their unchanged 5,500-instance ceiling.
