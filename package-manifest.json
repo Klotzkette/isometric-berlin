@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "package_name": "isometric-berlin-regierungsviertel-local",
-  "package_version": "1.0.190",
+  "package_version": "1.0.191",
   "start_page": "START-HERE.html",
   "start_page_mode": "3d-launch-guide",
   "full_3d_start_page": "index.html",
@@ -49,6 +49,7 @@
     "hauptbahnhof-five-level-connected-stairs-and-escalators",
     "hauptbahnhof-six-moving-panoramic-lift-cabins",
     "hauptbahnhof-current-verified-tenant-interiors",
+    "hauptbahnhof-blumen-roewer-police-ditsch-northwest-og1",
     "minecraft-roaming-creepers-zombies-and-skeletons",
     "opt-in-seven-variant-procedural-audio",
     "selected-landmark-only-marker",
