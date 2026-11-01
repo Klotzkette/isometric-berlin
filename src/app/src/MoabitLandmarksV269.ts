@@ -2,7 +2,8 @@ import {BufferAttribute,BufferGeometry,DoubleSide,Group,Mesh,MeshBasicMaterial,M
 import data from './data/moabitLandmarksV269.json';
 import {MOABIT_LANDMARKS_V269_PROFILE} from './MoabitLandmarksV269Profile';
 import {freezeStaticSceneTransforms} from './staticSceneTransforms';
-const decoded=(text:string):ArrayBuffer=>Uint8Array.from(atob(text),c=>c.charCodeAt(0)).buffer;
+import { decodeBase64Bytes } from './decodeBase64Bytes';
+const decoded=(text:string):ArrayBuffer=>decodeBase64Bytes(text).buffer;
 
 /** Required complete two-church replacement. No constructor buffer is retained on roots.
  * Original core owners may yield only after this entire construction succeeds. */

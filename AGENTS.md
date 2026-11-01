@@ -2128,3 +2128,24 @@ two incorrect batches, retaining the source facade, all other architectural
 detail, the four rooftop flags and the Flagge der Einheit. Keep all six modes,
 full drawn touch detail, existing coverage, 93 stops and every runtime/release
 limit. Use one internal full-city browser view at a time; no photo pixels ship.
+
+### Step 10 — v290 lossless loading and storage
+
+The owner's 1 November request permits lossless storage and loading work for
+startup and higher-altitude exploration, with no loss of quality anywhere.
+Preserve every source file, coordinate, index, material, architectural detail,
+independent native model, walking route, visual mode and all 93 tour stops.
+Resolution, sight distance, geometry, residency, decode, prefetch and release
+limits remain unchanged.
+
+The finite implementation may decode exactly identical Base64 bytes through
+a feature-detected native operation with the established
+fallback, and reuse source-part fingerprints only while all exact input fields
+remain identical. Mutated or corrupt source fields must still be checked.
+The road-gzip experiment is excluded: Pages already compresses its transfer,
+and a second application-level inflater adds CPU without reducing that transfer.
+
+Keep original evidence and all Git history. Local object repacking must not
+prune objects or change refs. Hosted assets may be retired only with an exact
+closure audit proving they fall outside the current-plus-two-live-release
+compatibility window. Do not remove public releases or their usable downloads.

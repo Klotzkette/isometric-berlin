@@ -1,3 +1,4 @@
+import { surroundingPacketFingerprint } from "./surroundingPacketFingerprint";
 import data from "./data/outerFacadesV262.json";
 import { houseDoorNavigationGuardV233 } from "./houseDoorsV233";
 import type { SurroundingCityChunk, SurroundingPackedMesh } from "./SurroundingCityGeometry";
@@ -51,14 +52,7 @@ export function* prepareOuterFacadesV262(
   for (const record of plan.records) {
     const part = chunk.meshes[record.mesh];
     if (!part || part.kind !== "city") return chunk;
-    let hash = 2166136261;
-    for (const text of [part.positions, part.colors, part.indices]) {
-      for (let start = 0; start < text.length; start += 65_536) {
-        for (let at = start; at < Math.min(start + 65_536, text.length); at++)
-          hash = Math.imul(hash ^ text.charCodeAt(at), 16777619) >>> 0;
-        yield;
-      }
-    }
+    const hash = yield* surroundingPacketFingerprint(part);
     if (hash !== record.fingerprint) return chunk;
   }
   const positions = new Uint16Array(vertexCount * 3), colours = new Uint8Array(vertexCount * 3);

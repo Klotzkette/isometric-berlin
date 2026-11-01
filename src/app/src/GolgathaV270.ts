@@ -3,8 +3,9 @@ import data from './data/golgathaV270.json';
 import {GOLGATHA_V270_PROFILE} from './golgathaV270Profile';
 import {markArchitecturalInk} from './architecturalInk';
 import {freezeStaticSceneTransforms} from './staticSceneTransforms';
+import { decodeBase64Bytes } from './decodeBase64Bytes';
 
-const decoded=(text:string):ArrayBuffer=>Uint8Array.from(atob(text),c=>c.charCodeAt(0)).buffer;
+const decoded=(text:string):ArrayBuffer=>decodeBase64Bytes(text).buffer;
 
 /** Required complete upper-tower correction plus every clipped lower source
  * complement. Construct the complete group before enabling packet transfers. */

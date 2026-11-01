@@ -1,3 +1,4 @@
+import { surroundingPacketFingerprint } from "./surroundingPacketFingerprint";
 import manifest from "./data/altMitteAppearanceV213.json";
 import type { SurroundingPackedMesh } from "./SurroundingCityGeometry";
 
@@ -37,6 +38,7 @@ export function* applyAltMitteAppearanceV213(
   tile: string, native: boolean, part: SurroundingPackedMesh, mesh: number,
   vertices: Uint16Array, vertexOffset: number, vertexCount: number,
   evidence: AltMitteAppearanceSourceV213 = source,
+  fingerprintOwner: SurroundingPackedMesh = part,
 ): Generator<void, number> {
   if (part.kind !== "alt-mitte-v169") return 0;
   const key = `${native ? "minecraft" : "drawn"}:${tile}`;
@@ -47,16 +49,7 @@ export function* applyAltMitteAppearanceV213(
 
   // A changed source packet keeps its complete original appearance until its
   // exact source bindings have been rebuilt. Hashing shares the decode yields.
-  let fingerprint = 2166136261;
-  for (const encoded of [part.positions, part.colors, part.indices]) {
-    for (let start = 0; start < encoded.length; start += 65_536) {
-      const end = Math.min(encoded.length, start + 65_536);
-      for (let at = start; at < end; at++) {
-        fingerprint = Math.imul(fingerprint ^ encoded.charCodeAt(at), 16777619) >>> 0;
-      }
-      yield;
-    }
-  }
+  const fingerprint = yield* surroundingPacketFingerprint(part, fingerprintOwner);
   if (receipt.fingerprint !== fingerprint) return 0;
 
   const { runs } = receipt;

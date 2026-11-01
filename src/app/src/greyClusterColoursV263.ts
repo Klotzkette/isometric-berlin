@@ -1,3 +1,4 @@
+import { surroundingPacketFingerprint } from "./surroundingPacketFingerprint";
 import manifest from "./data/greyClusterColoursV263.json";
 import { houseDoorNavigationGuardV233 } from "./houseDoorsV233";
 import { outerHousePaletteV262 } from "./outerHousePaletteV262";
@@ -36,14 +37,7 @@ export function* applyGreyClusterColoursV263(
       houseDoorNavigationGuardV233(chunk.nav) !== plan.guard) return 0;
   const record = plan.records.find(r => r.mesh === meshIndex);
   if (!record) return 0;
-  let hash = 2166136261;
-  for (const text of [part.positions, part.colors, part.indices]) {
-    for (let start = 0; start < text.length; start += 65_536) {
-      for (let i = start; i < Math.min(start + 65_536, text.length); i++)
-        hash = Math.imul(hash ^ text.charCodeAt(i), 16777619) >>> 0;
-      yield;
-    }
-  }
+  const hash = yield* surroundingPacketFingerprint(part);
   if (hash !== record.fingerprint) return 0;
   if (!Number.isSafeInteger(vertexOffset) || vertexOffset < 0 ||
       !Number.isSafeInteger(count) || count < 0 || (vertexOffset + count) * 6 > vertices.length ||

@@ -1,4 +1,5 @@
 import { gunzipSync } from "three/examples/jsm/libs/fflate.module.js";
+import { decodeBase64Bytes } from "./decodeBase64Bytes";
 
 /** Exact double storage, independent of browser endianness. No Float32 conversion. */
 export function decodeLosslessRoofCoordinates(source: {
@@ -7,9 +8,7 @@ export function decodeLosslessRoofCoordinates(source: {
   if (source.format !== "lossless-f64le-roof-triangles-v1" ||
       !Number.isSafeInteger(source.triangles) || source.triangles < 0 ||
       source.bytes !== source.triangles * 9 * 8) throw new Error("Invalid packed roof coordinates");
-  const binary = atob(source.gzip);
-  const packed = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) packed[i] = binary.charCodeAt(i);
+  const packed = decodeBase64Bytes(source.gzip);
   const decoded = gunzipSync(packed);
   if (decoded.byteLength !== source.bytes) throw new Error("Incomplete packed roof coordinates");
   const littleEndian = new Uint8Array(new Uint16Array([1]).buffer)[0] === 1;

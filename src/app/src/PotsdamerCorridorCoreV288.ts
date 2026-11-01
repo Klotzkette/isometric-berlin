@@ -6,6 +6,7 @@ import data from "./data/potsdamerCorridorCoreV288.json";
 import profile from "./data/potsdamerCorridorV288Profile.json";
 import { buildingTerrainOffset } from "./weinbergTerrainV176";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { decodeBase64Bytes } from "./decodeBase64Bytes";
 
 type Site = {
   key: string; parent: string; origin: number[]; sourceGround: number; anchor: number[];
@@ -24,7 +25,7 @@ export {
 } from "./PotsdamerCorridorV288Ownership";
 
 function decoded(text: string): ArrayBuffer {
-  return Uint8Array.from(atob(text), c => c.charCodeAt(0)).buffer;
+  return decodeBase64Bytes(text).buffer;
 }
 
 export { potsdamerCorridorSolidsV288 } from "./PotsdamerCorridorV288Navigation";

@@ -2,7 +2,8 @@ import {BufferAttribute,BufferGeometry,DoubleSide,Group,Mesh,MeshBasicMaterial,M
 import data from './data/tachelesFrontsV270.json';
 import {TACHELES_FRONTS_V270_PROFILE} from './TachelesFrontsV270Profile';
 import {freezeStaticSceneTransforms} from './staticSceneTransforms';
-const decoded=(text:string):ArrayBuffer=>Uint8Array.from(atob(text),c=>c.charCodeAt(0)).buffer;
+import { decodeBase64Bytes } from './decodeBase64Bytes';
+const decoded=(text:string):ArrayBuffer=>decodeBase64Bytes(text).buffer;
 
 /** Required complete five-building replacement. No constructor buffer is retained on roots.
  * Original core owners may yield only after this entire construction succeeds. */

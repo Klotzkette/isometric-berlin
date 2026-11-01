@@ -2,8 +2,9 @@ import { BufferAttribute, BufferGeometry, DoubleSide, Group, Mesh, MeshBasicMate
 import data from './data/auguststrasseMuralV270.json';
 import { AUGUSTSTRASSE_MURAL_V270_PROFILE } from './AuguststrasseMuralV270Profile';
 import { freezeStaticSceneTransforms } from './staticSceneTransforms';
+import { decodeBase64Bytes } from './decodeBase64Bytes';
 
-const decoded = (text: string): ArrayBuffer => Uint8Array.from(atob(text), c => c.charCodeAt(0)).buffer;
+const decoded = (text: string): ArrayBuffer => decodeBase64Bytes(text).buffer;
 
 /** Complete measured upper gable plus hand-authored vector interpretation of the
  * user's photographed mural. One static batch, identical full detail on mobile. */

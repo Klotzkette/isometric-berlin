@@ -15,5 +15,5 @@ export function* applyOuterMaterialsV232(
   if (part.kind !== "city" || !Object.prototype.hasOwnProperty.call(evidence.packets,
     `${native ? "minecraft" : "drawn"}:${tile}`)) return 0;
   return yield* applyAltMitteAppearanceV213(tile, native,
-    { ...part, kind: "alt-mitte-v169" }, mesh, vertices, vertexOffset, count, evidence);
+    { ...part, kind: "alt-mitte-v169" }, mesh, vertices, vertexOffset, count, evidence, part);
 }

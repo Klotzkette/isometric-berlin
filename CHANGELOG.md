@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.189 — 2026-11-01
+
+- Reuse identical source-part fingerprints during district loading, with exact input checks and weak ownership. Changed or corrupt source fields still pass through the original guards.
+- Decode audited Base64 geometry and compressed source fields directly to bytes where supported, with the established compatible fallback. Complete model and packet geometry remains byte-identical.
+- Preserve every source, architectural detail, navigation route, visual mode, tour stop and runtime limit. See [measurements and verification](docs/lossless-loading-v290.md).
+
 ## 1.0.183 — 2026-10-29
 
 - Refine the photographed Potsdamer Platz view with complete source-bound Torhaus/Stadtpalais and TRION window grids and the missing Beisheim office-podium facade.

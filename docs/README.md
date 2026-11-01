@@ -24,6 +24,7 @@ local ZIP starts, and which legal/attribution rules apply.
 |---|---|
 | Local setup | [setup.md](setup.md) |
 | Viewer app notes | [app.md](app.md) |
+| Lossless loading and storage measurements | [lossless-loading-v290.md](lossless-loading-v290.md) |
 | Hauptbahnhof doors, gallery access and collision limits | [hauptbahnhof-pedestrian-access.md](hauptbahnhof-pedestrian-access.md) |
 | Building attributes, detail coverage and source limits | [building-attribute-detail.md](building-attribute-detail.md) |
 | Siegessäule architecture and source replacement | [siegessaeule-architecture.md](siegessaeule-architecture.md) |

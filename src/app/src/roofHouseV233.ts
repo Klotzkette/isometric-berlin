@@ -1,3 +1,4 @@
+import { surroundingPacketFingerprint } from "./surroundingPacketFingerprint";
 import manifest from "./data/roofHouseV233.json";
 import type { SurroundingCityChunk, SurroundingPackedMesh } from "./SurroundingCityGeometry";
 
@@ -46,7 +47,7 @@ export function* prepareRoofHouseV233(
   for (const record of receipt.records) {
     const part = chunk.meshes[record.mesh];
     if (!part || part.kind !== "city" ||
-        (yield* fingerprint([part.positions, part.colors, part.indices])) !== record.fingerprint) return chunk;
+        (yield* surroundingPacketFingerprint(part)) !== record.fingerprint) return chunk;
     const triangleCount = (part.indices.length / 4 * 3 -
       (part.indices.endsWith("==") ? 2 : part.indices.endsWith("=") ? 1 : 0)) / 12;
     if (record.triangles.some(t => !Number.isSafeInteger(t) || t < 0 || t >= triangleCount)) return chunk;
