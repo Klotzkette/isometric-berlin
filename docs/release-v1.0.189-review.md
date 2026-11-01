@@ -67,7 +67,7 @@ Public HTTP verification matches 75 files / 119,457,806 bytes: every changed
 path, current manifest, scene metadata and both distinct protected prior workers.
 The exact Pages ref matches before and after the HTTP checks.
 
-## Storage and retention
+## Initial storage and retention
 
 The created Pages tree matches every planned path, mode, blob and size:
 4,831 files / 1,057,168,015 bytes, leaving 16,573,809 bytes below the unchanged
@@ -96,3 +96,32 @@ bytes, allocated bytes and this delta must not be added or reported as net
 baseline savings. Identical current source/dist/package files share verified
 local hardlinks; edits must replace those paths atomically. Both published
 archives contain complete ordinary files.
+
+## Owner-authorized old-tab cleanup
+
+The owner's continuation explicitly permits closing or disregarding previously
+opened tabs. The one remaining task viewer tab was closed and the task browser
+tab list was empty. This releases the previous-two-live-version asset retention
+requirement. No new browser tab was opened for this cleanup.
+
+A fresh audit hashes all 4,754 current package files and recomputes the complete
+dependency graph: all 318 current assets remain reachable, with no missing
+reference and exactly the original current graph. Exactly 77 old-only v187/v188
+assets / **120,794,000 bytes** are removed. Every retained path, mode, Git blob
+and size is unchanged; the live tree now equals the full canonical current
+package: **4,754 files / 936,374,015 bytes**, 137,367,809 bytes below 1 GiB.
+No nonasset path, source, public release or archive is deleted. The live tree is
+94,780,458 bytes smaller than the pre-v189 live tree; retained history means this
+is not an equivalent reduction in total GitHub object storage.
+
+Cleanup Pages commit: `d72cdf3649605230d7b4f6ff4842d3fd132d098f`,
+parent `02638e2e0a6e891fdc5e2dd9985076f6ed201139`,
+tree `7e4351ef939a9e858e6b1f92bb3c4a23bca35c79`.
+[Pages run 41345735981](https://github.com/Klotzkette/isometric-berlin/actions/runs/41345735981)
+completed successfully for that exact commit. Public HTTP checks confirm 73
+unchanged current files / 96,856,561 bytes, including the index, manifest,
+scene metadata and current worker. Both removed prior workers return HTTP 404.
+The live branch ref matches after those checks. Version v1.0.189, its manifest,
+geometry, quality, runtime limits and published archive digests are unchanged;
+no rebuild or new application release is needed. Old sessions may require a
+reload, as explicitly authorized.

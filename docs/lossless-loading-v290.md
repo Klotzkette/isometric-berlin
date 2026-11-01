@@ -64,17 +64,23 @@ asset path remain unchanged.
 The audit finds no large, safely disposable source family. Small duplicate
 source receipts remain because they preserve independent provenance and
 reproducibility. Historical public releases and usable downloads remain intact.
-Only exact hosted files outside the current-plus-two-live-release dependency
-window may be retired. The v189 retention audit protects all 326 v187/v188 assets
-and identifies fourteen v186-only candidates totalling 70,780,099 bytes. Final
-publication evidence records the actual target tree and net storage change.
+The initial v189 retention audit protected all 326 v187/v188 assets and identified
+fourteen v186-only candidates totalling 70,780,099 bytes. The owner's subsequent
+instruction permits closing or ignoring old tabs, releasing that compatibility
+window. A fresh complete current-package and dependency audit permits removing
+77 further old-only assets / 120,794,000 bytes. Current files remain unchanged;
+the [publication report](release-v1.0.189-review.md) records both stages.
 
 The complete candidate has 4,754 files / 936,374,015 bytes, 270 bytes smaller
-than v188. Its audited hosted tree has 4,831 files / 1,057,168,015 bytes, within
+than v188. Its initial hosted tree had 4,831 files / 1,057,168,015 bytes, within
 the unchanged 1 GiB ceiling. Although fourteen obsolete files yield 70,780,099
 bytes, changed hashed modules retained alongside v187/v188 make that temporary
 three-version store 26,013,542 bytes larger overall. This is not reported as a
-net hosted-storage reduction; compatibility for existing tabs is preserved.
+net hosted-storage reduction for that initial deployment. After the explicitly
+authorized old-tab cleanup, the hosted tree matches the complete current package:
+4,754 files / 936,374,015 bytes. All 318 current assets and their dependencies
+remain. Previously opened old sessions may need to reload. Historical Git blobs
+and release archives remain; live-tree reduction is not total GitHub disk recovery.
 
 Local `git gc --no-prune` packs the same repository objects more efficiently.
 Every Git ref remains byte-for-byte unchanged and connectivity verification

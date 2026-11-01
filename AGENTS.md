@@ -2149,3 +2149,11 @@ Keep original evidence and all Git history. Local object repacking must not
 prune objects or change refs. Hosted assets may be retired only with an exact
 closure audit proving they fall outside the current-plus-two-live-release
 compatibility window. Do not remove public releases or their usable downloads.
+
+The owner's direct continuation explicitly permits closing or disregarding old
+viewer tabs. This supersedes the previous-two-live-release asset retention
+requirement for the hosted tree: exact old hashed assets may be removed after
+the complete current v1.0.189 package and every current asset dependency are
+proved unchanged. Keep all nonasset files, sources, Git history and public
+release downloads. Old sessions may reload the current viewer; no current
+detail, mode or runtime limit may change.
