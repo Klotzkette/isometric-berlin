@@ -20,7 +20,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.189"
+PACKAGE_VERSION = "1.0.190"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset(
@@ -633,6 +633,10 @@ def write_package_manifest(package_dir: Path) -> None:
       "contextual-rain-or-snowfall-toggle-in-all-surface-modes",
       "native-and-ios-safe-pseudo-fullscreen",
       "manual-tiergartentunnel-entry-both-directions",
+      "hauptbahnhof-both-entrances-camera-triggered-sliding-doors",
+      "hauptbahnhof-five-level-connected-stairs-and-escalators",
+      "hauptbahnhof-six-moving-panoramic-lift-cabins",
+      "hauptbahnhof-current-verified-tenant-interiors",
       "minecraft-roaming-creepers-zombies-and-skeletons",
       "opt-in-seven-variant-procedural-audio",
       "selected-landmark-only-marker",

@@ -1,4 +1,5 @@
 import { isChancelleryCanopyOldPrismV289 } from "./ChancelleryCanopySourceV289Ownership";
+import { hbfRetainedGlassOpeningsV291, hbfCutRetainedGlassV291, hbfCutRetainedGlassInkV291, hbfAppendRetainedGlassLineV291 } from "./HbfRetainedGlassV291";
 import { isBerlinHistoricDomOldCoreV288 } from "./BerlinHistoricCoreV288Ownership";
 import { isPotsdamerCorridorOldCoreV288 } from "./PotsdamerCorridorV288Ownership";
 import { createOrdinaryWindowsV288, ordinaryWindowExposureV288, ORDINARY_WINDOWS_V288_LIMIT, type OrdinaryPaneV288 } from "./ordinaryWindowsV288";
@@ -406,6 +407,8 @@ export type PrismPayload = {
  * remaining batches without copying or simplifying any source coordinate.
  */
 export type IsometricCityBuildOptions = {
+  /** Only the completed required Hauptbahnhof model may open its retained source glazing. */
+  hbfCirculationV291?: boolean;
   /** Published only with the complete required photo-guided south station. */
   potsdamerStationPhoto?: boolean;
   historicDomV288?: boolean; potsdamerCorridorV288?: boolean; chancelleryCanopySourceV289?: boolean;
@@ -1826,7 +1829,7 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "chancelleryCanopySourceV289" | "historicDomV288" | "potsdamerCorridorV288" | "potsdamerStationPhoto" | "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "steppengartenShelterV283" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "hbfCirculationV291" | "chancelleryCanopySourceV289" | "historicDomV288" | "potsdamerCorridorV288" | "potsdamerStationPhoto" | "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "steppengartenShelterV283" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
@@ -1921,6 +1924,24 @@ export function createDistantBuildingShells(
     }
     const upperY = !isGlass && hasPotsdamerUpperStoreys(building.id, bodyHeight)
       ? y0 + POTSDAMER_UPPER_STOREYS.startM : undefined;
+    const hbfCuts = isGlass ? hbfRetainedGlassOpeningsV291(building, options.hbfCirculationV291 === true) : [];
+    if (hbfCuts.length) {
+      let source: BufferGeometry = new ExtrudeGeometry(shapeFromRings(building), { bevelEnabled: false, depth: bodyHeight, steps: 1 });
+      source.rotateX(-Math.PI / 2); source.translate(0, y0, 0); source.deleteAttribute("uv");
+      if (PRISM_VISUAL_TOP_CAP_SUPPRESSED_IDS.has(building.id)) source = withoutVisualTopCap(source, y0 + bodyHeight);
+      const opened = hbfCutRetainedGlassV291(building, source, hbfCuts);
+      const p = opened.getAttribute("position"), n = opened.getAttribute("normal");
+      for (let i = 0; i < p.count; i += 3) {
+        // The distant shell historically has no underside; opening its walls
+        // must not add a hidden base plate or alter the retained top tone.
+        if ([0, 1, 2].every(j => Math.abs(p.getY(i + j) - y0) < 1e-5)) continue;
+        const first = positions.length / 3;
+        for (let j = 0; j < 3; j++) vertex(p.getX(i + j), p.getY(i + j), p.getZ(i + j), n.getX(i + j), n.getY(i + j), n.getZ(i + j), Math.abs(p.getY(i + j) - y0 - bodyHeight) < 1e-5 && n.getY(i + j) > .5 ? capColor : color);
+        indices.push(first, first + 1, first + 2);
+      }
+      opened.dispose(); source.dispose();
+      continue;
+    }
     for (const wall of facadeWallsOf(building)) {
       const x2 = wall.x1 + wall.dirX * wall.length;
       const z2 = wall.z1 + wall.dirZ * wall.length;
@@ -12132,8 +12153,15 @@ export function createIsometricCityCore(
     if (PRISM_VISUAL_TOP_CAP_SUPPRESSED_IDS.has(building.id)) {
       geometry = withoutVisualTopCap(geometry, y0 + bodyHeight);
     }
-    // Ink lines first (edges of the un-coloured prism)…
-    const edges = new EdgesGeometry(geometry, ISO_EDGE_THRESHOLD_DEGREES);
+    const hbfCuts = isGlass ? hbfRetainedGlassOpeningsV291(building, options.hbfCirculationV291 === true) : [];
+    // Keep the exact original source ink outside the public passage; derive
+    // only new opening borders from the correctly clipped concave extrusion.
+    const originalGeometry = geometry;
+    if (hbfCuts.length) geometry = hbfCutRetainedGlassV291(building, geometry, hbfCuts);
+    const originalEdges = new EdgesGeometry(originalGeometry, ISO_EDGE_THRESHOLD_DEGREES);
+    const edges = hbfCutRetainedGlassInkV291(originalEdges, hbfCuts, hbfCuts.length ? geometry : undefined, ISO_EDGE_THRESHOLD_DEGREES);
+    if (edges !== originalEdges) originalEdges.dispose();
+    if (geometry !== originalGeometry) originalGeometry.dispose();
     edgeGeometries.push(edges);
     if (SCHAROUN_ROOF_SEAM_IDS.has(building.id)) {
       const [centroidX, centroidZ] = prismCentroidM(building);
@@ -12189,21 +12217,21 @@ export function createIsometricCityCore(
           const along = vStart + step * ISO_WINDOW_BAY_PITCH_M;
           const x = wall.x1 + wall.dirX * along + ox;
           const z = wall.z1 + wall.dirZ * along + oz;
-          mullionPositions.push(x, y0 + 0.15, z, x, y0 + totalHeight - 0.15, z);
+          hbfAppendRetainedGlassLineV291(mullionPositions, [x, y0 + 0.15, z, x, y0 + totalHeight - 0.15, z], hbfCuts);
         }
         const floorPitch = sourceStoreys?.floorPitch ?? ISO_WINDOW_FLOOR_PITCH_M;
         const storeys = sourceStoreys ? sourceStoreys.count - 1 :
           Math.floor((totalHeight - 1) / floorPitch);
         for (let step = 1; step <= storeys; step += 1) {
           const y = y0 + step * floorPitch;
-          mullionPositions.push(
+          hbfAppendRetainedGlassLineV291(mullionPositions, [
             wall.x1 + ox,
             y,
             wall.z1 + oz,
             wall.x1 + wall.dirX * wall.length + ox,
             y,
             wall.z1 + wall.dirZ * wall.length + oz,
-          );
+          ], hbfCuts);
         }
       }
       continue;

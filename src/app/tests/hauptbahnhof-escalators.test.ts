@@ -48,20 +48,20 @@ describe("Hauptbahnhof escalator descent", () => {
   const root = station();
 
   test("every flight is a detailed run, not a tilted plank", () => {
-    // Two arms x three gaps x two edges = twelve flights; each carries
+    // Two arms x four gaps x two edges = sixteen flights; each carries
     // step ridges, two glass balustrades, two handrails and two comb
     // plates ("Rolltreppenwege in die Tiefe").
     const flights = named(root, "escalator run").filter(
       (object) => object instanceof Group && object.name.endsWith("run"),
     );
-    expect(flights).toHaveLength(12);
-    expect(named(root, "instanced step ridges")).toHaveLength(12);
+    expect(flights).toHaveLength(16);
+    expect(named(root, "instanced step ridges")).toHaveLength(16);
     expect(
       named(root, "Hauptbahnhof escalator run glass balustrade"),
-    ).toHaveLength(24);
-    expect(named(root, "handrail")).toHaveLength(24);
-    expect(named(root, "upper comb plate")).toHaveLength(12);
-    expect(named(root, "lower comb plate")).toHaveLength(12);
+    ).toHaveLength(32);
+    expect(named(root, "handrail")).toHaveLength(32);
+    expect(named(root, "upper comb plate")).toHaveLength(16);
+    expect(named(root, "lower comb plate")).toHaveLength(16);
   });
 
   test("the deepest flights land on the inner island platforms", () => {
@@ -85,7 +85,8 @@ describe("Hauptbahnhof escalator descent", () => {
   });
 
   test("the descent is continuous from the gallery to the deep station", () => {
-    // The three gap levels chain +4.6 -> 0 -> -5.4 -> -15: the top of the
+    // The four gaps now chain upper rails -> upper gallery -> main concourse
+    // -> lower gallery -> deep platforms: the top of the
     // highest flight and the bottom of the deepest one span the full
     // vertical route a passenger rides.
     const flights = named(root, "escalator run").filter(
@@ -95,7 +96,7 @@ describe("Hauptbahnhof escalator descent", () => {
     for (const flight of flights) {
       all.union(new Box3().setFromObject(flight));
     }
-    expect(all.max.y).toBeGreaterThan(4.0);
+    expect(all.max.y).toBeGreaterThan(10.0);
     expect(all.min.y).toBeLessThan(-14.0);
   });
 });

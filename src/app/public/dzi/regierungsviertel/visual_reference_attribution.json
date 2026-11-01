@@ -3587,6 +3587,28 @@
       "role": "Plan distinguishes standing ruin from vanished cloister; photographs establish roofless interior, open northern arcades and high choir. Reference only; not metric photographic tracing.",
       "checked": "2026-10-31",
       "pixels_bundled": false
+    },
+    {
+      "id": "hbf-interior-v291-1",
+      "landmark_id": "hauptbahnhof",
+      "title": "Blick in die Bahnsteighalle",
+      "page_url": "https://www.deutschebahn.com/de/presse/presse-regional/pr-berlin-de/hintergrund/Berlin-Hauptbahnhof-Markantes-Eingangstor-zur-Stadt-8860186",
+      "credit": "Deutsche Bahn AG / Max Lautenschläger",
+      "license": "Reference-only, copyright retained by publisher and photographer; no redistribution licence asserted",
+      "role": "Glazed vault, transverse rail deck, grey slabs, open atrium, glass guards and connected escalators. Historical architectural reference; not current tenant evidence Display fittings are estimates; no photographic pixels bundled.",
+      "checked": "2026-11-01",
+      "pixels_bundled": false
+    },
+    {
+      "id": "hbf-interior-v291-2",
+      "landmark_id": "hauptbahnhof",
+      "title": "Tiefbahnsteige mit stehendem und ausfahrendem ICE",
+      "page_url": "https://www.bahnhof.de/berlin-hauptbahnhof/umsteigen-berlin-hbf",
+      "credit": "DB InfraGO AG / bahnhof.de / Deutsche Bahn AG / Christian Bedeschinski",
+      "license": "Reference-only, copyright retained by publisher and photographer; no redistribution licence asserted",
+      "role": "Pale platform/edge strips, round columns with flared capitals and blue-grey glass annuli, panel ceiling, linear lights, blue track signs and escalators. Page updated2024-07-03; photograph date not stated Display fittings are estimates; no photographic pixels bundled.",
+      "checked": "2026-11-01",
+      "pixels_bundled": false
     }
   ]
 }

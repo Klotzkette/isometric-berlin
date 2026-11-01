@@ -28,6 +28,7 @@ import {
   RingGeometry,
   Shape,
   ShapeGeometry,
+  Sphere,
   SphereGeometry,
   SRGBColorSpace,
   TorusGeometry,
@@ -51,7 +52,11 @@ import { createDedicationTexture } from "./reichstagInscription";
 import { appendReichstagPhotoFacade } from "./ReichstagPhotoFacade";
 import { markWindFlag, markWindFlagInstances } from "./WindFlags";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
-import { HBF_DETAILS_V252, hbfFlightEndpointsV252, hbfHorizontalTreadsV252 } from "./HbfDetailsV252";
+import { HBF_CIRCULATION_V291, type HbfFlightV291 } from "./HbfCirculationV291";
+import { hbfFlightOpeningsV291, hbfGeometryComplementV291, hbfOfficeRailUnderpassV291, hbfSegmentComplementV291, hbfSlabOpeningsV291, type HbfOpeningV291 } from "./HbfGeometryOpeningsV291";
+import { indexGeometryExactly } from "./exactGeometryIndex";
+import { createHbfInteriorV291, replacesHbfShopfrontV291 } from "./HbfInteriorV291";
+import { hbfLiftFloorAtV291, markHbfMovingMeshV291, markHbfMotionFrameV291 } from "./HbfStationMotionV291";
 import {
   HAUPTBAHNHOF_ACCESS,
   hauptbahnhofDoorOpeningAt,
@@ -4114,9 +4119,9 @@ export const HAUPTBAHNHOF_INTERIOR_PROFILE = {
   levelCount: HAUPTBAHNHOF_INTERIOR_LEVELS.length,
   panoramicLifts: {
     bottomM: -15.15,
-    count: 4,
-    landingElevationsM: HAUPTBAHNHOF_INTERIOR_LEVELS.map(
-      (level) => level.elevationM,
+    count: 6,
+    landingElevationsM: HBF_CIRCULATION_V291.levels.map(
+      (level) => level.topLocalY,
     ),
     radiusM: 1.82,
     ringSpacingM: 1.55,
@@ -4554,6 +4559,7 @@ function addEscalatorRun(
   to: [number, number, number],
   width: number,
   material: MeshStandardMaterial,
+  flight: HbfFlightV291,
 ): void {
   const dx = to[0] - from[0];
   const dy = to[1] - from[1];
@@ -4570,45 +4576,47 @@ function addEscalatorRun(
   const carrier = new Group();
   carrier.name = name;
   carrier.position.set(...centre);
-  // Point the carrier's local +Z along the run. A flight may also drift
-  // sideways (the deep flight walks outward to land on its platform), so
-  // the full 3D direction is used, not just the y/z tilt.
-  carrier.quaternion.setFromUnitVectors(
-    new Vector3(0, 0, 1),
-    new Vector3(dx, dy, dz).normalize(),
-  );
+  // Keep local +Y above the walking surface in BOTH travel directions.
+  // A shortest-arc +Z quaternion flips the carrier upside down for a south-
+  // to-north run; yaw followed by pitch keeps handrails above and the band below.
+  carrier.rotation.set(-Math.atan2(dy, Math.hypot(dx, dz)), Math.atan2(dx, dz), 0, "YXZ");
 
   const band = new Mesh(new BoxGeometry(width, 0.55, run), material);
+  band.position.y = -0.48;
   band.name = `${name} band`;
   band.castShadow = true;
   band.receiveShadow = true;
   carrier.add(band);
   addEdges(carrier, band, 0.4);
 
-  // Step ridges across the band: one thin bar roughly every 1.1 m of run.
+  // Horizontal moving treads replace the old fixed inclined ridge bars.
   const stepMaterial = modelMaterial(0x6d7a80, {
     metalness: 0.42,
     roughness: 0.5,
   });
   const ridges: InstanceTransform[] = [];
-  const ridgeCount = Math.max(4, Math.floor(run / 1.1));
-  for (let index = 1; index < ridgeCount; index += 1) {
+  const horizontal = Math.hypot(dx, dz);
+  const ridgeCount = Math.max(8, Math.ceil(horizontal / 0.4));
+  const yaw = Math.atan2(dx, dz);
+  for (let index = 0; index < ridgeCount; index += 1) {
+    const t = index / ridgeCount;
     ridges.push({
-      position: [0, 0.31, -run / 2 + (index / ridgeCount) * run],
+      position: [from[0] + dx * t, from[1] + dy * t - 0.08, from[2] + dz * t],
+      rotation: [0, yaw, 0],
     });
   }
-  const horizontalTreads = hbfHorizontalTreadsV252(from, to, carrier.quaternion);
-  ridges.push(...horizontalTreads);
-  carrier.userData.hbfV252HorizontalTreadCount = horizontalTreads.length;
-  carrier.userData.hbfV252Endpoints = { from, to };
-  carrier.userData.geometryStatus = HBF_DETAILS_V252.stairStatus;
-  addInstancedBoxes(
-    carrier,
+  carrier.userData.hbfFlightV291 = flight.id;
+  carrier.userData.hbfV291Endpoints = { from, to };
+  carrier.userData.geometryStatus = HBF_CIRCULATION_V291.status;
+  const movingSteps = addInstancedBoxes(
+    group,
     `${name} instanced step ridges`,
-    [width - 0.3, 0.09, 0.16],
+    [width - 0.3, 0.16, Math.min(0.42, horizontal / ridgeCount * 0.95)],
     stepMaterial,
     ridges,
   );
+  markHbfMovingMeshV291(movingSteps, { kind: "escalator", from, to, direction: flight.direction });
+  movingSteps.boundingSphere = new Sphere(new Vector3(...centre), run / 2 + width + 2);
 
   // Glass balustrades with a dark handrail on top, one per side.
   const balustrade = modelMaterial(0xbcd8de, {
@@ -4640,20 +4648,24 @@ function addEscalatorRun(
   // Comb plates: short horizontal landings at both ends, extending past
   // the run, so it visibly docks onto its floor instead of knifing
   // through it.
-  const zDirection = Math.sign(dz) || 1;
-  addBox(
-    group,
+  const combs = new Group();
+  combs.name = `${name} horizontal comb plates`;
+  group.add(combs);
+  const topComb = addOrientedBox(
+    combs,
     `${name} upper comb plate`,
     [width + 0.5, 0.18, 2.2],
-    [from[0], from[1] + 0.09, from[2] - zDirection * 1.0],
+    [from[0] - dx / horizontal, from[1] - 0.09, from[2] - dz / horizontal],
+    yaw,
     material,
     0.3,
   );
-  addBox(
-    group,
+  const lowerComb = addOrientedBox(
+    combs,
     `${name} lower comb plate`,
     [width + 0.5, 0.18, 2.2],
-    [to[0], to[1] + 0.09, to[2] + zDirection * 1.0],
+    [to[0] + dx / horizontal, to[1] - 0.09, to[2] + dz / horizontal],
+    yaw,
     material,
     0.3,
   );
@@ -4771,7 +4783,7 @@ function addStationCurrentConcourseDetails(
   destinationStrokes.userData.nightMaterial = destinationNight;
 
   const cafeWidth = 13.8;
-  const cafeZ = boardZ - 4.2;
+  const cafeZ = -(boardZ - 4.2);
   const cafeShell = addBox(
     group,
     "Hauptbahnhof Einstein Kaffee storefront",
@@ -5016,12 +5028,7 @@ function addStationPanoramicLifts(
     opacity: 0.4,
     roughness: 0.14,
   });
-  const liftPositions: Array<[number, number]> = [];
-  for (const x of [-9.5, 9.5]) {
-    for (const z of [-33, 33]) {
-      liftPositions.push([x, z]);
-    }
-  }
+  const liftPositions = HBF_CIRCULATION_V291.shafts.map(shaft => [shaft.x, shaft.z] as const);
 
   const verticalMullions: InstanceTransform[] = [];
   const guideRails: InstanceTransform[] = [];
@@ -5127,7 +5134,7 @@ function addStationPanoramicLifts(
       });
     }
 
-    const cabinLevel = HAUPTBAHNHOF_INTERIOR_LEVELS[shaftIndex].elevationM;
+    const cabinLevel = hbfLiftFloorAtV291(0, shaftIndex);
     const cabinHeight = 3.05;
     const cabinCentreY = cabinLevel + cabinHeight / 2 + 0.08;
     const cabin = new Mesh(
@@ -5139,9 +5146,10 @@ function addStationPanoramicLifts(
     cabin.castShadow = false;
     cabin.receiveShadow = true;
     cabin.renderOrder = 8;
-    cabin.userData.levelId = HAUPTBAHNHOF_INTERIOR_LEVELS[shaftIndex].id;
+    cabin.userData.shaftId = HBF_CIRCULATION_V291.shafts[shaftIndex].id;
     cabin.userData.presentation =
-      "four cabins are parked on different levels so the vertical system remains legible in a still scene";
+      "six complete cabins move between all five levels on the shared station clock; positions and travel timing are display estimates";
+    markHbfMovingMeshV291(cabin, { kind: "lift", shaftIndexes: [shaftIndex], initialFloors: [cabinLevel] });
     group.add(cabin);
     for (const y of [cabinLevel + 0.08, cabinLevel + cabinHeight + 0.08]) {
       cabinCaps.push({ position: [x, y, z] });
@@ -5204,20 +5212,26 @@ function addStationPanoramicLifts(
     frameMaterial,
     landingDoorTransoms,
   );
-  addInstancedGeometry(
+  const movingCaps = addInstancedGeometry(
     group,
     "Hauptbahnhof instanced panoramic lift cabin caps",
     new CylinderGeometry(1.28, 1.28, 0.16, 20),
     frameMaterial,
     cabinCaps,
   );
-  addInstancedBoxes(
+  const movingBacks = addInstancedBoxes(
     group,
     "Hauptbahnhof instanced panoramic lift cabin backs",
     [0.16, 2.42, 1.7],
     frameMaterial,
     cabinBacks,
   );
+  for (const [mesh, repeats] of [[movingCaps, 2], [movingBacks, 1]] as const) {
+    const shaftIndexes = HBF_CIRCULATION_V291.shafts.flatMap((_, index) => Array<number>(repeats).fill(index));
+    markHbfMovingMeshV291(mesh, { kind: "lift", shaftIndexes,
+      initialFloors: shaftIndexes.map(index => hbfLiftFloorAtV291(0, index)) });
+    mesh.boundingSphere = new Sphere(new Vector3(0, 0, 0), 115);
+  }
 }
 
 /**
@@ -5294,6 +5308,57 @@ function addStationInterior(
   group.userData.interiorLevels = HAUPTBAHNHOF_INTERIOR_LEVELS.map(
     (level) => ({ ...level }),
   );
+  // Every old owner survives outside the finite flight/landing apertures.
+  // Baked local boxes let the shared convex complement include reveal faces,
+  // rather than merely hiding a slab top while leaving its underside solid.
+  const flightCuts = hbfFlightOpeningsV291();
+  const landingBox = (id: string, minX: number, maxX: number, minZ: number, maxZ: number, floor: number): HbfOpeningV291 => ({
+    id, bounds: { min: [minX, floor - 2, minZ], max: [maxX, floor + 4, maxZ] },
+    planes: [[1,0,0,-minX],[-1,0,0,maxX],[0,1,0,2-floor],[0,-1,0,floor+4],[0,0,1,-minZ],[0,0,-1,maxZ]],
+  });
+  const guardCuts = (floor: number, longitudinal: boolean): HbfOpeningV291[] => {
+    const cuts = [...flightCuts];
+    for (const landing of HBF_CIRCULATION_V291.landings) if (Math.abs(landing.topLocalY - floor) < .001)
+      cuts.push(landingBox(`guard-${landing.id}`, landing.minX, landing.maxX, landing.minZ, landing.maxZ, floor));
+    const level = HBF_CIRCULATION_V291.levels.find(l => Math.abs(l.topLocalY-floor) < .001);
+    if (longitudinal && level && "bridgeLocalZ" in level && "openHalfM" in level) for (const arm of [-1,1])
+      cuts.push(landingBox(`guard-retained-bridge-${level.id}-${arm}`, -level.openHalfM-.4, level.openHalfM+.4, arm*level.bridgeLocalZ-2.6, arm*level.bridgeLocalZ+2.6, floor));
+    return cuts;
+  };
+  const addOpenSlab = (name: string, size: [number,number,number], position: [number,number,number], material = slab, edgeOpacity = .45): void => {
+    const original = new BoxGeometry(...size).translate(...position);
+    const geometry = hbfGeometryComplementV291(original, hbfSlabOpeningsV291(position[1]-size[1]/2, position[1]+size[1]/2));
+    if (geometry === original) { original.dispose(); addBox(group,name,size,position,material,edgeOpacity); return; }
+    original.dispose();
+    indexGeometryExactly(geometry);
+    const mesh = new Mesh(geometry,material); mesh.name=name;
+    mesh.castShadow=true;mesh.receiveShadow=true;
+    mesh.userData.hbfSourceBoxV291={size:[...size],position:[...position]};
+    mesh.userData.hbfInteriorAperturesV291=true;group.add(mesh);addEdges(group,mesh,edgeOpacity);
+  };
+  const addOpenInstances = (name: string, size: [number,number,number], material: MeshStandardMaterial | MeshPhysicalMaterial, transforms: InstanceTransform[], floorOffset: number, kind: "deck" | "long-rail" | "cross-rail"): void => {
+    const retained: InstanceTransform[] = [], retainedIndices:number[]=[], clippedIndices:number[]=[], pieces:BufferGeometry[]=[];
+    for (const [i,t] of transforms.entries()) {
+      const dimensions=size.map((n,j)=>n*(t.scale?.[j]??1)) as [number,number,number];
+      const original=new BoxGeometry(...dimensions).translate(...t.position);
+      const cuts=kind==="deck" ? hbfSlabOpeningsV291(t.position[1]-dimensions[1]/2,t.position[1]+dimensions[1]/2) : guardCuts(t.position[1]+floorOffset,kind==="long-rail");
+      const geometry=hbfGeometryComplementV291(original,cuts);
+      if(geometry===original){original.dispose();retained.push(t);retainedIndices.push(i);}else{original.dispose();clippedIndices.push(i);pieces.push(geometry);}
+    }
+    const instances=addInstancedBoxes(group,name,size,material,retained);
+    instances.userData.hbfRetainedInstanceOwnerIndicesV291=retainedIndices;
+    instances.userData.hbfOriginalInstanceOwnerCountV291=transforms.length;
+    if (!pieces.length) return;
+    const count=pieces.reduce((n,g)=>n+g.getAttribute("position").count,0),positions=new Float32Array(count*3),normals=new Float32Array(count*3);
+    let cursor=0;
+    for(const geometry of pieces){positions.set(geometry.getAttribute("position").array,cursor);normals.set(geometry.getAttribute("normal").array,cursor);cursor+=geometry.getAttribute("position").count*3;geometry.dispose();}
+    const geometry=new BufferGeometry();geometry.setAttribute("position",new Float32BufferAttribute(positions,3));geometry.setAttribute("normal",new Float32BufferAttribute(normals,3));
+    indexGeometryExactly(geometry);
+    const mesh=new Mesh(geometry,material);mesh.name=`${name} aperture complements`;
+    mesh.castShadow=material.opacity>=.5;mesh.receiveShadow=true;
+    mesh.userData.hbfInteriorAperturesV291=true;mesh.userData.hbfClippedInstanceOwnerIndicesV291=clippedIndices;
+    mesh.userData.hbfOriginalInstanceOwnerCountV291=transforms.length;group.add(mesh);
+  };
   const storefronts: InstanceTransform[] = [];
   const galleryRailSegments: VectorSegment[] = [];
   const galleryGlassPanels: InstanceTransform[] = [];
@@ -5319,13 +5384,10 @@ function addStationInterior(
       for (const edge of [-1, 1]) {
         const inner = edge * level.openHalf;
         const outer = edge * halfWidth;
-        addBox(
-          group,
+        addOpenSlab(
           "Hauptbahnhof concourse gallery slab",
           [Math.abs(outer - inner), 0.5, Math.abs(slabFar - near)],
           [(inner + outer) / 2, level.y, (near + slabFar) / 2],
-          slab,
-          0.45,
         );
       }
       const armStart = Math.min(Math.abs(near), Math.abs(far));
@@ -5411,37 +5473,11 @@ function addStationInterior(
         position: [-1.75, level.y + 2.25, bridgeZ - side * 0.07],
       });
     }
-    // Two escalator runs per gap, flanking the slot the way the real ones do.
-    const gaps: Array<[number, number]> = [
-      [levels[0].y, levels[1].y],
-      [levels[1].y, levels[2].y],
-      [
-        levels[2].y,
-        HAUPTBAHNHOF_INTERIOR_LEVELS[4].elevationM,
-      ],
-    ];
-    gaps.forEach(([top, bottom], index) => {
-      const zTop = side * (armNear + 14 + index * 21);
-      const zBottom = zTop + side * (top - bottom) * 1.9;
-      // The gallery flights criss-cross the daylight slot; the deepest
-      // flight must LAND ON the inner island platforms (centres ±9.5 m),
-      // not between them on a track. So its lower end walks outward.
-      const landsOnPlatform = bottom <= -14;
-      for (const edge of [-1, 1]) {
-        const flight = hbfFlightEndpointsV252(
-          [edge * 5.2, top, zTop],
-          [edge * (landsOnPlatform ? 9.5 : 5.2), bottom, zBottom],
-        );
-        addEscalatorRun(
-          group,
-          "Hauptbahnhof escalator run",
-          flight.from,
-          flight.to,
-          2.4,
-          escalator,
-        );
-      }
-    });
+    for (const flight of HBF_CIRCULATION_V291.flights) {
+      if (flight.kind !== "escalator" || flight.arm !== side) continue;
+      addEscalatorRun(group, "Hauptbahnhof escalator run",
+        [...flight.from], [...flight.to], flight.widthM, escalator, flight);
+    }
 
     for (const zOffset of [11, 35, 59]) {
       const z = side * (armNear + zOffset);
@@ -5462,63 +5498,56 @@ function addStationInterior(
     "Hauptbahnhof instanced concourse shopfronts",
     [0.28, 3.5, 11.5],
     retailGlass,
-    storefronts,
+    storefronts.filter(transform => !replacesHbfShopfrontV291(...transform.position)),
   );
   addVectorSegments(
     group,
     "Hauptbahnhof batched gallery glass balustrades",
-    galleryRailSegments,
+    galleryRailSegments.flatMap(([a,b]) => hbfSegmentComplementV291(a,b,guardCuts(a[1]-1.25,true))?.map(([x,y])=>[x,y] as VectorSegment) ?? [[a,b]]),
     0x7c999f,
     0.54,
   );
-  addInstancedBoxes(
-    group,
+  addOpenInstances(
     "Hauptbahnhof instanced gallery glass balustrade panels",
     [0.08, 1.3, 1],
     balustradeGlass,
-    galleryGlassPanels,
+    galleryGlassPanels, -0.6, "long-rail",
   );
-  addInstancedBoxes(
-    group,
+  addOpenInstances(
     "Hauptbahnhof instanced gallery balustrade top rails",
     [0.14, 0.1, 1],
     escalator,
-    galleryTopRails,
+    galleryTopRails, -1.25, "long-rail",
   );
-  addInstancedBoxes(
-    group,
+  addOpenInstances(
     "Hauptbahnhof instanced gallery balustrade posts",
     [0.12, 1.42, 0.12],
     escalator,
-    galleryPosts,
+    galleryPosts, -0.59, "long-rail",
   );
-  addInstancedBoxes(
-    group,
+  addOpenInstances(
     "Hauptbahnhof instanced gallery inner-edge fascias",
     [0.24, 0.62, 1],
     escalator,
-    galleryFascias,
+    galleryFascias, 0.57, "long-rail",
   );
-  addInstancedBoxes(
-    group,
+  addOpenInstances(
     "Hauptbahnhof instanced concourse cross bridges",
     [1, 0.5, 5.2],
     slab,
-    crossBridgeDecks,
+    crossBridgeDecks, 0.25, "deck",
   );
-  addInstancedBoxes(
-    group,
+  addOpenInstances(
     "Hauptbahnhof instanced cross-bridge glass balustrades",
     [1, 1.3, 0.08],
     balustradeGlass,
-    crossBridgeGlassPanels,
+    crossBridgeGlassPanels, -0.6, "cross-rail",
   );
-  addInstancedBoxes(
-    group,
+  addOpenInstances(
     "Hauptbahnhof instanced cross-bridge top rails",
     [1, 0.1, 0.14],
     escalator,
-    crossBridgeTopRails,
+    crossBridgeTopRails, -1.25, "cross-rail",
   );
   addInstancedBoxes(
     group,
@@ -5551,6 +5580,7 @@ function addStationInterior(
 
   addStationCurrentConcourseDetails(group, signature, retailGlass, escalator);
   addStationPanoramicLifts(group, escalator);
+  group.add(createHbfInteriorV291({ native: false }));
 
   // The north–south deep station, crossing under the Stadtbahn at −15 m.
   //
@@ -5585,8 +5615,7 @@ function addStationInterior(
     trackCentres.push(centre + (PLATFORM_W + TRACK_W) / 2);
   }
   for (const platformX of platformCentres) {
-    addBox(
-      group,
+    addOpenSlab(
       "Hauptbahnhof deep-level island platform",
       [PLATFORM_W, 0.95, deepLength - 12],
       [platformX, -14.53, 0],
@@ -5711,6 +5740,7 @@ function addStationOfficeBridge(
   depth: number,
   height: number,
 ): void {
+  const firstOfficeChild=group.children.length;
   // gmp describes the two 46 m Buegelbauten as exposed steel structures
   // standing in front of glass facades. Their entrance ends are not plain
   // blue boxes: the outer corners rise above the inner corners, producing
@@ -5995,6 +6025,74 @@ function addStationOfficeBridge(
     0x6c858b,
     HAUPTBAHNHOF_GLASS_GRID_OPACITY,
   );
+  // The older authored envelope and its facade grid incorrectly continued
+  // through the crossed railway hall. Preserve every office/roof/side member
+  // outside this bounded arch, including their original materials and transforms.
+  const underpass=[hbfOfficeRailUnderpassV291(x,width)];
+  for(const object of group.children.slice(firstOfficeChild)) {
+    object.updateMatrix();
+    if(object instanceof InstancedMesh) {
+      const positions:number[]=[],paints:number[]=[],dummy=new Object3D();
+      let retained=0;
+      const oldPaint=object.instanceColor?.array;
+      for(let i=0;i<object.count;i++) {
+        object.getMatrixAt(i,dummy.matrix);
+        dummy.matrix.premultiply(object.matrix);
+        const source=object.geometry.clone().applyMatrix4(dummy.matrix);
+        const opened=hbfGeometryComplementV291(source,underpass);
+        if(opened===source) {
+          source.dispose();
+          if(retained!==i) {
+            object.instanceMatrix.array.copyWithin(retained*16,i*16,i*16+16);
+            oldPaint?.copyWithin(retained*3,i*3,i*3+3);
+          }
+          retained++;continue;
+        }
+        source.dispose();
+        const p=opened.getAttribute("position");
+        for(let j=0;j<p.count;j++) {
+          positions.push(p.getX(j),p.getY(j),p.getZ(j));
+          if(oldPaint)paints.push(...oldPaint.slice(i*3,i*3+3));
+        }
+        opened.dispose();
+      }
+      if(retained!==object.count) {
+        object.count=retained;object.instanceMatrix.needsUpdate=true;
+        if(object.instanceColor)object.instanceColor.needsUpdate=true;
+        object.computeBoundingBox();object.computeBoundingSphere();
+      }
+      if(positions.length) {
+        const geometry=new BufferGeometry();
+        geometry.setAttribute("position",new Float32BufferAttribute(positions,3));
+        if(paints.length)geometry.setAttribute("color",new Float32BufferAttribute(paints,3));
+        geometry.computeVertexNormals();geometry.computeBoundingBox();geometry.computeBoundingSphere();
+        const mesh=new Mesh(geometry,object.material);mesh.name=`${object.name} railway-hall complements`;
+        mesh.castShadow=object.castShadow;mesh.receiveShadow=object.receiveShadow;
+        mesh.userData={...object.userData,hbfOfficeUnderpassV291:true,thinStationStructureV291:true};group.add(mesh);
+      }
+    } else if(object instanceof Mesh) {
+      const source=object.geometry.clone().applyMatrix4(object.matrix);
+      const opened=hbfGeometryComplementV291(source,underpass);
+      if(opened===source){source.dispose();continue;}
+      source.dispose();object.geometry.dispose();object.geometry=opened.applyMatrix4(object.matrix.clone().invert());
+      object.userData.hbfOfficeUnderpassV291=true;
+    } else if(object instanceof LineSegments) {
+      const p=object.geometry.getAttribute("position"),positions:number[]=[];let changed=false;
+      for(let i=0;i<p.count;i+=2) {
+        const a=new Vector3(p.getX(i),p.getY(i),p.getZ(i)).applyMatrix4(object.matrix).toArray();
+        const b=new Vector3(p.getX(i+1),p.getY(i+1),p.getZ(i+1)).applyMatrix4(object.matrix).toArray();
+        const pieces=hbfSegmentComplementV291(a,b,underpass);
+        if(pieces){changed=true;for(const [from,to]of pieces)positions.push(...from,...to);}
+        else positions.push(...a,...b);
+      }
+      if(!changed)continue;
+      object.geometry.dispose();object.geometry=new BufferGeometry();
+      object.geometry.setAttribute("position",new Float32BufferAttribute(positions,3));
+      object.geometry.applyMatrix4(object.matrix.clone().invert());
+      object.geometry.computeBoundingBox();object.geometry.computeBoundingSphere();
+      object.userData.hbfOfficeUnderpassV291=true;
+    }
+  }
 }
 
 function stationEntranceFacadeGeometry(
@@ -6379,26 +6477,33 @@ function addStationHallEntranceFacade(
     1.25,
   );
   const doorTransforms: InstanceTransform[] = [];
-  const leafWidth =
-    (HAUPTBAHNHOF_ACCESS.doorBayWidthM - HAUPTBAHNHOF_ACCESS.doorClearWidthM) / 2;
+  const leafWidth = HAUPTBAHNHOF_ACCESS.doorClearWidthM / 4;
+  const doorTranslations: Array<[number, number, number]> = [];
   for (const centre of HAUPTBAHNHOF_ACCESS.doorCentresLocalX) {
     for (const side of [-1, 1]) {
+      for (let panel = 0; panel < 2; panel++) {
+      const closedX = centre + side * (leafWidth / 2 + panel * leafWidth);
+      const openX = centre + side * (HAUPTBAHNHOF_ACCESS.doorClearWidthM / 2 + leafWidth / 2);
       doorTransforms.push({
         position: [
-          centre + side * (HAUPTBAHNHOF_ACCESS.doorClearWidthM + leafWidth) / 2,
+          closedX,
           HAUPTBAHNHOF_ACCESS.doorHeightM / 2,
-          z + outward * 0.18,
+          z + outward * (0.18 + panel * 0.2),
         ],
       });
+      doorTranslations.push([openX - closedX, 0, 0]);
+      }
     }
   }
-  addInstancedBoxes(
+  const slidingDoors = addInstancedBoxes(
     group,
     "Hauptbahnhof instanced entrance sliding doors",
     [leafWidth, HAUPTBAHNHOF_ACCESS.doorHeightM, 0.18],
     doorGlass,
     doorTransforms,
   );
+  markHbfMovingMeshV291(slidingDoors, { kind: "doors", side: outward, translations: doorTranslations });
+  slidingDoors.boundingSphere = new Sphere(new Vector3(0, HAUPTBAHNHOF_ACCESS.doorHeightM / 2, z), 14);
 
   addStationLetteringPanel(
     group,
@@ -7280,10 +7385,22 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
   const group = new Group();
   group.name = "Metre-scale Berlin Hauptbahnhof recognition model";
   placeMetricGroup(group, signature);
+  markHbfMotionFrameV291(group, false);
 
   const deck = modelMaterial(0x42545b, { metalness: 0.34, roughness: 0.7 });
   const rail = modelMaterial(0x74868b, { metalness: 0.78, roughness: 0.26 });
   const platform = modelMaterial(0xaeb7b4, { roughness: 0.82 });
+  const addOpenedSlab = (
+    name:string,size:[number,number,number],position:[number,number,number],
+    material:MeshStandardMaterial,edgeOpacity:number,yaw:number,
+  ):Mesh => {
+    const source=new BoxGeometry(...size).rotateY(yaw).translate(...position);
+    const opened=hbfGeometryComplementV291(source,hbfSlabOpeningsV291(position[1]-size[1]/2,position[1]+size[1]/2));
+    if(opened===source){source.dispose();return addOrientedBox(group,name,size,position,yaw,material,edgeOpacity);}
+    source.dispose();const mesh=new Mesh(opened,material);mesh.name=name;
+    mesh.castShadow=material.opacity>=.5;mesh.receiveShadow=true;
+    mesh.userData.hbfAperturesV291=true;group.add(mesh);if(edgeOpacity>0)addEdges(group,mesh,edgeOpacity);return mesh;
+  };
   // The approach is straight only to the west, where the model deck stays
   // within 6 m of the OSM alignment for its whole 110 m. Eastwards the
   // Stadtbahn curves away towards Friedrichstraße — a straight stub was 46 m
@@ -7328,16 +7445,18 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     const midX = (x0 + x1) / 2;
     const midZ = (z0 + z1) / 2;
     const yaw = Math.atan2(z1 - z0, x1 - x0);
-    addBox(
-      group,
+    addOpenedSlab(
       "Hauptbahnhof east-west elevated track deck",
-      [deckSegmentLength * 1.02, 1.1, signature.east_west_roof_width_m - 3],
+      // Retain the old deck's complete footprint and add only the narrow
+      // support margins beneath the two newly evidenced outer track rows.
+      [deckSegmentLength * 1.02, 1.1, signature.east_west_roof_width_m - .4],
       [midX, 9.8, midZ],
       deck,
       0.5,
-    ).rotation.y = -yaw;
+      -yaw,
+    );
   }
-  for (const trackZ of [-12, -4, 4, 12]) {
+  for (const trackZ of HBF_CIRCULATION_V291.upperTrackCentresLocalZ) {
     for (const { x0, x1, z0, z1 } of deckSegments) {
       const midX = (x0 + x1) / 2;
       const midZ = (z0 + z1) / 2 + trackZ;
@@ -7379,7 +7498,7 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
   );
   const sleeperCount = Math.max(100, Math.round(trackLength / 2.5));
   const sleeperTransforms: InstanceTransform[] = [];
-  for (const trackZ of [-12, -4, 4, 12]) {
+  for (const trackZ of HBF_CIRCULATION_V291.upperTrackCentresLocalZ) {
     for (let index = 0; index <= sleeperCount; index += 1) {
       const sleeperX = trackWestX + (index / sleeperCount) * trackLength;
       const curveZ = railCurveOffset(sleeperX) - railCurveOffset(0);
@@ -7396,7 +7515,7 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
     sleeperTransforms,
   );
   const platformSteps = Math.max(20, Math.round(224 / 12));
-  for (const platformZ of [-8, 8]) {
+  for (const platformZ of HBF_CIRCULATION_V291.upperPlatformCentresLocalZ) {
     for (let step = 0; step < platformSteps; step += 1) {
       const x0 = -112 + (step / platformSteps) * 224;
       const x1 = -112 + ((step + 1) / platformSteps) * 224;
@@ -7405,24 +7524,31 @@ function createHauptbahnhofModel(signature: HauptbahnhofModelSignature): Group {
       const midX = (x0 + x1) / 2;
       const midZ = (z0 + z1) / 2;
       const yaw = Math.atan2(z1 - z0, x1 - x0);
-      addBox(
-        group,
+      const platformChordLength = Math.hypot(x1 - x0, z1 - z0);
+      addOpenedSlab(
         "Hauptbahnhof upper platform",
-        [(224 / platformSteps) * 1.02, 0.42, 4.3],
+        // A bowed segment rotates along its full chord. Using only its X
+        // projection leaves open seams as the retained curve steepens.
+        [platformChordLength * 1.02, 0.42, 4.3],
         [midX, 10.52, midZ],
         platform,
         0.25,
-      ).rotation.y = -yaw;
+        -yaw,
+      );
     }
   }
   const platformJointSegments: VectorSegment[] = [];
-  for (const platformZ of [-8, 8]) {
+  const pavingCuts=hbfSlabOpeningsV291(10.73,10.75);
+  for (const platformZ of HBF_CIRCULATION_V291.upperPlatformCentresLocalZ) {
     for (let x = -108; x <= 108; x += 4) {
       const curveZ = railCurveOffset(x) - railCurveOffset(0);
-      platformJointSegments.push([
+      const segment:VectorSegment=[
         [x, 10.75, platformZ - 2.05 + curveZ],
         [x, 10.75, platformZ + 2.05 + curveZ],
-      ]);
+      ];
+      const pieces=hbfSegmentComplementV291(segment[0],segment[1],pavingCuts);
+      if(pieces)for(const [a,b]of pieces)platformJointSegments.push([a as [number,number,number],b as [number,number,number]]);
+      else platformJointSegments.push(segment);
     }
   }
   addVectorSegments(

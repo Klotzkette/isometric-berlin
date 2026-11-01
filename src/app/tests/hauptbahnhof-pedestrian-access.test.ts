@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Group, Mesh, Raycaster, Vector3 } from "three";
+import { Group, Mesh, PerspectiveCamera, Raycaster, Vector3 } from "three";
 import { createArchitecturalSignature, type HauptbahnhofModelSignature } from "../src/ArchitecturalLandmarks";
 import { HAUPTBAHNHOF_ACCESS } from "../src/HauptbahnhofAccessProfile";
 import { hauptbahnhofGroundAt, hauptbahnhofSolidAt, hauptbahnhofWalkableInteriorAt } from "../src/HauptbahnhofNavigation";
@@ -11,8 +11,10 @@ import { createPedestrianEnvironment, createPedestrianState, pedestrianPointIsBl
 import type { VisualMode } from "../src/visualMode";
 import { visualModeWalkableInteriorAt } from "../src/visualModePedestrianAccess";
 import { createPedestrianRecoveryHistory, recoverPedestrian, rememberPedestrianRecoveryState } from "../src/pedestrianNavigation";
+import { HBF_CIRCULATION_V291 } from "../src/HbfCirculationV291";
+import { createHbfStationRuntimeV291 } from "../src/HbfStationMotionV291";
 
-const MODES: readonly VisualMode[] = ["day", "night", "snowstorm", "minecraft", "schwellenraum"];
+const MODES: readonly VisualMode[] = ["day", "night", "snowstorm", "minecraft", "schwellenraum", "flood"];
 const station = MINECRAFT_ARCHITECTURAL_PROFILES.hauptbahnhof;
 const world = (x: number, z: number, y = 0) => minecraftHeroLocalToWorld(station, [x, y, z]);
 const prisms = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as NonNullable<Parameters<typeof createPedestrianEnvironment>[3]>;
@@ -50,12 +52,12 @@ function walkTo(state: PedestrianState, localX: number, localZ: number, environm
 }
 
 describe("Hauptbahnhof public entry in every visual mode", () => {
-  test("local recovery stays on the actual source-bound gallery in all five modes", () => {
+  test("local recovery stays on the actual source-bound gallery in all six modes", () => {
     for (const mode of MODES) {
       const environment = environmentFor(mode);
       const previous = world(12, 70);
       const current = world(12, 60);
-      const floor = station.anchorWorld[1] + (mode === "minecraft" ? 1.32 : 0.25);
+      const floor = station.anchorWorld[1] + HAUPTBAHNHOF_ACCESS.floorTopLocalY;
       const stateAt = (point: number[]) => createPedestrianState(environment, {
         x: point[0], z: point[2], yaw: 0.4,
         groundYHint: floor, preserveHorizontalPosition: true,
@@ -80,8 +82,7 @@ describe("Hauptbahnhof public entry in every visual mode", () => {
           state = walkTo(state, 1.745, side * 85, environment, forward);
           state = walkTo(state, 12, side * 85, environment, forward);
           state = walkTo(state, 12, side * 60, environment, forward);
-          expect(state.groundY).toBeCloseTo(station.anchorWorld[1] +
-            (mode === "minecraft" ? 1.32 : 0.25), 5);
+          expect(state.groundY).toBeCloseTo(station.anchorWorld[1] + HAUPTBAHNHOF_ACCESS.floorTopLocalY, 5);
           state = walkTo(state, 12, side * 85, environment, forward);
           state = walkTo(state, 1.745, side * 85, environment, forward);
           state = walkTo(state, 1.745, side * 96, environment, forward);
@@ -94,12 +95,13 @@ describe("Hauptbahnhof public entry in every visual mode", () => {
   test("keeps actual entrance jambs, side walls, lift shafts, pavilion and atrium guards solid", () => {
     for (const mode of MODES) {
       const environment = environmentFor(mode);
-      const solidPoints = mode === "minecraft"
+      const solidPoints = (mode === "minecraft"
         ? [[8, 89.1], [19.2, 70]]
-        : [[0, 90], [14, 90], [20, 60], [9.5, 33], [-9.5, -33], [0, 37], [0, 82], [9.5, 65]];
+        : [[0, 90], [14, 90], [20, 60], [0, 37], [0, 82], [9.5, 65]])
+        .concat(HBF_CIRCULATION_V291.shafts.map(shaft=>[shaft.x,shaft.z]));
       for (const [x, z] of solidPoints) {
         const point = world(x, z);
-        const floor = mode === "minecraft" ? 1.32 : 0.25;
+        const floor = HAUPTBAHNHOF_ACCESS.floorTopLocalY;
         expect(pedestrianPointIsBlocked(point[0], point[2], station.anchorWorld[1] + floor, environment.obstacles, environment)).toBeTrue();
       }
     }
@@ -122,12 +124,12 @@ describe("Hauptbahnhof public entry in every visual mode", () => {
       const environment = environmentFor(mode);
       environment.protectedVolumeAt = () => true;
       const entry = world(1.745, 90);
-      expect(pedestrianPointIsBlocked(entry[0], entry[2], station.anchorWorld[1] + 1.32, environment.obstacles, environment)).toBeTrue();
+      expect(pedestrianPointIsBlocked(entry[0], entry[2], station.anchorWorld[1] + HAUPTBAHNHOF_ACCESS.floorTopLocalY, environment.obstacles, environment)).toBeTrue();
     }
   });
 
   test("mode switches and spawning over the atrium resolve actual lower geometry, never invisible terrain", () => {
-    for (const mode of ["day", "night", "snowstorm"] as const) {
+    for (const mode of ["day", "night", "snowstorm", "minecraft", "flood"] as const) {
       const environment = environmentFor(mode);
       for (const side of [-1, 1]) {
         const point = world(0, side * 60);
@@ -167,7 +169,7 @@ describe("Hauptbahnhof public entry in every visual mode", () => {
     }
   });
 
-  test("all twelve drawn apertures are physically empty through the facade, mullions and retracted leaves", () => {
+  test("all twelve drawn apertures open on flight approach, leaving facade mullions and closed bays intact", () => {
     const signature = scene.architectural_signatures.find(({ kind }) => kind === "hauptbahnhof_model")!;
     const root = createArchitecturalSignature({ ...signature, anchor_world: [0, 0, 0], rotation_y_degrees: 0 }) as Group;
     root.updateMatrixWorld(true);
@@ -175,7 +177,15 @@ describe("Hauptbahnhof public entry in every visual mode", () => {
     root.traverse((object) => {
       if (object instanceof Mesh) meshes.push(object);
     });
+    const runtime=createHbfStationRuntimeV291();runtime.register(root);
+    const camera=new PerspectiveCamera(65,1,.1,200);
     for (const side of [-1, 1]) {
+      // Aim into one closed leaf, rather than the millimetre centre seam.
+      const before=new Raycaster(new Vector3(1.945,1.4,side*93),new Vector3(0,0,-side),0,6);
+      expect(before.intersectObjects(meshes,false).length).toBeGreaterThan(0);
+      camera.position.set(1.745,1.4,side*93);camera.lookAt(1.745,1.4,0);camera.updateMatrixWorld(true);
+      runtime.update(side<0?0:50,camera,false,false,false);
+      root.updateMatrixWorld(true);
       for (const centre of HAUPTBAHNHOF_ACCESS.doorCentresLocalX) {
         for (const offset of [-0.43, 0, 0.43]) {
           const ray = new Raycaster(new Vector3(centre + offset, 1.4, side * 93), new Vector3(0, 0, -side), 0, 6);
@@ -185,6 +195,7 @@ describe("Hauptbahnhof public entry in every visual mode", () => {
       const closedBay = new Raycaster(new Vector3(14, 1.4, side * 93), new Vector3(0, 0, -side), 0, 6);
       expect(closedBay.intersectObjects(meshes, false).length).toBeGreaterThan(0);
     }
+    runtime.dispose();
     root.traverse((object) => { if (object instanceof Mesh) object.geometry.dispose(); });
   });
 });

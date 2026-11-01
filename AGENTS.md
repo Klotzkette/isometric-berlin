@@ -2157,3 +2157,54 @@ the complete current v1.0.189 package and every current asset dependency are
 proved unchanged. Keep all nonasset files, sources, Git history and public
 release downloads. Old sessions may reload the current viewer; no current
 detail, mode or runtime limit may change.
+
+### Step 10 — v291 Hauptbahnhof public interior and moving circulation
+
+The owner requests automatic sliding entrances at Europaplatz and Washingtonplatz
+for walking and flying approaches, a continuously walkable five-level interior,
+connected stairs, running escalators in both directions and moving panoramic
+lift cabins. Current official DB/S-Bahn evidence identifies six full-height
+panoramic lifts connecting all five levels, three upper island platforms with
+six tracks and four deep islands with eight tracks. This supersedes the old
+four-shaft/two-upper-island authored display estimates. Preserve the complete
+original evidence, unchanged source anchors/rail curve/roof envelope and four
+existing upper track courses; add the two outer courses and correct only the
+exact old estimated platform/shaft fittings with complete connected replacements.
+
+Use one shared finite circulation layout for geometry and navigation, with
+actual represented floor tops and exact slab/rail openings. The old coarse
+native north-south floor and forty schematic descent strokes may yield only
+to the complete independent native interior in the same unpublished transaction.
+An exact bounded terrain complement may clear false ground within that hall
+and its foyers while retaining every outside fragment and original paint/height.
+Exact coarse office envelopes may yield only within source-pinned actual upper
+platform/flight volumes; other offices and unknown owners stay physical.
+
+Tenant identities and level/entrance directions follow current operator/DB
+records. Do not invent Dussmann, Steinecke or a supposed Eurobank location where
+the evidence identifies RELAY, current bakeries and Reisebank. Small bay offsets,
+stair widths, cabin timing and equipment fittings remain explicit display
+estimates; no copyrighted plan/photo pixels or new media requests ship.
+Moving fixtures share the existing frame loop and a bounded station clock,
+with reusable dynamic buffers, hidden/offscreen suspension, reduced-motion
+access and correct family transitions/disposal. Do not rebuild the city shadow
+atlas for these small moving fixtures. Keep full drawn touch detail, independent
+orthogonal native geometry, 93 tour stops, coverage and all live memory, decode,
+prefetch and startup limits. A finite measured offline-package ceiling adjustment
+for these requested features must be documented separately from live budgets.
+Only the internal browser may be used, one full-city view at a time.
+
+The four native upper rail courses retain their source recipe, gauge, material
+and track offsets. Their former four-metre bow quantisation is corrected to the
+unchanged source-fitted curve because quantisation placed a rail through the
+new platform stair path. Original sample evidence and rail source data remain
+intact; the complete cardinal replacement below preserves their coverage.
+
+The complete independent native six-course rail model replaces exactly the
+328 former coarse cue cubes for the four inner courses, in the same unpublished
+world transaction as the full interior. All four original track offsets, gauge,
+elevation, iron palette, source-fitted curve and coverage remain represented
+at higher continuous cardinal resolution. The two outer courses are retained.
+Drawn rails and original source data remain intact. This removes an exact
+replaced owner and keeps the seven legacy architecture batches below their
+unchanged 5,500-instance ceiling; no runtime limit is raised.

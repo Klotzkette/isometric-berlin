@@ -295,6 +295,9 @@ import {
   minecraftArchitecturalVoxelTopAt,
 } from "./MinecraftArchitecturalLandmarks";
 import { createMinecraftInvalidenfriedhofDetails } from "./InvalidenfriedhofDetails";
+import { createHbfInteriorV291 } from "./HbfInteriorV291";
+import { HBF_CIRCULATION_V291 } from "./HbfCirculationV291";
+import { createHbfNativeMovingFixturesV291 } from "./HbfStationMotionV291";
 import { createMinecraftBrechtMemorial } from "./BerlinerEnsembleMemorials";
 import { createMinecraftPariserPlatzArchitecture } from "./MinecraftPariserPlatzArchitecture";
 import { createLegolandEntranceV216 } from "./LegolandEntranceV216";
@@ -2431,8 +2434,13 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   // Own every completed result immediately in the unpublished staged root.
   // Failure or cancellation can dispose it before any later fallible step.
+  // Complete all six independent station rail courses and the five-level
+  // interior before the legacy signature retires its exact four coarse cues.
+  // Both remain owned by this unpublished staged root until admission succeeds.
+  group.add(createHbfInteriorV291({ native: true, ...HBF_CIRCULATION_V291.frame }));
   const architecturalV287 = createMinecraftArchitecturalLandmarks();
   group.add(architecturalV287);
+  group.add(createHbfNativeMovingFixturesV291());
   const photoAdmissionV287 = matchesNativeChancellerySourceV287(payload) && admitsChancelleryPhotoNativeV287(architecturalV287);
   const northApproachV287 = createHbfNorthApproach((x, z) => parkGround(
     x / cell - payload.grid.min_x_idx, z / cell - payload.grid.min_z_idx,

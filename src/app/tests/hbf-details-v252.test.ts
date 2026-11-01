@@ -4,6 +4,8 @@ import { createArchitecturalSignature, type HauptbahnhofModelSignature } from ".
 import { hbfFlightEndpointsV252, hbfNativeDescentCuesV252, HBF_DETAILS_V252 } from "../src/HbfDetailsV252";
 import { hauptbahnhofGroundAt } from "../src/HauptbahnhofNavigation";
 import { createHbfNorthApproach } from "../src/HbfNorthApproach";
+import { HBF_CIRCULATION_V291 } from "../src/HbfCirculationV291";
+import { createMinecraftArchitecturalLandmarks } from "../src/MinecraftArchitecturalLandmarks";
 
 const signature = {
   id: "hauptbahnhof-model", kind: "hauptbahnhof_model", landmark_name: "Berlin Hauptbahnhof",
@@ -20,15 +22,18 @@ describe("Bounded Hauptbahnhof v252 street and descent recognition", () => {
   const flights: Group[] = [];
   root.traverse(o => { if (o instanceof Group && o.name === "Hauptbahnhof escalator run") flights.push(o); });
 
-  test("adds horizontal tread caps to the twelve existing ridge batches", () => {
-    expect(flights).toHaveLength(12);
+  test("keeps full horizontal treads on all sixteen connected moving flights", () => {
+    expect(flights).toHaveLength(16);
     let count = 0;
     const local = new Matrix4(), world = new Matrix4();
     for (const flight of flights) {
-      const ridges = flight.getObjectByName("Hauptbahnhof escalator run instanced step ridges") as InstancedMesh;
-      const added = flight.userData.hbfV252HorizontalTreadCount as number;
-      expect(added).toBeGreaterThan(15);
-      for (let i = ridges.count - added; i < ridges.count; i++) {
+      const endpoints=flight.userData.hbfV291Endpoints;
+      const ridges = root.children.find(object=>object instanceof InstancedMesh&&
+        object.name==="Hauptbahnhof escalator run instanced step ridges"&&
+        object.userData.hbfMotionV291.from.every((value:number,index:number)=>value===endpoints.from[index])) as InstancedMesh;
+      expect(ridges).toBeInstanceOf(InstancedMesh);
+      expect(ridges.count).toBeGreaterThan(15);
+      for (let i = 0; i < ridges.count; i++) {
         ridges.getMatrixAt(i, local);
         world.multiplyMatrices(ridges.matrixWorld, local);
         // Horizontal top means its local Y axis stays vertical, despite the
@@ -36,24 +41,31 @@ describe("Bounded Hauptbahnhof v252 street and descent recognition", () => {
         const normal = new Vector3(0, 1, 0).transformDirection(world);
         expect(normal.y).toBeCloseTo(1, 6);
       }
-      count += added;
+      count += ridges.count;
     }
-    expect(count).toBe(312);
+    expect(count).toBe(586);
   });
 
-  test("corrects only the four exactly receipted unsupported deep flights", () => {
+  test("retains the v252 receipt guard while v291 deep flights dock to the new connected landings", () => {
+    const archived=hbfFlightEndpointsV252([5.2,-5.4,76],[9.5,-14.53,93.347]);
+    expect(archived.corrected).toBe(true);
+    expect(archived.from).toEqual([5.2,-5.15,HBF_DETAILS_V252.deepTopZ]);
+    expect(archived.to).toEqual([9.5,-14.055,HBF_DETAILS_V252.deepBottomZ]);
     let deep = 0;
     for (const flight of flights) {
-      const { from, to } = flight.userData.hbfV252Endpoints;
+      const { from, to } = flight.userData.hbfV291Endpoints;
+      const shared=HBF_CIRCULATION_V291.flights.find(candidate=>candidate.id===flight.userData.hbfFlightV291)!;
+      expect(from).toEqual(shared.from);expect(to).toEqual(shared.to);
       if (to[1] > -10) continue;
       deep++;
-      expect(Math.abs(from[2])).toBe(HBF_DETAILS_V252.deepTopZ);
-      expect(Math.abs(to[2])).toBe(HBF_DETAILS_V252.deepBottomZ);
+      expect(Math.abs(from[2])).toBe(67.5);
+      expect(Math.abs(to[2])).toBe(81.8);
       expect(from[1]).toBe(-5.15);
       expect(to[1]).toBe(-14.055);
       // Both horizontal comb plates fit the existing slabs, including their
       // full 2.2 m length. Nothing reaches the outer deep-platform track ends.
-      expect(Math.abs(from[2]) - 2.1).toBeGreaterThan(68.4);
+      expect(HBF_CIRCULATION_V291.landings.some(landing=>landing.levelId==="lower-gallery"&&
+        from[0]>=landing.minX&&from[0]<=landing.maxX&&Math.abs(from[2]-(landing.minZ+landing.maxZ)/2)<1.2)).toBe(true);
       expect(Math.abs(to[2]) + 2.1).toBeLessThan(84);
       const worldPoint = (p: number[]) => {
         const yaw = 21.82 * Math.PI / 180;
@@ -70,7 +82,7 @@ describe("Bounded Hauptbahnhof v252 street and descent recognition", () => {
     expect(hbfFlightEndpointsV252([0, -5.4, 76], [0, -14.53, 93.347]).corrected).toBe(false);
   });
 
-  test("keeps native cues on its actual intact concourse floor", () => {
+  test("retains old native cue evidence while retiring exactly those runtime owners for the open interior", () => {
     const cues = hbfNativeDescentCuesV252(1.32);
     expect(cues).toHaveLength(40);
     for (const cue of cues) {
@@ -78,6 +90,9 @@ describe("Bounded Hauptbahnhof v252 street and descent recognition", () => {
       expect(cue.position[1] + cue.size[1] / 2).toBeLessThan(1.4);
       expect(Math.abs(cue.position[0]) + cue.size[0] / 2).toBeLessThan(7);
     }
+    const station=createMinecraftArchitecturalLandmarks().children.find(object=>object.name==="Minecraft Berlin Hauptbahnhof block signature")!;
+    expect(station.userData.cueCounts["coarse north-south station floor"]).toBeUndefined();
+    expect(station.userData.cueCounts["Hauptbahnhof v252 native schematic descent floor cue"]).toBeUndefined();
   });
 
   test("adds street members inside the two existing batches without materials or textures", () => {

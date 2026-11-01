@@ -4,12 +4,15 @@ import { expect, test } from "bun:test";
 import ts from "typescript";
 import {
   BoxGeometry, Group, InstancedMesh, Line, LineSegments, Material, Mesh,
-  MeshBasicMaterial, Points, Scene, Texture,
+  MeshBasicMaterial, Object3D, PerspectiveCamera, Points, Scene, Texture,
 } from "three";
 import { completeCooperatively } from "../src/cooperativeWork";
 import { compactStaticGeometrySteps } from "../src/compactStaticGeometry";
 import { objectMaterialsIncludingTransferredAlternates } from "../src/transferableObject3D";
 import { createZooAnimalRuntimeV282 } from "../src/ZooAnimalsV282";
+import { createHbfStationRuntimeV291, hbfLiftFloorAtV291, markHbfMotionFrameV291, markHbfMovingMeshV291 } from "../src/HbfStationMotionV291";
+import { prepareRequiredFidelityV288 } from "../src/RequiredFidelityV288";
+import { admitsChancelleryCanopyLegacyV289, setChancelleryCanopyLegacyV289 } from "../src/ChancelleryCanopySourceV289";
 import type { ProgressiveWorldWorkerInput } from "../src/progressiveWorld";
 import { canReplacePotsdamerSouthStationPhoto, POTSDAMER_SOUTH_STATION_PHOTO_RECEIPT, POTSDAMER_STATION_PHOTO_STRIP_RECEIPT } from "../src/potsdamerStationPhotoOwnership";
 import {
@@ -32,11 +35,17 @@ const compiled = ts.transpileModule(declarations.join("\n"), {
 
 // Execute the production transaction and disposal. Only model constructors,
 // downloading and unrelated presentation hooks are replaced by bounded fixtures.
-function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTask?: number; failCommit?: boolean; failHungarianImport?: boolean; failRequiredSitesImport?: boolean; failStationPhotoImport?: boolean; failStationPhotoConstruction?: boolean; stationSource?: "missing" | "changed" | "duplicate"; stationStripSource?: "missing" | "changed" | "duplicate"; progressiveDistrict?: boolean; initialWater?: boolean } = {}) {
+function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTask?: number; failCommit?: boolean; failHungarianImport?: boolean; failRequiredSitesImport?: boolean; failStationPhotoImport?: boolean; failStationPhotoConstruction?: boolean; stationSource?: "missing" | "changed" | "duplicate"; stationStripSource?: "missing" | "changed" | "duplicate"; progressiveDistrict?: boolean; initialWater?: boolean; hbfFixtures?: boolean; existingHbfSignature?: "drawn" | "native" } = {}) {
   const built: Mesh[] = [];
   const disposed = new Map<Mesh, number>();
   const warnings: string[] = [];
+  const stationRegistrations: Object3D[] = [], stationReleases: Object3D[] = [];
   const existing = new Group(); existing.name = "existing signature";
+  if(options.existingHbfSignature) {
+    existing.add(new Mesh(new BoxGeometry(),new MeshBasicMaterial()));
+    markHbfMotionFrameV291(existing,options.existingHbfSignature==="native");
+  }
+  const circulationCalls: {phase:"core"|"coverage";value:boolean|undefined}[]=[];
   const concurrent = new Group(); concurrent.name = "independently loaded signature";
   let taskCount = 0;
   let ready = 0;
@@ -53,6 +62,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     worldFailureReported: false, isoWorldState: "idle", coarsePointer: true,
     lightingMode: "schwellenraum", nightLightsOn: true, underside: false,
     scene: new Scene(), isoWorld: null as Group | null,
+    hbfStationV291: undefined as ReturnType<typeof createHbfStationRuntimeV291> | undefined,
     schwellenraumTowerSteam: null as Mesh | null, schwellenraumTowerSteamElapsedSeconds: 4.75,
     signatures: new Group(), cityStaffage: new Group(), undergroundNetwork: new Group(),
     tramCatenary: new Group(), schwellenraumPraesentation: new Group(),
@@ -75,6 +85,10 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     mesh.geometry.userData.exactIndexPending = true;
     mesh.geometry.addEventListener("dispose", () => disposed.set(mesh, (disposed.get(mesh) ?? 0) + 1));
     built.push(mesh); group.add(mesh);
+    if (options.hbfFixtures && name === "core") {
+      markHbfMotionFrameV291(group, false);
+      markHbfMovingMeshV291(mesh, { kind: "lift", shaftIndexes: [0], initialFloors: [hbfLiftFloorAtV291(0, 0)] });
+    }
     return group;
   }
   const coreSpreeBridgeFactory = () => model("Source-bound core Spree bridges");
@@ -158,6 +172,22 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
   expect(Object.keys(modules).sort()).toEqual(expectedImports.sort());
   const bindings = {
     canReplacePotsdamerSouthStationPhoto,
+    prepareRequiredFidelityV288, admitsChancelleryCanopyLegacyV289, setChancelleryCanopyLegacyV289,
+    createHbfStationRuntimeV291: () => {
+      const motion = createHbfStationRuntimeV291();
+      return {
+        register(root: Object3D) {
+          expect(root.parent).toBe(runtime.scene);
+          expect(runtime.isoWorld?.parent).toBe(runtime.scene);
+          stationRegistrations.push(root);
+          motion.register(root);
+        },
+        release(root: Object3D) { stationReleases.push(root); motion.release(root); },
+        update: motion.update, dispose: motion.dispose,
+        get size() { return motion.size; },
+        get elapsedSeconds() { return motion.elapsedSeconds; },
+      };
+    },
     createZooAnimalRuntimeV282,
     createCoreSpreeBridgesV242: coreSpreeBridgeFactory,
     parkStaticGeometrySteps, parkStaticInstancesSteps,
@@ -175,6 +205,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
       taskCount++;
       // No incomplete geometry or prepared addon is visible between tasks.
       expect(runtime.isoWorld).toBeNull();
+      expect(stationRegistrations).toHaveLength(0);
       expect(runtime.signatures.children.every(child => child === existing || child === concurrent)).toBeTrue();
       pose++;
       if (taskCount === 2) runtime.signatures.add(concurrent);
@@ -211,10 +242,11 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     splitProgressiveBuildings: () => ({ initial: [], remaining: options.progressiveDistrict ? [[]] : [], omitted: [] }),
     buildingDetailProfile: () => ({ batchSize: 240 }),
     buildingDetailDistricts: () => [], selectBuildingDetailDistricts: () => [], buildingDetailViewPoints: () => [],
-    createIsometricCity: (_prisms: unknown, _ground: unknown, _tunnel: unknown, _surfaces: unknown, buildOptions: { includeAltMitteCoreV169: boolean; coreSpreeBridgeFactoryV242: unknown; potsdamerStationPhoto?: boolean }) => {
+    createIsometricCity: (_prisms: unknown, _ground: unknown, _tunnel: unknown, _surfaces: unknown, buildOptions: { includeAltMitteCoreV169: boolean; coreSpreeBridgeFactoryV242: unknown; potsdamerStationPhoto?: boolean; hbfCirculationV291?:boolean }) => {
       expect(buildOptions.includeAltMitteCoreV169).toBe(false);
       expect(buildOptions.coreSpreeBridgeFactoryV242).toBe(coreSpreeBridgeFactory);
       expect(buildOptions.potsdamerStationPhoto).toBe(options.stationSource === undefined && options.stationStripSource === undefined);
+      circulationCalls.push({phase:"core",value:buildOptions.hbfCirculationV291});
       const city = model("core"); city.add(model("drawn bridge structures")); return city;
     },
     createInitialDrawnWater: () => options.initialWater ? model("source-bound drawn water") : null,
@@ -228,8 +260,9 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     createBehren42Architecture: () => model("Behrenstrasse 42 architecture"),
     createNeueWache: () => model("Neue Wache"),
     createBebelplatzBuildingShells: () => model("Bebelplatz shells"),
-    createProgressiveBuildingCoverage: (_prisms: unknown, _partition: unknown, buildOptions: { potsdamerStationPhoto?: boolean }) => {
+    createProgressiveBuildingCoverage: (_prisms: unknown, _partition: unknown, buildOptions: { potsdamerStationPhoto?: boolean; hbfCirculationV291?:boolean }) => {
       expect(buildOptions.potsdamerStationPhoto).toBe(options.stationSource === undefined && options.stationStripSource === undefined);
+      circulationCalls.push({phase:"coverage",value:buildOptions.hbfCirculationV291});
       return model("coverage");
     },
     setWeidendammerBridgePresentation: () => {}, setSandkrugBridgePresentation: () => {},
@@ -264,7 +297,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     ...Object.values(bindings), promise,
   );
   functions.start(runtime, (warning: string) => warnings.push(warning));
-  return { finished, runtime, built, disposed, warnings, existing, concurrent,
+  return { finished, runtime, built, disposed, warnings, existing, concurrent, stationRegistrations, stationReleases, circulationCalls,
     disposeScene: () => functions.dispose(runtime, runtime.scene),
     get taskCount() { return taskCount; }, get ready() { return ready; },
     get reported() { return reported; }, get pose() { return pose; },
@@ -424,6 +457,68 @@ test("world release clears the published steam pointer and disposes its buffers 
   expect(h.runtime.schwellenraumTowerSteam).toBeNull();
   expect(h.disposed.get(steam)).toBe(1);
   expect(materialDisposals).toBe(1);
+});
+
+for(const existingHbfSignature of[undefined,"drawn","native"] as const) {
+  test(`production world admission propagates only completed drawn Hauptbahnhof circulation (${existingHbfSignature??"unmarked"})`,async()=>{
+    const h=host({progressiveDistrict:true,existingHbfSignature});await h.finished;
+    const admitted=existingHbfSignature==="drawn";
+    expect(h.warnings).toHaveLength(0);expect(h.ready).toBe(1);
+    expect(h.runtime.isoWorld?.parent).toBe(h.runtime.scene);
+    expect(h.existing.parent).toBe(h.runtime.signatures);
+    expect(h.circulationCalls).toEqual([{phase:"core",value:admitted},{phase:"coverage",value:admitted}]);
+    expect(h.built.filter(mesh=>mesh.name==="core")).toHaveLength(1);
+    expect(h.built.filter(mesh=>mesh.name==="coverage")).toHaveLength(1);
+    expect(h.runtime.progressiveWorldInput).toBeDefined();
+    expect(h.runtime.progressiveWorldInput?.detailProfile).toBe("mobile");
+    expect(h.runtime.progressiveWorldInput?.hbfCirculationV291).toBe(admitted);
+    if(existingHbfSignature)expect(h.existing.userData.hbfMotionFrameV291.native).toBe(existingHbfSignature==="native");
+    else expect(h.existing.userData.hbfMotionFrameV291).toBeUndefined();
+    h.disposeScene();
+  });
+}
+
+test("completed world publication registers the real station runtime and scene disposal releases its moving owner", async () => {
+  const h = host({ hbfFixtures: true });
+  await h.finished;
+  expect(h.warnings).toHaveLength(0);
+  expect(h.stationRegistrations).toEqual([h.runtime.signatures, h.runtime.isoWorld!]);
+  const station = h.runtime.hbfStationV291!;
+  expect(station.size).toBe(1);
+  const cabin = h.built.find(mesh => mesh.name === "core")!;
+  const initialY = cabin.position.y;
+  const camera = new PerspectiveCamera(60, 1, .1, 1000);
+  camera.position.set(0, 3, 20);
+  camera.lookAt(0, 0, 0);
+  camera.updateMatrixWorld(true);
+  for (let frame = 0; frame <= 120; frame++) station.update(frame * 50, camera, false, false, false);
+  expect(station.elapsedSeconds).toBeCloseTo(6, 6);
+  expect(cabin.position.y).toBeGreaterThan(initialY + 1);
+  h.disposeScene();
+  expect(h.stationReleases).toContain(h.runtime.scene);
+  expect(station.size).toBe(0);
+  expect(h.disposed.get(cabin)).toBe(1);
+});
+
+test("a failed complete-world commit releases the station owner registered during that same transaction", async () => {
+  const h = host({ hbfFixtures: true, failCommit: true });
+  await h.finished;
+  expect(h.stationRegistrations).toHaveLength(2);
+  expect(h.runtime.isoWorld).toBeNull();
+  expect(h.runtime.hbfStationV291?.size).toBe(0);
+  expect(h.stationReleases).toContain(h.stationRegistrations[1]);
+  expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual(h.built.map(() => 1));
+  expect(h.reported).toBe(1);
+});
+
+test("cancelled provisional station fixtures never register with the moving runtime", async () => {
+  const h = host({ hbfFixtures: true, stopAfterModel: "core" });
+  await h.finished;
+  expect(h.built.some(mesh => mesh.userData.hbfMovingFixtureV291)).toBeTrue();
+  expect(h.stationRegistrations).toHaveLength(0);
+  expect(h.runtime.hbfStationV291).toBeUndefined();
+  expect(h.built.map(mesh => h.disposed.get(mesh))).toEqual(h.built.map(() => 1));
+  expect(h.runtime.isoWorld).toBeNull();
 });
 
 // Cancellation is exercised at each added v160–v168 constructor boundary.

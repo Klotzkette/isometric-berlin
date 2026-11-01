@@ -140,7 +140,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v261 preserves every earlier packet and adds six bounded Adlershof/Kühn assets
 # plus static named-site details: 935,153,648 bytes (891.832 MiB). The finite
 # 893 MiB download ceiling does not change live loading, decode or GPU budgets.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 893 * 1024 * 1024
+# v291 adds the complete requested connected Hbf interior and moving fixtures.
+# The measured v190 package is ~893.15 MiB; 894 MiB is an offline-only ceiling.
+# Live startup, worker, decode, prefetch, GPU and residency limits stay fixed.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 894 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

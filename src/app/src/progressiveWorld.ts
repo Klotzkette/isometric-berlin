@@ -110,6 +110,7 @@ const DESKTOP_PLACE_DETAIL_ZONES = PLAZA_FACADE_DETAIL_ZONES.filter((zone) =>
 
 type ProgressiveWorldWorkerInputBase = {
   /** Exact south-hall replacement committed with the retained main-thread city. */
+  hbfCirculationV291?: boolean;
   potsdamerStationPhoto?: boolean;
   historicDomV288?: boolean; potsdamerCorridorV288?: boolean; chancelleryCanopySourceV289?: boolean;
   /** Attached scene batches survive suspension and must not be rebuilt. */

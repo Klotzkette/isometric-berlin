@@ -119,27 +119,40 @@ test("partial environments retain their ground and holes until required sites ar
 
 test("both real prepare paths activate required navigation only inside completed world transactions", () => {
   for (const name of ["prepareIsoNavigation", "prepareVoxelNavigation"]) {
-    const body = declaration(viewer, name).getText(viewer);
-    expect(body).toContain("{ requiredSitesV281: true,");
+    const calls: ts.CallExpression[] = [];
+    const visit = (node: ts.Node): void => {
+      if (ts.isCallExpression(node) && node.expression.getText(viewer) === "createPedestrianEnvironment") calls.push(node);
+      node.forEachChild(visit);
+    };
+    visit(declaration(viewer, name));
+    expect(calls).toHaveLength(1);
+    const options = calls[0].arguments.at(-1)!;
+    expect(ts.isObjectLiteralExpression(options)).toBeTrue();
+    if (!ts.isObjectLiteralExpression(options)) throw new Error("Navigation admission options must be explicit");
+    const flags = options.properties.filter(property => ts.isPropertyAssignment(property) &&
+      property.name.getText(viewer) === "requiredSitesV281") as ts.PropertyAssignment[];
+    expect(flags).toHaveLength(1);
+    expect(flags[0].initializer.kind).toBe(ts.SyntaxKind.TrueKeyword);
   }
   const isoPrepare = declaration(viewer, "prepareIsoNavigation").getText(viewer);
   expect(isoPrepare).toContain("pedestrianEnvironment.requiredSitesV281 = false;");
-  const ordered = (fragments: string[]) => {
+  const ordered = (functionName: string, fragments: string[]) => {
+    const transaction = declaration(viewer, functionName).getText(viewer);
     let position = -1;
     for (const fragment of fragments) {
-      const next = viewer.text.indexOf(fragment, position + 1);
+      const next = transaction.indexOf(fragment, position + 1);
       expect(next).toBeGreaterThan(position);
       position = next;
     }
   };
-  ordered([
+  ordered("ensureIsoWorld", [
     "provisionalPedestrianEnvironment = navigation.environment;",
     "yield* sitesV209.addRequiredSiteEnvelopesV209Steps(isoWorld);",
     "provisionalPedestrianEnvironment.requiredSitesV281 = true;",
     "runtime.isoWorld = isoWorld;",
     "runtime.pedestrian.environment = provisionalPedestrianEnvironment;",
   ]);
-  ordered([
+  ordered("ensureVoxelWorld", [
     "await completeCooperatively(sitesV209.addRequiredSiteEnvelopesV209Steps(provisionalVoxelWorld, true)",
     "provisionalEnvironment = prepareVoxelNavigation(runtime, payload, prisms);",
     "runtime.voxelWorld = provisionalVoxelWorld;",

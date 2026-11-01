@@ -267,6 +267,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
       const root = createIsometricCityCore(prisms, null, null, null, {
         buildings, includeContext: false, smoothSurfaces: null,
         // Never retire this source when its main-thread replacement was rejected.
+        hbfCirculationV291: input.hbfCirculationV291 === true,
         potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288, potsdamerCorridorV288, chancelleryCanopySourceV289,
         architectureV241: true, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
         includeLegacyChariteFacade: false,

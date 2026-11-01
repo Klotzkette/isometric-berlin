@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "refinement": "hauptbahnhof-interior-v291",
+  "retrieved_date": "2026-11-01",
+  "scope": "Existing Berlin Hauptbahnhof interior and its two public main entrances only",
+  "metric_status": "Semantic topology and tenant floors/directions are verified; local offsets, bays, fittings, speeds, sensor ranges and animation cycles are display estimates",
+  "reference_media_shipped": false,
+  "sources": {
+    "station_plan": {
+      "publisher": "DB InfraGO AG",
+      "url": "https://www.bahnhof.de/downloads/station-plans/1071.pdf",
+      "sha256": "854a5aece5cdef7477f9d9fa1b2ce548ccac97aed0b8baa4a9cf29ff86c9d00e",
+      "used_for": "Five levels, exits, three upper island platforms, four lower islands and six lift intersections; schematic reference only"
+    },
+    "equipment_register": {
+      "publisher": "S-Bahn Berlin GmbH",
+      "url": "https://sbahn.berlin/fahren/bahnhofsuebersicht/hauptbahnhof/",
+      "used_for": "Six full-height lift routes and paired escalator level connections; temporary operational status deliberately not simulated"
+    },
+    "architecture": {
+      "publisher": "Deutsche Bahn AG",
+      "url": "https://www.deutschebahn.com/de/presse/presse-regional/pr-berlin-de/hintergrund/Berlin-Hauptbahnhof-Markantes-Eingangstor-zur-Stadt-8860186",
+      "used_for": "Six glazed panoramic lifts; older statistical context is not a current complete equipment census"
+    },
+    "transfer_guide": {
+      "publisher": "DB InfraGO AG",
+      "url": "https://www.bahnhof.de/berlin-hauptbahnhof/umsteigen-berlin-hbf",
+      "updated_date": "2024-07-03",
+      "used_for": "Platform level identities, intermediate transfer concourses and photographic recognition"
+    }
+  },
+  "level_order_bottom_to_top": ["UG2", "UG1", "EG", "OG1", "OG2"],
+  "entrances": [
+    {"name": "Europaplatz", "side": "north", "floor": "EG"},
+    {"name": "Washingtonplatz", "side": "south", "floor": "EG"}
+  ],
+  "rail_topology": {
+    "upper": {"level": "OG2", "direction": "east-west", "island_track_pairs": [[11, 12], [13, 14], [15, 16]]},
+    "lower": {"level": "UG2", "direction": "north-south", "island_track_pairs": [[1, 2], [3, 4], [5, 6], [7, 8]]}
+  },
+  "panoramic_lifts": {
+    "verified_count": 6,
+    "stops": ["UG2", "UG1", "EG", "OG1", "OG2"],
+    "routes": [
+      {"id": "FPA1", "lower_track_pair": [3, 4], "upper_track_pair": [15, 16]},
+      {"id": "FPA2", "lower_track_pair": [3, 4], "upper_track_pair": [13, 14]},
+      {"id": "FPA3", "lower_track_pair": [3, 4], "upper_track_pair": [11, 12]},
+      {"id": "FPA4", "lower_track_pair": [5, 6], "upper_track_pair": [15, 16]},
+      {"id": "FPA5", "lower_track_pair": [5, 6], "upper_track_pair": [13, 14]},
+      {"id": "FPA6", "lower_track_pair": [5, 6], "upper_track_pair": [11, 12]}
+    ],
+    "outside_lifts": "Separate outer track1/2 and7/8 lifts stop at EG rather than OG2; they are not the six panoramic routes",
+    "earlier_model_conflict": "The earlier four-shaft authored arrangement was incomplete; retain original records as evidence when correcting display topology"
+  },
+  "shops": [
+    {"name": "EINSTEIN KAFFEE", "function": "coffee", "level": "EG", "direction": "Europaplatz", "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/einstein-kaffee"},
+    {"name": "Apotheke", "function": "pharmacy", "level": "OG1", "direction": "Europaplatz", "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/apotheke"},
+    {"name": "Starbucks", "function": "coffee", "level": "OG1", "direction": "Washingtonplatz", "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/starbucks"},
+    {"name": "Fatih Servet Döner", "function": "food", "level": "UG1", "direction": "U-Bahn", "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/fatih-servet-doener"},
+    {"name": "REWE", "function": "groceries", "level": "UG1", "direction": "parking", "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/rewe"},
+    {"name": "McDonald's mit McCafé", "function": "fast-food", "level": "UG1", "direction": "parking", "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/mcdonalds-mit-mccafe"},
+    {"name": "SIXT", "function": "car-rental", "level": "UG1", "direction": "U-Bahn", "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/sixt"},
+    {"name": "Europcar", "function": "car-rental", "level": "UG1", "direction": "U-Bahn", "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/europcar"},
+    {"name": "Reisebank", "function": "currency-exchange", "level": "OG1", "direction": "access to tracks13/14", "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/reisebank"},
+    {"name": "Kamps Bäckerei", "function": "bakery", "level": "EG", "direction": "Washingtonplatz", "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/kamps-baeckerei"},
+    {"name": "Kamps Backstube", "function": "bakery", "level": "UG1", "direction": "U-Bahn", "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/kamps-backstube"},
+    {"name": "Wiener Feinbäcker Heberer", "function": "bakery", "level": "OG1", "direction": null, "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/wiener-feinbaecker-heberer"},
+    {"name": "RELAY", "function": "books-press", "location_number": 1, "level": "UG1", "direction": "parking", "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/relay"},
+    {"name": "RELAY", "function": "books-press", "location_number": 2, "level": "EG", "direction": null, "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/relay"},
+    {"name": "RELAY", "function": "books-press", "location_number": 3, "level": null, "direction": null, "url": "https://www.bahnhof.de/berlin-hauptbahnhof/einkaufen-und-essen/relay"}
+  ],
+  "requested_name_resolution": [
+    {"requested": "Eurobank", "resolution": "Reisebank", "status": "Supported currency-exchange identity at Hauptbahnhof"},
+    {"requested": "Dussmann", "resolution": "Use verified RELAY for station bookshop function", "status": "No Dussmann station tenant found in current DB directory; operator lists Friedrichstraße90", "url": "https://www.kulturkaufhaus.de/de/service/anfahrt"},
+    {"requested": "Steinecke", "resolution": "Verified Kamps and Heberer bakery functions; no invented Steinecke station shop", "status": "Unresolved station tenant: absent in current DB food directory and no Europaplatz entry in operator directory; no closure claim", "url": "https://steinecke.de/baeckereien/"}
+  ],
+  "visual_references": [
+    {
+      "title": "Blick in die Bahnsteighalle",
+      "publisher": "Deutsche Bahn AG",
+      "credit": "Max Lautenschläger",
+      "page_url": "https://www.deutschebahn.com/de/presse/presse-regional/pr-berlin-de/hintergrund/Berlin-Hauptbahnhof-Markantes-Eingangstor-zur-Stadt-8860186",
+      "image_url": "https://www.deutschebahn.com/resource/image/8859518/4:3/1200/900/57873ce65b1e7e4a273386c6066b48c9/177F52506FED4A024A8A507B34D30715/Berlin-Hauptbahnhof-1.jpg",
+      "sha256": "068ef3aaae70716e1323ce705c54103b4f9a8ce4548791133faa59bc0308643f",
+      "recognition": "Glazed vault, transverse rail deck, grey slabs, open atrium, glass guards and connected escalators",
+      "date_limit": "Historical architectural reference; not current tenant evidence",
+      "rights": "Reference-only, copyright retained by publisher and photographer; no redistribution licence asserted"
+    },
+    {
+      "title": "Tiefbahnsteige mit stehendem und ausfahrendem ICE",
+      "publisher": "DB InfraGO AG / bahnhof.de",
+      "credit": "Deutsche Bahn AG / Christian Bedeschinski",
+      "page_url": "https://www.bahnhof.de/berlin-hauptbahnhof/umsteigen-berlin-hbf",
+      "image_url": "https://www.bahnhof.de/_next/image?url=%2Fcms%2Fimages%2F223ec0f0-5a9b-40f7-9cfb-11963f9b9d4e&w=1200&q=75",
+      "sha256": "12378511fc081d7ed987561e49e1da1ecd3bcc54d2c7b041cfc9bd422a6a0f38",
+      "recognition": "Pale platform/edge strips, round columns with flared capitals and blue-grey glass annuli, panel ceiling, linear lights, blue track signs and escalators",
+      "date_limit": "Page updated2024-07-03; photograph date not stated",
+      "rights": "Reference-only, copyright retained by publisher and photographer; no redistribution licence asserted"
+    }
+  ],
+  "implementation_limits": [
+    "Shop floor/direction evidence does not establish an exact bay, wall orientation or interior inventory",
+    "Do not reproduce third-party photographs, illustrated plans or logos as pixels",
+    "No simulated always-running equipment should be described as current live operating status",
+    "Preserve metric building source envelopes and original authored-detail evidence when correcting only the evidenced old interior display estimates"
+  ]
+}

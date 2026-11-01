@@ -4,9 +4,11 @@ import {
   BufferAttribute,
   Group,
   InstancedMesh,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   MeshPhysicalMaterial,
+  Raycaster,
   Vector3,
 } from "three";
 
@@ -50,7 +52,7 @@ function endTopY(mesh: Mesh, positiveX: boolean): number {
   let top = Number.NEGATIVE_INFINITY;
   for (let index = 0; index < positions.count; index += 1) {
     const x = positions.getX(index);
-    if ((positiveX && x > 0) || (!positiveX && x < 0)) {
+    if (Math.abs(x-(positiveX?9.5:-9.5)) < .00001) {
       top = Math.max(top, positions.getY(index));
     }
   }
@@ -81,8 +83,63 @@ describe("Hauptbahnhof facade makeover", () => {
     );
     expect(columns).toBeInstanceOf(InstancedMesh);
     expect(beams).toBeInstanceOf(InstancedMesh);
-    expect((columns as InstancedMesh).count).toBeGreaterThanOrEqual(20);
-    expect((beams as InstancedMesh).count).toBeGreaterThanOrEqual(8);
+    // Cuts may transfer a different number of whole instances into the
+    // complement mesh. Verify original source sections, not that split count.
+    expect((columns as InstancedMesh).count).toBeLessThanOrEqual(22);
+    const complement=root.getObjectByName(`${columns!.name} railway-hall complements`) as Mesh;
+    expect(complement.userData.hbfOfficeUnderpassV291).toBe(true);
+    expect(complement.material).toBe((columns as InstancedMesh).material);
+    const matrix=new Matrix4(),columnKeys=new Set<string>();
+    (columns as InstancedMesh).geometry.computeBoundingBox();
+    const columnSize=(columns as InstancedMesh).geometry.boundingBox!.getSize(new Vector3());
+    for(let i=0;i<(columns as InstancedMesh).count;i++) {
+      (columns as InstancedMesh).getMatrixAt(i,matrix);const e=matrix.elements;
+      const localX=Math.abs(e[12]+44.5)<.001?-9.5:9.5,top=localX<0?46:40.4;
+      expect(e[12]).toBeCloseTo(-35+localX,4);expect(e[13]).toBeCloseTo(top/2,4);
+      expect(e[0]*columnSize.x).toBeCloseTo(1.02,5);expect(e[5]*columnSize.y).toBeCloseTo(top,4);expect(e[10]*columnSize.z).toBeCloseTo(1.02,5);
+      const sourceIndex=Math.round((e[14]+90)/18);expect(sourceIndex).toBeGreaterThanOrEqual(0);expect(sourceIndex).toBeLessThanOrEqual(10);
+      expect(e[14]).toBeCloseTo(-90+sourceIndex*18,4);
+      const key=`${localX}/${sourceIndex}`;expect(columnKeys.has(key)).toBe(false);columnKeys.add(key);
+    }
+    const cp=complement.geometry.getAttribute("position");
+    for(let i=0;i<cp.count;i++) {
+      const x=cp.getX(i),y=cp.getY(i),z=cp.getZ(i),localX=Math.abs(x+44.5)<.511?-9.5:9.5;
+      expect(Math.abs(x-(-35+localX))).toBeLessThanOrEqual(.5101);
+      expect(y).toBeGreaterThanOrEqual(-.0001);expect(y).toBeLessThanOrEqual((localX<0?46:40.4)+.0001);
+      expect(Array.from({length:11},(_,j)=>-90+j*18).some(centre=>Math.abs(z-centre)<=.5101)).toBe(true);
+    }
+    root.updateMatrixWorld(true);
+    const ray=new Raycaster();ray.far=.08;
+    // All original upper column sections survive above the new railway arch.
+    for(const localX of[-9.5,9.5])for(let i=0;i<=10;i++) {
+      const top=localX<0?46:40.4;
+      ray.set(new Vector3(-35+localX,top+.02,-90+i*18),new Vector3(0,-1,0));
+      expect(ray.intersectObjects([columns as InstancedMesh,complement]).length).toBeGreaterThan(0);
+    }
+    expect((beams as InstancedMesh).count).toBeLessThanOrEqual(10);
+    const beamComplements=root.getObjectByName(`${beams!.name} railway-hall complements`) as Mesh;
+    expect(beamComplements.userData.hbfOfficeUnderpassV291).toBe(true);
+    expect(beamComplements.material).toBe((beams as InstancedMesh).material);
+    (beams as InstancedMesh).geometry.computeBoundingBox();
+    const beamSize=(beams as InstancedMesh).geometry.boundingBox!.getSize(new Vector3());
+    for(let i=0;i<(beams as InstancedMesh).count;i++) {
+      (beams as InstancedMesh).getMatrixAt(i,matrix);const e=matrix.elements;
+      expect([-44.5,-25.5].some(x=>Math.abs(x-e[12])<.001)).toBe(true);
+      expect([.8,11.4,22.7,34,39.2].some(y=>Math.abs(y-e[13])<.001)).toBe(true);
+      expect(e[14]).toBe(0);expect(e[0]*beamSize.x).toBeCloseTo(1.02,5);expect(e[5]*beamSize.y).toBeCloseTo(.94,5);expect(e[10]*beamSize.z).toBeCloseTo(180.8,4);
+    }
+    const bp=beamComplements.geometry.getAttribute("position");
+    for(let i=0;i<bp.count;i++) {
+      expect([-44.5,-25.5].some(x=>Math.abs(x-bp.getX(i))<=.5101)).toBe(true);
+      expect([.8,11.4,22.7,34,39.2].some(y=>Math.abs(y-bp.getY(i))<=.4701)).toBe(true);
+      expect(Math.abs(bp.getZ(i))).toBeLessThanOrEqual(90.4001);
+    }
+    // Both outer ends of all ten original longitudinal beams stay intact.
+    ray.far=.08;
+    for(const localX of[-9.5,9.5])for(const y of[.8,11.4,22.7,34,39.2])for(const z of[-90,90]) {
+      ray.set(new Vector3(-35+localX,y+.49,z),new Vector3(0,-1,0));
+      expect(ray.intersectObjects([beams as InstancedMesh,beamComplements]).length).toBeGreaterThan(0);
+    }
     expect(
       root.children.filter(
         (child) =>

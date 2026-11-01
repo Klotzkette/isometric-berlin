@@ -1,6 +1,5 @@
 import { CHANCELLERY_ENTRANCE_PROFILE, CHANCELLERY_LAWN_RINGS, chancelleryFenceLimits, chancelleryLawnContains } from "./ChancelleryEntranceProfile";
 import { chillidaNativeRowsV281, chillidaNativeLawnV281 } from "./ChancelleryForecourtV281";
-import { hbfNativeDescentCuesV252 } from "./HbfDetailsV252";
 import {
   BoxGeometry,
   Color,
@@ -40,6 +39,8 @@ import {
   chancelleryLoggiaMembersV192,
   hauptbahnhofNativePortalMembersV192,
 } from "./GovernmentApproachesV192";
+
+import { hbfBoxFragmentsV291, hbfCompactNativeBayFragmentsV291, hbfFlightOpeningsV291, hbfOfficeRailUnderpassV291, hbfSlabOpeningsV291, type HbfBoxV291, type HbfOpeningV291 } from "./HbfGeometryOpeningsV291";
 
 type Point2 = readonly [number, number];
 type Point3 = readonly [number, number, number];
@@ -202,7 +203,7 @@ export const MINECRAFT_ARCHITECTURAL_PROFILES = {
     },
     officeBridgeStoreys: 10,
     officeBridgeWidthM: 19,
-    publicFloorTopLocalY: 1.32,
+    publicFloorTopLocalY: 0.25,
     portalCollisionSourcePrismIds: {
       north: "K0003Vlz",
       south: "K0003TlE",
@@ -1230,9 +1231,10 @@ function createHauptbahnhofBlocks(
 
   const eastWest = profile.eastWestRoof;
   const northSouth = profile.northSouthHall;
-  for (const member of hbfNativeDescentCuesV252(profile.publicFloorTopLocalY)) {
-    pushLocalBlock(plan, frame, member.role, member.position, member.size, member.color);
-  }
+  // Preserve the old outlying east-west concourse blocks; only the new
+  // north-south public interior adopts the shared measured-display datum.
+  const retainedEastWestFloorTopY = 1.32;
+  // Full v291 galleries replace the forty old floor-only descent cues.
   for (const side of [-1, 1]) {
     const entrance = profile.entrances.northSouth;
     for (const member of hauptbahnhofNativePortalMembersV192(
@@ -1241,7 +1243,12 @@ function createHauptbahnhofBlocks(
       entrance.clearHeightM,
       entrance.clearHalfWidthM,
     )) {
-      pushLocalBlock(plan, frame, member.role, member.position, member.size, member.color);
+      const courses = Math.ceil(member.size[1] / 8.001);
+      for (let course = 0; course < courses; course++) {
+        pushLocalBlock(plan, frame, member.role,
+          [member.position[0], member.position[1] - member.size[1] / 2 + (course + .5) * member.size[1] / courses, member.position[2]],
+          [member.size[0], member.size[1] / courses, member.size[2]], member.color);
+      }
     }
   }
   const eastWestWallTopY =
@@ -1249,7 +1256,7 @@ function createHauptbahnhofBlocks(
     eastWest.riseM * Math.sqrt(1 - (18 / (eastWest.widthM / 2)) ** 2) -
     0.85;
   const eastWestWallCourseHeight =
-    (eastWestWallTopY - profile.publicFloorTopLocalY) / 2;
+    (eastWestWallTopY - retainedEastWestFloorTopY) / 2;
   for (let x = -160; x <= 160; x += 8) {
     const bow = coarseBowAt(x);
     for (let z = -16; z <= 16; z += 8) {
@@ -1278,7 +1285,7 @@ function createHauptbahnhofBlocks(
           plan,
           frame,
           "coarse east-west station floor",
-          [x, profile.publicFloorTopLocalY - 0.55, z + bow],
+          [x, retainedEastWestFloorTopY - 0.55, z + bow],
           [8, 1.1, 8],
           index % 5 === 0 ? BLOCK.marbleShadow : BLOCK.limestone,
         );
@@ -1300,26 +1307,14 @@ function createHauptbahnhofBlocks(
           : BLOCK.limestone,
       );
     }
-    for (const trackCentre of [-12, -4, 4, 12]) {
-      for (const railOffset of [-0.72, 0.72]) {
-        pushLocalBlock(
-          plan,
-          frame,
-          "four paired block tracks",
-          [
-            x,
-            profile.trackDeckTopLocalY + 0.18,
-            trackCentre + railOffset + bow,
-          ],
-          [7.6, 0.5, 0.7],
-          BLOCK.iron,
-        );
-      }
-    }
+    // The exact four original rail courses now belong to the complete six-
+    // course independent cardinal interior, constructed before world admission.
+    // Keep their source offsets, 1.44m gauge, iron palette and source rail fit;
+    // only the 328 former rotated, gapped cue cubes yield to that full model.
     for (const side of [-1, 1]) {
       for (let course = 0; course < 2; course += 1) {
         const y =
-          profile.publicFloorTopLocalY +
+          retainedEastWestFloorTopY +
           eastWestWallCourseHeight * (course + 0.5);
         pushLocalBlock(
           plan,
@@ -1361,14 +1356,8 @@ function createHauptbahnhofBlocks(
             ? BLOCK.iron
             : BLOCK.tealGlass,
       );
-      pushLocalBlock(
-        plan,
-        frame,
-        "coarse north-south station floor",
-        [x, profile.publicFloorTopLocalY - 0.6, z],
-        [8, 1.2, 8],
-        index % 5 === 0 ? BLOCK.marbleShadow : BLOCK.limestone,
-      );
+      // Exact former north-south floor cells yield to the complete five-level
+      // native interior, keeping the daylight void and descending paths open.
     }
     // Longitudinal glass walls make the north-south crossing a real hall
     // rather than a floating roof between the two office bridges.
@@ -1377,12 +1366,13 @@ function createHauptbahnhofBlocks(
         const y =
           profile.publicFloorTopLocalY +
           northSouthWallCourseHeight * (course + 0.5);
-        pushLocalBlock(
+        const subcourses = Math.ceil(northSouthWallCourseHeight / 8.001);
+        for (let subcourse = 0; subcourse < subcourses; subcourse++) pushLocalBlock(
           plan,
           frame,
           "two-course north-south side glazing",
-          [side * 19.2, y, z],
-          [1.4, northSouthWallCourseHeight, 7.6],
+          [side * 19.2, y - northSouthWallCourseHeight / 2 + (subcourse + .5) * northSouthWallCourseHeight / subcourses, z],
+          [1.4, northSouthWallCourseHeight / subcourses, 7.6],
           (Math.round(z / 8) + course + side) % 4 === 0
             ? BLOCK.iron
             : BLOCK.tealGlass,
@@ -1566,10 +1556,63 @@ function createHauptbahnhofBlocks(
     BLOCK.marbleLight,
   );
 
+  // Preserve every uncut legacy member exactly. Only the former solid deck,
+  // crossing glass and office facades acquire bounded represented voids; new
+  // interior tiles/fixtures are independent cardinal geometry in their own root.
+  const opened = newPlan();
+  const radians = frame.rotationDegrees * Math.PI / 180;
+  const cosine = Math.cos(radians), sine = Math.sin(radians);
+  const flightCuts = hbfFlightOpeningsV291();
+  const officeCuts = [-35, 35].map(x => hbfOfficeRailUnderpassV291(x, 21));
+  const sideCuts = [-19.2, 19.2].map(x => hbfOfficeRailUnderpassV291(x, 1.4, 20));
+  const clippedGroups = new Map<string, { cue: string; color: number; rotationY: number; boxes: HbfBoxV291[] }>();
+  for (const block of plan.blocks) {
+    const dx = block.position[0] - frame.anchorWorld[0];
+    const dz = block.position[2] - frame.anchorWorld[2];
+    const local: [number,number,number] = [dx * cosine - dz * sine,
+      block.position[1] - frame.anchorWorld[1], dx * sine + dz * cosine];
+    let cuts: HbfOpeningV291[] = [];
+    if (block.cue === "five-block-wide raised railway deck")
+      cuts = hbfSlabOpeningsV291(local[1] - block.size[1] / 2, local[1] + block.size[1] / 2, true);
+    else if (block.cue === "two-course north-south side glazing") cuts = [...flightCuts, ...sideCuts];
+    else if (block.cue === "coarse twin 46 m office bridges" || block.cue === "five coarse office floor bands") cuts = [...flightCuts, ...officeCuts];
+    if (!cuts.length) {
+      pushBlock(opened, block.cue, block.position, block.size, block.color, block.rotationY);
+      continue;
+    }
+    const box = { min: local.map((v,i) => v - block.size[i]/2) as [number,number,number],
+      max: local.map((v,i) => v + block.size[i]/2) as [number,number,number] };
+    const parts = hbfBoxFragmentsV291(box, cuts);
+    if (parts.length === 1 && parts[0] === box) {
+      pushBlock(opened, block.cue, block.position, block.size, block.color, block.rotationY);
+      continue;
+    }
+    const key = JSON.stringify([block.cue, block.color, block.rotationY]);
+    let group = clippedGroups.get(key);
+    if (!group) {
+      group = { cue: block.cue, color: block.color, rotationY: block.rotationY, boxes: [] };
+      clippedGroups.set(key, group);
+    }
+    group.boxes.push(...parts);
+  }
+  // Only newly cut members participate. Keep old uncut matrices and their
+  // palette entries exact, and retain the established eight-metre grammar.
+  for (const group of clippedGroups.values()) {
+    for (const part of hbfCompactNativeBayFragmentsV291(group.boxes)) {
+      const size = part.min.map((v,i) => part.max[i] - v) as [number,number,number];
+      const yCourses = Math.ceil(size[1] / (COARSE_CIVIC_BLOCK_SPAN_M + .001));
+      for (let course = 0; course < yCourses; course++) {
+        const position: [number,number,number] = [(part.min[0] + part.max[0])/2,
+          part.min[1] + (course + .5) * size[1] / yCourses, (part.min[2] + part.max[2])/2];
+        pushLocalBlock(opened, frame, group.cue, position, [size[0], size[1] / yCourses, size[2]], group.color,
+          group.rotationY - radians);
+      }
+    }
+  }
   return finishPlan(
     "Minecraft Berlin Hauptbahnhof block signature",
     "berlin-hauptbahnhof",
-    plan,
+    opened,
     profile,
     resources,
   );

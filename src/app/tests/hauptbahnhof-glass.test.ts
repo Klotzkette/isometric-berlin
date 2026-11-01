@@ -86,6 +86,18 @@ describe("step-39: the aboveground Hauptbahnhof is built from glass, not grey bo
       if (child instanceof InstancedMesh) {
         return;
       }
+      if (child.userData.thinStationStructureV291) {
+        expect(child.userData.hbfOfficeUnderpassV291).toBe(true);
+        const p=child.geometry.getAttribute("position"),index=child.geometry.index;
+        let volume=0;
+        for(let i=0;i<(index?.count??p.count);i+=3){
+          const a=new Vector3().fromBufferAttribute(p,index?index.getX(i):i),b=new Vector3().fromBufferAttribute(p,index?index.getX(i+1):i+1),c=new Vector3().fromBufferAttribute(p,index?index.getX(i+2):i+2);
+          volume+=a.dot(b.cross(c))/6;
+        }
+        child.geometry.computeBoundingBox();const size=child.geometry.boundingBox!.getSize(new Vector3());
+        expect(Math.abs(volume)/(size.x*size.y*size.z)).toBeLessThan(.05);
+        return;
+      }
       if (child.name.includes("S-Bahn") || child.name.includes("ICE")) {
         return;
       }

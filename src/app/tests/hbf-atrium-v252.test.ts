@@ -59,19 +59,23 @@ describe("Hbf existing drawn atrium ground ownership", () => {
     expect(materials.size).toBe(1);
   });
 
-  test("native keeps the same ground and hall, while drawn walking already resolves actual lower floors", () => {
+  test("both families share the complete v291 hall aperture and resolve the same five actual floors", () => {
     const native = makeSlabs(), before = Array.from(native.instanceMatrix.array);
     restoreHbfNorthRailGroundOwnership(native, ground);
-    expect(Array.from(native.instanceMatrix.array)).toEqual(before);
-    expect(ray().intersectObject(native, true).length).toBeGreaterThan(0);
-    for (const side of [-1,1]) for (const mode of ["day","night","snowstorm"] as const) {
+    expect(Array.from(native.instanceMatrix.array)).not.toEqual(before);
+    native.updateMatrixWorld(true);
+    expect(ray().intersectObject(native, true)).toHaveLength(0);
+    expect(native.children[0].userData.hbfInteriorGroundOwnershipV291).toBe(true);
+    const drawn=makeSlabs();restoreHbfNorthRailGroundOwnership(drawn,ground,true);
+    expect(Array.from(native.instanceMatrix.array)).toEqual(Array.from(drawn.instanceMatrix.array));
+    for (const side of [-1,1]) for (const mode of ["day","night","snowstorm","minecraft"] as const) {
       const gap = world([0,0,side*60]);
       expect(hauptbahnhofGroundAt(mode,gap.x,gap.z,4.825)).toBeCloseTo(-10.425,5);
       for(const [x,z,y] of [[12,60,.25],[0,49.5,.25],[0,85,.25],[0,71,-5.15],[9.5,81.8,-14.055]]) {
         const support=world([x,y,side*z]);
         expect(hauptbahnhofGroundAt(mode,support.x,support.z,support.y)).toBeCloseTo(support.y,5);
       }
-      expect(hauptbahnhofGroundAt("minecraft",gap.x,gap.z)).toBeCloseTo(5.895,5);
+      expect(hauptbahnhofGroundAt("minecraft",gap.x,gap.z)).toBeCloseTo(-10.425,5);
     }
   });
 });

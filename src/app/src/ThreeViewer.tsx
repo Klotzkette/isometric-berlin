@@ -429,7 +429,8 @@ import {
   smoothGroundTopSampler,
 } from "./terrainPayload";
 import { setMinecraftArchitecturePresentation } from "./MinecraftArchitecturalLandmarks";
-import { hauptbahnhofGroundAt, hauptbahnhofSolidAt } from "./HauptbahnhofNavigation";
+import { hauptbahnhofGroundAt, hauptbahnhofSolidAt, hauptbahnhofCirculationBoundsAt } from "./HauptbahnhofNavigation";
+import { createHbfStationRuntimeV291 } from "./HbfStationMotionV291";
 import {
   applyMinecraftVisibility,
   minecraftOwnsVisibility,
@@ -808,6 +809,7 @@ type Runtime = {
   geometryResidency?: SceneGeometryGpuResidency;
   surroundingCity?: SurroundingCity;
   zooAnimalsV282?: ReturnType<typeof createZooAnimalRuntimeV282>;
+  hbfStationV291?: ReturnType<typeof createHbfStationRuntimeV291>;
   outerThinOutlines?: Group;
   scheduleGpuWarmup?: () => void;
   /** A visual mutation waiting for one deterministic on-demand render. */
@@ -991,6 +993,7 @@ function schwellenraumMovingRoots(runtime: Runtime): Object3D[] {
 function surfaceCameraTunnelExemption(runtime: Runtime): boolean {
   const p = runtime.camera.position;
   return runtime.tunnelPortalInteriorVisible ||
+    hauptbahnhofCirculationBoundsAt(p.x, p.y, p.z) ||
     runtime.tunnelInteriorAt?.(p.x, p.y, p.z) === true;
 }
 
@@ -3781,6 +3784,7 @@ function prepareIsoNavigation(
   };
   pedestrianEnvironment.protectedVolumeAt = (x, y, z) =>
     runtime.tunnelInteriorAt?.(x, y, z) !== true &&
+    !hauptbahnhofCirculationBoundsAt(x, y, z) &&
     runtime.lightingMode === "schwellenraum" &&
     (schwellenraumProtectedAt(x, y, z) ||
       schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
@@ -3838,7 +3842,7 @@ function prepareIsoNavigation(
     }
     if (runtime.lightingMode === "schwellenraum") {
       return (
-        schwellenraumInteriorSolidAt(x, y, z, radius) ||
+        (!hauptbahnhofCirculationBoundsAt(x, y, z) && schwellenraumInteriorSolidAt(x, y, z, radius)) ||
         staticPropSolidAt(x, y, z, radius) ||
         federalStateRepresentationSolidAt(x, y, z, radius) ||
         reichstagspraesidentenpalaisDetailSolidAt(x, y, z, radius) ||
@@ -4112,6 +4116,7 @@ function ensureIsoWorld(
       const fidelityV288 = prepareRequiredFidelityV288(prisms, ground, false, admitsChancelleryCanopyLegacyV289(runtime.signatures));
       provisionalIsoWorld = fidelityV288.root;
       const stationPhotoAdmitted = canReplacePotsdamerSouthStationPhoto(prisms.buildings);
+      const hbfCirculationV291 = runtime.signatures.children.some(model => model.userData.hbfMotionFrameV291?.native === false);
       const pendingStaffage = new Group();
       const pendingUnderground = new Group();
       const pendingCatenary = new Group();
@@ -4150,7 +4155,7 @@ function ensureIsoWorld(
             buildingPartition.omitted.length > 0
             ? {
                 detailProfile: "mobile",
-                potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
+                hbfCirculationV291, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
                 groundUrl: new URL(GROUND_CONTEXT_FILE, runtime.sceneRootUrl).toString(),
                 surfacesUrl: new URL(SURFACE_WORLD_FILE, runtime.sceneRootUrl).toString(),
                 requestedBatchIds: runtime.mobileBuildingWanted,
@@ -4166,7 +4171,7 @@ function ensureIsoWorld(
           : ground && surfaces
             ? {
                 detailProfile: "full",
-                potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
+                hbfCirculationV291, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
                 groundUrl: new URL(
                   GROUND_CONTEXT_FILE,
                   runtime.sceneRootUrl,
@@ -4195,7 +4200,7 @@ function ensureIsoWorld(
           surfaces,
           {
             buildings: initialBuildings,
-            potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
+            hbfCirculationV291, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
             includeLegacyChariteFacade: false,
             includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
             includeLegacyHungarianEnvelope: false,
@@ -4363,7 +4368,7 @@ function ensureIsoWorld(
           yield;
           pendingPathTerrainAt = prepareDistrictPathTerrain(ground, runtime.tunnelPortalCourse);
         }
-        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
+        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { hbfCirculationV291, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
         yield;
         isoWorld.add(komischeOper.createKomischeOperSourceGeometry());
         yield;
@@ -4604,6 +4609,8 @@ function ensureIsoWorld(
         );
       }
       runtime.scene.add(isoWorld);
+      (runtime.hbfStationV291 ??= createHbfStationRuntimeV291()).register(runtime.signatures);
+      runtime.hbfStationV291.register(isoWorld);
       (runtime.zooAnimalsV282 ??= createZooAnimalRuntimeV282()).register(isoWorld);
       runtime.progressiveWorldInput = progressiveInput ?? undefined;
       collectFarZoomAntiFlickerTargets(runtime);
@@ -5005,6 +5012,7 @@ function ensureVoxelWorld(
       runtime.minecraftLootBoxes = provisionalLootBoxes;
       runtime.minecraftMobs = provisionalMinecraftMobs;
       runtime.scene.add(provisionalVoxelWorld);
+      (runtime.hbfStationV291 ??= createHbfStationRuntimeV291()).register(provisionalVoxelWorld);
       (runtime.zooAnimalsV282 ??= createZooAnimalRuntimeV282()).register(provisionalVoxelWorld);
       runtime.scene.add(provisionalLootBoxes.group);
       runtime.scene.add(provisionalMinecraftMobs.group);
@@ -5717,6 +5725,7 @@ function setOrbitAngles(
 }
 
 function disposeObject3D(runtime: Runtime, root: Object3D): void {
+  runtime.hbfStationV291?.release(root);
   runtime.gpuWarmup?.release(root);
   runtime.geometryResidency?.release(root);
   runtime.gpuResidency?.release(root);
@@ -8279,6 +8288,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         frame = window.requestAnimationFrame(animate);
         if (!activeRef.current || document.hidden || runtime.contextLost) {
+          runtime.hbfStationV291?.update(timestamp, camera, runtime.lightingMode === "minecraft", reducedMotion, true);
           runtime.zooAnimalsV282?.update(timestamp, camera, runtime.lightingMode === 'minecraft', true);
           runtime.columbiahalleV257?.suspend();
           updatePressehausV272(timestamp, true);
@@ -8289,6 +8299,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         if (runtime.columbiahalleV257?.entered) applyPendingViewport();
         if (runtime.columbiahalleV257?.update(timestamp)) {
+          runtime.hbfStationV291?.update(timestamp, camera, runtime.lightingMode === "minecraft", reducedMotion, true);
           runtime.zooAnimalsV282?.update(timestamp, camera, runtime.lightingMode === 'minecraft', true);
           lastAnimateAt = timestamp;
           return;
@@ -8296,6 +8307,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // The unlit exhibit fade has no changing shadow casters.
         if (runtime.pergamonReveal?.update(timestamp)) runtime.renderInvalidated = true;
         updatePressehausV272(timestamp, false);
+        if (runtime.hbfStationV291?.update(timestamp, camera, runtime.lightingMode === "minecraft", reducedMotion, runtime.underside)) runtime.renderInvalidated = true;
         runtime.scheduleGpuWarmup?.();
         if (timestamp >= wheelEndNotifyAt) {
           wheelEndNotifyAt = Number.POSITIVE_INFINITY;
@@ -8542,6 +8554,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (stabilizedRecovered) resetTouchGesture();
         }
         // Retire only old offscreen GPU copies; the exact scene stays intact.
+        if (runtime.hbfStationV291?.update(timestamp, camera, runtime.lightingMode === "minecraft", reducedMotion, runtime.underside)) runtime.renderInvalidated = true;
         runtime.gpuResidency?.refresh(timestamp);
         runtime.geometryResidency?.refresh(timestamp);
         runtime.surroundingCity?.refresh(timestamp, runtime.controls.target);
@@ -8881,6 +8894,23 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.tunnelInteriorAt = createTunnelInteriorTester(
             manifest.tiergartentunnel,
           );
+          // Build the complete station before any retained source aperture can
+          // be admitted by the preview or its progressive refinement batches.
+          const hbfSignature = manifest.architectural_signatures?.find(signature => signature.id === "hauptbahnhof-model");
+          if (hbfSignature) {
+            const stationModel = createArchitecturalSignature(hbfSignature);
+            if (stationModel) {
+              markAuthoredFlatUnlit(stationModel);
+              if (runtime.coarsePointer) {
+                stationModel.traverse(compactStaticGeometry);
+                interleaveStaticGeometry(stationModel);
+              }
+              runtime.signatures.add(stationModel);
+              (runtime.hbfStationV291 ??= createHbfStationRuntimeV291()).register(stationModel);
+              runtime.gpuResidency?.enqueue(stationModel);
+              runtime.geometryResidency?.enqueue(stationModel);
+            }
+          }
           if (lightingModeRef.current === "minecraft") {
             ensureVoxelWorld(runtime, onWarningRef.current);
           } else {
@@ -9103,7 +9133,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             moabitPrisonMemorialFocusCamera("day"),
           );
           for (const signature of manifest.architectural_signatures ?? []) {
-            const model = createArchitecturalSignature(signature);
+            const model = signature.id === "hauptbahnhof-model" &&
+              runtime.signatures.children.some(child => child.userData.hbfMotionFrameV291?.native === false)
+              ? null : createArchitecturalSignature(signature);
             if (model) {
               markAuthoredFlatUnlit(model);
               if (runtime.coarsePointer) {
@@ -9111,6 +9143,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                 interleaveStaticGeometry(model);
               }
               runtime.signatures.add(model);
+              if (model.userData.hbfMotionFrameV291) {
+                (runtime.hbfStationV291 ??= createHbfStationRuntimeV291()).register(model);
+              }
               runtime.gpuResidency?.enqueue(model);
               runtime.geometryResidency?.enqueue(model);
             }
@@ -9567,6 +9602,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.surroundingCity = undefined;
         runtime.zooAnimalsV282?.dispose();
         runtime.zooAnimalsV282 = undefined;
+        runtime.hbfStationV291?.dispose();
+        runtime.hbfStationV291 = undefined;
         if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
         runtime.gpuWarmup?.dispose();
         runtime.gpuWarmup = undefined;

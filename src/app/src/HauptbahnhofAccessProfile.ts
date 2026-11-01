@@ -15,10 +15,27 @@ export const HAUPTBAHNHOF_ACCESS = {
   foyerOuterLocalZ: 92.2,
   hallHalfWidthM: 20,
   groundAtriumHalfWidthM: 9.5,
+  doorApproachDistanceM: 20,
+  doorApproachHalfWidthM: 15,
+  doorApproachBottomLocalY: -2,
+  doorApproachTopLocalY: 12,
+  doorOpenSeconds: 0.48,
+  doorCloseSeconds: 1.15,
 } as const;
 
 export function hauptbahnhofDoorOpeningAt(localX: number): boolean {
   return HAUPTBAHNHOF_ACCESS.doorCentresLocalX.some(
     (centre) => Math.abs(localX - centre) < HAUPTBAHNHOF_ACCESS.doorClearWidthM / 2,
   );
+}
+
+/** Camera-local trigger shared by walking, flight and touch navigation. */
+export function hauptbahnhofDoorApproachAt(
+  localX: number, localY: number, localZ: number, facadeSide: -1 | 1,
+): boolean {
+  const p = HAUPTBAHNHOF_ACCESS;
+  return Number.isFinite(localX) && Number.isFinite(localY) && Number.isFinite(localZ) &&
+    Math.abs(localX) <= p.doorApproachHalfWidthM &&
+    Math.abs(localZ - facadeSide * p.facadeLocalZ) <= p.doorApproachDistanceM &&
+    localY >= p.doorApproachBottomLocalY && localY <= p.doorApproachTopLocalY;
 }

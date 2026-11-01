@@ -90,7 +90,7 @@ describe("Hauptbahnhof current concourse", () => {
     );
   });
 
-  test("places Einstein Kaffee and the glass pavilion in the north arm", () => {
+  test("places Einstein Kaffee at Europaplatz in the north arm and retains the separate south pavilion", () => {
     const root = station();
     const cafe = root.getObjectByName(
       "Hauptbahnhof Einstein Kaffee storefront",
@@ -99,9 +99,10 @@ describe("Hauptbahnhof current concourse", () => {
       "Hauptbahnhof Einstein Kaffee fascia",
     ) as Mesh;
     expect(cafe).toBeInstanceOf(Mesh);
-    expect(cafe.position.z).toBeGreaterThan(
-      signature.east_west_roof_width_m / 2,
+    expect(cafe.position.z).toBeLessThan(
+      -signature.east_west_roof_width_m / 2,
     );
+    expect(cafe.position.z).toBeCloseTo(-51.3,5);
     expect(fascia.userData.lettering).toBe("EINSTEIN KAFFEE");
 
     const pavilion = root.getObjectByName(

@@ -14,6 +14,8 @@ import {
   createArchitecturalSignature,
   type HauptbahnhofModelSignature,
 } from "../src/ArchitecturalLandmarks";
+import { HBF_CIRCULATION_V291 } from "../src/HbfCirculationV291";
+import { hbfLiftFloorAtV291 } from "../src/HbfStationMotionV291";
 
 const signature: HauptbahnhofModelSignature = {
   anchor_world: [0, 0, 0],
@@ -55,6 +57,7 @@ describe("Hauptbahnhof vertical interior hall", () => {
       HAUPTBAHNHOF_INTERIOR_LEVELS.map((level) => level.elevationM),
     ).toEqual([10.75, 4.6, 0, -5.4, -14.53]);
     expect(root.userData.interiorLevels).toHaveLength(5);
+    expect(HBF_CIRCULATION_V291.levels.map(level=>level.topLocalY)).toEqual([10.73,4.85,.25,-5.15,-14.055]);
   });
 
   test("turns the gallery edges and cross links into transparent architecture", () => {
@@ -68,15 +71,22 @@ describe("Hauptbahnhof vertical interior hall", () => {
       "Hauptbahnhof instanced cross-bridge glass balustrades",
     ) as InstancedMesh;
     expect(galleryGlass).toBeInstanceOf(InstancedMesh);
-    expect(galleryGlass.count).toBe(12);
+    const ownerCount=(mesh:InstancedMesh):number=>{
+      const extra=root.getObjectByName(`${mesh.name} aperture complements`);
+      const clipped=extra?.userData.hbfClippedInstanceOwnerIndicesV291 as number[]|undefined;
+      const ids=[...mesh.userData.hbfRetainedInstanceOwnerIndicesV291,...(clipped??[])].sort((a:number,b:number)=>a-b);
+      expect(ids).toEqual(Array.from({length:mesh.userData.hbfOriginalInstanceOwnerCountV291},(_,i)=>i));
+      return ids.length;
+    };
+    expect(ownerCount(galleryGlass)).toBe(12);
     expect((galleryGlass.material as MeshStandardMaterial).transparent).toBe(
       true,
     );
     expect(bridgeDecks).toBeInstanceOf(InstancedMesh);
-    expect(bridgeDecks.count).toBe(
+    expect(ownerCount(bridgeDecks)).toBe(
       HAUPTBAHNHOF_INTERIOR_PROFILE.crossBridgeCount,
     );
-    expect(bridgeGlass.count).toBe(
+    expect(ownerCount(bridgeGlass)).toBe(
       HAUPTBAHNHOF_INTERIOR_PROFILE.crossBridgeCount * 2,
     );
     expect((bridgeGlass.material as MeshStandardMaterial).transparent).toBe(
@@ -97,8 +107,9 @@ describe("Hauptbahnhof vertical interior hall", () => {
     expect(branches.count).toBe(24);
   });
 
-  test("runs four cylindrical panoramic lifts through every level", () => {
+  test("runs the six evidenced cylindrical panoramic lifts through every level", () => {
     const liftProfile = HAUPTBAHNHOF_INTERIOR_PROFILE.panoramicLifts;
+    expect(liftProfile.count).toBe(6);
     const shafts = root.children.filter(
       (child) => child.name === "Hauptbahnhof cylindrical glass lift shaft",
     ) as Mesh[];
@@ -157,12 +168,13 @@ describe("Hauptbahnhof vertical interior hall", () => {
       liftProfile.count * liftProfile.landingElevationsM.length * 2,
     );
     expect(cabins).toHaveLength(liftProfile.count);
-    expect(new Set(cabins.map((cabin) => cabin.userData.levelId)).size).toBe(
+    expect(new Set(cabins.map((cabin) => cabin.userData.shaftId)).size).toBe(
       liftProfile.count,
     );
-    for (const cabin of cabins) {
+    for (const [index,cabin] of cabins.entries()) {
       expect(cabin.geometry.type).toBe("CylinderGeometry");
       expect((cabin.material as MeshStandardMaterial).transparent).toBe(true);
+      expect(cabin.userData.hbfMotionV291).toEqual({kind:"lift",shaftIndexes:[index],initialFloors:[hbfLiftFloorAtV291(0,index)]});
     }
   });
 });

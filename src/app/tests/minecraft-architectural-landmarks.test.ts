@@ -124,8 +124,13 @@ describe("block-native Berlin architectural signatures", () => {
     // nine roof-cap blocks). The separate source-bound parliament batch
     // owns its shallow roof crown and the restored source library body.
     // v1.0.92 adds 24 loggia and eight entrance-frame blocks to existing batches.
+    // v291 transfers the 115 closed north-south floor cells and 40 shallow
+    // descent cues into the complete independent open five-level interior.
+    // Its 328 old rail cubes transfer to all six complete, finer independent
+    // cardinal courses, with the original gauge, iron colour and end reach.
+    // All other legacy owners retain their source-complete outside fragments.
     expect(meshes.map(({ count }) => count)).toEqual([
-      493, 714, 2_747, 349, 695, 56, 444,
+      493, 714, 2_486, 349, 695, 56, 444,
     ]);
   });
 
@@ -176,12 +181,13 @@ describe("block-native Berlin architectural signatures", () => {
       "coarse 180 m north-south crossing hall": 115,
       "coarse 321 m east-west glass hall": 205,
       "coarse office-bridge portal frames": 68,
-      "coarse twin 46 m office bridges": 660,
-      "five coarse office floor bands": 240,
-      "four paired block tracks": 328,
+      "coarse twin 46 m office bridges": 684,
+      "five coarse office floor bands": 229,
+      "five-block-wide raised railway deck": 326,
       "stepped east-west block gables": 14,
       "stepped north-south block portals": 34,
     });
+    expect(byName.get(EXPECTED_MODELS[2])["four paired block tracks"]).toBeUndefined();
     expect(byName.get(EXPECTED_MODELS[3])).toMatchObject({
       "four Quadriga horse bodies": 4,
       "twelve six-course Doric columns": 72,
@@ -474,7 +480,7 @@ describe("block-native Berlin architectural signatures", () => {
         south: "K0003TlE",
         west: "HGmLi1Ck",
       },
-      publicFloorTopLocalY: 1.32,
+      publicFloorTopLocalY: 0.25,
       trackDeckCentreLocalY: 9.8,
       trackDeckTopLocalY: 10.35,
       trackDeckWidthM: 37,

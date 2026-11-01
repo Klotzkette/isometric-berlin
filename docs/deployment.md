@@ -118,26 +118,30 @@ tagging.
 
 ## Hashed lazy assets and already-open tabs
 
-The public host must retain hashed JavaScript, CSS and Worker assets from the
-current release and **at least the previous two live releases**. An open tab can
-hold an older HTML manifest for hours and request its lazy Three.js or Worker
-chunk only when the visitor later selects a 3D mode. Deleting every old file in
-`assets/` during deployment turns that valid interaction into a 404.
+The public host must retain the complete dependency closure of the current
+release: every hashed JavaScript, CSS, Worker, construction-text and gzip asset
+reachable from its entry point. The owner's explicit instruction to close or
+disregard older viewer tabs supersedes the previous-two-live-release retention
+rule, as recorded in `AGENTS.md`, Step 10 v290. Older sessions may reload the
+current viewer; their obsolete hashed assets need not remain hosted.
 
-Publish new root files and mutable metadata normally, but merge the new
-`dist/assets/` directory into the hosted `assets/` directory without a blanket
-delete. Prune a hashed file only after it is outside the current-plus-two-live-
-release retention window. This compatibility store is a GitHub Pages policy;
-the downloadable ZIP and static tarball contain only the current build and must
-continue to reject duplicate or stale assets.
+Before pruning, audit the complete current package and its asset references,
+then compare every prospective hosted path, mode, blob and size with the full
+Pages tree. Delete only exact old hashed assets proved absent from the new
+current dependency closure. Preserve every baseline nonasset path; replace
+current package metadata normally, and retain unrelated nonasset bytes. Keep
+original sources, Git history and all public releases with their usable
+downloads. A blanket directory deletion or an asset's apparent age is not a
+closure audit. The extracted package, ZIP and static tarball must each contain
+the complete current build without duplicate or stale assets.
 
 The v0.72.3 runtime adds a second line of defence. Its early
 `vite:preloadError` listener performs at most one version-scoped reload so the
 tab can acquire the current HTML manifest, and the successful Three.js import
 clears that guard. If loading or rendering still fails, a visible boundary
-offers Reload rather than leaving the 3D surface blank. Asset
-retention remains required because it also preserves uninterrupted sessions
-that have not yet loaded the new recovery runtime.
+offers Reload rather than leaving the 3D surface blank. This recovery supports
+the permitted reload of older sessions; it does not replace the complete
+current-release dependency audit.
 
 v0.72.9 separately bounds failures after the 3D runtime is already active.
 Recovery is not gated by touch capability: every profile releases the failed

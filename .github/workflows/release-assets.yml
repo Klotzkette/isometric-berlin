@@ -27,6 +27,14 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+
+      - name: Check exact Hauptbahnhof terrain ownership
+        # Bounded test dependencies match uv.lock; the AI/rendering stack is
+        # unnecessary for this source-preservation and generator regression.
+        run: uv run --no-project --with pytest==9.1.0 --with numpy==2.4.6 --with shapely==2.1.2 --with pyproj==3.7.2 python -B -m pytest -q tests/test_hbf_interior_ground_v291.py
+
       - name: Build viewer
         working-directory: src/app
         run: |
@@ -34,6 +42,7 @@ jobs:
           BUN_RUNTIME_TRANSPILER_CACHE_PATH=0 bun test --isolate --max-concurrency 1 --timeout 60000 tests/potsdamer-beisheim-photos-v284.test.ts tests/potsdamer-photo-facades-v284.test.ts tests/potsdamer-station-photos.test.ts tests/sony-center-surroundings.test.ts tests/leipziger-perimeter-v151.test.ts tests/expanded-city-details.test.ts tests/isometric-construction-lifecycle.test.ts tests/progressive-worker-resume.test.ts tests/viewer-navigation-factories-v177.test.ts
           BUN_RUNTIME_TRANSPILER_CACHE_PATH=0 bun test --isolate --max-concurrency 1 --timeout 60000 tests/fernsehturm-detail.test.ts tests/fernsehturm-horizon.test.ts tests/steppengarten-shelter-v283.test.ts tests/tiergarten-werkhof-v275-ownership.test.ts tests/progressive-building-coverage.test.ts tests/world-camera-depth.test.ts tests/required-sites-navigation-v281.test.ts
           BUN_RUNTIME_TRANSPILER_CACHE_PATH=0 bun test --isolate --max-concurrency 1 --timeout 60000 tests/base64-bytes-v290.test.ts tests/surrounding-packet-fingerprint.test.ts tests/lossless-gzip-header-v283.test.ts tests/lossless-json-data.test.ts tests/lossless-base85-v263.test.ts tests/lossless-packed-packets-v177.test.ts tests/lossless-source-cache.test.ts tests/lossless-zopfli-v274.test.ts tests/lossless-eager-v282.test.ts
+          BUN_RUNTIME_TRANSPILER_CACHE_PATH=0 bun test --isolate --max-concurrency 1 --timeout 60000 tests/hbf-circulation-v291.test.ts tests/hbf-geometry-openings-v291.test.ts tests/hbf-interior-v291.test.ts tests/hbf-motion-review-v291.test.ts tests/hbf-native-motion-geometry-v291.test.ts tests/hbf-whole-circulation-geometry-v291.test.ts tests/hbf-upper-platform-seams-v291.test.ts tests/hbf-retained-glass-v291.test.ts
           BUN_RUNTIME_TRANSPILER_CACHE_PATH=0 bun run build
 
       - name: Package static site
@@ -53,5 +62,4 @@ jobs:
           VERSION="${TAG#v}"
           gh release upload "$TAG" \
             "releases/isometric-berlin-regierungsviertel-local.zip" \
-            "releases/isometric-berlin-viewer-v${VERSION}.tar.gz" \
-            --clobber
+            "releases/isometric-berlin-viewer-v${VERSION}.tar.gz"

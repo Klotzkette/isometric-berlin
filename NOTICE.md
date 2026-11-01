@@ -2676,3 +2676,16 @@ The v288 Klosterkirche ruin recognition also uses reference-only photographs
 from the Landesdenkmalamt Berlin archive (Bittner, 2006/2008) and the LDA
 photograph credited to Gunnar Nath. Copyright remains with the named archive
 and photographers; no photograph pixels or textures are redistributed.
+
+
+Hauptbahnhof interior v291: the official Deutsche Bahn station plan, station
+shopping directory and S-Bahn Berlin equipment register establish the five
+levels, six full-height panoramic lifts, platform topology and current tenant
+identities. Photographic recognition references: Deutsche Bahn AG / Max
+Lautenschläger (upper hall) and Deutsche Bahn AG / Christian Bedeschinski
+(deep platforms). Copyright remains with the named publishers/photographers.
+All plans and photographs are reference-only; no pages, image pixels, textures
+or runtime media downloads are distributed. Small fittings, shop bays,
+connected stair dimensions and mechanical timing are display estimates.
+See `docs/hauptbahnhof-evidence-v291.md` and
+`geo_data/regierungsviertel/hbf-interior-v291-evidence.json`.
