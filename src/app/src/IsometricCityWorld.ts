@@ -1,3 +1,4 @@
+import { isChancelleryCanopyOldPrismV289 } from "./ChancelleryCanopySourceV289Ownership";
 import { isBerlinHistoricDomOldCoreV288 } from "./BerlinHistoricCoreV288Ownership";
 import { isPotsdamerCorridorOldCoreV288 } from "./PotsdamerCorridorV288Ownership";
 import { createOrdinaryWindowsV288, ordinaryWindowExposureV288, ORDINARY_WINDOWS_V288_LIMIT, type OrdinaryPaneV288 } from "./ordinaryWindowsV288";
@@ -407,7 +408,7 @@ export type PrismPayload = {
 export type IsometricCityBuildOptions = {
   /** Published only with the complete required photo-guided south station. */
   potsdamerStationPhoto?: boolean;
-  historicDomV288?: boolean; potsdamerCorridorV288?: boolean;
+  historicDomV288?: boolean; potsdamerCorridorV288?: boolean; chancelleryCanopySourceV289?: boolean;
   /** The shared bridge root may already have been installed by cold Minecraft. */
   bridgeStructures?: boolean;
   /** Required main-thread source bridge transaction; never imported by the geometry Worker. */
@@ -1825,11 +1826,12 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "historicDomV288" | "potsdamerCorridorV288" | "potsdamerStationPhoto" | "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "steppengartenShelterV283" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "chancelleryCanopySourceV289" | "historicDomV288" | "potsdamerCorridorV288" | "potsdamerStationPhoto" | "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "steppengartenShelterV283" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
-  const visible = buildings.filter(building => !options.historicDomV288 || !isBerlinHistoricDomOldCoreV288(building))
+  const visible = buildings.filter(building => !options.chancelleryCanopySourceV289 || !isChancelleryCanopyOldPrismV289(building))
+    .filter(building => !options.historicDomV288 || !isBerlinHistoricDomOldCoreV288(building))
     .filter(building => !options.potsdamerCorridorV288 || !isPotsdamerCorridorOldCoreV288(building))
     .filter(building => !options.potsdamerStationPhoto || !isPotsdamerStationPhotoSource(building))
     .filter(building => !options.architectureV241 || !isAEGCampusCorePrismV241(building))
@@ -12028,6 +12030,7 @@ export function createIsometricCityCore(
     geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
   for (const sourceBuilding of buildings) {
+    if (options.chancelleryCanopySourceV289 && isChancelleryCanopyOldPrismV289(sourceBuilding)) continue;
     if (options.historicDomV288 && isBerlinHistoricDomOldCoreV288(sourceBuilding)) continue;
     if (options.potsdamerCorridorV288 && isPotsdamerCorridorOldCoreV288(sourceBuilding)) continue;
     if (options.potsdamerStationPhoto && isPotsdamerStationPhotoSource(sourceBuilding)) continue;

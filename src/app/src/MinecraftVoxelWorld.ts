@@ -1,3 +1,4 @@
+import { isChancelleryCanopyOldColumnV289 } from "./ChancelleryCanopySourceV289Ownership";
 import { prepareRequiredFidelityV288 } from "./RequiredFidelityV288";
 import { isBerlinHistoricDomColumnV288 } from "./BerlinHistoricCoreV288Ownership";
 import { isPotsdamerCorridorOldNativeColumnV288 } from "./PotsdamerCorridorV288Ownership";
@@ -2664,6 +2665,7 @@ export function* buildMinecraftVoxelWorldSteps(
   // coarse tuples yield. A changed/ambiguous source retains the old world.
   const fidelityV288 = prepareRequiredFidelityV288({buildings:options.sourcePrisms ?? []}, payload, true);
   group.add(fidelityV288.root);
+  group.userData.chancelleryCanopySourceV289 = fidelityV288.chancelleryCanopy;
   group.userData.historicDomV288 = fidelityV288.historicDom;
   group.userData.potsdamerCorridorV288 = fidelityV288.potsdamerCorridor;
   const potsdamerStationPhoto = preparePotsdamerSouthStationPhotoTransfer(options.sourcePrisms, payload);
@@ -2716,6 +2718,7 @@ export function* buildMinecraftVoxelWorldSteps(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
+    if (fidelityV288.chancelleryCanopy && isChancelleryCanopyOldColumnV289([xIdx,zIdx,y0dm,y1dm,classId])) continue;
     if (fidelityV288.historicDom && isBerlinHistoricDomColumnV288(xIdx,zIdx,y0dm,y1dm,classId)) continue;
     if (fidelityV288.potsdamerCorridor && isPotsdamerCorridorOldNativeColumnV288([xIdx,zIdx,y0dm,y1dm,classId])) continue;
     if (potsdamerStationPhoto?.replacesColumn(xIdx, zIdx, y0dm, y1dm, classId)) continue;

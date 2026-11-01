@@ -37,9 +37,13 @@ function inside(point: Vector2, ring: Vector2[]): boolean {
 }
 
 describe("Reichstag owner-photo west opening detail", () => {
-  test("every earlier rendered buffer and transform survives, including all 234 renderables and six courts", () => {
+  test("every retained rendered buffer and transform survives, excluding only the two detached basement-window batches", () => {
     const root = model();
-    expect(oldFingerprint(root)).toEqual({ hash: "d8c6d9642444f5a5445b3f10500e0e9b41c63b290ddeacdca87f36b83e4499ac", renderables: 234, bytes: 572950 });
+    // Pinned against the preceding model with exactly those two batches
+    // excluded before the correction, not a blanket replacement baseline.
+    expect(oldFingerprint(root)).toEqual({ hash: "3572f9895be9e2387554fbf31aa08ab7f34914c13e380dee69a5ac8db52ec451", renderables: 232, bytes: 570458 });
+    expect(root.getObjectByName("Reichstag west rusticated-base recessed windows")).toBeUndefined();
+    expect(root.getObjectByName("Reichstag west rusticated-base window frames")).toBeUndefined();
     for (let i = 1; i <= 6; i++) expect(root.getObjectByName(`Reichstag west portico column ${i}`)).toBeDefined();
     for (const name of ["Reichstag west pediment crowned corner finials", "Reichstag west portico Wappenbaum fine detail", "Reichstag DEM DEUTSCHEN VOLKE dedication lettering", "Reichstag west triangular pediment"]) expect(root.getObjectByName(name)).toBeDefined();
     expect(REICHSTAG_COURTYARDS).toHaveLength(6);

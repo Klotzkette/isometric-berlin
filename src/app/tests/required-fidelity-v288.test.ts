@@ -17,7 +17,7 @@ test("both complete representations precede exact proxy retirement and all other
   const old=JSON.stringify(prisms), nativeOld=JSON.stringify(voxels);
   for(const native of [false,true]){
     const made=prepareRequiredFidelityV288(prisms,voxels,native);
-    expect(made.historicDom).toBe(true);expect(made.potsdamerCorridor).toBe(true);expect(made.root.children).toHaveLength(4);
+    expect(made.historicDom).toBe(true);expect(made.potsdamerCorridor).toBe(true);expect(made.root.children).toHaveLength(native?5:4);
   }
   expect(JSON.stringify(prisms)).toBe(old);expect(JSON.stringify(voxels)).toBe(nativeOld);
   const ids=new Set([...BERLIN_HISTORIC_DOM_V288_IDS,...POTSDAMER_CORRIDOR_CORE_IDS_V288]);

@@ -2108,3 +2108,23 @@ No photographic pixels/textures, new coverage, animation, lower touch quality,
 new tour stops or higher runtime/release limits. Use one internal full-city
 browser view at a time. Append reference credits; replace hardlinked public
 ledgers atomically.
+
+### Step 10 — v289 Ehrenhof canopy and detached Reichstag fittings
+
+The owner's 1 November correction identifies the front entrance canopy between
+the Chancellery office wings, not its side vehicle entrance. Replace only the
+exactly admitted closed canopy extrusion with a complete open, thin roof using
+its retained source footprint and roof sheets, the existing DGM datum and the
+owner's reference photographs. Preserve the actual rear entrance, neighbouring
+architecture, green climbing cover, sculpture, lawns, grille and real flags.
+Unsurveyed membrane thickness and support fittings remain explicit estimates.
+Native replacement requires exclusive source-cell ownership, a complete
+independent orthogonal roof and matching open-under-roof walking clearance;
+failed admission keeps the original owner. Source records remain intact.
+
+The small black flag-like objects on the Reichstag forecourt are sixteen
+detached authored basement-window planes and their frames. Remove exactly those
+two incorrect batches, retaining the source facade, all other architectural
+detail, the four rooftop flags and the Flagge der Einheit. Keep all six modes,
+full drawn touch detail, existing coverage, 93 stops and every runtime/release
+limit. Use one internal full-city browser view at a time; no photo pixels ship.

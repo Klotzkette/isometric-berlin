@@ -101,3 +101,29 @@ Day with the new facade divisions and stronger dome bands. No new live-origin
 console warning/error was recorded. The live screenshot is retained as
 `reichstag-v285-qa/live-reichstag-v184.jpg` in the task folder; the live tab is
 left open for the owner. No physical mobile-device claim is made.
+
+## Owner correction: detached low dark panels, 1 November 2026
+
+The owner identifies small black flag-like objects directly in front of the
+west facade. The retained live-v184 and day-overview QA views identify these
+as the old authored `Reichstag west rusticated-base recessed windows` and
+`Reichstag west rusticated-base window frames`, not the actual roof flags or
+Flag of Unity. Their sixteen shared transforms placed upright panes at local
+`x = -width/2 - 0.22`, `y = 2.1`,
+`z = ±(25.8 + index × 5.25)` for indices 0–7. With no backing wall at those
+locations they read as freestanding dark flags on the lawn.
+
+Only these two drawn instance batches (sixteen panes and sixteen frames) are
+retired. The complete measured source facade, rustication, upper windows,
+portico, courtyards, roof flags and Flag of Unity remain. The independent
+Minecraft model contains no corresponding low-pane motif and stays unchanged.
+No source data, walking geometry, terrain, photograph or texture is changed.
+
+Before editing, the preceding drawn model was fingerprinted with exactly the
+two named obsolete batches and the separate v285 photo batch excluded. Its
+remaining 232 renderables / 570,458 bytes retain SHA256
+`3572f9895be9e2387554fbf31aa08ab7f34914c13e380dee69a5ac8db52ec451`.
+The regression test pins that exact retained complement and rejects both old
+batch names; existing tests protect the real German/EU flags and independent
+native buffers. This correction reduces stored geometry by 2,492 bytes and
+two renderables; all existing quality and runtime limits remain unchanged.

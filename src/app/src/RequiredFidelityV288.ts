@@ -5,6 +5,8 @@ import { matchesBerlinHistoricDomOwnersV288, matchesBerlinHistoricDomNativeV288 
 import { createPotsdamerCorridorCoreV288, hasCompletePotsdamerCorridorCoreV288 } from "./PotsdamerCorridorCoreV288";
 import { admitsPotsdamerCorridorCoreV288, admitsPotsdamerCorridorNativeV288 } from "./PotsdamerCorridorV288Ownership";
 import { createMitteDdrV288 } from "./MitteDdrV288";
+import { createChancelleryCanopySourceV289, hasCompleteChancelleryCanopySourceV289 } from "./ChancelleryCanopySourceV289";
+import { admitsChancelleryCanopySourceV289, admitsChancelleryCanopyNativeV289 } from "./ChancelleryCanopySourceV289Ownership";
 
 type FactoryV288 = () => { group: Group; complete?: (group: Group) => boolean } | null;
 /** Own each completed result immediately, including before its admission
@@ -26,15 +28,17 @@ export function constructUnpublishedFidelityV288(factories: readonly FactoryV288
 
 /** Construct complete owners before any old prism/column can yield. This
  * module belongs only to the main-thread city transaction, never the worker. */
-export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payload: unknown, native=false) {
+export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payload: unknown, native=false, canopyLegacyAdmitted=false) {
   const historicDom=matchesBerlinHistoricDomOwnersV288(prisms.buildings)&&(!native||matchesBerlinHistoricDomNativeV288(payload));
   const potsdamerCorridor=admitsPotsdamerCorridorCoreV288(prisms)&&(!native||admitsPotsdamerCorridorNativeV288(payload));
+  const chancelleryCanopy=admitsChancelleryCanopySourceV289(prisms)&&(native?admitsChancelleryCanopyNativeV289(payload):canopyLegacyAdmitted);
   const root=constructUnpublishedFidelityV288([
     ()=>historicDom?{group:createBerlinHistoricDomV288(native),complete:hasCompleteBerlinHistoricDomV288}:null,
     ()=>potsdamerCorridor?{group:createPotsdamerCorridorCoreV288(native),complete:hasCompletePotsdamerCorridorCoreV288}:null,
     ()=>{const group=createMitteDdrV288({native,payload});return group?{group}:null;},
     ()=>{const group=createDprkEmbassyV288({native,payload});return group?{group}:null;},
+    ()=>chancelleryCanopy?{group:createChancelleryCanopySourceV289(native),complete:hasCompleteChancelleryCanopySourceV289}:null,
   ]);
-  root.userData={historicDomV288:historicDom,potsdamerCorridorV288:potsdamerCorridor,sourceGeometryRetained:true,fullStaticDetailOnTouch:true};
-  return {root,historicDom,potsdamerCorridor};
+  root.userData={historicDomV288:historicDom,potsdamerCorridorV288:potsdamerCorridor,chancelleryCanopySourceV289:chancelleryCanopy,sourceGeometryRetained:true,fullStaticDetailOnTouch:true};
+  return {root,historicDom,potsdamerCorridor,chancelleryCanopy};
 }

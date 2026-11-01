@@ -1008,13 +1008,15 @@ describe("metre-scale architectural recognition models", () => {
     expect(wingPilasters.count).toBe(
       REICHSTAG_WEST_FACADE_PROFILE.wingPilasterCount,
     );
-    const basementWindows = reichstag!.getObjectByName(
+    // The old detached low panes read as little black flags on the lawn.
+    // Only that unbacked decoration is retired; the actual facade remains.
+    expect(REICHSTAG_WEST_FACADE_PROFILE.basementWindowCount).toBe(0);
+    expect(reichstag!.getObjectByName(
       "Reichstag west rusticated-base recessed windows",
-    ) as InstancedMesh;
-    expect(basementWindows).toBeInstanceOf(InstancedMesh);
-    expect(basementWindows.count).toBe(
-      REICHSTAG_WEST_FACADE_PROFILE.basementWindowCount,
-    );
+    )).toBeUndefined();
+    expect(reichstag!.getObjectByName(
+      "Reichstag west rusticated-base window frames",
+    )).toBeUndefined();
     const dentils = reichstag!.getObjectByName(
       "Reichstag west cornice dentils",
     ) as InstancedMesh;

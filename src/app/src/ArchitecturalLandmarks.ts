@@ -191,7 +191,7 @@ export const REICHSTAG_INSCRIPTION_FIELD_WIDTH_M = 16;
  */
 export const REICHSTAG_WEST_FACADE_PROFILE = {
   architraveDentilCount: 36,
-  basementWindowCount: 16,
+  basementWindowCount: 0,
   columnCapitalLeafCount: 48,
   columnCapitalVoluteCount: 12,
   columnFluteCount: 24,
@@ -1560,35 +1560,6 @@ function addReichstagWestFacadeArticulation(
     new CylinderGeometry(0.34, 0.34, 0.16, 12),
     stone,
     friezeRosettes,
-  );
-
-  const basementGlass = modelMaterial(0x59686a, {
-    metalness: 0.08,
-    opacity: 0.78,
-    roughness: 0.48,
-  });
-  const basementWindows: InstanceTransform[] = [];
-  for (const side of [-1, 1]) {
-    for (let index = 0; index < 8; index += 1) {
-      basementWindows.push({
-        position: [westFaceX - 0.22, 2.1, side * (25.8 + index * 5.25)],
-        rotation: [0, Math.PI / 2, 0],
-      });
-    }
-  }
-  addInstancedGeometry(
-    group,
-    "Reichstag west rusticated-base recessed windows",
-    new PlaneGeometry(1.65, 1.35),
-    basementGlass,
-    basementWindows,
-  );
-  addInstancedGeometry(
-    group,
-    "Reichstag west rusticated-base window frames",
-    rectangularWindowFrameGeometry(2.02, 1.68, 0.13),
-    reliefStone,
-    basementWindows,
   );
 
   const dentils: InstanceTransform[] = Array.from(
