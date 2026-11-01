@@ -91,3 +91,6 @@ The complete package contains 4,754 files / 936,374,285 bytes, within the fixed
 The exact current-plus-v186/v187 Pages plan retains 332 protected prior assets;
 only nine source-proven v185-exclusive assets yield. Runtime/release caps were
 not changed.
+
+Published as v1.0.188 after the exact Pages deployment, public HTTP and browser
+checks passed. [Publication receipts](release-v1.0.188-review.md).

@@ -30,9 +30,9 @@ run `python3 serve-local.py` in the extracted folder. Python 3 is required.
 `START-HERE.html` shows these instructions when double-clicked; when served over
 HTTP, it opens the same 3D viewer. See [Run locally](#run-locally).
 
-**Status:** Public open-data project · **Live v1.0.187** · Local v1.0.188 · static viewer for macOS, Windows, and Linux.
+**Status:** Public open-data project · **Live v1.0.188** · Local v1.0.188 · static viewer for macOS, Windows, and Linux.
 
-v1.0.188 restores the Chancellery Ehrenhof entrance as an open, thin tensile canopy using its original source roof surfaces. It removes the detached dark Reichstag basement-window planes that resembled small flags on the lawn; real flags remain. v1.0.188 stellt den Kanzleramtseingang zwischen den Büroflügeln als offenen, dünnen Baldachin anhand der ursprünglichen Dachflächen dar. Die frei vor dem Reichstag stehenden dunklen Fensterflächen sind entfernt, echte Fahnen bleiben erhalten. [Scope and checks / Umfang und Prüfungen](docs/chancellery-canopy-v289.md).
+v1.0.188 restores the Chancellery Ehrenhof entrance as an open, thin tensile canopy using its original source roof surfaces. It removes the detached dark Reichstag basement-window planes that resembled small flags on the lawn; real flags remain. v1.0.188 stellt den Kanzleramtseingang zwischen den Büroflügeln als offenen, dünnen Baldachin anhand der ursprünglichen Dachflächen dar. Die frei vor dem Reichstag stehenden dunklen Fensterflächen sind entfernt, echte Fahnen bleiben erhalten. [Scope and checks / Umfang und Prüfungen](docs/chancellery-canopy-v289.md); [publication receipts / Veröffentlichungsbelege](docs/release-v1.0.188-review.md).
 
 v1.0.186 refines the Chancellery from nine owner photographs: green climbing foliage, large louvred windows and narrow companion slits, plus low forks on five existing trees. Complete source geometry, tree positions and earlier detail remain. Production, package, browser and live-publication checks passed. v1.0.186 präzisiert das Kanzleramt anhand von neun eigenen Fotos: grüner Wildwein, große Lamellenfenster mit schmalen Nebenfenstern und tiefe Verzweigungen an fünf vorhandenen Bäumen. Quellgeometrie, Baumstandorte und bisherige Details bleiben erhalten. Build, Paket, Browser und Live-Veröffentlichung sind geprüft. [Evidence, checks and publication / Quellen, Prüfungen und Veröffentlichung](docs/chancellery-photo-v287.md).
 
@@ -40,7 +40,7 @@ v1.0.185 refines twenty tilted-disc street lamps and the western seven-destinati
 
 Local v1.0.184 refines Reichstag window divisions, stone arch joints and dome steel from the owner photograph. Production, offline-package, browser and publication checks passed. v1.0.184 präzisiert Fensterteilungen, Steinbogenfugen und die Kuppelstruktur anhand des bereitgestellten Fotos; Build, Paket und Live-Stand sind geprüft.
 
-The hosted viewer remains v1.0.187 while v1.0.188 completes verification. Der Live-Viewer bleibt bis zur abgeschlossenen Prüfung auf v1.0.187.
+The hosted viewer and both release packages are v1.0.188. Online-Ansicht und beide Downloadpakete enthalten v1.0.188.
 
 Version 1.0.183 refines Potsdamer Platz from three owner photographs: source-aligned Torhaus and TRION facade grids, the Beisheim office podium, and the south station pavilion. Its source height included a basement; the roof now uses the original absolute elevation. Window divisions, steel fittings and tones are photographic estimates. The hosted viewer and both archives passed their publication checks. [Source evidence and checks](docs/potsdamer-photos-v284.md).
 
