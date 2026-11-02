@@ -36,6 +36,7 @@ export function visualModeWalkableInteriorAt(
   y: number,
   z: number,
   sourceBuildingId?: string,
+  parliamentInteriorsV295 = false,
 ): boolean {
   if (eastCivicWalkableAt(x, y, z, sourceBuildingId) ||
       alexanderCivicWalkableAt(x, y, z, sourceBuildingId) ||
@@ -49,7 +50,7 @@ export function visualModeWalkableInteriorAt(
   if (brandenburgGateWalkableAt(x, y, z, sourceBuildingId)) return true;
   if (hauptbahnhofWalkableInteriorAt(x, y, z, sourceBuildingId)) return true;
   if (mode === "schwellenraum") {
-    return schwellenraumNavigationOverrideAt(x, y, z, sourceBuildingId);
+    return schwellenraumNavigationOverrideAt(x, y, z, sourceBuildingId, parliamentInteriorsV295);
   }
   return (
     minecraftHeroCollisionEnabled(mode) &&

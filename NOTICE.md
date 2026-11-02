@@ -2695,3 +2695,53 @@ for Blumen Röwer, Bundespolizei and Brezelbäckerei Ditsch, together with the
 same official reference-only station plan. Storefront positions and geometric
 flower arrangements are display estimates; no source pixels or logos are copied.
 See `geo_data/regierungsviertel/hbf-flowers-v292-evidence.json`.
+
+
+Court/park refinements v293 use the Berlin court administrations,
+Landesdenkmalamt Berlin and Bezirksamt Mitte / Ecke Turmstraße 4/2016
+(page 3, Rolleracht). The Peuser court photograph is historical context only.
+Original official LoD2 sheets and OSM courses remain retained; window, masonry
+and small bridge sections are display estimates. See the component evidence
+and docs/courts-park-v293.md.
+
+Parliamentary dining v296 uses the Bundestag's Jorge Pardo account and artist
+flyer: reference photograph Jens Ziehe / © Jorge Pardo, courtesy
+neugerriemschneider. The independent geometric lamp interpretation copies no
+source pixels. Marie Bistro identity and its two-level adaptation use the
+current operator, Kusus+Kusus Architekten and Das Parlament (September 2025).
+Fine furniture, fitting and room dimensions are display estimates. References
+remain reference-only, without photographs, plan pages, textures or runtime
+media downloads. See docs/parliamentary-dining-v296.md.
+
+Southern named-site refinements v294 additionally use the Stiftung Deutsches
+Technikmuseum, Landesdenkmalamt Berlin, BVG, GNEISE, Gewobag, the Möbel Olfe
+and Huxleys / Neue Welt operators, Bezirksamt Neukölln, Berlin's market and
+park accounts, the Metropol and Spielbank operators, RPBW and Berliner
+Philharmoniker. RPBW reference photographs: Enrico Cano; Gianni Berengo Gardin;
+RPBW / Vincent Mosch. Huxleys operator photograph: Monique Wüstenhagen.
+Existing museum image credits Ériver Hijano and C. Kirchner remain. Historical
+architecture images and proposed NKZ rehabilitation renders do not establish
+current tenants or completed construction. All images are reference-only;
+no pixels, pages or photographic textures ship. See docs/south-fidelity-v294.md.
+
+Parliament interiors v295 additionally use the publicly documented architecture
+and visitor information of the Deutscher Bundestag, its Kuppelkucker seating
+account, bpb / APuZ and the Berliner Abgeordnetenhaus's official architecture
+texts and public book (printed pages 104–105). The chamber layouts and small
+interior dimensions remain independent procedural display estimates. All
+photographs and document pages remain reference-only. Original source plans,
+courtyards and the existing complete Reichstag dome are retained. See
+docs/parliament-interiors-v295.md.
+
+Waterfront connections v296 use Max Dudler's Gustav-Heinemann-Brücke account,
+Futurium accessibility information, JUCA's forecourt project, and the public
+HumboldtHafenEins project accounts of KSP Engel, KVL and Implenia. References
+establish architectural and public-route identities; unsurveyed absolute
+elevations, widths without mapped measurements and small fittings are labelled
+display estimates. No new photo, plan or media pixels are distributed. See
+docs/waterfront-v296.md.
+
+The E-Werk/Mauerstraße companion v294 also uses reference-only exterior
+photographs credited to Andreas Nenninger (Deutsche Kinemathek) and Andreas
+Muhs (Berliner Zentrum Industriekultur). Copyright remains with the named
+photographers and publishers; no source pixels or textures are copied.

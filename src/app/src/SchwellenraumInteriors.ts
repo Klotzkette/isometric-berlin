@@ -1,3 +1,4 @@
+import { parliamentLegacyInteriorAirV295 } from "./ParliamentInteriorsV295";
 import topographySource from "./topographyTerrorSource.json";
 import {
   BoxGeometry,
@@ -994,9 +995,11 @@ export function schwellenraumInteriorSolidAt(
   y: number,
   z: number,
   radiusM = 0,
+  parliamentInteriorsV295 = false,
 ): boolean {
   const padding = Math.max(0, radiusM);
   for (const solid of SCHWELLENRAUM_INTERIOR_SOLIDS) {
+    if (parliamentInteriorsV295 && solid.id.startsWith("reichstag-") && parliamentLegacyInteriorAirV295(x,y,z,padding)) continue;
     if (solid.shape === "segment") {
       if (
         squaredDistanceToSegment3(x, y, z, solid.fromWorldM, solid.toWorldM) <=
@@ -1085,10 +1088,14 @@ export function schwellenraumNavigationOverrideAt(
   y: number,
   z: number,
   obstacleId?: string,
+  parliamentInteriorsV295 = false,
 ): boolean {
   if (schwellenraumProtectedAt(x, y, z)) return false;
   const volume = schwellenraumAccessibleVolumeAt(x, y, z);
   if (!volume) return false;
+  // The full public rooms replace only this retired schematic owner.
+  // Their source-bound air is composed before this legacy fallback.
+  if (parliamentInteriorsV295 && volume.id.startsWith("reichstag-")) return false;
   return (
     obstacleId === undefined ||
     volume.sourceBuildingIds === undefined ||
@@ -1637,7 +1644,7 @@ function createChariteInterior(
  * Build only mode-specific thresholds. The group starts hidden so adding it to
  * the standard world cannot alter that mode before presentation is selected.
  */
-export function createSchwellenraumInteriors(): Group {
+export function createSchwellenraumInteriors(options: { parliamentInteriorsV295?: boolean } = {}): Group {
   const stone = new MeshStandardMaterial({
     color: 0xc9d0cb,
     emissive: 0x1a2027,
@@ -1672,7 +1679,7 @@ export function createSchwellenraumInteriors(): Group {
   root.name = "Schwellenraum accessible architecture";
   root.visible = false;
   root.add(
-    createReichstagInterior(stone, glow, blue),
+    ...(options.parliamentInteriorsV295 ? [] : [createReichstagInterior(stone, glow, blue)]),
     createHauptbahnhofInterior(stone, glass, glow),
     createChancelleryInterior(stone, glass, glow),
     createPotsdamerInterior(stone, glass, glow),
@@ -1697,4 +1704,12 @@ export function setSchwellenraumInteriorsPresentation(
 ): void {
   root.visible = enabled;
   root.userData.presentationEnabled = enabled;
+}
+
+/** The old schematic root can already exist when initial manifest work yields.
+ * Retain its owned resources for normal whole-root disposal; suppress only this
+ * exact predecessor after the complete common public-room model is attached. */
+export function setSchwellenraumParliamentInteriorV295(root:Group,enabled:boolean):void {
+  const legacy=root.getObjectByName("Schwellenraum Reichstag interior");if(legacy)legacy.visible=!enabled;
+  root.userData.parliamentInteriorsV295=enabled;
 }

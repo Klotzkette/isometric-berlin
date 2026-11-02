@@ -1,3 +1,4 @@
+import { gustavPanoramaBaseV296, gustavPathTrianglesV296 } from "./waterfrontV296Profile";
 /** Exact committed OSM axes; height ordinates preserve the prior DGM-linked profile.
  * The 5m relative upper path envelope is a documented landscape display value,
  * not a survey of every intermediate section. */
@@ -186,9 +187,8 @@ export function spreebogenBankTopAt(x: number, z: number): number | null {
 export function spreebogenPanoramaYAt(index: number): number {
   const [x, z] = PANORAMAWEG_WORLD_M[index];
   const t = index / (PANORAMAWEG_WORLD_M.length - 1);
-  return (
-    spreebogenLowerPathYAt(x, z) + 0.15 + 4.85 * Math.sin(t * Math.PI) ** 0.72
-  );
+  const previous = spreebogenLowerPathYAt(x, z) + 0.15 + 4.85 * Math.sin(t * Math.PI) ** 0.72;
+  return gustavPanoramaBaseV296(x, z, previous);
 }
 
 /** The same triangulated cross-section used by rendered path and navigation. */
@@ -210,7 +210,7 @@ export function spreebogenWalkSurfaceAt(
   const lower = spreebogenPromenadeYAt(x, z);
   const q = nearest(PANORAMAWEG_WORLD_M, x, z);
   if (q.distance <= 1.2) {
-    const upper = ribbonYAt(upperSections, x, z);
+    const upper = ribbonYAt(upperSections, x, z, true);
     if (upper !== null && currentY >= upper - 0.65) return upper;
   }
   return lower;
@@ -265,14 +265,12 @@ function ribbonYAt(
   profile: readonly SpreebogenPathSection[],
   x: number,
   z: number,
+  upper = false,
 ): number | null {
   for (let i = 0; i < profile.length - 1; i++) {
     const a = profile[i],
       b = profile[i + 1];
-    for (const [p, q, r] of [
-      [a.left, b.left, b.right],
-      [a.left, b.right, a.right],
-    ]) {
+    for (const [p, q, r] of gustavPathTrianglesV296(a,b,upper)) {
       const dx = q[0] - p[0],
         dz = q[2] - p[2],
         ex = r[0] - p[0],
@@ -349,7 +347,7 @@ function minecraftPathProfile(mobileLike: boolean): MinecraftPathProfile {
     const sections = kind === "lower" ? lowerSections : upperSections;
     for (let i = 0; i < sections.length - 1; i++) {
       const a = sections[i], b = sections[i + 1];
-      for (const triangle of [[a.left, b.left, b.right], [a.left, b.right, a.right]]) {
+      for (const triangle of gustavPathTrianglesV296(a,b,kind === "upper")) {
         const x0 = Math.floor(Math.min(...triangle.map((p) => p[0])) / step);
         const x1 = Math.floor(Math.max(...triangle.map((p) => p[0])) / step);
         const z0 = Math.floor(Math.min(...triangle.map((p) => p[2])) / step);

@@ -3,6 +3,7 @@ import {
   BufferGeometry,
   Color,
   InstancedMesh,
+  InstancedBufferAttribute,
   Matrix4,
   DoubleSide,
   EdgesGeometry,
@@ -19,6 +20,10 @@ import {
   Vector3,
 } from "three";
 import { TessellateModifier } from "three/examples/jsm/modifiers/TessellateModifier.js";
+import { GUSTAV_RAIL_OPENING_V296, WATERFRONT_GROUND_OPENINGS_V296, gustavPathTrianglesV296 } from "./waterfrontV296Profile";
+import { hbfGeometryComplementV291, hbfBoxFragmentsV291 } from "./HbfGeometryOpeningsV291";
+import type { HbfBoxV291 } from "./HbfGeometryOpeningsV291";
+import { parliamentClipGeometryV295, parliamentClipInkV295 } from "./ParliamentRetainedEnvelopeV295";
 
 import {
   ARCHITECTURAL_EDGE_THRESHOLD_DEGREES,
@@ -346,11 +351,12 @@ function ribbon(
   positions: number[],
   profile: PathSection[],
   thickness: number,
+  refitGustav = false,
 ): void {
   for (let i = 0; i < profile.length - 1; i++) {
     const a = profile[i],
       b = profile[i + 1];
-    addQuad(positions, a.left, b.left, b.right, a.right);
+    for (const tri of gustavPathTrianglesV296(a,b,refitGustav)) positions.push(...tri[0],...tri[1],...tri[2]);
     const down = (p: Vertex): Vertex => [p[0], p[1] - thickness, p[2]];
     if (thickness > 0) {
       addQuad(
@@ -431,12 +437,13 @@ function makeBankLawnGeometry(): BufferGeometry {
 
 function makePanoramawegGeometry(): BufferGeometry {
   const positions: number[] = [];
+  const railPositions: number[] = [];
   const profile = sections(
     PANORAMAWEG_WORLD_M,
     (i) => spreebogenPanoramaYAt(i) + 0.11,
     SPREEBOGEN_PARK_PROFILE.panoramawegWidthM,
   );
-  ribbon(positions, profile, 0.22);
+  ribbon(positions, profile, 0.22, true);
   for (let side = 0; side < 2; side++) {
     const edge = profile.map((q) => (side === 0 ? q.left : q.right));
     for (const height of [0.43, 0.75, 1.04]) {
@@ -445,7 +452,7 @@ function makePanoramawegGeometry(): BufferGeometry {
         (i) => edge[i][1] + height,
         0.065,
       );
-      ribbon(positions, p, 0.055);
+      ribbon(railPositions, p, 0.055);
     }
     for (let i = 0; i < edge.length - 1; i++) {
       const a = edge[i],
@@ -454,7 +461,7 @@ function makePanoramawegGeometry(): BufferGeometry {
       for (let j = 0; j < n; j++) {
         const t = j / n;
         addBox(
-          positions,
+          railPositions,
           [
             a[0] + (b[0] - a[0]) * t,
             a[1] + (b[1] - a[1]) * t + 0.51,
@@ -479,6 +486,12 @@ function makePanoramawegGeometry(): BufferGeometry {
     const [ax, az] = pathAxis(before, after);
     addBox(positions, [x, bottom + h / 2, z], [ax, az], 0.6, h, 2.1);
   }
+  const originalRails = geometryFromPositions(railPositions);
+  const openedRails = hbfGeometryComplementV291(originalRails, [GUSTAV_RAIL_OPENING_V296]);
+  const rails = openedRails.getAttribute("position");
+  for (let i=0;i<rails.count;i++) positions.push(rails.getX(i),rails.getY(i),rails.getZ(i));
+  if (openedRails !== originalRails) openedRails.dispose();
+  originalRails.dispose();
   return geometryFromPositions(positions);
 }
 function makeGartenspurGeometry(): BufferGeometry {
@@ -877,6 +890,17 @@ export function createMinecraftSpreebogenPark(
     color: Color,
     key: string,
   ): void => {
+    if (key.startsWith("rail:") || key.startsWith("post:")) {
+      const box = { min: [x-sx/2,y-sy/2,z-sz/2] as [number,number,number], max: [x+sx/2,y+sy/2,z+sz/2] as [number,number,number] };
+      const fragments = hbfBoxFragmentsV291(box, [GUSTAV_RAIL_OPENING_V296]);
+      if (fragments) {
+        fragments.forEach((f,i) => blocks.set(`${key}:retained:${i}`, {
+          x:(f.min[0]+f.max[0])/2,y:(f.min[1]+f.max[1])/2,z:(f.min[2]+f.max[2])/2,
+          sx:f.max[0]-f.min[0],sy:f.max[1]-f.min[1],sz:f.max[2]-f.min[2],color,
+        }));
+        return;
+      }
+    }
     blocks.set(key, { x, y, z, sx, sy, sz, color });
   };
   const pathCells = spreebogenMinecraftPathCells(options.mobileLike);
@@ -1003,4 +1027,54 @@ export function createMinecraftSpreebogenPark(
   });
   for (const m of materials) m.dispose();
   return group;
+}
+
+/** Open only the existing named park surfaces through the complete new source
+ * footway. Default-off: attach the waterfront paving before admission. The
+ * lower promenade, outside lawn and all unrecognised owners stay physical. */
+export function applyWaterfrontParkOpeningsV296(root:Group,native=false,enabled=false):void {
+  if(!enabled)return;
+  const cuts=WATERFRONT_GROUND_OPENINGS_V296.filter(c=>c.id.startsWith("gustav-south-terminal:"));
+  const drawnNames=new Set(["Spreebogenpark exact OSM park terrain","Spreebogenpark west rising lawn","Spreebogenpark raised Panoramaweg","Spreebogenpark Panoramaweg ink"]);
+  root.updateMatrixWorld(true);
+  const targets:(Mesh|LineSegments)[]=[];
+  root.traverse(o=>{
+    if(!(o instanceof Mesh||o instanceof LineSegments)||o.userData.waterfrontOpeningV296)return;
+    const owner=native?"Minecraft Spreebogenpark maintained bank":"Spreebogenpark landscape window";
+    let parent=o.parent;while(parent&&parent!==root&&parent.name!==owner)parent=parent.parent;
+    if(root.name!==owner&&parent?.name!==owner)return;
+    if(native?o.name==="Minecraft Spreebogenpark surface blocks":drawnNames.has(o.name))targets.push(o);
+  });
+  for(const o of targets){
+    if(o instanceof InstancedMesh){
+      const kept:number[]=[],paint:number[]=[],pieces:{box:HbfBoxV291;color:Color}[]=[],matrix=new Matrix4(),world=new Matrix4(),inverse=o.matrixWorld.clone().invert(),color=new Color();
+      let changed=0;
+      for(let i=0;i<o.count;i++){
+        o.getMatrixAt(i,matrix);world.multiplyMatrices(o.matrixWorld,matrix);
+        const a=world.elements;
+        // This owner is cardinal. A changed/rotated future owner stays intact.
+        if([1,2,4,6,8,9].some(k=>Math.abs(a[k])>1e-7)||[a[0],a[5],a[10]].some(v=>v<=0)){
+          kept.push(...o.instanceMatrix.array.slice(i*16,i*16+16));if(o.instanceColor)paint.push(...o.instanceColor.array.slice(i*3,i*3+3));continue;
+        }
+        const box:HbfBoxV291={min:[a[12]-a[0]/2,a[13]-a[5]/2,a[14]-a[10]/2],max:[a[12]+a[0]/2,a[13]+a[5]/2,a[14]+a[10]/2]};
+        const local=cuts.filter(c=>box.max[0]>c.bounds.min[0]-.5&&box.min[0]<c.bounds.max[0]+.5&&box.max[1]>c.bounds.min[1]&&box.min[1]<c.bounds.max[1]&&box.max[2]>c.bounds.min[2]-.5&&box.min[2]<c.bounds.max[2]+.5);
+        const outside=local.length?hbfBoxFragmentsV291(box,local):[box];
+        if(outside.length===1&&outside[0]===box){kept.push(...o.instanceMatrix.array.slice(i*16,i*16+16));if(o.instanceColor)paint.push(...o.instanceColor.array.slice(i*3,i*3+3));continue;}
+        changed++;if(o.instanceColor)o.getColorAt(i,color);else color.setHex(0xffffff);
+        for(const b of outside)pieces.push({box:b,color:color.clone()});
+      }
+      if(!changed)continue;
+      o.instanceMatrix=new InstancedBufferAttribute(new Float32Array(kept),16);if(o.instanceColor)o.instanceColor=new InstancedBufferAttribute(new Float32Array(paint),3);o.count=kept.length/16;o.computeBoundingBox();o.computeBoundingSphere();
+      if(pieces.length){
+        const mesh=new InstancedMesh(o.geometry,o.material,pieces.length);
+        pieces.forEach(({box:b,color},i)=>{world.makeScale(b.max[0]-b.min[0],b.max[1]-b.min[1],b.max[2]-b.min[2]);world.setPosition((b.max[0]+b.min[0])/2,(b.max[1]+b.min[1])/2,(b.max[2]+b.min[2])/2);matrix.multiplyMatrices(inverse,world);mesh.setMatrixAt(i,matrix);mesh.setColorAt(i,color);});
+        mesh.name="Spreebogenpark complete cardinal fragments outside Gustav footway v296";mesh.userData={...o.userData,waterfrontOpeningV296:true,sourceOutsideFragmentsRetained:true};mesh.computeBoundingBox();mesh.computeBoundingSphere();o.add(mesh);
+      }
+      o.userData.waterfrontOpeningV296=true;o.userData.affectedInstancesV296=changed;
+    }else{
+      const world=o.geometry.clone().applyMatrix4(o.matrixWorld),clipped=o instanceof LineSegments?parliamentClipInkV295(world,cuts):parliamentClipGeometryV295(world,cuts);
+      if(clipped===world){world.dispose();continue;}
+      world.dispose();clipped.applyMatrix4(o.matrixWorld.clone().invert());o.geometry.dispose();o.geometry=clipped;o.userData.waterfrontOpeningV296=true;
+    }
+  }
 }

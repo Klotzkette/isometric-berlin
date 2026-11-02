@@ -203,6 +203,9 @@ def test_package_readme_mentions_version_and_port_fallback(tmp_path: Path) -> No
 
   readme = (tmp_path / "README.txt").read_text(encoding="utf-8")
   assert package_static_site.PACKAGE_VERSION in readme
+  assert "Versunken" in readme
+  assert "Flooded Berlin" in readme
+  assert "sechs Darstellungen" in readme
   assert "START-HERE.html" in readme
   assert "2D-Notansicht" not in readme
   assert "START-HERE.html is a file-safe launch guide" in readme

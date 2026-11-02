@@ -2248,6 +2248,9 @@ function pedestrianRoofGroundAt(
       continue;
     }
     const top = polygonObstacleTopAt(x, z, obstacle);
+    // A source cap removed by an admitted public air opening is not a roof
+    // walking surface. Keep the exact source-owner check and all outside caps.
+    if (environment.walkableInteriorAt?.(x, top, z, obstacle.sourceId) === true) continue;
     // A 22 cm movement substep can climb 9 cm on the authored glass hip.
     // Keep flat source roofs' existing tolerance; only a variable roof needs
     // this bounded rise allowance to avoid stalling on its upward slope.

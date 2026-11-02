@@ -1,3 +1,14 @@
+import { createWaterfrontColumnOpeningsV296, type WaterfrontPrismV296 } from "./waterfrontV296Profile";
+import { hbfBoxFragmentsV291 } from "./HbfGeometryOpeningsV291";
+import { applyWaterfrontAuthoredOpeningsV296 } from "./WaterfrontFidelityV296";
+import { applyDiningAuthoredOpeningsV296 } from "./ParliamentaryDiningV296";
+import { createDiningColumnOpeningsV296, diningNativeBoxFragmentsV296, type DiningPrismV296 } from "./parliamentaryDiningV296Profile";
+import { restoreFidelityGroundSlabsV296 } from "./FidelityGroundOpeningsV296";
+import { applyWaterfrontParkOpeningsV296 } from "./SpreebogenPark";
+import { createParliamentInteriorsV295 } from "./ParliamentInteriorsV295";
+import { parliamentSourceOwnersAdmittedV295 } from "./ParliamentRetainedEnvelopeV295";
+import { parliamentNativeColumnAdmittedV295, parliamentNativeColumnComplementV295 } from "./ParliamentNativeColumnsV295";
+import type { HbfBoxV291 } from "./HbfGeometryOpeningsV291";
 import { isChancelleryCanopyOldColumnV289 } from "./ChancelleryCanopySourceV289Ownership";
 import { prepareRequiredFidelityV288 } from "./RequiredFidelityV288";
 import { isBerlinHistoricDomColumnV288 } from "./BerlinHistoricCoreV288Ownership";
@@ -340,6 +351,7 @@ import {
 } from "./TunnelPortals";
 
 export type MinecraftVoxelWorldOptions = {
+  parliamentInteriorsV295?: boolean;
   golgathaV270?: boolean;
   tachelesFrontsV270?: boolean;
   technikmuseumV272?: boolean;
@@ -2438,7 +2450,10 @@ export function* buildMinecraftVoxelWorldSteps(
   // interior before the legacy signature retires its exact four coarse cues.
   // Both remain owned by this unpublished staged root until admission succeeds.
   group.add(createHbfInteriorV291({ native: true, ...HBF_CIRCULATION_V291.frame }));
-  const architecturalV287 = createMinecraftArchitecturalLandmarks({ hbfRetailV292: true });
+  const parliamentInteriorsV295 = options.parliamentInteriorsV295 === true && parliamentSourceOwnersAdmittedV295(options.sourcePrisms);
+  if (parliamentInteriorsV295) group.add(createParliamentInteriorsV295({ native: true }));
+  group.userData.parliamentInteriorsV295 = parliamentInteriorsV295;
+  const architecturalV287 = createMinecraftArchitecturalLandmarks({ hbfRetailV292: true, parliamentInteriorsV295 });
   group.add(architecturalV287);
   group.add(createHbfNativeMovingFixturesV291());
   const photoAdmissionV287 = matchesNativeChancellerySourceV287(payload) && admitsChancelleryPhotoNativeV287(architecturalV287);
@@ -2593,7 +2608,7 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftBebelplatzFacades(payload));
   group.add(createMinecraftHedwigCathedral(payload));
   yield;
-  group.add(createMinecraftAbgeordnetenhausDetails(options.detailProfile ?? "full"));
+  group.add(createMinecraftAbgeordnetenhausDetails(options.detailProfile ?? "full", { parliamentInteriorsV295 }));
   group.add(createMinecraftGropiusBauDetails(options.detailProfile ?? "full"));
   group.add(createMinecraftTipiAmKanzleramt());
   yield;
@@ -2671,8 +2686,16 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   // Publish the complete independent south hall before only its immutable
   // coarse tuples yield. A changed/ambiguous source retains the old world.
-  const fidelityV288 = prepareRequiredFidelityV288({buildings:options.sourcePrisms ?? []}, payload, true);
+  const fidelityV288 = prepareRequiredFidelityV288({buildings:options.sourcePrisms ?? []}, payload, true, false, mobileDetail);
   group.add(fidelityV288.root);
+  group.userData.courtsParkV293=fidelityV288.courtsPark;
+  group.userData.southFidelityV294=fidelityV288.southFidelity;
+  group.userData.parliamentaryDiningV296=fidelityV288.parliamentaryDining;
+  group.userData.waterfrontV296=fidelityV288.waterfront;
+  applyDiningAuthoredOpeningsV296(group,true,fidelityV288.parliamentaryDining);
+  applyWaterfrontParkOpeningsV296(group,true,fidelityV288.waterfront);
+  applyWaterfrontAuthoredOpeningsV296(group,true,fidelityV288.waterfront);
+  restoreFidelityGroundSlabsV296(groundSlabs,{native:true,dining:fidelityV288.parliamentaryDining,waterfront:fidelityV288.waterfront});
   group.userData.chancelleryCanopySourceV289 = fidelityV288.chancelleryCanopy;
   group.userData.historicDomV288 = fidelityV288.historicDom;
   group.userData.potsdamerCorridorV288 = fidelityV288.potsdamerCorridor;
@@ -2721,11 +2744,19 @@ export function* buildMinecraftVoxelWorldSteps(
   const chariteBridgeColumnAt = options.chariteBridgesV265
     ? createChariteBridgeColumnTesterV265(options.sourcePrisms, cell) : () => false;
   const visibleBuildingColumns: VoxelBuildingColumn[] = [];
+  const parliamentOriginalColumnsV295 = new Map<string,VoxelBuildingColumn>();
+  const diningColumnCutsV296=createDiningColumnOpeningsV296((options.sourcePrisms??[]) as readonly DiningPrismV296[],cell,fidelityV288.parliamentaryDining);
+  const diningOriginalColumnsV296=new Map<string,VoxelBuildingColumn>();
+  const waterfrontColumnCutsV296=createWaterfrontColumnOpeningsV296((options.sourcePrisms??[]) as readonly WaterfrontPrismV296[],cell,fidelityV288.waterfront);
+  const waterfrontOriginalColumnsV296=new Map<string,VoxelBuildingColumn>();
   let visitedColumns = 0;
   for (const [xIdx, zIdx, y0dm, y1dm, classId] of voxelBuildingColumns(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
+    if(waterfrontColumnCutsV296(xIdx,zIdx,y0dm,y1dm,classId).length)waterfrontOriginalColumnsV296.set(`${xIdx},${zIdx}`,[xIdx,zIdx,y0dm,y1dm,classId]);
+    if(diningColumnCutsV296(xIdx,zIdx,y0dm,y1dm,classId).length)diningOriginalColumnsV296.set(`${xIdx},${zIdx}`,[xIdx,zIdx,y0dm,y1dm,classId]);
+    if (parliamentInteriorsV295 && parliamentNativeColumnAdmittedV295(xIdx,zIdx,y0dm,y1dm,classId)) parliamentOriginalColumnsV295.set(`${xIdx},${zIdx}`,[xIdx,zIdx,y0dm,y1dm,classId]);
     if (fidelityV288.chancelleryCanopy && isChancelleryCanopyOldColumnV289([xIdx,zIdx,y0dm,y1dm,classId])) continue;
     if (fidelityV288.historicDom && isBerlinHistoricDomColumnV288(xIdx,zIdx,y0dm,y1dm,classId)) continue;
     if (fidelityV288.potsdamerCorridor && isPotsdamerCorridorOldNativeColumnV288([xIdx,zIdx,y0dm,y1dm,classId])) continue;
@@ -2848,6 +2879,8 @@ export function* buildMinecraftVoxelWorldSteps(
       visibleBuildingColumns.push([xIdx, zIdx, y0dm, topDm, classId]);
   }
 
+  type ParliamentLayerV295 = { box:HbfBoxV291; paint:"facade"|"plinth"|"cap" };
+  const parliamentLayersV295 = new Map<number,ParliamentLayerV295[]>();
   let buildingLayerCount = 0;
   for (let i = 0; i < visibleBuildingColumns.length; i += 1) {
     if (i % 2048 === 0) yield;
@@ -2860,7 +2893,7 @@ export function* buildMinecraftVoxelWorldSteps(
         ? RIECKHALLEN_PROFILE.minecraftRoofTopY
         : y1dm / 10;
     const height = Math.max(cell, roofTopY - y0dm / 10);
-    const heroSource = isMinecraftHeroSourceCourseArea(recognitionArea);
+    const heroSource = isMinecraftHeroSourceCourseArea(recognitionArea) || parliamentOriginalColumnsV295.has(`${xIdx},${zIdx}`) || diningOriginalColumnsV296.has(`${xIdx},${zIdx}`) || waterfrontOriginalColumnsV296.has(`${xIdx},${zIdx}`);
     if (mobileDetail && !heroSource) {
       const mappedRoof = toneLookup?.roofToneAt ? toneLookup.roofToneAt(worldX, worldZ) : mappedRoofTone(toneLookup?.attributesAt?.(worldX, worldZ));
       buildingLayerCount += mappedRoof !== undefined && height > 5 ? 2 : 1;
@@ -2872,6 +2905,26 @@ export function* buildMinecraftVoxelWorldSteps(
     const bodyCourseCount = heroSource
       ? Math.max(1, Math.ceil(bodyHeight / MINECRAFT_HERO_SOURCE_COURSE_MAX_M))
       : 1;
+    const original = parliamentOriginalColumnsV295.get(`${xIdx},${zIdx}`),diningOriginal=diningOriginalColumnsV296.get(`${xIdx},${zIdx}`),waterfrontOriginal=waterfrontOriginalColumnsV296.get(`${xIdx},${zIdx}`);
+    if (original || diningOriginal || waterfrontOriginal) {
+      const layers:ParliamentLayerV295[]=[]; let changed=false;
+      const add=(bottom:number,top:number,paint:ParliamentLayerV295["paint"])=>{
+        const box:HbfBoxV291={min:[worldX-cell/2,bottom,worldZ-cell/2],max:[worldX+cell/2,top,worldZ+cell/2]};
+        const parliamentParts=original?parliamentNativeColumnComplementV295(box,...original,true):[box];
+        const diningParts=diningOriginal?parliamentParts.flatMap(part=>diningNativeBoxFragmentsV296(part,diningColumnCutsV296(...diningOriginal))):parliamentParts;
+        const fragments=waterfrontOriginal?diningParts.flatMap(part=>hbfBoxFragmentsV291(part,waterfrontColumnCutsV296(...waterfrontOriginal))):diningParts;
+        if(fragments.length!==1||fragments[0]!==box)changed=true;
+        for(const fragment of fragments)layers.push({box:fragment,paint});
+      };
+      const y0=y0dm/10,dy=bodyHeight/bodyCourseCount;
+      if(plinthHeight>0)add(y0,y0+plinthHeight,"plinth");
+      for(let course=0;course<bodyCourseCount;course++){
+        const centre=y0+plinthHeight+(course+.5)*dy,h=bodyCourseCount>1?Math.max(.08,dy-.08):dy;
+        add(centre-h/2,centre+h/2,"facade");
+      }
+      if(capHeight>0)add(y0+height-capHeight,y0+height,"cap");
+      if(changed){parliamentLayersV295.set(i,layers);buildingLayerCount+=layers.length;continue;}
+    }
     buildingLayerCount +=
       bodyCourseCount + (plinthHeight > 0 ? 1 : 0) + (capHeight > 0 ? 1 : 0);
   }
@@ -2889,6 +2942,7 @@ export function* buildMinecraftVoxelWorldSteps(
   );
   group.add(buildings.mesh);
   applyMinecraftColumnDetail(buildings.mesh.material as MeshStandardMaterial, cell);
+  buildings.mesh.userData.parliamentOpenColumnCountV295 = parliamentLayersV295.size;
   buildings.mesh.userData.buildingDetail = {
     sourceEnvelope: "unchanged retained LoD2 voxel columns",
     courseJoints: "Minecraft block-grid display; not surveyed masonry courses",
@@ -2913,7 +2967,7 @@ export function* buildMinecraftVoxelWorldSteps(
         ? RIECKHALLEN_PROFILE.minecraftRoofTopY
         : y1dm / 10;
     const height = Math.max(cell, roofTopY - y0);
-    const heroSource = isMinecraftHeroSourceCourseArea(recognitionArea);
+    const heroSource = isMinecraftHeroSourceCourseArea(recognitionArea) || parliamentOriginalColumnsV295.has(`${xIdx},${zIdx}`) || diningOriginalColumnsV296.has(`${xIdx},${zIdx}`) || waterfrontOriginalColumnsV296.has(`${xIdx},${zIdx}`);
     // Real building colour when the prism payload knows this footprint;
     // whole buildings read as one hue (no checkerboard), the class
     // shades stay as fallback for unknown columns.
@@ -2945,6 +2999,16 @@ export function* buildMinecraftVoxelWorldSteps(
     const capHeight = height > 5 ? 1 : 0;
     const plinthHeight = height > 8 ? 1 : 0;
     const bodyHeight = height - capHeight - plinthHeight;
+    const parliamentFragments = parliamentLayersV295.get(i);
+    if (parliamentFragments) {
+      for (const fragment of parliamentFragments) {
+        const b=fragment.box;
+        center.set((b.min[0]+b.max[0])/2,(b.min[1]+b.max[1])/2,(b.min[2]+b.max[2])/2);
+        size.set(b.max[0]-b.min[0],b.max[1]-b.min[1],b.max[2]-b.min[2]);
+        buildings.write(center,size,fragment.paint==="facade"?facade:layerPaint.setHex(fragment.paint==="plinth"?layers.plinth:sourceRoofTone??toneLookup?.illustrationRoofToneAt?.(worldX,worldZ)??layers.cap));
+      }
+      continue;
+    }
     if (plinthHeight > 0) {
       center.set(worldX, y0 + plinthHeight / 2, worldZ);
       size.set(cell, plinthHeight, cell);

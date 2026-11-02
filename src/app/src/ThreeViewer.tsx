@@ -1,3 +1,10 @@
+import { applyWaterfrontAuthoredOpeningsV296 } from "./WaterfrontFidelityV296";
+import { prepareDiningAuthoredFacadeV296 } from "./ParliamentaryDiningV296";
+import { installFidelityNavigationV296, type FidelityAdmissionV296 } from "./FidelityNavigationV296";
+import { applyWaterfrontParkOpeningsV296 } from "./SpreebogenPark";
+import { createParliamentInteriorsV295, parliamentWalkableInteriorV295, parliamentGroundAtV295, parliamentSolidAtV295, parliamentDomePortalAirV295 } from "./ParliamentInteriorsV295";
+import { parliamentSourceOwnersAdmittedV295 } from "./ParliamentRetainedEnvelopeV295";
+import { setSchwellenraumParliamentInteriorV295 } from "./SchwellenraumInteriors";
 import { admitsChancelleryCanopyLegacyV289, setChancelleryCanopyLegacyV289 } from "./ChancelleryCanopySourceV289";
 import { prepareRequiredFidelityV288 } from "./RequiredFidelityV288";
 import { ubahnV281FloorAt, ubahnV281SolidAt } from "./ubahnEntrancesV281Profile";
@@ -192,6 +199,7 @@ import {
   centralCivicDetailsVisible,
   centralCivicFocusCamera,
   createCentralCivicDetails,
+  createBundestagSpreeConnection,
 } from "./CentralCivicDetails";
 import {
   BERLINER_ENSEMBLE_PUBLIC_ART_PROFILE,
@@ -929,7 +937,7 @@ function ensureSchwellenraumContent(runtime: Runtime): boolean {
   runtime.schwellenraumPariserPlatzLoop = pariserPlatzEntityLoopFromRoot(
     runtime.schwellenraumPraesentation,
   );
-  const interiors = createSchwellenraumInteriors();
+  const interiors = createSchwellenraumInteriors({ parliamentInteriorsV295: runtime.signatures.children.some(model=>model.userData.parliamentInteriorsV295 === true && model.userData.native === false) });
   if (runtime.coarsePointer) interleaveStaticGeometry(interiors);
   adoptSchwellenraumRoot(runtime.schwellenraumInteriors, interiors);
   runtime.schwellenraumContentReady = true;
@@ -963,6 +971,22 @@ function setSandkrugBridgePresentation(root: Object3D, mode: LightingMode): void
  * retained bridge branch. Re-apply that leaf policy after every filter or
  * restore so Day -> Minecraft -> Day/Snow cannot save the wrong baseline.
  */
+function prepareViewerDiningFacadeV296(runtime:Runtime,enabled:boolean) {
+  if(!enabled)return null;
+  const existing=prepareDiningAuthoredFacadeV296(runtime.centralDetails,true);
+  if(existing)return existing;
+  // A cached world may finish before manifest civic-detail construction.
+  // Use the exact same canonical owner as a detached source in that ordering.
+  const canonical=createBundestagSpreeConnection();
+  try{return prepareDiningAuthoredFacadeV296(canonical,true);}
+  finally{disposeObject3D(runtime,canonical);}
+}
+
+function setDiningLegacyVisibilityV296(runtime:Runtime):void {
+  const facade=runtime.centralDetails.getObjectByName("Marie-Elisabeth-Lüders-Haus Spree facade");
+  if(facade)facade.visible=runtime.isoWorld?.userData.parliamentaryDiningFacadeV296!==true;
+}
+
 function applyRuntimeMinecraftVisibility(
   runtime: Runtime,
   voxelMode: boolean,
@@ -973,6 +997,7 @@ function applyRuntimeMinecraftVisibility(
   setCoreBridgeRoadPresentationV242(runtime.signatures, runtime.lightingMode);
   setCoreSpreeBridgePresentationV242(runtime.signatures, runtime.lightingMode);
   setPotsdamerTrafficTowerPresentation(runtime.potsdamerTrafficTower, runtime.lightingMode);
+  setDiningLegacyVisibilityV296(runtime);
 }
 
 function refreshSchwellenraumMovingFlagCount(runtime: Runtime): void {
@@ -1643,11 +1668,17 @@ function notifyPresentationReadyWhenPossible(runtime: Runtime): void {
 }
 
 /** The small outline extension starts only after the existing city is usable. */
+function fidelityAdmissionV296(runtime:Runtime):FidelityAdmissionV296 {
+  const native=voxelModeActive(runtime),world=native?runtime.voxelWorld:runtime.isoWorld;
+  return {native,courtsPark:world?.userData.courtsParkV293===true,south:world?.userData.southFidelityV294===true,dining:world?.userData.parliamentaryDiningV296===true,waterfront:world?.userData.waterfrontV296===true};
+}
+
 function startSurroundingCity(runtime: Runtime): void {
   if (runtime.disposed || runtime.surroundingCity) return;
   const city = createSurroundingCity({
     manifestUrl: new URL("../surrounding-berlin-v159/manifest.json", runtime.sceneRootUrl),
     schlossplatzV239: true,
+    southFidelityV294: native=>(native?runtime.voxelWorld:runtime.isoWorld)?.userData.southFidelityV294===true,
     operaTheatresV274: true, staatsoperV240: true, architectureV241: true, mitteEnsembleV281: true, prenzlbergV264: true, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true,
     camera: runtime.camera,
     mode: runtime.lightingMode,
@@ -3728,6 +3759,10 @@ function applyProgressiveWorldMode(
 
 const completedPedestrianWater = (): void => undefined;
 
+function parliamentWorldReadyV295(runtime:Runtime):boolean {
+  return (voxelModeActive(runtime)?runtime.voxelWorld:runtime.isoWorld)?.userData.parliamentInteriorsV295 === true;
+}
+
 /** Keep long-lived navigation callbacks out of the asynchronous construction
  * scope. Otherwise their shared lexical context pins the consumed JSON payloads
  * and generator inputs even after the fulfilled request promises are released. */
@@ -3769,6 +3804,7 @@ function prepareIsoNavigation(
     memorialProtection,
   );
   pedestrianEnvironment.walkableInteriorAt = (x, y, z, sourceId) => {
+    if (parliamentWorldReadyV295(runtime) && parliamentWalkableInteriorV295(x,y,z,sourceId)) return true;
     if (eastCinemasWalkableInteriorV260(x, y, z, sourceId, runtime.lightingMode === "minecraft")) return true;
     if (neueNationalgalerieWalkableAtV217(x, y, z, sourceId)) return true;
     if (runtime.tunnelInteriorAt?.(x, y, z) === true) {
@@ -3780,6 +3816,7 @@ function prepareIsoNavigation(
       y,
       z,
       sourceId,
+      parliamentWorldReadyV295(runtime),
     );
   };
   pedestrianEnvironment.protectedVolumeAt = (x, y, z) =>
@@ -3789,6 +3826,7 @@ function prepareIsoNavigation(
     (schwellenraumProtectedAt(x, y, z) ||
       schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
   pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
+    if (parliamentWorldReadyV295(runtime) && parliamentSolidAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,y,z,0)) return true;
     if (eastCinemasSolidAtV260(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (coreSpreeBridges.solidAt(x, y, z, radius)) return true;
     if (museumColonnadesV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -3842,7 +3880,7 @@ function prepareIsoNavigation(
     }
     if (runtime.lightingMode === "schwellenraum") {
       return (
-        (!hauptbahnhofCirculationBoundsAt(x, y, z) && schwellenraumInteriorSolidAt(x, y, z, radius)) ||
+        (!hauptbahnhofCirculationBoundsAt(x, y, z) && schwellenraumInteriorSolidAt(x, y, z, radius, parliamentWorldReadyV295(runtime))) ||
         staticPropSolidAt(x, y, z, radius) ||
         federalStateRepresentationSolidAt(x, y, z, radius) ||
         reichstagspraesidentenpalaisDetailSolidAt(x, y, z, radius) ||
@@ -3852,12 +3890,14 @@ function prepareIsoNavigation(
     }
     return (
       minecraftHeroCollisionEnabled(runtime.lightingMode) &&
+      !(parliamentWorldReadyV295(runtime)&&parliamentDomePortalAirV295(x,y,z)) &&
       minecraftHeroSolidAt(x, y, z, radius)
     );
   };
   const formerBridgeGround = pedestrianEnvironment.bridgeGroundAt;
   pedestrianEnvironment.bridgeGroundAt = (x, z) => monbijouV231DeckAt(x, z, runtime.lightingMode === "minecraft") ?? formerBridgeGround?.(x, z) ?? null;
   pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+    if (parliamentWorldReadyV295(runtime)) { const floor=parliamentGroundAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,z,currentGroundY); if(floor!==null)return floor; }
     const piazzettaFloor = kulturforumPiazzettaFloorAt(x, z, runtime.lightingMode === "minecraft");
     if (piazzettaFloor !== null) return piazzettaFloor;
     const colonnadeFloor = museumColonnadesV231GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
@@ -3964,6 +4004,7 @@ function prepareIsoNavigation(
       invalidateScenePresentation(runtime);
     }
   };
+  installFidelityNavigationV296(pedestrianEnvironment,()=>fidelityAdmissionV296(runtime));
   return { environment: pedestrianEnvironment, installWorldDetails };
 }
 
@@ -4113,10 +4154,11 @@ function ensureIsoWorld(
         return;
       }
       const pendingSignatures = new Group();
-      const fidelityV288 = prepareRequiredFidelityV288(prisms, ground, false, admitsChancelleryCanopyLegacyV289(runtime.signatures));
+      const fidelityV288 = prepareRequiredFidelityV288(prisms, ground, false, admitsChancelleryCanopyLegacyV289(runtime.signatures),runtime.coarsePointer);
       provisionalIsoWorld = fidelityV288.root;
       const stationPhotoAdmitted = canReplacePotsdamerSouthStationPhoto(prisms.buildings);
       const hbfCirculationV291 = runtime.signatures.children.some(model => model.userData.hbfMotionFrameV291?.native === false);
+      const parliamentInteriorsV295 = runtime.signatures.children.some(model=>model.userData.parliamentInteriorsV295 === true && model.userData.native === false) && parliamentSourceOwnersAdmittedV295(prisms.buildings);
       const pendingStaffage = new Group();
       const pendingUnderground = new Group();
       const pendingCatenary = new Group();
@@ -4155,7 +4197,7 @@ function ensureIsoWorld(
             buildingPartition.omitted.length > 0
             ? {
                 detailProfile: "mobile",
-                hbfCirculationV291, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
+                hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
                 groundUrl: new URL(GROUND_CONTEXT_FILE, runtime.sceneRootUrl).toString(),
                 surfacesUrl: new URL(SURFACE_WORLD_FILE, runtime.sceneRootUrl).toString(),
                 requestedBatchIds: runtime.mobileBuildingWanted,
@@ -4171,7 +4213,7 @@ function ensureIsoWorld(
           : ground && surfaces
             ? {
                 detailProfile: "full",
-                hbfCirculationV291, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
+                hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
                 groundUrl: new URL(
                   GROUND_CONTEXT_FILE,
                   runtime.sceneRootUrl,
@@ -4200,7 +4242,7 @@ function ensureIsoWorld(
           surfaces,
           {
             buildings: initialBuildings,
-            hbfCirculationV291, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
+            hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
             includeLegacyChariteFacade: false,
             includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
             includeLegacyHungarianEnvelope: false,
@@ -4223,6 +4265,16 @@ function ensureIsoWorld(
         );
         provisionalIsoWorld = isoWorld;
         isoWorld.add(fidelityV288.root);
+        applyWaterfrontAuthoredOpeningsV296(isoWorld,false,fidelityV288.waterfront);
+        isoWorld.userData.courtsParkV293=fidelityV288.courtsPark;
+        isoWorld.userData.southFidelityV294=fidelityV288.southFidelity;
+        isoWorld.userData.parliamentaryDiningV296=fidelityV288.parliamentaryDining;
+        isoWorld.userData.waterfrontV296=fidelityV288.waterfront;
+        const diningFacadeV296=prepareViewerDiningFacadeV296(runtime,fidelityV288.parliamentaryDining);
+        if(fidelityV288.parliamentaryDining&&!diningFacadeV296)throw new Error("Missing complete retained parliamentary dining facade owner");
+        if(diningFacadeV296)isoWorld.add(diningFacadeV296.group);
+        isoWorld.userData.parliamentaryDiningFacadeV296=Boolean(diningFacadeV296);
+        isoWorld.userData.parliamentInteriorsV295 = parliamentInteriorsV295;
         isoWorld.userData.chancelleryCanopySourceV289 = fidelityV288.chancelleryCanopy;
         isoWorld.userData.historicDomV288 = fidelityV288.historicDom;
         isoWorld.userData.potsdamerCorridorV288 = fidelityV288.potsdamerCorridor;
@@ -4368,7 +4420,7 @@ function ensureIsoWorld(
           yield;
           pendingPathTerrainAt = prepareDistrictPathTerrain(ground, runtime.tunnelPortalCourse);
         }
-        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { hbfCirculationV291, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
+        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
         yield;
         isoWorld.add(komischeOper.createKomischeOperSourceGeometry());
         yield;
@@ -4402,7 +4454,7 @@ function ensureIsoWorld(
         isoWorld.add(unterDenLinden.createUnterDenLindenDetails({ includeLegacyAeroflot: false }));
         yield;
         const civicDetailProfile = runtime.coarsePointer ? "mobile" : "full";
-        isoWorld.add(abgeordnetenhaus.createAbgeordnetenhausDetails(civicDetailProfile));
+        isoWorld.add(abgeordnetenhaus.createAbgeordnetenhausDetails(civicDetailProfile, { parliamentInteriorsV295 }));
         yield;
         isoWorld.add(gropiusBau.createGropiusBauDetails(civicDetailProfile));
         yield;
@@ -4468,6 +4520,7 @@ function ensureIsoWorld(
           }
           yield;
           const spreebogenPark = createSpreebogenPark(ground);
+          applyWaterfrontParkOpeningsV296(spreebogenPark,false,fidelityV288.waterfront);
           markAuthoredFlatUnlit(spreebogenPark);
           pendingSignatures.add(spreebogenPark);
           applyLightingToRoot(
@@ -4601,6 +4654,7 @@ function ensureIsoWorld(
       // is deliberately started only after this pointer and scene attachment
       // exist; any later failure rolls both it and its batches back below.
       runtime.isoWorld = isoWorld;
+      setDiningLegacyVisibilityV296(runtime);
       if (fidelityV288.chancelleryCanopy && !setChancelleryCanopyLegacyV289(runtime.signatures, true)) throw new Error("Incomplete Chancellery canopy predecessor transaction");
       runtime.schwellenraumTowerSteam = pendingTowerSteam;
       if (pendingTowerSteam) {
@@ -4666,6 +4720,7 @@ function ensureIsoWorld(
         setChancelleryCanopyLegacyV289(runtime.signatures, originalIsoWorld?.userData.chancelleryCanopySourceV289 === true);
         runtime.schwellenraumTowerSteam = originalTowerSteam;
       }
+      setDiningLegacyVisibilityV296(runtime);
       if (mutableRootSnapshots) {
         rollbackMutableRoots(runtime, mutableRootSnapshots);
         mutableRootSnapshots = null;
@@ -4742,14 +4797,16 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
       () => voxelModeActive(runtime),
     );
   environment.walkableInteriorAt = (x, y, z, sourceId) =>
+    parliamentWorldReadyV295(runtime) && parliamentWalkableInteriorV295(x,y,z,sourceId) ||
     eastCinemasWalkableInteriorV260(x, y, z, sourceId, runtime.lightingMode === "minecraft") ||
     neueNationalgalerieWalkableAtV217(x, y, z, sourceId) ||
     runtime.tunnelInteriorAt?.(x, y, z) === true ||
     bendlerblockV202PassageAt(x,y,z,sourceId) || pergamonPanoramaV202PassageAt(x,y,z,sourceId) || palacesUdlWalkableAt(x,y,z,sourceId) || jamesSimonTerraceVoidAt(x,y,z,sourceId) || neueWacheWalkableAt(x,y,z,sourceId) ||
     musicMuseumEntranceCanopyWalkableAt(x,y,z,sourceId) ||
     nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
-    zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId);
+    zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId, parliamentWorldReadyV295(runtime));
   environment.interiorSolidAt = (x, y, z, radius) => {
+    if (parliamentWorldReadyV295(runtime) && parliamentSolidAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,y,z,0)) return true;
     if (eastCinemasSolidAtV260(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (coreSpreeBridges.solidAt(x, y, z, radius)) return true;
     if (museumColonnadesV231SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -4798,12 +4855,14 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
       invalidenfriedhofPedestrianSolidAt(x, y, z, radius) ||
       hauptbahnhofSolidAt(runtime.lightingMode, x, y, z, 0) ||
       (minecraftHeroCollisionEnabled(runtime.lightingMode) &&
+        !(parliamentWorldReadyV295(runtime)&&parliamentDomePortalAirV295(x,y,z)) &&
         minecraftHeroSolidAt(x, y, z, radius))
     );
   };
   const formerBridgeGround = environment.bridgeGroundAt;
   environment.bridgeGroundAt = (x, z) => monbijouV231DeckAt(x, z, runtime.lightingMode === "minecraft") ?? formerBridgeGround?.(x, z) ?? null;
   environment.interiorGroundAt = (x, z, currentGroundY) =>
+    (parliamentWorldReadyV295(runtime) ? parliamentGroundAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,z,currentGroundY) : null) ??
     kulturforumPiazzettaFloorAt(x, z, runtime.lightingMode === "minecraft") ??
     museumColonnadesV231GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     monbijouV231GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
@@ -4841,6 +4900,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     (minecraftHeroCollisionEnabled(runtime.lightingMode)
       ? minecraftHeroGroundAt(x, z)
       : null);
+  installFidelityNavigationV296(environment,()=>fidelityAdmissionV296(runtime));
   return environment;
 }
 
@@ -4956,6 +5016,7 @@ function ensureVoxelWorld(
           {
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             sourcePrisms: prisms?.buildings,
+            parliamentInteriorsV295: true,
             includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
             staatsoperV240: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
           },
@@ -8896,6 +8957,14 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           );
           // Build the complete station before any retained source aperture can
           // be admitted by the preview or its progressive refinement batches.
+          const parliamentRooms = createParliamentInteriorsV295();
+          markAuthoredFlatUnlit(parliamentRooms);
+          if (runtime.coarsePointer) { parliamentRooms.traverse(compactStaticGeometry); interleaveStaticGeometry(parliamentRooms); }
+          parliamentRooms.visible = runtime.lightingMode !== "minecraft";
+          runtime.signatures.add(parliamentRooms);
+          setSchwellenraumParliamentInteriorV295(runtime.schwellenraumInteriors,true);
+          runtime.gpuResidency?.enqueue(parliamentRooms);
+          runtime.geometryResidency?.enqueue(parliamentRooms);
           const hbfSignature = manifest.architectural_signatures?.find(signature => signature.id === "hauptbahnhof-model");
           if (hbfSignature) {
             const stationModel = createArchitecturalSignature(hbfSignature);
@@ -8950,6 +9019,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.coarsePointer ? "mobile" : "full",
             { includeLegacyResearchMinistry: false, includeLegacyHungarianFacade: false, embassiesV264: true },
           );
+          setDiningLegacyVisibilityV296(runtime);
           runtime.centralDetails.visible = centralCivicDetailsVisible(
             runtime.underside,
           );
@@ -9135,7 +9205,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           for (const signature of manifest.architectural_signatures ?? []) {
             const model = signature.id === "hauptbahnhof-model" &&
               runtime.signatures.children.some(child => child.userData.hbfMotionFrameV291?.native === false)
-              ? null : createArchitecturalSignature(signature);
+              ? null : createArchitecturalSignature(signature, { parliamentInteriorsV295: runtime.signatures.children.some(child=>child.userData.parliamentInteriorsV295 === true && child.userData.native === false) });
             if (model) {
               markAuthoredFlatUnlit(model);
               if (runtime.coarsePointer) {

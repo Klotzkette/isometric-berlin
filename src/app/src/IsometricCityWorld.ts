@@ -1,5 +1,9 @@
+import { diningSourceOpeningsV296 } from "./parliamentaryDiningV296Profile";
+import { clipFidelityGroundSurfaceV296, restoreFidelityGroundSlabsV296 } from "./FidelityGroundOpeningsV296";
+import { parliamentRetainedOpeningsV295, parliamentClipGeometryV295, parliamentClipInkV295 } from "./ParliamentRetainedEnvelopeV295";
 import { isChancelleryCanopyOldPrismV289 } from "./ChancelleryCanopySourceV289Ownership";
 import { hbfRetainedGlassOpeningsV291, hbfCutRetainedGlassV291, hbfCutRetainedGlassInkV291, hbfAppendRetainedGlassLineV291 } from "./HbfRetainedGlassV291";
+import { GUSTAV_ALIGNMENT_V296, waterfrontSourceOpeningsV296, waterfrontOriginalPrismV296 } from "./waterfrontV296Profile";
 import { isBerlinHistoricDomOldCoreV288 } from "./BerlinHistoricCoreV288Ownership";
 import { isPotsdamerCorridorOldCoreV288 } from "./PotsdamerCorridorV288Ownership";
 import { createOrdinaryWindowsV288, ordinaryWindowExposureV288, ORDINARY_WINDOWS_V288_LIMIT, type OrdinaryPaneV288 } from "./ordinaryWindowsV288";
@@ -409,6 +413,10 @@ export type PrismPayload = {
 export type IsometricCityBuildOptions = {
   /** Only the completed required Hauptbahnhof model may open its retained source glazing. */
   hbfCirculationV291?: boolean;
+  parliamentaryDiningV296?: boolean;
+  waterfrontV296?: boolean;
+  /** Only after complete required Parliament rooms are attached. */
+  parliamentInteriorsV295?: boolean;
   /** Published only with the complete required photo-guided south station. */
   potsdamerStationPhoto?: boolean;
   historicDomV288?: boolean; potsdamerCorridorV288?: boolean; chancelleryCanopySourceV289?: boolean;
@@ -619,6 +627,8 @@ export type SurfacePayload = {
 export type PretriangulatedSurfaceKind = "asphalt" | "paving";
 
 export type SmoothSurfaceBuildOptions = {
+  parliamentaryDiningV296?: boolean;
+  waterfrontV296?: boolean;
   /** First-frame district layer already owns these source lane markings. */
   excludeDistrictMarkings?: boolean;
   /**
@@ -1829,10 +1839,11 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "hbfCirculationV291" | "chancelleryCanopySourceV289" | "historicDomV288" | "potsdamerCorridorV288" | "potsdamerStationPhoto" | "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "steppengartenShelterV283" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "hbfCirculationV291" | "parliamentInteriorsV295" | "parliamentaryDiningV296" | "waterfrontV296" | "chancelleryCanopySourceV289" | "historicDomV288" | "potsdamerCorridorV288" | "potsdamerStationPhoto" | "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "steppengartenShelterV283" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
+  const originalWaterfrontPrismV296=options.waterfrontV296?buildings.find(waterfrontOriginalPrismV296):undefined;
   const visible = buildings.filter(building => !options.chancelleryCanopySourceV289 || !isChancelleryCanopyOldPrismV289(building))
     .filter(building => !options.historicDomV288 || !isBerlinHistoricDomOldCoreV288(building))
     .filter(building => !options.potsdamerCorridorV288 || !isPotsdamerCorridorOldCoreV288(building))
@@ -1925,11 +1936,12 @@ export function createDistantBuildingShells(
     const upperY = !isGlass && hasPotsdamerUpperStoreys(building.id, bodyHeight)
       ? y0 + POTSDAMER_UPPER_STOREYS.startM : undefined;
     const hbfCuts = isGlass ? hbfRetainedGlassOpeningsV291(building, options.hbfCirculationV291 === true) : [];
-    if (hbfCuts.length) {
+    const parliamentCuts = [...parliamentRetainedOpeningsV295(building, options.parliamentInteriorsV295 === true), ...diningSourceOpeningsV296(building, options.parliamentaryDiningV296 === true),...waterfrontSourceOpeningsV296(originalWaterfrontPrismV296?.id===building.id?originalWaterfrontPrismV296:building, options.waterfrontV296 === true)];
+    if (hbfCuts.length || parliamentCuts.length) {
       let source: BufferGeometry = new ExtrudeGeometry(shapeFromRings(building), { bevelEnabled: false, depth: bodyHeight, steps: 1 });
       source.rotateX(-Math.PI / 2); source.translate(0, y0, 0); source.deleteAttribute("uv");
       if (PRISM_VISUAL_TOP_CAP_SUPPRESSED_IDS.has(building.id)) source = withoutVisualTopCap(source, y0 + bodyHeight);
-      const opened = hbfCutRetainedGlassV291(building, source, hbfCuts);
+      const opened = hbfCuts.length ? hbfCutRetainedGlassV291(building, source, hbfCuts) : parliamentClipGeometryV295(source, parliamentCuts);
       const p = opened.getAttribute("position"), n = opened.getAttribute("normal");
       for (let i = 0; i < p.count; i += 3) {
         // The distant shell historically has no underside; opening its walls
@@ -1939,7 +1951,7 @@ export function createDistantBuildingShells(
         for (let j = 0; j < 3; j++) vertex(p.getX(i + j), p.getY(i + j), p.getZ(i + j), n.getX(i + j), n.getY(i + j), n.getZ(i + j), Math.abs(p.getY(i + j) - y0 - bodyHeight) < 1e-5 && n.getY(i + j) > .5 ? capColor : color);
         indices.push(first, first + 1, first + 2);
       }
-      opened.dispose(); source.dispose();
+      if (opened !== source) opened.dispose(); source.dispose();
       continue;
     }
     for (const wall of facadeWallsOf(building)) {
@@ -4458,7 +4470,7 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
     // two rectangular concrete blades near the banks. Berlin's bridge
     // inventory gives 87.76 x 4.00 m; the old model was a generic ivory
     // footbridge with round piers and therefore missed its whole identity.
-    axis: [-0.018, 0.99984],
+    axis: GUSTAV_ALIGNMENT_V296.axis,
     halfWidthM: 2,
     kind: "vierendeel",
     matchRadiusM: 80,
@@ -4470,7 +4482,7 @@ export const BRIDGE_PROFILES: readonly BridgeProfile[] = [
       structure: 0x91aaa1,
     },
     surveyedDeck: { halfLengthM: 43.88, halfWidthM: 2 },
-    world: [-36.9, -445.17],
+    world: GUSTAV_ALIGNMENT_V296.centre,
   },
   {
     // Oswald Mathias Ungers / Grassl, 2005. Official inventory dimensions:
@@ -10282,6 +10294,8 @@ export function createSmoothSurfaces(
       if (followTerrain) {
         const opened = cutGrosserSternGatehouseGroundSurface(geometry);
         if (opened !== geometry) { geometry.dispose(); geometry = opened; }
+        const refined = clipFidelityGroundSurfaceV296(geometry,{dining:options.parliamentaryDiningV296,waterfront:options.waterfrontV296});
+        if(refined!==geometry){geometry.dispose();geometry=refined;}
       }
       return geometry;
     };
@@ -12157,9 +12171,16 @@ export function createIsometricCityCore(
     // Keep the exact original source ink outside the public passage; derive
     // only new opening borders from the correctly clipped concave extrusion.
     const originalGeometry = geometry;
+    const parliamentCuts = [...parliamentRetainedOpeningsV295(building, options.parliamentInteriorsV295 === true), ...diningSourceOpeningsV296(building, options.parliamentaryDiningV296 === true),...waterfrontSourceOpeningsV296(sourceBuilding, options.waterfrontV296 === true)];
     if (hbfCuts.length) geometry = hbfCutRetainedGlassV291(building, geometry, hbfCuts);
+    if (parliamentCuts.length) geometry = parliamentClipGeometryV295(geometry, parliamentCuts);
     const originalEdges = new EdgesGeometry(originalGeometry, ISO_EDGE_THRESHOLD_DEGREES);
-    const edges = hbfCutRetainedGlassInkV291(originalEdges, hbfCuts, hbfCuts.length ? geometry : undefined, ISO_EDGE_THRESHOLD_DEGREES);
+    let edges = hbfCutRetainedGlassInkV291(originalEdges, hbfCuts, hbfCuts.length ? geometry : undefined, ISO_EDGE_THRESHOLD_DEGREES);
+    if (parliamentCuts.length) {
+      const openedInk = parliamentClipInkV295(edges, parliamentCuts);
+      if (openedInk !== edges && edges !== originalEdges) edges.dispose();
+      edges = openedInk;
+    }
     if (edges !== originalEdges) originalEdges.dispose();
     if (geometry !== originalGeometry) originalGeometry.dispose();
     edgeGeometries.push(edges);
@@ -12217,7 +12238,7 @@ export function createIsometricCityCore(
           const along = vStart + step * ISO_WINDOW_BAY_PITCH_M;
           const x = wall.x1 + wall.dirX * along + ox;
           const z = wall.z1 + wall.dirZ * along + oz;
-          hbfAppendRetainedGlassLineV291(mullionPositions, [x, y0 + 0.15, z, x, y0 + totalHeight - 0.15, z], hbfCuts);
+          hbfAppendRetainedGlassLineV291(mullionPositions, [x, y0 + 0.15, z, x, y0 + totalHeight - 0.15, z], [...hbfCuts,...parliamentCuts]);
         }
         const floorPitch = sourceStoreys?.floorPitch ?? ISO_WINDOW_FLOOR_PITCH_M;
         const storeys = sourceStoreys ? sourceStoreys.count - 1 :
@@ -12231,7 +12252,7 @@ export function createIsometricCityCore(
             wall.x1 + wall.dirX * wall.length + ox,
             y,
             wall.z1 + wall.dirZ * wall.length + oz,
-          ], hbfCuts);
+          ], [...hbfCuts,...parliamentCuts]);
         }
       }
       continue;
@@ -13304,6 +13325,7 @@ export function createIsometricCityCore(
     if (surfaces?.water.length) restoreDrawnWaterBoundary(slabs, ground);
     restoreAltMitteGroundSeamsV206(slabs, ground);
     cutUbahnGroundSlabsV281(slabs, false);
+    restoreFidelityGroundSlabsV296(slabs,{dining:options.parliamentaryDiningV296,waterfront:options.waterfrontV296});
     group.add(slabs);
     // Transparent rivers with a visible bed ("Flüsse müssen
     // durchsichtig sein mit Flussbett"): a pale glass-like surface
@@ -13400,6 +13422,7 @@ export function createIsometricCityCore(
           ground.water_top_y_m ?? WATER_TOP_Y,
           bankY,
           terrainAt,
+          {parliamentaryDiningV296:options.parliamentaryDiningV296,waterfrontV296:options.waterfrontV296},
         ),
       );
     } else if (!surfaces || options.retainRasterWater === true) {

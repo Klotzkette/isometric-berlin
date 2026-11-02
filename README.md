@@ -29,7 +29,9 @@ the Spree and discover the city's architecture from an isometric perspective.
 Isometric Berlin verbindet die Formen einer Stadtkarte mit der Freiheit einer
 begehbaren 3D-Welt. Reichstag, Kanzleramt, Kulturforum, Potsdamer Platz und viele
 weitere Orte erhalten eigene architektonische Details. Straßen, Wasser,
-Grünflächen und Bahntrassen geben der Stadt ihren Zusammenhang.
+Grünflächen und Bahntrassen geben der Stadt ihren Zusammenhang. Im Hauptbahnhof
+führen Treppen und Rolltreppen durch die Ebenen; Reichstag und Abgeordnetenhaus
+erhalten begehbare Plenarsäle, der Reichstag auch den Weg in die Glaskuppel.
 
 - **Frei bewegen:** die Ansicht drehen und zoomen, zu Fuß durch Berlin gehen
   oder über die Dächer schweben. Maus, Tastatur und Touch werden unterstützt.
@@ -90,7 +92,9 @@ benötigt. Nach dem Download lässt sich die Stadt offline erkunden.
 Isometric Berlin brings together an isometric map and a freely navigable 3D
 world. Dedicated architectural details give places such as the Reichstag,
 Chancellery, Kulturforum and Potsdamer Platz their character. Streets, parks,
-waterways and railway lines connect them into a city you can explore.
+waterways and railway lines connect them into a city you can explore. Connected
+stairs and escalators lead through Hauptbahnhof, while the Reichstag and Berlin
+House of Representatives include walkable plenary rooms and the Reichstag dome.
 
 - **Move freely:** orbit, zoom, walk through the streets or fly above the
   rooftops, using a mouse, keyboard or touch controls.
@@ -183,8 +187,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.191** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.191/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.192** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.192/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

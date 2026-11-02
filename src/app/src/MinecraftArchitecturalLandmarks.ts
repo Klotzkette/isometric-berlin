@@ -29,6 +29,7 @@ import {
 import { HOTEL_ADLON_PROFILE } from "./HotelAdlonProfile";
 import { BRANDENBURG_GATE_RELIEF_EVIDENCE as GATE_RELIEFS, REICHSTAG_DOME_EVIDENCE as DOME_EVIDENCE } from "./HeroArchitectureEvidence";
 import { reichstagRampPoints } from "./ReichstagDome";
+import { PARLIAMENT_LOCAL_AIR_V295 } from "./parliamentInteriorsV295Profile";
 import { STARBUCKS_PARISER_PLATZ_PROFILE } from "./StarbucksPariserPlatz";
 import {
   MINECRAFT_ARCHITECTURAL_BLOCKS as BLOCK,
@@ -40,7 +41,7 @@ import {
   hauptbahnhofNativePortalMembersV192,
 } from "./GovernmentApproachesV192";
 
-import { hbfBoxFragmentsV291, hbfCompactNativeBayFragmentsV291, hbfFlightOpeningsV291, hbfOfficeRailUnderpassV291, hbfSlabOpeningsV291, type HbfBoxV291, type HbfOpeningV291 } from "./HbfGeometryOpeningsV291";
+import { hbfBoxFragmentsV291, hbfMergeAdjacentBoxesV291, hbfCompactNativeBayFragmentsV291, hbfFlightOpeningsV291, hbfOfficeRailUnderpassV291, hbfSlabOpeningsV291, type HbfBoxV291, type HbfOpeningV291 } from "./HbfGeometryOpeningsV291";
 import { HBF_INTERIOR_V291 } from "./HbfInteriorV291";
 import { HBF_CIRCULATION_V291 } from "./HbfCirculationV291";
 
@@ -654,7 +655,7 @@ function finishPlan(
   return mesh;
 }
 
-function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
+function createReichstagBlocks(resources: BlockRenderResources, interiorV295 = false): InstancedMesh {
   const profile = MINECRAFT_ARCHITECTURAL_PROFILES.reichstag;
   const frame: LocalFrame = profile;
   const plan = newPlan();
@@ -988,10 +989,56 @@ function createReichstagBlocks(resources: BlockRenderResources): InstancedMesh {
       [-profile.widthM / 2 - 3.095, 9, z], [.24, .34, 7.2], BLOCK.iron);
   }
 
+  // The complete v295 room owns only these old opaque portal/podium cues.
+  // Every outside fragment, other facade and source record remains retained.
+  let rendered = plan;
+  if (interiorV295) {
+    rendered = newPlan();
+    const cues = new Set(["deep block entrance", "three-bay entrance glass", "coarse rear glazing", "coarse rear masonry", "three-course west stair", "coarse dome podium"]);
+    const cuts: HbfOpeningV291[] = PARLIAMENT_LOCAL_AIR_V295.reichstag.map(p => ({id:p.id,planes:[],bounds:{min:p.min,max:p.max},nativeBoxes:[{min:p.min,max:p.max}]}));
+    // Six finite open inner tiers retain the outer stepped glass silhouette.
+    // The former 3–4m-thick cue buried the visitor ribbons. A square cardinal
+    // inner complement keeps all original exterior faces and full headroom;
+    // tier thickness is an explicit native display estimate.
+    const domeRouteBoxes: HbfBoxV291[] = [18.6,17.6,16.5,15.2,13.9,11.9].map((half,row)=>({min:[-half,dome.anchorWorld[1]+.2+row*3.35,-half],max:[half,dome.anchorWorld[1]+3.2+row*3.35,half]}));
+    domeRouteBoxes.push({min:[-22,dome.anchorWorld[1]-.1,-8.5],max:[-17,dome.anchorWorld[1]+3.5,-1.5]});
+    const routeCuts: HbfOpeningV291[] = [{id:"represented-native-dome-public-routes",planes:[],bounds:{min:[-22,dome.anchorWorld[1]-.02,-22],max:[22,dome.anchorWorld[1]+DOME_EVIDENCE.platformHeightAboveTerraceM+2.7,22]},nativeBoxes:domeRouteBoxes}];
+    const platformTop=dome.anchorWorld[1]+DOME_EVIDENCE.platformHeightAboveTerraceM;
+    const platformAir:HbfBoxV291[]=[];
+    for(const phase of[0,Math.PI]){const points=reichstagRampPoints(phase);for(let i=0;i+1<points.length;i++){
+      const a=points[i],b=points[i+1];
+      if(dome.anchorWorld[1]+Math.max(a.y,b.y)+2.05<platformTop-.32)continue;
+      platformAir.push({min:[dome.anchorWorld[0]+Math.min(a.x,b.x)-.65,dome.anchorWorld[1]+Math.min(a.y,b.y)+.2,dome.anchorWorld[2]+Math.min(a.z,b.z)-.65],max:[dome.anchorWorld[0]+Math.max(a.x,b.x)+.65,dome.anchorWorld[1]+Math.max(a.y,b.y)+2.05,dome.anchorWorld[2]+Math.max(a.z,b.z)+.65]});
+    }}
+    const platformCuts:HbfOpeningV291[]=[{id:"native-platform-ramp-headroom",planes:[],bounds:{min:[dome.anchorWorld[0]-22,platformTop-3,dome.anchorWorld[2]-22],max:[dome.anchorWorld[0]+22,platformTop+2,dome.anchorWorld[2]+22]},nativeBoxes:platformAir}];
+    // Complete independent cardinal ring replaces exactly four coarse bars.
+    // Half-metre edge pixels cover the continuous display annulus; merging
+    // retains its full surface in this same shared cube batch. Every terminal
+    // ramp keeps the existing bounded headroom aperture through the real slab.
+    const platformCells:HbfBoxV291[]=[],inner=7.8,outer=Math.sqrt(DOME_EVIDENCE.platformAreaM2/Math.PI+inner*inner),step=.5,extent=Math.ceil(outer/step)*step;
+    for(let x=-extent;x<extent;x+=step)for(let z=-extent;z<extent;z+=step){
+      const nearest=Math.hypot(Math.max(x,0,-x-step),Math.max(z,0,-z-step));
+      const farthest=Math.max(...[x,x+step].flatMap(xx=>[z,z+step].map(zz=>Math.hypot(xx,zz))));
+      if(nearest>outer||farthest<inner)continue;
+      const cell:HbfBoxV291={min:[dome.anchorWorld[0]+x,platformTop-.32,dome.anchorWorld[2]+z],max:[dome.anchorWorld[0]+x+step,platformTop,dome.anchorWorld[2]+z+step]};
+      platformCells.push(...hbfBoxFragmentsV291(cell,platformCuts));
+    }
+    for(const b of hbfMergeAdjacentBoxesV291(platformCells))pushWorldBlock(rendered,"complete cardinal public observation ring",[(b.min[0]+b.max[0])/2,(b.min[1]+b.max[1])/2,(b.min[2]+b.max[2])/2],b.min.map((n,i)=>b.max[i]-n) as [number,number,number],BLOCK.marbleLight);
+    for (const block of plan.blocks) {
+      if (block.cue === "paired stepped dome visitor ramps" || block.cue === "four-tier widening silver daylight cone" || block.cue === "open block observation platform") continue;
+      if (!cues.has(block.cue) && block.cue !== "seven-step octagonal glass dome" ) { pushBlock(rendered,block.cue,block.position,block.size,block.color,block.rotationY); continue; }
+      const [x,z] = worldToLocal(frame,block.position[0],block.position[2]);
+      const centre: [number,number,number] = [x,block.position[1],z];
+      const box: HbfBoxV291 = {min:centre.map((n,i)=>n-block.size[i]/2) as [number,number,number],max:centre.map((n,i)=>n+block.size[i]/2) as [number,number,number]};
+      const parts = hbfBoxFragmentsV291(box,block.cue === "seven-step octagonal glass dome" ? routeCuts : cuts);
+      if(parts.length===1&&parts[0]===box){pushBlock(rendered,block.cue,block.position,block.size,block.color,block.rotationY);continue;}
+      for (const part of parts) pushLocalBlock(rendered,frame,block.cue,[(part.min[0]+part.max[0])/2,(part.min[1]+part.max[1])/2-frame.anchorWorld[1],(part.min[2]+part.max[2])/2],part.min.map((n,i)=>part.max[i]-n) as [number,number,number],block.color,block.rotationY-profile.rotationDegrees*Math.PI/180);
+    }
+  }
   return finishPlan(
     "Minecraft Reichstag block signature",
     "reichstag",
-    plan,
+    rendered,
     profile,
     resources,
   );
@@ -2798,7 +2845,7 @@ function createPariserPlatzBlocks(
  * except where a deliberately open signature owns the source cells itself:
  * Reichstag portico, Chancellery leadership cube, Hauptbahnhof and Gate.
  */
-export function createMinecraftArchitecturalLandmarks(options: { hbfRetailV292?: boolean } = {}): Group {
+export function createMinecraftArchitecturalLandmarks(options: { hbfRetailV292?: boolean; parliamentInteriorsV295?: boolean } = {}): Group {
   const group = new Group();
   group.name = "Minecraft block-native architectural landmarks";
   group.userData = {
@@ -2822,7 +2869,7 @@ export function createMinecraftArchitecturalLandmarks(options: { hbfRetailV292?:
     }),
   };
   group.add(
-    createReichstagBlocks(resources),
+    createReichstagBlocks(resources, options.parliamentInteriorsV295 === true),
     createChancelleryBlocks(resources),
     createHauptbahnhofBlocks(resources, options.hbfRetailV292 === true),
     createBrandenburgGateBlocks(resources),
@@ -3109,7 +3156,7 @@ export function setMinecraftArchitecturePresentation(
   minecraft: boolean,
 ): void {
   for (const child of signatures.children) {
-    if (MINECRAFT_SMOOTH_SIGNATURE_REPLACEMENTS.has(child.name)) {
+    if (MINECRAFT_SMOOTH_SIGNATURE_REPLACEMENTS.has(child.name) || child.userData.parliamentInteriorsV295 === true && child.userData.native === false) {
       child.visible = !minecraft;
     }
   }

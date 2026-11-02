@@ -50,6 +50,7 @@ import { QUADRIGA_DIMENSIONS, createQuadriga } from "./Quadriga";
 import { BRANDENBURG_GATE_RELIEF_EVIDENCE as GATE_RELIEFS } from "./HeroArchitectureEvidence";
 import { createDedicationTexture } from "./reichstagInscription";
 import { appendReichstagPhotoFacade } from "./ReichstagPhotoFacade";
+import { openParliamentAuthoredMeshesV295, openParliamentDomePlatformV295 } from "./ParliamentRetainedEnvelopeV295";
 import { markWindFlag, markWindFlagInstances } from "./WindFlags";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { HBF_CIRCULATION_V291, type HbfFlightV291 } from "./HbfCirculationV291";
@@ -2181,7 +2182,7 @@ function triangularPrism(
   return geometry;
 }
 
-function createReichstagModel(signature: ReichstagModelSignature): Group {
+function createReichstagModel(signature: ReichstagModelSignature, interiorV295 = false): Group {
   const group = new Group();
   group.name = "Metre-scale Reichstag recognition model";
   placeMetricGroup(group, signature);
@@ -2507,6 +2508,7 @@ function createReichstagModel(signature: ReichstagModelSignature): Group {
     stoneRelief,
   );
   appendReichstagPhotoFacade(group, signature.width_m);
+  if (interiorV295) openParliamentAuthoredMeshesV295(group, "reichstag");
 
   return group;
 }
@@ -8500,15 +8502,16 @@ function createBrandenburgGateModel(
 
 export function createArchitecturalSignature(
   signature: ArchitecturalSignature,
-  options: { chancelleryPhotoV287?: boolean } = {},
+  options: { chancelleryPhotoV287?: boolean; parliamentInteriorsV295?: boolean } = {},
 ): Group | null {
   let model: Group;
   switch (signature.id) {
     case "reichstag-dome":
       model = createOfficialReichstagDome(signature as ReichstagDomeSignature);
+      if(options.parliamentInteriorsV295)openParliamentDomePlatformV295(model);
       break;
     case "reichstag-model":
-      model = createReichstagModel(signature as ReichstagModelSignature);
+      model = createReichstagModel(signature as ReichstagModelSignature, options.parliamentInteriorsV295 === true);
       break;
     case "bundeskanzleramt-model":
       model = createChancelleryModel(signature as ChancelleryModelSignature, options.chancelleryPhotoV287 !== false);

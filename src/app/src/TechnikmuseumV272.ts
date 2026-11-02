@@ -120,17 +120,48 @@ export function technikmuseumGeometryV272(native=false){
  const aircraftRing=data.aircraft.geometry.coordinates[0][0].slice(0,-1),airY=30.4;
  horizontal(aircraftRing,airY,0xcbd1cc,'osm-c47-complete-wing-plan');
  if(!native){horizontal(aircraftRing,airY-.18,0xaeb8b4,'c47-wing-underside');for(let i=0;i<aircraftRing.length;i++){const a=aircraftRing[i],b=aircraftRing[(i+1)%aircraftRing.length];quad([a[0],airY-.18,a[1]],[b[0],airY-.18,b[1]],[b[0],airY,b[1]],[a[0],airY,a[1]],0xa6b0ac,'c47-wing-edge');}}
+ // v294: retain the exact mapped wing plan and suspension anchor, but give
+ // the C47 its rounded taper, twin radial cowls, three actual propeller blades
+ // per engine and a swept vertical stabiliser. Fine sections remain estimates.
+ const bodySection=(i:number)=>{
+  const z=2204.5+i*.90,t=i/21,r=1.15*Math.sin(Math.PI*Math.min(.98,Math.max(.03,t)))**.38;
+  return{z,r,cy:airY+.62+(t>.67?(t-.67)*.9:0),ry:.86*(1-t*.48)};
+ };
  for(let i=0;i<21;i++){
-  const z=2204.5+i*.90,t=(z-2204.5)/18.9,r=1.15*Math.sin(Math.PI*Math.min(.98,Math.max(.03,t)))**.38;
-  block([405.3,airY+.62,z],[r*2,1.45,.95],0xc9d0cb,'c47-rounded-fuselage');
+  const a=bodySection(i),b=bodySection(i+1);
+  block([405.3,a.cy,a.z],[a.r*1.35,a.ry*1.02,.95],0xc9d0cb,'c47-rounded-fuselage');
+  if(native){for(const side of [-1,1])block([405.3,a.cy+side*a.ry*.58,a.z],[a.r*1.25,a.ry*.65,.95],0xc9d0cb,'c47-cardinal-round-body-shoulder');}
+  else for(let j=0;j<16;j++){
+   const u=j*Math.PI/8,v=(j+1)*Math.PI/8;
+   const at=(q:typeof a,t:number):Vec=>[405.3+q.r*Math.cos(t),q.cy+q.ry*Math.sin(t),q.z];
+   quad(at(a,u),at(a,v),at(b,v),at(b,u),j<8?0xd1d8d3:0xabb9b5,'c47-aluminium-curved-fuselage-skin');
+  }
  }
- block([405.35,airY+1.4,2206.7],[1.65,.62,1.8],0x354d57,'c47-cockpit');
+ for(const side of [-1,1]){
+  block([405.3+side*.59,airY+1.23,2206.55],[.53,.42,1.14],0x354d57,'c47-divided-cockpit-glass');
+  block([405.3+side*.89,airY+1.11,2207.20],[.12,.42,.66],0x354d57,'c47-side-cockpit-glass');
+ }
+ block([405.3,airY+1.31,2206.60],[.10,.47,1.25],0xc9d0cb,'c47-cockpit-central-frame');
  for(const x of [401.4,408.8]){
-  block([x,airY+.2,2209.3],[1.55,1.7,3.3],0xa6b0ac,'c47-twin-radial-engine');
-  for(const angle of [0,Math.PI*2/3,Math.PI*4/3])line([x,airY+.2,2207.55],[x+Math.cos(angle)*1.65,airY+.2+Math.sin(angle)*1.65,2207.55],.16,0x3c494b,'c47-three-blade-propeller');
+  block([x,airY+.2,2209.3],[1.18,1.18,3.3],0xa6b0ac,'c47-twin-radial-engine');
+  for(let j=0;j<16;j++){
+   const a=j*Math.PI/8,b=(j+1)*Math.PI/8;
+   if(native){const y=airY+.2+Math.sin(a)*.77,xx=x+Math.cos(a)*.77;block([xx,y,2209.3],[.29,.29,3.3],0xb9c5bf,'c47-cardinal-radial-cowling');}
+   else quad([x+Math.cos(a)*.85,airY+.2+Math.sin(a)*.85,2207.8],[x+Math.cos(b)*.85,airY+.2+Math.sin(b)*.85,2207.8],[x+Math.cos(b)*.72,airY+.2+Math.sin(b)*.72,2210.95],[x+Math.cos(a)*.72,airY+.2+Math.sin(a)*.72,2210.95],0xb9c5bf,'c47-round-radial-cowling-skin');
+   block([x+Math.cos(a)*.58,airY+.2+Math.sin(a)*.58,2207.77],[.15,.15,.07],0x465351,'c47-visible-radial-engine-face');
+  }
+  block([x,airY+.2,2207.55],[.34,.34,.38],0xc4ccc2,'c47-propeller-hub');
+  for(const angle of [0,Math.PI*2/3,Math.PI*4/3]){
+   line([x+Math.cos(angle)*.18,airY+.2+Math.sin(angle)*.18,2207.55],[x+Math.cos(angle)*1.65,airY+.2+Math.sin(angle)*1.65,2207.55],.17,0x3c494b,'c47-three-blade-propeller');
+   block([x+Math.cos(angle)*1.57,airY+.2+Math.sin(angle)*1.57,2207.55],[.22,.22,.11],0xd5bd68,'c47-propeller-tip');
+  }
   line([x,airY-.55,2210],[x,airY-2.9,2211],.18,0x687878,'c47-landing-gear');block([x,airY-2.95,2211],[.55,.8,.8],0x303837,'c47-wheel');
  }
- block([405.3,airY+1.75,2221.5],[.25,3.3,3.3],0xaebdb8,'c47-tail-fin');
+ if(native)for(let j=0;j<9;j++){const z=2219.55+j*.43,h=.35+j*.31;block([405.3,airY+1.4+h/2,z],[.22,h,.45],0xaebdb8,'c47-swept-tail-fin');}
+ else for(const side of [-1,1]){
+  const x=405.3+side*.11;quad([x,airY+1.2,2219.45],[x,airY+1.35,2223.55],[x,airY+4.4,2223.25],[x,airY+4.0,2222.5],0xaebdb8,'c47-swept-tail-fin');
+ }
+ line([405.3,airY+1.4,2219.5],[405.3,airY+4.05,2222.55],.075,0x7c8c88,'c47-tail-leading-edge');
  for(const side of [-1,1])for(let j=0;j<6;j++)block([405.3+side*1.03,airY+.75,2210.7+j*1.65],[.10,.43,.52],0x4c6269,'c47-cabin-window');
  for(const x of [391.1,419.2])line([405.3,24.8,2226.1],[x,airY-.12,2212.2],.12,0x7c9391,'c47-suspension-stay');
  // The upright rotor has the operator's44m length at its mapped base, a tapered

@@ -16,6 +16,8 @@ import { terrainGroundAt } from "./weinbergTerrainV176";
 import { spreeBridgeFloorAtV242, spreeBridgeSolidAtV242 } from "./SpreeBridgesV242";
 import { prepareTierparkV255 } from "./TierparkV255";
 import { annotatePlaygroundPacketV255 } from "./playgroundsV255";
+import southFidelityReceiptsV294 from "./data/southFidelityV294Packets.json";
+const SOUTH_RECEIPT_TILES_V294:ReadonlySet<string> = new Set(southFidelityReceiptsV294.keys);
 
 export const SURROUNDING_CITY_SCAN_MS = 180;
 export const SURROUNDING_CITY_RETIRE_MS = 1_800;
@@ -47,7 +49,7 @@ export type SurroundingCityManifest = {
   footprint: SurroundingPolygon[];
   groundY: number;
 };
-type Resident = SurroundingChunkGeometry & { descriptor: SurroundingChunkDescriptor; lastWanted: number };
+type Resident = SurroundingChunkGeometry & { descriptor: SurroundingChunkDescriptor; lastWanted: number; southOwnersReadyV294: boolean };
 export type SurroundingNavigationTile = {
   origin: readonly [number, number, number];
   bounds: readonly [number, number, number, number];
@@ -65,6 +67,8 @@ export type SurroundingCityOptions = {
   northernSitesV266?: boolean;
   golgathaV270?: boolean;
   tachelesFrontsV270?: boolean;
+  /** Defaults closed. Verify complete v294 owners of the requested family remain attached. */
+  southFidelityV294?: (native: boolean) => boolean;
   manifestUrl: URL;
   camera: Camera;
   mode?: VisualMode;
@@ -406,6 +410,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const box = new Box3(), cameraPosition = new Vector3();
   let manifest: SurroundingCityManifest | null = null;
   let mode: VisualMode = options.mode ?? "day";
+  let southAdmissionV294 = options.southFidelityV294?.(mode === "minecraft") === true;
   let disposed = false, processing = false, revision = 0;
   let active: { id: string; controller: AbortController } | null = null;
   let queue: SurroundingChunkDescriptor[] = [];
@@ -494,18 +499,22 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           fillPrefetches();
           const data = await loading;
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) continue;
+          const southOwnersReady = options.southFidelityV294?.(minecraft) === true;
+          const southReceiptTile = SOUTH_RECEIPT_TILES_V294.has(`${minecraft ? "minecraft" : "drawn"}:${descriptor.id}`);
+          const southAdmissionChanged = (): boolean => southReceiptTile && southOwnersReady !== (options.southFidelityV294?.(minecraft) === true);
           const entry = await createStreamedSurroundingCityChunkV255(
             data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
-            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true },
+            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady },
           );
           unpublished = entry.root;
           // onAttach can synchronously dispose this controller during error recovery.
-          if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) {
+          if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id) ||
+              southAdmissionChanged()) {
             release(entry.root); unpublished = null; continue;
           }
           options.onAttach?.(entry.root, mode);
-          if (disposed || familyRevision !== revision) { release(entry.root); unpublished = null; continue; }
-          residents.set(descriptor.id, { ...entry, descriptor, lastWanted: now() });
+          if (disposed || familyRevision !== revision || southAdmissionChanged()) { release(entry.root); unpublished = null; continue; }
+          residents.set(descriptor.id, { ...entry, descriptor, lastWanted: now(), southOwnersReadyV294:southOwnersReady });
           geometryBytes += entry.geometryBytes;
           bufferCount += entry.bufferCount;
           root.add(entry.root);
@@ -536,6 +545,21 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       queue = []; lastScan = -Infinity; return;
     }
     notifyActivity();
+    // A native world can finish after this controller has already loaded its
+    // closed source tile. Re-admit only the immutable affected receipts on the
+    // existing refresh; no timer, global family reset or unbounded retry loop.
+    const southReadyNow = options.southFidelityV294?.(mode === "minecraft") === true;
+    if (southReadyNow !== southAdmissionV294) {
+      southAdmissionV294 = southReadyNow;
+      const family = mode === "minecraft" ? "minecraft" : "drawn";
+      let changed = false;
+      for (const [id, entry] of residents) if (SOUTH_RECEIPT_TILES_V294.has(`${family}:${id}`) && entry.southOwnersReadyV294 !== southReadyNow) {
+        evict(id); failedAt.delete(id); changed = true;
+      }
+      if (active && SOUTH_RECEIPT_TILES_V294.has(`${family}:${active.id}`)) active.controller.abort();
+      lastScan = -Infinity;
+      if (changed) options.onChange?.();
+    }
     if (!manifest) return;
     if (timestamp - lastScan < SURROUNDING_CITY_SCAN_MS) return;
     lastScan = timestamp;

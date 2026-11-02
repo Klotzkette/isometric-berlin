@@ -160,7 +160,9 @@ describe("Spreebogen source-bound continuous river bank", () => {
       }
     }
     expect(sampled).toBeGreaterThan(100);
-    expect(lawnAt(10, -405)).toBeCloseTo(7.3271167255, 5);
+    // v296 refits the finite illustrative lawn face at the corrected bridge junction.
+    // The original retained source heights and every outside face remain unchanged.
+    expect(lawnAt(10, -405)).toBeCloseTo(7.294864888520208, 5);
     for (const [x, z] of [[20, -350], [500, 500], [20, -230], [-200, -400]])
       expect(lawnAt(x, z)).toBeNull();
     expect(Bun.hash(JSON.stringify(payload))).toBe(before);

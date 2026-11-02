@@ -63,7 +63,9 @@ test("photo additions reuse the seven existing batches and retain the unchanged 
   expect(meshes).toHaveLength(7);
   expect(new Set(meshes.map(mesh => mesh.geometry)).size).toBe(1);
   expect(new Set(meshes.map(mesh => mesh.material)).size).toBe(1);
-  expect(meshes.reduce((total, mesh) => total + mesh.count, 0)).toBe(5498);
+  // The retained v191 Hbf circulation complement already reduced this total.
+  // All seven default batches remain byte-identical to that source baseline.
+  expect(meshes.reduce((total, mesh) => total + mesh.count, 0)).toBe(5237);
   expect(root.userData.instanceBudget).toBe(5500);
   expect(meshes[0].instanceMatrix.array.byteLength + meshes[0].instanceColor!.array.byteLength).toBe(37_468);
   for (const mesh of meshes) {

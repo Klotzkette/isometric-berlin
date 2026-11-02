@@ -1,3 +1,6 @@
+import { openParliamentAuthoredMeshesV295 } from "./ParliamentRetainedEnvelopeV295";
+import { hbfPolygonComplementV291 } from "./HbfGeometryOpeningsV291";
+import { parliamentLocalBoxOpeningV295 } from "./parliamentInteriorsV295Profile";
 import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   BoxGeometry, BufferGeometry, CircleGeometry, Color, CylinderGeometry, DoubleSide,
@@ -142,13 +145,14 @@ export function abgeordnetenhausCentralRing(): PlanPoint[] {
   });
 }
 
-function reconstructedEnvelope(): Mesh {
+function reconstructedEnvelope(interiorV295 = false): Mesh {
+  const roofCut = [parliamentLocalBoxOpeningV295("abgeordnetenhaus", "estimated-glazed-roof", [-20, P.wallTopY - .01, -80], [20, P.wallTopY + .01, -44])];
   const positions: number[] = [], colors: number[] = [];
   const tint = new Color();
   const triangle = (a: Point, b: Point, c: Point, color: number) => {
-    positions.push(...a, ...b, ...c);
+    const parts = interiorV295 && [a,b,c].every(p => Math.abs(p[1] - P.wallTopY) < 1e-8) ? hbfPolygonComplementV291([a,b,c], roofCut) ?? [[a,b,c]] : [[a,b,c]];
     tint.setHex(color);
-    for (let i = 0; i < 3; i += 1) colors.push(tint.r, tint.g, tint.b);
+    for (const poly of parts) for (let j=1;j+1<poly.length;j++) { positions.push(...poly[0], ...poly[j], ...poly[j+1]); for (let i=0;i<3;i++) colors.push(tint.r,tint.g,tint.b); }
   };
   const quad = (a: Point, b: Point, c: Point, d: Point, color: number) => {
     triangle(a, b, c, color); triangle(a, c, d, color);
@@ -171,9 +175,10 @@ function reconstructedEnvelope(): Mesh {
   shell([abgeordnetenhausCentralRing()], P.wallTopY, P.centralCorniceTopY);
   // Officially documented glass hip roof; footprint and rise are display estimates.
   const at = (u: number, v: number, y: number = P.wallTopY) => abgeordnetenhausWorldPoint(u, y, v);
-  const a = at(-12, -72), b = at(12, -72), c = at(12, -46), d = at(-12, -46);
-  const r0 = at(0, -64, P.wallTopY + P.displayRoofRiseM);
-  const r1 = at(0, -54, P.wallTopY + P.displayRoofRiseM);
+  const half = interiorV295 ? 20 : 12, north = interiorV295 ? -80 : -72, south = interiorV295 ? -44 : -46;
+  const a = at(-half, north), b = at(half, north), c = at(half, south), d = at(-half, south);
+  const r0 = at(0, interiorV295 ? -68 : -64, P.wallTopY + P.displayRoofRiseM);
+  const r1 = at(0, interiorV295 ? -56 : -54, P.wallTopY + P.displayRoofRiseM);
   triangle(a, b, r0, C.glassRoof); quad(b, c, r1, r0, C.glassRoof);
   triangle(c, d, r1, C.glassRoof); quad(d, a, r0, r1, C.glassRoof);
   const geometry = new BufferGeometry();
@@ -338,41 +343,43 @@ function rearFacades(b: Builder, profile: DetailProfile, minecraft: boolean): vo
   }
 }
 
-function roofFrames(b: Builder): void {
+function roofFrames(b: Builder, interiorV295 = false): void {
   const at = (u: number, v: number, y: number = P.wallTopY + 0.04) => abgeordnetenhausWorldPoint(u, y, v);
   const ridgeY = P.wallTopY + 3.25;
-  // Real hip edges and a small parallel glazing grid, without a fan of dark
-  // diagonals that could be confused with the triangulated source surface.
-  b.beam(at(0, -64, ridgeY), at(0, -54, ridgeY), 0.13, C.metal);
+  const half = interiorV295 ? 20 : 12, north = interiorV295 ? -80 : -72, south = interiorV295 ? -44 : -46;
+  const r0 = interiorV295 ? -68 : -64, r1 = interiorV295 ? -56 : -54;
+  // The actual hipped form follows public photographs. The larger v295 fit is
+  // explicitly estimated and remains wholly clear of the six source courts.
+  b.beam(at(0, r0, ridgeY), at(0, r1, ridgeY), 0.13, C.metal);
   for (const side of [-1, 1]) {
-    b.beam(at(side * 12, -72), at(side * 12, -46), 0.13, C.metal);
-    b.beam(at(side * 12, -72), at(0, -64, ridgeY), 0.13, C.metal);
-    b.beam(at(side * 12, -46), at(0, -54, ridgeY), 0.13, C.metal);
-    for (const v of [-64, -59, -54])
-      b.beam(at(side * 12, v), at(0, v, ridgeY), 0.08, C.metal);
-    b.beam(at(side * 6, -68, P.wallTopY + 1.64), at(side * 6, -50, P.wallTopY + 1.64), 0.08, C.metal);
+    b.beam(at(side * half, north), at(side * half, south), 0.13, C.metal);
+    b.beam(at(side * half, north), at(0, r0, ridgeY), 0.13, C.metal);
+    b.beam(at(side * half, south), at(0, r1, ridgeY), 0.13, C.metal);
+    for (const v of [r0, (r0+r1)/2, r1]) b.beam(at(side * half, v), at(0, v, ridgeY), 0.08, C.metal);
+    b.beam(at(side * half/2, north+4, P.wallTopY+1.64), at(side * half/2, south-4, P.wallTopY+1.64), 0.08, C.metal);
   }
-  for (const v of [-72, -46]) b.beam(at(-12, v), at(12, v), 0.13, C.metal);
+  for (const v of [north,south]) b.beam(at(-half,v),at(half,v),.13,C.metal);
   b.cue("glazedHippedPlenaryRoof");
 }
 
-export function createAbgeordnetenhausDetails(detailProfile: DetailProfile = "full"): Group {
+export function createAbgeordnetenhausDetails(detailProfile: DetailProfile = "full", options: { parliamentInteriorsV295?: boolean } = {}): Group {
   detailProfile = staticModelDetailProfile(detailProfile);
   const root = new Group();
   root.name = ABGEORDNETENHAUS_GROUP_NAME;
-  root.add(reconstructedEnvelope());
+  root.add(reconstructedEnvelope(options.parliamentInteriorsV295 === true));
   const b = new Builder();
   mainFacade(b, detailProfile, false);
   rearFacades(b, detailProfile, false);
-  roofFrames(b);
+  roofFrames(b, options.parliamentInteriorsV295 === true);
   finish(b, root, ABGEORDNETENHAUS_FINE_LAYER_NAME);
+  if (options.parliamentInteriorsV295) openParliamentAuthoredMeshesV295(root, "abgeordnetenhaus");
   Object.assign(root.userData, { detailProfile, sourcePartIds: [P.mainPrismId],
     estimatedHeight: true, photographsBundled: false, textureFree: true, cueCounts: b.counts });
   return freezeStaticSceneTransforms(root);
 }
 
 /** All-cube shell, roof pixels and ornaments; the six courts remain empty. */
-function minecraftShell(b: Builder, profile: DetailProfile): void {
+function minecraftShell(b: Builder, profile: DetailProfile, interiorV295 = false): void {
   const step = profile === "full" ? 3 : 4;
   const rings = [P.footprintWorldM, ...P.courtyardHolesWorldM];
   for (const ring of rings) for (let i = 0; i < ring.length; i += 1) {
@@ -425,23 +432,25 @@ function minecraftShell(b: Builder, profile: DetailProfile): void {
     const cu = u + step / 2, cv = v + step / 2;
     const [x, , z] = abgeordnetenhausWorldPoint(cu, 0, cv);
     const isCentral = Math.abs(cu) < 23.7 && cv > -14.2;
-    const top = isCentral ? P.centralCorniceTopY : abgeordnetenhausDisplayTopAt(x, z)!;
-    const glass = Math.abs(cu) < 12 && cv > -72 && cv < -46;
+    const glass = interiorV295 ? Math.abs(cu) < 20 && cv > -80 && cv < -44 : Math.abs(cu) < 12 && cv > -72 && cv < -46;
+    const extendedRoof = Math.max(Math.abs(cu)/20,Math.max(0,Math.abs(cv+62)-6)/12);
+    const top = isCentral ? P.centralCorniceTopY : interiorV295 && glass ? P.wallTopY + P.displayRoofRiseM * Math.max(0,1-extendedRoof) : abgeordnetenhausDisplayTopAt(x, z)!;
     b.box([x, top - 0.22, z], [step, 0.44, step], glass ? C.glassRoof : C.roof);
     b.cue("sourceContainedRoofCell");
   }
 }
 
-export function createMinecraftAbgeordnetenhausDetails(detailProfile: DetailProfile = "full"): Group {
+export function createMinecraftAbgeordnetenhausDetails(detailProfile: DetailProfile = "full", options: { parliamentInteriorsV295?: boolean } = {}): Group {
   const root = new Group();
   root.name = ABGEORDNETENHAUS_MINECRAFT_GROUP_NAME;
   const b = new Builder();
-  minecraftShell(b, detailProfile);
+  minecraftShell(b, detailProfile, options.parliamentInteriorsV295 === true);
   mainFacade(b, detailProfile, true);
   rearFacades(b, detailProfile, true);
   // The voxel hip roof uses stepped flat cells, never sloping smooth panels.
   b.cue("glazedHippedPlenaryRoof");
   finish(b, root, ABGEORDNETENHAUS_MINECRAFT_GROUP_NAME);
+  if (options.parliamentInteriorsV295) openParliamentAuthoredMeshesV295(root, "abgeordnetenhaus");
   Object.assign(root.userData, { keepInMinecraft: true, detailProfile,
     sourcePartIds: [P.mainPrismId], estimatedHeight: true, photographsBundled: false,
     textureFree: true, cueCounts: b.counts });

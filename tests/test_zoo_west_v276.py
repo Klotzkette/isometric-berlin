@@ -24,6 +24,26 @@ EVIDENCE = json.loads(
 )
 
 
+def _preserved_input_bytes(name: str, digest: str) -> bytes:
+  content = (ROOT / name).read_bytes()
+  if name == "src/app/src/ZooRecognitionV255.ts":
+    # 78d49bf39049e2bbadc3bfd6b57cb9de74bb32af (v282) added only this
+    # optional TypeScript sink member. Reconstruct the original v255 bytes,
+    # retaining the historical receipt instead of accepting a successor hash.
+    assert digest == "836b0a08bf2aaf229442379e398821d1f1617dc4d8f471a71d4318b8bb6b99ab"
+    original = b"  face(c: number, ring: P[]): void;\n}\ninterface Source {\n"
+    successor = (
+      b"  face(c: number, ring: P[]): void;\n"
+      b"  /** Optional exact owner capture; ordinary static/test sinks stay unchanged. */\n"
+      b"  animal?(id: string, x: number, y: number, z: number, emit: () => void, heading?: number): void;\n"
+      b"}\ninterface Source {\n"
+    )
+    if hashlib.sha256(content).hexdigest() != digest:
+      assert content.count(successor) == 1
+      content = content.replace(successor, original, 1)
+  return content
+
+
 def test_complete_original_parents_and_prior_zoo_are_unchanged() -> None:
   for parent in EVIDENCE["parents"]:
     path = ROOT / parent["sourcePath"]
@@ -33,7 +53,9 @@ def test_complete_original_parents_and_prior_zoo_are_unchanged() -> None:
       part_profile(p) for p in leaf_building_parts(element) or [element]
     ] == parent["parts"]
   for path, digest in EVIDENCE["preservedInputs"].items():
-    assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest
+    assert hashlib.sha256(_preserved_input_bytes(path, digest)).hexdigest() == digest, (
+      path
+    )
   assert len(EVIDENCE["previousPrisms"]) == 12
   assert all(p["id"] != "K0002RFN" for p in EVIDENCE["previousPrisms"])
 

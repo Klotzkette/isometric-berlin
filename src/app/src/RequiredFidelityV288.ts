@@ -1,4 +1,11 @@
+import { waterfrontOriginalPrismV296 } from "./waterfrontV296Profile";
 import { createDprkEmbassyV288 } from "./MitteEmbassiesV288";
+import { createSouthFidelityV294, hasCompleteSouthFidelityV294 } from "./SouthFidelityV294";
+import { diningOriginalPrismV296, PARLIAMENTARY_DINING_V296 } from "./parliamentaryDiningV296Profile";
+import type { DiningPrismV296 } from "./parliamentaryDiningV296Profile";
+import { createParliamentaryDiningV296 } from "./ParliamentaryDiningV296";
+import { createCourtsParkV293 } from "./CourtsParkV293";
+import { createWaterfrontFidelityV296 } from "./WaterfrontFidelityV296";
 import { BufferGeometry, Group, InstancedMesh, Material, Mesh } from "three";
 import { createBerlinHistoricDomV288, hasCompleteBerlinHistoricDomV288 } from "./BerlinHistoricCoreV288";
 import { matchesBerlinHistoricDomOwnersV288, matchesBerlinHistoricDomNativeV288 } from "./BerlinHistoricCoreV288Ownership";
@@ -28,17 +35,24 @@ export function constructUnpublishedFidelityV288(factories: readonly FactoryV288
 
 /** Construct complete owners before any old prism/column can yield. This
  * module belongs only to the main-thread city transaction, never the worker. */
-export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payload: unknown, native=false, canopyLegacyAdmitted=false) {
+export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payload: unknown, native=false, canopyLegacyAdmitted=false, mobileLike=false) {
   const historicDom=matchesBerlinHistoricDomOwnersV288(prisms.buildings)&&(!native||matchesBerlinHistoricDomNativeV288(payload));
   const potsdamerCorridor=admitsPotsdamerCorridorCoreV288(prisms)&&(!native||admitsPotsdamerCorridorNativeV288(payload));
   const chancelleryCanopy=admitsChancelleryCanopySourceV289(prisms)&&(native?admitsChancelleryCanopyNativeV289(payload):canopyLegacyAdmitted);
+  const diningIds=[...PARLIAMENTARY_DINING_V296.lampenladen.sourceIds,...PARLIAMENTARY_DINING_V296.marie.sourceIds];
+  const parliamentaryDining=Array.isArray(prisms.buildings)&&diningIds.every(id=>(prisms.buildings as DiningPrismV296[]).some(p=>p.id===id&&diningOriginalPrismV296(p)));
+  const waterfront=Array.isArray(prisms.buildings)&&prisms.buildings.some(waterfrontOriginalPrismV296);
   const root=constructUnpublishedFidelityV288([
+    ()=>({group:createCourtsParkV293(native)}),
+    ()=>({group:createSouthFidelityV294(native,{mobileLike}),complete:hasCompleteSouthFidelityV294}),
+    ()=>({group:createParliamentaryDiningV296(native)}),
+    ()=>({group:createWaterfrontFidelityV296(native)}),
     ()=>historicDom?{group:createBerlinHistoricDomV288(native),complete:hasCompleteBerlinHistoricDomV288}:null,
     ()=>potsdamerCorridor?{group:createPotsdamerCorridorCoreV288(native),complete:hasCompletePotsdamerCorridorCoreV288}:null,
     ()=>{const group=createMitteDdrV288({native,payload});return group?{group}:null;},
     ()=>{const group=createDprkEmbassyV288({native,payload});return group?{group}:null;},
     ()=>chancelleryCanopy?{group:createChancelleryCanopySourceV289(native),complete:hasCompleteChancelleryCanopySourceV289}:null,
   ]);
-  root.userData={historicDomV288:historicDom,potsdamerCorridorV288:potsdamerCorridor,chancelleryCanopySourceV289:chancelleryCanopy,sourceGeometryRetained:true,fullStaticDetailOnTouch:true};
-  return {root,historicDom,potsdamerCorridor,chancelleryCanopy};
+  root.userData={historicDomV288:historicDom,potsdamerCorridorV288:potsdamerCorridor,chancelleryCanopySourceV289:chancelleryCanopy,courtsParkV293:true,southFidelityV294:true,parliamentaryDiningV296:parliamentaryDining,waterfrontV296:waterfront,sourceGeometryRetained:true,fullStaticDetailOnTouch:true};
+  return {root,historicDom,potsdamerCorridor,chancelleryCanopy,courtsPark:true,southFidelity:true,parliamentaryDining,waterfront};
 }

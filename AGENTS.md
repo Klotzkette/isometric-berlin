@@ -2230,3 +2230,56 @@ default; enable this bounded complement only after the independent full native
 interior is attached to the same unpublished world transaction. Preserve every
 outside wall fragment, upper office, other landmark and original source record.
 The seven legacy batches retain their unchanged 5,500-instance ceiling.
+
+
+### Step 10 — v293–v296 courts, public routes and parliamentary interiors
+
+The owner's November request authorizes source-bound refinement of Wedding,
+Charlottenburg and Moabit courts and their immediate public surroundings,
+Kleiner Tiergarten and its actual churches/over-under Rolleracht crossing;
+Gustav-Heinemann-Brücke approaches and the Alexanderufer/Humboldthafen route
+beside SPIEGEL toward Futurium; both evidenced parliamentary waterside dining
+spaces; publicly documented Reichstag and Abgeordnetenhaus interiors, entrances,
+plenary rooms and dome access; the named south-city stations, parks, theatres,
+Potsdamer Platz buildings, Philharmonie and Technikmuseum roof aircraft.
+Resolve dictated place names against primary sources. Keep measured source
+sheets, all previous detail, actual open space and every unrelated owner.
+
+Publicly documented interior/entrance air may replace only the exactly proved
+old occupied owner volume, with its complete outside complement, retained source
+receipt and full new interior attached before the legacy owner yields. Geometry
+and walking must share represented floors, stairs, railings and clearances in
+both full drawn and independent orthogonal native families. Never merely turn
+off collision through an opaque old wall. Preserve the complete existing dome
+mirror/ramp construction and all station motion. Small reference-derived room,
+facade and furniture dimensions remain explicit display estimates. No new
+photographic pixels, texture requests, scene timers, geographic coverage, tour
+stops or higher live residency/decode/prefetch limits. Keep equal full drawn
+mobile detail and the existing offline/package ceilings. One internal browser
+city view at a time; preserve preceding packages by rename, without redundant
+large copies. Root coordinates shared world/navigation integration and release.
+
+The exact old estimated Abgeordnetenhaus glass roof/frame may be refitted only
+to its source-bound central clear strip, keeping all six courtyard holes and
+adjacent roofs. The official hall area supports room scale, not surveyed roof
+dimensions; every unsurveyed roof dimension stays labelled a display estimate.
+The Gustav-Heinemann source centreline may correct the rounded old alignment,
+with short exact-node approach joints, and the old illustrative Panoramaweg
+height fit may meet the bridge at its mapped junction while retaining all XZ
+nodes, lower-promenade ordinates and the entire outer height complement.
+Publicly evidenced restaurant glazing may replace only admitted exact old
+opaque lower wall volumes after complete dining interiors/glazing exist.
+
+The documented public two-storey HumboldtHafenEins arcade may
+open only the exact original eGZXjFeA owner along the retained lower footway
+and its northern rise. Keep the complete source record, eight exclusive
+native tuples, outside wall/roof complement and changed/foreign-owner rejection.
+A complete new underside/portal and route must precede admission; all absolute
+fit dimensions remain labelled estimates. Published central dining facades must
+be staged as detached complete copies: open only the copy, and gate the intact
+original's visibility at the atomic world commit with rollback restoration.
+
+Only with complete v295 interiors, the four old estimated native observation
+platform bars may yield to a complete independent cardinal annulus at the shared
+floor elevation, retaining both real terminal-ramp headrooms, the default factory
+and the unchanged 5,500-instance landmark ceiling.
