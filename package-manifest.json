@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "package_name": "isometric-berlin-regierungsviertel-local",
-  "package_version": "1.0.191",
+  "package_version": "1.0.192",
   "start_page": "START-HERE.html",
   "start_page_mode": "3d-launch-guide",
   "full_3d_start_page": "index.html",
@@ -50,6 +50,11 @@
     "hauptbahnhof-six-moving-panoramic-lift-cabins",
     "hauptbahnhof-current-verified-tenant-interiors",
     "hauptbahnhof-blumen-roewer-police-ditsch-northwest-og1",
+    "source-bound-court-neighbourhoods-and-rolleracht-underpass",
+    "connected-gustav-heinemann-and-alexanderufer-approaches",
+    "public-parliament-interiors-and-dome-circulation",
+    "pardo-lampenladen-and-two-level-marie-bistro",
+    "south-city-stations-nkz-passage-and-cultural-landmarks",
     "minecraft-roaming-creepers-zombies-and-skeletons",
     "opt-in-seven-variant-procedural-audio",
     "selected-landmark-only-marker",
@@ -146,8 +151,8 @@
     },
     "start_page": {
       "path": "START-HERE.html",
-      "bytes": 3932,
-      "sha256": "a56a95ca5ccf7447f0b2c58acb7302c510425fc09f62bddb20467e0c66af3145"
+      "bytes": 3931,
+      "sha256": "f16d005dbc2f33ec51ecf0121d72759785256415356b09f40f82e0afe42bc1d3"
     }
   }
 }
