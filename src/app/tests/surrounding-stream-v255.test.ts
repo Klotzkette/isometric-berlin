@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
-import { BufferGeometry, InstancedMesh, type Group, type Mesh } from "three";
+import { BufferGeometry, InstancedMesh, type Group, type Mesh, type Object3D } from "three";
 import data from "../src/data/tierparkV255.json";
 import playgrounds from "../src/data/playgroundsV255.json";
 import { prepareTierparkV255, tierparkGroundGuardV255, type TierparkSourceV255 } from "../src/TierparkV255";
@@ -13,6 +13,8 @@ import { createStreamedSurroundingCityChunkV255, disposeSurroundingCityRoot } fr
 import { transferTierparkAnimalsV282 } from "../src/tierparkAnimalTransferV282";
 import type { ZooAnimalHandleV282 } from "../src/ZooAnimalsV282";
 import { createTierparkHouseV282 } from "../src/ZooHousesV282";
+import { hasBrehmTropicalHallParentV282 } from "../src/brehmTropicalHallV282Profile";
+import tropicalHall from "../src/data/brehmTropicalHallV282.json";
 
 const source = data as TierparkSourceV255;
 const dir = path.resolve(import.meta.dir, "../public/mesh/surrounding-berlin-v159");
@@ -20,7 +22,7 @@ function fixture(key: string): SurroundingCityChunk {
   const [family, id] = key.split(":");
   return JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(dir, `${id}.${family}.json.gz`))).toString());
 }
-function digest(root: Group): string {
+function digest(root: Object3D): string {
   const hash = new Bun.CryptoHasher("sha256");
   root.traverse(object => {
     const mesh = object as Mesh;
@@ -74,12 +76,25 @@ test("streamed Tierpark additions exactly match explicit preparation for all ten
     const streamed = await createStreamedSurroundingCityChunkV255(raw, id, native);
     const figures = streamed.root.children.filter(child => child.userData.zooAnimalsV282);
     const houses = streamed.root.children.filter(child => child.userData.zooHousesV282) as Group[];
-    const explicitHouse = createTierparkHouseV282(id, native);
+    // Production has passed the retained complete parent witness since v282.
+    // Omitting it replays only the older fittings without the measured upper
+    // tropical hall, rather than the actual unchanged v192 stream behaviour.
+    const explicitHouse = createTierparkHouseV282(id, native, transferred.chunk);
     try {
       expect(streamed.root.userData.sourceKinds).toContain("tierpark-v255");
       const handles = figures.map(child => child.userData.zooAnimalsV282 as ZooAnimalHandleV282);
       expect(houses).toHaveLength(explicitHouse ? 1 : 0);
       if (explicitHouse) {
+        const fallback=createTierparkHouseV282(id,native)!;
+        try{
+          for(const old of fallback.children){
+            const retained=explicitHouse.children.find(child=>child.name===old.name)!;
+            expect(retained).toBeDefined();expect(digest(retained)).toBe(digest(old));
+          }
+          const admitted=hasBrehmTropicalHallParentV282(transferred.chunk,id);
+          expect(explicitHouse.children.length).toBe(fallback.children.length+(admitted?1:0));
+          expect(typeof explicitHouse.userData.brehmTropicalHallSolidAt).toBe(admitted?"function":"undefined");
+        }finally{disposeSurroundingCityRoot(fallback);}
         explicitHouse.position.set(-raw.origin[0], -raw.origin[1], -raw.origin[2]);
         explicitHouse.updateMatrix();
         expect(digest(houses[0])).toBe(digest(explicitHouse));
@@ -118,6 +133,31 @@ test("the local Tierpark receipt hash equals the existing shared guard exactly",
     ring: [[-1.0005, -0.0005], [0.0005, 1.9995], [3.1415926535, -2.718281828], [-1.0005, -0.0005]],
     holes: [[[0, 0], [.0005, -.0005], [-.0005, .0005], [0, 0]]],
   }]]) expect(tierparkGroundGuardV255(ground)).toBe(houseCurbGroundGuardV233(ground));
+});
+
+test("Brehm house replay admits only its complete current parent and retains every old fitting for changed witnesses",()=>{
+  for(const native of[false,true]){
+    const id=tropicalHall.packetId,raw=fixture(`${native?"minecraft":"drawn"}:${id}`),snapshot=JSON.stringify(raw),fallback=createTierparkHouseV282(id,native)!;
+    const expected=fallback.children.map(digest);
+    try{
+      expect(hasBrehmTropicalHallParentV282(raw,id)).toBe(true);
+      for(const change of["missing","changed","duplicate","origin"]as const){
+        const altered=structuredClone(raw),at=altered.nav.buildings.findIndex(p=>(p as typeof p&{partId?:string}).partId===tropicalHall.parentId);
+        expect(at).toBeGreaterThanOrEqual(0);
+        if(change==="missing")altered.nav.buildings.splice(at,1);
+        if(change==="changed")altered.nav.buildings[at].height++;
+        if(change==="duplicate")altered.nav.buildings.push(altered.nav.buildings[at]);
+        if(change==="origin")altered.origin[0]++;
+        const closed=createTierparkHouseV282(id,native,altered)!;
+        try{
+          expect(hasBrehmTropicalHallParentV282(altered,id)).toBe(false);
+          expect(closed.children.map(digest)).toEqual(expected);
+          expect(closed.userData.brehmTropicalHallSolidAt).toBeUndefined();
+        }finally{disposeSurroundingCityRoot(closed);}
+      }
+      expect(JSON.stringify(raw)).toBe(snapshot);
+    }finally{disposeSurroundingCityRoot(fallback);}
+  }
 });
 
 test("streamed playground metadata is attached without changing its actual geometry or navigation", async () => {

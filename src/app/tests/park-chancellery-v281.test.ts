@@ -6,6 +6,7 @@ import { chancelleryLawnContains,CHANCELLERY_LAWN_RINGS } from "../src/Chancelle
 import { createArchitecturalSignature,type ChancelleryModelSignature } from "../src/ArchitecturalLandmarks";
 import { createMinecraftArchitecturalLandmarks } from "../src/MinecraftArchitecturalLandmarks";
 import scene from "../public/mesh/regierungsviertel/scene.json";
+import {withNativeArchitectureBeforeV281} from "./helpers/nativeHistoryV299Replay";
 
 const signature=scene.architectural_signatures.find(s=>s.kind==="chancellery_model") as ChancelleryModelSignature;
 
@@ -66,8 +67,12 @@ describe("source-bound park and Ehrenhof v281",()=>{
   test("native sculpture/lawn remain cardinal inside the unchanged 5500 budget",()=>{
     const root=createMinecraftArchitecturalLandmarks();
     const meshes=root.children as InstancedMesh[];
-    // v285 already added four independently authored Reichstag details.
-    expect(meshes.reduce((sum,m)=>sum+m.count,0)).toBe(5498);
+    // The frozen v281 control has 5494 members. v285 adds four exact transoms;
+    // v291 later retires a net 261 HBF members through complete source openings
+    // and exact native compaction. Every old/new row is independently replayed.
+    const previous=withNativeArchitectureBeforeV281(root,()=>meshes.reduce((sum,m)=>sum+m.count,0));
+    expect(previous).toBe(5494);expect(previous+4).toBe(5498);
+    expect(meshes.reduce((sum,m)=>sum+m.count,0)).toBe(previous+4-261);
     expect(meshes.reduce((sum,m)=>sum+m.count,0)).toBeLessThanOrEqual(5500);
     const mesh=meshes.find(m=>m.userData.landmarkId==="bundeskanzleramt")!;
     expect(mesh.userData.cueCounts["Chillida independent stepped iron arms v281"]).toBe(15);

@@ -1670,7 +1670,7 @@ function notifyPresentationReadyWhenPossible(runtime: Runtime): void {
 /** The small outline extension starts only after the existing city is usable. */
 function fidelityAdmissionV296(runtime:Runtime):FidelityAdmissionV296 {
   const native=voxelModeActive(runtime),world=native?runtime.voxelWorld:runtime.isoWorld;
-  return {native,courtsPark:world?.userData.courtsParkV293===true,south:world?.userData.southFidelityV294===true,dining:world?.userData.parliamentaryDiningV296===true,waterfront:world?.userData.waterfrontV296===true};
+  return {native,courtsPark:world?.userData.courtsParkV293===true,south:world?.userData.southFidelityV294===true,dining:world?.userData.parliamentaryDiningV296===true,waterfront:world?.userData.waterfrontV296===true,wallGallery:world?.userData.wallGalleryV298===true};
 }
 
 function startSurroundingCity(runtime: Runtime): void {
@@ -1678,6 +1678,9 @@ function startSurroundingCity(runtime: Runtime): void {
   const city = createSurroundingCity({
     manifestUrl: new URL("../surrounding-berlin-v159/manifest.json", runtime.sceneRootUrl),
     schlossplatzV239: true,
+    stralauSisyphosV299:true,
+    littenStadthausV297: native=>(native?runtime.voxelWorld:runtime.isoWorld)?.userData.littenStadthausV297===true,
+    wallGalleryV298: native=>(native?runtime.voxelWorld:runtime.isoWorld)?.userData.wallGalleryV298===true,
     southFidelityV294: native=>(native?runtime.voxelWorld:runtime.isoWorld)?.userData.southFidelityV294===true,
     operaTheatresV274: true, staatsoperV240: true, architectureV241: true, mitteEnsembleV281: true, prenzlbergV264: true, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true,
     camera: runtime.camera,
@@ -4268,6 +4271,8 @@ function ensureIsoWorld(
         applyWaterfrontAuthoredOpeningsV296(isoWorld,false,fidelityV288.waterfront);
         isoWorld.userData.courtsParkV293=fidelityV288.courtsPark;
         isoWorld.userData.southFidelityV294=fidelityV288.southFidelity;
+        isoWorld.userData.littenStadthausV297=fidelityV288.littenStadthaus;
+        isoWorld.userData.wallGalleryV298=fidelityV288.wallGallery;
         isoWorld.userData.parliamentaryDiningV296=fidelityV288.parliamentaryDining;
         isoWorld.userData.waterfrontV296=fidelityV288.waterfront;
         const diningFacadeV296=prepareViewerDiningFacadeV296(runtime,fidelityV288.parliamentaryDining);

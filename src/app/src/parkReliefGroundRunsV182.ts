@@ -1,5 +1,6 @@
 import { coreParkReliefSupports } from "./parkReliefV182";
 import fritz from "./data/parkReliefV183.json";
+import { WALL_GALLERY_HILL_BOUNDS_V298, wallGalleryHillGroundAtV298 } from "./wallGalleryV298Profile";
 
 /** Exact v182 nearest ground samples around the new hill, before raising it. */
 export function originalFritzGroundAt(x: number, z: number, fallback: number): number {
@@ -31,9 +32,20 @@ export function parkReliefGroundSlices(
     (minXIndex + xStart) * cell <= bounds[2] + apron);
   if (!support) return null;
   const isFritz = support === coreParkReliefSupports[1];
+  const isMauerpark = support === WALL_GALLERY_HILL_BOUNDS_V298;
   const oldTop = isFritz ? originalFritzGroundAt(
     (minXIndex + xStart + run / 2) * cell, (minZIndex + zOffset) * cell,
     options.nearest(xStart + run / 2, zOffset)) : PARK_RELIEF_ORIGINAL_CORE_Y;
+  if (isMauerpark) {
+    let changed = false;
+    for (let x = xStart; x < xStart + run; x++) {
+      const top = wallGalleryHillGroundAtV298((minXIndex + x + .5) * cell, z, options.mode === "native", oldTop);
+      if (top !== null && Math.abs(top - oldTop) > 1e-8) { changed = true; break; }
+    }
+    // Grid metadata/apron overlap is not occupied terrain. Preserve the exact
+    // original run transform, paint salt and count when no true cell changes.
+    if (!changed) return null;
+  }
   const first = Math.max(xStart, Math.ceil((support[0] - apron) / cell - minXIndex - .5));
   const end = Math.min(xStart + run, Math.floor((support[2] + apron) / cell - minXIndex - .5) + 1);
   if (first >= end) return null;
@@ -47,7 +59,13 @@ export function parkReliefGroundSlices(
   append(xStart, first - xStart, oldTop);
   for (let x = first; x < end; x++) {
     let y = options.nearest(x + .5, zOffset + .5);
-    if (options.mode === "drawn") {
+    if (isMauerpark) {
+      // Core has no occupied cells in this support in the released payload.
+      // A bounded raster caller still gets the same four-metre cell surface
+      // as navigation, with its exact original run altitude outside the mask.
+      y = wallGalleryHillGroundAtV298((minXIndex + x + .5) * cell, z,
+        options.mode === "native", oldTop) ?? oldTop;
+    } else if (options.mode === "drawn") {
       const corners = [options.smooth(x, zOffset), options.smooth(x + 1, zOffset),
         options.smooth(x, zOffset + 1), options.smooth(x + 1, zOffset + 1)];
       // Exact vector lawns/paths cover the backing. Its flat four-metre top

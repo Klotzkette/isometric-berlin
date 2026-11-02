@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-02",
+  "images": [
+    {
+      "kind": "vrubel",
+      "imageUrl": "https://www.eastsidegalleryausstellung.de/site/assets/files/1131/f-027202_1v_vrubel_dimitrij_01-dsc_0347.1400x600-ms.jpg",
+      "credit": "East Side Gallery: Dmitry Vrubel, Mein Gott, hilf mir, diese tödliche Liebe zu überleben, 2009 © Stiftung Berliner Mauer, Foto: Günther Schaefer",
+      "imageSha256": "3b79050af6a2095cf76a1fcac9556599d64f90d2bc21650026683ded2ea4d9c1",
+      "htmlSha256": "e6da5cc103c1beb93c934751baa1e034a5b654be6963d6874aad08d442fa9971",
+      "use": "Inspected external reference only; no image/photo pixels or textures shipped; independent flat-colour geometric interpretation, not a digital facsimile."
+    },
+    {
+      "kind": "kinder",
+      "imageUrl": "https://www.eastsidegalleryausstellung.de/site/assets/files/1223/f-027146_1v_kinder_birgit-dsc_0138.1400x600-ms.jpg",
+      "credit": "East Side Gallery: Birgit Kinder, Test the Rest, 2009 © Stiftung Berliner Mauer, Foto: Günther Schaefer",
+      "imageSha256": "7358bac1f0442474de277b72f8a09b7be2c5ad00dc004d429198f1b17f7a7250",
+      "htmlSha256": "0d40b2853bbbbd901dc5905c27eb916916a601d3b9f290232219cc7a8ce7ee3d",
+      "use": "Inspected external reference only; no image/photo pixels or textures shipped; independent flat-colour geometric interpretation, not a digital facsimile."
+    },
+    {
+      "kind": "noir",
+      "imageUrl": "https://www.eastsidegalleryausstellung.de/site/assets/files/1209/f-027165_1v_noir_thierry_1-dsc_9482.1400x600-ms.jpg",
+      "credit": "East Side Gallery: Thierry Noir, Hommage an die junge Generation , 2009 © Stiftung Berliner Mauer, Foto: Günther Schaefer",
+      "imageSha256": "e3e5b3678003457bacbd9810ceb774f9b1e156ab4c21f925ac120902d89b4dba",
+      "htmlSha256": "01b5c510701f84ec4d842db6f7cb54458ccb47c7a8c809f1d5e5bba82cb486b9",
+      "use": "Inspected external reference only; no image/photo pixels or textures shipped; independent flat-colour geometric interpretation, not a digital facsimile."
+    },
+    {
+      "kind": "alavi",
+      "imageUrl": "https://www.eastsidegalleryausstellung.de/site/assets/files/1245/f-027102_1v_alavi_kani-dsc_8849.1400x600-ms.jpg",
+      "credit": "East Side Gallery: Kani Alavi, Es geschah im November, 2009 © Stiftung Berliner Mauer, Foto: Günther Schaefer",
+      "imageSha256": "b6d349b309cffb2c70fbc6fa5eef0b64c44cbfcc6438c17d4c9e464fc25950f1",
+      "htmlSha256": "5f066305abdc9756a78118363ed21a01f22349a3d0476ad234dd70b018276170",
+      "use": "Inspected external reference only; no image/photo pixels or textures shipped; independent flat-colour geometric interpretation, not a digital facsimile."
+    },
+    {
+      "kind": "schaefer",
+      "imageUrl": "https://www.eastsidegalleryausstellung.de/site/assets/files/1089/f-027187_1v_schaefer_gunther.1400x600-ms.jpg",
+      "credit": "East Side Gallery: Günther Schaefer, Vaterland, 2009 © Stiftung Berliner Mauer, Foto: Günther Schaefer",
+      "imageSha256": "1ac6807a4c7377f68b41a8db2cbff9844d1369c902d98010f3a3ad96bd42dedc",
+      "htmlSha256": "86cabbc07e5b747ffc01a8f40567dd7b730f84945010eb663d69e022696c3802",
+      "use": "Inspected external reference only; no image/photo pixels or textures shipped; independent flat-colour geometric interpretation, not a digital facsimile."
+    },
+    {
+      "kind": "heimler",
+      "imageUrl": "https://www.eastsidegalleryausstellung.de/site/assets/files/1179/f-027132_1v_heimler_gabriel-dsc_7494.1400x600-ms.jpg",
+      "credit": "East Side Gallery: Gabriel Heimler, Mauerspringer, 2009 © Stiftung Berliner Mauer, Foto: Günther Schaefer",
+      "imageSha256": "afdb3b784543b70c03aa96f771fc53acae1a3e97db0e4eb5824fd5a3a09a89f0",
+      "htmlSha256": "4dbcd10f665d11d8a013d9df8383815220efb3b2017f236729c4fc11c282ad02",
+      "use": "Inspected external reference only; no image/photo pixels or textures shipped; independent flat-colour geometric interpretation, not a digital facsimile."
+    },
+    {
+      "kind": "klingenstein",
+      "imageUrl": "https://www.eastsidegalleryausstellung.de/site/assets/files/1171/f-027148_1v_klingenstein_thomas-dsc_0272.1400x600-ms.jpg",
+      "credit": "East Side Gallery: Thomas Klingenstein, Umleitung in den japanischen Sektor, 2009 © Stiftung Berliner Mauer, Foto: Günther Schaefer",
+      "imageSha256": "4cbdb223035ced682065b03eefdd86527ce57a6b2bd3a79a4df65713b525861b",
+      "htmlSha256": "5dc9cbe7bd0b61928114f40e96b15781a04c16f395ef22e4c869426addca22bf",
+      "use": "Inspected external reference only; no image/photo pixels or textures shipped; independent flat-colour geometric interpretation, not a digital facsimile."
+    },
+    {
+      "kind": "kuehn",
+      "imageUrl": "https://www.eastsidegalleryausstellung.de/site/assets/files/1219/f-027153_1v_kuhn_christine-dsc_8732.1400x600-ms.jpg",
+      "credit": "East Side Gallery: Christine Kühn, Touch the Wall, 2009 © Stiftung Berliner Mauer, Foto: Günther Schaefer",
+      "imageSha256": "d9f7abc823891a558927b933603574aa72b806d824ac143459fa601cf370e0bd",
+      "htmlSha256": "428d19742f41b8cea9ff457b2d7cd130ca71ee4c9da7d0b71333b56f5a0f1b49",
+      "use": "Inspected external reference only; no image/photo pixels or textures shipped; independent flat-colour geometric interpretation, not a digital facsimile."
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://www.stiftung-berliner-mauer.de/de/east-side-gallery/historischer-ort/laengste-open-air-galerie",
+      "claim": "Current surviving1.3km mural ensemble, four relocated works and actual openings."
+    },
+    {
+      "url": "https://www.berlin.de/landesdenkmalamt/denkmale/highlight-berliner-mauer/mauer-denkmale/east-side-gallery-648157.php",
+      "claim": "Hinterlandmauer built with Grenzmauer75 precast elements, distinct older brick remnant northwest."
+    },
+    {
+      "url": "https://www.mauerpark.berlin/service-infos/aktuelles/detail/qualifizierung-des-urspruenglichen-mauerparks-sicherung-des-noerdlichen-sonnenhuegels-startet/",
+      "claim": "12October2026 works, ongoing northernSonnenhuegel and amphitheatre edge repairs, not completed2027 state."
+    },
+    {
+      "url": "https://www.mauerpark.berlin/",
+      "claim": "Actual amphitheatre, Hinterlandmauer and public park uses; protected plan not traced."
+    },
+    {
+      "url": "https://www.topographie.de/ueber-den-ort/geschichte-nach-1945",
+      "claim": "Damaged surviving wall remains preserved; no restored pristine wall fabricated."
+    },
+    {
+      "url": "https://tchobanvoss.de/de/projects/living-levels",
+      "claim": "Current14storey white stacked volumes, glass and permanent balcony greenery; exact retainedsourceenvelopeunchanged."
+    },
+    {
+      "url": "https://edge.tech/de/portfolio/edge-east-side-berlin",
+      "claim": "Completed142m tower, glazed36storeys; mapped142m sourceenveloperetained."
+    },
+    {
+      "url": "https://www.sbp.de/en/project/edge-east-side-berlin-check-engineering/",
+      "claim": "142m and stepped glazing/green terrace recognition; no new unsourced tower silhouette."
+    },
+    {
+      "url": "https://www.gewers-pudewill.de/projekt/stream/",
+      "claim": "Completed2022;24 alternatingly shifted floors, extensive glazing; source95.6m envelopekept distinctfromroundedarchitect97.5m."
+    },
+    {
+      "url": "https://www.spreeturm.de/index.html",
+      "claim": "Completed2020;20floors,70m published; retainedsource74.07mheightnotchanged; aluminiumandglazingfacaderecognition."
+    }
+  ],
+  "topographyImage": {
+    "url": "https://commons.wikimedia.org/wiki/File:BERLIN_WALL_(TOPOGRAPHIE_DES_TERRORS).jpg",
+    "author": "Vedha242424",
+    "license": "CC0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "localExistingReference": "geo_data/regierungsviertel/raw/topography_v107/reference-4.jpg",
+    "sha256": "49cd34847d702cae240e6dcb2ba9497d80b84a7814dba284dd6e94b7a0a6c2d6",
+    "observed": "Reinspected horizontal fine cable fence on existing course, narrow posts/bolts; damagedconcreteandroundedcap retained. No verticalpicketfence invented."
+  }
+}

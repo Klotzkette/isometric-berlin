@@ -61,6 +61,8 @@ individuell anhand von Fotoreferenzen ausgearbeitete Gebäude ergänzen amtliche
 LoD2-Geometrie, OSM-Daten und einfachere Umgebungsmodelle. Abdeckung und
 Genauigkeit sind in den [Datennotizen](docs/data.md) und den
 [Angaben zur metrischen Präzision](docs/metric-precision.md) dokumentiert.
+Die [Detailnotizen zu Altstadt, Mauerorten und Spreeufer](docs/fidelity-v297-v299.md)
+erläutern auch die gezeichneten Wandbilder und ihre Grenzen.
 
 ### Herunterladen und lokal starten
 
@@ -187,8 +189,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.192** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.192/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.193** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.193/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

@@ -121,6 +121,9 @@ def verify_packets(addition: dict, reader: Reader = Path.read_bytes) -> None:
 
 def predecessor_manifest_v262(current: dict, reader: Reader = Path.read_bytes) -> dict:
   """Reject any unrelated edit while recovering the full verified predecessor."""
+  from scripts.integrate_fidelity_v299 import predecessor_manifest_v299
+
+  current = predecessor_manifest_v299(current, reader)
   if MARKER not in current:
     assert not any(
       c.get(family, {}).get("url", "").startswith("euref262-")

@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "sourceCommit": "0f6174362de87d785f6e6f5b864d05e5efa973fc",
+  "description": "Complete later v288 windows and historic core rows, captured from the immutable published source before replaying original facade/v257 assertions.",
+  "windows": {
+    "K0000APP": null,
+    "YFvyF7Oj": {
+      "count": 35,
+      "matrix": {
+        "itemSize": 16,
+        "normalized": false,
+        "sha256": "7316fab49497cb24e150caa670460b310f3625d04f81e2da522822b093e04c09"
+      },
+      "geometry": {
+        "position": {
+          "itemSize": 3,
+          "normalized": false,
+          "sha256": "0bd1e3bf1c1cbbdbebe9ef729623da39e78b55f2526b27f89654f3d2178499cf"
+        },
+        "color": {
+          "itemSize": 3,
+          "normalized": false,
+          "sha256": "228bedbe7a274de68b9a5b97fe37434d3b71a76fdc4590502aa68a10cfd19dcb"
+        },
+        "normal": {
+          "itemSize": 3,
+          "normalized": false,
+          "sha256": "1c2946ffada9552be08779050d9d6d8fb867f0f6e865091c9d81a956981f684c"
+        }
+      },
+      "userDataKeys": [
+        "dayMaterial",
+        "estimatedOpenings",
+        "fullStaticDetailOnTouch",
+        "nightMaterial",
+        "partyWallsExcluded",
+        "sourceGeometryRetained",
+        "textureFree"
+      ]
+    },
+    "1x80YnFI": null
+  },
+  "justice": {
+    "drawn": {
+      "count": 7311,
+      "total": 26643,
+      "matrix": {
+        "itemSize": 16,
+        "normalized": false,
+        "prefix": "27424771675dab55f81037d776a34791e58aa94c65c34581f223a0de21177c8b",
+        "suffix": "9a040277c28ad24b05c7780e69e092d2ebe04b3e461bf6ec57bb4966fe13cab8"
+      },
+      "color": {
+        "itemSize": 3,
+        "normalized": false,
+        "prefix": "7bc0032224228aa71b62b3307dc3935a8f3552cc48243e17133e8262a421c3f5",
+        "suffix": "102499ee1de801a1494e33982982b725553d578f16c8552e4c40039e22fb446b"
+      }
+    },
+    "native": {
+      "count": 2074,
+      "total": 61934,
+      "matrix": {
+        "itemSize": 16,
+        "normalized": false,
+        "prefix": "22982d52d2372158e9110ae5571408eea9ab6efdcc7ca1a7a8c70c0b77bc0128",
+        "suffix": "4fbc649b46e4f46c7e480899eb80950a7096f7a9f8da140ee412d2bf4d45c3d9"
+      },
+      "color": {
+        "itemSize": 3,
+        "normalized": false,
+        "prefix": "9c7793d42250b092a653619cebc1621176e79331b6bf0f3a0576f9693e95927b",
+        "suffix": "a275566570c84057f9d9676cf837231ac7211fcb578692b6714328c8fbd84cca"
+      }
+    }
+  },
+  "sourceSha256": {
+    "src/app/src/IsometricCityWorld.ts": "c00af2d38fe58751c23545384119fa7524f8a50fafffd91edbcee1ebadb7a103",
+    "src/app/src/ordinaryWindowsV288.ts": "266632ffbaa671cc4b78c5485371f980bf04dd4cd1f23f15e8248f0b9980ce7c",
+    "src/app/src/urbanFacadePresentation.ts": "fec2994f851e23a236de55689c34a052039c65276ec2ffd431decde1bd242dc4",
+    "src/app/src/buildingAttributes.ts": "ef9b9c7c31b47ade0ad356f307495222ec5d47b1d02335cf147e502fa11c8b5a",
+    "src/app/src/buildingAttributeSource.json": "ecff27fc98b78c1c1a750286814a0c6db02906d785821a2401bdf7c682cf3e35",
+    "src/app/public/mesh/regierungsviertel/lod2-prisms.json": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e",
+    "src/app/src/JusticePalaceV183.ts": "1c660c928ab27ebab9f7a058627eaf197e0f383d0efbbe0905ae2a77a03a4b4c",
+    "src/app/src/MinecraftJusticePalaceV183.ts": "69398e37fc97e39b13c0238c3ad6c1d45f013472d6e38d262397a41723ce4ce6",
+    "src/app/src/justicePalaceV183Batches.ts": "c6b9437d8dd73c010908505fb533d5f189d16beb80ba549a92780192eb03fb5e",
+    "src/app/src/BerlinHistoricCoreV288.ts": "217423a11e592622949b3078afcf8c6ea4391d2242f719cfabd2c480a99ddc9f",
+    "src/app/src/BerlinKlosterruineV288.ts": "818b40b8fb2d7fbdba73f19f004e1268c0d6281eef530dfba0c459cf2ed8f3e9",
+    "src/app/src/data/berlinHistoricCoreV288.json": "e9f0e85e42c8143cbe802d4732c97c9dc915dbe34f6f0cc3a02b3958e3eb8bf4",
+    "src/app/src/data/berlinKlosterruineV288.json": "d5b3635a6239060805aa08d0278f0197ae24abdeaa6d5a9282314e52b0ef3fc7"
+  },
+  "historicalTests": {
+    "urban-facade-presentation.test.ts": "af35243aa165bf88acde4e055923d9adfe13d2183bfdca65879ab05bde58bd7c",
+    "litten-instanz-v257.test.ts": "21c6db7e303706cd71e98bbc4cb420d03807806fab46a7191cec7a8ae1a12dc8"
+  }
+}

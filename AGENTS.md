@@ -2283,3 +2283,35 @@ Only with complete v295 interiors, the four old estimated native observation
 platform bars may yield to a complete independent cardinal annulus at the shared
 floor elevation, retaining both real terminal-ramp headrooms, the default factory
 and the unchanged 5,500-instance landmark ceiling.
+
+
+### Step 10 — v297–v299 historic Mitte, Wall sites and eastern waterfront
+
+The owner's named follow-up authorizes source-bound detail at Zur letzten
+Instanz and its three Waisenstraße houses, the existing Littenstraße court
+context, Altes Stadthaus and its actual rear neighbours, and Alte Münze;
+Mauerpark, East Side Gallery with its identifiable mural sequence and actual
+existing modern buildings behind it, and the surviving Wall at Topographie
+des Terrors; Stralauer Allee, Stralau's waterfront and evidenced mooring places,
+and the actual Sisyphos site at Hauptstraße 15 in Rummelsburg. An exact finite
+Sisyphos-site coverage complement may be added if the existing sources omit it;
+this is no permission for general Rummelsburg expansion. The dictated
+“Lederla” remains unresolved and does not identify an invented extra site.
+
+Preserve complete source envelopes, roofs, open yards, park/water/path courses
+and earlier details. Present-day completed architecture must be distinguished
+from planned Molkenmarkt buildings and ongoing Mauerpark works. Mural positions,
+compositions and named artists follow primary work references; careful bounded
+code/vector interpretations must be recognisable rather than interchangeable
+generic colour panels. Never describe procedural interpretations as photographs
+or bundle unlicensed reference pixels. Keep precise reference/artist credits.
+Houseboats follow evidenced moorings, not arbitrary water positions or invented
+private occupants. Do not infer permanent 24/7 club opening from the request.
+
+Only exactly receipted false or superseded owners may yield after a complete
+required replacement exists, with closed defaults, outside complements, source
+retention and matching granular navigation. Keep full drawn touch quality,
+independent orthogonal native geometry, 93 tour stops, six modes and unchanged
+startup/Worker/residency/decode/prefetch/package limits. One internal browser
+city view at a time; preserve the prior v192 package by same-filesystem rename
+when final build inputs are frozen, without redundant large copies.

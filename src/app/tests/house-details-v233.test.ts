@@ -25,6 +25,14 @@ import { prepareKoepenickerStreetsV268 } from "../src/KoepenickerStreetsV268";
 import { prepareKraftwerkBerlinV268 } from "../src/KraftwerkBerlinV268";
 import { prepareMoabitHousesV269 } from "../src/MoabitHousesV269";
 import { prepareAugustFrontsV274 } from "../src/AugustFrontsV274";
+import { preparePotsdamerCorridorV288 } from "../src/PotsdamerCorridorV288";
+import { prepareChinaEmbassyV288 } from "../src/MitteEmbassiesV288";
+import { prepareEastStadtbahnV288 } from "../src/EastStadtbahnV288";
+import { prepareSouthFidelityV294 } from "../src/SouthFidelityV294Packets";
+import { prepareTachelesFrontsV270 } from "../src/TachelesFrontsV270Receipts";
+import { prepareLittenStadthausV297 } from "../src/LittenStadthausV297Packets";
+import { prepareMauerparkTerrainV298 } from "../src/MauerparkTerrainV298Packets";
+import { captureStralauSisyphosV299, prepareStralauSisyphosV299 } from "../src/StralauSisyphosV299Packets";
 import streetCurves from "../src/data/streetCurvesV276.json";
 import cityWestTransport from "../src/data/citywestTransportV281.json";
 import { prepareHouseDoorsV233 } from "../src/houseDoorsV233";
@@ -52,23 +60,32 @@ function load(key: string): SurroundingCityChunk {
   const [family, id] = key.split(":");
   return JSON.parse(gunzipSync(readFileSync(new URL(descriptors.get(id)[family].url, root))).toString());
 }
-function prepare(chunk: SurroundingCityChunk, id: string, native: boolean): SurroundingCityChunk {
-  // Include every production append whose receipts intersect these 486 source
-  // keys, in production order. The old helper omitted later v264–v276 fittings
-  // (including 174,960 bytes of v269 Mierendorff on drawn:-10_-2). V281
-  // CityWest intersects fourteen keys. Tacheles has no intersecting key and its
-  // ownership flag is off here. Counts/byte limits remain unchanged.
-  for (const prepare of [prepareNordMauerparkV266, prepareFriedrichshainV266, prepareScheunenV265,
+const replayPreparers = [prepareNordMauerparkV266, prepareFriedrichshainV266, prepareScheunenV265,
     prepareAllotmentsV264, prepareRoofHouseV233, prepareOuterRoofsV262, prepareOuterFacadesV262, prepareGreyFacadesV263,
     prepareHouseDoorsV233, prepareHouseCurbsV233, prepareBoulevardArchitectureV235,
     prepareWestShopfrontsV254, prepareCitywestStreetsV235, prepareCityStreetsV249,
-    prepareMainStreetEdgesV254, prepareNamedSiteV238, prepareEurefTransfersV262,
+    prepareMainStreetEdgesV254, prepareNamedSiteV238, prepareSouthFidelityV294, prepareEurefTransfersV262,
     prepareKreuzbergStreetsV267, prepareFeuerwacheKreuzbergV267, prepareKoepenickerLandmarksV268,
     prepareKoepenickerStreetsV268, prepareKraftwerkBerlinV268, prepareMoabitHousesV269,
-    prepareMierendorffV269, prepareAugustFrontsV274, prepareCityWestTransportV281,
-    prepareStreetCurvesV276]) chunk = finish(prepare(chunk, id, native));
-  return chunk;
+    prepareMierendorffV269, prepareTachelesFrontsV270, prepareAugustFrontsV274, prepareCityWestTransportV281,
+    prepareStreetCurvesV276, preparePotsdamerCorridorV288, prepareChinaEmbassyV288, prepareEastStadtbahnV288,
+    prepareLittenStadthausV297, prepareMauerparkTerrainV298] as const;
+function prepare(chunk: SurroundingCityChunk, id: string, native: boolean): SurroundingCityChunk {
+  // Replay the actual entire production chain. In particular the already-v192
+  // v288 append was missing here (49,440 decoded bytes on drawn:5_-1). Source
+  // retirement options remain default-off exactly as in this decoder invocation.
+  const ticket=finish(captureStralauSisyphosV299(chunk,id,native));
+  for(const prepare of replayPreparers)chunk=finish(prepare(chunk,id,native));
+  return finish(prepareStralauSisyphosV299(chunk,ticket));
 }
+
+test("the historical fixture replays every production preparer in the exact source-admission order",()=>{
+  const source=readFileSync(new URL("../src/SurroundingCityGeometry.ts",import.meta.url),"utf8");
+  const body=source.slice(source.indexOf("export function* buildSurroundingCityChunk("),source.indexOf('if (chunk.meshes.length > 16) throw'));
+  const actual=[...body.matchAll(/chunk\s*=\s*yield\*\s*(prepare\w+)\(/g)].map(m=>m[1]);
+  expect([...replayPreparers.map(f=>f.name),"prepareStralauSisyphosV299"]).toEqual(actual);
+  expect(body.indexOf("captureStralauSisyphosV299(")).toBeLessThan(body.indexOf("prepareNordMauerparkV266("));
+});
 function budget(packet: SurroundingCityChunk, native: boolean) {
   const vertices = packet.meshes.reduce((n, p) => n + bytes(p.positions) / 6, 0);
   const indices = packet.meshes.reduce((n, p) => n + bytes(p.indices) / 4, 0);
@@ -89,13 +106,18 @@ test("every v233–v235 house and boulevard tile composes safely within unchange
     expect(counts.indices, key).toBeLessThanOrEqual(2400000);
     original.meshes.forEach((part, i) => expect(result.meshes[i], key).toBe(part));
     if (result.nav !== original.nav) {
-      // V276 retains the complete navigation baseline and appends only its
-      // exact mapped corner crescents. No old path, building or hole changes.
-      expect(native, key).toBeFalse();
+      // Replay both independent source-owned navigation additions. V276 adds
+      // its exact road crescents; the already-v192 v288 rail append adds its
+      // represented elevated floors. Every old path, building and hole stays.
+      let expectedNav=original.nav;
       const curve = (streetCurves.chunks as Record<string, { roads: unknown[] }>)[id];
-      expect(curve, key).toBeDefined();
-      expect(result.nav.roads, key).toEqual([...(original.nav.roads ?? []), ...curve.roads]);
-      expect({ ...result.nav, roads: original.nav.roads }, key).toEqual(original.nav);
+      if(result.nav.roads!==original.nav.roads){
+        expect(native,key).toBeFalse();expect(curve,key).toBeDefined();
+        expectedNav={...expectedNav,roads:[...(original.nav.roads??[]),...curve.roads] as typeof original.nav.roads};
+      }
+      const railOnly=finish(prepareEastStadtbahnV288(original,id,native));
+      if(railOnly!==original)expectedNav={...expectedNav,spreeBridgesV242:railOnly.nav.spreeBridgesV242};
+      expect(result.nav,key).toEqual(expectedNav);
     }
     expect(result.lines, key).toBe(original.lines);
     expect(JSON.stringify(original), key).toBe(snapshot);

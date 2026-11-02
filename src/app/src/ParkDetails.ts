@@ -41,6 +41,7 @@ import { partitionStaticSpatialInstancesSteps } from "./staticSpatialInstances";
 import { indexGeometryExactly } from "./exactGeometryIndex";
 import { completeCooperatively } from "./cooperativeWork";
 import { coreParkReliefContains, coreParkReliefSupports } from "./parkReliefV182";
+import { wallGalleryHillGroundAtV298 } from "./wallGalleryV298Profile";
 import {
   inPotsdamerPanoramaLandscape,
   POTSDAMER_PANORAMA_LANDSCAPE,
@@ -931,6 +932,10 @@ export function createCoreParkPathTerrainSampler(
 ): ParkPathTerrainAt {
   const offsets = new WeakMap<ParkPath, number>();
   return (path, x, z, sourceY) => {
+    // These source coordinates still carry the older 5.2 m ground. Unlike
+    // the earlier park fields, their clearance must not subtract the new hill.
+    const mauerpark = wallGalleryHillGroundAtV298(x, z, false, 5.2);
+    if (mauerpark !== null) return sourceY + mauerpark - 5.2;
     if (!coreParkReliefContains(x, z)) return sourceY;
     let offset = offsets.get(path);
     if (offset === undefined) {

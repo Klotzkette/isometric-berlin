@@ -2397,6 +2397,9 @@ export function* buildMinecraftVoxelWorldSteps(
   assertAltMitteNativeV169SourceReady();
   group.name = "Minecraft voxel world (LoD2 + OSM + official tree points)";
   const mobileDetail = options.detailProfile === "mobile";
+  // Complete owners precede the resident native Podewil correction as well.
+  const fidelityV288 = prepareRequiredFidelityV288({buildings:options.sourcePrisms ?? []}, payload, true, false, mobileDetail);
+  group.add(fidelityV288.root);
   const cell = payload.cell_m;
   // Buildings/trees carry ABSOLUTE cell indices; ground runs are grid
   // offsets (see the payload origin note): cell (x_idx, z_idx) spans
@@ -2542,7 +2545,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftBerlinWallMemorialV174());
   yield;
-  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ golgathaV270: options.golgathaV270, tachelesFrontsV270: options.tachelesFrontsV270, northernSitesV266: options.northernSitesV266, chariteBridgesV265: options.chariteBridgesV265, schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true }));
+  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ littenStadthausV297:fidelityV288.littenStadthaus, wallGalleryV298:fidelityV288.wallGallery, golgathaV270: options.golgathaV270, tachelesFrontsV270: options.tachelesFrontsV270, northernSitesV266: options.northernSitesV266, chariteBridgesV265: options.chariteBridgesV265, schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true }));
   yield;
 
   group.add(createMinecraftZooGroundsV165());
@@ -2686,10 +2689,10 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   // Publish the complete independent south hall before only its immutable
   // coarse tuples yield. A changed/ambiguous source retains the old world.
-  const fidelityV288 = prepareRequiredFidelityV288({buildings:options.sourcePrisms ?? []}, payload, true, false, mobileDetail);
-  group.add(fidelityV288.root);
   group.userData.courtsParkV293=fidelityV288.courtsPark;
   group.userData.southFidelityV294=fidelityV288.southFidelity;
+  group.userData.littenStadthausV297=fidelityV288.littenStadthaus;
+  group.userData.wallGalleryV298=fidelityV288.wallGallery;
   group.userData.parliamentaryDiningV296=fidelityV288.parliamentaryDining;
   group.userData.waterfrontV296=fidelityV288.waterfront;
   applyDiningAuthoredOpeningsV296(group,true,fidelityV288.parliamentaryDining);

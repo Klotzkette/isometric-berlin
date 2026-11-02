@@ -36,7 +36,9 @@ def predecessor_packet_bytes_v242(
   path: Path, reader: Reader = Path.read_bytes
 ) -> bytes:
   """Return frozen predecessor bytes only after exact whole-packet verification."""
-  raw = reader(path)
+  from scripts.integrate_fidelity_v299 import predecessor_packet_bytes_v299
+
+  raw = predecessor_packet_bytes_v299(path, reader)
   relative = str(path.resolve().relative_to(ROOT))
   receipt = next((r for r in receipts().values() if r["url"] == relative), None)
   if receipt is None:

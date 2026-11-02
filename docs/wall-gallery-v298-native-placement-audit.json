@@ -1,0 +1,10 @@
+{
+  "step": 10,
+  "source": "geo_data/regierungsviertel/raw/outer-v159/resolved-outlines.gpkg",
+  "sourceSha256": "ac571a325ec8d8ebd8b08c6bfcc01a09c5f5644027990e2376b618454aa91eac",
+  "renderDatumY": 3,
+  "nativeTowerFittings": 5354,
+  "foreignCentreHits": 0,
+  "foreignBoxFootprintOverlaps": 0,
+  "scope": "Retained neighbouring source-building footprints in the four towers extent plus8m. Four owners excluded only for their own rows. Actual source envelopes and raw source-ground evidence remain unchanged. The2.8m native fitting allowance is a display estimate."
+}

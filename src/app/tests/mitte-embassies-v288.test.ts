@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
+import { verifiedPriorPacketShaV193 } from "./helpers/losslessPacketsV193";
 import { gunzipSync } from "node:zlib";
 import { Color, InstancedMesh, Mesh } from "three";
 import payload from "../public/mesh/regierungsviertel/minecraft-voxels.json";
@@ -15,7 +16,7 @@ function finish<T>(generator: Generator<void, T>): T {
 
 test("both complete source families, all38parts, original sheets and source hashes remain independently retained", () => {
   expect(evidence.completeOriginalFamilies.map(f => f.parts.length)).toEqual([30, 8]);
-  for (const rec of evidence.sourceFiles) expect(sha(readFileSync(new URL(rec.path, rootPath)))).toBe(rec.sha256);
+  for (const rec of evidence.sourceFiles) {const url=new URL(rec.path,rootPath);expect(verifiedPriorPacketShaV193(url,readFileSync(url))).toBe(rec.sha256);}
   for (const family of evidence.completeOriginalFamilies) {
     const src = JSON.parse(gunzipSync(readFileSync(new URL(`geo_data/regierungsviertel/alt-mitte-v169/source-${family.tile}-00.json.gz`, rootPath))).toString());
     expect(src.buildings.find((f: any) => f.id === family.id)).toEqual(family);

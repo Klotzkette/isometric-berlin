@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { createHash } from "node:crypto";
+import { verifiedPriorPacketShaV193 } from "./helpers/losslessPacketsV193";
 import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
@@ -20,7 +20,7 @@ const evidence = JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(root,
 const source = edges as MainStreetEdgesSourceV254;
 function fixture(key: string): SurroundingCityChunk {
   const bytes = fs.readFileSync(path.join(root, evidence.packets[key].url));
-  expect(createHash("sha256").update(bytes).digest("hex")).toBe(evidence.packets[key].sha256);
+  expect(verifiedPriorPacketShaV193(path.join(root,evidence.packets[key].url),bytes)).toBe(evidence.packets[key].sha256);
   return JSON.parse(zlib.gunzipSync(bytes).toString());
 }
 function finish<T>(iterator: Generator<void, T>): T {

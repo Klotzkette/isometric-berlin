@@ -1,6 +1,12 @@
 import { expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
 import { Group, InstancedMesh, Mesh } from 'three';
 import { createTiergartenWerkhofV275 } from '../src/TiergartenWerkhofV275';
+import { createBayerCampusV277 } from '../src/BayerCampusV277';
+import { createLehrterV277 } from '../src/LehrterV277';
+import { createRkiMoabitV277 } from '../src/RkiMoabitV277';
+import { createSteppengartenShelterV283 } from '../src/SteppengartenShelterV283';
+import steppengarten from '../src/data/steppengartenShelterV283.json';
 import data from '../src/data/tiergartenWerkhofV275.json';
 import ownership from '../src/data/tiergartenWerkhofV275Ownership.json';
 import { addRequiredSiteEnvelopesV209Steps } from '../src/RequiredSiteEnvelopesV209';
@@ -85,23 +91,46 @@ test('every independent native roof cell has its submitted body and open shelter
   } finally { disposeSurroundingCityRoot(root); }
 });
 
-test('the required-site transaction keeps the exact v277 prefix and attaches the complete compound before its own yield in both modes', () => {
+test('the required-site transaction keeps every complete v277/v283 prefix family and attaches the full compound before its own yield in both modes', () => {
+  const factories=[createBayerCampusV277,createLehrterV277,createRkiMoabitV277,createSteppengartenShelterV283];
+  const sourceText=readFileSync(new URL('../src/RequiredSiteEnvelopesV209.ts',import.meta.url),'utf8');
+  const beforeWerkhof=sourceText.slice(sourceText.indexOf('export function* addRequiredSiteEnvelopesV209Steps('),sourceText.indexOf('root.add(createTiergartenWerkhofV275(native))'));
+  expect([...beforeWerkhof.matchAll(/root\.add\((create\w+)\(native\)\)/g)].map(m=>m[1])).toEqual(factories.map(f=>f.name));
   for (const native of [false, true]) {
     const root = new Group(), steps = addRequiredSiteEnvelopesV209Steps(root, native);
+    const expected=factories.map(create=>create(native)), audits=expected.map(staticGeometryAudit);
     try {
+      // RequiredSiteEnvelopes and the v283 shelter are byte-identical to
+      // 0f617436. The historical v275 fixture predated that legitimate complete
+      // source-owned addition. Replay every family, retaining all three v277
+      // identities plus exact matrices/indices/materials and each attached root.
       const prefix = [
         'Bayer Schering administration — Müllerstraße 178 — v277',
         `Lehrter v277 ${native ? 'independent native architecture' : 'complete measured architecture'}`,
         'RKI Nordufer and Heizkraftwerk Moabit — v277',
+        'Steppengarten limestone shelter — v283',
       ];
+      expect(expected.map(child=>child.name)).toEqual(prefix);
+      const attachedPrefix:Group[]=[];
       for (let index = 0; index < prefix.length; index++) {
         expect(steps.next().done).toBe(false);
         expect(root.children.map(child => child.name)).toEqual(prefix.slice(0, index + 1));
         expect(root.children.some(child => child.userData.sourceId === 'way/118034165')).toBe(false);
+        attachedPrefix.push(root.children[index] as Group);
+        for(let prior=0;prior<=index;prior++){
+          expect(root.children[prior]).toBe(attachedPrefix[prior]);
+          expect(staticGeometryAudit(root.children[prior])).toEqual(audits[prior]);
+        }
       }
+      expect(attachedPrefix[3].userData.sourceId).toBe(steppengarten.sourceId);
+      expect(attachedPrefix[3].userData.sourceEvidenceSha256).toBe(steppengarten.sourceSha256);
       expect(steps.next().done).toBe(false);
       expect(root.children).toHaveLength(prefix.length + 1);
       expect(root.children.slice(0, prefix.length).map(child => child.name)).toEqual(prefix);
+      for(let prior=0;prior<prefix.length;prior++){
+        expect(root.children[prior]).toBe(attachedPrefix[prior]);
+        expect(staticGeometryAudit(root.children[prior])).toEqual(audits[prior]);
+      }
       const attached = root.children[prefix.length];
       expect(attached.userData.sourceId).toBe('way/118034165');
       expect(root.children.filter(child => child.userData.sourceId === 'way/118034165')).toHaveLength(1);
@@ -111,6 +140,7 @@ test('the required-site transaction keeps the exact v277 prefix and attaches the
     } finally {
       steps.return();
       disposeSurroundingCityRoot(root);
+      for(const model of expected)disposeSurroundingCityRoot(model);
     }
   }
 });

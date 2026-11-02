@@ -1,4 +1,6 @@
 import { waterfrontOriginalPrismV296 } from "./waterfrontV296Profile";
+import { createLittenStadthausV297, hasCompleteLittenStadthausV297 } from "./LittenStadthausV297";
+import { createWallGalleryV298, hasCompleteWallGalleryV298 } from "./WallGalleryV298";
 import { createDprkEmbassyV288 } from "./MitteEmbassiesV288";
 import { createSouthFidelityV294, hasCompleteSouthFidelityV294 } from "./SouthFidelityV294";
 import { diningOriginalPrismV296, PARLIAMENTARY_DINING_V296 } from "./parliamentaryDiningV296Profile";
@@ -43,6 +45,8 @@ export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payl
   const parliamentaryDining=Array.isArray(prisms.buildings)&&diningIds.every(id=>(prisms.buildings as DiningPrismV296[]).some(p=>p.id===id&&diningOriginalPrismV296(p)));
   const waterfront=Array.isArray(prisms.buildings)&&prisms.buildings.some(waterfrontOriginalPrismV296);
   const root=constructUnpublishedFidelityV288([
+    ()=>({group:createLittenStadthausV297(native,{mobileLike}),complete:hasCompleteLittenStadthausV297}),
+    ()=>({group:createWallGalleryV298(native,{mobileLike}),complete:group=>hasCompleteWallGalleryV298(group,native)}),
     ()=>({group:createCourtsParkV293(native)}),
     ()=>({group:createSouthFidelityV294(native,{mobileLike}),complete:hasCompleteSouthFidelityV294}),
     ()=>({group:createParliamentaryDiningV296(native)}),
@@ -54,5 +58,6 @@ export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payl
     ()=>chancelleryCanopy?{group:createChancelleryCanopySourceV289(native),complete:hasCompleteChancelleryCanopySourceV289}:null,
   ]);
   root.userData={historicDomV288:historicDom,potsdamerCorridorV288:potsdamerCorridor,chancelleryCanopySourceV289:chancelleryCanopy,courtsParkV293:true,southFidelityV294:true,parliamentaryDiningV296:parliamentaryDining,waterfrontV296:waterfront,sourceGeometryRetained:true,fullStaticDetailOnTouch:true};
-  return {root,historicDom,potsdamerCorridor,chancelleryCanopy,courtsPark:true,southFidelity:true,parliamentaryDining,waterfront};
+  root.userData.littenStadthausV297=true;root.userData.wallGalleryV298=true;
+  return {root,historicDom,potsdamerCorridor,chancelleryCanopy,courtsPark:true,southFidelity:true,parliamentaryDining,waterfront,littenStadthaus:true,wallGallery:true};
 }

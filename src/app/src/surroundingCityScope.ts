@@ -1,4 +1,5 @@
 import marzahn from "./data/marzahnScopeV230.json";
+import stralau from "./data/stralauScopeV299.json";
 import { botanicalV230GroundAt } from "./botanicalV230Navigation";
 import { westIndustrialV230TerrainAt } from "./westIndustrialV230Navigation";
 import scope from "./data/surroundingCityScope.json";
@@ -18,7 +19,7 @@ import { tegelSpandauV198GroundAt } from "./tegelSpandauV198Navigation";
 import { prisonsMemorialsV209GroundAt } from "./prisonsMemorialsV209Navigation";
 
 const outskirtsPolygons = [...outskirts.footprint,...northCity.footprint,...named.footprint,...parks.footprint,
-  ...eastCity.footprint,...regional.footprint,...marzahn.footprint].map(polygon => {
+  ...eastCity.footprint,...regional.footprint,...marzahn.footprint,...stralau.footprint].map(polygon => {
   let minX=Infinity, minZ=Infinity, maxX=-Infinity, maxZ=-Infinity;
   for(const [x,z] of polygon.ring) {minX=Math.min(minX,x);minZ=Math.min(minZ,z);maxX=Math.max(maxX,x);maxZ=Math.max(maxZ,z);}
   return {polygon,minX,minZ,maxX,maxZ};

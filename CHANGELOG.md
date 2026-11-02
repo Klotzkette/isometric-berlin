@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.193 — 2026-11-02
+
+- Refine Zur letzten Instanz, Altes Stadthaus, its surrounding historic buildings and Alte Münze from retained source geometry and current visual references. Correct Podewil’s principal frontage to seven axes on three storeys.
+- Represent the seven surviving East Side Gallery wall footprints and eight recognisable, individually drawn mural interpretations; retain actual gaps and distinguish these drawings from photographic reproductions. Refine Mauerpark’s measured hill and amphitheatre, the Topography wall’s protective cable fence and contemporary riverside facades.
+- Add the requested source-bound Stralau waterfront and Sisyphos parcel, with complete LoD2 buildings, mapped piers, houseboats and matching streamed navigation.
+- Compress 24 existing packets more efficiently with identical decompressed bytes. Preserve all previous source geometry, full touch detail, six views, 93 stops and existing runtime and package ceilings.
+
 ## 1.0.189 — 2026-11-01
 
 - Reuse identical source-part fingerprints during district loading, with exact input checks and weak ownership. Changed or corrupt source fields still pass through the original guards.

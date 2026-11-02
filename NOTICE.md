@@ -2745,3 +2745,32 @@ The E-Werk/Mauerstraße companion v294 also uses reference-only exterior
 photographs credited to Andreas Nenninger (Deutsche Kinemathek) and Andreas
 Muhs (Berliner Zentrum Industriekultur). Copyright remains with the named
 photographers and publishers; no source pixels or textures are copied.
+
+Step 10 / v297–v299: the Instanz, Stadthaus, Podewil and Alte Münze companion
+uses the Landesdenkmalamt Berlin monument records, Zur letzten Instanz and Alte
+Münze operator references, Berlin's Molkenmarkt documentation and dhl Architekten.
+Reference photographs include Wolfgang Bittner (2006–2013), bsf swissphoto
+(2011), LDA archival images and the named operators' photographs. Full image
+URLs, individual credits and the distinction between old photographs and
+currently published references are in
+[the v297 ledger](docs/litten-stadthaus-v297-references.json).
+
+The East Side Gallery drawings independently interpret works by **Dmitry
+Vrubel**, **Birgit Kinder**, **Thierry Noir**, **Kani Alavi**, **Günther Schaefer**,
+**Gabriel Heimler**, **Thomas Klingenstein** and **Christine Kühn**. Reference
+photographs: © Stiftung Berliner Mauer, photographer Günther Schaefer. These
+eight flat-colour geometric drawings are not a photographic facsimile or the
+complete inventory of the gallery. Stiftung Berliner Mauer, Landesdenkmalamt
+Berlin, the Mauerpark operator and the buildings' architects supply the factual
+references. The Topography reference photograph by Vedha242424 is CC0. Exact
+titles, URLs and credits are in [the v298 ledger](docs/wall-gallery-v298-references.json).
+Land Berlin / Geoportal Berlin DGM1 (dl-de/zero-2-0) supplies the retained metric
+Mauerpark height samples; interpolation and the bounded edge seam are display fits.
+
+The Stralau/Sisyphos companion retains Land Berlin / Geoportal Berlin LoD2
+building sheets and © OpenStreetMap contributors' source geometry (ODbL).
+Reference-only photographs include RN/BerlinOnline, Michael Lindner, Udo Meinel,
+Holger Talinski and Manfred Freye, alongside the named architects', monument
+archive and Citymarina operator materials. Exact uses, URLs and unresolved
+photographer credits are in [the v299 ledger](docs/stralau-sisyphos-v299-references.json).
+No referenced image pixels, plans, logos or photographic textures are distributed.

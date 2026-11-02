@@ -1,5 +1,4 @@
 import { expect, test } from "bun:test";
-import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { Mesh, Raycaster } from "three";
@@ -9,6 +8,7 @@ import { createRosenthalerV228 } from "../src/RosenthalerV228";
 import { ROSENTHALER_STAIRS_V228, rosenthalerV228FloorAt } from "../src/rosenthalerV228Profile";
 import receipts from "../src/data/rosenthalerV228Ground.json";
 import { disposeStaticAudit } from "./helpers/staticGeometryAudit";
+import { verifiedPriorPacketShaV193 } from "./helpers/losslessPacketsV193";
 
 function exhaust<T>(g:Generator<void,T>):T {let next=g.next();while(!next.done)next=g.next();return next.value;}
 function sourceArrays(chunk:SurroundingCityChunk){
@@ -26,10 +26,11 @@ test("real 3_-3/4_-3 packets cut only verified ground; all other interleaved byt
     const roots=[];
     for(const id of ["3_-3","4_-3"]){
       const key=`${id}.${native?"minecraft":"drawn"}` as keyof typeof receipts;
-      const compressed=readFileSync(new URL(`../public/mesh/surrounding-berlin-v159/${key}.json.gz`,import.meta.url));
+      const sourcePath=new URL(`../public/mesh/surrounding-berlin-v159/${key}.json.gz`,import.meta.url);
+      const compressed=readFileSync(sourcePath);
       const packet=JSON.parse(gunzipSync(compressed).toString()) as SurroundingCityChunk;
       const receipt=receipts[key],raw=sourceArrays(packet);
-      expect(createHash("sha256").update(compressed).digest("hex")).toBe(receipt.sourceSha256);
+      expect(verifiedPriorPacketShaV193(sourcePath,compressed)).toBe(receipt.sourceSha256);
       const result=exhaust(cutRosenthalerPackedGroundV228(id,native,packet.origin,raw.vertices,raw.indices))!;
       expect(result).not.toBeNull();expect(result.changed).toBe(receipt.triangles.length);
       expect(result.vertices.slice(0,raw.vertices.length)).toEqual(raw.vertices);

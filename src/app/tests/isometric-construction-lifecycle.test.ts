@@ -3,16 +3,27 @@ import { interleaveStaticGeometry, interleaveStaticGeometrySteps } from "../src/
 import { expect, test } from "bun:test";
 import ts from "typescript";
 import {
-  BoxGeometry, Group, InstancedMesh, Line, LineSegments, Material, Mesh,
-  MeshBasicMaterial, Object3D, PerspectiveCamera, Points, Scene, Texture,
+  BoxGeometry, BufferAttribute, BufferGeometry, Group, InstancedMesh, Line, LineBasicMaterial, LineSegments, Material, Mesh,
+  MeshBasicMaterial, MeshStandardMaterial, Object3D, PerspectiveCamera, Points, Scene, Texture,
 } from "three";
 import { completeCooperatively } from "../src/cooperativeWork";
 import { compactStaticGeometrySteps } from "../src/compactStaticGeometry";
 import { objectMaterialsIncludingTransferredAlternates } from "../src/transferableObject3D";
 import { createZooAnimalRuntimeV282 } from "../src/ZooAnimalsV282";
 import { createHbfStationRuntimeV291, hbfLiftFloorAtV291, markHbfMotionFrameV291, markHbfMovingMeshV291 } from "../src/HbfStationMotionV291";
-import { prepareRequiredFidelityV288 } from "../src/RequiredFidelityV288";
 import { admitsChancelleryCanopyLegacyV289, setChancelleryCanopyLegacyV289 } from "../src/ChancelleryCanopySourceV289";
+import { matchesBerlinHistoricDomOwnersV288, matchesBerlinHistoricDomNativeV288 } from "../src/BerlinHistoricCoreV288Ownership";
+import { admitsPotsdamerCorridorCoreV288, admitsPotsdamerCorridorNativeV288 } from "../src/PotsdamerCorridorV288Ownership";
+import { admitsChancelleryCanopySourceV289, admitsChancelleryCanopyNativeV289 } from "../src/ChancelleryCanopySourceV289Ownership";
+import { diningOriginalPrismV296, PARLIAMENTARY_DINING_V296 } from "../src/parliamentaryDiningV296Profile";
+import { waterfrontOriginalPrismV296, WATERFRONT_ARCADE_RECEIPT_V296 } from "../src/waterfrontV296Profile";
+import { parliamentSourceOwnersAdmittedV295 } from "../src/ParliamentRetainedEnvelopeV295";
+import { applyWaterfrontAuthoredOpeningsV296 } from "../src/WaterfrontFidelityV296";
+import historicOwners from "../src/data/berlinHistoricCoreV288Ownership.json";
+import corridorOwners from "../src/data/potsdamerCorridorV288Owners.json";
+import canopyOwners from "../src/data/chancelleryCanopyV289.json";
+import canopyLegacy from "../src/data/chancelleryCanopyLegacyV289.json";
+import diningOwners from "../src/data/parliamentaryDiningV296.json";
 import type { ProgressiveWorldWorkerInput } from "../src/progressiveWorld";
 import { canReplacePotsdamerSouthStationPhoto, POTSDAMER_SOUTH_STATION_PHOTO_RECEIPT, POTSDAMER_STATION_PHOTO_STRIP_RECEIPT } from "../src/potsdamerStationPhotoOwnership";
 import {
@@ -20,7 +31,7 @@ import {
 } from "../src/visual-modes/minecraft/materialMode";
 
 const source = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
-const names = ["ensureIsoWorld", "captureMutableRootSnapshots", "rollbackMutableRoots", "disposeObject3D"];
+const names = ["ensureIsoWorld", "captureMutableRootSnapshots", "rollbackMutableRoots", "disposeObject3D", "setDiningLegacyVisibilityV296"];
 const parsed = ts.createSourceFile("ThreeViewer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 const declarations = names.map(name => {
   const node = parsed.statements.find(entry => ts.isFunctionDeclaration(entry) && entry.name?.text === name);
@@ -29,14 +40,50 @@ const declarations = names.map(name => {
     .replace(/import\("(\.\/[^\"]+)"\)/g, "loadAddon(\"$1\")")
     .replaceAll("import.meta.env.DEV", "false");
 });
-const compiled = ts.transpileModule(declarations.join("\n"), {
+const fidelitySource = await Bun.file(new URL("../src/RequiredFidelityV288.ts", import.meta.url)).text();
+const fidelityParsed=ts.createSourceFile("RequiredFidelityV288.ts",fidelitySource,ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);
+const fidelityDeclarations=["constructUnpublishedFidelityV288","prepareRequiredFidelityV288"].map(name=>{
+  const node=fidelityParsed.statements.find(entry=>ts.isFunctionDeclaration(entry)&&entry.name?.text===name);
+  if(!node)throw Error(`Missing production fidelity transaction ${name}`);
+  return node.getText(fidelityParsed).replace(/^export\s+/,"");
+});
+const compiled = ts.transpileModule([...declarations,...fidelityDeclarations].join("\n"), {
   compilerOptions: { target: ts.ScriptTarget.ES2022 },
 }).outputText;
+const parliamentIds=new Set(["UbQkgNZe","ycOYQRVL","K0002MCN","eaCxS2u2"]);
+const parliamentPrisms=(await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json",import.meta.url)).json()).buildings.filter((p:{id:string})=>parliamentIds.has(p.id));
+const completeOwnerPrisms=[...new Map([...historicOwners.nearbyPrisms,...corridorOwners.oldPrisms,...corridorOwners.retainedPrisms,
+  ...canopyOwners.oldPrisms,...canopyOwners.retainedPrisms,...diningOwners.originalPrisms,WATERFRONT_ARCADE_RECEIPT_V296.prism,...parliamentPrisms].map(p=>[p.id,p])).values()];
+const unconditionalFidelityNames=["Required Litten-Stadthaus v297","Required wall-gallery v298","Required courts and park v293","Required southern districts v294",
+  "Required parliamentary dining v296","Required waterfront v296","Required Mitte DDR v288","Required DPRK embassy v288"];
+function retainedCanopyFixture(){
+  const pose=(object:Object3D,receipt:{matrix:number[];pose:number[];matrixAutoUpdate:boolean})=>{
+    object.position.fromArray(receipt.pose,0);object.quaternion.fromArray(receipt.pose,3);object.scale.fromArray(receipt.pose,7);
+    object.matrix.fromArray(receipt.matrix);object.matrixAutoUpdate=receipt.matrixAutoUpdate;
+  };
+  const root=new Group();root.name=canopyLegacy.legacyRoot.name;pose(root,canopyLegacy.legacyRoot);
+  for(const receipt of canopyLegacy.legacy){
+    const geometry=new BufferGeometry();
+    for(const[key,value]of Object.entries(receipt.attributes))geometry.setAttribute(key,new BufferAttribute(new Float32Array(value.values),value.itemSize,value.normalized));
+    geometry.setIndex(receipt.index.length?receipt.index:null);geometry.groups=receipt.groups.map(g=>({...g}));geometry.setDrawRange(receipt.drawRange.start,receipt.drawRange.count??Infinity);
+    const material=receipt.material.type==="LineBasicMaterial"?new LineBasicMaterial({color:receipt.color}):new MeshStandardMaterial({color:receipt.color});
+    Object.assign(material,receipt.material,{opacity:receipt.opacity,transparent:receipt.transparent});
+    if("ink"in receipt)material.userData={...receipt.ink};
+    const object=receipt.material.type==="LineBasicMaterial"?new LineSegments(geometry,material):new Mesh(geometry,material);
+    object.name=receipt.name;pose(object,receipt);root.add(object);
+  }
+  expect(admitsChancelleryCanopyLegacyV289(root)).toBe(true);return root;
+}
 
 // Execute the production transaction and disposal. Only model constructors,
 // downloading and unrelated presentation hooks are replaced by bounded fixtures.
-function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTask?: number; failCommit?: boolean; failHungarianImport?: boolean; failRequiredSitesImport?: boolean; failStationPhotoImport?: boolean; failStationPhotoConstruction?: boolean; stationSource?: "missing" | "changed" | "duplicate"; stationStripSource?: "missing" | "changed" | "duplicate"; progressiveDistrict?: boolean; initialWater?: boolean; hbfFixtures?: boolean; existingHbfSignature?: "drawn" | "native" } = {}) {
+function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTask?: number; failCommit?: boolean; failHungarianImport?: boolean; failRequiredSitesImport?: boolean; failStationPhotoImport?: boolean; failStationPhotoConstruction?: boolean; stationSource?: "missing" | "changed" | "duplicate"; stationStripSource?: "missing" | "changed" | "duplicate"; progressiveDistrict?: boolean; initialWater?: boolean; hbfFixtures?: boolean; existingHbfSignature?: "drawn" | "native"; sourceOwners?:"complete"|"changed"|"missing"; failFidelityModel?:string; incompleteFidelityModel?:string; missingDiningFacade?:boolean; parliamentSignature?:boolean; canopyLegacy?:boolean } = {}) {
   const built: Mesh[] = [];
+  // Required source families have their own bounded fixture inventory. Keep all
+  // historical legacy-stage assertions and additionally audit every allocation
+  // in the actual new required-owner construction/admission transaction.
+  const fidelityBuilt: Mesh[] = [];
+  const fidelityOwners=new Map<string,WeakSet<Group>>();
   const disposed = new Map<Mesh, number>();
   const warnings: string[] = [];
   const stationRegistrations: Object3D[] = [], stationReleases: Object3D[] = [];
@@ -46,6 +93,8 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     markHbfMotionFrameV291(existing,options.existingHbfSignature==="native");
   }
   const circulationCalls: {phase:"core"|"coverage";value:boolean|undefined}[]=[];
+  const fidelityCalls:{phase:"core"|"coverage";historicDomV288?:boolean;potsdamerCorridorV288?:boolean;chancelleryCanopySourceV289?:boolean;parliamentaryDiningV296?:boolean;waterfrontV296?:boolean;parliamentInteriorsV295?:boolean}[]=[];
+  const legacyDining=new Group();legacyDining.name="Marie-Elisabeth-Lüders-Haus Spree facade";
   const concurrent = new Group(); concurrent.name = "independently loaded signature";
   let taskCount = 0;
   let ready = 0;
@@ -64,7 +113,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     scene: new Scene(), isoWorld: null as Group | null,
     hbfStationV291: undefined as ReturnType<typeof createHbfStationRuntimeV291> | undefined,
     schwellenraumTowerSteam: null as Mesh | null, schwellenraumTowerSteamElapsedSeconds: 4.75,
-    signatures: new Group(), cityStaffage: new Group(), undergroundNetwork: new Group(),
+    signatures: new Group(), centralDetails:new Group(), cityStaffage: new Group(), undergroundNetwork: new Group(),
     tramCatenary: new Group(), schwellenraumPraesentation: new Group(),
     schwellenraumWorldDetailsInstaller: null, tunnelPortalCourse: null,
     controls: { target: { x: 0, z: 0 } }, camera: {},
@@ -75,22 +124,47 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     reportWorldFailure: () => { reported++; },
     gpuWarmup: { release: () => { releaseCount++; } },
   };
+  runtime.centralDetails.add(legacyDining);
+  if(options.parliamentSignature)Object.assign(existing.userData,{parliamentInteriorsV295:true,native:false});
   runtime.signatures.add(existing);
+  const retainedCanopy=options.canopyLegacy?retainedCanopyFixture():undefined;
+  if(retainedCanopy)runtime.signatures.add(retainedCanopy);
   runtime.scene.add(runtime.signatures, runtime.cityStaffage, runtime.undergroundNetwork,
     runtime.tramCatenary, runtime.schwellenraumPraesentation);
-  function model(name: string) {
+  function model(name: string, inventory=built) {
     const group = new Group(); group.name = name;
     const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
     mesh.name = name;
     mesh.geometry.userData.exactIndexPending = true;
     mesh.geometry.addEventListener("dispose", () => disposed.set(mesh, (disposed.get(mesh) ?? 0) + 1));
-    built.push(mesh); group.add(mesh);
+    inventory.push(mesh); group.add(mesh);
     if (options.hbfFixtures && name === "core") {
       markHbfMotionFrameV291(group, false);
       markHbfMovingMeshV291(mesh, { kind: "lift", shaftIndexes: [0], initialFloors: [hbfLiftFloorAtV291(0, 0)] });
     }
     return group;
   }
+  const family=(name:string)=>{
+    if(name===options.failFidelityModel)throw Error(`Required fidelity constructor failed: ${name}`);
+    const root=model(name,fidelityBuilt),owners=fidelityOwners.get(name)??new WeakSet<Group>();
+    owners.add(root);fidelityOwners.set(name,owners);return root;
+  };
+  const complete=(name:string)=>(root:Group)=>name!==options.incompleteFidelityModel&&fidelityOwners.get(name)?.has(root)===true&&root.children.length===1;
+  const fidelityFactories={
+    createLittenStadthausV297:()=>family("Required Litten-Stadthaus v297"),hasCompleteLittenStadthausV297:complete("Required Litten-Stadthaus v297"),
+    createWallGalleryV298:()=>family("Required wall-gallery v298"),hasCompleteWallGalleryV298:complete("Required wall-gallery v298"),
+    createCourtsParkV293:()=>family("Required courts and park v293"),
+    createSouthFidelityV294:()=>family("Required southern districts v294"),hasCompleteSouthFidelityV294:complete("Required southern districts v294"),
+    createParliamentaryDiningV296:()=>family("Required parliamentary dining v296"),
+    createWaterfrontFidelityV296:()=>family("Required waterfront v296"),
+    createBerlinHistoricDomV288:()=>family("Required historic Dom v288"),hasCompleteBerlinHistoricDomV288:complete("Required historic Dom v288"),
+    createPotsdamerCorridorCoreV288:()=>family("Required Potsdamer corridor v288"),hasCompletePotsdamerCorridorCoreV288:complete("Required Potsdamer corridor v288"),
+    createMitteDdrV288:()=>family("Required Mitte DDR v288"),
+    createDprkEmbassyV288:()=>family("Required DPRK embassy v288"),
+    createChancelleryCanopySourceV289:()=>family("Required Chancellery canopy v289"),hasCompleteChancelleryCanopySourceV289:complete("Required Chancellery canopy v289"),
+  };
+  const factoryNames=[...fidelityDeclarations[1].matchAll(/group[=:](create\w+)\(/g)].map(m=>m[1]);
+  expect(factoryNames.sort()).toEqual(Object.keys(fidelityFactories).filter(k=>k.startsWith("create")).sort());
   const coreSpreeBridgeFactory = () => model("Source-bound core Spree bridges");
   const modules = {
     "./ConcertHalls": { createConcertHalls: () => model("Kulturforum concert halls") },
@@ -172,7 +246,18 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
   expect(Object.keys(modules).sort()).toEqual(expectedImports.sort());
   const bindings = {
     canReplacePotsdamerSouthStationPhoto,
-    prepareRequiredFidelityV288, admitsChancelleryCanopyLegacyV289, setChancelleryCanopyLegacyV289,
+    ...fidelityFactories,
+    matchesBerlinHistoricDomOwnersV288,matchesBerlinHistoricDomNativeV288,
+    admitsPotsdamerCorridorCoreV288,admitsPotsdamerCorridorNativeV288,
+    admitsChancelleryCanopySourceV289,admitsChancelleryCanopyNativeV289,
+    diningOriginalPrismV296,PARLIAMENTARY_DINING_V296,waterfrontOriginalPrismV296,
+    parliamentSourceOwnersAdmittedV295,applyWaterfrontAuthoredOpeningsV296,
+    admitsChancelleryCanopyLegacyV289,setChancelleryCanopyLegacyV289,
+    prepareViewerDiningFacadeV296:(_runtime:unknown,enabled:boolean)=>{
+      if(!enabled||options.missingDiningFacade)return null;
+      expect(runtime.isoWorld).toBeNull();
+      return{group:family("Required retained dining facade v296")};
+    },
     createHbfStationRuntimeV291: () => {
       const motion = createHbfStationRuntimeV291();
       return {
@@ -194,7 +279,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     interleaveStaticGeometry,
     interleaveStaticGeometrySteps,
     completedPedestrianWater: () => {},
-    Group, Mesh, InstancedMesh, Line, LineSegments, Material, Points, Texture,
+    Group, BufferGeometry, Mesh, InstancedMesh, Line, LineSegments, Material, Points, Texture,
     createSchwellenraumTowerSteam: () => model("Tower rose steam").children[0],
     updateSchwellenraumTowerSteam: () => {},
     objectMaterialsIncludingTransferredAlternates, releaseMinecraftMaterialBindings,
@@ -206,11 +291,11 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
       // No incomplete geometry or prepared addon is visible between tasks.
       expect(runtime.isoWorld).toBeNull();
       expect(stationRegistrations).toHaveLength(0);
-      expect(runtime.signatures.children.every(child => child === existing || child === concurrent)).toBeTrue();
+      expect(runtime.signatures.children.every(child => child === existing || child === concurrent || child===retainedCanopy)).toBeTrue();
       pose++;
       if (taskCount === 2) runtime.signatures.add(concurrent);
       if (taskCount === options.stopAtTask ||
-          (options.stopAfterModel && built.some(mesh => mesh.name === options.stopAfterModel))) {
+          (options.stopAfterModel && [...built,...fidelityBuilt].some(mesh => mesh.name === options.stopAfterModel))) {
         runtime.disposed = true;
         runtime.worldFailureReported = true;
         loadController.abort();
@@ -233,7 +318,8 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
       const stripSources = options.stationStripSource === "missing" ? [] :
         options.stationStripSource === "changed" ? [{ ...strip, h_dm: strip.h_dm + 1 }] :
         options.stationStripSource === "duplicate" ? [strip, strip] : [strip];
-      return { buildings: [...hallSources, ...stripSources] };
+      const owners=options.sourceOwners==="complete"?completeOwnerPrisms:options.sourceOwners==="changed"?completeOwnerPrisms.map(p=>({...p,h_dm:p.h_dm+1})):[];
+      return { buildings: [...hallSources, ...stripSources,...owners] };
     },
     fetchGroundPayload: async () => null, fetchStreetPayload: async () => null,
     fetchSurfacePayload: async () => null, fetchRailPayload: async () => null,
@@ -247,6 +333,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
       expect(buildOptions.coreSpreeBridgeFactoryV242).toBe(coreSpreeBridgeFactory);
       expect(buildOptions.potsdamerStationPhoto).toBe(options.stationSource === undefined && options.stationStripSource === undefined);
       circulationCalls.push({phase:"core",value:buildOptions.hbfCirculationV291});
+      fidelityCalls.push({phase:"core",...Object.fromEntries(["historicDomV288","potsdamerCorridorV288","chancelleryCanopySourceV289","parliamentaryDiningV296","waterfrontV296","parliamentInteriorsV295"].map(k=>[k,(buildOptions as Record<string,unknown>)[k]]))});
       const city = model("core"); city.add(model("drawn bridge structures")); return city;
     },
     createInitialDrawnWater: () => options.initialWater ? model("source-bound drawn water") : null,
@@ -263,6 +350,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     createProgressiveBuildingCoverage: (_prisms: unknown, _partition: unknown, buildOptions: { potsdamerStationPhoto?: boolean; hbfCirculationV291?:boolean }) => {
       expect(buildOptions.potsdamerStationPhoto).toBe(options.stationSource === undefined && options.stationStripSource === undefined);
       circulationCalls.push({phase:"coverage",value:buildOptions.hbfCirculationV291});
+      fidelityCalls.push({phase:"coverage",...Object.fromEntries(["historicDomV288","potsdamerCorridorV288","chancelleryCanopySourceV289","parliamentaryDiningV296","waterfrontV296","parliamentInteriorsV295"].map(k=>[k,(buildOptions as Record<string,unknown>)[k]]))});
       return model("coverage");
     },
     setWeidendammerBridgePresentation: () => {}, setSandkrugBridgePresentation: () => {},
@@ -297,7 +385,13 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     ...Object.values(bindings), promise,
   );
   functions.start(runtime, (warning: string) => warnings.push(warning));
-  return { finished, runtime, built, disposed, warnings, existing, concurrent, stationRegistrations, stationReleases, circulationCalls,
+  const auditedFinished=finished.then(()=>{
+    for(const mesh of fidelityBuilt){
+      if(runtime.isoWorld){expect(disposed.has(mesh)).toBeFalse();expect(runtime.isoWorld.getObjectById(mesh.id)).toBe(mesh);}
+      else expect(disposed.get(mesh)).toBe(1);
+    }
+  });
+  return { finished:auditedFinished, runtime, built, fidelityBuilt, disposed, warnings, existing, concurrent, legacyDining, retainedCanopy, stationRegistrations, stationReleases, circulationCalls, fidelityCalls,
     disposeScene: () => functions.dispose(runtime, runtime.scene),
     get taskCount() { return taskCount; }, get ready() { return ready; },
     get reported() { return reported; }, get pose() { return pose; },
@@ -681,4 +775,90 @@ test("a failed required v209 import preserves the presentation gate", async () =
   const h = host({ failRequiredSitesImport: true }); await h.finished;
   expect(h.built).toHaveLength(0); expect(h.runtime.isoWorld).toBeNull();
   expect(h.runtime.isoWorldState).toBe("failed"); expect(h.reported).toBe(1);
+});
+
+for(const sourceOwners of["complete","changed","missing"]as const)test(`real source-owner admission propagates ${sourceOwners} fidelity through core, coverage and worker publication`,async()=>{
+  const h=host({sourceOwners,parliamentSignature:true,progressiveDistrict:true});await h.finished;
+  const admitted=sourceOwners==="complete";
+  expect(h.warnings).toHaveLength(0);expect(h.ready).toBe(1);expect(h.runtime.isoWorld?.parent).toBe(h.runtime.scene);
+  const flags={historicDomV288:admitted,potsdamerCorridorV288:admitted,chancelleryCanopySourceV289:false,
+    parliamentaryDiningV296:admitted,waterfrontV296:admitted,parliamentInteriorsV295:admitted};
+  expect(h.fidelityCalls).toEqual([{phase:"core",...flags},{phase:"coverage",...flags}]);
+  for(const[key,value]of Object.entries(flags))expect((h.runtime.progressiveWorldInput as unknown as Record<string,unknown>)[key],key).toBe(value);
+  const names=admitted?[...unconditionalFidelityNames.slice(0,6),"Required historic Dom v288","Required Potsdamer corridor v288",...unconditionalFidelityNames.slice(6),"Required retained dining facade v296"]:unconditionalFidelityNames;
+  expect(h.fidelityBuilt.map(m=>m.name)).toEqual(names);
+  for(const key of["courtsParkV293","southFidelityV294","littenStadthausV297","wallGalleryV298"])expect(h.runtime.isoWorld?.userData[key],key).toBe(true);
+  expect(h.runtime.isoWorld?.userData.parliamentaryDiningFacadeV296).toBe(admitted);
+  expect(h.legacyDining.visible).toBe(!admitted);
+  // Even exact source prisms cannot retire the old canopy without its matching
+  // authored predecessor. The real source and legacy admitters both run here.
+  expect(h.fidelityBuilt.some(m=>m.name==="Required Chancellery canopy v289")).toBe(false);
+  h.disposeScene();
+  expect(h.fidelityBuilt.map(m=>h.disposed.get(m))).toEqual(h.fidelityBuilt.map(()=>1));
+});
+
+test("valid parliament source owners alone cannot open an absent interior family",async()=>{
+  const h=host({sourceOwners:"complete",progressiveDistrict:true});await h.finished;
+  expect(h.warnings).toHaveLength(0);expect(h.fidelityCalls.every(c=>c.parliamentInteriorsV295===false)).toBe(true);
+  expect(h.runtime.progressiveWorldInput?.parliamentInteriorsV295).toBe(false);
+  h.disposeScene();
+});
+
+test("complete new source families are already transaction-owned before the first cancellation task",async()=>{
+  const h=host({stopAfterModel:"Required wall-gallery v298"});await h.finished;
+  expect(h.taskCount).toBe(1);expect(h.built).toHaveLength(0);
+  expect(h.fidelityBuilt.map(m=>m.name)).toEqual(unconditionalFidelityNames);
+  expect(h.fidelityBuilt.map(m=>h.disposed.get(m))).toEqual(h.fidelityBuilt.map(()=>1));
+  expect(h.runtime.isoWorld).toBeNull();expect(h.runtime.signatures.children).toEqual([h.existing]);
+  expect(h.ready).toBe(0);expect(h.reported).toBe(0);expect(h.warnings).toHaveLength(0);
+});
+
+for(const name of unconditionalFidelityNames)test(`a failed ${name} constructor releases every earlier required family before any legacy city allocation`,async()=>{
+  const h=host({failFidelityModel:name});await h.finished;
+  expect(h.built).toHaveLength(0);expect(h.fidelityBuilt.map(m=>m.name)).toEqual(unconditionalFidelityNames.slice(0,unconditionalFidelityNames.indexOf(name)));
+  expect(h.fidelityBuilt.map(m=>h.disposed.get(m))).toEqual(h.fidelityBuilt.map(()=>1));
+  expect(h.runtime.isoWorld).toBeNull();expect(h.runtime.isoWorldState).toBe("failed");
+  expect(h.runtime.signatures.children).toEqual([h.existing]);expect(h.legacyDining.visible).toBe(true);
+  expect(h.reported).toBe(1);expect(h.warnings).toHaveLength(1);
+});
+
+for(const name of["Required Litten-Stadthaus v297","Required wall-gallery v298","Required southern districts v294"])test(`an incomplete ${name} receipt disposes the rejected owner too`,async()=>{
+  const h=host({incompleteFidelityModel:name});await h.finished;
+  expect(h.built).toHaveLength(0);expect(h.fidelityBuilt.at(-1)?.name).toBe(name);
+  expect(h.fidelityBuilt.map(m=>h.disposed.get(m))).toEqual(h.fidelityBuilt.map(()=>1));
+  expect(h.runtime.isoWorld).toBeNull();expect(h.reported).toBe(1);expect(h.warnings).toHaveLength(1);
+});
+
+test("missing retained dining facade cannot publish an admitted room or retire the visible legacy owner",async()=>{
+  const h=host({sourceOwners:"complete",missingDiningFacade:true});await h.finished;
+  expect(h.built.map(m=>m.name)).toEqual(["core","drawn bridge structures"]);
+  expect(h.fidelityBuilt.some(m=>m.name==="Required retained dining facade v296")).toBe(false);
+  expect(h.runtime.isoWorld).toBeNull();expect(h.legacyDining.visible).toBe(true);
+  expect([...h.built,...h.fidelityBuilt].map(m=>h.disposed.get(m))).toEqual([...h.built,...h.fidelityBuilt].map(()=>1));
+  expect(h.reported).toBe(1);expect(h.warnings).toHaveLength(1);
+});
+
+test("failed publication restores the dining predecessor and disposes every complete source-owned family once",async()=>{
+  const h=host({sourceOwners:"complete",failCommit:true});await h.finished;
+  expect(h.fidelityBuilt.some(m=>m.name==="Required retained dining facade v296")).toBe(true);
+  expect(h.runtime.isoWorld).toBeNull();expect(h.legacyDining.visible).toBe(true);
+  expect([...h.built,...h.fidelityBuilt].map(m=>h.disposed.get(m))).toEqual([...h.built,...h.fidelityBuilt].map(()=>1));
+  expect(h.runtime.signatures.children).toEqual([h.existing,h.concurrent]);
+  expect(h.reported).toBe(1);expect(h.warnings).toHaveLength(1);
+});
+
+for(const failCommit of[false,true])test(`exact retained canopy admission survives real commit/rollback (${failCommit}) without changing its source geometry`,async()=>{
+  const h=host({sourceOwners:"complete",canopyLegacy:true,progressiveDistrict:true,failCommit});await h.finished;
+  expect(h.fidelityBuilt.some(m=>m.name==="Required Chancellery canopy v289")).toBe(true);
+  expect(h.fidelityCalls.every(c=>c.chancelleryCanopySourceV289===true)).toBe(true);
+  expect(admitsChancelleryCanopyLegacyV289(h.runtime.signatures)).toBe(true);
+  expect(h.retainedCanopy?.children).toHaveLength(canopyLegacy.legacy.length);
+  for(const leaf of h.retainedCanopy!.children)expect(leaf.visible).toBe(failCommit);
+  if(failCommit){
+    expect(h.runtime.isoWorld).toBeNull();expect(h.runtime.signatures.children).toEqual([h.existing,h.retainedCanopy!,h.concurrent]);
+    expect([...h.built,...h.fidelityBuilt].map(m=>h.disposed.get(m))).toEqual([...h.built,...h.fidelityBuilt].map(()=>1));
+    expect(h.reported).toBe(1);expect(h.warnings).toHaveLength(1);
+  }else{
+    expect(h.warnings).toHaveLength(0);expect(h.runtime.progressiveWorldInput?.chancelleryCanopySourceV289).toBe(true);h.disposeScene();
+  }
 });

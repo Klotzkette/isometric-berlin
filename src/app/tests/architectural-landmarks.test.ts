@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   Box3,
+  CylinderGeometry,
   InstancedMesh,
   LineBasicMaterial,
   LineSegments,
@@ -503,16 +504,85 @@ describe("metre-scale architectural recognition models", () => {
     ).toBeInstanceOf(LineSegments);
     const liftShafts = station!.children.filter(
       (child) => child.name === "Hauptbahnhof cylindrical glass lift shaft",
+    ) as Mesh[];
+    // v291 already moved the four outer shafts onto the curved platform axes
+    // and added the middle pair. Keep the original four-shaft contract, then
+    // require both added shafts and their complete fittings independently.
+    const expectedShafts = [-9.5, 9.5].flatMap((x) =>
+      [-15, 0, 15].map((platformZ) => ({
+        x,
+        z: platformZ + 0.000787 * x * x + 0.2233 * x,
+        platformZ,
+      })),
     );
-    expect(liftShafts).toHaveLength(4);
+    const shaftFor = (x: number, z: number) => liftShafts.filter((shaft) =>
+      Math.abs(shaft.position.x - x) < 1e-8 &&
+      Math.abs(shaft.position.z - z) < 1e-8,
+    );
+    const outerShafts = expectedShafts.filter((shaft) => shaft.platformZ !== 0)
+      .flatMap(({ x, z }) => shaftFor(x, z));
+    const middleShafts = expectedShafts.filter((shaft) => shaft.platformZ === 0)
+      .flatMap(({ x, z }) => shaftFor(x, z));
+    expect(outerShafts).toHaveLength(4);
+    expect(middleShafts).toHaveLength(2);
+    expect(liftShafts).toHaveLength(outerShafts.length + middleShafts.length);
+    for (const { x, z } of expectedShafts) expect(shaftFor(x, z)).toHaveLength(1);
     for (const shaft of liftShafts) {
       expect((shaft as Mesh).geometry.type).toBe("CylinderGeometry");
+      expect(shaft.geometry).toBeInstanceOf(CylinderGeometry);
+      const bounds = new Box3().setFromObject(shaft);
+      expect(bounds.min.y).toBeCloseTo(-15.15, 5);
+      expect(bounds.max.y).toBeCloseTo(14.5, 5);
+      expect((shaft.geometry as CylinderGeometry).parameters.radiusTop).toBe(1.82);
+      expect(shaft.userData.servedLevelIds).toEqual([
+        "upper-rail", "upper-gallery", "ground-concourse", "lower-gallery", "deep-rail",
+      ]);
     }
     expect(
       station!.getObjectByName(
         "Hauptbahnhof instanced cylindrical lift frames",
       ),
     ).toBeInstanceOf(InstancedMesh);
+    const fittingMatrix = new Matrix4();
+    for (const [name, perShaft] of [
+      ["cylindrical lift frames", 8],
+      ["panoramic lift guide rails", 2],
+      ["panoramic lift hoops", 20],
+      ["panoramic lift landing collars", 5],
+      ["panoramic lift landing doors", 10],
+      ["panoramic lift door posts", 15],
+      ["panoramic lift door transoms", 5],
+      ["panoramic lift cabin caps", 2],
+      ["panoramic lift cabin backs", 1],
+    ] as const) {
+      const mesh = station!.getObjectByName(`Hauptbahnhof instanced ${name}`) as InstancedMesh;
+      expect(mesh).toBeInstanceOf(InstancedMesh);
+      expect(mesh.count).toBe(4 * perShaft + 2 * perShaft);
+      const counts = expectedShafts.map(() => 0);
+      for (let row = 0; row < mesh.count; row++) {
+        mesh.getMatrixAt(row, fittingMatrix);
+        expect(fittingMatrix.elements.every(Number.isFinite)).toBe(true);
+        const matches = expectedShafts.flatMap(({ x, z }, index) =>
+          // Door posts sit 1.92 m out and 0.94 m across the tube axis.
+          Math.hypot(fittingMatrix.elements[12] - x, fittingMatrix.elements[14] - z) <= 2.2 ? [index] : [],
+        );
+        expect(matches).toHaveLength(1);
+        counts[matches[0]]++;
+      }
+      expect(counts).toEqual(expectedShafts.map(() => perShaft));
+    }
+    const cabins = station!.children.filter((child) => child.name === "Hauptbahnhof lift car") as Mesh[];
+    expect(cabins).toHaveLength(6);
+    for (const [index, { x, z, platformZ }] of expectedShafts.entries()) {
+      const matches = cabins.filter((cabin) =>
+        Math.abs(cabin.position.x - x) < 1e-8 && Math.abs(cabin.position.z - z) < 1e-8,
+      );
+      expect(matches).toHaveLength(1);
+      expect(matches[0].geometry.type).toBe("CylinderGeometry");
+      expect(matches[0].userData.shaftId).toBe(`hbf-panoramic-shaft-${Math.sign(x)}-${platformZ}`);
+      expect(matches[0].userData.hbfMotionV291.kind).toBe("lift");
+      expect(matches[0].userData.hbfMotionV291.shaftIndexes).toEqual([index]);
+    }
   });
 
   test("preserves the LoD2 Chancellery envelope and official heights", () => {

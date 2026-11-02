@@ -20,6 +20,8 @@ import historical from "../fixtures/outline-preservation-v220-audit.json";
 import { replaySourceV281 } from "./coreMaterialV281";
 import { geometryPreservationV206 } from "./geometryPreservationV206";
 import { restoreLegacyInstances } from "./instanceBufferReplay";
+import { berlinHistoricCoreV288Rows } from "../../src/BerlinHistoricCoreV288";
+import {historicalSourceBytesV299} from "./sourceHistoryV299";
 import { spliceGeometryContribution } from "./geometryContributionReplay";
 
 type Undo = () => void;
@@ -34,7 +36,7 @@ function assertSources() {
   if (checkedSources) return;
   expect(sourceReceipt.beforeCommit).toBe("8838ad4862941a6e09d8180066e1a68330029f06");
   for (const [path, digest] of Object.entries(sourceReceipt.sourceGraphs.current))
-    expect(sha(readFileSync(resolve(import.meta.dir, "../../../..", path)))).toBe(digest);
+    expect(sha(historicalSourceBytesV299(new URL(`../../../../${path}`,import.meta.url),digest))).toBe(digest);
   for (const receipt of sourceReceipt.sourceReplay)
     replaySourceV281(readFileSync(resolve(import.meta.dir, "../../../..", receipt.path), "utf8"), receipt);
   checkedSources = true;
@@ -94,10 +96,11 @@ function restoreJustice(root: Group, native: boolean, undo: Undo[]): Group {
     : "Thin facade windows, pale frames and open tower members") as InstancedMesh;
   expect(mesh).toBeInstanceOf(InstancedMesh);
   const oldCount = native ? justiceNative.nativeRows.length : justice.boxes.length;
-  const fittings = littenInstanzV257Rows(native), park = charlottenburgParkV281Rows(native);
+  const fittings = littenInstanzV257Rows(native), park = charlottenburgParkV281Rows(native), historic=berlinHistoricCoreV288Rows(native);
   expect(fittings).toHaveLength(native ? 7172 : 3681); expect(park).toHaveLength(native ? 1100 : 244);
-  expect(mesh.count).toBe(oldCount + fittings.length + park.length);
-  const suffix = packedRows([...fittings, ...park], native);
+  expect(mesh.userData.berlinHistoricCoreV288Rows).toBe(historic.length);
+  expect(mesh.count).toBe(oldCount + fittings.length + park.length + historic.length);
+  const suffix = packedRows([...fittings, ...park, ...historic], native);
   same(mesh.instanceMatrix.array.subarray(oldCount * 16), suffix.matrices);
   same(mesh.instanceColor!.array.subarray(oldCount * 3), suffix.colors);
   // The actual complete original prefix is shared, not regenerated.

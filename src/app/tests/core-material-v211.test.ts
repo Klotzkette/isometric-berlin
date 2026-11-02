@@ -13,6 +13,8 @@ import { cleanedTone, isoFaceShade } from "../src/IsometricCityWorld";
 import { genericFacadeTone } from "../src/cityColourV184";
 import { coreSourceV211, sourceIdsV211, nativeIdsV211, fixtureV211, drawnV211, nativeV211, snapshotV211, wallColoursV211, disposeV211 } from "./helpers/coreMaterialV211";
 import { coreRecordsV281, fileHashCoreV281, hashCoreV281, retainedInstanceRowsV281 } from "./helpers/coreMaterialV281";
+import { replayNativeSourceV299 } from "./helpers/sourceHistoryV299";
+import { withNativeHistoryBeforeV281 } from "./helpers/nativeHistoryV299Replay";
 
 test("v281 native receipt retains frozen historical fixtures, sources and complete pre-change planners", async () => {
   for (const [file, hash] of Object.entries(nativeAudit281.historicalFixtureSha256))
@@ -20,7 +22,7 @@ test("v281 native receipt retains frozen historical fixtures, sources and comple
   for (const [path, hash] of Object.entries(nativeAudit281.publicSourceSha256))
     expect(await fileHashCoreV281(new URL(`../../../${path}`, import.meta.url))).toBe(hash);
   for (const receipt of nativeAudit281.sourceReplay) {
-    let source = readFileSync(new URL(`../../../${receipt.path}`, import.meta.url), "utf8");
+    let source = replayNativeSourceV299(readFileSync(new URL(`../../../${receipt.path}`, import.meta.url), "utf8"),receipt.currentSha256);
     const digest = (text: string) => createHash("sha256").update(text).digest("hex");
     expect(digest(source)).toBe(receipt.currentSha256);
     for (const replacement of receipt.replacements) {
@@ -127,6 +129,7 @@ test("actual native factories retain all full/mobile matrices, indices, caps and
       // HEAD/current audit retains it and accounts for every current difference.
       // Unlike the former geometry-only assertion, current colours are exact too.
       // Match capture ordering: resolve pending local/world transforms first.
+      withNativeHistoryBeforeV281(root,profile,()=>{
       const receipt = nativeAudit281.profiles[profile], records = coreRecordsV281(root);
       expect(snapshotV211(root)).toEqual(native281[profile]);
       const reviewed = [...receipt.changed.map(r => r.current), ...receipt.added];
@@ -147,6 +150,7 @@ test("actual native factories retain all full/mobile matrices, indices, caps and
         expect(retainedInstanceRowsV281(mesh, Array.from({ length: mesh.count }, (_, i) => !removed.has(i))))
           .toEqual(retained.expected);
       }
+      });
       const mesh = root.getObjectByName("Voxel building columns") as InstancedMesh;
       const lookup = buildColumnToneLookup({ buildings: nativeIdsV211.map(fixtureV211) });
       const tone = new Color();

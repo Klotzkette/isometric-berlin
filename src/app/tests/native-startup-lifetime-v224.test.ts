@@ -5,6 +5,7 @@ import { BoxGeometry, Group, InstancedMesh, Matrix4, MeshBasicMaterial } from "t
 import { completeCooperatively } from "../src/cooperativeWork";
 import { parkStaticInstancesSteps } from "../src/losslessStaticStorage";
 import { createZooAnimalRuntimeV282 } from "../src/ZooAnimalsV282";
+import { createHbfStationRuntimeV291 } from "../src/HbfStationMotionV291";
 
 const source = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
 const parsed = ts.createSourceFile("ThreeViewer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
@@ -45,6 +46,7 @@ async function run(cancellation?: "mode" | "disposed" | "parking-failure") {
   const bindings = {
     Group,
     createZooAnimalRuntimeV282,
+    createHbfStationRuntimeV291,
     fetchVoxelPayload: async () => ({}), fetchPrismPayload: async () => ({ buildings: [] }),
     voxelWorldIntentActive: () => runtime.lightingMode === "minecraft",
     preloadAltMitteNativeV169Source: async () => {},

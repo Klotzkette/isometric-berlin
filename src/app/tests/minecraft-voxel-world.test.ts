@@ -1,3 +1,5 @@
+import {bakeChancelleryNativeTreeBranchesV287} from "../src/ChancelleryTreesV287";
+import {nativeGroundBeforeV281} from "./helpers/nativeHistoryV299Replay";
 import { preloadAltMitteNativeV169Source } from "../src/AltMitteNativeCoreV169";
 import { describe, expect, test } from "bun:test";
 import historicalPayloadBaseline from "./fixtures/minecraft-payload-only-v169.json";
@@ -17,6 +19,7 @@ import ownerDeltaV238 from "./fixtures/minecraft-payload-only-v238-delta.json";
 import ownerDeltaV272 from "./fixtures/minecraft-payload-v272-delta.json";
 import ownerDeltaV246V260 from "./fixtures/minecraft-payload-v246-v260-delta.json";
 import groundDeltaV281 from "./fixtures/minecraft-ground-v281-delta.json";
+import { historicalSourceBytesV299 } from "./helpers/sourceHistoryV299";
 import elevatedCoreV238 from "../src/data/elevatedCoreOwnersV238.json";
 import { isElevatedStationReplacementColumnV238 } from "../src/elevatedStationV238Profile";
 import { auditElevatedStationsNativeDeltaV238 } from "./helpers/elevatedStationsNativeDeltaV238";
@@ -152,6 +155,7 @@ function uraniaDelta(profile: "full" | "mobile", name: string): InstanceBufferDe
 }
 
 function historicalPayloadHash(mesh: InstancedMesh, name: string): string {
+  if(name === "Voxel ground runs") mesh = nativeGroundBeforeV281(mesh);
   const actual = new Bun.CryptoHasher("sha256").update(mesh.instanceMatrix.array);
   if (mesh.instanceColor) actual.update(mesh.instanceColor.array);
   const hash = actual.digest("hex");
@@ -178,7 +182,7 @@ function laterSourceTransferReceipts(profile: "full" | "mobile", name: string) {
 
 /** Count view of the same complete matrix/colour replay checked below. */
 function beforeLaterSourceTransferCount(mesh: InstancedMesh, profile: "full" | "mobile", name: string): number {
-  let count = mesh.count;
+  let count = name === "Voxel ground runs" ? nativeGroundBeforeV281(mesh).count : mesh.count;
   for (const change of laterSourceTransferReceipts(profile, name)) {
     if (!change) continue;
     expect(count).toBe(change.afterCount);
@@ -189,7 +193,7 @@ function beforeLaterSourceTransferCount(mesh: InstancedMesh, profile: "full" | "
 }
 
 function beforeLaterSourceTransfers(mesh: InstancedMesh, profile: "full" | "mobile", name: string): InstancedMesh {
-  let previous = mesh;
+  let previous = name === "Voxel ground runs" ? nativeGroundBeforeV281(mesh) : mesh;
   for (const change of laterSourceTransferReceipts(profile, name)) {
     if (!change) continue;
     expect(new Bun.CryptoHasher("sha256").update(previous.instanceMatrix.array).update(previous.instanceColor!.array).digest("hex"))
@@ -226,7 +230,7 @@ describe("true voxel Minecraft world", () => {
 
   test("the exact three older water tints and sixteen U6 cuts replay the complete unchanged historical ground", async () => {
     for (const [path, expected] of Object.entries(groundDeltaV281.sourceSha256)) {
-      const bytes = new Uint8Array(await Bun.file(new URL(`../../../${path}`, import.meta.url)).arrayBuffer());
+      const bytes = historicalSourceBytesV299(new URL(`../../../${path}`, import.meta.url),expected);
       expect(new Bun.CryptoHasher("sha256").update(bytes).digest("hex")).toBe(expected);
     }
     for (const root of [world, mobileWorld])
@@ -1225,7 +1229,7 @@ describe("true voxel Minecraft world", () => {
     // The v168 source constructor already has these exact ground runs after
     // the complete source bridge, library, station and foundation replacements.
     // v169 changes no ground: matrix/color hashes match that prior constructor.
-    expect(instanced("Voxel ground runs", world).count).toBe(
+    expect(nativeGroundBeforeV281(instanced("Voxel ground runs", world)).count).toBe(
       currentPayloadBaseline.full["Voxel ground runs"].count,
     );
     // Ordinary columns are a facade body plus palette-native plinth and
@@ -1250,7 +1254,17 @@ describe("true voxel Minecraft world", () => {
       isLenneOakVoxelTree(xIdx, zIdx, y0dm, heightDm, payload.cell_m),
     ).length;
     expect(signatureTreeCount).toBe(1);
-    expect(instanced("Voxel tree trunks", world).count).toBe(
+    const fullForks = bakeChancelleryNativeTreeBranchesV287(payload, treeBlocks.filter(([x,z,y,h]) => !isLenneOakVoxelTree(x,z,y,h,payload.cell_m) && !isChancelleryExtensionConstructionPoint((x+.5)*payload.cell_m,(z+.5)*payload.cell_m) && !isHolocaustMinecraftProtectedAt((x+.5)*payload.cell_m,(z+.5)*payload.cell_m,payload.cell_m*1.1) && minecraftVoxelTreeRetained(x,z,"full")))!;
+    const oldTrunkCount = (mesh:InstancedMesh,forks:NonNullable<typeof fullForks>) => {
+      const added=forks.colors.length/3, old=mesh.count-added;
+      expect(mesh.userData.chancelleryTreeBranchesV287).toEqual(forks.metadata);
+      expect(mesh.instanceMatrix.array.subarray(old*16)).toEqual(forks.matrices);
+      expect(mesh.instanceColor!.array.subarray(old*3)).toEqual(forks.colors);
+      expect(added).toBe(forks.metadata.treeCount*16);
+      return old;
+    };
+    expect(fullForks.metadata.treeCount).toBe(3);expect(fullForks.colors.length/3).toBe(48);
+    expect(oldTrunkCount(instanced("Voxel tree trunks", world), fullForks)).toBe(
       visibleTreeCount - signatureTreeCount,
     );
     expect(world.userData.sourceVoxelTreeCount).toBe(treeBlocks.length);
@@ -1282,7 +1296,8 @@ describe("true voxel Minecraft world", () => {
         (isLenneOakVoxelTree(xIdx, zIdx, y0dm, heightDm, payload.cell_m) ||
           minecraftVoxelTreeRetained(xIdx, zIdx, "mobile")),
     ).length;
-    expect(instanced("Voxel tree trunks", mobileWorld).count).toBe(
+    const mobileForks=bakeChancelleryNativeTreeBranchesV287(payload,treeBlocks.filter(([x,z,y,h])=>!isLenneOakVoxelTree(x,z,y,h,payload.cell_m)&&!isChancelleryExtensionConstructionPoint((x+.5)*payload.cell_m,(z+.5)*payload.cell_m)&&!isHolocaustMinecraftProtectedAt((x+.5)*payload.cell_m,(z+.5)*payload.cell_m,payload.cell_m*1.1)&&minecraftVoxelTreeRetained(x,z,"mobile")))!;
+    expect(oldTrunkCount(instanced("Voxel tree trunks", mobileWorld),mobileForks)).toBe(
       mobileTreeCount - signatureTreeCount,
     );
     expect(mobileWorld.userData.visibleVoxelTreeCount).toBe(mobileTreeCount);

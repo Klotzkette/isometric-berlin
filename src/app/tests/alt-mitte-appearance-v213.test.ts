@@ -1,3 +1,31 @@
+import complementHistoryV193 from "./fixtures/alt-mitte-appearance-v213-complements-v193.json";
+import { prepareEastStadtbahnV288 } from "../src/EastStadtbahnV288";
+import { prepareChinaEmbassyV288 } from "../src/MitteEmbassiesV288";
+import { preparePotsdamerCorridorV288 } from "../src/PotsdamerCorridorV288";
+import { prepareStreetCurvesV276 } from "../src/streetCurvesV276";
+import { prepareCityWestTransportV281 } from "../src/CityWestTransportV281";
+import { prepareAugustFrontsV274 } from "../src/AugustFrontsV274";
+import { prepareTachelesFrontsV270 } from "../src/TachelesFrontsV270Receipts";
+import { prepareMierendorffV269 } from "../src/MierendorffV269";
+import { prepareMoabitHousesV269 } from "../src/MoabitHousesV269";
+import { prepareKraftwerkBerlinV268 } from "../src/KraftwerkBerlinV268";
+import { prepareKoepenickerStreetsV268 } from "../src/KoepenickerStreetsV268";
+import { prepareKoepenickerLandmarksV268 } from "../src/KoepenickerLandmarksV268";
+import { prepareFeuerwacheKreuzbergV267 } from "../src/FeuerwacheKreuzbergV267";
+import { prepareKreuzbergStreetsV267 } from "../src/KreuzbergStreetsV267";
+import { prepareEurefTransfersV262 } from "../src/eurefTransfersV262";
+import { prepareSouthFidelityV294 } from "../src/SouthFidelityV294Packets";
+import { prepareNamedSiteV238 } from "../src/namedSiteReplacementsV238";
+import { prepareMainStreetEdgesV254 } from "../src/MainStreetEdgesV254";
+import { prepareCityStreetsV249 } from "../src/CityStreetsV249";
+import { prepareWestShopfrontsV254 } from "../src/westShopfrontsV254";
+import { prepareGreyFacadesV263 } from "../src/greyFacadesV263";
+import { prepareOuterFacadesV262 } from "../src/outerFacadesV262";
+import { prepareOuterRoofsV262 } from "../src/outerRoofsV262";
+import { prepareAllotmentsV264 } from "../src/AllotmentsV264";
+import { prepareScheunenV265 } from "../src/ScheunenV265";
+import { prepareFriedrichshainV266 } from "../src/FriedrichshainV266";
+import { prepareNordMauerparkV266 } from "../src/NordMauerparkV266";
 import { expect, test } from "bun:test";
 import { prepareRoofHouseV233 } from "../src/roofHouseV233";
 import { prepareHouseDoorsV233 } from "../src/houseDoorsV233";
@@ -121,6 +149,47 @@ test("appearance updates keep immutable packet fingerprints valid for exact late
   expect(indices).toEqual(new Uint16Array([0, 1, 2, 3, 3, 3, 6, 7, 8, 9, 10, 11]));
 });
 
+// Complete additive/ownership preparation already shipped before the pinned
+// v193 parent. Both appearance branches receive the identical later geometry.
+function prepareAppearanceComplementsV213(chunk:SurroundingCityChunk,tile:string,native:boolean):SurroundingCityChunk {
+ let next=chunk;
+ for(const prepare of [
+  prepareNordMauerparkV266,
+  prepareFriedrichshainV266,
+  prepareScheunenV265,
+  prepareAllotmentsV264,
+  prepareRoofHouseV233,
+  prepareOuterRoofsV262,
+  prepareOuterFacadesV262,
+  prepareGreyFacadesV263,
+  prepareHouseDoorsV233,
+  prepareHouseCurbsV233,
+  prepareBoulevardArchitectureV235,
+  prepareWestShopfrontsV254,
+  prepareCitywestStreetsV235,
+  prepareCityStreetsV249,
+  prepareMainStreetEdgesV254,
+  prepareNamedSiteV238,
+  prepareSouthFidelityV294,
+  prepareEurefTransfersV262,
+  prepareKreuzbergStreetsV267,
+  prepareFeuerwacheKreuzbergV267,
+  prepareKoepenickerLandmarksV268,
+  prepareKoepenickerStreetsV268,
+  prepareKraftwerkBerlinV268,
+  prepareMoabitHousesV269,
+  prepareMierendorffV269,
+  prepareTachelesFrontsV270,
+  prepareAugustFrontsV274,
+  prepareCityWestTransportV281,
+  prepareStreetCurvesV276,
+  preparePotsdamerCorridorV288,
+  prepareChinaEmbassyV288,
+  prepareEastStadtbahnV288,
+]) {const steps=prepare(next,tile,native);let step=steps.next();while(!step.done)step=steps.next();next=step.value;}
+ return next;
+}
+
 function realPacket(key: string): SurroundingCityChunk {
   const colon = key.indexOf(":"), mode = key.slice(0, colon), tile = key.slice(colon + 1);
   if (tile.startsWith("alt-mitte-v169-")) {
@@ -141,17 +210,13 @@ test("real drawn/native resident and streamed packets apply compiled receipts wi
     const tile = resident ? "alt-mitte-v169--1_-3-piece-0" : native ? "6_0" : "2_-4";
     const key = `${mode}:${tile}`;
     expect(source.packets[key]).toBeDefined();
-    const chunk = realPacket(key);
+    const raw = realPacket(key), rawImmutable = Bun.hash(JSON.stringify(raw));
+    const chunk = prepareAppearanceComplementsV213(raw,tile,native);
     const immutable = Bun.hash(JSON.stringify(chunk));
     // Both sides retain legitimate later geometry. Only the v213 colour receipt
     // is absent from the independent baseline; added fittings must not turn an
     // earlier colour-only invariant into a ban on future source architecture.
-    const prepare = <T,>(it: Generator<void, T>): T => {
-      let step = it.next(); while (!step.done) step = it.next(); return step.value;
-    };
-    const houses = prepare(prepareHouseCurbsV233(prepare(prepareHouseDoorsV233(
-      prepare(prepareRoofHouseV233(chunk, tile, native)), tile, native)), tile, native));
-    const baseline = prepare(prepareCitywestStreetsV235(prepare(prepareBoulevardArchitectureV235(houses, tile, native)), tile, native));
+    const baseline = chunk;
     const original = createSurroundingCityChunk(baseline, `${resident ? "alt-mitte-v169-" : ""}unbound-appearance-v213`, native);
     const actual = createSurroundingCityChunk(chunk, tile, native);
     let yielded = 0;
@@ -194,8 +259,17 @@ test("real drawn/native resident and streamed packets apply compiled receipts wi
       }
       expect(changed).toBeGreaterThan(0);
       expect(Bun.hash(JSON.stringify(chunk))).toBe(immutable);
+      expect(Bun.hash(JSON.stringify(raw))).toBe(rawImmutable);
     } finally {
       for (const result of [original, actual, cooperative]) disposeSurroundingCityRoot(result.root);
     }
   }
+});
+
+
+test("complete additive fixture preparation retains its pinned pre-v193 source history",async()=>{
+ expect(complementHistoryV193.sourceCommit).toBe("0f6174362de87d785f6e6f5b864d05e5efa973fc");
+ expect(complementHistoryV193.oldTestSha256).toBe("d63eedf0a2a8ff890af09f0f952182f5523b3c3ad552a0717f381acfdfda16d8");
+ expect(complementHistoryV193.preparers).toHaveLength(32);
+ for(const record of complementHistoryV193.preparers){const bytes=await Bun.file(new URL(`../../../${record.file}`,import.meta.url)).arrayBuffer();expect(new Bun.CryptoHasher('sha256').update(bytes).digest('hex')).toBe(record.sha256);}
 });

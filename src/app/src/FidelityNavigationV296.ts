@@ -1,10 +1,11 @@
 import type { PedestrianEnvironment } from "./pedestrianNavigation";
+import { wallGalleryHistoricSolidAtV298 } from "./wallGalleryV298Profile";
 import { courtsParkV293GroundAt, courtsParkV293SolidAt } from "./courtsParkV293Profile";
 import { diningFloorAtV296, diningOpeningContainsV296, diningSolidAtV296, PARLIAMENTARY_DINING_V296 } from "./parliamentaryDiningV296Profile";
 import { waterfrontGroundAtV296, waterfrontOpeningContainsV296, waterfrontArcadeSolidAtV296, WATERFRONT_ARCADE_RECEIPT_V296 } from "./waterfrontV296Profile";
 import { southFidelitySolidsV294, southFidelityContainsV294, southFidelitySegmentDistanceV294 } from "./SouthFidelityV294";
 
-export type FidelityAdmissionV296 = { courtsPark?: boolean; dining?: boolean; waterfront?: boolean; south?: boolean; native?: boolean };
+export type FidelityAdmissionV296 = { courtsPark?: boolean; dining?: boolean; waterfront?: boolean; south?: boolean; wallGallery?:boolean; native?: boolean };
 type Solid = ReturnType<typeof southFidelitySolidsV294>[number];
 const southCache: Array<Map<string,Solid[]> | undefined> = [];
 function southGrid(native:boolean):Map<string,Solid[]> {
@@ -40,6 +41,7 @@ export function installFidelityNavigationV296(environment:PedestrianEnvironment,
   };
   environment.interiorSolidAt=(x,y,z,radius=0)=>{
     const a=admission();
+    if(a.wallGallery&&wallGalleryHistoricSolidAtV298(x,y,z,radius,a.native===true))return true;
     if(a.courtsPark&&courtsParkV293SolidAt(x,z,y,0,radius))return true;
     if(a.dining&&diningSolidAtV296(x,z,y,0,radius))return true;
     if(a.waterfront&&waterfrontArcadeSolidAtV296(x,y,z,radius,a.native===true))return true;

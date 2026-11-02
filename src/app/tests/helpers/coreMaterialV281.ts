@@ -2,6 +2,7 @@
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import type { Group, InstancedMesh } from "three";
+import {replayNativeSourceV299} from "./sourceHistoryV299";
 
 export const hashCoreV281 = (value: unknown): string => createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const bytesHash = (value: ArrayBufferView): string => createHash("sha256")
@@ -17,6 +18,7 @@ export function replaySourceV281(source: string, receipt: {
   beforeSha256: string; currentSha256: string; replacements: { before: string; current: string }[];
 }): string {
   const hash = (text: string) => createHash("sha256").update(text).digest("hex");
+  source=replayNativeSourceV299(source,receipt.currentSha256);
   if (hash(source) !== receipt.currentSha256) throw new Error("Current audited source changed");
   for (const replacement of receipt.replacements) {
     if (source.split(replacement.current).length !== 2) throw new Error("Ambiguous source replay");

@@ -6,6 +6,7 @@ import { coreHousePaintV273 } from "../src/CoreHouseColoursV273";
 import { buildColumnToneLookup } from "../src/MinecraftVoxelWorld";
 import { HERO_PRISM_TONES, HERO_PRISM_ROOF_TONES, PRISM_SUPPRESSED_IDS, PRISM_GLASSED_IDS } from "../src/IsometricCityWorld";
 import { coreSourceV211, drawnV211, snapshotV211, disposeV211, wallColoursV211 } from "./helpers/coreMaterialV211";
+import {nativeSourceAtV281} from "./helpers/sourceHistoryV299";
 
 test("resolved authored registries and their imported owners are completely excluded", () => {
   const protection = JSON.parse(readFileSync(new URL("../../../geo_data/regierungsviertel/core-house-colours-v273-protected.json", import.meta.url), "utf8"));
@@ -84,7 +85,7 @@ test("all 29,818 native sample queries keep mapped caps and exact source ownersh
 });
 
 test("the native constructor preserves the historic paint-only change outside exact later ownership hooks", () => {
-  const source = readFileSync(new URL("../src/MinecraftVoxelWorld.ts", import.meta.url), "utf8");
+  const source = nativeSourceAtV281("src/app/src/MinecraftVoxelWorld.ts",readFileSync(new URL("../src/MinecraftVoxelWorld.ts", import.meta.url), "utf8"));
   const constructor = source.slice(source.indexOf("export function* buildMinecraftVoxelWorldSteps("));
   const current = "sourceRoofTone ?? toneLookup?.illustrationRoofToneAt?.(worldX, worldZ) ?? layers.cap";
   expect(constructor.split(current)).toHaveLength(2);

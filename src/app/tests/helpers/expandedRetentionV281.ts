@@ -1,12 +1,12 @@
 import { expect } from "bun:test";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { gunzipSync } from "node:zlib";
 import { BufferAttribute, type Object3D } from "three";
 import receipt from "../fixtures/expanded-retention-v281.json";
 import { geometryPreservationV206 } from "./geometryPreservationV206";
 import { staticGeometryAudit } from "./staticGeometryAudit";
+import {restoreFamilyBeforeV281} from "./familyHistoryV299Replay";
+import {historicalSourceBytesV299} from "./sourceHistoryV299";
 
 const sha = (data: string | Uint8Array) => createHash("sha256").update(data).digest("hex");
 const verified = new Set<string>();
@@ -15,10 +15,15 @@ const verified = new Set<string>();
  * Full source graph pins prevent treating an unrelated new change as accepted.
  */
 export function withExpandedRetentionV281<T>(root: Object3D, family: "expanded" | "diplomatic", inspect: () => T): T {
+  const restoreLater = family === "expanded" ? restoreFamilyBeforeV281(root, "expanded") : () => {};
+  try { return withExpandedRetentionV281Prior(root, family, inspect); } finally { restoreLater(); }
+}
+
+function withExpandedRetentionV281Prior<T>(root:Object3D, family:"expanded"|"diplomatic",inspect:()=>T):T {
   const proof = receipt.families[family];
   if (!verified.has(family)) {
     for (const [path, digest] of Object.entries(proof.sourceGraphs.current)) {
-      expect(sha(readFileSync(resolve(import.meta.dir, "../../../..", path)))).toBe(digest);
+      expect(sha(historicalSourceBytesV299(new URL(`../../../../${path}`,import.meta.url),digest))).toBe(digest);
     }
     verified.add(family);
   }

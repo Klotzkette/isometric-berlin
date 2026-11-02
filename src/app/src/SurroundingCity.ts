@@ -16,8 +16,12 @@ import { terrainGroundAt } from "./weinbergTerrainV176";
 import { spreeBridgeFloorAtV242, spreeBridgeSolidAtV242 } from "./SpreeBridgesV242";
 import { prepareTierparkV255 } from "./TierparkV255";
 import { annotatePlaygroundPacketV255 } from "./playgroundsV255";
+import { littenStadthausPacketCandidateV297 } from "./LittenStadthausV297Packets";
+import { wallGalleryHillContainsV298 } from "./wallGalleryV298Profile";
 import southFidelityReceiptsV294 from "./data/southFidelityV294Packets.json";
 const SOUTH_RECEIPT_TILES_V294:ReadonlySet<string> = new Set(southFidelityReceiptsV294.keys);
+const MAUERPARK_TILES_V298:ReadonlySet<string>=new Set(["3_-6","3_-5","4_-6","4_-5"]);
+const mauerparkTileV298=(id:string)=>MAUERPARK_TILES_V298.has(id);
 
 export const SURROUNDING_CITY_SCAN_MS = 180;
 export const SURROUNDING_CITY_RETIRE_MS = 1_800;
@@ -49,7 +53,7 @@ export type SurroundingCityManifest = {
   footprint: SurroundingPolygon[];
   groundY: number;
 };
-type Resident = SurroundingChunkGeometry & { descriptor: SurroundingChunkDescriptor; lastWanted: number; southOwnersReadyV294: boolean };
+type Resident = SurroundingChunkGeometry & { descriptor: SurroundingChunkDescriptor; lastWanted: number; southOwnersReadyV294: boolean; littenReadyV297:boolean; wallReadyV298:boolean };
 export type SurroundingNavigationTile = {
   origin: readonly [number, number, number];
   bounds: readonly [number, number, number, number];
@@ -69,6 +73,9 @@ export type SurroundingCityOptions = {
   tachelesFrontsV270?: boolean;
   /** Defaults closed. Verify complete v294 owners of the requested family remain attached. */
   southFidelityV294?: (native: boolean) => boolean;
+  littenStadthausV297?: (native:boolean)=>boolean;
+  wallGalleryV298?: (native:boolean)=>boolean;
+  stralauSisyphosV299?:boolean;
   manifestUrl: URL;
   camera: Camera;
   mode?: VisualMode;
@@ -411,6 +418,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   let manifest: SurroundingCityManifest | null = null;
   let mode: VisualMode = options.mode ?? "day";
   let southAdmissionV294 = options.southFidelityV294?.(mode === "minecraft") === true;
+  let littenAdmissionV297=options.littenStadthausV297?.(mode==="minecraft")===true;
+  let wallAdmissionV298=options.wallGalleryV298?.(mode==="minecraft")===true;
   let disposed = false, processing = false, revision = 0;
   let active: { id: string; controller: AbortController } | null = null;
   let queue: SurroundingChunkDescriptor[] = [];
@@ -499,22 +508,24 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           fillPrefetches();
           const data = await loading;
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) continue;
+          const littenReadyV297=options.littenStadthausV297?.(minecraft)===true,wallReadyV298=options.wallGalleryV298?.(minecraft)===true;
+          const admissionChangedV298=()=>littenStadthausPacketCandidateV297(descriptor.id,minecraft)&&littenReadyV297!==(options.littenStadthausV297?.(minecraft)===true)||mauerparkTileV298(descriptor.id)&&wallReadyV298!==(options.wallGalleryV298?.(minecraft)===true);
           const southOwnersReady = options.southFidelityV294?.(minecraft) === true;
           const southReceiptTile = SOUTH_RECEIPT_TILES_V294.has(`${minecraft ? "minecraft" : "drawn"}:${descriptor.id}`);
           const southAdmissionChanged = (): boolean => southReceiptTile && southOwnersReady !== (options.southFidelityV294?.(minecraft) === true);
           const entry = await createStreamedSurroundingCityChunkV255(
             data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
-            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady },
+            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true },
           );
           unpublished = entry.root;
           // onAttach can synchronously dispose this controller during error recovery.
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id) ||
-              southAdmissionChanged()) {
+              (southAdmissionChanged()||admissionChangedV298())) {
             release(entry.root); unpublished = null; continue;
           }
           options.onAttach?.(entry.root, mode);
-          if (disposed || familyRevision !== revision || southAdmissionChanged()) { release(entry.root); unpublished = null; continue; }
-          residents.set(descriptor.id, { ...entry, descriptor, lastWanted: now(), southOwnersReadyV294:southOwnersReady });
+          if (disposed || familyRevision !== revision || (southAdmissionChanged()||admissionChangedV298())) { release(entry.root); unpublished = null; continue; }
+          residents.set(descriptor.id, { ...entry, descriptor, lastWanted: now(), southOwnersReadyV294:southOwnersReady,littenReadyV297,wallReadyV298 });
           geometryBytes += entry.geometryBytes;
           bufferCount += entry.bufferCount;
           root.add(entry.root);
@@ -559,6 +570,14 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       if (active && SOUTH_RECEIPT_TILES_V294.has(`${family}:${active.id}`)) active.controller.abort();
       lastScan = -Infinity;
       if (changed) options.onChange?.();
+    }
+    const littenNow=options.littenStadthausV297?.(mode==="minecraft")===true,wallNow=options.wallGalleryV298?.(mode==="minecraft")===true;
+    if(littenNow!==littenAdmissionV297||wallNow!==wallAdmissionV298){
+      littenAdmissionV297=littenNow;wallAdmissionV298=wallNow;
+      const native=mode==="minecraft";let changed=false;
+      for(const [id,entry] of residents)if(littenStadthausPacketCandidateV297(id,native)&&entry.littenReadyV297!==littenNow||mauerparkTileV298(id)&&entry.wallReadyV298!==wallNow){evict(id);failedAt.delete(id);changed=true;}
+      if(active&&(littenStadthausPacketCandidateV297(active.id,native)||mauerparkTileV298(active.id)))active.controller.abort();
+      lastScan=-Infinity;if(changed)options.onChange?.();
     }
     if (!manifest) return;
     if (timestamp - lastScan < SURROUNDING_CITY_SCAN_MS) return;
@@ -698,6 +717,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       const bridgeFloor = spreeBridgeFloorAtV242(entry.nav, lx, lz);
       if (bridgeFloor !== null) return bridgeFloor;
       const road = entry.nav.roads?.some(p => surroundingPolygonContains(p, lx, lz));
+      // A failed or changed source receipt retains its old ground and floor.
+      if(wallGalleryHillContainsV298(x,z)&&entry.root.userData.mauerparkTerrainV298!==true)return entry.nav.groundY+(road?.09:0);
       return terrainGroundAt(x, z, entry.nav.groundY, mode === "minecraft") + (road ? 0.09 : 0);
     },
     solidAt(x, y, z, radius = 0) {

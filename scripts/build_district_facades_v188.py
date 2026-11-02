@@ -41,8 +41,10 @@ POLICY = (
 
 
 def digest(path: Path) -> str:
-  """Return an input integrity fingerprint."""
-  return hashlib.sha256(path.read_bytes()).hexdigest()
+  """Return exact input integrity, replaying only the proven v299 predecessor."""
+  from scripts.integrate_fidelity_v299 import historical_source_bytes_v299
+
+  return hashlib.sha256(historical_source_bytes_v299(path)).hexdigest()
 
 
 def write_json(path: Path, data: Any) -> None:

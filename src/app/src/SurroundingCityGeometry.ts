@@ -22,6 +22,9 @@ import { prepareKoepenickerLandmarksV268, applyKoepenickerLandmarksV268Triangles
 import { prepareFeuerwacheKreuzbergV267, applyFeuerwacheKreuzbergV267Triangles, applyFeuerwacheKreuzbergV267Lines, feuerwacheKreuzbergNavigationV267 } from "./FeuerwacheKreuzbergV267";
 import { prepareKreuzbergStreetsV267 } from "./KreuzbergStreetsV267";
 import { prepareNordMauerparkV266 } from "./NordMauerparkV266";
+import { prepareLittenStadthausV297, applyLittenStadthausTrianglesV297 } from "./LittenStadthausV297Packets";
+import { prepareMauerparkTerrainV298, applyMauerparkTerrainTrianglesV298, mauerparkTerrainAdmittedV298, mauerparkTerrainExtraLineVerticesV298, applyMauerparkTerrainLinesV298 } from "./MauerparkTerrainV298Packets";
+import { captureStralauSisyphosV299, prepareStralauSisyphosV299 } from "./StralauSisyphosV299Packets";
 import { prepareFriedrichshainV266 } from "./FriedrichshainV266";
 import { prepareScheunenV265 } from "./ScheunenV265";
 import { prepareAugustFrontsV274 } from "./AugustFrontsV274";
@@ -268,6 +271,9 @@ export type SurroundingOwnershipOptions = {
   tachelesFrontsV270?: boolean;
   /** Complete v294 source owners belong to the same active city transaction. */
   southFidelityV294?: boolean;
+  littenStadthausV297?: boolean;
+  wallGalleryV298?: boolean;
+  stralauSisyphosV299?: boolean;
 };
 
 export function* buildSurroundingCityChunk(
@@ -285,6 +291,7 @@ export function* buildSurroundingCityChunk(
   }
   // Add source-bound ordinary-house fittings inside the existing tile lifetime.
   // Cancellation can discard preparation before any scene/GPU object is made.
+  const stralauTicketV299=yield* captureStralauSisyphosV299(chunk,id,minecraft,ownership.stralauSisyphosV299===true);
   chunk = yield* prepareNordMauerparkV266(chunk, id, minecraft);
   chunk = yield* prepareFriedrichshainV266(chunk, id, minecraft);
   chunk = yield* prepareScheunenV265(chunk, id, minecraft);
@@ -317,6 +324,9 @@ export function* buildSurroundingCityChunk(
   chunk = yield* preparePotsdamerCorridorV288(chunk, id, minecraft);
   chunk = yield* prepareChinaEmbassyV288(chunk, id, minecraft);
   chunk = yield* prepareEastStadtbahnV288(chunk, id, minecraft);
+  chunk = yield* prepareLittenStadthausV297(chunk,id,minecraft,ownership.littenStadthausV297===true);
+  chunk = yield* prepareMauerparkTerrainV298(chunk,id,minecraft,ownership.wallGalleryV298===true);
+  chunk = yield* prepareStralauSisyphosV299(chunk,stralauTicketV299);
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
@@ -325,6 +335,7 @@ export function* buildSurroundingCityChunk(
   root.userData.sourceGeometry = "Geoportal Berlin LoD2 and OpenStreetMap; rudimentary mapped outline extension";
   root.userData.unsurveyedGround = true;
   root.userData.nativeMinecraft = minecraft;
+  root.userData.mauerparkTerrainV298=mauerparkTerrainAdmittedV298(chunk);
   root.userData.sourceKinds = [...new Set(chunk.meshes.map(part => part.kind))];
 
   let completed = false;
@@ -438,6 +449,10 @@ export function* buildSurroundingCityChunk(
       if (tachelesTransfer) root.userData.tachelesFrontTransferredTrianglesV270 = (root.userData.tachelesFrontTransferredTrianglesV270 ?? 0) + tachelesTransfer;
       const mierendorffTransfer = yield* applyMierendorffTrianglesV269(chunk, meshIndex, indices, indexOffset);
       if (mierendorffTransfer) root.userData.mierendorffTransferredTrianglesV269 = (root.userData.mierendorffTransferredTrianglesV269 ?? 0) + mierendorffTransfer;
+      const littenTransfer=yield* applyLittenStadthausTrianglesV297(chunk,meshIndex,indices,indexOffset);
+      if(littenTransfer)root.userData.littenStadthausTrianglesV297=(root.userData.littenStadthausTrianglesV297??0)+littenTransfer;
+      const hillTransfer=yield* applyMauerparkTerrainTrianglesV298(chunk,meshIndex,indices,indexOffset);
+      if(hillTransfer)root.userData.mauerparkTerrainTrianglesV298=(root.userData.mauerparkTerrainTrianglesV298??0)+hillTransfer;
       vertexOffset += count;
       indexOffset += written;
     }
@@ -453,7 +468,8 @@ export function* buildSurroundingCityChunk(
     let bufferCount = 0;
     const lines = chunk.lines?.positions && !minecraft ? chunk.lines : null;
     const sourceLineCount = lines ? encodedBytes(lines.positions, 12) / 6 : 0;
-    const lineCount = sourceLineCount + streetCurveExtraLineVerticesV276(chunk);
+    const hillLineStartV298=sourceLineCount+streetCurveExtraLineVerticesV276(chunk);
+    const lineCount = hillLineStartV298+mauerparkTerrainExtraLineVerticesV298(chunk);
     if (lineCount > MAX_VERTEX_COUNT) {
       throw new Error("Surrounding-city ink exceeds the tile budget");
     }
@@ -512,7 +528,8 @@ export function* buildSurroundingCityChunk(
       root.userData.feuerwacheTransferredLineSegmentsV267 = yield* applyFeuerwacheKreuzbergV267Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.cityWestTransferredLineSegmentsV281 = yield* applyCityWestTransportV281Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.koepenickerLandmarksTransferredLineSegmentsV268 = yield* applyKoepenickerLandmarksV268Lines(chunk, values, hasLineColors ? 6 : 3);
-      root.userData.streetCurveSegmentsV276 = yield* applyStreetCurveLinesV276(chunk, values, hasLineColors ? 6 : 3, sourceLineCount);
+      root.userData.streetCurveSegmentsV276 = yield* applyStreetCurveLinesV276(chunk, values.subarray(0,hillLineStartV298*(hasLineColors?6:3)), hasLineColors ? 6 : 3, sourceLineCount);
+      root.userData.mauerparkTerrainLineSegmentsV298=yield* applyMauerparkTerrainLinesV298(chunk,values,hasLineColors?6:3,hillLineStartV298);
       geometryBytes += values.byteLength;
       yield* geometryBounds(geometry);
       bufferCount++;

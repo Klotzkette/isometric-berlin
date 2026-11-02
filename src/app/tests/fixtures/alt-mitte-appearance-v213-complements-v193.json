@@ -1,0 +1,166 @@
+{
+  "sourceCommit": "0f6174362de87d785f6e6f5b864d05e5efa973fc",
+  "oldTestSha256": "d63eedf0a2a8ff890af09f0f952182f5523b3c3ad552a0717f381acfdfda16d8",
+  "preparers": [
+    {
+      "name": "prepareNordMauerparkV266",
+      "file": "src/app/src/NordMauerparkV266.ts",
+      "sha256": "41d46b301764103165cd63cf6b61078f7b4371ec782368d0b83fbadef4d74da2"
+    },
+    {
+      "name": "prepareFriedrichshainV266",
+      "file": "src/app/src/FriedrichshainV266.ts",
+      "sha256": "70284da7a5ea77eda00b591a05ccdbc65e4c188a4145f4227bbed45ec523eadc"
+    },
+    {
+      "name": "prepareScheunenV265",
+      "file": "src/app/src/ScheunenV265.ts",
+      "sha256": "0eab04c209bbc259d4e4520a425e5d797dd7f23aef9eb6e134423f1d3bb84831"
+    },
+    {
+      "name": "prepareAllotmentsV264",
+      "file": "src/app/src/AllotmentsV264.ts",
+      "sha256": "8b0a467c34917ee1e1ac876049495973409486d043f1295f7af3342ab166968b"
+    },
+    {
+      "name": "prepareRoofHouseV233",
+      "file": "src/app/src/roofHouseV233.ts",
+      "sha256": "a9f95c25367247434aee8281416dbc5abdf83814286a50f5a82633cc0462c1fa"
+    },
+    {
+      "name": "prepareOuterRoofsV262",
+      "file": "src/app/src/outerRoofsV262.ts",
+      "sha256": "ff5073cede50470479fb1ee321a0d623e9d98d70fce71ee0b7f8dc01af545d99"
+    },
+    {
+      "name": "prepareOuterFacadesV262",
+      "file": "src/app/src/outerFacadesV262.ts",
+      "sha256": "5535f0a1c863f17a0b9ad1e728360afff88d112765aac01b211bcd39aa1d77b0"
+    },
+    {
+      "name": "prepareGreyFacadesV263",
+      "file": "src/app/src/greyFacadesV263.ts",
+      "sha256": "ac9835cd5810e1af01368f6be7b2c557f99d9960c5b61cfca7cc71fd5f047440"
+    },
+    {
+      "name": "prepareHouseDoorsV233",
+      "file": "src/app/src/houseDoorsV233.ts",
+      "sha256": "0d2e5b2f27b7bf66de8699832560c54091ca06854b4035b487e6465d8fd1badc"
+    },
+    {
+      "name": "prepareHouseCurbsV233",
+      "file": "src/app/src/houseCurbsV233.ts",
+      "sha256": "f7801240af3e18173d72686cab8a94d181936513f356f01267d97bcfded40ce3"
+    },
+    {
+      "name": "prepareBoulevardArchitectureV235",
+      "file": "src/app/src/boulevardArchitectureV235.ts",
+      "sha256": "6f8673b3da26f5d58660d7dab67ed8c5c4175118d42ca16a5f1f8390fc5bb643"
+    },
+    {
+      "name": "prepareWestShopfrontsV254",
+      "file": "src/app/src/westShopfrontsV254.ts",
+      "sha256": "bba4ce633c2fd1e8fee421b6eb117d7243605e204c5e67eab65e0ed986f6301b"
+    },
+    {
+      "name": "prepareCitywestStreetsV235",
+      "file": "src/app/src/CitywestStreetsV235.ts",
+      "sha256": "51fd9ea7c26a64af27c8bb30907f121af939f9a87d161e10fe1ab06faf693227"
+    },
+    {
+      "name": "prepareCityStreetsV249",
+      "file": "src/app/src/CityStreetsV249.ts",
+      "sha256": "c1d28576277e14e81d0b2d876b679dcc35ea0afe5bb1960223ea03114337c387"
+    },
+    {
+      "name": "prepareMainStreetEdgesV254",
+      "file": "src/app/src/MainStreetEdgesV254.ts",
+      "sha256": "8997fec7cde61d6a72662c69d75c7b8bc2665012ded48d28ba8443416a290987"
+    },
+    {
+      "name": "prepareNamedSiteV238",
+      "file": "src/app/src/namedSiteReplacementsV238.ts",
+      "sha256": "edbc15ce67ce140d386eaa0b64e0fdaff25c38455b778d6ed078c0ac394ce0cd"
+    },
+    {
+      "name": "prepareSouthFidelityV294",
+      "file": "src/app/src/SouthFidelityV294Packets.ts",
+      "sha256": "d99a07b7fbecb825e0c491890cc401dff44a448c71f1b06f4f4c9ed0ea4b7f4b"
+    },
+    {
+      "name": "prepareEurefTransfersV262",
+      "file": "src/app/src/eurefTransfersV262.ts",
+      "sha256": "fde54ba52ea4a9ac0c373e535a8eef0b90d91d4d53a0088c6542693660e06e6b"
+    },
+    {
+      "name": "prepareKreuzbergStreetsV267",
+      "file": "src/app/src/KreuzbergStreetsV267.ts",
+      "sha256": "114304def4d1e26948b7eee26be50b8415e542afdc3df59b8a2240925ba93d14"
+    },
+    {
+      "name": "prepareFeuerwacheKreuzbergV267",
+      "file": "src/app/src/FeuerwacheKreuzbergV267.ts",
+      "sha256": "23163b6ba86ee5c35be5e537315bdb396a8ccdfaf594b5aa26e92c37e0869003"
+    },
+    {
+      "name": "prepareKoepenickerLandmarksV268",
+      "file": "src/app/src/KoepenickerLandmarksV268.ts",
+      "sha256": "c0f66deb39df17d2814b1617fa13e765a787781d550c0a79eb184feafa43203a"
+    },
+    {
+      "name": "prepareKoepenickerStreetsV268",
+      "file": "src/app/src/KoepenickerStreetsV268.ts",
+      "sha256": "71a8bd0449e43f69764f332fae8cd1e002f488d7e48cef5189868562f9047fb2"
+    },
+    {
+      "name": "prepareKraftwerkBerlinV268",
+      "file": "src/app/src/KraftwerkBerlinV268.ts",
+      "sha256": "58498b6c3cb96872ab81b5788a7bc786abd8c23805b62546674bbd1cab481917"
+    },
+    {
+      "name": "prepareMoabitHousesV269",
+      "file": "src/app/src/MoabitHousesV269.ts",
+      "sha256": "e56a958ba258bbff7af96c4de0a6221164d1176252872548af7b18a6852fdb7c"
+    },
+    {
+      "name": "prepareMierendorffV269",
+      "file": "src/app/src/MierendorffV269.ts",
+      "sha256": "9d31b497c052b4c7b3e93a55e77a629c098a7126d7bc3a6c1b58fddc309a7c7d"
+    },
+    {
+      "name": "prepareTachelesFrontsV270",
+      "file": "src/app/src/TachelesFrontsV270Receipts.ts",
+      "sha256": "d72e3536316a8082cfedce7f406e3aad453731b875baad2692f937d2b1b9bc9f"
+    },
+    {
+      "name": "prepareAugustFrontsV274",
+      "file": "src/app/src/AugustFrontsV274.ts",
+      "sha256": "7a88fdc6bc03862e70d7bf73fa12e135b8d12d603478cab21b962a3fe7cc4fe8"
+    },
+    {
+      "name": "prepareCityWestTransportV281",
+      "file": "src/app/src/CityWestTransportV281.ts",
+      "sha256": "939262a39dd9f17ed274a1631f6e00993a6b2ca44c35dbc5418d9eb9279d3cbf"
+    },
+    {
+      "name": "prepareStreetCurvesV276",
+      "file": "src/app/src/streetCurvesV276.ts",
+      "sha256": "a8433acf675a905c47cdc7a6ac1c7aaa01cc7f77a47960a7f250f5b6e10d3337"
+    },
+    {
+      "name": "preparePotsdamerCorridorV288",
+      "file": "src/app/src/PotsdamerCorridorV288.ts",
+      "sha256": "35ed652569ded3a4e1e556aa1bec1e4709889057ed9d22c9885bf9116204f791"
+    },
+    {
+      "name": "prepareChinaEmbassyV288",
+      "file": "src/app/src/MitteEmbassiesV288.ts",
+      "sha256": "61821bc94737a13b09539a117d667fd2bb02c530dd2576b4b358ab2cc48c9102"
+    },
+    {
+      "name": "prepareEastStadtbahnV288",
+      "file": "src/app/src/EastStadtbahnV288.ts",
+      "sha256": "e4c1533a41c35ae98393808c61975c851f872ba398a41d85c25f5d7cb6e44b69"
+    }
+  ]
+}

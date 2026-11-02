@@ -1,3 +1,4 @@
+import {restoreFamilyBeforeV281} from "./familyHistoryV299Replay";
 import { expect } from "bun:test";
 import { Group } from "three";
 import { restoreCitadelPreviousV230 } from "./citadelPreviousV230";
@@ -16,6 +17,9 @@ import { restoreSchoolsNorthEdgesPreviousV281 } from "./schoolsNorthEdgesPreviou
 export function restoreOutlineLaterFamiliesForTestV281(root: Group, mode: "day" | "minecraft"): () => void {
   const native = mode === "minecraft", children = [...root.children], cleanups: (() => void)[] = [];
   try {
+    const boundary = root.children.find(c=>c.name === "Berlin state border and mapped 1989 border installations v200");
+    expect(boundary).toBeDefined();
+    cleanups.push(restoreFamilyBeforeV281(boundary!, native ? "boundaries-native" : "boundaries-drawn"));
     cleanups.push(restoreJusticePankeBerPreviousV281(root, mode));
     cleanups.push(restoreSchoolsNorthEdgesPreviousV281(root, mode));
     cleanups.push(restoreSteglitzPreviousV246(root, native));

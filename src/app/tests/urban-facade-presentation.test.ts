@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { BufferAttribute, Color, Group, LineDashedMaterial, LineSegments, MaterialLoader, Mesh, ShaderLib } from "three";
+import { BufferAttribute, Color, Group, InstancedMesh, LineDashedMaterial, LineSegments, MaterialLoader, Mesh, ShaderLib } from "three";
+import { readFileSync } from "node:fs";
+import complementV288 from "./fixtures/appearance-complements-v288-v193.json";
 import { ALT_MITTE_V169_PRISM_IDS } from "../src/altMitteV169Ownership";
 import { buildingAttributes, type BuildingAttributes } from "../src/buildingAttributes";
 import {
@@ -36,6 +38,39 @@ function digest(attribute: BufferAttribute): string {
   return new Bun.CryptoHasher("sha256").update(new Uint8Array(array.buffer, array.byteOffset, array.byteLength)).digest("hex");
 }
 
+/** The older colour-only ledger predates this complete additive window batch.
+ * Verify every later buffer against the immutable published v192 factory before
+ * counting the original renderables; nothing is detached from the live root. */
+function verifiedWindowComplement(group: Group, id: string, pass: Pass): InstancedMesh | undefined {
+  const expected = pass === "detailed" ? complementV288.windows[id as keyof typeof complementV288.windows] : null;
+  const meshes: InstancedMesh[] = [];
+  group.traverse(object => { if (object.name === "Estimated ordinary windows on retained storey and bay axes v288") {
+    expect(object).toBeInstanceOf(InstancedMesh); meshes.push(object as InstancedMesh);
+  } });
+  expect(meshes).toHaveLength(expected ? 1 : 0);
+  if (!expected) return;
+  const mesh = meshes[0];
+  expect(mesh.count).toBe(expected.count);
+  expect(mesh.count).toBe(group.userData.ordinaryWindowsV288.count);
+  expect(mesh.instanceMatrix.itemSize).toBe(expected.matrix.itemSize);
+  expect(mesh.instanceMatrix.normalized).toBe(expected.matrix.normalized);
+  expect(digest(mesh.instanceMatrix)).toBe(expected.matrix.sha256);
+  expect(Object.keys(mesh.geometry.attributes).sort()).toEqual(Object.keys(expected.geometry).sort());
+  for (const [name, proof] of Object.entries(expected.geometry)) {
+    const attribute = mesh.geometry.getAttribute(name) as BufferAttribute;
+    expect(attribute.itemSize).toBe(proof.itemSize);
+    expect(attribute.normalized).toBe(proof.normalized);
+    expect(digest(attribute)).toBe(proof.sha256);
+  }
+  expect(mesh.geometry.index).toBeNull();
+  expect(mesh.instanceColor).toBeNull();
+  expect(mesh.children).toHaveLength(0);
+  expect(Object.keys(mesh.userData).sort()).toEqual(expected.userDataKeys);
+  for (const key of ["estimatedOpenings", "fullStaticDetailOnTouch", "partyWallsExcluded", "sourceGeometryRetained", "textureFree"])
+    expect(mesh.userData[key]).toBeTrue();
+  return mesh;
+}
+
 function dispose(group: Group): void {
   group.traverse((object) => {
     if (!(object instanceof Mesh || object instanceof LineSegments)) return;
@@ -45,6 +80,13 @@ function dispose(group: Group): void {
 }
 
 describe("bounded ordinary facade presentation", () => {
+  test("the complete later window complement retains its immutable pre-v193 source", () => {
+    expect(complementV288.sourceCommit).toBe("0f6174362de87d785f6e6f5b864d05e5efa973fc");
+    expect(complementV288.historicalTests["urban-facade-presentation.test.ts"]).toBe("af35243aa165bf88acde4e055923d9adfe13d2183bfdca65879ab05bde58bd7c");
+    expect(Object.keys(complementV288.sourceSha256)).toHaveLength(13);
+    for (const [path, expected] of Object.entries(complementV288.sourceSha256))
+      expect(new Bun.CryptoHasher("sha256").update(readFileSync(new URL(`../../../${path}`, import.meta.url))).digest("hex")).toBe(expected);
+  });
   test("covers the requested quarters and immediate park edge without extending across Berlin", () => {
     for (const [x, z] of [[427, 1066], [497, 293], [565.85, -1091.96], [-500, -1500], [-1404, 1166], [-1820, -50], [1500, 250], [1550, 700], [2100, -100]]) {
       expect(pointInUrbanFacadeScope(x, z)).toBeTrue();
@@ -229,8 +271,9 @@ describe("bounded ordinary facade presentation", () => {
         const position = body.geometry.getAttribute("position") as BufferAttribute;
         expect(position.count).toBe(vertices);
         expect(digest(position)).toBe(hash);
+        const laterWindows = verifiedWindowComplement(group, id, pass);
         let renderables = 0;
-        group.traverse((object) => { if (object instanceof Mesh || object instanceof LineSegments) renderables += 1; });
+        group.traverse((object) => { if ((object instanceof Mesh || object instanceof LineSegments) && object !== laterWindows) renderables += 1; });
         expect(renderables).toBe(draws);
       } finally {
         dispose(group);
