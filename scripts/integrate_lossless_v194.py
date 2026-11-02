@@ -11,6 +11,12 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Callable
 
+from scripts.integrate_lossless_v195 import (
+  predecessor_manifest_v195,
+  predecessor_packet_bytes_v195,
+  rows_v195,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
 ANCHOR = "ac0e16fb2f0ed8fdb63e62d52e7d00c4340d8a37"
@@ -73,7 +79,7 @@ def verify_wire_v194(path: Path, raw: bytes, row: dict) -> bytes:
 def predecessor_packet_bytes_v194(
   path: Path, reader: Reader = Path.read_bytes
 ) -> bytes:
-  raw = reader(path)
+  raw = predecessor_packet_bytes_v195(path, reader)
   if path.resolve().parent != PUBLIC:
     return raw
   row = rows_v194(reader).get(path.name)
@@ -82,6 +88,18 @@ def predecessor_packet_bytes_v194(
 
 def predecessor_manifest_v194(current: dict, reader: Reader = Path.read_bytes) -> dict:
   """Every descriptor and all non-wire fields equal the complete immutable v193."""
+  # Historical callers may already supply the exact old wire descriptors.
+  # Recover the new finite stage only when any of its new fingerprints occurs;
+  # the complete v194 predecessor proof below still checks every complement.
+  current_rows = rows_v195(reader)
+  if any(
+    (row := current_rows.get(asset.get("url"))) is not None
+    and asset.get("sha256") == row["newGzipSha256"]
+    for descriptor in current["chunks"]
+    for mode in ("drawn", "minecraft")
+    for asset in [descriptor.get(mode, {})]
+  ):
+    current = predecessor_manifest_v195(current, reader)
   before = original_manifest_v194()
   expected = copy.deepcopy(before)
   rows = rows_v194(reader)

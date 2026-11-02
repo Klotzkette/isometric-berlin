@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_south_elevated_v238 as south  # noqa: E402
 from build_roof_house_v233 import fingerprint, match_owner  # noqa: E402
+from historical_asset_reader_v194 import historical_asset_bytes_v194  # noqa: E402
 
 
 def load(path):
@@ -101,7 +102,9 @@ def test_packet_hashes_native_axes_real_bounds_and_budget():
   for d in addition["chunks"]:
     assert d["id"].startswith("southrail238-")
     for mode in ["drawn", "minecraft"]:
-      raw = (south.OUT / d[mode]["url"]).read_bytes()
+      path = south.OUT / d[mode]["url"]
+      raw = historical_asset_bytes_v194(path, d[mode]["sha256"], d[mode]["bytes"])
+      assert gzip.decompress(path.read_bytes()) == gzip.decompress(raw)
       assert len(raw) == d[mode]["bytes"]
       assert hashlib.sha256(raw).hexdigest() == d[mode]["sha256"]
       assert len(gzip.decompress(raw)) == d[mode]["decodedBytes"] < 12 * 1024 * 1024

@@ -1,7 +1,13 @@
 """Replay the incremental source evidence without changing existing geometry."""
 
+import ast
 import base64
+import gzip
+import hashlib
+import json
+import subprocess
 from collections import defaultdict
+from pathlib import PurePosixPath
 
 import numpy as np
 from shapely.affinity import translate
@@ -9,6 +15,7 @@ from shapely.geometry import Polygon, shape
 from shapely.ops import unary_union
 
 from scripts import build_outer_materials_v254 as build
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 
 def test_receipts_replay_only_exact_generic_surfaces_and_protect_previous_owners():
@@ -29,8 +36,11 @@ def test_receipts_replay_only_exact_generic_surfaces_and_protect_previous_owners
   counts = defaultdict(int)
   for asset in evidence["assets"]:
     path = build.OUT / asset["url"]
-    assert build.appearance.digest(path) == asset["sha256"]
-    packet = build.base.read_json(path)
+    raw = historical_asset_bytes_v194(path, asset["sha256"], asset.get("bytes"))
+    assert hashlib.sha256(raw).hexdigest() == asset["sha256"]
+    decoded = gzip.decompress(raw)
+    assert gzip.decompress(path.read_bytes()) == decoded
+    packet = json.loads(decoded)
     family = "minecraft" if ".minecraft." in path.name else "drawn"
     tile = path.name.removesuffix(f".{family}.json.gz")
     assert tile.startswith(build.PREFIXES)
@@ -83,6 +93,113 @@ def test_complete_owner_footprints_match_the_unchanged_retained_material_extract
     )
 
 
+def _published_protected_owners_v254() -> set[str]:
+  """Replay every immutable prior input; later retirement references are not prior."""
+  commit = "f5e54c46eed0c84b4c95e0132a3a68b0818eece5"
+  compiler_sha = "9a23c858adbc359089bc2a0dc06c79d6d7cfeb3c6a443aa91b45f2c6a9e2553f"
+  evidence_sha = "4362a8e8e596470fac9408849f7c056c02ffadd7f09c2a0f8ca48da240f98948"
+  inputs_sha = "d19e43b73e592c9ffd8ca6e4bca08f3d4b0022f27aac30275baa877d3cdd9d3b"
+  files = (
+    subprocess.check_output(
+      ["git", "ls-tree", "-r", "--name-only", commit], cwd=build.ROOT
+    )
+    .decode()
+    .splitlines()
+  )
+  process = subprocess.Popen(
+    ["git", "cat-file", "--batch"],
+    cwd=build.ROOT,
+    stdin=subprocess.PIPE,
+    stdout=subprocess.PIPE,
+  )
+  cache: dict[str, bytes] = {}
+
+  def read(path: str) -> bytes:
+    assert path in files and ".." not in PurePosixPath(path).parts
+    if path not in cache:
+      assert process.stdin is not None and process.stdout is not None
+      process.stdin.write(f"{commit}:{path}\n".encode())
+      process.stdin.flush()
+      header = process.stdout.readline().decode().split()
+      assert len(header) == 3 and header[1] == "blob"
+      raw = process.stdout.read(int(header[2]))
+      assert len(raw) == int(header[2]) and process.stdout.read(1) == b"\n"
+      cache[path] = raw
+    return cache[path]
+
+  class FrozenPath:
+    def __init__(self, path: str) -> None:
+      self.path = path
+
+    @property
+    def name(self) -> str:
+      return PurePosixPath(self.path).name
+
+    def read_text(self) -> str:
+      return read(self.path).decode()
+
+  class FrozenRoot:
+    def glob(self, pattern: str) -> list[FrozenPath]:
+      return [
+        FrozenPath(path)
+        for path in files
+        if len(PurePosixPath(path).parts) == len(PurePosixPath(pattern).parts)
+        and PurePosixPath(path).match(pattern)
+      ]
+
+  try:
+    source = read("scripts/build_outer_materials_v232.py")
+    assert hashlib.sha256(source).hexdigest() == compiler_sha
+    assert hashlib.sha256(build.EVIDENCE.read_bytes()).hexdigest() == evidence_sha
+    for name in (
+      "outer-facades-v230-context.json.gz",
+      "district-facades-v188-evidence.json.gz",
+      "kiez-facades-v209-evidence.json.gz",
+      "outer-facades-v230-evidence.json.gz",
+      build.EVIDENCE.name,
+      build.previous.EVIDENCE.name,
+      build.ROOFS.name,
+    ):
+      path = build.GEO / name
+      assert read(path.relative_to(build.ROOT).as_posix()) == path.read_bytes()
+    original = next(
+      row
+      for row in ast.parse(source).body
+      if isinstance(row, ast.FunctionDef) and row.name == "protected_owners"
+    )
+    scope = {**vars(build.previous), "ROOT": FrozenRoot()}
+    exec(
+      compile(
+        ast.Module(body=[original], type_ignores=[]),
+        "<pinned-v254-prior-owner-scan>",
+        "exec",
+      ),
+      scope,
+    )
+    prior = scope["protected_owners"]()
+    assert len(prior) == 24236
+    receipts = {path: hashlib.sha256(raw).hexdigest() for path, raw in cache.items()}
+    assert len(receipts) == 1161
+    assert (
+      hashlib.sha256(
+        json.dumps(receipts, sort_keys=True, separators=(",", ":")).encode()
+      ).hexdigest()
+      == inputs_sha
+    )
+    published = prior | set(build.base.read_json(build.previous.EVIDENCE)["owners"])
+    published.update(
+      row["owner"] for row in build.base.read_json(build.ROOFS)["owners"]
+    )
+    assert len(published) == 24520
+    assert published == set(build.base.read_json(build.EVIDENCE)["protectedOwners"])
+    return prior
+  finally:
+    assert process.stdin is not None
+    process.stdin.close()
+    process.wait(timeout=10)
+    assert process.returncode == 0
+
+
 def test_no_receipt_can_override_an_earlier_material_vertex():
   current = build.base.read_json(build.OUTPUT)["packets"]
   previous = build.base.read_json(build.previous.OUTPUT)["packets"]
@@ -91,4 +208,4 @@ def test_no_receipt_can_override_an_earlier_material_vertex():
   # protected even when they carry a previously unused material tag.
   protected = set(build.base.read_json(build.EVIDENCE)["protectedOwners"])
   owners = set(build.base.read_json(build.EVIDENCE)["owners"])
-  assert not owners & (protected | build.previous.protected_owners())
+  assert not owners & (protected | _published_protected_owners_v254())

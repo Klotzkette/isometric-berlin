@@ -20,7 +20,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.194"
+PACKAGE_VERSION = "1.0.195"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset(
@@ -638,6 +638,9 @@ def write_package_manifest(package_dir: Path) -> None:
       "hauptbahnhof-six-moving-panoramic-lift-cabins",
       "hauptbahnhof-current-verified-tenant-interiors",
       "hauptbahnhof-blumen-roewer-police-ditsch-northwest-og1",
+      "source-bound-friedrichshain-and-boxhagener-houses",
+      "source-bound-rixdorf-and-schudomastreet-roofs-and-courts",
+      "complete-neukoelln-arcaden-and-rathaus-source-models",
       "source-bound-court-neighbourhoods-and-rolleracht-underpass",
       "connected-gustav-heinemann-and-alexanderufer-approaches",
       "public-parliament-interiors-and-dome-circulation",

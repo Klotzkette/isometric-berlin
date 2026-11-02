@@ -88,6 +88,9 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
   // historical legacy-stage assertions and additionally audit every allocation
   // in the actual new required-owner construction/admission transaction.
   const fidelityBuilt: Mesh[] = [];
+  // New required-site fixture allocations are separately audited, preserving
+  // every historical legacy-stage inventory/order assertion below.
+  const neukoellnFidelityBuiltV305: Mesh[] = [];
   const fidelityOwners=new Map<string,WeakSet<Group>>();
   const disposed = new Map<Mesh, number>();
   const warnings: string[] = [];
@@ -150,13 +153,14 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     }
     return group;
   }
-  const family=(name:string)=>{
+  const family=(name:string,inventory=fidelityBuilt)=>{
     if(name===options.failFidelityModel)throw Error(`Required fidelity constructor failed: ${name}`);
-    const root=model(name,fidelityBuilt),owners=fidelityOwners.get(name)??new WeakSet<Group>();
+    const root=model(name,inventory),owners=fidelityOwners.get(name)??new WeakSet<Group>();
     owners.add(root);fidelityOwners.set(name,owners);return root;
   };
   const complete=(name:string)=>(root:Group)=>name!==options.incompleteFidelityModel&&fidelityOwners.get(name)?.has(root)===true&&root.children.length===1;
   const fidelityFactories={
+    createNeukoellnLandmarksV305:()=>family("Required Neukoelln v305",neukoellnFidelityBuiltV305),hasCompleteNeukoellnLandmarksV305:complete("Required Neukoelln v305"),
     createMoabitMitteV300Core:()=>family("Required Moabit-Mitte v300"),hasCompleteMoabitMitteV300Core:complete("Required Moabit-Mitte v300"),
     createWestKiezV302Core:()=>family("Required West-Kiez v302"),hasCompleteWestKiezV302Core:complete("Required West-Kiez v302"),
     createLittenStadthausV297:()=>family("Required Litten-Stadthaus v297"),hasCompleteLittenStadthausV297:complete("Required Litten-Stadthaus v297"),
@@ -171,7 +175,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     createDprkEmbassyV288:()=>family("Required DPRK embassy v288"),
     createChancelleryCanopySourceV289:()=>family("Required Chancellery canopy v289"),hasCompleteChancelleryCanopySourceV289:complete("Required Chancellery canopy v289"),
   };
-  const factoryNames=[...fidelityDeclarations[1].matchAll(/group[=:](create\w+)\(/g)].map(m=>m[1]);
+  const factoryNames=[...fidelityDeclarations[1].matchAll(/group[=:](?:\w+=)?(create\w+)\(/g)].map(m=>m[1]);
   expect(factoryNames.sort()).toEqual(Object.keys(fidelityFactories).filter(k=>k.startsWith("create")).sort());
   const coreSpreeBridgeFactory = () => model("Source-bound core Spree bridges");
   const modules = {
@@ -262,6 +266,9 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     admitsWestKiezV302Core,admitsWestKiezV302Native,
     diningOriginalPrismV296,PARLIAMENTARY_DINING_V296,waterfrontOriginalPrismV296,
     parliamentSourceOwnersAdmittedV295,applyWaterfrontAuthoredOpeningsV296,
+    // This harness has no actual v227 Neukölln profile. Unknown/missing source
+    // replacements therefore cannot authorize any legacy fitting retirement.
+    applyNeukoellnLegacyV227V305:()=>false,
     admitsChancelleryCanopyLegacyV289,setChancelleryCanopyLegacyV289,
     prepareViewerDiningFacadeV296:(_runtime:unknown,enabled:boolean)=>{
       if(!enabled||options.missingDiningFacade)return null;
@@ -399,7 +406,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
   );
   functions.start(runtime, (warning: string) => warnings.push(warning));
   const auditedFinished=finished.then(()=>{
-    for(const mesh of fidelityBuilt){
+    for(const mesh of [...fidelityBuilt,...neukoellnFidelityBuiltV305]){
       if(runtime.isoWorld){expect(disposed.has(mesh)).toBeFalse();expect(runtime.isoWorld.getObjectById(mesh.id)).toBe(mesh);}
       else expect(disposed.get(mesh)).toBe(1);
     }

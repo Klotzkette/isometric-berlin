@@ -1,5 +1,6 @@
+import { applySourceQuarterTrianglesV303, applySourceQuarterLinesV303, sourceQuarterExtraLineVerticesV303, sourceQuarterNavigationV303, sourceQuarterOwnersV303, captureSourceQuarterPacketV303, prepareSourceQuarterPacketV303, type SourceQuarterSourceV303, type SourceQuarterTicketV303 } from "./SourceQuarterPacketV303";
 import { captureNeighbourhoodFidelityV300, prepareNeighbourhoodFidelityV300 } from "./NeighbourhoodFidelityV300";
-import { applyNeighbourhoodTrianglesV300, neighbourhoodPacketAdmittedV300 } from "./NeighbourhoodPacketV300";
+import { applyNeighbourhoodTrianglesV300, neighbourhoodPacketAdmittedV300, captureNeighbourhoodPacketV300, neighbourhoodPacketCandidateV300, type NeighbourhoodSourceV300 } from "./NeighbourhoodPacketV300";
 import { prepareChinaEmbassyV288 } from "./MitteEmbassiesV288";
 import { preparePotsdamerCorridorV288 } from "./PotsdamerCorridorV288";
 import { prepareEastStadtbahnV288 } from "./EastStadtbahnV288";
@@ -74,6 +75,10 @@ export type SurroundingBuilding = SurroundingPolygon & {
   height: number; minHeight: number; sourceId: string;
   /** Rigid DGM placement of this complete source building; heights stay relative. */
   groundOffset?: number;
+  /** Complete represented roof, local XZ and ground-relative Y. */
+  roofTriangles?: number[][][];
+  /** Independently built cardinal roof caps, local XZ and relative top Y. */
+  nativeRoofCaps?: number[][];
 };
 export type SurroundingNavigation = {
   ground: SurroundingPolygon[];
@@ -129,7 +134,7 @@ export function validSurroundingPolygon(value: unknown): value is SurroundingPol
     polygon.holes.length <= 1_000 && polygon.holes.every(ring);
 }
 
-function validNavigation(value: SurroundingNavigation): boolean {
+export function validNavigation(value: SurroundingNavigation): boolean {
   return !!value && Number.isFinite(value.groundY) &&
     (!value.spreeBridgesV242 || (
       Array.isArray(value.spreeBridgesV242.floors) && value.spreeBridgesV242.floors.length <= 20_000 &&
@@ -141,7 +146,9 @@ function validNavigation(value: SurroundingNavigation): boolean {
       .every(polygons => Array.isArray(polygons) && polygons.length <= 20_000 && polygons.every(validSurroundingPolygon)) &&
     value.buildings.every(building => Number.isFinite(building.height) && Number.isFinite(building.minHeight) &&
       building.height >= building.minHeight && typeof building.sourceId === "string" &&
-      (building.groundOffset === undefined || Number.isFinite(building.groundOffset)));
+      (building.groundOffset === undefined || Number.isFinite(building.groundOffset)) &&
+      (building.roofTriangles === undefined || Array.isArray(building.roofTriangles) && building.roofTriangles.length <= 100000 && building.roofTriangles.every(t => Array.isArray(t) && t.length === 3 && t.every(p => Array.isArray(p) && p.length === 3 && p.every(Number.isFinite)))) &&
+      (building.nativeRoofCaps === undefined || Array.isArray(building.nativeRoofCaps) && building.nativeRoofCaps.length <= 100000 && building.nativeRoofCaps.every(r => Array.isArray(r) && r.length === 5 && r.every(Number.isFinite) && r[2] > r[0] && r[3] > r[1])));
 }
 
 function encodedBytes(encoded: string, multiple: number): number {
@@ -277,22 +284,18 @@ export type SurroundingOwnershipOptions = {
   wallGalleryV298?: boolean;
   stralauSisyphosV299?: boolean;
   neighbourhoodV300?: boolean;
+  sourceQuartersV303?: boolean;
+  sourceQuarterSourcesV303?: readonly {source:SourceQuarterSourceV303;kind:string;requiredReplacement?:boolean}[];
+  neukoellnLandmarksV305?: boolean;
   westKiezV302?: boolean;
 };
 
-export function* buildSurroundingCityChunk(
-  chunk: SurroundingCityChunk,
-  id: string,
-  minecraft = false,
-  parkBacking = false,
+/** Exact prior construction stage for bounded, source-bound quarter receipts.
+ * No scene allocation, publication, new quarter edit or ownership default. */
+export function* prepareSurroundingQuarterPredecessorV303(
+  chunk: SurroundingCityChunk, id: string, minecraft = false,
   ownership: SurroundingOwnershipOptions = {},
-): Generator<void, SurroundingChunkGeometry> {
-  if (chunk?.schemaVersion !== 1 || !Array.isArray(chunk.origin) ||
-      chunk.origin.length !== 3 || !chunk.origin.every(Number.isFinite) ||
-      !Array.isArray(chunk.meshes) || chunk.meshes.length > 16 ||
-      !validNavigation(chunk.nav)) {
-    throw new Error("Invalid surrounding-city chunk");
-  }
+): Generator<void, SurroundingCityChunk> {
   // Add source-bound ordinary-house fittings inside the existing tile lifetime.
   // Cancellation can discard preparation before any scene/GPU object is made.
   const neighbourhoodTicketsV300=yield* captureNeighbourhoodFidelityV300(chunk,id,minecraft,ownership.neighbourhoodV300===true,ownership.westKiezV302===true);
@@ -333,6 +336,34 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareMauerparkTerrainV298(chunk,id,minecraft,ownership.wallGalleryV298===true);
   chunk = yield* prepareStralauSisyphosV299(chunk,stralauTicketV299);
   chunk = yield* prepareNeighbourhoodFidelityV300(chunk,neighbourhoodTicketsV300);
+  return chunk;
+}
+
+export function* buildSurroundingCityChunk(
+  chunk: SurroundingCityChunk,
+  id: string,
+  minecraft = false,
+  parkBacking = false,
+  ownership: SurroundingOwnershipOptions = {},
+): Generator<void, SurroundingChunkGeometry> {
+  if (chunk?.schemaVersion !== 1 || !Array.isArray(chunk.origin) ||
+      chunk.origin.length !== 3 || !chunk.origin.every(Number.isFinite) ||
+      !Array.isArray(chunk.meshes) || chunk.meshes.length > 16 ||
+      !validNavigation(chunk.nav)) {
+    throw new Error("Invalid surrounding-city chunk");
+  }
+  const quarterTicketsV303:SourceQuarterTicketV303[]=[];
+  if(ownership.sourceQuartersV303===true)for(const entry of ownership.sourceQuarterSourcesV303??[]){
+    if(entry.requiredReplacement&&ownership.neukoellnLandmarksV305!==true)continue;
+    if(!neighbourhoodPacketCandidateV300(entry.source as unknown as NeighbourhoodSourceV300,id,minecraft))continue;
+    const plan=entry.source.packets[`${minecraft?"minecraft":"drawn"}:${id}`];
+    const ticket=plan?.preparedRecords
+      ?yield*captureSourceQuarterPacketV303(chunk,id,minecraft,true,entry.source,entry.kind,entry.requiredReplacement)
+      :yield*captureNeighbourhoodPacketV300(chunk,id,minecraft,true,entry.source as unknown as NeighbourhoodSourceV300,entry.kind);
+    if(ticket)quarterTicketsV303.push(ticket);
+  }
+  chunk = yield* prepareSurroundingQuarterPredecessorV303(chunk,id,minecraft,ownership);
+  for(const ticket of quarterTicketsV303)chunk=yield*prepareSourceQuarterPacketV303(chunk,ticket);
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
@@ -459,6 +490,7 @@ export function* buildSurroundingCityChunk(
       const littenTransfer=yield* applyLittenStadthausTrianglesV297(chunk,meshIndex,indices,indexOffset);
       if(littenTransfer)root.userData.littenStadthausTrianglesV297=(root.userData.littenStadthausTrianglesV297??0)+littenTransfer;
       const neighbourhoodTransfer=yield* applyNeighbourhoodTrianglesV300(chunk,meshIndex,indices,indexOffset);
+      root.userData.sourceQuarterTrianglesV303 = (root.userData.sourceQuarterTrianglesV303 ?? 0) + (yield* applySourceQuarterTrianglesV303(chunk, meshIndex, indices, indexOffset));
       if(neighbourhoodTransfer)root.userData.neighbourhoodTrianglesV300=(root.userData.neighbourhoodTrianglesV300??0)+neighbourhoodTransfer;
       const hillTransfer=yield* applyMauerparkTerrainTrianglesV298(chunk,meshIndex,indices,indexOffset);
       if(hillTransfer)root.userData.mauerparkTerrainTrianglesV298=(root.userData.mauerparkTerrainTrianglesV298??0)+hillTransfer;
@@ -478,7 +510,8 @@ export function* buildSurroundingCityChunk(
     const lines = chunk.lines?.positions && !minecraft ? chunk.lines : null;
     const sourceLineCount = lines ? encodedBytes(lines.positions, 12) / 6 : 0;
     const hillLineStartV298=sourceLineCount+streetCurveExtraLineVerticesV276(chunk);
-    const lineCount = hillLineStartV298+mauerparkTerrainExtraLineVerticesV298(chunk);
+    const quarterLineStartV303=hillLineStartV298+mauerparkTerrainExtraLineVerticesV298(chunk);
+    const lineCount = quarterLineStartV303+sourceQuarterExtraLineVerticesV303(chunk);
     if (lineCount > MAX_VERTEX_COUNT) {
       throw new Error("Surrounding-city ink exceeds the tile budget");
     }
@@ -539,14 +572,17 @@ export function* buildSurroundingCityChunk(
       root.userData.koepenickerLandmarksTransferredLineSegmentsV268 = yield* applyKoepenickerLandmarksV268Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.streetCurveSegmentsV276 = yield* applyStreetCurveLinesV276(chunk, values.subarray(0,hillLineStartV298*(hasLineColors?6:3)), hasLineColors ? 6 : 3, sourceLineCount);
       root.userData.mauerparkTerrainLineSegmentsV298=yield* applyMauerparkTerrainLinesV298(chunk,values,hasLineColors?6:3,hillLineStartV298);
+      root.userData.sourceQuarterLineSegmentsV303=yield*applySourceQuarterLinesV303(chunk,values,hasLineColors?6:3,quarterLineStartV303);
       geometryBytes += values.byteLength;
       yield* geometryBounds(geometry);
       bufferCount++;
     }
     // These fresh per-tile arrays are owned only by this unpublished root.
     if (parkBacking) yield* parkStaticGeometrySteps(root, true);
+    root.userData.sourceQuarterOwnersV303=sourceQuarterOwnersV303(chunk);
+    root.userData.sourceQuarterNativeV303=minecraft;
     const result = { root: freezeStaticSceneTransforms(root), geometryBytes, bufferCount,
-      nav: southFidelityNavigationV294(chunk, cityWestTransportNavigationV281(chunk, mierendorffNavigationV269(chunk, kraftwerkBerlinNavigationV268(chunk, koepenickerLandmarksNavigationV268(chunk, feuerwacheKreuzbergNavigationV267(chunk, eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, operaTheatreNavigationV274(ownership.operaTheatresV274 === true, id, minecraft, chunk.nav, root.userData.operaTheatreTrianglesV274 ?? 0), ownership.prenzlbergV264 === true))))))))), origin: chunk.origin };
+      nav: sourceQuarterNavigationV303(chunk,southFidelityNavigationV294(chunk, cityWestTransportNavigationV281(chunk, mierendorffNavigationV269(chunk, kraftwerkBerlinNavigationV268(chunk, koepenickerLandmarksNavigationV268(chunk, feuerwacheKreuzbergNavigationV267(chunk, eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, operaTheatreNavigationV274(ownership.operaTheatresV274 === true, id, minecraft, chunk.nav, root.userData.operaTheatreTrianglesV274 ?? 0), ownership.prenzlbergV264 === true)))))))))), origin: chunk.origin };
     completed = true;
     return result;
   } finally {
@@ -653,6 +689,33 @@ export function surroundingBuildingSolidAt(
   return nav.buildings.some(building => {
     const ground = nav.groundY + (building.groundOffset ?? 0);
     if (y < ground + building.minHeight || y > ground + building.height) return false;
+    if (building.nativeRoofCaps && !building.nativeRoofCaps.some(c => x >= c[0]-radius && x <= c[2]+radius && z >= c[1]-radius && z <= c[3]+radius && y <= ground+c[4])) return false;
+    if (building.roofTriangles) {
+      const [west,north,east,south]=boundsOf(building);
+      if(x+radius<west||x-radius>east||z+radius<north||z-radius>south)return false;
+      let top = -Infinity, edgeTop = -Infinity, nearestEdge = Infinity;
+      for (const [a,b,c] of building.roofTriangles) {
+        const det=(b[2]-c[2])*(a[0]-c[0])+(c[0]-b[0])*(a[2]-c[2]);
+        if (Math.abs(det)<1e-9) continue;
+        const u=((b[2]-c[2])*(x-c[0])+(c[0]-b[0])*(z-c[2]))/det;
+        const v=((c[2]-a[2])*(x-c[0])+(a[0]-c[0])*(z-c[2]))/det;
+        if(u>=-1e-7&&v>=-1e-7&&u+v<=1+1e-7)top=Math.max(top,u*a[1]+v*b[1]+(1-u-v)*c[1]);
+        else if(radius>0)for(const [p,q] of [[a,b],[b,c],[c,a]]){
+          const dx=q[0]-p[0],dz=q[2]-p[2],length=dx*dx+dz*dz;
+          const t=length>0?Math.max(0,Math.min(1,((x-p[0])*dx+(z-p[2])*dz)/length)):0;
+          const distance=(x-p[0]-t*dx)**2+(z-p[2]-t*dz)**2;
+          if(distance>=radius*radius)continue;
+          const height=p[1]+t*(q[1]-p[1]);
+          if(distance<nearestEdge-1e-10){nearestEdge=distance;edgeTop=height;}
+          else if(Math.abs(distance-nearestEdge)<1e-10)edgeTop=Math.max(edgeTop,height);
+        }
+      }
+      // Outside the roof projection, retain the original wall-clearance radius
+      // using the nearest actual roof edge and its interpolated source height.
+      // The footprint/hole distance checks below still decide wall proximity.
+      if(top===-Infinity)top=edgeTop;
+      if (top===-Infinity || y>ground+top+radius) return false;
+    }
     const [west, north, east, south] = boundsOf(building);
     if (x + radius < west || x - radius > east || z + radius < north || z - radius > south) return false;
     if (surroundingPolygonContains(building, x, z)) return true;

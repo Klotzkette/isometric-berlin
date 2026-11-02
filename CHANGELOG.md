@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.195 — 2026-11-02
+
+- Refine Rigaer Straße, Silvio-Meier-Straße, Simon-Dach-Straße and the Boxhagener quarter using mapped building owners and architectural references. Correct four false low building bodies with complete official source families, roofs and matching navigation.
+- Restore the distinction between Böhmisch-Rixdorf’s low village houses, courtyards and taller Richardplatz/Schudomastraße houses. Preserve every source sheet and the existing church, smithy, benches and unrelated details. Replace 77 exactly identified false owners with 72 complete official families.
+- Give Neukölln Arcaden and Rathaus Neukölln complete measured models, separate roof forms and a reference-guided Rathaus tower. Small facade and tower subdivisions remain documented estimates.
+- Keep full drawn touch detail, independent native geometry, all six modes, 93 stops and the existing runtime/package ceilings. Save 5,203,540 bytes by losslessly compressing 96 existing assets with every decompressed byte unchanged.
+
 ## 1.0.194 — 2026-11-02
 
 - Replace exactly identified low fallback houses in Moabit, Mitte and City West with complete official building families, retaining measured roofs, courtyard openings and original source evidence. Preserve existing correct Lehrter bodies and refine their street fronts.

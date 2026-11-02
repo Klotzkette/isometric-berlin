@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import base64
+import gzip
 import hashlib
+import json
 import sys
 from collections import Counter
 from pathlib import Path
@@ -90,15 +92,20 @@ def test_limited_reflections_keep_central_mullions_and_most_existing_glass(sourc
         assert np.all(np.count_nonzero(np.abs(n) > 1e-8, axis=1) <= 1)
 
 
-def test_packets_preserve_navigation_and_fit_existing_delivery_limits():
+def test_packets_preserve_navigation_and_fit_existing_delivery_limits() -> None:
   addition = m.read(m.ADDITION)
   assert len(addition["chunks"]) == 10
   for d in addition["chunks"]:
     assert d["id"].startswith("northfront239-")
     for mode in ["drawn", "minecraft"]:
       p = m.OUT / d[mode]["url"]
-      assert m.sha(p) == d[mode]["sha256"]
-      data = m.read(p)
+      raw = historical_asset_bytes_v194(p, d[mode]["sha256"], d[mode]["bytes"])
+      assert hashlib.sha256(raw).hexdigest() == d[mode]["sha256"]
+      assert len(raw) == d[mode]["bytes"]
+      decoded = gzip.decompress(raw)
+      assert len(decoded) == d[mode]["decodedBytes"]
+      assert gzip.decompress(p.read_bytes()) == decoded
+      data = json.loads(decoded)
       assert data["nav"] == {"groundY": 3, "ground": [], "water": [], "buildings": []}
       assert len(data["meshes"]) == 1
       mesh = data["meshes"][0]

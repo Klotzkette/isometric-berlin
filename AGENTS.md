@@ -2340,3 +2340,28 @@ members are independently cardinal, with actual stepped roof navigation. Small
 unmeasured window dimensions and back/court rhythms remain explicit estimates.
 The separate finite v194 gzip audit changes only 96 wire encodings after exact
 full-byte decompression proofs; no new runtime codec or source reduction.
+
+### Step 10 — v303–v305 Friedrichshain and Rixdorf
+
+The owner's next November request names Rigaer Straße, Silvio-Meier-Straße,
+Simon-Dach-Straße and the Boxhagener Viertel; Richardplatz, Schudomastraße and
+the old Böhmisch-Rixdorf quarter by Karl-Marx-Straße in Neukölln; Neukölln
+Arcaden and Rathaus Neukölln. The corrected Karl-Marx-Straße location takes
+precedence over the initial dictated Karl-Marx-Allee. Refine these finite
+sites inside existing coverage using complete retained official geometry,
+mapped context and attributed architectural/photo references. Old village
+yards, low roofs, garden/park/path voids and complete neighbouring owners must
+not become generic perimeter fill.
+
+Correct only exactly identified false or superseded delivered owners after
+their complete source-supported drawn and independent cardinal native
+replacements exist, with complete outside complements and matching granular
+navigation. Keep original source records and roofs/court holes, earlier authored
+details, full drawn touch quality, all six views, 93 tour stops and every live
+and archive limit. No new photographic pixels, textures, timer, district bounds
+or unbounded regeneration. Small unsurveyed facade details remain explicit
+display estimates. Root owns shared integration, source-history capture and
+release; region implementations use isolated versioned files and existing
+bounded packet lifetimes wherever possible. Any further finite lossless wire
+audit must prove complete decompressed byte equality without changing geometry
+or weakening old immutable history controls.

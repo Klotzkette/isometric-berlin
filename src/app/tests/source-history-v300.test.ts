@@ -33,3 +33,14 @@ test("ambiguous hunks, missing exact inverses and another anchor are rejected",(
  const missing=fixture();delete missing.layer.changes[missing.path];expect(()=>verifyNativeSourceLayerV300(missing.layer,missing.previous,missing.read)).toThrow("Missing or extra v300 source inverse");
  const foreign=fixture();foreign.layer.publishedCommit="unknown";expect(()=>verifyNativeSourceLayerV300(foreign.layer,foreign.previous,foreign.read)).toThrow("Unknown immutable v300 source anchors");
 });
+
+test("cached real v300 layer cannot accept altered immutable v299 pins",async()=>{
+ const {assertNativeHistorySourcesV300}=await import("./helpers/sourceHistoryV300");
+ const previous=JSON.parse(readFileSync(new URL("./fixtures/native-history-v299-replay.json",import.meta.url),"utf8"));
+ const layer=assertNativeHistorySourcesV300(previous.currentGraph);
+ expect(Object.isFrozen(previous.currentGraph)).toBeTrue();expect(Object.isFrozen(layer)).toBeTrue();expect(Object.isFrozen(layer.currentGraph)).toBeTrue();
+ expect(assertNativeHistorySourcesV300(previous.currentGraph)).toBe(layer);
+ const changed={...previous.currentGraph};changed[Object.keys(changed)[0]]="0".repeat(64);
+ expect(()=>assertNativeHistorySourcesV300(changed)).toThrow("Changed immutable v299 graph pins");
+ expect(()=>assertNativeHistorySourcesV300({...previous.currentGraph,"src/app/src/unknown-old-golden.ts":"0".repeat(64)})).toThrow("Changed immutable v299 graph pins");
+});

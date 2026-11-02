@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import base64
 import gzip
+import hashlib
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
 import numpy as np
 from shapely.geometry import Point, shape
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 from scripts.spree_bridge_lineage_v242 import assert_preserved_v242
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -88,11 +91,16 @@ def test_delivered_packets_have_empty_navigation_valid_hashes_and_bounded_memory
   assert desc["id"] == "nikolai239-4_0"
   for mode in ["drawn", "minecraft"]:
     path = m.OUT / desc[mode]["url"]
-    assert m.sha(path) == desc[mode]["sha256"]
-    assert path.stat().st_size == desc[mode]["bytes"]
-    assert len(gzip.decompress(path.read_bytes())) == desc[mode]["decodedBytes"]
+    # Keep the complete frozen original compressed fingerprint; the finite
+    # lossless wire audit proves every decoded current byte is still identical.
+    raw = historical_asset_bytes_v194(path, desc[mode]["sha256"], desc[mode]["bytes"])
+    assert hashlib.sha256(raw).hexdigest() == desc[mode]["sha256"]
+    assert len(raw) == desc[mode]["bytes"]
+    decoded = gzip.decompress(raw)
+    assert len(decoded) == desc[mode]["decodedBytes"]
+    assert gzip.decompress(path.read_bytes()) == decoded
     assert desc[mode]["decodedBytes"] < 12 * 1024**2
-    payload = m.read(path)
+    payload = json.loads(decoded)
     assert payload["nav"] == {"groundY": 3, "ground": [], "water": [], "buildings": []}
     assert len(payload["meshes"]) == 1
     mesh = payload["meshes"][0]

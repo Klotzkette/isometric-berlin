@@ -2774,3 +2774,31 @@ Holger Talinski and Manfred Freye, alongside the named architects', monument
 archive and Citymarina operator materials. Exact uses, URLs and unresolved
 photographer credits are in [the v299 ledger](docs/stralau-sisyphos-v299-references.json).
 No referenced image pixels, plans, logos or photographic textures are distributed.
+
+
+## Friedrichshain and Böhmisch-Rixdorf architecture
+
+Land Berlin / Geoportal Berlin LoD2 supplies the retained complete building
+parts and roof sheets (dl-de/zero-2-0). © OpenStreetMap contributors supplies
+retained building, address, street and public-space context (ODbL-1.0).
+Friedrichshain reference-only photographs and project records include Bertsch
+Architekten, Kersten Handschke Immobilien, the Friedrichshain-Kreuzberg district
+authority/asum, Fuchshuber Planning / **Andreas Schwarz**, Plus Bauplanung /
+PlusBK Architektur, Lüttgens, SAMONIG, **Jörg Dietrich / Panoramastreetline**
+and Landesdenkmalamt Berlin / **Wolfgang Bittner**.
+Individual URLs, dates, creators and inspection records are in the
+[v303 reference ledger](geo_data/regierungsviertel/friedrichshain-v303-references.json).
+Historical/project photographs are not claimed as current paint surveys.
+
+The Böhmisch-Rixdorf references include Landesdenkmalamt Berlin, Bezirksamt
+Neukölln and visitBerlin photographs by **Dagmar Schwelle**. The full source
+ledger and distinctions between the village church, smithy and modern meeting
+hall are in [the Rixdorf notes](docs/rixdorf-v304.md). Small facade subdivisions,
+colour choices and window dimensions remain display estimates.
+
+Neukölln Arcaden and Rathaus Neukölln use the complete retained official
+building families, OSM context, Berlin heritage/district records and the
+operator/architectural references in [the v305 notes](docs/neukoelln-landmarks-v305.md).
+The Rathaus tower supplements a missing official-model element; conflicting
+published heights and the estimated interpretation are documented there.
+No photographic pixels, logos, private-image files or photo textures are bundled.

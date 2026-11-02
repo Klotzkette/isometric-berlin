@@ -1,10 +1,13 @@
 """Complete source preservation and fail-closed bounded street integration."""
 
 import copy
+import gzip
 import json
+from pathlib import Path
 
 import pytest
 
+from scripts.historical_asset_reader_v194 import manifest_asset_reader_v194
 from scripts.integrate_street_fronts_v244 import (
   PUBLIC,
   additions,
@@ -54,4 +57,18 @@ def test_corrupt_companion_cannot_pass_through_historical_adapter():
 
   with pytest.raises(AssertionError):
     predecessor_manifest_v244(current, reader)
-  verify_companions(additions())
+  supplements = additions()
+  historical = manifest_asset_reader_v194(
+    {
+      "chunks": [
+        desc for addition in supplements.values() for desc in addition["chunks"]
+      ]
+    }
+  )
+
+  def positive_reader(path: Path) -> bytes:
+    raw = historical(path)
+    assert gzip.decompress(path.read_bytes()) == gzip.decompress(raw)
+    return raw
+
+  verify_companions(supplements, positive_reader)

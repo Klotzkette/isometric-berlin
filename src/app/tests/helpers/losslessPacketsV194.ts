@@ -1,3 +1,4 @@
+import {verifiedPriorPacketShaV195} from "./losslessPacketsV195";
 import {createHash} from "node:crypto";
 import {gunzipSync} from "node:zlib";
 import {resolve,relative} from "node:path";
@@ -10,7 +11,7 @@ const rows=new Map(receipt.rows.map(row=>[row.file,row]));
 /** All decoded bytes, including JSON whitespace, survive the finite wire change. */
 export function verifiedPriorPacketShaV194(path:string|URL,bytes:Uint8Array):string {
  const filename=relative(directory,resolve(path instanceof URL?fileURLToPath(path):path)),row=rows.get(filename),actual=sha(bytes);
- if(!row)return actual;
+ if(!row)return verifiedPriorPacketShaV195(path,bytes);
  if(actual!==row.newGzipSha256||bytes.byteLength!==row.newGzipBytes)throw Error(`Changed current v194 gzip ${filename}`);
  const raw=gunzipSync(bytes,{maxOutputLength:row.decodedBytes});
  if(raw.byteLength!==row.decodedBytes||sha(raw)!==row.decodedSha256)throw Error(`Changed decoded v194 source ${filename}`);

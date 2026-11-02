@@ -22,6 +22,7 @@ from build_teufelsberg_station_v195 import (  # noqa: E402
   clip_y,
   triangles_for,
 )
+from historical_asset_reader_v194 import historical_asset_bytes_v194  # noqa: E402
 from integrate_airports_v194 import signature_sha  # noqa: E402
 from integrate_city_refinements_v166 import line_signature  # noqa: E402
 from integrate_teufelsberg_station_v195 import expected_subtraction  # noqa: E402
@@ -157,7 +158,10 @@ def test_checkpoint_proves_only_exact_station_owners_disappear_after_terrain() -
         / "src/app/public/mesh/surrounding-berlin-v159"
         / record["newDescriptor"]["url"]
       )
-      new_raw = current.read_bytes()
+      new_raw = historical_asset_bytes_v194(
+        current, record["newDescriptor"]["sha256"], record["newDescriptor"]["bytes"]
+      )
+      assert gzip.decompress(current.read_bytes()) == gzip.decompress(new_raw)
       assert hashlib.sha256(new_raw).hexdigest() == record["newDescriptor"]["sha256"]
       old, new = map(lambda b: json.loads(gzip.decompress(b)), [raw, new_raw])
       before, after = mesh_signature(old), mesh_signature(new)

@@ -1,6 +1,9 @@
 """Exact source/material joins and non-destructive outer-colour compilation."""
 
 import base64
+import gzip
+import hashlib
+import json
 from collections import defaultdict
 
 import numpy as np
@@ -9,6 +12,7 @@ from shapely.geometry import Polygon, shape
 from shapely.ops import unary_union
 
 from scripts import build_outer_materials_v232 as build
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 
 def test_material_receipts_replay_only_original_generic_source_vertices():
@@ -20,8 +24,11 @@ def test_material_receipts_replay_only_original_generic_source_vertices():
   assert not set(evidence["owners"]) & set(evidence["protectedOwners"])
   for asset in evidence["assets"]:
     path = build.OUT / asset["url"]
-    assert build.appearance.digest(path) == asset["sha256"]
-    packet = build.base.read_json(path)
+    raw = historical_asset_bytes_v194(path, asset["sha256"], asset.get("bytes"))
+    assert hashlib.sha256(raw).hexdigest() == asset["sha256"]
+    decoded = gzip.decompress(raw)
+    assert gzip.decompress(path.read_bytes()) == decoded
+    packet = json.loads(decoded)
     family = "minecraft" if ".minecraft." in path.name else "drawn"
     tile = path.name.removesuffix(f".{family}.json.gz")
     assert tile.startswith(build.PREFIXES)

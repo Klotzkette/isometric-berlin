@@ -1,0 +1,604 @@
+[
+  {
+    "id": "rigaer18",
+    "address": "Rigaer Straße 18",
+    "owner": "DEBE00YY17I000ZH",
+    "packet": "ring182-11_0",
+    "point": [
+      5914.898817617272,
+      294.8464398160577
+    ],
+    "addressSource": [
+      "points",
+      "3088637473"
+    ],
+    "type": "historic",
+    "floors": 6,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.6,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "rigaer36",
+    "address": "Rigaer Straße 36",
+    "owner": "DEBE02AL4aA0006J",
+    "packet": "ring182-12_0",
+    "point": [
+      6391.008320616907,
+      444.24692229833454
+    ],
+    "addressSource": [
+      "points",
+      "759822398"
+    ],
+    "type": "historic",
+    "floors": 7,
+    "columns": 12,
+    "windowWidth": 1.22,
+    "windowHeight": 2.0,
+    "frontOnly": true,
+    "reference": "fuchshuber-rigaer36-38-2019",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim.",
+    "ornament": null
+  },
+  {
+    "id": "rigaer38",
+    "address": "Rigaer Straße 38",
+    "owner": "DEBE02AL4aA00044",
+    "packet": "ring182-12_0",
+    "point": [
+      6443.713005244033,
+      460.5110155334696
+    ],
+    "addressSource": [
+      "points",
+      "6783629777"
+    ],
+    "type": "historic",
+    "floors": 7,
+    "columns": 5,
+    "windowWidth": 1.22,
+    "windowHeight": 2.0,
+    "frontOnly": true,
+    "reference": "fuchshuber-rigaer36-38-2019",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim.",
+    "ornament": null
+  },
+  {
+    "id": "rigaer70",
+    "address": "Rigaer Straße 70",
+    "owner": "DEBE02YY2000050P",
+    "packet": "ring182-12_0",
+    "point": [
+      6493.153286810149,
+      453.41588911786675
+    ],
+    "addressSource": [
+      "points",
+      "1372898396"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "rigaer74",
+    "address": "Rigaer Straße 74",
+    "owner": "DEBE02YY20000855",
+    "packet": "ring182-12_0",
+    "point": [
+      6392.749501986837,
+      420.7720377370715
+    ],
+    "addressSource": [
+      "points",
+      "667851775"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "rigaer94",
+    "address": "Rigaer Straße 94",
+    "owner": "DEBE02YY200001al",
+    "packet": "ring182-11_0",
+    "point": [
+      5871.737535972323,
+      229.50872585456818
+    ],
+    "addressSource": [
+      "points",
+      "1309021893"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 5,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "panorama-rigaer-2017",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "silvio-meier2",
+    "address": "Silvio-Meier-Straße 2",
+    "owner": "DEBE02YY200007oD",
+    "packet": "ring182-12_1",
+    "point": [
+      6221.395719611144,
+      522.4244497846812
+    ],
+    "addressSource": [
+      "points",
+      "10114718537"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "silvio-meier3",
+    "address": "Silvio-Meier-Straße 3",
+    "owner": "DEBE02YY200008Ld",
+    "packet": "ring182-12_0",
+    "point": [
+      6230.299529908865,
+      507.2361046336591
+    ],
+    "addressSource": [
+      "points",
+      "2824978798"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "silvio-meier4",
+    "address": "Silvio-Meier-Straße 4",
+    "owner": "DEBE02YY200008iL",
+    "packet": "ring182-12_0",
+    "point": [
+      6236.759968198836,
+      490.7494838787243
+    ],
+    "addressSource": [
+      "points",
+      "2824979743"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "silvio-meier5",
+    "address": "Silvio-Meier-Straße 5",
+    "owner": "DEBE02YY200004LN",
+    "packet": "ring182-12_0",
+    "point": [
+      6243.565231699264,
+      473.36888629291207
+    ],
+    "addressSource": [
+      "points",
+      "2824980320"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "silvio-meier6",
+    "address": "Silvio-Meier-Straße 6",
+    "owner": "DEBE02YY20000861",
+    "packet": "ring182-12_0",
+    "point": [
+      6250.054620999494,
+      456.7938481559977
+    ],
+    "addressSource": [
+      "points",
+      "2824980383"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 9,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "bertsch-silvio6-2022",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim.",
+    "reveal": 14210502
+  },
+  {
+    "id": "silvio-meier7",
+    "address": "Silvio-Meier-Straße 7",
+    "owner": "DEBE02YY200003LW",
+    "packet": "ring182-12_0",
+    "point": [
+      6256.560695733817,
+      439.7518123667687
+    ],
+    "addressSource": [
+      "points",
+      "1643127241"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "silvio-meier8",
+    "address": "Silvio-Meier-Straße 8",
+    "owner": "DEBE02YY200004b9",
+    "packet": "ring182-12_0",
+    "point": [
+      6265.009493919206,
+      423.28521910030395
+    ],
+    "addressSource": [
+      "points",
+      "774241535"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "silvio-meier9",
+    "address": "Silvio-Meier-Straße 9",
+    "owner": "DEBE02YY200006kb",
+    "packet": "ring182-12_0",
+    "point": [
+      6240.084248376603,
+      411.74988099653274
+    ],
+    "addressSource": [
+      "points",
+      "2824980736"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "silvio-meier10",
+    "address": "Silvio-Meier-Straße 10",
+    "owner": "DEBE02YY200001ra",
+    "packet": "ring182-12_0",
+    "point": [
+      6223.798368912772,
+      436.9847987582907
+    ],
+    "addressSource": [
+      "points",
+      "428512631"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "silvio-meier11",
+    "address": "Silvio-Meier-Straße 11",
+    "owner": "DEBE02YY2000029A",
+    "packet": "ring182-12_0",
+    "point": [
+      6225.467046597623,
+      449.1601714082062
+    ],
+    "addressSource": [
+      "points",
+      "2824977571"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "silvio-meier12",
+    "address": "Silvio-Meier-Straße 12",
+    "owner": "DEBE02YY2000049t",
+    "packet": "ring182-12_0",
+    "point": [
+      6217.540504446253,
+      469.46560064610094
+    ],
+    "addressSource": [
+      "points",
+      "2824977591"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "silvio-meier13",
+    "address": "Silvio-Meier-Straße 13",
+    "owner": "DEBE02YY200004RM",
+    "packet": "ring182-12_0",
+    "point": [
+      6209.423376421386,
+      488.19801598321646
+    ],
+    "addressSource": [
+      "points",
+      "2824977909"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "simon-dach40",
+    "address": "Simon-Dach-Straße 40",
+    "owner": "DEBE02YY200006UB",
+    "packet": "ring182-11_1",
+    "point": [
+      5791.418153694074,
+      979.5081064859405
+    ],
+    "addressSource": [
+      "points",
+      "2574180967"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 8,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "samonig-simon40",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim.",
+    "ornament": "pediment",
+    "reveal": 13551546
+  },
+  {
+    "id": "simon-dach41",
+    "address": "Simon-Dach-Straße 41",
+    "owner": "DEBE02YY200009da",
+    "packet": "ring182-11_1",
+    "point": [
+      5796.860701743746,
+      962.7777064358816
+    ],
+    "addressSource": [
+      "points",
+      "2574180968"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 8,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "khi-simon41-2006",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim.",
+    "reveal": 15129282
+  },
+  {
+    "id": "boxhagener93",
+    "address": "Boxhagener Straße 93",
+    "owner": "DEBE02YY200006UX",
+    "packet": "ring182-12_1",
+    "point": [
+      6198.647483691573,
+      937.8995513711125
+    ],
+    "addressSource": [
+      "points",
+      "2429544522"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "boxhagener94",
+    "address": "Boxhagener Straße 94",
+    "owner": "DEBE02YY200005Dm",
+    "packet": "ring182-12_1",
+    "point": [
+      6174.917778804491,
+      928.1252807481214
+    ],
+    "addressSource": [
+      "points",
+      "2825036936"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "boxhagener96",
+    "address": "Boxhagener Straße 96",
+    "owner": "DEBE02YY200001wx",
+    "packet": "ring182-12_1",
+    "point": [
+      6158.641662952839,
+      916.4733561882749
+    ],
+    "addressSource": [
+      "points",
+      "2825036937"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "boxhagener102",
+    "address": "Boxhagener Straße 102",
+    "owner": "DEBE02YY200001wQ",
+    "packet": "ring182-11_1",
+    "point": [
+      6007.245280242176,
+      843.1001899233088
+    ],
+    "addressSource": [
+      "points",
+      "285079008"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "boxhagener104",
+    "address": "Boxhagener Straße 104",
+    "owner": "DEBE02YY200009Ec",
+    "packet": "ring182-11_1",
+    "point": [
+      5942.517529815435,
+      826.0630572913215
+    ],
+    "addressSource": [
+      "points",
+      "285072604"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  },
+  {
+    "id": "simon-dach7",
+    "address": "Simon-Dach-Straße 7",
+    "owner": "DEBE02YY200005Hs",
+    "packet": "11_1",
+    "point": [
+      5761.801216810127,
+      966.6349991112947
+    ],
+    "addressSource": [
+      "points",
+      "node/4773307929"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "asum-simon7-2011",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim.",
+    "ornament": "neo-renaissance",
+    "reveal": 14539215
+  },
+  {
+    "id": "simon-dach28",
+    "address": "Simon-Dach-Straße 28",
+    "owner": "DEBE02YY200006CI",
+    "packet": "11_2",
+    "point": [
+      5696.527283008618,
+      1271.8406041068956
+    ],
+    "addressSource": [
+      "points",
+      "node/1140928133"
+    ],
+    "type": "historic",
+    "floors": 5,
+    "columns": 7,
+    "windowWidth": 1.22,
+    "windowHeight": 1.86,
+    "frontOnly": true,
+    "reference": "retained-address-and-measured-body",
+    "estimate": "Unsurveyed ordinary sash/opening rhythm, not a measured or current tenant claim."
+  }
+]

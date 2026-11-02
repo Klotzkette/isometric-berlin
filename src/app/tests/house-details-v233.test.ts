@@ -84,11 +84,22 @@ function prepare(chunk: SurroundingCityChunk, id: string, native: boolean): Surr
 
 test("the historical fixture replays every production preparer in the exact source-admission order",()=>{
   const source=readFileSync(new URL("../src/SurroundingCityGeometry.ts",import.meta.url),"utf8");
-  const body=source.slice(source.indexOf("export function* buildSurroundingCityChunk("),source.indexOf('if (chunk.meshes.length > 16) throw'));
+  const predecessorStart=source.indexOf("export function* prepareSurroundingQuarterPredecessorV303(");
+  const buildStart=source.indexOf("export function* buildSurroundingCityChunk(");
+  expect(predecessorStart).toBeGreaterThan(0);expect(predecessorStart).toBeLessThan(buildStart);
+  const body=source.slice(predecessorStart,buildStart);
   const actual=[...body.matchAll(/chunk\s*=\s*yield\*\s*(prepare\w+)\(/g)].map(m=>m[1]);
+  expect(replayPreparers.length).toBe(34);
   expect([...replayPreparers.map(f=>f.name),"prepareStralauSisyphosV299","prepareNeighbourhoodFidelityV300"]).toEqual(actual);
   expect(body.indexOf("captureStralauSisyphosV299(")).toBeLessThan(body.indexOf("prepareNordMauerparkV266("));
   expect(body.indexOf("captureNeighbourhoodFidelityV300(")).toBeLessThan(body.indexOf("captureStralauSisyphosV299("));
+  // The decoder invokes that unchanged complete predecessor exactly once,
+  // before its explicitly opted-in new quarter stage and all allocation.
+  const wrapper=source.slice(buildStart,source.indexOf('if (chunk.meshes.length > 16) throw',buildStart));
+  expect([...wrapper.matchAll(/chunk\s*=\s*yield\*\s*(prepare\w+)\(/g)].map(m=>m[1]))
+    .toEqual(["prepareSurroundingQuarterPredecessorV303","prepareSourceQuarterPacketV303"]);
+  expect(wrapper.indexOf("captureSourceQuarterPacketV303(")).toBeLessThan(wrapper.indexOf("prepareSurroundingQuarterPredecessorV303("));
+  expect(wrapper).toContain("ownership.sourceQuartersV303===true");
 });
 function budget(packet: SurroundingCityChunk, native: boolean) {
   const vertices = packet.meshes.reduce((n, p) => n + bytes(p.positions) / 6, 0);

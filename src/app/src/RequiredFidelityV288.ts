@@ -1,3 +1,4 @@
+import {createNeukoellnLandmarksV305,hasCompleteNeukoellnLandmarksV305} from "./NeukoellnLandmarksV305";
 import { waterfrontOriginalPrismV296 } from "./waterfrontV296Profile";
 import { createLittenStadthausV297, hasCompleteLittenStadthausV297 } from "./LittenStadthausV297";
 import { createWallGalleryV298, hasCompleteWallGalleryV298 } from "./WallGalleryV298";
@@ -33,7 +34,7 @@ export function constructUnpublishedFidelityV288(factories: readonly FactoryV288
   } catch(error) {
     const geometries=new Set<BufferGeometry>(),materials=new Set<Material>();
     root.traverse(object=>{const mesh=object as Mesh;if(mesh.geometry)geometries.add(mesh.geometry);
-      for(const value of [mesh.material,object.userData.dayMaterial,object.userData.nightMaterial])for(const m of Array.isArray(value)?value:[value])if(m instanceof Material)materials.add(m);
+      for(const value of [mesh.material,object.userData.dayMaterial,object.userData.nightMaterial,object.userData.schwellenraumMaterial])for(const m of Array.isArray(value)?value:[value])if(m instanceof Material)materials.add(m);
       if(mesh instanceof InstancedMesh)mesh.dispose();
     });
     root.clear();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();throw error;
@@ -51,7 +52,9 @@ export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payl
   const diningIds=[...PARLIAMENTARY_DINING_V296.lampenladen.sourceIds,...PARLIAMENTARY_DINING_V296.marie.sourceIds];
   const parliamentaryDining=Array.isArray(prisms.buildings)&&diningIds.every(id=>(prisms.buildings as DiningPrismV296[]).some(p=>p.id===id&&diningOriginalPrismV296(p)));
   const waterfront=Array.isArray(prisms.buildings)&&prisms.buildings.some(waterfrontOriginalPrismV296);
+  let neukoellnModel:Group|undefined;
   const root=constructUnpublishedFidelityV288([
+    ()=>neighbourhoodV300?{group:neukoellnModel=createNeukoellnLandmarksV305(native,{mobileLike}),complete:group=>hasCompleteNeukoellnLandmarksV305(group,native)}:null,
     ()=>moabitMitte?{group:createMoabitMitteV300Core(native,{mobileLike}),complete:group=>hasCompleteMoabitMitteV300Core(group,native)}:null,
     ()=>westKiez?{group:createWestKiezV302Core(native,{mobileLike}),complete:group=>hasCompleteWestKiezV302Core(group,native)}:null,
     ()=>({group:createLittenStadthausV297(native,{mobileLike}),complete:hasCompleteLittenStadthausV297}),
@@ -69,5 +72,5 @@ export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payl
   root.userData={historicDomV288:historicDom,potsdamerCorridorV288:potsdamerCorridor,chancelleryCanopySourceV289:chancelleryCanopy,courtsParkV293:true,southFidelityV294:true,parliamentaryDiningV296:parliamentaryDining,waterfrontV296:waterfront,sourceGeometryRetained:true,fullStaticDetailOnTouch:true};
   root.userData.moabitMitteV300=moabitMitte;root.userData.westKiezV302=westKiez;
   root.userData.littenStadthausV297=true;root.userData.wallGalleryV298=true;
-  return {root,moabitMitte,westKiez,historicDom,potsdamerCorridor,chancelleryCanopy,courtsPark:true,southFidelity:true,parliamentaryDining,waterfront,littenStadthaus:true,wallGallery:true};
+  return {root,neukoellnModel,moabitMitte,westKiez,historicDom,potsdamerCorridor,chancelleryCanopy,courtsPark:true,southFidelity:true,parliamentaryDining,waterfront,littenStadthaus:true,wallGallery:true};
 }

@@ -1,3 +1,5 @@
+import {hasCompleteNeukoellnLandmarksV305} from "./NeukoellnLandmarksV305";
+import {applyNeukoellnLegacyV227V305} from "./NeukoellnLandmarksV305Previous";
 import { createWaterfrontColumnOpeningsV296, type WaterfrontPrismV296 } from "./waterfrontV296Profile";
 import { hbfBoxFragmentsV291 } from "./HbfGeometryOpeningsV291";
 import { applyWaterfrontAuthoredOpeningsV296 } from "./WaterfrontFidelityV296";
@@ -2694,6 +2696,16 @@ export function* buildMinecraftVoxelWorldSteps(
   // coarse tuples yield. A changed/ambiguous source retains the old world.
   group.userData.courtsParkV293=fidelityV288.courtsPark;
   group.userData.southFidelityV294=fidelityV288.southFidelity;
+  let neukoellnAdmissionV305=applyNeukoellnLegacyV227V305(group,true,options.neighbourhoodV300===true,fidelityV288.neukoellnModel);
+  group.userData.prepareNeukoellnLegacyV305=()=>{
+    neukoellnAdmissionV305=applyNeukoellnLegacyV227V305(group,true,options.neighbourhoodV300===true,fidelityV288.neukoellnModel);
+    return neukoellnAdmissionV305;
+  };
+  group.userData.hasNeukoellnLandmarksV305=()=>{
+    const live=!!fidelityV288.neukoellnModel&&fidelityV288.neukoellnModel.parent===fidelityV288.root&&fidelityV288.root.parent===group&&fidelityV288.root.visible&&fidelityV288.neukoellnModel.visible&&hasCompleteNeukoellnLandmarksV305(fidelityV288.neukoellnModel,true);
+    if(live!==neukoellnAdmissionV305){applyNeukoellnLegacyV227V305(group,true,live,fidelityV288.neukoellnModel);neukoellnAdmissionV305=live;}
+    return live;
+  };
   group.userData.moabitMitteV300=fidelityV288.moabitMitte;group.userData.westKiezV302=fidelityV288.westKiez;
   group.userData.littenStadthausV297=fidelityV288.littenStadthaus;
   group.userData.wallGalleryV298=fidelityV288.wallGallery;

@@ -7,6 +7,8 @@ import { LOSSLESS_BASE85_SOURCES_V263 } from "../losslessBase85SourcesV263";
 import { transformLosslessJsonData } from "../losslessJsonData";
 import { LOSSLESS_EAGER_FIELDS_V270 } from "../losslessEagerFieldsV270";
 
+const additionsV303=["data/friedrichshainV303.json","data/rixdorfV304.json","data/neukoellnLandmarksV305Core.json","data/neukoellnLandmarksV305Profile.json","data/neukoellnLandmarksV305Packets.json"];
+
 test("base85 is canonical and byte-exact across word and scratch-buffer boundaries", () => {
   for (const length of [...Array.from({ length: 33 }, (_, i) => i), 65535, 65536, 65537]) {
     const source = Uint8Array.from({ length }, (_, i) => (i * 197 + (i >>> 8)) & 255);
@@ -86,11 +88,11 @@ test("only the frozen exact source paths select base85; root arrays stay eager a
     "data/augustFrontsV274.json",
   ];
   const additionsV300=["data/moabitMitteV300.json","data/ostHousingV301.json","data/westKiezV302.json"];
-  const previousSources=new Set([...LOSSLESS_BASE85_SOURCES_V263].filter(path=>!additionsV300.includes(path)));
+  const previousSources=new Set([...LOSSLESS_BASE85_SOURCES_V263].filter(path=>!additionsV300.includes(path)&&!additionsV303.includes(path)));
   // Keep the complete old registry and its frozen hash. The three new finite
   // neighbourhood records are an explicit additional set, never a new baseline.
   expect(previousSources.size).toBe(243);
-  expect([...LOSSLESS_BASE85_SOURCES_V263].filter(path=>!previousSources.has(path)).sort()).toEqual([...additionsV300].sort());
+  expect([...LOSSLESS_BASE85_SOURCES_V263].filter(path=>!previousSources.has(path)).sort()).toEqual([...additionsV300,...additionsV303].sort());
   for (const path of additionsV274) expect(LOSSLESS_BASE85_SOURCES_V263.has(path), path).toBeTrue();
   const baseline = [...previousSources].filter(path => !additionsV274.includes(path)).sort();
   expect(baseline.length).toBe(235);
@@ -110,6 +112,18 @@ test("only the frozen exact source paths select base85; root arrays stay eager a
     expect(result.code).not.toContain("losslessGzipBase85");
   }
 });
+
+test("precisely five further quarter/core sources use the same byte-exact base85 codec",()=>{
+  expect(additionsV303).toEqual(["data/friedrichshainV303.json","data/rixdorfV304.json","data/neukoellnLandmarksV305Core.json","data/neukoellnLandmarksV305Profile.json","data/neukoellnLandmarksV305Packets.json"]);
+  for(const path of additionsV303){
+    expect(LOSSLESS_BASE85_SOURCES_V263.has(path),path).toBeTrue();
+    const text=readFileSync(new URL(`../src/${path}`,import.meta.url),"utf8"),expected=JSON.parse(text);
+    const {data,result}=compile(text,path,4);
+    expect(result.code).toContain("losslessGzipBase85");
+    expect(JSON.stringify(data),path).toBe(JSON.stringify(expected));
+    expect(decodeLosslessGzipJson(encodeLosslessBase85(gzipSync(text))),path).toEqual(expected);
+  }
+},30000);
 
 test("the finite v273 colour and school additions decode exactly without changing construction ownership", () => {
   const names = [

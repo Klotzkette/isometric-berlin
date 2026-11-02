@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "policy": "Historical/project references are identified by their evidence dates, not described as current photos. No licence to redistribute photography asserted. Geometry sources: Berlin LoD2 Data licence Germany2.0 attribution; OpenStreetMap contributors ODbL. All unsurveyed facade dimensions remain display estimates.",
+  "references": [
+    {
+      "id": "silvio6",
+      "url": "https://bertsch.berlin/projekte/dachausbauten/berlin-friedrichshain-silvio-meier-strasse-6",
+      "pageSha256": "d86d7ad9f20816d1423bd18e86494efb6d14590eb510f41ba62267f01f6032c6",
+      "checked": "2026-11-02",
+      "credit": "Bertsch Architekten; project execution2020–2022",
+      "use": "Nine street axes; two broad paired balcony groups; plain courtyard, external glass lift and renewed roof distinguish this address. Small member sizes remain estimates.",
+      "photos": [
+        {
+          "localInspectionName": "IMG_2264_bearb_771.jpg",
+          "imageSha256": "5995945d489db19fab6a2747da4a646c354dd8ced4cc0f5a5145915fd6207e7e"
+        },
+        {
+          "localInspectionName": "silvio6-0.jpg",
+          "imageSha256": "318d7a1e145ca0dd6f9098fdfa1d379315bba3364971e14f6e6676a2eebab057"
+        },
+        {
+          "localInspectionName": "silvio6-2.jpg",
+          "imageSha256": "3d15372d6b72cae6e7aa00b3d98a60b448a46f5cfa45795ff1080c5309469c22"
+        }
+      ],
+      "licence": "Reference only; no redistribution licence asserted; no photographic pixels included."
+    },
+    {
+      "id": "simon41",
+      "url": "https://www.khi-berlin.de/simondachstr",
+      "pageSha256": "2d0333298308862173dae226eab19ecf095f17a8a024fcd7e9d5cad83bd6b313",
+      "checked": "2026-11-02",
+      "credit": "Kersten Handschke Immobilien; documented2005/2006 restoration",
+      "use": "Five principal storeys, yellow field, projecting red bays and pale window frames. No current shop occupant is inferred.",
+      "photos": [
+        {
+          "localInspectionName": "simon41-0.jpg",
+          "imageSha256": "b0b521aa937d613982dd7002affbf4b79be8dbfd5d815f1d5052039f1cd897d5"
+        },
+        {
+          "localInspectionName": "simon41-1.jpg",
+          "imageSha256": "842bca3af71392c1e87007f611e5668a69b616153a9bc67c61ac7e1c24110d30"
+        }
+      ],
+      "licence": "Reference only; no redistribution licence asserted; no photographic pixels included."
+    },
+    {
+      "id": "riga36",
+      "url": "https://fuchshuber-planning.de/projekte/rigaer-strasse-berlin/",
+      "pageSha256": "50edd75dce7364b168416e540f75b01e295f9ee7c8c66f8f1df49b4b4ebfabda",
+      "checked": "2026-11-02",
+      "credit": "Fuchshuber Planning; photographs Andreas Schwarz,2019",
+      "use": "Current post-2018 Rigaer36–38 with brick base, tall lights, plain upper bands, French railings, recessed loggias and preserved three-court structure.",
+      "photos": [
+        {
+          "localInspectionName": "00_header_rigaer.jpg",
+          "imageSha256": "ddd56f14193b207f7ae0b0a9a59d1f9338f4f0458a432c14c93139442b2c848b"
+        },
+        {
+          "localInspectionName": "riga36-0.jpg",
+          "imageSha256": "53d5e859f1a784d9e317769b6eba98b117600f519f9d4b71d4aa68bceb908424"
+        }
+      ],
+      "licence": "Reference only; no redistribution licence asserted; no photographic pixels included."
+    },
+    {
+      "id": "box70",
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09045129",
+      "pageSha256": "9c02e8183a73ed3bd97895ad4d2d8482fb4320bfb530e4e6f0968f3bd72e617b",
+      "checked": "2026-11-02",
+      "credit": "Landesdenkmalamt Berlin archive, Bittner2013",
+      "use": "Low two-storey street house with seven axes, pitched roof/dormers and differentiated cornice/window hoods.",
+      "photos": [
+        {
+          "localInspectionName": "box70.jpg",
+          "imageSha256": "a1a17f06ba3965b6bb7adc55addabcb48b17eca814fea0550a2587ff32a8d864"
+        }
+      ],
+      "licence": "Reference only; no redistribution licence asserted; no photographic pixels included."
+    },
+    {
+      "id": "box72",
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09045132",
+      "pageSha256": "e47d06ba8db410d25f8c6bf8e85c00526cd92baf25be51e5c1c6118110f1b117",
+      "checked": "2026-11-02",
+      "credit": "Landesdenkmalamt Berlin archive, Bittner2015",
+      "use": "Four principal storeys, eight street axes, differentiated upper-window hoods and broad eave. Historic photograph does not prove a current tenant.",
+      "photos": [
+        {
+          "localInspectionName": "box72.jpg",
+          "imageSha256": "fc843ebec3399af329ecf7403d3d4c786784595037ba8d71eb4938e156bd13f2"
+        }
+      ],
+      "licence": "Reference only; no redistribution licence asserted; no photographic pixels included."
+    },
+    {
+      "id": "boxall",
+      "url": "https://plusbk-architektur.de/en/projects/box-70-72-2/",
+      "pageSha256": "d7f2709cd664ecd090e8b4291591d2dc9be4f1a16081fb6d3d13818f7c5da20d",
+      "checked": "2026-11-02",
+      "credit": "Plus Bauplanung/PlusBK Architektur",
+      "use": "Restoration architect reference for source-supported low building, seven-axis front and restrained ornamental hierarchy. No interior copies.",
+      "photos": [
+        {
+          "localInspectionName": "boxall-0.jpg",
+          "imageSha256": "cc0b56ebe72fcf9e4b6d6a00aac4bfe0bb716f3dffdb282d35b18ef436f69770"
+        },
+        {
+          "localInspectionName": "boxall-1.jpg",
+          "imageSha256": "a97db1cf62996050723e3e261485bd961f6b41bb841d62155b83f740be49b9c4"
+        }
+      ],
+      "licence": "Reference only; no redistribution licence asserted; no photographic pixels included."
+    },
+    {
+      "id": "bansch74",
+      "url": "https://www.luettgens-malereibetriebe.de/referenzen-leser/fassadensanierung-denkmalpflege-in-berlin-friedrichshain.html",
+      "pageSha256": "1c23a3d9af33f5fe42d7f368e9948f1e88646630366e28988465011e83691590",
+      "checked": "2026-11-02",
+      "credit": "Lüttgens Malereibetriebe, façade contractor",
+      "use": "Corner-house window surrounds and rough plaster; source-preserved full-height return walls and roof. Small openings remain display estimates.",
+      "photos": [
+        {
+          "localInspectionName": "bansch74-0.jpg",
+          "imageSha256": "f2a4052434c5751f8b9d9afe6fb79e44b3e9b7f23ebe4bb8c1c34058988872db"
+        },
+        {
+          "localInspectionName": "bansch74-1.jpg",
+          "imageSha256": "0469b783681d9f3897c6be60ba1057092021ea24a91a85c0a18f105d35b27a73"
+        },
+        {
+          "localInspectionName": "bansch74-2.jpg",
+          "imageSha256": "026c1ec4205b7fb4af84c654c0a764cc38a888be579829fd66965fd251c29eef"
+        },
+        {
+          "localInspectionName": "bansch74-3.jpg",
+          "imageSha256": "7e10cbd57943214d3f95f7986500143699a53349c5d419e3f052167429d63af7"
+        }
+      ],
+      "licence": "Reference only; no redistribution licence asserted; no photographic pixels included."
+    },
+    {
+      "id": "simon7",
+      "url": "https://www.asum-berlin.de/wp-content/uploads/2018/10/Warschauer_Str_10_2012.pdf",
+      "credit": "Bezirksamt Friedrichshain-Kreuzberg/asum,2012 neighbourhood documentation",
+      "use": "2011 restored stucco front; existing measured building retained; small window-hood interpretation estimated.",
+      "checked": "2026-11-02"
+    },
+    {
+      "id": "simon40",
+      "url": "https://www.samonig.berlin/unsere-projekte/aktuelle-projekte/friedrichshain/",
+      "credit": "SAMONIG Berlin, project owner",
+      "use": "Addressed historic house40; retained source roof; proposed works are not treated as completed geometry.",
+      "checked": "2026-11-02"
+    },
+    {
+      "id": "riga94",
+      "url": "https://panoramastreetline.de/rigaer-strasse-berlin-deutschland-P18963",
+      "credit": "Jörg Dietrich/Panoramastreetline, June2017",
+      "use": "Simple plastered north-side historic fronts; no photographic texture, banners, political emblems or private occupants reproduced.",
+      "checked": "2026-11-02"
+    }
+  ]
+}

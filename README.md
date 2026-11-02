@@ -63,6 +63,10 @@ Genauigkeit sind in den [Datennotizen](docs/data.md) und den
 [Angaben zur metrischen Präzision](docs/metric-precision.md) dokumentiert.
 Die [Detailnotizen zu Altstadt, Mauerorten und Spreeufer](docs/fidelity-v297-v299.md)
 erläutern auch die gezeichneten Wandbilder und ihre Grenzen.
+Die Häuser im [Boxhagener Viertel](docs/friedrichshain-v303.md), die Dorfhöfe
+von [Böhmisch-Rixdorf](docs/rixdorf-v304.md) und die
+[Neuköllner Wahrzeichen](docs/neukoelln-landmarks-v305.md) besitzen eigene
+Quellen- und Detailnachweise.
 
 ### Herunterladen und lokal starten
 
@@ -123,6 +127,10 @@ Detail varies by place and source. Individually authored, photo-guided
 buildings sit alongside official LoD2 geometry, OpenStreetMap data and simpler
 context models. See the [data notes](docs/data.md) and
 [metric precision notes](docs/metric-precision.md) for coverage and accuracy.
+The [Boxhagener quarter](docs/friedrichshain-v303.md),
+[Böhmisch-Rixdorf](docs/rixdorf-v304.md) and
+[Neukölln landmarks](docs/neukoelln-landmarks-v305.md) have separate architectural
+and source notes.
 
 ### Run locally
 
@@ -189,8 +197,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.194** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.194/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.195** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.195/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits
