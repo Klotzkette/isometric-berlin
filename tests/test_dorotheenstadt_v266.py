@@ -10,6 +10,8 @@ import numpy as np
 from shapely.geometry import Point, Polygon, box, shape
 from shapely.ops import unary_union
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "src/app/src/data"
 DATA = json.loads((APP / "dorotheenstadtV266.json").read_bytes())
@@ -27,7 +29,10 @@ def test_complete_original_source_owners_and_packet_bytes_remain():
   for path, expected in EVIDENCE["inputs"].items():
     file = ROOT / path
     if file.exists():
-      assert hashlib.sha256(file.read_bytes()).hexdigest() == expected
+      assert (
+        hashlib.sha256(historical_asset_bytes_v194(file, expected)).hexdigest()
+        == expected
+      )
     else:
       assert "/raw/" in path
   original = {}

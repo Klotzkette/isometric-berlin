@@ -11,6 +11,8 @@ import numpy as np
 from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from build_alt_mitte_v169 import triangulate  # noqa: E402
@@ -49,7 +51,9 @@ def packet(family):
 def test_measured_source_survives_exact_false_window_retirement():
   for source in EVIDENCE["inputs"]:
     assert (
-      hashlib.sha256((ROOT / source["path"]).read_bytes()).hexdigest()
+      hashlib.sha256(
+        historical_asset_bytes_v194(ROOT / source["path"], source["sha256"])
+      ).hexdigest()
       == source["sha256"]
     )
   site = EVIDENCE["source"]

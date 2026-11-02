@@ -38,9 +38,19 @@ def predecessor_packet_bytes_v242(
   """Return frozen predecessor bytes only after exact whole-packet verification."""
   from scripts.integrate_fidelity_v299 import predecessor_packet_bytes_v299
 
-  raw = predecessor_packet_bytes_v299(path, reader)
+  supplied = reader(path)
   relative = str(path.resolve().relative_to(ROOT))
   receipt = next((r for r in receipts().values() if r["url"] == relative), None)
+  if receipt is not None and hashlib.sha256(supplied).hexdigest() == receipt["sha256"]:
+    original = baseline(relative)
+    assert hashlib.sha256(original).hexdigest() == receipt["sha256"]
+    assert supplied == original
+    return supplied  # Exact earlier-stage reader; never feed it to later wire guards.
+
+  def retained(source: Path) -> bytes:
+    return supplied if source.resolve() == path.resolve() else reader(source)
+
+  raw = predecessor_packet_bytes_v299(path, retained)
   if receipt is None:
     return raw
   sha = hashlib.sha256(raw).hexdigest()
@@ -68,6 +78,9 @@ def predecessor_manifest_v242(current: dict, reader: Reader = Path.read_bytes) -
   from scripts.integrate_street_fronts_v244 import predecessor_manifest_v244
 
   current = predecessor_manifest_v244(current, reader)
+  from scripts.historical_asset_reader_v194 import manifest_asset_reader_v194
+
+  reader = manifest_asset_reader_v194(current, reader)
   result = copy.deepcopy(current)
   previous = {
     c["id"]: c

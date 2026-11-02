@@ -13,11 +13,32 @@ from packet_receipts_v201 import (
   _wuhl,
   audited_v201_changes,
   baseline,
+  checked,
   digest,
   load,
   predecessor_v201,
   verify_mesh,
 )
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
+
+def test_checked_wire_requires_exact_registered_path_and_complete_old_bytes():
+  path = PUBLIC / "outer187--23_4.minecraft.json.gz"
+  asset = {
+    "url": path.name,
+    "bytes": 649854,
+    "sha256": "0b3b32f38feb0830f70e507c548e312dc6e81c9947e187fde2b4493394b69776",
+    "decodedBytes": 1963324,
+  }
+  current = path.read_bytes()
+  assert checked(current, asset) == json.loads(gzip.decompress(current))
+  # Identical decoded JSON is insufficient for an unknown wire or another URL.
+  unknown = gzip.compress(gzip.decompress(current), mtime=12345)
+  with pytest.raises(AssertionError):
+    checked(unknown, asset)
+  with pytest.raises(AssertionError):
+    checked(current, {**asset, "url": "unregistered-wire.minecraft.json.gz"})
 
 
 @pytest.mark.parametrize("omit", ["packet", "representation"])
@@ -55,7 +76,7 @@ def test_historical_checks_receive_only_byte_exact_v100_predecessors() -> None:
   old = {d["id"]: d for d in json.loads(baseline(PUBLIC / "manifest.json"))["chunks"]}
   for (identity, mode), (before, after) in changes.items():
     path = PUBLIC / old[identity][mode]["url"]
-    assert digest(path.read_bytes()) == after
+    assert digest(historical_asset_bytes_v194(path, after)) == after
     raw = predecessor_v201(path)
     assert raw == baseline(path) and digest(raw) == before
     assert len(gzip.decompress(raw)) == old[identity][mode]["decodedBytes"]

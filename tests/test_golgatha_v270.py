@@ -8,6 +8,8 @@ from pathlib import Path
 
 import numpy as np
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "src/app/src/data"
 
@@ -32,7 +34,10 @@ def signature(v):
 def test_complete_owner_and_unchanged_originals():
   e = read(ROOT / "geo_data/regierungsviertel/golgatha-v270-evidence.json.gz")
   source = ROOT / e["sourceFile"]
-  assert hashlib.sha256(source.read_bytes()).hexdigest() == e["sourceSha256"]
+  assert (
+    hashlib.sha256(historical_asset_bytes_v194(source, e["sourceSha256"])).hexdigest()
+    == e["sourceSha256"]
+  )
   actual = next(b for b in read(source)["buildings"] if b["id"] == "DEBE01YYK000002g")
   assert actual == e["originalOwner"]
   assert len(actual["parts"]) == 8
@@ -41,7 +46,10 @@ def test_complete_owner_and_unchanged_originals():
     max(p["topY"] for p in actual["parts"] if p["id"] != "DEBE3Dwcdzr9GoF6") < e["cutY"]
   )
   for path, digest in e["originals"].items():
-    assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(ROOT / path, digest)).hexdigest()
+      == digest
+    )
 
 
 def test_receipts_preserve_all_unowned_triangles():

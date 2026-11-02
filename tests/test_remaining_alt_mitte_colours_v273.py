@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 from pathlib import Path
 
 import numpy as np
 
 from scripts import build_remaining_alt_mitte_colours_v273 as module
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -77,7 +79,12 @@ def test_all_examined_packets_and_evidence_sources_remain_exact() -> None:
   )
   assert evidence["v271EvidenceSha256"] == module.prior.digest(module.northern.EVIDENCE)
   for row in [*evidence["allExaminedPackets"], *evidence["additionalProtection"]]:
-    assert module.prior.digest(ROOT / row["file"]) == row["sha256"]
+    assert (
+      hashlib.sha256(
+        historical_asset_bytes_v194(ROOT / row["file"], row["sha256"])
+      ).hexdigest()
+      == row["sha256"]
+    )
   assert len(evidence["allExaminedPackets"]) >= len(evidence["packetReceipts"])
   for mode in ("drawn", "minecraft"):
     assert evidence["modeCounts"][mode]["selectedVertices"] > 1000

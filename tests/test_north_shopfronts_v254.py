@@ -11,6 +11,8 @@ import numpy as np
 from shapely.affinity import translate
 from shapely.geometry import LineString, Point, Polygon, box
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
 OUT = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
@@ -27,7 +29,8 @@ DATA = read(ROOT / "src/app/src/data/northShopfrontsV254.json")
 
 def test_retained_sources_packets_and_finite_counts() -> None:
   for name, expected in {**SOURCE["inputReceipts"], **SOURCE["packetReceipts"]}.items():
-    assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected, name
+    raw = historical_asset_bytes_v194(ROOT / name, expected)
+    assert hashlib.sha256(raw).hexdigest() == expected, name
   assert len(SOURCE["torPanes"]) == 220
   assert Counter(s["poi"]["street"] for s in SOURCE["shops"]) == {
     "Danziger Straße": 60,

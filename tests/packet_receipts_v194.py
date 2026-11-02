@@ -13,6 +13,8 @@ from pathlib import Path
 import numpy as np
 from shapely.geometry import Point, Polygon
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
 PUBLIC = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
@@ -90,7 +92,10 @@ def audited_v194_changes() -> dict:
   for c in air["chunks"]:
     for mode, r in c["modes"].items():
       path = PUBLIC / c["descriptor"][mode]["url"]
-      oldraw, newraw = baseline_v193(path), path.read_bytes()
+      oldraw, newraw = (
+        baseline_v193(path),
+        historical_asset_bytes_v194(path, r["newSha256"]),
+      )
       assert (
         hashlib.sha256(oldraw).hexdigest()
         == r["oldSha256"]
@@ -132,7 +137,10 @@ def audited_v194_changes() -> dict:
   )
   for mode, r in park["modes"].items():
     path = PUBLIC / r["newDescriptor"]["url"]
-    oldraw, newraw = baseline_v193(path), path.read_bytes()
+    oldraw, newraw = (
+      baseline_v193(path),
+      historical_asset_bytes_v194(path, r["newSha256"]),
+    )
     assert (
       hashlib.sha256(oldraw).hexdigest()
       == r["oldSha256"]

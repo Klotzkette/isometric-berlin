@@ -111,6 +111,9 @@ def predecessor_manifest_v261(current: dict, reader: Reader = Path.read_bytes) -
   from scripts.integrate_euref_v262 import predecessor_manifest_v262
 
   current = predecessor_manifest_v262(current, reader)
+  from scripts.historical_asset_reader_v194 import manifest_asset_reader_v194
+
+  reader = manifest_asset_reader_v194(current, reader)
   if MARKER not in current:
     assert not any(
       c["id"] == ADDED

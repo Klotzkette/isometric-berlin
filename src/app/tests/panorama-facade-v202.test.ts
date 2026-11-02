@@ -2,9 +2,11 @@ import {test,expect} from 'bun:test';
 import {gunzipSync} from 'node:zlib';
 import receipt from '../src/data/panoramaFacadeV202.json';
 import {replacePanoramaFacadeV202} from '../src/panoramaFacadeV202';
+import {verifiedPriorPacketShaV193} from './helpers/losslessPacketsV193';
 for(const record of receipt.records)test(`only exact prior Panorama triangles transfer: ${record.tile} ${record.mode}`, async()=>{
- const bytes=await Bun.file(new URL(`../public/mesh/surrounding-berlin-v159/${record.tile}.${record.mode}.json.gz`,import.meta.url)).arrayBuffer();
- expect(new Bun.CryptoHasher('sha256').update(bytes).digest('hex')).toBe(record.sha256);
+ const url=new URL(`../public/mesh/surrounding-berlin-v159/${record.tile}.${record.mode}.json.gz`,import.meta.url);
+ const bytes=await Bun.file(url).arrayBuffer();
+ expect(verifiedPriorPacketShaV193(url,new Uint8Array(bytes))).toBe(record.sha256);
  const payload=JSON.parse(gunzipSync(bytes).toString());
  const part=payload.meshes.find((p:any)=>p.kind===record.kind);
  const raw=Buffer.from(part.indices,'base64'), source=new Uint32Array(raw.buffer,raw.byteOffset,raw.byteLength/4);

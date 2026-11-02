@@ -1,3 +1,4 @@
+import { prepareMoabitMitteV300CoreFittingRetirement } from "./MoabitMitteV300CoreFittings";
 import { diningSourceOpeningsV296 } from "./parliamentaryDiningV296Profile";
 import { clipFidelityGroundSurfaceV296, restoreFidelityGroundSlabsV296 } from "./FidelityGroundOpeningsV296";
 import { parliamentRetainedOpeningsV295, parliamentClipGeometryV295, parliamentClipInkV295 } from "./ParliamentRetainedEnvelopeV295";
@@ -5,6 +6,8 @@ import { isChancelleryCanopyOldPrismV289 } from "./ChancelleryCanopySourceV289Ow
 import { hbfRetainedGlassOpeningsV291, hbfCutRetainedGlassV291, hbfCutRetainedGlassInkV291, hbfAppendRetainedGlassLineV291 } from "./HbfRetainedGlassV291";
 import { GUSTAV_ALIGNMENT_V296, waterfrontSourceOpeningsV296, waterfrontOriginalPrismV296 } from "./waterfrontV296Profile";
 import { isBerlinHistoricDomOldCoreV288 } from "./BerlinHistoricCoreV288Ownership";
+import { isMoabitMitteV300OldCore } from "./MoabitMitteV300Ownership";
+import { isWestKiezV302OldCore } from "./WestKiezV302CoreOwnership";
 import { isPotsdamerCorridorOldCoreV288 } from "./PotsdamerCorridorV288Ownership";
 import { createOrdinaryWindowsV288, ordinaryWindowExposureV288, ORDINARY_WINDOWS_V288_LIMIT, type OrdinaryPaneV288 } from "./ordinaryWindowsV288";
 import { cutUbahnGroundSlabsV281 } from "./UbahnSurfaceAperturesV281";
@@ -419,7 +422,7 @@ export type IsometricCityBuildOptions = {
   parliamentInteriorsV295?: boolean;
   /** Published only with the complete required photo-guided south station. */
   potsdamerStationPhoto?: boolean;
-  historicDomV288?: boolean; potsdamerCorridorV288?: boolean; chancelleryCanopySourceV289?: boolean;
+  moabitMitteV300?: boolean; westKiezV302?: boolean; historicDomV288?: boolean; potsdamerCorridorV288?: boolean; chancelleryCanopySourceV289?: boolean;
   /** The shared bridge root may already have been installed by cold Minecraft. */
   bridgeStructures?: boolean;
   /** Required main-thread source bridge transaction; never imported by the geometry Worker. */
@@ -1839,12 +1842,14 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "hbfCirculationV291" | "parliamentInteriorsV295" | "parliamentaryDiningV296" | "waterfrontV296" | "chancelleryCanopySourceV289" | "historicDomV288" | "potsdamerCorridorV288" | "potsdamerStationPhoto" | "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "steppengartenShelterV283" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "moabitMitteV300" | "westKiezV302" | "hbfCirculationV291" | "parliamentInteriorsV295" | "parliamentaryDiningV296" | "waterfrontV296" | "chancelleryCanopySourceV289" | "historicDomV288" | "potsdamerCorridorV288" | "potsdamerStationPhoto" | "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "steppengartenShelterV283" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
   const originalWaterfrontPrismV296=options.waterfrontV296?buildings.find(waterfrontOriginalPrismV296):undefined;
   const visible = buildings.filter(building => !options.chancelleryCanopySourceV289 || !isChancelleryCanopyOldPrismV289(building))
+    .filter(building => !options.moabitMitteV300 || !isMoabitMitteV300OldCore(building))
+    .filter(building => !options.westKiezV302 || !isWestKiezV302OldCore(building))
     .filter(building => !options.historicDomV288 || !isBerlinHistoricDomOldCoreV288(building))
     .filter(building => !options.potsdamerCorridorV288 || !isPotsdamerCorridorOldCoreV288(building))
     .filter(building => !options.potsdamerStationPhoto || !isPotsdamerStationPhotoSource(building))
@@ -12066,6 +12071,8 @@ export function createIsometricCityCore(
   };
   for (const sourceBuilding of buildings) {
     if (options.chancelleryCanopySourceV289 && isChancelleryCanopyOldPrismV289(sourceBuilding)) continue;
+    if (options.moabitMitteV300 && isMoabitMitteV300OldCore(sourceBuilding)) continue;
+    if (options.westKiezV302 && isWestKiezV302OldCore(sourceBuilding)) continue;
     if (options.historicDomV288 && isBerlinHistoricDomOldCoreV288(sourceBuilding)) continue;
     if (options.potsdamerCorridorV288 && isPotsdamerCorridorOldCoreV288(sourceBuilding)) continue;
     if (options.potsdamerStationPhoto && isPotsdamerStationPhotoSource(sourceBuilding)) continue;
@@ -13450,6 +13457,25 @@ export function createIsometricCityCore(
     if (options.includeContext !== false) {
       group.add(createNorthernHumboldthafenRefinements(ground));
     }
+  }
+  // These exact retained Lehrter bodies keep their original source roofs;
+  // only the proved obsolete street fittings yield after their complete owner.
+  if (options.moabitMitteV300) {
+    const plan = prepareMoabitMitteV300CoreFittingRetirement(group, { sourceBodiesFiltered: true, buildings: options.buildings ?? prisms.buildings });
+    if (!plan || !plan.apply()) {
+      const materials = new Set<import("three").Material>();
+      group.traverse(object => {
+        const mesh = object as Mesh;
+        if (mesh instanceof InstancedMesh) mesh.dispose();
+        if (mesh.geometry) mesh.geometry.dispose();
+        for (const value of [mesh.material, object.userData.dayMaterial, object.userData.nightMaterial])
+          for (const material of Array.isArray(value) ? value : [value]) if (material?.isMaterial) materials.add(material);
+      });
+      group.clear(); for (const material of materials) material.dispose();
+      throw new Error("Incomplete exact Moabit street fitting transaction");
+    }
+    group.userData.moabitFittingSegmentsV300=plan.lineSegments;
+    group.userData.moabitFittingInstancesV300=plan.instances;
   }
   // Core terrain and building batches never change local poses. Append the
   // authored context afterwards: it also contains the rotating Ensemble sign.

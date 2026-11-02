@@ -11,6 +11,8 @@ from pathlib import Path
 import numpy as np
 from shapely.geometry import LineString, box, shape
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
 OUT = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
@@ -51,14 +53,20 @@ def matches(points: list, origin: list, tris: set) -> bool:
 def test_every_input_and_old_packet_is_unchanged() -> None:
   assert (
     hashlib.sha256(
-      (GEO / "kulturbrauerei-v252-source.json.gz").read_bytes()
+      historical_asset_bytes_v194(
+        GEO / "kulturbrauerei-v252-source.json.gz", EVIDENCE["sourceSha256"]
+      )
     ).hexdigest()
     == EVIDENCE["sourceSha256"]
   )
   for name, sha in SOURCE["inputReceipts"].items():
-    assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == sha
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(ROOT / name, sha)).hexdigest() == sha
+    )
   for name, sha in SOURCE["packetReceipts"].items():
-    assert hashlib.sha256((OUT / name).read_bytes()).hexdigest() == sha
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(OUT / name, sha)).hexdigest() == sha
+    )
   assert EVIDENCE["runtimeBytes"] < 170_000
   assert DATA["counts"]["newFaces"] == 70
   assert DATA["counts"]["newOwners"] == 61

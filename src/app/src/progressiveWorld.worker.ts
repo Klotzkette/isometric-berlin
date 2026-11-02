@@ -223,6 +223,9 @@ async function buildSurfaceFamilies(
   await waitForAttachedBatches();
 }
 
+import { admitsMoabitMitteV300Core } from "./MoabitMitteV300Ownership";
+import { admitsWestKiezV302Core } from "./WestKiezV302CoreOwnership";
+
 async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
   const completedBatchIds = new Set(input.completedBatchIds ?? []);
   latestMobileView = {
@@ -233,6 +236,8 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
   };
   const prisms = await loadPrismPayload(input.prismUrl);
   const chancelleryCanopySourceV289 = input.chancelleryCanopySourceV289 === true && admitsChancelleryCanopySourceV289(prisms);
+  const moabitMitteV300=input.moabitMitteV300===true&&admitsMoabitMitteV300Core(prisms);
+  const westKiezV302=input.westKiezV302===true&&admitsWestKiezV302Core(prisms);
   const historicDomV288 = input.historicDomV288 === true && matchesBerlinHistoricDomOwnersV288(prisms.buildings);
   const potsdamerCorridorV288 = input.potsdamerCorridorV288 === true && admitsPotsdamerCorridorCoreV288(prisms);
   const stationPhotoAdmitted = input.potsdamerStationPhoto === true &&
@@ -271,7 +276,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
         parliamentInteriorsV295: input.parliamentInteriorsV295 === true,
         parliamentaryDiningV296: input.parliamentaryDiningV296,
         waterfrontV296: input.waterfrontV296,
-        potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288, potsdamerCorridorV288, chancelleryCanopySourceV289,
+        moabitMitteV300, westKiezV302, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288, potsdamerCorridorV288, chancelleryCanopySourceV289,
         architectureV241: true, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
         includeLegacyChariteFacade: false,
         includeLegacyHungarianEnvelope: false,

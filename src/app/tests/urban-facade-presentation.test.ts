@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { historicalSourceBytesV299 } from "./helpers/sourceHistoryV299";
 import { BufferAttribute, Color, Group, InstancedMesh, LineDashedMaterial, LineSegments, MaterialLoader, Mesh, ShaderLib } from "three";
 import { readFileSync } from "node:fs";
 import complementV288 from "./fixtures/appearance-complements-v288-v193.json";
@@ -85,7 +86,7 @@ describe("bounded ordinary facade presentation", () => {
     expect(complementV288.historicalTests["urban-facade-presentation.test.ts"]).toBe("af35243aa165bf88acde4e055923d9adfe13d2183bfdca65879ab05bde58bd7c");
     expect(Object.keys(complementV288.sourceSha256)).toHaveLength(13);
     for (const [path, expected] of Object.entries(complementV288.sourceSha256))
-      expect(new Bun.CryptoHasher("sha256").update(readFileSync(new URL(`../../../${path}`, import.meta.url))).digest("hex")).toBe(expected);
+      expect(new Bun.CryptoHasher("sha256").update(historicalSourceBytesV299(new URL(`../../../${path}`, import.meta.url),expected)).digest("hex")).toBe(expected);
   });
   test("covers the requested quarters and immediate park edge without extending across Berlin", () => {
     for (const [x, z] of [[427, 1066], [497, 293], [565.85, -1091.96], [-500, -1500], [-1404, 1166], [-1820, -50], [1500, 250], [1550, 700], [2100, -100]]) {

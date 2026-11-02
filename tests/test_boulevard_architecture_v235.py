@@ -1,11 +1,15 @@
 """Replay actual prior opening geometry; no visual-schema-only confidence."""
 
+import gzip
 import hashlib
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
 import numpy as np
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -23,8 +27,9 @@ def test_all_fields_bind_exact_existing_openings_and_full_corridor():
   for packet in evidence["packets"]:
     mode, identity = packet["key"].split(":")
     path = b.OUT / f"{identity}.{mode}.json.gz"
-    assert hashlib.sha256(path.read_bytes()).hexdigest() == packet["packetSha256"]
-    source = b.read(path)
+    raw = historical_asset_bytes_v194(path, packet["packetSha256"])
+    assert hashlib.sha256(raw).hexdigest() == packet["packetSha256"]
+    source = json.loads(gzip.decompress(raw))
     plan = runtime["packets"][packet["key"]]
     assert len(plan["fields"]) == len(packet["fields"])
     triangles = set()

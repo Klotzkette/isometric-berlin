@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.194 — 2026-11-02
+
+- Replace exactly identified low fallback houses in Moabit, Mitte and City West with complete official building families, retaining measured roofs, courtyard openings and original source evidence. Preserve existing correct Lehrter bodies and refine their street fronts.
+- Differentiate source-bound street houses in Schöneberg, around Kantstraße and Kurfürstendamm, and in the eastern neighbourhoods. Keep surveyed building geometry distinct from estimated small facade dimensions.
+- Bind replacement fittings to complete source ownership, both native and drawn navigation and the existing serial tile lifetime. Compress 96 existing assets with every decompressed byte unchanged, saving 9,844,867 bytes.
+
+
 ## 1.0.193 — 2026-11-02
 
 - Refine Zur letzten Instanz, Altes Stadthaus, its surrounding historic buildings and Alte Münze from retained source geometry and current visual references. Correct Podewil’s principal frontage to seven axes on three storeys.

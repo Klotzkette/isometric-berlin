@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 from collections import Counter
 
 import numpy as np
@@ -10,6 +11,7 @@ from shapely.geometry import box
 from shapely.strtree import STRtree
 
 from scripts import build_weinberg_legacy_materials_v271 as module
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 
 def test_complete_ground_union_keeps_court_holes_and_reciprocal_evidence() -> None:
@@ -76,7 +78,8 @@ def test_original_source_and_packet_bytes_stay_exact_and_scope_is_finite() -> No
   }
   selected = {row["id"] for row in evidence["owners"]}
   for row in evidence["sourceFiles"] + evidence["packetReceipts"]:
-    assert module.prior.digest(module.ROOT / row["file"]) == row["sha256"]
+    raw = historical_asset_bytes_v194(module.ROOT / row["file"], row["sha256"])
+    assert hashlib.sha256(raw).hexdigest() == row["sha256"]
   for kind, path in module.SOURCES.items():
     records = {row["id"]: row for row in module.prior.read(path)["buildings"]}
     for owner in evidence["owners"]:

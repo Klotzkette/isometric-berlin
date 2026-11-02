@@ -1,5 +1,7 @@
 """Independent source, whole-wall, native and byte-preservation checks for Tor138."""
 
+import gzip
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -8,6 +10,8 @@ import numpy as np
 import pytest
 from shapely.geometry import Polygon, box
 from shapely.ops import unary_union
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -35,7 +39,8 @@ def test_exact_named_parent_complete_parts_and_earlier_packets_preserved(source)
   )
   assert source["terrainOffsetY"] == 1.66
   for path, digest in {**source["sourceHashes"], **source["unchangedPackets"]}.items():
-    assert m.sha(ROOT / path) == digest, path
+    raw = historical_asset_bytes_v194(ROOT / path, digest)
+    assert hashlib.sha256(raw).hexdigest() == digest, path
   old = m.read(m.GEO / "north-mitte-fronts-v239-source.json.gz")
   owner_panes = [w for w in old["windows"] if w["owner"] == m.OWNER]
   assert len(owner_panes) == 16 and all(
@@ -128,9 +133,12 @@ def test_one_small_packet_pair_with_no_roof_body_nav_or_runtime_growth(source):
   assert descriptor["detailCompanionOf"] == "3_-3"
   for mode in ("drawn", "minecraft"):
     path = m.OUT / descriptor[mode]["url"]
-    payload = m.read(path)
-    assert m.sha(path) == descriptor[mode]["sha256"]
-    assert path.stat().st_size < 40_000
+    raw = historical_asset_bytes_v194(
+      path, descriptor[mode]["sha256"], descriptor[mode]["bytes"]
+    )
+    payload = json.loads(gzip.decompress(raw))
+    assert hashlib.sha256(raw).hexdigest() == descriptor[mode]["sha256"]
+    assert len(raw) < 40_000
     assert payload["nav"] == dict(groundY=3, ground=[], water=[], buildings=[])
     assert (
       len(payload["meshes"]) == 1

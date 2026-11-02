@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import sys
 from collections import Counter
 from pathlib import Path
@@ -11,6 +12,8 @@ import numpy as np
 import pytest
 from shapely.geometry import Point, shape
 from shapely.ops import unary_union
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -25,9 +28,11 @@ def source():
 def test_original_sources_and_packets_unchanged(source):
   assert m.read(m.EVIDENCE)["sourceSha256"] == m.sha(m.SOURCE)
   for path, digest in source["sourceHashes"].items():
-    assert m.sha(ROOT / path) == digest
+    raw = historical_asset_bytes_v194(ROOT / path, digest)
+    assert hashlib.sha256(raw).hexdigest() == digest, path
   for path, digest in source["packetReceipts"].items():
-    assert m.sha(ROOT / path) == digest
+    raw = historical_asset_bytes_v194(ROOT / path, digest)
+    assert hashlib.sha256(raw).hexdigest() == digest, path
   assert len(source["packetReceipts"]) == 12
   assert not {w["owner"] for w in source["windows"]} & set(source["excludedOwners"])
 

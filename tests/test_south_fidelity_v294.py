@@ -14,6 +14,8 @@ import pytest
 from shapely.geometry import LineString, Polygon, shape
 from shapely.ops import unary_union
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from build_bebelplatz_building_source import extract_parent, part_profile  # noqa: E402
@@ -83,14 +85,16 @@ def test_original_packets_and_all_prior_geometry_inputs_remain_identical() -> No
     target = ROOT / path
     if not target.exists():
       pytest.skip("Ignored complete original input is unavailable")
-    assert hashlib.sha256(target.read_bytes()).hexdigest() == digest
+    raw = historical_asset_bytes_v194(target, digest)
+    assert hashlib.sha256(raw).hexdigest() == digest
   packets = read("src/app/src/data/southFidelityV294Packets.json")
   manifest = read("src/app/public/mesh/surrounding-berlin-v159/manifest.json")
   for key, record in packets["packets"].items():
     mode, identifier = key.split(":")
     desc = next(d for d in manifest["chunks"] if d["id"] == identifier)
     path = ROOT / "src/app/public/mesh/surrounding-berlin-v159" / desc[mode]["url"]
-    assert hashlib.sha256(path.read_bytes()).hexdigest() == record["sourcePacketSha256"]
+    raw = historical_asset_bytes_v194(path, record["sourcePacketSha256"])
+    assert hashlib.sha256(raw).hexdigest() == record["sourcePacketSha256"]
   assert packets["keys"] == ["drawn:6_4", "minecraft:6_4"]
 
 
@@ -139,4 +143,5 @@ def test_mauer_context_keeps_exact_complete_current_prism_owners_and_inputs() ->
     target = ROOT / path
     if not target.exists():
       pytest.skip("Ignored complete OSM input unavailable")
-    assert hashlib.sha256(target.read_bytes()).hexdigest() == digest
+    raw = historical_asset_bytes_v194(target, digest)
+    assert hashlib.sha256(raw).hexdigest() == digest

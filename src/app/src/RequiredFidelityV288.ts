@@ -17,6 +17,11 @@ import { createMitteDdrV288 } from "./MitteDdrV288";
 import { createChancelleryCanopySourceV289, hasCompleteChancelleryCanopySourceV289 } from "./ChancelleryCanopySourceV289";
 import { admitsChancelleryCanopySourceV289, admitsChancelleryCanopyNativeV289 } from "./ChancelleryCanopySourceV289Ownership";
 
+import { createMoabitMitteV300Core, hasCompleteMoabitMitteV300Core } from "./MoabitMitteV300Core";
+import { admitsMoabitMitteV300Core, admitsMoabitMitteV300Native } from "./MoabitMitteV300Ownership";
+import { createWestKiezV302Core, hasCompleteWestKiezV302Core } from "./WestKiezV302Core";
+import { admitsWestKiezV302Core, admitsWestKiezV302Native } from "./WestKiezV302CoreOwnership";
+
 type FactoryV288 = () => { group: Group; complete?: (group: Group) => boolean } | null;
 /** Own each completed result immediately, including before its admission
  * proof. A failed later constructor can never strand earlier allocations. */
@@ -37,7 +42,9 @@ export function constructUnpublishedFidelityV288(factories: readonly FactoryV288
 
 /** Construct complete owners before any old prism/column can yield. This
  * module belongs only to the main-thread city transaction, never the worker. */
-export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payload: unknown, native=false, canopyLegacyAdmitted=false, mobileLike=false) {
+export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payload: unknown, native=false, canopyLegacyAdmitted=false, mobileLike=false, neighbourhoodV300=false) {
+  const moabitMitte=neighbourhoodV300&&admitsMoabitMitteV300Core(prisms)&&(!native||admitsMoabitMitteV300Native(payload));
+  const westKiez=neighbourhoodV300&&admitsWestKiezV302Core(prisms)&&(!native||admitsWestKiezV302Native(payload));
   const historicDom=matchesBerlinHistoricDomOwnersV288(prisms.buildings)&&(!native||matchesBerlinHistoricDomNativeV288(payload));
   const potsdamerCorridor=admitsPotsdamerCorridorCoreV288(prisms)&&(!native||admitsPotsdamerCorridorNativeV288(payload));
   const chancelleryCanopy=admitsChancelleryCanopySourceV289(prisms)&&(native?admitsChancelleryCanopyNativeV289(payload):canopyLegacyAdmitted);
@@ -45,6 +52,8 @@ export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payl
   const parliamentaryDining=Array.isArray(prisms.buildings)&&diningIds.every(id=>(prisms.buildings as DiningPrismV296[]).some(p=>p.id===id&&diningOriginalPrismV296(p)));
   const waterfront=Array.isArray(prisms.buildings)&&prisms.buildings.some(waterfrontOriginalPrismV296);
   const root=constructUnpublishedFidelityV288([
+    ()=>moabitMitte?{group:createMoabitMitteV300Core(native,{mobileLike}),complete:group=>hasCompleteMoabitMitteV300Core(group,native)}:null,
+    ()=>westKiez?{group:createWestKiezV302Core(native,{mobileLike}),complete:group=>hasCompleteWestKiezV302Core(group,native)}:null,
     ()=>({group:createLittenStadthausV297(native,{mobileLike}),complete:hasCompleteLittenStadthausV297}),
     ()=>({group:createWallGalleryV298(native,{mobileLike}),complete:group=>hasCompleteWallGalleryV298(group,native)}),
     ()=>({group:createCourtsParkV293(native)}),
@@ -58,6 +67,7 @@ export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payl
     ()=>chancelleryCanopy?{group:createChancelleryCanopySourceV289(native),complete:hasCompleteChancelleryCanopySourceV289}:null,
   ]);
   root.userData={historicDomV288:historicDom,potsdamerCorridorV288:potsdamerCorridor,chancelleryCanopySourceV289:chancelleryCanopy,courtsParkV293:true,southFidelityV294:true,parliamentaryDiningV296:parliamentaryDining,waterfrontV296:waterfront,sourceGeometryRetained:true,fullStaticDetailOnTouch:true};
+  root.userData.moabitMitteV300=moabitMitte;root.userData.westKiezV302=westKiez;
   root.userData.littenStadthausV297=true;root.userData.wallGalleryV298=true;
-  return {root,historicDom,potsdamerCorridor,chancelleryCanopy,courtsPark:true,southFidelity:true,parliamentaryDining,waterfront,littenStadthaus:true,wallGallery:true};
+  return {root,moabitMitte,westKiez,historicDom,potsdamerCorridor,chancelleryCanopy,courtsPark:true,southFidelity:true,parliamentaryDining,waterfront,littenStadthaus:true,wallGallery:true};
 }

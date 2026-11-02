@@ -5,9 +5,11 @@ import hashlib
 import json
 
 import numpy as np
+import pytest
 from shapely.geometry import LineString, Point, Polygon, box
 from shapely.ops import unary_union
 
+from scripts import build_auguststrasse_mural_v270 as builder
 from scripts.build_auguststrasse_mural_v270 import (
   BASE,
   CELL,
@@ -33,6 +35,26 @@ from scripts.build_auguststrasse_mural_v270 import (
   triangles_for,
   upper_clip,
 )
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
+
+@pytest.fixture(autouse=True)
+def exact_historical_packet_digests(monkeypatch):
+  """Keep both full old packet receipts while proving later wire encodings."""
+  evidence = read(EVIDENCE)
+  pins = {
+    (ROOT / receipt["packetPath"]).resolve(): receipt["packetSha256"]
+    for receipt in (evidence["oldGableClearance"], evidence["nativeOldSupport"])
+  }
+  original = builder.sha
+
+  def digest(path):
+    expected = pins.get(path.resolve())
+    if expected is None:
+      return original(path)
+    return hashlib.sha256(historical_asset_bytes_v194(path, expected)).hexdigest()
+
+  monkeypatch.setattr(builder, "sha", digest)
 
 
 def mesh(mode):

@@ -33,6 +33,7 @@ import { prepareTachelesFrontsV270 } from "../src/TachelesFrontsV270Receipts";
 import { prepareLittenStadthausV297 } from "../src/LittenStadthausV297Packets";
 import { prepareMauerparkTerrainV298 } from "../src/MauerparkTerrainV298Packets";
 import { captureStralauSisyphosV299, prepareStralauSisyphosV299 } from "../src/StralauSisyphosV299Packets";
+import { captureNeighbourhoodFidelityV300, prepareNeighbourhoodFidelityV300 } from "../src/NeighbourhoodFidelityV300";
 import streetCurves from "../src/data/streetCurvesV276.json";
 import cityWestTransport from "../src/data/citywestTransportV281.json";
 import { prepareHouseDoorsV233 } from "../src/houseDoorsV233";
@@ -74,17 +75,20 @@ function prepare(chunk: SurroundingCityChunk, id: string, native: boolean): Surr
   // Replay the actual entire production chain. In particular the already-v192
   // v288 append was missing here (49,440 decoded bytes on drawn:5_-1). Source
   // retirement options remain default-off exactly as in this decoder invocation.
+  const neighbourhood=finish(captureNeighbourhoodFidelityV300(chunk,id,native));
   const ticket=finish(captureStralauSisyphosV299(chunk,id,native));
   for(const prepare of replayPreparers)chunk=finish(prepare(chunk,id,native));
-  return finish(prepareStralauSisyphosV299(chunk,ticket));
+  chunk=finish(prepareStralauSisyphosV299(chunk,ticket));
+  return finish(prepareNeighbourhoodFidelityV300(chunk,neighbourhood));
 }
 
 test("the historical fixture replays every production preparer in the exact source-admission order",()=>{
   const source=readFileSync(new URL("../src/SurroundingCityGeometry.ts",import.meta.url),"utf8");
   const body=source.slice(source.indexOf("export function* buildSurroundingCityChunk("),source.indexOf('if (chunk.meshes.length > 16) throw'));
   const actual=[...body.matchAll(/chunk\s*=\s*yield\*\s*(prepare\w+)\(/g)].map(m=>m[1]);
-  expect([...replayPreparers.map(f=>f.name),"prepareStralauSisyphosV299"]).toEqual(actual);
+  expect([...replayPreparers.map(f=>f.name),"prepareStralauSisyphosV299","prepareNeighbourhoodFidelityV300"]).toEqual(actual);
   expect(body.indexOf("captureStralauSisyphosV299(")).toBeLessThan(body.indexOf("prepareNordMauerparkV266("));
+  expect(body.indexOf("captureNeighbourhoodFidelityV300(")).toBeLessThan(body.indexOf("captureStralauSisyphosV299("));
 });
 function budget(packet: SurroundingCityChunk, native: boolean) {
   const vertices = packet.meshes.reduce((n, p) => n + bytes(p.positions) / 6, 0);

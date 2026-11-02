@@ -11,6 +11,7 @@ import previousNative from "../src/data/justicePalaceV183Native.json";
 import { littenInstanzV257Rows } from "../src/littenInstanzV257";
 import { createJusticePalaceV183 } from "../src/JusticePalaceV183";
 import { createMinecraftJusticePalaceV183 } from "../src/MinecraftJusticePalaceV183";
+import { historicalSourceBytesV299 } from "./helpers/sourceHistoryV299";
 
 const digest=(array:ArrayBufferView)=>createHash("sha256").update(Buffer.from(array.buffer,array.byteOffset,array.byteLength)).digest("hex");
 /** Validate the whole later contribution before exposing the exact original
@@ -41,7 +42,7 @@ test("the complete later historic-core suffix retains immutable published source
   expect(complementV288.sourceCommit).toBe("0f6174362de87d785f6e6f5b864d05e5efa973fc");
   expect(complementV288.historicalTests["litten-instanz-v257.test.ts"]).toBe("21c6db7e303706cd71e98bbc4cb420d03807806fab46a7191cec7a8ae1a12dc8");
   for(const[path,sha]of Object.entries(complementV288.sourceSha256))
-    expect(createHash("sha256").update(readFileSync(new URL(`../../../${path}`,import.meta.url))).digest("hex")).toBe(sha);
+    expect(createHash("sha256").update(historicalSourceBytesV299(new URL(`../../../${path}`,import.meta.url),sha)).digest("hex")).toBe(sha);
 });
 
 test("exact source profiles and all previous courthouse details survive",()=>{

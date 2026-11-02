@@ -10,6 +10,8 @@ from pathlib import Path
 import numpy as np
 from shapely.geometry import Point, Polygon, box
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 spec = importlib.util.spec_from_file_location(
@@ -28,7 +30,10 @@ def test_reproduces_and_preserves_every_previous_named_source():
     (ROOT / "geo_data/regierungsviertel/rosenthaler-v228-evidence.json").read_text()
   )
   for path, digest in audit["sourceSha256"].items():
-    assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(ROOT / path, digest)).hexdigest()
+      == digest
+    )
   assert (ROOT / "src/app/src/data/rosenthalerV228.json").stat().st_size < 45000
 
 
@@ -107,13 +112,24 @@ def test_all_four_stair_axes_counts_and_upper_entrances_are_independent_osm_matc
     assert r["landing"] < math.dist(r["top"], r["bottom"]) / 4
 
 
-def test_ground_receipts_reproduce_exact_retained_packets_and_exclude_buildings():
+def test_ground_receipts_reproduce_exact_retained_packets_and_exclude_buildings(
+  tmp_path, monkeypatch
+):
   import build_rosenthaler_ground_v228
 
-  rebuilt = build_rosenthaler_ground_v228.build()
-  assert rebuilt == json.loads(
+  expected = json.loads(
     (ROOT / "src/app/src/data/rosenthalerV228Ground.json").read_text()
   )
+  for key, receipt in expected.items():
+    name = key + ".json.gz"
+    (tmp_path / name).write_bytes(
+      historical_asset_bytes_v194(
+        build_rosenthaler_ground_v228.PACKETS / name, receipt["sourceSha256"]
+      )
+    )
+  monkeypatch.setattr(build_rosenthaler_ground_v228, "PACKETS", tmp_path)
+  rebuilt = build_rosenthaler_ground_v228.build()
+  assert rebuilt == expected
   assert set(rebuilt) == {
     "3_-3.drawn",
     "3_-3.minecraft",

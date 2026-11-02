@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 from collections import Counter
 
 import numpy as np
@@ -10,6 +11,7 @@ from shapely.geometry import box
 from shapely.strtree import STRtree
 
 from scripts import build_legacy_house_materials_v273 as module
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 
 def test_all_retained_families_are_audited_without_neighbourhood_sampling() -> None:
@@ -115,7 +117,12 @@ def test_complete_source_packet_coordinates_topology_and_navigation_remain_exact
   for row in (
     evidence["sourceFiles"] + evidence["protectionSources"] + evidence["packetReceipts"]
   ):
-    assert module.prior.digest(module.ROOT / row["file"]) == row["sha256"], row["file"]
+    assert (
+      hashlib.sha256(
+        historical_asset_bytes_v194(module.ROOT / row["file"], row["sha256"])
+      ).hexdigest()
+      == row["sha256"]
+    ), row["file"]
   assert evidence["runtimeBytes"] < 2 * 1024 * 1024
   assert evidence["runtimeGzipBytes"] < 400 * 1024
 

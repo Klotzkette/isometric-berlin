@@ -18,6 +18,7 @@ from scripts.build_bebelplatz_building_source import (
   world_ring,
 )
 from scripts.build_breitscheid_towers_v161 import triangles_for
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -55,9 +56,17 @@ def signature(t):
 
 def test_all_23_parts_267_original_sheets_and_every_source_triangle_survive():
   for path, digest in EVIDENCE["inputs"].items():
-    assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(ROOT / path, digest)).hexdigest()
+      == digest
+    )
   archive = ROOT / SOURCE["archive"]["path"]
-  assert hashlib.sha256(archive.read_bytes()).hexdigest() == SOURCE["archive"]["sha256"]
+  assert (
+    hashlib.sha256(
+      historical_asset_bytes_v194(archive, SOURCE["archive"]["sha256"])
+    ).hexdigest()
+    == SOURCE["archive"]["sha256"]
+  )
   assert sum(len(s["originalParts"]) for s in SOURCE["sites"]) == 23
   assert sum(len(s["originalSheets"]) for s in SOURCE["sites"]) == 267
   for source, site, profile in zip(

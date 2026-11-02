@@ -1,0 +1,968 @@
+{
+  "step": 10,
+  "applied": true,
+  "method": "Zopfli one iteration; exact decompressed bytes verified",
+  "savedBytes": 9844867,
+  "rows": [
+    {
+      "file": "6_1.drawn.json.gz",
+      "gzipBytes": 1594268,
+      "gzipSha256": "62f45c6b359ff25076b2bba9dee8d3aa6c45b1b80c060a13ca6c7750729d830f",
+      "decodedBytes": 5096123,
+      "decodedSha256": "ba4b0710edd62f69658c47e1015feff096f37c78928952c6e0b134b2e34a32de",
+      "newGzipBytes": 1440670,
+      "newGzipSha256": "01fe17262ef1cb72d96c3b03e69cf398210f924b3f7315a6ac6d3524edaa6310",
+      "savedBytes": 153598
+    },
+    {
+      "file": "6_1.minecraft.json.gz",
+      "gzipBytes": 1589476,
+      "gzipSha256": "a63316788b3d9bacb1916b05437944c935ba023f6f3a80f692a366e895c8c83f",
+      "decodedBytes": 5225562,
+      "decodedSha256": "552271d689ac3859d15a83f10ae3dd2f5d8af2ed05a659f028d02b7e43b199f5",
+      "newGzipBytes": 1439727,
+      "newGzipSha256": "3a0836c348364d1b116e4f8942c7fedfc90f1a36620d1120f75e5c7271e3fce1",
+      "savedBytes": 149749
+    },
+    {
+      "file": "5_0.drawn.json.gz",
+      "gzipBytes": 1586552,
+      "gzipSha256": "6f725ee2d5b3c72eacd5cb535217ecd41ff3eca52a415255a5b6b935a98aaa62",
+      "decodedBytes": 5138697,
+      "decodedSha256": "ab08aedb0b113c53a6ef35c28bb6a8835026d3a924b6eb6f4141ebf0cde4b9b7",
+      "newGzipBytes": 1427514,
+      "newGzipSha256": "0579ac40605df99f319d51f7c5c80e4dac72413a8214cd35e27d26a5555c1884",
+      "savedBytes": 159038
+    },
+    {
+      "file": "4_1.drawn.json.gz",
+      "gzipBytes": 1573690,
+      "gzipSha256": "3d61976c37437afb4f58c0db5f396083a6645de4ddfe41ba4f972661c3499e50",
+      "decodedBytes": 5174164,
+      "decodedSha256": "f4867481d75a60398bdbcd75538b540da9f33cc7c0465d0050a43883b45f9f42",
+      "newGzipBytes": 1425814,
+      "newGzipSha256": "396ffe53495b1a9182cf82c7fdcbfb8f024fca46d861e86093f0a30095370657",
+      "savedBytes": 147876
+    },
+    {
+      "file": "-11_4.minecraft.json.gz",
+      "gzipBytes": 1515423,
+      "gzipSha256": "e0632c12ace22403cca97b15214dc58cb6b1afe49e3ac0ad915cc11fe08ef3cc",
+      "decodedBytes": 5491443,
+      "decodedSha256": "61b89e28b198df70ca1a12d2b7d14f35604a671b50159b37fb4c22cf3cb3534c",
+      "newGzipBytes": 1353111,
+      "newGzipSha256": "3b883f76f0d641ddbfd8655d6843e614d44cd77852067df9309cdf2272581581",
+      "savedBytes": 162312
+    },
+    {
+      "file": "6_0.drawn.json.gz",
+      "gzipBytes": 1512632,
+      "gzipSha256": "04236262dc7a773d06fb987de1220b2d70b2d7be1f704f5b9ebebc4e8124c480",
+      "decodedBytes": 4846434,
+      "decodedSha256": "2d1c80db61588c429ca66e72e725339d3cf720df744ca0ff83029968704bfda7",
+      "newGzipBytes": 1364998,
+      "newGzipSha256": "9661f0240db708a2b45344d920e740adeadf8ecb46afc186f1a6d5970ededa38",
+      "savedBytes": 147634
+    },
+    {
+      "file": "5_2.minecraft.json.gz",
+      "gzipBytes": 1505030,
+      "gzipSha256": "11230996a3391737d4829ef534a1782e4de7c51c51892a269098cdbd9a59a959",
+      "decodedBytes": 4872644,
+      "decodedSha256": "f4d3ac494f2b6eb9c84a6c9a1c137274aa36c5a1f7f94dacf3619c35febc9939",
+      "newGzipBytes": 1364653,
+      "newGzipSha256": "8641a66e63af953e022815fb8bb174ef2a80e7ba80d16b38eca9841a7cdf8594",
+      "savedBytes": 140377
+    },
+    {
+      "file": "7_-2.minecraft.json.gz",
+      "gzipBytes": 1495394,
+      "gzipSha256": "29b7506b6988068a85d6c2127e58f2595e5afbdc112d9fdf10b2cbda82184d23",
+      "decodedBytes": 5054987,
+      "decodedSha256": "b5fa98a20caf69d11fee10250a5fc228844a91b51dd90ef0f3f3b2ed7c22ebe1",
+      "newGzipBytes": 1362040,
+      "newGzipSha256": "f680e51a092c0326ea212a9446ff13a6feda0aa5a6beafd63d9aa695b140c18d",
+      "savedBytes": 133354
+    },
+    {
+      "file": "6_3.minecraft.json.gz",
+      "gzipBytes": 1491946,
+      "gzipSha256": "790436552575830a7413a28e60be6449e50b8c1a8aefbc9f51ff4e5ac6e11b34",
+      "decodedBytes": 5475624,
+      "decodedSha256": "e9b84dc203006c721c3cee8d051c1fb958596eabfc925dc31ef069303d02b063",
+      "newGzipBytes": 1331878,
+      "newGzipSha256": "532ad667fe4893456605dbc30af179052b35cccbfac87d4b4f4ed71d80fd3dd4",
+      "savedBytes": 160068
+    },
+    {
+      "file": "-7_5.minecraft.json.gz",
+      "gzipBytes": 1478973,
+      "gzipSha256": "51461eb31152ef9c8a839b99e9d2ca8df0345a2716e0c19d77bd8ddc9388ad0f",
+      "decodedBytes": 5352256,
+      "decodedSha256": "443681a8a9b4e19ce09392915d32682901bb64f65632294bddb491dcb2613e72",
+      "newGzipBytes": 1318753,
+      "newGzipSha256": "7484bc3f74f001a22741b9ddd47f8ce2eee92cd5ddb1c4b965435962ac6a1aa8",
+      "savedBytes": 160220
+    },
+    {
+      "file": "5_1.minecraft.json.gz",
+      "gzipBytes": 1473300,
+      "gzipSha256": "1ea6d8955b738d40a060e16e13be4724009cd4670415d89e02c5a5641d0ed20f",
+      "decodedBytes": 4723301,
+      "decodedSha256": "8bc8f94f7b370856f8aea43d7f58ae83a7e85d9edf960683b2ce27b3fe45faa3",
+      "newGzipBytes": 1338053,
+      "newGzipSha256": "c84aab57ea4461052ea99d1d83fddeeacb28ea56f9b75b26e5c092fa63d0e1a0",
+      "savedBytes": 135247
+    },
+    {
+      "file": "3_1.drawn.json.gz",
+      "gzipBytes": 1454213,
+      "gzipSha256": "23686e39a828bc95b79bf68cf85b8044ae23e824eb0d8ff003820b408e964f2e",
+      "decodedBytes": 4864923,
+      "decodedSha256": "6491fceaff20f7de94a9316cb973dcd1c7d85d5e75aba2a8ec61b9265957455c",
+      "newGzipBytes": 1314272,
+      "newGzipSha256": "134ac2f9285df38c98bfaac90657df54f01e1777cbd28da56f75ceffb7be022b",
+      "savedBytes": 139941
+    },
+    {
+      "file": "-9_3.minecraft.json.gz",
+      "gzipBytes": 1454114,
+      "gzipSha256": "0bd3d3edea7aac66f7a5b88efdc9ac87b809ee5b9d39af853aa397dab5465f97",
+      "decodedBytes": 5276211,
+      "decodedSha256": "7c9cff6ee382f8946c7869327cd660923a705407c2797d1b1a561cf39e8fa133",
+      "newGzipBytes": 1296802,
+      "newGzipSha256": "006f1cfa76c1a32af3d166977068ebcdca1d055e2c74deb27eb3fb86b1d27064",
+      "savedBytes": 157312
+    },
+    {
+      "file": "4_-2.drawn.json.gz",
+      "gzipBytes": 1422892,
+      "gzipSha256": "36521684195c04e55ff6dc2709d45fc98543c0f33e46436be29138a97062ed9d",
+      "decodedBytes": 4457166,
+      "decodedSha256": "e1660edc9bfac6de71d749c9cf104093ce9b6b6729b2e2c2567b342dc16b7955",
+      "newGzipBytes": 1291103,
+      "newGzipSha256": "948bc3d823bb9740464738f2fec6d25b957cadd1af2169125d876f1c42cb801c",
+      "savedBytes": 131789
+    },
+    {
+      "file": "-7_6.minecraft.json.gz",
+      "gzipBytes": 1412659,
+      "gzipSha256": "742c1c650c0b89f3dc059cae00d22308101d0d7c43afbdb85c63d6c1e64ffb0b",
+      "decodedBytes": 5091377,
+      "decodedSha256": "5e3bb419b601c226e25aced4c8ec5fa7e39b85470ae78505017119b291a203cd",
+      "newGzipBytes": 1259942,
+      "newGzipSha256": "2da704e1f991c68e8be7120b960b493d8810002ebcab8469fb711afaa3beb6df",
+      "savedBytes": 152717
+    },
+    {
+      "file": "3_-2.drawn.json.gz",
+      "gzipBytes": 1410668,
+      "gzipSha256": "109fefc92cd092d56a53deb7a0da1213256c646908ad70ce0dd306ae744b7bea",
+      "decodedBytes": 4491118,
+      "decodedSha256": "7809a434b2fe6a567b7045a0aafdec42e69aed79963fbc58a6bf2412e4049fe6",
+      "newGzipBytes": 1275406,
+      "newGzipSha256": "e3314eed1c82764f2293ef2845959bb24f94ed051b1c7d33ce5724410366f48a",
+      "savedBytes": 135262
+    },
+    {
+      "file": "6_0.minecraft.json.gz",
+      "gzipBytes": 1383794,
+      "gzipSha256": "295f56b066f456dd83b51e7839ca8da70d18f1d75963e7d0c17c33f107813435",
+      "decodedBytes": 4485791,
+      "decodedSha256": "d7a32651e5861780dfe1d9eb0b130fdec37bea4dd0eda64d7574bec1639782da",
+      "newGzipBytes": 1247559,
+      "newGzipSha256": "f4b9c196f322df31f9b8b35182545898200a17fd41a30a67cc192dd3db0cb3f9",
+      "savedBytes": 136235
+    },
+    {
+      "file": "2_0.drawn.json.gz",
+      "gzipBytes": 1371196,
+      "gzipSha256": "28e97c11ce70587283808c08e5ccfe76f2c0067710593eb33e3280e3a289f5b7",
+      "decodedBytes": 4607941,
+      "decodedSha256": "424646a6bd1d4cff79d8d08c9b58a450f480af5a173526a67d32a34c31d39521",
+      "newGzipBytes": 1245384,
+      "newGzipSha256": "4bb3b0f2ba2a05e004a897d49b657c202e52f2fa9ddb5c8968614b7962940a99",
+      "savedBytes": 125812
+    },
+    {
+      "file": "1_0.drawn.json.gz",
+      "gzipBytes": 1328612,
+      "gzipSha256": "1388241619ab5f10ae7f9f378dcfeab0ba7f4a41c835b8121d1c00394c6e338f",
+      "decodedBytes": 4448216,
+      "decodedSha256": "ad50257596d4487d2f4cd129fad469e8a6e74be3f3221e06ed6c489e8c7a2eb6",
+      "newGzipBytes": 1202226,
+      "newGzipSha256": "a2b6da83ef69523186083a6a06bcff352e6b470cb19f55e4b40e9b46eaca12cf",
+      "savedBytes": 126386
+    },
+    {
+      "file": "1_1.drawn.json.gz",
+      "gzipBytes": 1326964,
+      "gzipSha256": "8d38affb715f2a2ac3deed2ca33c0099f3dcc4bd501529e73c27e96df3a55a7c",
+      "decodedBytes": 4397358,
+      "decodedSha256": "05a78d22dbfbd37f9d80755c05da2b98ffbe0e6fd2d3c2f758bb632794c1f68a",
+      "newGzipBytes": 1202446,
+      "newGzipSha256": "ba5eac2ae65cfd7b6e83ff823a70385e0093da06d63f60d08d4d51e38c964ef1",
+      "savedBytes": 124518
+    },
+    {
+      "file": "0_-4.drawn.json.gz",
+      "gzipBytes": 1315058,
+      "gzipSha256": "9c067d4a162fdc72461964775dae0e836f83a67e3dc12e5a70605a30c9b59956",
+      "decodedBytes": 4262327,
+      "decodedSha256": "101b8288e6993e5e01324af43aadbac2909dd8016623228593d83024b79e7ca1",
+      "newGzipBytes": 1198619,
+      "newGzipSha256": "b3d414e0152216e64ae09c1abcce22ac4a49b15fa2701509e6cf70f4ca283ca8",
+      "savedBytes": 116439
+    },
+    {
+      "file": "8_0.drawn.json.gz",
+      "gzipBytes": 1314826,
+      "gzipSha256": "ec312d89dc245b042e62f115fd6cc62cd255d7fbb9fd9c1d6b51d03452a4e27e",
+      "decodedBytes": 4202288,
+      "decodedSha256": "2b21b8298d4f056112e272b36d90289916115255a1ad9eb1af1b6d964ebd58f1",
+      "newGzipBytes": 1180100,
+      "newGzipSha256": "bc448664fa6a8406a17158206439afcdb021e1568f6512a85a5011e6c5dd02e0",
+      "savedBytes": 134726
+    },
+    {
+      "file": "7_4.minecraft.json.gz",
+      "gzipBytes": 1270539,
+      "gzipSha256": "4f7aedd91e40583afbe682b32e71a58259c8cd9cb653e3e7dc8512c0f3fe76cf",
+      "decodedBytes": 4753052,
+      "decodedSha256": "8f2a77d741f416b2bbaee6d70bc5ebb076444b1e504f6e3a832852531d761bad",
+      "newGzipBytes": 1132617,
+      "newGzipSha256": "5f38117fb7c8488a228fa4751f4604c3257b47b276ef31ed77a7a56940b1a517",
+      "savedBytes": 137922
+    },
+    {
+      "file": "6_-1.drawn.json.gz",
+      "gzipBytes": 1254483,
+      "gzipSha256": "64379d04b95fe711cd598b445ad001aca4abd277a068651157cdf4fc554471a3",
+      "decodedBytes": 4034730,
+      "decodedSha256": "5aa571cd41771f32de26d3df5c06f720c4286fe7dbc1a3d44904631951a79b25",
+      "newGzipBytes": 1132702,
+      "newGzipSha256": "1ee869be0500a8eaee328f6520fdc463425734f0e316a019b6ab74079e9e7cac",
+      "savedBytes": 121781
+    },
+    {
+      "file": "6_-1.minecraft.json.gz",
+      "gzipBytes": 1248548,
+      "gzipSha256": "710b20bee6428793545ff8e77bc28dcb1f4044933e8cb8e49c413ecb9f9fdd48",
+      "decodedBytes": 4072052,
+      "decodedSha256": "cab32eaad182832c47026387a43449630c43b9173ab4a21abd484ede983d7a8a",
+      "newGzipBytes": 1128356,
+      "newGzipSha256": "b06ac8907ce399ce9109b26223fdf7384f85a4370acd338648ac60fe48109665",
+      "savedBytes": 120192
+    },
+    {
+      "file": "2_-2.minecraft.json.gz",
+      "gzipBytes": 1242495,
+      "gzipSha256": "d191665f5b2229c5d6f98d5b8febb3e1fa1ba1ec205fa91346b802f2cd59cda3",
+      "decodedBytes": 4618503,
+      "decodedSha256": "42a58030426678c6b63e337d21e7a53cfc76a5dd72b876b863b237c31ee4905d",
+      "newGzipBytes": 1108235,
+      "newGzipSha256": "f063031a60c3b24c8c97813d88ae12f4336d7d43a036e21a23a67d1985a7ad72",
+      "savedBytes": 134260
+    },
+    {
+      "file": "1_6.minecraft.json.gz",
+      "gzipBytes": 1233589,
+      "gzipSha256": "4d707a0b4f34e42de9b78bd65f946fd931ce4b59dd8730b5d412fc97778e359f",
+      "decodedBytes": 4234013,
+      "decodedSha256": "2f1a3f00a8f0d9b49805ebc04bf1609b5b75393258bde7cd21c0f1831aed7531",
+      "newGzipBytes": 1117023,
+      "newGzipSha256": "9fcc144de33880d35bfe7aea1686c78a28a5f0a42afbde5b38b2486925a8a50d",
+      "savedBytes": 116566
+    },
+    {
+      "file": "-10_4.minecraft.json.gz",
+      "gzipBytes": 1231079,
+      "gzipSha256": "6ea98d320c26a6ccbcfe4fa46be0350fcb0fc535154d686d71bf499f5cbb1a9d",
+      "decodedBytes": 4464121,
+      "decodedSha256": "7cbdf5b235aed9868dbf360f5206c7ad7b1e7146576b03a84993ec1932b79bba",
+      "newGzipBytes": 1093574,
+      "newGzipSha256": "ae55fae32bdf8c7ecac6a86c278118ac23d17a31a3d4ddbffde372e577e2bc6b",
+      "savedBytes": 137505
+    },
+    {
+      "file": "2_2.drawn.json.gz",
+      "gzipBytes": 1230703,
+      "gzipSha256": "63350cbb3eed06365d50ccc572562939ad2b263aae5839847554e7f09692e9c3",
+      "decodedBytes": 4117796,
+      "decodedSha256": "ef43f838f53a993bfe026289a2b0e5cf07f9d0af6c9750fc73fee386b99c56c6",
+      "newGzipBytes": 1106861,
+      "newGzipSha256": "4bd8f586e4c8a99b73d910bb105323ac784a8e757027e62140bca23501646a43",
+      "savedBytes": 123842
+    },
+    {
+      "file": "4_-1.drawn.json.gz",
+      "gzipBytes": 1223937,
+      "gzipSha256": "d080bf466ec6c8abe232bed6bd99620be76b0cd2cda6bb623f8f7011dc344cf8",
+      "decodedBytes": 3929570,
+      "decodedSha256": "e1d6cb1e111a1433a7019adb8ac0ce26853e283f3b556a37cdc0a24ee769218c",
+      "newGzipBytes": 1100909,
+      "newGzipSha256": "1056f6acf40f5f27737087f468f74e22999ff39106a1f8cef27f66fba32e3729",
+      "savedBytes": 123028
+    },
+    {
+      "file": "9_-2.minecraft.json.gz",
+      "gzipBytes": 1203611,
+      "gzipSha256": "64393b616e80dd3e0d70f5e5f18410d70a5769ea733c81dbfd1388f44913b5fc",
+      "decodedBytes": 4053682,
+      "decodedSha256": "92bc763ed4d7de832baca503ae1d884d77dc0a41a744380820e5ecc5bbb3129a",
+      "newGzipBytes": 1085164,
+      "newGzipSha256": "649de569969e7469716dc33e9adb9894ab6164b2f0e7f0652581c795bf334c5a",
+      "savedBytes": 118447
+    },
+    {
+      "file": "7_0.drawn.json.gz",
+      "gzipBytes": 1194275,
+      "gzipSha256": "6b2017e5617a647ec18306a84bbb99990c5d9395406e44d0b246ad0c65b38951",
+      "decodedBytes": 3794367,
+      "decodedSha256": "29101796401b8e618fe3a52fe91b1aee76cea90b19889b31460f5416b6b70cc0",
+      "newGzipBytes": 1070568,
+      "newGzipSha256": "e16c4a19010e192e8324d79b8776ddc6aedadb39b744cc469ddeec0f190d9755",
+      "savedBytes": 123707
+    },
+    {
+      "file": "2_-1.drawn.json.gz",
+      "gzipBytes": 1187621,
+      "gzipSha256": "5a8517886ee4343c86344339164732879c1d28254efceecf8705df37235c2c3a",
+      "decodedBytes": 3928926,
+      "decodedSha256": "03827c974d68799730fc78543bba6538157abd570b4c4bc1b4eeae36633495d3",
+      "newGzipBytes": 1070249,
+      "newGzipSha256": "72682f8d3fbc99b4e72811fba0667c76a791a3242984ab8700979ae0194acd51",
+      "savedBytes": 117372
+    },
+    {
+      "file": "5_3.drawn.json.gz",
+      "gzipBytes": 1138407,
+      "gzipSha256": "aa0b8ba6b419b543882ce9c9060235b10ab8cc507ba59521e27b1052c19d5c67",
+      "decodedBytes": 3572919,
+      "decodedSha256": "b98756b745a3239e2f236008d2325cbc73139fdbc79dd4fc0a2d989e8b170e98",
+      "newGzipBytes": 1028019,
+      "newGzipSha256": "511da697a0c8529a5da9a7a64abaf9a8573aab6cd824a2d2b1a8a021ac2b5129",
+      "savedBytes": 110388
+    },
+    {
+      "file": "8_0.minecraft.json.gz",
+      "gzipBytes": 1138304,
+      "gzipSha256": "30494f9c9d0db0d6d0e8a856bd3b16163bb7e44db0cda1827727dbc335d07040",
+      "decodedBytes": 4133321,
+      "decodedSha256": "e6e095cc226309b098b8f85573d8bd2be7e73f26c6b24f6419cff741c41fbe34",
+      "newGzipBytes": 1015778,
+      "newGzipSha256": "c2d91ee07b4004eeab48a0e59b6746c5c2645fd1102e277dcda24b16fded61ef",
+      "savedBytes": 122526
+    },
+    {
+      "file": "5_-1.drawn.json.gz",
+      "gzipBytes": 1134522,
+      "gzipSha256": "22a27e63a593c44276d7c1f8a41238c6aab83a668c3f345a7196f5eeb83497d1",
+      "decodedBytes": 3610610,
+      "decodedSha256": "72425916adaaa0b89412e83823020056d3bb7daaf8492e570b119d1c0885ecca",
+      "newGzipBytes": 1021338,
+      "newGzipSha256": "591eba555fdc5a00bd04220f53ed0fbf262b68ac2fea4db19bb790da1db689c2",
+      "savedBytes": 113184
+    },
+    {
+      "file": "7_0.minecraft.json.gz",
+      "gzipBytes": 1122865,
+      "gzipSha256": "876517fdb213026306d4500bdebf1d3cc832ee8e895e47005271e9d7496b74fa",
+      "decodedBytes": 3952806,
+      "decodedSha256": "04864aff6816e52016b43958f55bb108e0daab3095bb176bfa9096b2e43bc736",
+      "newGzipBytes": 1004670,
+      "newGzipSha256": "64866e64b29a000cd98dc2054e362871137464c794ca0b903f2b8a776fd020c8",
+      "savedBytes": 118195
+    },
+    {
+      "file": "2_1.drawn.json.gz",
+      "gzipBytes": 1117079,
+      "gzipSha256": "dcd1e1d922e6ee1e50296b123e704a25cdf1e0f4405334496ee46c3f670d6856",
+      "decodedBytes": 3761715,
+      "decodedSha256": "15106ac508457317dae3edc8d337c7d6e53a189b476fec5bd855056d368c17c8",
+      "newGzipBytes": 1012489,
+      "newGzipSha256": "d7ef9fe4febdca21898c70d9910e4e1745ae8b803b80b6838437eabbee5b8f9c",
+      "savedBytes": 104590
+    },
+    {
+      "file": "7_2.minecraft.json.gz",
+      "gzipBytes": 1099040,
+      "gzipSha256": "2c6afa94942007dce711b1ea88415b6289c9781d024dd96a15458de068857f69",
+      "decodedBytes": 3775772,
+      "decodedSha256": "12c85a264a557924e1cbf3122a40b8e8262b77fe4df070a893422cdcfd84abb5",
+      "newGzipBytes": 987554,
+      "newGzipSha256": "5eb2aac0649a10ac385359ad87eaa17ffb4ab02d9022548d5d3cdc43e53bc8ff",
+      "savedBytes": 111486
+    },
+    {
+      "file": "3_-2.minecraft.json.gz",
+      "gzipBytes": 1097873,
+      "gzipSha256": "bbe4b68c02140878e57dc455876107a953337f17e7211ce6d78356521ba70f1a",
+      "decodedBytes": 4150982,
+      "decodedSha256": "0ac89e9038148157d9f82116ed6a1945c05da71b752f4628c1c72a03cf808f80",
+      "newGzipBytes": 980291,
+      "newGzipSha256": "27cc8711a9b47ec4fa8cde8301761a0c4fd4f3e0ab472a10de674433eb49fd1a",
+      "savedBytes": 117582
+    },
+    {
+      "file": "9_0.drawn.json.gz",
+      "gzipBytes": 1090660,
+      "gzipSha256": "b843e1dfd6589b0e87936b3c6d66273d7b993730e53a7d5aeaada58b6a9b7887",
+      "decodedBytes": 3472559,
+      "decodedSha256": "5ebe2eaa52e87cd8932931fd6bbb9a0f002e6af86bd02417fd917e80c12032ed",
+      "newGzipBytes": 977653,
+      "newGzipSha256": "776266432cf86507e3847c91107e960b2d36a9f0302383e104e0fbe07b703142",
+      "savedBytes": 113007
+    },
+    {
+      "file": "5_0.minecraft.json.gz",
+      "gzipBytes": 1080961,
+      "gzipSha256": "f329ed0770d887dcbe43adf5b129df2b3262899f001c7937ea5f61141ba88aa3",
+      "decodedBytes": 3397057,
+      "decodedSha256": "78308722a2eaacc5c38e249bbed938d05d4f493d31573686f9a27f76851c0600",
+      "newGzipBytes": 980931,
+      "newGzipSha256": "ad3dcc5fd6c95ec315a62380a36ab0cc1cce6d9e3032589c5ff9cce83c751ae1",
+      "savedBytes": 100030
+    },
+    {
+      "file": "1_-1.drawn.json.gz",
+      "gzipBytes": 1075553,
+      "gzipSha256": "c99e4dcbfc8056781f6f5b4c945d42c80885a262dfe10edf4f5ebc83ff152032",
+      "decodedBytes": 3596608,
+      "decodedSha256": "01359e86218498ca2b4cd1fa707c56c96efa1b2e11c95f6d37aaafa07a9aafd4",
+      "newGzipBytes": 974710,
+      "newGzipSha256": "3ad11acd43e85f4928871a7ad0cefeafa956ee8168b1016401df9d6baad7f2b3",
+      "savedBytes": 100843
+    },
+    {
+      "file": "6_4.drawn.json.gz",
+      "gzipBytes": 1068236,
+      "gzipSha256": "e2601a7b84455825229f0507557e996c1d02afc5744efd6b8569acee8c46b339",
+      "decodedBytes": 3362124,
+      "decodedSha256": "0b2b5435f06f4f525b288be8c9acebc2155504975adc5fe8532790d98911aa19",
+      "newGzipBytes": 969446,
+      "newGzipSha256": "f8cb31c723b1b20f971acc96b6a1fe1f649e47f7d0eb69c262671bb16e9d2609",
+      "savedBytes": 98790
+    },
+    {
+      "file": "8_-3.minecraft.json.gz",
+      "gzipBytes": 1061491,
+      "gzipSha256": "ce74ace5870385b6a157102796e02865a9e353dec9df892b9182473ebad37e0e",
+      "decodedBytes": 3895265,
+      "decodedSha256": "7ea8990b4149393605290263efac00fa1e7ec434ca9cebc06b842c22f338b968",
+      "newGzipBytes": 953913,
+      "newGzipSha256": "71223b34e21f6cb9b33607a555989d5da5bb6655803757a81470a9efbcf000fc",
+      "savedBytes": 107578
+    },
+    {
+      "file": "0_6.minecraft.json.gz",
+      "gzipBytes": 1057318,
+      "gzipSha256": "cdf94d4807c0515f24b7307928fa2abed52622c41a360c398c0eb400c84902c5",
+      "decodedBytes": 3587409,
+      "decodedSha256": "1c135f424bf378f5a53306f80273e0c3e3f34c66d1c195bf3e44b5b9f042cdcf",
+      "newGzipBytes": 954913,
+      "newGzipSha256": "c159b46e6e795ad27f82b92cd01d79c44b819b73bb634dbf6a7fac9b69f1ef21",
+      "savedBytes": 102405
+    },
+    {
+      "file": "7_3.minecraft.json.gz",
+      "gzipBytes": 1025553,
+      "gzipSha256": "aeef54684d6ebbcb850d47a7a191efe70aa12fb7be4b132f856a0b32830f59f7",
+      "decodedBytes": 3856385,
+      "decodedSha256": "36ebd92b795cbd3c0cce9655dcbbfbdf646adf5a93c1e7deaf613e9a664e8ec1",
+      "newGzipBytes": 913742,
+      "newGzipSha256": "afa0a6d71c15e38d8d66963f0d23c8ede81369adb8fc3dec936e8b3c412eaab4",
+      "savedBytes": 111811
+    },
+    {
+      "file": "9_0.minecraft.json.gz",
+      "gzipBytes": 1024150,
+      "gzipSha256": "069ed0ae15f39e2c3591bd732677160eff5e2b203372fb0c45525ccd4100c4ee",
+      "decodedBytes": 3751365,
+      "decodedSha256": "951934aeec4d22e9e073304a021f705a4e25799815b8ac24c4235cb33ca5ab04",
+      "newGzipBytes": 910343,
+      "newGzipSha256": "815d84a447e70e888ab2238fb858a465f246d6a007a443b93d6dd48ccfa237e9",
+      "savedBytes": 113807
+    },
+    {
+      "file": "9_-3.minecraft.json.gz",
+      "gzipBytes": 1019654,
+      "gzipSha256": "49d32e0239571e5e6d95f94521711a70db0c29fd3fc71e841dd94ae871abe544",
+      "decodedBytes": 3546361,
+      "decodedSha256": "9cec6213714da7c0f6d7353035f81086bad078f82473ffa94d0dddae0627c97d",
+      "newGzipBytes": 919502,
+      "newGzipSha256": "6520af49dc75915a1fb4ace495d7af69f37a5da774e3d51eb061d0dddfd328e9",
+      "savedBytes": 100152
+    },
+    {
+      "file": "10_0.drawn.json.gz",
+      "gzipBytes": 1009262,
+      "gzipSha256": "41c912a3132e6e0880954a5e83c43f3772bfbb1b252209029dabba181cb36948",
+      "decodedBytes": 3218734,
+      "decodedSha256": "dfb1ac918abe14e3b3492fc92c876a8cee96c6e156bb9a30864bae49b217b493",
+      "newGzipBytes": 905325,
+      "newGzipSha256": "c5a847ea85fcb55550cf920aa1955cb7890d0487a2f339fb9eee3779ea29a312",
+      "savedBytes": 103937
+    },
+    {
+      "file": "1_-4.drawn.json.gz",
+      "gzipBytes": 1008048,
+      "gzipSha256": "af19b318e5a79695634f82b4b76ad0bff319cead544b9ef18b9a5efe6f273485",
+      "decodedBytes": 3285418,
+      "decodedSha256": "20b14327de28ce465f3cf2b93aa966ad6b2dede5e556ceaaeb204d5feee020c9",
+      "newGzipBytes": 915176,
+      "newGzipSha256": "2f47af554d782c977defd8e60c01e320a51241df9affadadcd41d3aa02ca4cb3",
+      "savedBytes": 92872
+    },
+    {
+      "file": "4_-5.minecraft.json.gz",
+      "gzipBytes": 944620,
+      "gzipSha256": "9a6b7f00f14ad50a485c047aafb64a73938b9bbbe789f95ab311c5c9ad7f5a3d",
+      "decodedBytes": 3232112,
+      "decodedSha256": "81b4b69654ab54605f78984c26d49c9a84de0ad97a0c76446020c5e7e5f7d635",
+      "newGzipBytes": 846027,
+      "newGzipSha256": "40258c5230f263f3f0f5fed0e133ad3a34aefdfaeed6617e273af027491fa0c7",
+      "savedBytes": 98593
+    },
+    {
+      "file": "8_-1.minecraft.json.gz",
+      "gzipBytes": 938902,
+      "gzipSha256": "6b746f810ed4be1694485e3687e9410b48d00ee1120dc3b9aae222bdba43bf9e",
+      "decodedBytes": 3346828,
+      "decodedSha256": "f5b760931ed5721797db3200743fe6552782e825cc443036ef11af8276d72939",
+      "newGzipBytes": 847778,
+      "newGzipSha256": "20d9352f6aba9bc81e2a9e7de9d9adb6ffdcef2cc9cd7ed70f86d42914296c3e",
+      "savedBytes": 91124
+    },
+    {
+      "file": "1_-2.drawn.json.gz",
+      "gzipBytes": 938393,
+      "gzipSha256": "f38dbf500006b0f3a34f6111e52c1bf44c67e648a9e5d4b4fdcc670ca6fdd37f",
+      "decodedBytes": 3064045,
+      "decodedSha256": "b3e01cd4c19385eacec23b42fda9d4e6b417746af0a437a15a7aee0105d8742c",
+      "newGzipBytes": 851336,
+      "newGzipSha256": "b4e2bb93d93878071eb722398868d864cf2e3af0d53006be635b9cf03af21549",
+      "savedBytes": 87057
+    },
+    {
+      "file": "7_-3.minecraft.json.gz",
+      "gzipBytes": 935241,
+      "gzipSha256": "87fdb7464a98499ca6815108bcea4129b1b06ac30c606c582114336ea71c70c0",
+      "decodedBytes": 3506439,
+      "decodedSha256": "6db14b506abc4a6a8e713928a31c7bf505fedfc7143382b57b5ea82e77d748db",
+      "newGzipBytes": 838745,
+      "newGzipSha256": "46fc69d1184a922f8c5d8d90a179aaf24fa6a2fa7bb9c9a8ca24f44c5b1df2f9",
+      "savedBytes": 96496
+    },
+    {
+      "file": "3_2.drawn.json.gz",
+      "gzipBytes": 934881,
+      "gzipSha256": "809a9e2f49f9eaafde428cfabf1f4b098cb2137a658af9bf930ad722b1ca6670",
+      "decodedBytes": 3107376,
+      "decodedSha256": "ec9adfeed253df256cc0b93d16279e8d3c2263f217d4e40f58631ac9c5d4fb77",
+      "newGzipBytes": 839194,
+      "newGzipSha256": "6d5eecb75502037bfa89d3f997190238fc7f904c8512cb9bbaa46039872b43c7",
+      "savedBytes": 95687
+    },
+    {
+      "file": "-12_4.minecraft.json.gz",
+      "gzipBytes": 933347,
+      "gzipSha256": "fcc88235e22e17e70f5cf4418cb57934c6fd6beaa63817d1ed0e9d87a4d4a7ed",
+      "decodedBytes": 3401969,
+      "decodedSha256": "c7ca36edab640f97b1ccb15b5e330632407ca9d611de056335de03c62b6a977f",
+      "newGzipBytes": 829943,
+      "newGzipSha256": "dc3529d8a6154b84a019d192c38cd11d4e64c7de39701ce5d3cb4be929eddf0d",
+      "savedBytes": 103404
+    },
+    {
+      "file": "10_0.minecraft.json.gz",
+      "gzipBytes": 928003,
+      "gzipSha256": "7e37ef4e08be2da813c5af9117b3fc6013fd0ae8771c1d1eb591ae77af0cfac0",
+      "decodedBytes": 3403806,
+      "decodedSha256": "3b907bf555531120ad2c0ec9db3efc2e97d7a5cd00a19953c851d7b39b5f4277",
+      "newGzipBytes": 824212,
+      "newGzipSha256": "82b9a2c087b6156222eadf197771c38f16b306f3163fc568454d425fc1338b9e",
+      "savedBytes": 103791
+    },
+    {
+      "file": "4_-5.drawn.json.gz",
+      "gzipBytes": 925952,
+      "gzipSha256": "087cefd5d668460df2e9594540d324846b817bc5def8eab33a34cebdb39f0d03",
+      "decodedBytes": 2974703,
+      "decodedSha256": "66410e13e37ed55b4858b3fa740b4b0b990c54d540ff503762e1e8cc27be9f25",
+      "newGzipBytes": 838153,
+      "newGzipSha256": "fc6360d39c033a7ed68ca5a0c6947043bdb7ff335d7d85f43fba13038f982a23",
+      "savedBytes": 87799
+    },
+    {
+      "file": "6_3.drawn.json.gz",
+      "gzipBytes": 908635,
+      "gzipSha256": "9251c9acaabc1c4d8373abb0f04f0e3329076d3d0ad455fd8dec86d0822ce4b3",
+      "decodedBytes": 2877202,
+      "decodedSha256": "1a3bb7f947e3706a1d4693ef7c49fe6cef0c2a0d12cfa8cfc8af99c1609086f8",
+      "newGzipBytes": 823488,
+      "newGzipSha256": "8b8301ba313882bf506e25e09e9f75ae14925e1edb84e818fbf1a3c871376d7c",
+      "savedBytes": 85147
+    },
+    {
+      "file": "7_-1.minecraft.json.gz",
+      "gzipBytes": 892852,
+      "gzipSha256": "305b9104b066b8392d5e6ec9f49513540d6c57df7419f87ffd11d1ca670df061",
+      "decodedBytes": 3055743,
+      "decodedSha256": "8eb78cb9bd10e780d9a4c9440accb29f132dd51f4e169d74644972f5b850dc91",
+      "newGzipBytes": 800266,
+      "newGzipSha256": "b40cf1da908e9e4050d43af56578331f5ffc43cc169eb5113b5b0529059a95dc",
+      "savedBytes": 92586
+    },
+    {
+      "file": "4_2.drawn.json.gz",
+      "gzipBytes": 886082,
+      "gzipSha256": "2ce9ac676fd53335f942c1f5684473cd3752037a89541236183138bfabec5167",
+      "decodedBytes": 2849868,
+      "decodedSha256": "b542c66a8c7acd46694ffe81c82bb0000df3bd2b670d89506d9febde0938d9c2",
+      "newGzipBytes": 801233,
+      "newGzipSha256": "d2c8637b890f5bdaaa726ed0e0ce346a198c6d5afe85a5f2a40b4268d5b7fe95",
+      "savedBytes": 84849
+    },
+    {
+      "file": "7_2.drawn.json.gz",
+      "gzipBytes": 855539,
+      "gzipSha256": "8269e6e07c01047c324cdbba4645395785c693ccba639c410e771af7113eea30",
+      "decodedBytes": 2720276,
+      "decodedSha256": "0376bc41179e2e670211cfb2690d50aabf64d61fa6d9503954b97d006ce1328f",
+      "newGzipBytes": 768241,
+      "newGzipSha256": "abd8dc5abbb0d29f35f51b19285ca2fdd7e2be79b61bb35283c1c9c8787d5da4",
+      "savedBytes": 87298
+    },
+    {
+      "file": "4_-3-weinberg-v176-1.minecraft.json.gz",
+      "gzipBytes": 848848,
+      "gzipSha256": "846271425e090a808a7ad02e91ff5e0c3f1662f5264ddad1a61394fc5fe8d43a",
+      "decodedBytes": 2688945,
+      "decodedSha256": "118130950cde4a78240f63b9d3c96bfb604391e611868b1e0a9b20cc2074beb8",
+      "newGzipBytes": 772513,
+      "newGzipSha256": "26987927320f50ddcf7fcba83ec3586df261d9c7faa2afdf153acc4e469bfd62",
+      "savedBytes": 76335
+    },
+    {
+      "file": "4_0.drawn.json.gz",
+      "gzipBytes": 834676,
+      "gzipSha256": "2e510fb93c51cd6e4ac42c1d912a6e62a27752fe557f70f519b6a9af5d9f9e3c",
+      "decodedBytes": 2660077,
+      "decodedSha256": "4c8880fb23b92ecfebd6f8ea3b7f72ddf443eeb7ffd93e668f89dbd0c1b8fe66",
+      "newGzipBytes": 754218,
+      "newGzipSha256": "ef331382da9f41c0ef99013bda475a08214d6f926a936770e939f5259341968b",
+      "savedBytes": 80458
+    },
+    {
+      "file": "5_-1.minecraft.json.gz",
+      "gzipBytes": 805078,
+      "gzipSha256": "5a2522cadfb4754dee24cdc5aeef8f37e2aa93a6b59916dc958baa98eb0bf419",
+      "decodedBytes": 2578431,
+      "decodedSha256": "08758ce65fed723de980de5033fb4aa3d7e059f246b5f3bb5fe3bf29f3b05eb6",
+      "newGzipBytes": 723596,
+      "newGzipSha256": "8f70cb027fa21b8f342c7dc701545de7a31a275802070630374ec853488f923a",
+      "savedBytes": 81482
+    },
+    {
+      "file": "-8_3.minecraft.json.gz",
+      "gzipBytes": 780394,
+      "gzipSha256": "5c5354b6d90d5d318a62be5e229ab2590dc4163df516c3cab2fb548d265eddbe",
+      "decodedBytes": 2858612,
+      "decodedSha256": "7df11402aa1a27b769dbcc840d6f5b4c82ea72f58ab1b82322eb54cbe0185a69",
+      "newGzipBytes": 697003,
+      "newGzipSha256": "b9a1bb4a089e25591deefb71992e9647f28cf9108bc4ea5230e07c01b2407992",
+      "savedBytes": 83391
+    },
+    {
+      "file": "nikolai239-4_0.minecraft.json.gz",
+      "gzipBytes": 767068,
+      "gzipSha256": "73c634246512d52ee17f609cd0ede3c386c8bf1964398cf2d2e820a0e04bcefd",
+      "decodedBytes": 3184295,
+      "decodedSha256": "96723f64be49f2395a8fde4165c7b7bb17cd3aa07b6b9cce04de7d272470804d",
+      "newGzipBytes": 689497,
+      "newGzipSha256": "f0f9d8523da0528785ccb2fee96f5a0f9148c6d00de0cda5171290024d16e78e",
+      "savedBytes": 77571
+    },
+    {
+      "file": "northfront239-4_-3.minecraft.json.gz",
+      "gzipBytes": 762878,
+      "gzipSha256": "f4d8ab281d8541f8d62a220ee2d3553340ebf53688326f937f58c478ee390003",
+      "decodedBytes": 3194099,
+      "decodedSha256": "45b613fcff6b58e343103454744ce9464ae9c203a81f0335a2630ecd5ac0f9b3",
+      "newGzipBytes": 680386,
+      "newGzipSha256": "68e925aa4b3e51126d103f93e3fbf6cf0fe2b37ffde85a581c1a4cacdc72db68",
+      "savedBytes": 82492
+    },
+    {
+      "file": "-6_4.minecraft.json.gz",
+      "gzipBytes": 755373,
+      "gzipSha256": "27dd5a9bbde84ed44884e3fd57a9d130a0b4b295cfc0df2188cf0b37cd50d8ff",
+      "decodedBytes": 2778442,
+      "decodedSha256": "165fbed4c902ed7fb2936e54e8d1ae86795f664605429ec31b3ba8b27a8e8dfa",
+      "newGzipBytes": 670488,
+      "newGzipSha256": "a266e300193824822699ed2472ac02e8b96a47515e558dcf115a5f247249cf3e",
+      "savedBytes": 84885
+    },
+    {
+      "file": "0_7.minecraft.json.gz",
+      "gzipBytes": 746496,
+      "gzipSha256": "a960264a44d0bf10b7c47e7e5bb09766858832d41b36b5d548458bb1e59aa87c",
+      "decodedBytes": 2610821,
+      "decodedSha256": "19a35b76f1fd4fe6b2e7edf9226b9e02ced77e519408455be417d468bed26bde",
+      "newGzipBytes": 666304,
+      "newGzipSha256": "5e5d96fb1e9f61b5675f340246475af2cc776bf3837b74dda74dd0f5620358dd",
+      "savedBytes": 80192
+    },
+    {
+      "file": "3_-5.minecraft.json.gz",
+      "gzipBytes": 739233,
+      "gzipSha256": "0aa827503b8952fe4aefd6248eb84b957a5ae94fd8aa149c17fe1c7d92bcf3ba",
+      "decodedBytes": 2649552,
+      "decodedSha256": "a78f588a09e2a145438dbc11811b0a4e4280892041c37ba319eb0e998736d77d",
+      "newGzipBytes": 657745,
+      "newGzipSha256": "04f6b60eb04c8b4584b9b6daa158e3d05b641f045e9de2961ba8876d84bd5ecb",
+      "savedBytes": 81488
+    },
+    {
+      "file": "7_-1.drawn.json.gz",
+      "gzipBytes": 725065,
+      "gzipSha256": "ee1232756fe0001396673458bd90fdaa2b38a1048d526341bb1ae7171c03b133",
+      "decodedBytes": 2309795,
+      "decodedSha256": "e5b63f0869c58c150cc87cea1f43760cc0896f6a484cf9b15dd91d332e5052be",
+      "newGzipBytes": 657347,
+      "newGzipSha256": "5e7f5746c213f33f724ac64b2ca94586b107a5f996ef3c1129c325e2d0ed718e",
+      "savedBytes": 67718
+    },
+    {
+      "file": "4_1.minecraft.json.gz",
+      "gzipBytes": 721933,
+      "gzipSha256": "94d61e3986682996e44c547856ffabbc86607026ee15c123516e69386f19ea4e",
+      "decodedBytes": 2325742,
+      "decodedSha256": "51eb997c74ae4ba0cc2e14577f70b23572421cde1bc328d3ec0df7107ee5f8d1",
+      "newGzipBytes": 651260,
+      "newGzipSha256": "f867167841c37ccd0dda0543c40a7f6a8d50d78fc840f0f234579a5a43083731",
+      "savedBytes": 70673
+    },
+    {
+      "file": "-7_4.drawn.json.gz",
+      "gzipBytes": 720825,
+      "gzipSha256": "5d62cffa8646e82fd6bab56cf4b30fb7b5ed4e101bb1852595e1a372073556d7",
+      "decodedBytes": 2303315,
+      "decodedSha256": "fcb92a397ce7d2bd0549aca1da85e2252e32e7fd1f4b6647f998554cea5456a2",
+      "newGzipBytes": 652664,
+      "newGzipSha256": "efe595fd4287fce78a7c0e6d44ef7e5841651c03a073c01d33a66ce77ee1bf8c",
+      "savedBytes": 68161
+    },
+    {
+      "file": "7_4.drawn.json.gz",
+      "gzipBytes": 715848,
+      "gzipSha256": "512026a777eef146dfd2040a31294d41b2740d8ee0cebce9d1b56e9a214e726f",
+      "decodedBytes": 2279084,
+      "decodedSha256": "915c3f4ad380ca7660796831af1165c2acdeacacb2f389f3fff4bc5fd42f3899",
+      "newGzipBytes": 649802,
+      "newGzipSha256": "f6ce798ce0d2b9942a0a4f0a6d896fa60bd9ef127df189bbe9d0dc25b19e25af",
+      "savedBytes": 66046
+    },
+    {
+      "file": "southrail238-0_4.minecraft.json.gz",
+      "gzipBytes": 710759,
+      "gzipSha256": "e0ba90921359c9941dbe2123a68e45732e9f3f0d531136fda271b5a381bf0965",
+      "decodedBytes": 2940500,
+      "decodedSha256": "baaa0f8dd434d308e82dad47ce1c46b111b3c3ec33e07493ae99944abd17ae88",
+      "newGzipBytes": 629841,
+      "newGzipSha256": "b3abf146eb6317725b454723dc5810329785edfb64b50498ae346aafd2a431fa",
+      "savedBytes": 80918
+    },
+    {
+      "file": "0_-3.drawn.json.gz",
+      "gzipBytes": 695251,
+      "gzipSha256": "906338f1f2263b824770b9c525e201969e9e3482f06ed7a83c6cf56a4ad96299",
+      "decodedBytes": 2251531,
+      "decodedSha256": "dfe6e052d0fa02cb93dc936d54bf7e0e1139c312e7a65388429bd11d2ce386c8",
+      "newGzipBytes": 630594,
+      "newGzipSha256": "fe92a06de63b98a69f536c9e4f74ebfc8f5941fd813035702a9c9993605d0530",
+      "savedBytes": 64657
+    },
+    {
+      "file": "3_-5.drawn.json.gz",
+      "gzipBytes": 695155,
+      "gzipSha256": "391590e1d0eb4ec81590d4975f74e5e9a453d2709a8c90d5bf75ff6f242685a2",
+      "decodedBytes": 2239446,
+      "decodedSha256": "06627309d47cc0536438b8875d8682714580e74fd0ff4b950faf58e20d0f7318",
+      "newGzipBytes": 630345,
+      "newGzipSha256": "40237bc9db38dd2305e7a18f3ecb65a38d126554a9d564006a6cdfd340154958",
+      "savedBytes": 64810
+    },
+    {
+      "file": "1_7.minecraft.json.gz",
+      "gzipBytes": 679143,
+      "gzipSha256": "62b3759d95842f9ba1c041e733735ad82b22f0fbe08a4ceef4200108515a041a",
+      "decodedBytes": 2448359,
+      "decodedSha256": "da0a2593aa485b5fa54a36cb8a2fa4e53e7b02d282d1369261db7451f8c4008d",
+      "newGzipBytes": 602939,
+      "newGzipSha256": "84c053a01d2aa1bbd24249612dffcda8ae591104946af01b614dd1476257dbbf",
+      "savedBytes": 76204
+    },
+    {
+      "file": "northfront239-5_-2.minecraft.json.gz",
+      "gzipBytes": 671230,
+      "gzipSha256": "66011d5d8639ef84faa0b8bf7e5d277eee4f2fa2f490283be90857d4e94491a3",
+      "decodedBytes": 2774215,
+      "decodedSha256": "157da3d206019f67aae686f6a63cd5d619bc1ad356e970936191e6c19ce1a2d8",
+      "newGzipBytes": 597291,
+      "newGzipSha256": "8a54236de69bc4c91fe01806597e277bddfaba806324330fbb2ea52da83b851d",
+      "savedBytes": 73939
+    },
+    {
+      "file": "6_-2.minecraft.json.gz",
+      "gzipBytes": 670623,
+      "gzipSha256": "d0f4c2bf0643cd03680df22c25207b046cc184343181da8fa4a95dcb9fe7d2a8",
+      "decodedBytes": 2353134,
+      "decodedSha256": "b9253b7f0bc7a566c87381286bfbfa9581a80fbe0fcf66ecf29df90b991cdfc6",
+      "newGzipBytes": 593601,
+      "newGzipSha256": "c8ae16034387a6cfb21c43c8ab79c675f32efde2795284bfc51e9a17c3c9a421",
+      "savedBytes": 77022
+    },
+    {
+      "file": "4_-1.minecraft.json.gz",
+      "gzipBytes": 668736,
+      "gzipSha256": "5a5da66de2f9847e6b65e2fc486aae41d3611d95e7beb695563c8a31fc0454e7",
+      "decodedBytes": 2013034,
+      "decodedSha256": "bdc3639152eec5e5ae6367f5a8829b321f1946fc0bcbade5f7e5f8728618368c",
+      "newGzipBytes": 605848,
+      "newGzipSha256": "5964a5aa211b50c6c56fcb163b1def03b5304e3d108a2d5df15af5d6c11803fa",
+      "savedBytes": 62888
+    },
+    {
+      "file": "-6_3.minecraft.json.gz",
+      "gzipBytes": 664996,
+      "gzipSha256": "03b019584d2af24e818f969b106e0452cedc1ad2ee6adc4dc0b83f5141d1f693",
+      "decodedBytes": 2553878,
+      "decodedSha256": "ed82df075c8629b2c9d4cb2d10d06e27409e3eccd8ffb92423033d12d49e7013",
+      "newGzipBytes": 590579,
+      "newGzipSha256": "fb901a43286aed6d7342e14e5a9973e0378bdda0dc0c057d78cc37fb24cceea7",
+      "savedBytes": 74417
+    },
+    {
+      "file": "-9_4.minecraft.json.gz",
+      "gzipBytes": 662000,
+      "gzipSha256": "b960dee165e8c35e25eccae74f934e84d7b28796e0a0202244f7506b3ca48741",
+      "decodedBytes": 2476058,
+      "decodedSha256": "f9354e6a05565ffcde431fd04a21b42ec54f9e63d0a0a39a12ea0c0bb2f0f4d9",
+      "newGzipBytes": 585904,
+      "newGzipSha256": "ecc2dfe1811ee1a85a473e86b6cccaeac0f061320ab9e8736bc6ce777bba7200",
+      "savedBytes": 76096
+    },
+    {
+      "file": "5_-3.minecraft.json.gz",
+      "gzipBytes": 659264,
+      "gzipSha256": "744222bec42f609956e4d1b7688f8d9936bbf1bf6d43caa93a206fd86b510698",
+      "decodedBytes": 2618665,
+      "decodedSha256": "58115e5b3fddf6c2d85880a3d9ae225cee21f0865964e3bd16b7ed759506725d",
+      "newGzipBytes": 584761,
+      "newGzipSha256": "12a2641807e8c4ad443d7ddb594457a25ab59f5b26349a662738238f6a4a12a5",
+      "savedBytes": 74503
+    },
+    {
+      "file": "outer187--23_4.minecraft.json.gz",
+      "gzipBytes": 649854,
+      "gzipSha256": "0b3b32f38feb0830f70e507c548e312dc6e81c9947e187fde2b4493394b69776",
+      "decodedBytes": 1963324,
+      "decodedSha256": "df7356fda10845440962660b79d5402273dfca1d8f1d0bd7a74b06b8be7227b2",
+      "newGzipBytes": 596198,
+      "newGzipSha256": "07128b53ee550d49fc74de0d0f6a898b90eb387ce145c95666757e636bce7f68",
+      "savedBytes": 53656
+    },
+    {
+      "file": "outer187--19_15.minecraft.json.gz",
+      "gzipBytes": 648855,
+      "gzipSha256": "2786efc4995cf95f2d728108d940350485a578004443c425823d2617546ee160",
+      "decodedBytes": 2175754,
+      "decodedSha256": "d82c6a336adeb2fa84fae552fc609a65fb76a2f096126c4ab5a9aa9b3a051239",
+      "newGzipBytes": 591528,
+      "newGzipSha256": "7e5be5f39f23b837eb04c711e990605ee319a8f0cb8495c6a17d5d9c2ef19c13",
+      "savedBytes": 57327
+    },
+    {
+      "file": "4_0.minecraft.json.gz",
+      "gzipBytes": 648206,
+      "gzipSha256": "d0d66decc750338874cb3a686410df23560fe4a4314a415e22f0f8d381d5525f",
+      "decodedBytes": 2157833,
+      "decodedSha256": "13d3a76ddfa8ab30ec83c267b9108e482894fedb7db5e3f7e19c9caddff6ba21",
+      "newGzipBytes": 583846,
+      "newGzipSha256": "52085ae3efac701b41c278876569242f4b9c236171f71a2593d84cf9d41685f9",
+      "savedBytes": 64360
+    },
+    {
+      "file": "outer187--22_3.minecraft.json.gz",
+      "gzipBytes": 646992,
+      "gzipSha256": "defadb3c702ee6d1537b019170509cf3c109c0bae752c4bf94ac6c4973c37613",
+      "decodedBytes": 1886978,
+      "decodedSha256": "4e3084fc562e79f30a13fd8e1f91af8da7d47cf523adc15c47ae37df8fc7f865",
+      "newGzipBytes": 602816,
+      "newGzipSha256": "bdb0631bfbcad0027ac87505c61b390c39ec37ceccf7244300e79d763bb8a050",
+      "savedBytes": 44176
+    },
+    {
+      "file": "outer187--21_2.minecraft.json.gz",
+      "gzipBytes": 646990,
+      "gzipSha256": "1e7ca7d5cbc90180f6405dfd7f33c4672721b21206de35011bf98644ce098ccc",
+      "decodedBytes": 2050536,
+      "decodedSha256": "224dfb88094f071a39299343b3e83b8ea228468de0ef8a96c7d305708fb31686",
+      "newGzipBytes": 589175,
+      "newGzipSha256": "649ba94b16507865b36bac4928bdfd862ede00452118eaa80e5235ffe4db415e",
+      "savedBytes": 57815
+    },
+    {
+      "file": "outer187--24_12.minecraft.json.gz",
+      "gzipBytes": 646866,
+      "gzipSha256": "1a2a59c1e24dd9033fcb988ef733f06a7e69b107a7c14742cb9cf3f144cc2f39",
+      "decodedBytes": 2017594,
+      "decodedSha256": "92e065f22a6a5bafa6de94bf18e48443412382fc95d3c7136d071ecbbfce7b28",
+      "newGzipBytes": 589558,
+      "newGzipSha256": "a455815cd33afde14208e3d65dab9aa14e0d0e23908bb0c85ffe39ceea973a2f",
+      "savedBytes": 57308
+    },
+    {
+      "file": "-9_3.drawn.json.gz",
+      "gzipBytes": 644925,
+      "gzipSha256": "8f4ed8fbf07227e14fc0b81942901cd5263817d6c56049fcd479737ed0c64a36",
+      "decodedBytes": 2048842,
+      "decodedSha256": "a0fbacfa211585109d82ddf05bf9940aaa0d5daec5b78de9d1c5a94d0d585768",
+      "newGzipBytes": 585363,
+      "newGzipSha256": "13b706b50a025e7e2637ecc5f9bac02ccbc6da9d9e7b8985703c8681ba3af7cf",
+      "savedBytes": 59562
+    },
+    {
+      "file": "outer187--18_13.minecraft.json.gz",
+      "gzipBytes": 644207,
+      "gzipSha256": "ecbf9ee7de0898888b40218b10f488573ba732982e935ca2810ec498f7f84c03",
+      "decodedBytes": 1885248,
+      "decodedSha256": "8e6ba0ae382b634ad5f7e4b0d9f250633a75642cc825c468cc815afce299a002",
+      "newGzipBytes": 601323,
+      "newGzipSha256": "08d4996b959e4d1d071e9aa64288438c8ff0ab887b0da7f6a91c078eff55addc",
+      "savedBytes": 42884
+    },
+    {
+      "file": "outer187--19_8.minecraft.json.gz",
+      "gzipBytes": 642695,
+      "gzipSha256": "ded71cdcdd0d288b1b5ce9b71d646b2a0fe5d96714e1a3a4590aba49e7cd14fe",
+      "decodedBytes": 2028626,
+      "decodedSha256": "3e917b0bf8705a3735edbe790f08af4e91adb7de88b0935172b9064716548764",
+      "newGzipBytes": 581738,
+      "newGzipSha256": "989de57090fdf4739bbd74b38a6bddd92d06e7fb091675d34da8357e83364fd4",
+      "savedBytes": 60957
+    },
+    {
+      "file": "outer187--19_5.minecraft.json.gz",
+      "gzipBytes": 642445,
+      "gzipSha256": "64d9840886ca594847a2f121e6806ff2a2eda2473aed627baf3354155be88e4b",
+      "decodedBytes": 2048148,
+      "decodedSha256": "020ba444685da1e77f456f905168bfcb611a6c2706e5ae96d735a8113a6bbf37",
+      "newGzipBytes": 584215,
+      "newGzipSha256": "e9cc2989191bd97fbe3d6477c9dd52bae0610e7851d1016578d5fde654c30c69",
+      "savedBytes": 58230
+    }
+  ]
+}

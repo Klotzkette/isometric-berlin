@@ -104,6 +104,9 @@ def normalize_elevated_additions(
   from scripts.integrate_mitte_v239 import normalize_mitte_additions
 
   current = normalize_mitte_additions(current, reader)
+  from scripts.historical_asset_reader_v194 import manifest_asset_reader_v194
+
+  reader = manifest_asset_reader_v194(current, reader)
   if "elevatedVenuesV238" not in current:
     assert not any(c["id"].startswith(PREFIXES) for c in current["chunks"])
     return current

@@ -13,6 +13,7 @@ from shapely.ops import unary_union
 from isometric_berlin.data.fetch_lod2 import leaf_building_parts
 from scripts.build_bebelplatz_building_source import extract_parent, part_profile
 from scripts.build_breitscheid_towers_v161 import triangles_for
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -41,7 +42,10 @@ def signature(points):
 
 def test_every_original_part_and_sheet_is_retained_and_drawn():
   for name, expected in EVIDENCE["inputs"].items():
-    assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(ROOT / name, expected)).hexdigest()
+      == expected
+    )
   parent = extract_parent(
     ROOT / "geo_data/regierungsviertel/raw/lod2/LoD2_393_5817.zip", EVIDENCE["owner"]
   )

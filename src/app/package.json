@@ -1,7 +1,7 @@
 {
   "name": "isometric-berlin-viewer",
   "private": true,
-  "version": "1.0.193",
+  "version": "1.0.194",
   "type": "module",
   "scripts": {
     "benchmark:minecraft-world": "bun scripts/benchmark-minecraft-world.ts",

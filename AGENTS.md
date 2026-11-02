@@ -2315,3 +2315,28 @@ independent orthogonal native geometry, 93 tour stops, six modes and unchanged
 startup/Worker/residency/decode/prefetch/package limits. One internal browser
 city view at a time; preserve the prior v192 package by same-filesystem rename
 when final build inputs are frozen, without redundant large copies.
+
+
+### Step 10 — v300–v302 ordinary neighbourhood houses
+
+The owner's November request authorizes a source-supported architectural pass
+for Moabit, Mitte, the Karl-Marx-Allee hinterland, Friedrichshain, Kreuzberg,
+Schöneberg and streets behind Kurfürstendamm/Kantstraße. Within existing source
+coverage, complete official families may replace only exact proved active low
+OSM fallback owners after complete drawn/native models and matching navigation
+are attached. Retain every original record, complete wall/roof/court sheets,
+all unrelated details and all runtime/package limits. Correct measured Lehrter
+bodies remain; only their exact actual-constructor street-fitting receipts may
+yield. Ambiguous Tucholskystraße 38 remains unchanged. Do not mistake already
+suppressed master-prism evidence for an active low fallback.
+
+Finite ordinary-front packet transactions require full raw mesh, nav and line
+receipts, complete new fittings before precise old fitting retirement, unchanged
+body/roof complements and the same serial cancellation/publication lifetime.
+Core-dependent West fittings require complete live Core admission and must be
+revoked/reloaded with that admission. Construction recipes are weak per tile;
+small eager indices and ownership/navigation objects remain strong. All native
+members are independently cardinal, with actual stepped roof navigation. Small
+unmeasured window dimensions and back/court rhythms remain explicit estimates.
+The separate finite v194 gzip audit changes only 96 wire encodings after exact
+full-byte decompression proofs; no new runtime codec or source reduction.

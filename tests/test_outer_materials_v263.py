@@ -1,6 +1,7 @@
 """Replay bounded v263 source evidence and exact colour-only ownership."""
 
 import base64
+import hashlib
 from collections import defaultdict
 
 import numpy as np
@@ -9,6 +10,7 @@ from shapely.geometry import Polygon, shape
 from shapely.ops import unary_union
 
 from scripts import build_outer_materials_v263 as build
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 
 def test_receipts_replay_original_generic_surfaces_without_old_owner_overrides():
@@ -24,7 +26,10 @@ def test_receipts_replay_original_generic_surfaces_without_old_owner_overrides()
   counts = defaultdict(int)
   for asset in evidence["assets"]:
     path = build.OUT / asset["url"]
-    assert build.appearance.digest(path) == asset["sha256"]
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(path, asset["sha256"])).hexdigest()
+      == asset["sha256"]
+    )
     packet = build.base.read_json(path)
     family = "minecraft" if ".minecraft." in path.name else "drawn"
     tile = path.name.removesuffix(f".{family}.json.gz")
@@ -57,7 +62,12 @@ def test_complete_owner_footprints_match_retained_observations_and_source_priori
   records = {row["id"]: row for row in context["records"]}
   outlines = defaultdict(list)
   for asset in evidence["sourceAssets"]:
-    assert build.appearance.digest(build.OUT / asset["url"]) == asset["sha256"]
+    assert (
+      hashlib.sha256(
+        historical_asset_bytes_v194(build.OUT / asset["url"], asset["sha256"])
+      ).hexdigest()
+      == asset["sha256"]
+    )
     packet = build.base.read_json(build.OUT / asset["url"])
     ox, _, oz = packet["origin"]
     for row in packet["nav"]["buildings"]:

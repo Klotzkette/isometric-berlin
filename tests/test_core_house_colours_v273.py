@@ -3,10 +3,133 @@
 from __future__ import annotations
 
 import gzip
+import hashlib
+import io
 import json
+import subprocess
 from collections import defaultdict
+from pathlib import Path, PurePosixPath
 
 from scripts import build_core_house_colours_v273 as module
+
+PROTECTION_COMMIT = "8c91c81e4b592572abd087c7ca32a7749e740eb5"
+EVIDENCE_SHA256 = "af94c3a687fd6102e473350c345bf106a84ac8810c76fbf8e385010991764787"
+RUNTIME_SHA256 = "4f6384565300fbc08a4c1333d3300fd9fedd0b93532c545b225530ad6a8f5461"
+COMPILER_SHA256 = "fcb0cd4680e676d62863c2b30589388297ca6acbaa290ecb859f4547f31c8b79"
+
+
+class HistoricalProtectionFiles:
+  """Read-only finite Git view; run the original scan rather than copy its IDs.
+
+  This commit includes the evidenced v275 K0002RLM transfer and v277 refresh.
+  Later authored modules must not silently change that frozen compiler input.
+  Every historical file that contributes an ID still needs its complete old
+  SHA-256 receipt, and the complete resulting receipt list and ID union match.
+  """
+
+  def __init__(self) -> None:
+    self.files = set(
+      subprocess.check_output(
+        ["git", "ls-tree", "-r", "--name-only", PROTECTION_COMMIT], cwd=module.ROOT
+      )
+      .decode()
+      .splitlines()
+    )
+    self.process = subprocess.Popen(
+      ["git", "cat-file", "--batch"],
+      cwd=module.ROOT,
+      stdin=subprocess.PIPE,
+      stdout=subprocess.PIPE,
+    )
+
+  def read(self, path: str) -> bytes:
+    assert path in self.files and ".." not in PurePosixPath(path).parts
+    assert self.process.stdin is not None and self.process.stdout is not None
+    self.process.stdin.write(f"{PROTECTION_COMMIT}:{path}\n".encode())
+    self.process.stdin.flush()
+    header = self.process.stdout.readline().decode().split()
+    assert len(header) == 3 and header[1] == "blob"
+    raw = self.process.stdout.read(int(header[2]))
+    assert len(raw) == int(header[2]) and self.process.stdout.read(1) == b"\n"
+    return raw
+
+  def close(self) -> None:
+    assert self.process.stdin is not None
+    self.process.stdin.close()
+    self.process.wait(timeout=10)
+    assert self.process.returncode == 0
+
+  def path(self, path: str) -> HistoricalProtectionPath:
+    return HistoricalProtectionPath(self, path)
+
+
+class HistoricalProtectionPath:
+  """Only the path operations used by the unchanged protections() scan."""
+
+  def __init__(self, source: HistoricalProtectionFiles, path: str) -> None:
+    self.source, self.path = source, path
+
+  def __truediv__(self, name: str) -> HistoricalProtectionPath:
+    return self.source.path(f"{self.path}/{name}")
+
+  @property
+  def name(self) -> str:
+    return PurePosixPath(self.path).name
+
+  def __lt__(self, other: HistoricalProtectionPath) -> bool:
+    return self.path < other.path
+
+  def glob(self, pattern: str) -> list[HistoricalProtectionPath]:
+    return [
+      self.source.path(path)
+      for path in self.source.files
+      if str(PurePosixPath(path).parent) == self.path
+      and PurePosixPath(path).match(pattern)
+    ]
+
+  def read_text(self) -> str:
+    return self.source.read(self.path).decode()
+
+  def open(self, mode: str) -> io.BytesIO:
+    assert mode == "rb"
+    return io.BytesIO(self.source.read(self.path))
+
+  def relative_to(self, root: Path) -> Path:
+    assert root == module.ROOT
+    return Path(self.path)
+
+
+def historical_protections(monkeypatch) -> tuple[set[str], list[dict[str, str]]]:
+  """Replay all old files and reject stale/forged receipts or incomplete scans."""
+  assert module.digest(module.EVIDENCE) == EVIDENCE_SHA256
+  assert module.digest(module.OUTPUT) == RUNTIME_SHA256
+  assert module.digest(Path(module.__file__)) == COMPILER_SHA256
+  frozen = evidence()
+  assert len(frozen["protectionReceipts"]) == 664
+  source = HistoricalProtectionFiles()
+  try:
+    assert (
+      source.read(str(module.EVIDENCE.relative_to(module.ROOT)))
+      == module.EVIDENCE.read_bytes()
+    )
+    assert (
+      source.read(str(module.OUTPUT.relative_to(module.ROOT)))
+      == module.OUTPUT.read_bytes()
+    )
+    for receipt in frozen["protectionReceipts"]:
+      assert (
+        hashlib.sha256(source.read(receipt["file"])).hexdigest() == receipt["sha256"]
+      )
+    with monkeypatch.context() as historical:
+      historical.setattr(module, "APP", source.path("src/app/src"))
+      historical.setattr(module, "GEO", source.path("geo_data/regierungsviertel"))
+      protected, receipts = module.protections()
+    assert receipts == frozen["protectionReceipts"]
+    assert sorted(protected) == frozen["protectedIds"]
+    assert len(protected) == 22449 and "K0002RLM" in protected
+    return protected, receipts
+  finally:
+    source.close()
 
 
 def evidence() -> dict:
@@ -86,6 +209,9 @@ def test_mapped_materials_and_coloured_or_non_residential_owners_remain_outside(
   assert data["geometryChanges"] == data["newRuntimeMeshes"] == data["newGpuBytes"] == 0
 
 
-def test_compiler_is_reproducible_without_rewriting_source() -> None:
-  runtime, _ = module.compile_receipts()
+def test_compiler_is_reproducible_without_rewriting_source(monkeypatch) -> None:
+  protections = historical_protections(monkeypatch)
+  monkeypatch.setattr(module, "protections", lambda: protections)
+  runtime, replayed_evidence = module.compile_receipts()
   assert runtime == json.loads(module.OUTPUT.read_text())
+  assert replayed_evidence == evidence()

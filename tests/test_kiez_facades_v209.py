@@ -11,6 +11,7 @@ import numpy as np
 from shapely.geometry import LineString, shape
 from shapely.strtree import STRtree
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 from scripts.spree_bridge_lineage_v242 import predecessor_manifest_v242
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,7 +51,11 @@ def test_complete_scope_selection_and_unchanged_prior_descriptors() -> None:
   old_moabit = {f["owner"] for f in old_panes["faces"] if f["district"] == "Moabit"}
   assert {f["owner"] for f in faces if f["previousV188"]} == old_moabit
   assert (
-    hashlib.sha256((GEO / "kiez-facades-v209-context.json.gz").read_bytes()).hexdigest()
+    hashlib.sha256(
+      historical_asset_bytes_v194(
+        GEO / "kiez-facades-v209-context.json.gz", EVIDENCE["contextSha256"]
+      )
+    ).hexdigest()
     == EVIDENCE["contextSha256"]
   )
 
@@ -69,7 +74,10 @@ def test_every_new_frontage_still_matches_two_exact_original_source_wall_triangl
     descriptor = old[chunk]
     path = OUT / descriptor["drawn"]["url"]
     assert (
-      hashlib.sha256(path.read_bytes()).hexdigest() == descriptor["drawn"]["sha256"]
+      hashlib.sha256(
+        historical_asset_bytes_v194(path, descriptor["drawn"]["sha256"])
+      ).hexdigest()
+      == descriptor["drawn"]["sha256"]
     )
     packet = read(path)
     triangles = set()
@@ -117,7 +125,10 @@ def test_companion_geometry_is_bounded_empty_nav_and_native_is_orthogonal() -> N
     for mode in ["drawn", "minecraft"]:
       asset = desc[mode]
       path = OUT / asset["url"]
-      assert hashlib.sha256(path.read_bytes()).hexdigest() == asset["sha256"]
+      assert (
+        hashlib.sha256(historical_asset_bytes_v194(path, asset["sha256"])).hexdigest()
+        == asset["sha256"]
+      )
       packet = read(path)
       assert packet["nav"] == {"groundY": 3, "ground": [], "water": [], "buildings": []}
       assert len(packet["meshes"]) == 1
@@ -181,7 +192,10 @@ def test_exact_named_transfer_receipts_match_immutable_packets_without_overlap()
   used = defaultdict(set)
   for r in RECEIPT["records"]:
     path = OUT / f"{r['tile']}.{r['mode']}.json.gz"
-    assert hashlib.sha256(path.read_bytes()).hexdigest() == r["sha256"]
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(path, r["sha256"])).hexdigest()
+      == r["sha256"]
+    )
     packet = read(path)
     mesh = next(m for m in packet["meshes"] if m["kind"] == r["kind"])
     assert (

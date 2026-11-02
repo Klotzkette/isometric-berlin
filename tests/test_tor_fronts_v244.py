@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import base64
+import gzip
+import hashlib
 import json
 import sys
 from collections import Counter
@@ -12,6 +14,8 @@ import numpy as np
 import pytest
 from shapely.geometry import Point, shape
 from shapely.ops import unary_union
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -38,7 +42,8 @@ def test_tor_selection_is_exact_existing_receipts_and_old_bytes_survive(source):
   assert not {w["owner"] for w in source["windows"]} & set(source["excludedOwners"])
   assert len(source["unchangedPackets"]) == 32
   for path, digest in {**source["sourceHashes"], **source["unchangedPackets"]}.items():
-    assert m.sha(ROOT / path) == digest, path
+    raw = historical_asset_bytes_v194(ROOT / path, digest)
+    assert hashlib.sha256(raw).hexdigest() == digest, path
   zone = unary_union([shape(r["geometry"]) for r in source["roads"]]).buffer(28)
   triangles, _ = old.current_triangles(zone)
   for w in source["windows"]:
@@ -106,8 +111,9 @@ def test_no_guessed_named_reconstructions_or_navigation_and_bounded_packets(sour
   for desc in addition["chunks"]:
     for mode in ("drawn", "minecraft"):
       path = m.OUT / desc[mode]["url"]
-      assert m.sha(path) == desc[mode]["sha256"]
-      payload = m.read(path)
+      raw = historical_asset_bytes_v194(path, desc[mode]["sha256"], desc[mode]["bytes"])
+      assert hashlib.sha256(raw).hexdigest() == desc[mode]["sha256"]
+      payload = json.loads(gzip.decompress(raw))
       assert (
         desc[mode]["decodedBytes"]
         == len(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode())

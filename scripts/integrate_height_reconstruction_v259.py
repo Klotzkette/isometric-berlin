@@ -80,6 +80,9 @@ def predecessor_manifest_v259(current: dict, reader: Reader = Path.read_bytes) -
   from scripts.integrate_adlershof_kuehn_v261 import predecessor_manifest_v261
 
   current = predecessor_manifest_v261(current, reader)
+  from scripts.historical_asset_reader_v194 import manifest_asset_reader_v194
+
+  reader = manifest_asset_reader_v194(current, reader)
   if "heightReconstructionV259" not in current:
     assert not any(c["id"].startswith("height259-") for c in current["chunks"])
     return current

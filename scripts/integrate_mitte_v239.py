@@ -91,6 +91,9 @@ def normalize_mitte_additions(current: dict, reader: Callable[[Path], bytes]) ->
     assert not any(c["id"].startswith(PREFIXES) for c in current["chunks"])
     return current
   current = predecessor_manifest_v242(current, reader)
+  from scripts.historical_asset_reader_v194 import manifest_asset_reader_v194
+
+  reader = manifest_asset_reader_v194(current, reader)
   previous = json.loads(baseline_bytes())
   assert current == merged(previous, additions())
   verify_companions(

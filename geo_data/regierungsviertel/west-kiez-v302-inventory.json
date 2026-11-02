@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "files": [
+    {
+      "path": "src/app/src/WestKiezV302Core.ts",
+      "bytes": 9118,
+      "sha256": "b27070ad57d1f73f7f3cb11d3b77a46536d302859b7a7167fd84ad26bd11a346",
+      "gzipBytes": 3088
+    },
+    {
+      "path": "src/app/src/WestKiezV302CoreOwnership.ts",
+      "bytes": 3510,
+      "sha256": "f13b80068063af297cecdce15fb67a843d96492911163ca9a667709fb495924a",
+      "gzipBytes": 1278
+    },
+    {
+      "path": "src/app/src/WestKiezV302CoreNavigation.ts",
+      "bytes": 2825,
+      "sha256": "ed095b8d682b807e9ef53ffe04fe379956b6f128a1a82be509edac78bc7812cb",
+      "gzipBytes": 1139
+    },
+    {
+      "path": "src/app/src/data/westKiezV302Core.json",
+      "bytes": 3796446,
+      "sha256": "39f374d57c7e5a6afa8f90ea125addbbfe2cefa657b4366e0a91a26f82c009ec",
+      "gzipBytes": 586181
+    },
+    {
+      "path": "src/app/src/data/westKiezV302CoreOwners.json",
+      "bytes": 208052,
+      "sha256": "8892f3f3e2b30e153c94da5e174ccf3ca562ff4da3f180c6c6e948591fd3103a",
+      "gzipBytes": 35939
+    },
+    {
+      "path": "src/app/src/data/westKiezV302CoreNavigation.json",
+      "bytes": 87235,
+      "sha256": "dec7294b924f05f72ff9314e4994589437b4b86a06e70a539aaf24f1836f5c4b",
+      "gzipBytes": 16977
+    },
+    {
+      "path": "src/app/src/data/westKiezV302.json",
+      "bytes": 5149666,
+      "sha256": "6c380536c534b28178fbb530e232305238d6f10c42210e928c834dfe4cc1f7b3",
+      "gzipBytes": 1113194
+    },
+    {
+      "path": "geo_data/regierungsviertel/west-kiez-v302-core-source.json.gz",
+      "bytes": 39970,
+      "sha256": "020d8f4370d609d233688c36533ab50bfc0840c5c8336b6b0999c55b92b24ae3",
+      "gzipBytes": 40003
+    },
+    {
+      "path": "geo_data/regierungsviertel/west-kiez-v302-core-fittings.json.gz",
+      "bytes": 41856,
+      "sha256": "2bc68eef214dd71d9c05002faf74f2b76f7565344ed621ff78a4e77e72a90060",
+      "gzipBytes": 41569
+    },
+    {
+      "path": "geo_data/regierungsviertel/west-kiez-v302-packets-evidence.json.gz",
+      "bytes": 5481,
+      "sha256": "60c32ac3e72473378843c8d1aca78446c2d20c457a5796792f2d8c73329d3275",
+      "gzipBytes": 5504
+    },
+    {
+      "path": "geo_data/regierungsviertel/west-kiez-v302-legacy-field-proof.json.gz",
+      "bytes": 20396,
+      "sha256": "6ef0525e3215cc2f1dfb4cac5defa235eeb7bb109d734528593d8b4dd67e1dc3",
+      "gzipBytes": 19089
+    },
+    {
+      "path": "geo_data/regierungsviertel/west-kiez-v302-prepared-fittings.json.gz",
+      "bytes": 535,
+      "sha256": "eefa3da45ba13f91c9f37eccce22978e6ac5c0ab03917573490b8a765e2d76d4",
+      "gzipBytes": 558
+    },
+    {
+      "path": "geo_data/regierungsviertel/west-kiez-v302-south-addresses.json",
+      "bytes": 12048,
+      "sha256": "be619916591e371f78e11e476b16fdc840f9f364f7f0f76c6ce1969e05d90a3d",
+      "gzipBytes": 3729
+    },
+    {
+      "path": "scripts/build_west_kiez_v302.py",
+      "bytes": 24737,
+      "sha256": "60369c9bf77588549e2b786075d262688669b8f6631f745e99a51fa1230f5b42",
+      "gzipBytes": 8219
+    },
+    {
+      "path": "scripts/build_west_kiez_v302_packets.py",
+      "bytes": 27163,
+      "sha256": "f808899e4eae00b6d7cd3a1da8cff104a31c45db24ec2f07daa522c76cd58d5e",
+      "gzipBytes": 7910
+    },
+    {
+      "path": "src/app/scripts/hash_west_kiez_v302.ts",
+      "bytes": 2383,
+      "sha256": "bc16897d9e8620decc338150b9d01d785ab7d2b09817207dc7af7d3bd2274117",
+      "gzipBytes": 1000
+    },
+    {
+      "path": "src/app/scripts/capture-west-kiez-v302-prepared.ts",
+      "bytes": 5053,
+      "sha256": "4bb8a708541dd57282d8333ce8105ad3d6acacd49f39fd61a9fb2659b82b73a5",
+      "gzipBytes": 2122
+    },
+    {
+      "path": "src/app/tests/west-kiez-v302.test.ts",
+      "bytes": 8206,
+      "sha256": "e4b82d8c254b076362e93efee1e349dde034ecdca8fe69f9adca398bb934300c",
+      "gzipBytes": 2595
+    },
+    {
+      "path": "src/app/tests/west-kiez-v302-packets.test.ts",
+      "bytes": 6136,
+      "sha256": "451335e68aa6d826569da52323f8a467fcee8d636bd8c506403037e6eb4543ba",
+      "gzipBytes": 2153
+    },
+    {
+      "path": "tests/test_west_kiez_v302.py",
+      "bytes": 9046,
+      "sha256": "e2e20140cd22faac979937b54ae26325b3c66346ec8aba3274f9d05907ae5f79",
+      "gzipBytes": 3223
+    },
+    {
+      "path": "docs/west-kiez-v302.md",
+      "bytes": 12502,
+      "sha256": "f2bc02005ed3754295a70a8be62e2a01197bf59f42594b3ce00bc551fb347c5e",
+      "gzipBytes": 5364
+    },
+    {
+      "path": "src/app/src/data/westKiezV302NativeNavigation.json",
+      "bytes": 816062,
+      "sha256": "23742b131da68b0adcab7a9bf9dbe6ee97001b69965624ec4d5b385c97382580",
+      "gzipBytes": 252224
+    },
+    {
+      "path": "scripts/build_west_kiez_v302_native_nav.py",
+      "bytes": 2941,
+      "sha256": "1ae32da438a32a93e63e4829296fdadaacf2322ffeab52b35964575bf6319889",
+      "gzipBytes": 1221
+    }
+  ]
+}

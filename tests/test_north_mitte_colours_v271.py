@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 from pathlib import Path
 
 import numpy as np
 
 from scripts import build_north_mitte_colours_v271 as module
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -46,7 +48,12 @@ def test_runtime_receipts_retain_all_original_packet_bytes_and_only_selected_cel
   )
   assert evidence["v213ProtectionSha256"] == module.prior.digest(module.prior.PROTECTED)
   for receipt in evidence["packetReceipts"]:
-    assert module.prior.digest(ROOT / receipt["file"]) == receipt["sha256"]
+    assert (
+      hashlib.sha256(
+        historical_asset_bytes_v194(ROOT / receipt["file"], receipt["sha256"])
+      ).hexdigest()
+      == receipt["sha256"]
+    )
   for rows in runtime["packets"].values():
     for row in rows:
       runs = np.frombuffer(base64.b64decode(row["runs"]), dtype="<u4").reshape(-1, 3)

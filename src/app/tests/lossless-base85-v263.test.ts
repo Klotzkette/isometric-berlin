@@ -85,9 +85,14 @@ test("only the frozen exact source paths select base85; root arrays stay eager a
     "data/northCultureV274Source.json",
     "data/augustFrontsV274.json",
   ];
-  expect(LOSSLESS_BASE85_SOURCES_V263.size).toBe(243);
+  const additionsV300=["data/moabitMitteV300.json","data/ostHousingV301.json","data/westKiezV302.json"];
+  const previousSources=new Set([...LOSSLESS_BASE85_SOURCES_V263].filter(path=>!additionsV300.includes(path)));
+  // Keep the complete old registry and its frozen hash. The three new finite
+  // neighbourhood records are an explicit additional set, never a new baseline.
+  expect(previousSources.size).toBe(243);
+  expect([...LOSSLESS_BASE85_SOURCES_V263].filter(path=>!previousSources.has(path)).sort()).toEqual([...additionsV300].sort());
   for (const path of additionsV274) expect(LOSSLESS_BASE85_SOURCES_V263.has(path), path).toBeTrue();
-  const baseline = [...LOSSLESS_BASE85_SOURCES_V263].filter(path => !additionsV274.includes(path)).sort();
+  const baseline = [...previousSources].filter(path => !additionsV274.includes(path)).sort();
   expect(baseline.length).toBe(235);
   // Frozen sorted v273 registry: retain every exact previous path while adding
   // precisely the eight independently audited architectural sources above.

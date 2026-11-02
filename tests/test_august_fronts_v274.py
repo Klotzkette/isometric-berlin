@@ -1,5 +1,8 @@
 """Exact retained panes, original packets and bounded independent wall fittings."""
 
+import gzip
+import hashlib
+import json
 from collections import Counter
 
 import numpy as np
@@ -9,6 +12,7 @@ from shapely.geometry import Polygon, box, shape
 from shapely.ops import unary_union
 
 from scripts import build_august_fronts_v274 as m
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 
 @pytest.fixture(scope="module")
@@ -19,6 +23,38 @@ def source():
 @pytest.fixture(scope="module")
 def evidence():
   return m.old.read(m.EVIDENCE)
+
+
+@pytest.fixture(autouse=True)
+def retained_packet_replay(monkeypatch, source, evidence):
+  """Replay only finite complete original receipts; never rewrite public files."""
+  receipts = {}
+  for group in [
+    source["sourceHashes"],
+    source["packetReceipts"],
+    evidence["packetReceipts"],
+  ]:
+    for name, expected in group.items():
+      path = (m.ROOT / name).resolve()
+      assert path not in receipts or receipts[path] == expected
+      receipts[path] = expected
+  original_read, original_sha = m.old.read, m.old.sha
+
+  def retained_read(path):
+    expected = receipts.get(path.resolve())
+    if expected is None:
+      return original_read(path)
+    raw = historical_asset_bytes_v194(path, expected)
+    return json.loads(gzip.decompress(raw) if path.suffix == ".gz" else raw)
+
+  def retained_sha(path):
+    expected = receipts.get(path.resolve())
+    if expected is None:
+      return original_sha(path)
+    return hashlib.sha256(historical_asset_bytes_v194(path, expected)).hexdigest()
+
+  monkeypatch.setattr(m.old, "read", retained_read)
+  monkeypatch.setattr(m.old, "sha", retained_sha)
 
 
 def test_sources_packets_and_old_v239_inventory_remain_unchanged(source, evidence):

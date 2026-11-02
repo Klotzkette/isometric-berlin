@@ -1,6 +1,7 @@
 """Bounded restored library front: exact ownership, courts and native fidelity."""
 
 import base64
+import hashlib
 import importlib.util
 import sys
 from collections import Counter
@@ -8,6 +9,8 @@ from pathlib import Path
 
 import numpy as np
 from shapely.geometry import Polygon
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -31,7 +34,8 @@ def original():
 
 def test_immutable_source_packets_and_all_eighteen_part_footprints_survive():
   for path, digest in m.read(EVIDENCE)["inputs"].items():
-    assert m.sha(ROOT / path) == digest
+    raw = historical_asset_bytes_v194(ROOT / path, digest)
+    assert hashlib.sha256(raw).hexdigest() == digest, path
   before = original()
   after = m.corrected(before)
   assert len(after["parts"]) == 18

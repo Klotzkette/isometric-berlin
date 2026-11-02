@@ -100,6 +100,9 @@ def normalize_hansa_additions(current: dict, reader: Callable[[Path], bytes]) ->
   from scripts.integrate_elevated_venues_v238 import normalize_elevated_additions
 
   current = normalize_elevated_additions(current, reader)
+  from scripts.historical_asset_reader_v194 import manifest_asset_reader_v194
+
+  reader = manifest_asset_reader_v194(current, reader)
   if "hansaTiergartenV237" not in current:
     assert not any(c["id"].startswith(PREFIXES) for c in current["chunks"])
     return current

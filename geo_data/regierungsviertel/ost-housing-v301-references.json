@@ -1,0 +1,255 @@
+{
+  "schemaVersion": 1,
+  "references": [
+    {
+      "id": "ba-mitte-kma-photo",
+      "url": "https://www.berlin.de/ba-mitte/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/staedtebaufoerderung/staedtebaulicher-denkmalschutz/artikel.937119.php",
+      "title": "Karl-Marx-Allee II. Bauabschnitt",
+      "checked": "2026-11-02",
+      "scope": "Individual QP street-slab recognition: grouped glazing, turquoise balcony strips and distinct panel fields. Exact bay offsets are estimates.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "Bezirksamt Mitte von Berlin; Bild: BA Mitte",
+      "date": "Not stated",
+      "referenceMedia": [
+        {
+          "url": "https://www.berlin.de/ba-mitte/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/staedtebaufoerderung/staedtebaulicher-denkmalschutz/kma-1.jpg",
+          "sha256": "1b4b31e66edc4562ab7ac617b7030104d53e12ae3ad10e0f2369e06225019919",
+          "visuallyInspected": true
+        }
+      ]
+    },
+    {
+      "id": "fk-kma2021-p28",
+      "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/karl-marx-allee/untersuchung_karl-marx-allee_2021.pdf?ts=1752710437",
+      "title": "Gutachten Erhaltungsgebiet Karl-Marx-Allee / Frankfurter Allee, printed page 28",
+      "checked": "2026-11-02",
+      "scope": "Andreas/Kleine Markus early five-storey large-block type. Building-type study, not individual surveyed window axes. All bay subdivisions and fittings are explicitly estimates.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "Bezirksamt Friedrichshain-Kreuzberg; Planungsgruppe WERKSTADT",
+      "date": "2021",
+      "referenceMedia": [
+        {
+          "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/karl-marx-allee/untersuchung_karl-marx-allee_2021.pdf?ts=1752710437",
+          "sha256": "208ff7b0e708bfeec9ad57944e5cc19f0c4bef22303d9b3f8bb70a8c0d419ccc",
+          "visuallyInspected": true
+        }
+      ]
+    },
+    {
+      "id": "fk-kma2021-p29",
+      "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/karl-marx-allee/untersuchung_karl-marx-allee_2021.pdf?ts=1752710437",
+      "title": "Gutachten Erhaltungsgebiet Karl-Marx-Allee / Frankfurter Allee, printed page 29",
+      "checked": "2026-11-02",
+      "scope": "QP61 Koppen/Singer/Andreas type. Building-type study, not individual surveyed window axes. All bay subdivisions and fittings are explicitly estimates.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "Bezirksamt Friedrichshain-Kreuzberg; Planungsgruppe WERKSTADT",
+      "date": "2021",
+      "referenceMedia": [
+        {
+          "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/karl-marx-allee/untersuchung_karl-marx-allee_2021.pdf?ts=1752710437",
+          "sha256": "208ff7b0e708bfeec9ad57944e5cc19f0c4bef22303d9b3f8bb70a8c0d419ccc",
+          "visuallyInspected": true
+        }
+      ]
+    },
+    {
+      "id": "fk-kma2021-p37",
+      "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/karl-marx-allee/untersuchung_karl-marx-allee_2021.pdf?ts=1752710437",
+      "title": "Gutachten Erhaltungsgebiet Karl-Marx-Allee / Frankfurter Allee, printed page 37",
+      "checked": "2026-11-02",
+      "scope": "Strausberger rear-area five-storey plaster blocks; street shop zones, restrained cornices. Building-type study, not individual surveyed window axes. All bay subdivisions and fittings are explicitly estimates.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "Bezirksamt Friedrichshain-Kreuzberg; Planungsgruppe WERKSTADT",
+      "date": "2021",
+      "referenceMedia": [
+        {
+          "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/karl-marx-allee/untersuchung_karl-marx-allee_2021.pdf?ts=1752710437",
+          "sha256": "208ff7b0e708bfeec9ad57944e5cc19f0c4bef22303d9b3f8bb70a8c0d419ccc",
+          "visuallyInspected": true
+        }
+      ]
+    },
+    {
+      "id": "fk-kma2021-p38",
+      "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/karl-marx-allee/untersuchung_karl-marx-allee_2021.pdf?ts=1752710437",
+      "title": "Gutachten Erhaltungsgebiet Karl-Marx-Allee / Frankfurter Allee, printed page 38",
+      "checked": "2026-11-02",
+      "scope": "Five-section Kleine Andreas rows and QP61 Kraut/Lichtenberger slabs. Building-type study, not individual surveyed window axes. All bay subdivisions and fittings are explicitly estimates.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "Bezirksamt Friedrichshain-Kreuzberg; Planungsgruppe WERKSTADT",
+      "date": "2021",
+      "referenceMedia": [
+        {
+          "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/karl-marx-allee/untersuchung_karl-marx-allee_2021.pdf?ts=1752710437",
+          "sha256": "208ff7b0e708bfeec9ad57944e5cc19f0c4bef22303d9b3f8bb70a8c0d419ccc",
+          "visuallyInspected": true
+        }
+      ]
+    },
+    {
+      "id": "gullotta-andreas22",
+      "url": "https://www.giorgiogullotta.com/portfolio/andreasstrasse22/",
+      "title": "Andreasstraße22",
+      "checked": "2026-11-02",
+      "scope": "18-storey 1969 house, retained bearing body, metal ribs, triple window groups and central end loggia fields.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "Giorgio Gullotta Architekten; individual photographer not stated",
+      "date": "Not stated",
+      "referenceMedia": [
+        {
+          "url": "https://www.giorgiogullotta.com/wp-content/uploads/2014/12/andreas_01-800x1200.jpg",
+          "sha256": "b8ad614c543e7f15fb1593ed8e9559765a5fffc023b8a200225d17382d63c72a",
+          "visuallyInspected": true
+        },
+        {
+          "url": "https://www.giorgiogullotta.com/wp-content/uploads/2014/12/andreas_05-800x1212.jpg",
+          "sha256": "f37656600232ffa74a7f6293902f6c36d46e23df101b8602cd19a44082a6f503",
+          "visuallyInspected": true
+        }
+      ]
+    },
+    {
+      "id": "lda-dieffen11-13",
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030654",
+      "title": "Dieffenbachstraße11,12,13",
+      "checked": "2026-11-02",
+      "scope": "One labelled photograph covers all three individually different fronts; window surrounds, balconies, storey/eave divisions. Paint is retained from original model, not replaced by a photo swatch.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "Landesdenkmalamt Berlin, LDA-Archiv, Bittner",
+      "date": "2012",
+      "referenceMedia": [
+        {
+          "url": "https://denkmaldatenbank.berlin.de/media/uploads/Kre/01/09030654a.jpg",
+          "sha256": "53ec8b4814de3f477d97a32d3048b84c8f1898f9f7433f020e91be7b3e87bc98",
+          "visuallyInspected": true
+        }
+      ]
+    },
+    {
+      "id": "esser-wrangel41",
+      "url": "https://www.hv-esser.de/objekte",
+      "title": "Wrangelstraße41",
+      "checked": "2026-11-02",
+      "scope": "Four principal window axes, tall framed openings and differentiated shop zone.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "Hausverwaltung Esser; photographer/date not stated",
+      "date": "Not stated",
+      "referenceMedia": [
+        {
+          "url": "https://www.hv-esser.de/images/stories/wrangelstr.-41.jpg",
+          "sha256": "8b402b29452ec75cd61d4bc9e916e2edcf6c4bcb0eaff95feb1036ffe5dee490",
+          "visuallyInspected": true
+        }
+      ]
+    },
+    {
+      "id": "lda-wrangel43",
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030981",
+      "title": "Wrangelstraße43",
+      "checked": "2026-11-02",
+      "scope": "Individual heritage identity and late-19th-century residential type only. New small window-axis/surround subdivisions are estimates; no individual photo survey is claimed. No tenant identity or photographic paint applied.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "Landesdenkmalamt Berlin",
+      "date": "Not stated"
+    },
+    {
+      "id": "lda-wrangel44",
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030983",
+      "title": "Wrangelstraße44",
+      "checked": "2026-11-02",
+      "scope": "Individual heritage identity and late-19th-century residential type only. New small window-axis/surround subdivisions are estimates; no individual photo survey is claimed. No tenant identity or photographic paint applied.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "Landesdenkmalamt Berlin",
+      "date": "Not stated"
+    },
+    {
+      "id": "lda-wrangel45",
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030984",
+      "title": "Wrangelstraße45",
+      "checked": "2026-11-02",
+      "scope": "Individual heritage identity and late-19th-century residential type only. New small window-axis/surround subdivisions are estimates; no individual photo survey is claimed. No tenant identity or photographic paint applied.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "Landesdenkmalamt Berlin",
+      "date": "Not stated"
+    },
+    {
+      "id": "lda-wrangel46",
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030985",
+      "title": "Wrangelstraße46",
+      "checked": "2026-11-02",
+      "scope": "Individual heritage identity and late-19th-century residential type only. New small window-axis/surround subdivisions are estimates; no individual photo survey is claimed. No tenant identity or photographic paint applied.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "Landesdenkmalamt Berlin",
+      "date": "Not stated"
+    },
+    {
+      "id": "lda-samariter38",
+      "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09045122",
+      "title": "Samariterstraße38",
+      "checked": "2026-11-02",
+      "scope": "Seven-axis Jugendstil frontage; paired balcony stacks, differentiated entrance and upper-storey surrounds. Monochrome archival image is not a present-day colour/tenant survey.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "Landesdenkmalamt Berlin; individual photographer/date not stated",
+      "date": "Not stated",
+      "referenceMedia": [
+        {
+          "url": "https://denkmaldatenbank.berlin.de/media/uploads/Fri/09045122.jpg",
+          "sha256": "488cd20e9249ad65f3f7e9b796db21b23565796ce85d4b91e651ebe63f565971",
+          "visuallyInspected": true
+        }
+      ]
+    },
+    {
+      "id": "esser-mariannen50",
+      "url": "https://www.hv-esser.de/objekte",
+      "title": "Mariannenstraße50 / Naunynstraße76",
+      "checked": "2026-11-02",
+      "scope": "Five-storey corner house, raised corner risalit, pediments and storey bands. Small dimensions remain estimated.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "Hausverwaltung Esser; photographer/date not stated",
+      "date": "Not stated",
+      "referenceMedia": [
+        {
+          "url": "https://www.hv-esser.de/images/stories/100_2641.JPG",
+          "sha256": "599f315f63566b9dc1d928112efb175e2695f682615345aafe3eb528e73c55eb",
+          "visuallyInspected": true
+        }
+      ]
+    },
+    {
+      "id": "sgplus-frankfurter",
+      "url": "https://www.sgplus.de/projekte--referenzen",
+      "title": "Frankfurter Allee restoration references",
+      "checked": "2026-11-02",
+      "scope": "Architect restoration photograph, arcaded lower storey, high narrow windows, cornice/central balcony composition. Unsurveyed bay offsets remain estimates.",
+      "licence": "External reference only; no photographic pixels or document pages redistributed",
+      "credit": "SG+ Architekten; individual photographer/date not stated",
+      "date": "Not stated",
+      "referenceMedia": [
+        {
+          "url": "https://www.sgplus.de/uploads/550ZCKJN/354x0_555x0/fassadensanierung-1-nachher.jpg",
+          "sha256": "9e23fab3dfcf00b09588f046703d11f922ef674d57c3d9bfa1b47898a2a8b96c",
+          "visuallyInspected": true
+        }
+      ]
+    }
+  ],
+  "excluded": [
+    {
+      "address": "Boxhagener Straße70/71/72; Bänschstraße74",
+      "reason": "Actual delivered packets have OSM height-fallback envelopes. No fitting falsely presents those envelopes as a measured photo reconstruction.",
+      "references": [
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09045129",
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09045132",
+        "https://www.luettgens-malereibetriebe.de/referenzen-leser/fassadensanierung-denkmalpflege-in-berlin-friedrichshain.html"
+      ]
+    },
+    {
+      "address": "Lange-/Andreasstraße WBM infill",
+      "reason": "Planned 2026–29 project, not completed existing architecture. Excluded.",
+      "references": [
+        "https://www.wbm.de/neubau-berlin/friedrichshain-kreuzberg/lange-strasse/"
+      ]
+    }
+  ]
+}

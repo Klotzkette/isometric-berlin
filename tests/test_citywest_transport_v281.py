@@ -11,6 +11,8 @@ import shapely
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA = json.loads((ROOT / "src/app/src/data/citywestTransportV281.json").read_bytes())
 SOURCE = json.loads(
@@ -34,8 +36,9 @@ def test_exact_retirement_and_unmodified_assets():
   retired = []
   for evidence in EVIDENCE["packets"]:
     path = ROOT / evidence["asset"]
-    assert hashlib.sha256(path.read_bytes()).hexdigest() == evidence["sha256"]
-    raw = json.loads(gzip.decompress(path.read_bytes()))
+    packed = historical_asset_bytes_v194(path, evidence["sha256"])
+    assert hashlib.sha256(packed).hexdigest() == evidence["sha256"]
+    raw = json.loads(gzip.decompress(packed))
     record = DATA["packets"][evidence["key"]]
     assert raw["origin"] == record["origin"]
     if evidence["retirement"]:

@@ -12,6 +12,7 @@ import { BERLIN_HISTORIC_DOM_V288_IDS, matchesBerlinHistoricDomOwnersV288, match
   isBerlinHistoricDomColumnV288, isBerlinHistoricDomOldCoreV288 } from '../src/BerlinHistoricCoreV288Ownership';
 import { berlinHistoricDomSolidsV288 } from '../src/BerlinHistoricCoreV288Navigation';
 import { bebelplatzPartRoofAt, bebelplatzPartContains } from '../src/bebelplatzBuildingProfile';
+import { verifiedPriorPacketShaV193 } from './helpers/losslessPacketsV193';
 
 const root = new URL('../../../', import.meta.url);
 const read = (path: string) => readFileSync(new URL(path, root));
@@ -177,7 +178,7 @@ describe('Historic core v288 actual geometry and native visibility', () => {
     }
     expect(checked).toBe(profile.nativeOuterRows.length);
     expect(new Set(evidence.nativeOuterFits.map((f:any)=>f.profile))).toEqual(new Set(['klostergaerten','voltaireHotel','voltair']));
-    for(const f of evidence.nativeOuterSource.files) expect(createHash('sha256').update(read(f.path)).digest('hex')).toBe(f.sha256);
+    for(const f of evidence.nativeOuterSource.files) expect(verifiedPriorPacketShaV193(new URL(f.path,root),read(f.path))).toBe(f.sha256);
   });
 
   test('original ruin mortar prefix remains on the actual retained surfaces', () => {

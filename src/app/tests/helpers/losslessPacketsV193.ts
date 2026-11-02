@@ -1,3 +1,4 @@
+import {verifiedPriorPacketShaV194} from "./losslessPacketsV194";
 import {createHash} from "node:crypto";
 import {gunzipSync} from "node:zlib";
 import {resolve,relative} from "node:path";
@@ -14,7 +15,7 @@ const rows=new Map(receipt.rows.map(row=>[row.file,row]));
  * proved identical. No product path imports this test-only verifier. */
 export function verifiedPriorPacketShaV193(path:string|URL,bytes:Uint8Array):string {
  const filename=relative(directory,resolve(path instanceof URL?fileURLToPath(path):path)),row=rows.get(filename),actual=sha(bytes);
- if(!row)return actual;
+ if(!row)return verifiedPriorPacketShaV194(path,bytes);
  if(actual!==row.newGzipSha256||bytes.byteLength!==row.newGzipBytes)throw Error(`Changed current gzip ${filename}`);
  const raw=gunzipSync(bytes,{maxOutputLength:row.decodedBytes});
  if(raw.byteLength!==row.decodedBytes||sha(raw)!==row.decodedSha256)throw Error(`Changed decoded source ${filename}`);

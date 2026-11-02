@@ -1,12 +1,17 @@
 """Replay delivered panes, source owners and positive commercial-use evidence."""
 
+import gzip
+import hashlib
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
 import numpy as np
 from shapely.affinity import translate
 from shapely.geometry import Polygon, shape
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -23,8 +28,9 @@ def test_exact_prior_openings_and_source_hashes() -> None:
   for packet in proof["packets"]:
     mode, identity = packet["key"].split(":")
     path = b.OUT / f"{identity}.{mode}.json.gz"
-    assert b.digest(path) == packet["packetSha256"]
-    chunk = b.read(path)
+    raw = historical_asset_bytes_v194(path, packet["packetSha256"])
+    assert hashlib.sha256(raw).hexdigest() == packet["packetSha256"]
+    chunk = json.loads(gzip.decompress(raw))
     plan = runtime["packets"][packet["key"]]
     assert len(plan["fields"]) == len(packet["fields"])
     triangles, cells = set(), set()

@@ -8,6 +8,8 @@ from pathlib import Path
 
 from shapely.geometry import Polygon, box
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 SPEC = importlib.util.spec_from_file_location(
@@ -33,7 +35,10 @@ def test_source_receipt_rebuild_and_retained_theatre() -> None:
     s for s in evidence["canopySource"]["surfaces"] if s["kind"] == "RoofSurface"
   ]
   for name, expected in evidence["retainedTheatreSources"].items():
-    assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(ROOT / name, expected)).hexdigest()
+      == expected
+    )
 
 
 def test_exclusive_columns_and_immutable_alt_mitte_packets() -> None:
@@ -71,4 +76,7 @@ def test_exclusive_columns_and_immutable_alt_mitte_packets() -> None:
     "inkSegments": 24,
   }
   for name, expected in audit["inputs"].items():
-    assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(ROOT / name, expected)).hexdigest()
+      == expected
+    )

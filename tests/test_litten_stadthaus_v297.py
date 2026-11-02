@@ -12,6 +12,8 @@ from pathlib import Path
 import numpy as np
 from shapely.geometry import Polygon, box
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -27,7 +29,8 @@ def test_complete_unchanged_source_records_and_source_planes() -> None:
   data = read("src/app/src/data/littenStadthausV297.json")
   proof = read("geo_data/regierungsviertel/litten-stadthaus-v297-source.json.gz")
   for path, expected in data["sourceReceipts"].items():
-    assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == expected
+    raw = historical_asset_bytes_v194(ROOT / path, expected)
+    assert hashlib.sha256(raw).hexdigest() == expected
   originals = {
     b["id"]: b
     for tile in ["391_5819", "392_5819"]
@@ -148,10 +151,8 @@ def test_only_the_single_original_podewil_estimate_transfers() -> None:
     assert p["sourceSurfaceIndex"] == 33
     assert p["sourcePlane"] == c["sourcePlane"]
     assert p["openingCount"] == 21
-    assert (
-      hashlib.sha256((ROOT / p["packetPath"]).read_bytes()).hexdigest()
-      == p["packetSha256"]
-    )
+    raw = historical_asset_bytes_v194(ROOT / p["packetPath"], p["packetSha256"])
+    assert hashlib.sha256(raw).hexdigest() == p["packetSha256"]
   assert len(proof["replacementDrawnRows"]) == 240
   assert (
     sum(r["role"].endswith("-glazing") for r in proof["replacementDrawnRows"]) == 21
@@ -167,7 +168,9 @@ def test_only_the_single_original_podewil_estimate_transfers() -> None:
     "stone window sill",
   }
   native = packets["minecraft:alt-mitte-v169-5_0-piece-0"]
-  old = read(native["packetPath"])
+  path = ROOT / native["packetPath"]
+  raw = historical_asset_bytes_v194(path, native["packetSha256"])
+  old = json.loads(gzip.decompress(raw) if path.suffix == ".gz" else raw)
 
   def triangles(packet: dict, mesh: dict) -> list[tuple]:
     vertices = (

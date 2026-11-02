@@ -10,6 +10,8 @@ from pathlib import Path
 import numpy as np
 from shapely.geometry import Point, Polygon, shape
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from scripts import build_north_elevated_v238 as subject  # noqa:E402
@@ -80,8 +82,9 @@ def test_exact_atomic_owner_triangle_line_and_navigation_receipts():
   for family in ("drawn", "minecraft"):
     old = source["originalPackets"][family]
     path = ROOT / old["path"]
-    assert sha(path) == old["sha256"]
-    packet = read(path)
+    raw = historical_asset_bytes_v194(path, old["sha256"])
+    assert hashlib.sha256(raw).hexdigest() == old["sha256"]
+    packet = json.loads(gzip.decompress(raw))
     r = runtime["packets"][family + ":5_-5"]
     assert r["origin"] == packet["origin"]
     assert {
@@ -124,15 +127,11 @@ def test_packets_native_axes_bounds_budgets_and_north_platform_walk_surface():
     for family in ("drawn", "minecraft"):
       descriptor = tile[family]
       path = subject.OUT / descriptor["url"]
-      payload = read(path)
-      assert (
-        sha(path) == descriptor["sha256"] and path.stat().st_size == descriptor["bytes"]
-      )
-      assert (
-        len(gzip.decompress(path.read_bytes()))
-        == descriptor["decodedBytes"]
-        < 12 * 1024**2
-      )
+      raw = historical_asset_bytes_v194(path, descriptor["sha256"], descriptor["bytes"])
+      payload = json.loads(gzip.decompress(raw))
+      assert hashlib.sha256(raw).hexdigest() == descriptor["sha256"]
+      assert len(raw) == descriptor["bytes"]
+      assert len(gzip.decompress(raw)) == descriptor["decodedBytes"] < 12 * 1024**2
       assert all(
         payload["nav"][k] == [] for k in ("ground", "water", "roads", "bridges")
       )
@@ -178,7 +177,7 @@ def test_packets_native_axes_bounds_budgets_and_north_platform_walk_surface():
     )
 
 
-def test_replay_is_byte_identical_and_all_authored_roles_remain():
+def test_replay_is_byte_identical_and_all_authored_roles_remain(tmp_path, monkeypatch):
   paths = [
     subject.RUNTIME,
     subject.EVIDENCE,
@@ -186,8 +185,47 @@ def test_replay_is_byte_identical_and_all_authored_roles_remain():
     *subject.OUT.glob("northrail238-*json.gz"),
   ]
   before = {p: sha(p) for p in paths}
+  addition = read(subject.ADDITION)
+  descriptors = {
+    subject.OUT / chunk[mode]["url"]: chunk[mode]
+    for chunk in addition["chunks"]
+    for mode in ("drawn", "minecraft")
+  }
+  expected = {
+    path: historical_asset_bytes_v194(
+      path, descriptors[path]["sha256"], descriptors[path]["bytes"]
+    )
+    if path in descriptors
+    else path.read_bytes()
+    for path in paths
+  }
+  source = read(subject.SOURCE)
+  inputs = {subject.SOURCE: subject.SOURCE.read_bytes()}
+  inputs.update(
+    {
+      ROOT / receipt["path"]: historical_asset_bytes_v194(
+        ROOT / receipt["path"], receipt["sha256"]
+      )
+      for receipt in source["originalPackets"].values()
+    }
+  )
+  for path, raw in inputs.items():
+    destination = tmp_path / path.relative_to(ROOT)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_bytes(raw)
+  # This historical generator writes outputs. Its entire filesystem target is
+  # isolated before invocation, including both original input packets.
+  for name in ("SOURCE", "RUNTIME", "EVIDENCE", "ADDITION", "OUT"):
+    destination = tmp_path / getattr(subject, name).relative_to(ROOT)
+    (destination if name == "OUT" else destination.parent).mkdir(
+      parents=True, exist_ok=True
+    )
+    monkeypatch.setattr(subject, name, destination)
+  monkeypatch.setattr(subject, "ROOT", tmp_path)
   result = subject.build()
   assert {p: sha(p) for p in paths} == before
+  for path, raw in expected.items():
+    assert (tmp_path / path.relative_to(ROOT)).read_bytes() == raw, path
   for family in ("drawn", "minecraft"):
     roles = result["audit"][family]["stationRoles"]
     assert {

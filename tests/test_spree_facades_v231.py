@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import gzip
 import hashlib
+import importlib
 import json
-import subprocess
-import sys
 from pathlib import Path
 
 import numpy as np
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "src/app/src/data"
@@ -22,7 +23,10 @@ def test_existing_source_and_packet_bytes_are_retained():
   assert evidence["bodyTrianglesRemoved"] == 0
   assert evidence["drawnTransferredTriangles"] == 1212
   for path, expected in evidence["preserved"].items():
-    assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == expected, path
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(ROOT / path, expected)).hexdigest()
+      == expected
+    ), path
 
 
 def test_every_added_front_uses_the_exact_source_wall_and_retained_openings():
@@ -60,11 +64,29 @@ def test_every_added_front_uses_the_exact_source_wall_and_retained_openings():
         )
 
 
-def test_strict_receipts_replay_without_raw_downloads():
-  subprocess.run(
-    [sys.executable, str(ROOT / "scripts/build_spree_facades_v231.py"), "--check"],
-    cwd=ROOT,
-    check=True,
-    capture_output=True,
-    text=True,
+def test_strict_receipts_replay_without_raw_downloads(monkeypatch):
+  monkeypatch.syspath_prepend(str(ROOT / "scripts"))
+  builder = importlib.import_module("build_spree_facades_v231")
+  evidence = builder.read(
+    ROOT / "geo_data/regierungsviertel/spree-facades-v231-evidence.json"
   )
+  pins = {(ROOT / path).resolve(): sha for path, sha in evidence["preserved"].items()}
+  original = builder.digest
+
+  def digest(path):
+    expected = pins.get(path.resolve())
+    if expected is None:
+      return original(path)
+    return hashlib.sha256(historical_asset_bytes_v194(path, expected)).hexdigest()
+
+  monkeypatch.setattr(builder, "digest", digest)
+  for path, data in zip(
+    [
+      DATA / "spreeFacadesV231.json",
+      DATA / "spreeFacadesV231Ownership.json",
+      ROOT / "geo_data/regierungsviertel/spree-facades-v231-evidence.json",
+    ],
+    builder.build(),
+    strict=True,
+  ):
+    assert builder.read(path) == data, path

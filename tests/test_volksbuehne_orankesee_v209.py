@@ -12,6 +12,8 @@ from statistics import median
 from shapely.geometry import Polygon, shape
 from shapely.ops import unary_union
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_volksbuehne_orankesee_v209 as build  # noqa: E402
@@ -67,7 +69,9 @@ def test_navigation_rebuilds_only_the_same_three_upper_volumes() -> None:
   assert nav["rearRoof"]["highY"] == runtime["volumes"][2]["topY"]
 
 
-def test_precise_triangle_gates_retain_immutable_packet_and_every_other_owner() -> None:
+def test_precise_triangle_gates_retain_immutable_packet_and_every_other_owner(
+  monkeypatch,
+) -> None:
   receipt = read("src/app/src/data/volksbuehneOwnershipV209.json")
   assert [len(r["triangles"]) for r in receipt["records"]] == [221, 13056]
   for record in receipt["records"]:
@@ -75,7 +79,12 @@ def test_precise_triangle_gates_retain_immutable_packet_and_every_other_owner() 
       ROOT
       / f"src/app/public/mesh/surrounding-berlin-v159/5_-2.{record['mode']}.json.gz"
     )
-    assert hashlib.sha256(path.read_bytes()).hexdigest() == record["packetSha256"]
+    assert (
+      hashlib.sha256(
+        historical_asset_bytes_v194(path, record["packetSha256"])
+      ).hexdigest()
+      == record["packetSha256"]
+    )
     packet = json.loads(gzip.decompress(path.read_bytes()))
     part = next(m for m in packet["meshes"] if m["kind"] == record["kind"])
     fnv = 2166136261
@@ -85,6 +94,22 @@ def test_precise_triangle_gates_retain_immutable_packet_and_every_other_owner() 
     assert fnv == record["fingerprint"]
     assert record["owner"] == "DEBE01YYK00001YG"
     assert len(set(record["triangles"])) == len(record["triangles"])
+  pinned_packets = {
+    ROOT
+    / f"src/app/public/mesh/surrounding-berlin-v159/5_-2.{row['mode']}.json.gz": row[
+      "packetSha256"
+    ]
+    for row in receipt["records"]
+  }
+  original_digest = build.digest
+
+  def historical_digest(path):
+    expected = pinned_packets.get(path)
+    if expected is None:
+      return original_digest(path)
+    return hashlib.sha256(historical_asset_bytes_v194(path, expected)).hexdigest()
+
+  monkeypatch.setattr(build, "digest", historical_digest)
   rebuilt, _, gate = build.theatre()
   assert json.loads(json.dumps(rebuilt)) == read(
     "src/app/src/data/volksbuehneEnvelopeV209.json"

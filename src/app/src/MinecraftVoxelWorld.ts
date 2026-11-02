@@ -10,6 +10,8 @@ import { parliamentSourceOwnersAdmittedV295 } from "./ParliamentRetainedEnvelope
 import { parliamentNativeColumnAdmittedV295, parliamentNativeColumnComplementV295 } from "./ParliamentNativeColumnsV295";
 import type { HbfBoxV291 } from "./HbfGeometryOpeningsV291";
 import { isChancelleryCanopyOldColumnV289 } from "./ChancelleryCanopySourceV289Ownership";
+import { isMoabitMitteV300OldNativeColumn } from "./MoabitMitteV300Ownership";
+import { isWestKiezV302OldNativeColumn } from "./WestKiezV302CoreOwnership";
 import { prepareRequiredFidelityV288 } from "./RequiredFidelityV288";
 import { isBerlinHistoricDomColumnV288 } from "./BerlinHistoricCoreV288Ownership";
 import { isPotsdamerCorridorOldNativeColumnV288 } from "./PotsdamerCorridorV288Ownership";
@@ -351,6 +353,7 @@ import {
 } from "./TunnelPortals";
 
 export type MinecraftVoxelWorldOptions = {
+  neighbourhoodV300?: boolean;
   parliamentInteriorsV295?: boolean;
   golgathaV270?: boolean;
   tachelesFrontsV270?: boolean;
@@ -2398,7 +2401,7 @@ export function* buildMinecraftVoxelWorldSteps(
   group.name = "Minecraft voxel world (LoD2 + OSM + official tree points)";
   const mobileDetail = options.detailProfile === "mobile";
   // Complete owners precede the resident native Podewil correction as well.
-  const fidelityV288 = prepareRequiredFidelityV288({buildings:options.sourcePrisms ?? []}, payload, true, false, mobileDetail);
+  const fidelityV288 = prepareRequiredFidelityV288({buildings:options.sourcePrisms ?? []}, payload, true, false, mobileDetail, options.neighbourhoodV300===true);
   group.add(fidelityV288.root);
   const cell = payload.cell_m;
   // Buildings/trees carry ABSOLUTE cell indices; ground runs are grid
@@ -2545,7 +2548,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftBerlinWallMemorialV174());
   yield;
-  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ littenStadthausV297:fidelityV288.littenStadthaus, wallGalleryV298:fidelityV288.wallGallery, golgathaV270: options.golgathaV270, tachelesFrontsV270: options.tachelesFrontsV270, northernSitesV266: options.northernSitesV266, chariteBridgesV265: options.chariteBridgesV265, schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true }));
+  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ neighbourhoodV300:options.neighbourhoodV300===true,westKiezV302:fidelityV288.westKiez, littenStadthausV297:fidelityV288.littenStadthaus, wallGalleryV298:fidelityV288.wallGallery, golgathaV270: options.golgathaV270, tachelesFrontsV270: options.tachelesFrontsV270, northernSitesV266: options.northernSitesV266, chariteBridgesV265: options.chariteBridgesV265, schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true }));
   yield;
 
   group.add(createMinecraftZooGroundsV165());
@@ -2691,6 +2694,7 @@ export function* buildMinecraftVoxelWorldSteps(
   // coarse tuples yield. A changed/ambiguous source retains the old world.
   group.userData.courtsParkV293=fidelityV288.courtsPark;
   group.userData.southFidelityV294=fidelityV288.southFidelity;
+  group.userData.moabitMitteV300=fidelityV288.moabitMitte;group.userData.westKiezV302=fidelityV288.westKiez;
   group.userData.littenStadthausV297=fidelityV288.littenStadthaus;
   group.userData.wallGalleryV298=fidelityV288.wallGallery;
   group.userData.parliamentaryDiningV296=fidelityV288.parliamentaryDining;
@@ -2760,6 +2764,8 @@ export function* buildMinecraftVoxelWorldSteps(
     if(waterfrontColumnCutsV296(xIdx,zIdx,y0dm,y1dm,classId).length)waterfrontOriginalColumnsV296.set(`${xIdx},${zIdx}`,[xIdx,zIdx,y0dm,y1dm,classId]);
     if(diningColumnCutsV296(xIdx,zIdx,y0dm,y1dm,classId).length)diningOriginalColumnsV296.set(`${xIdx},${zIdx}`,[xIdx,zIdx,y0dm,y1dm,classId]);
     if (parliamentInteriorsV295 && parliamentNativeColumnAdmittedV295(xIdx,zIdx,y0dm,y1dm,classId)) parliamentOriginalColumnsV295.set(`${xIdx},${zIdx}`,[xIdx,zIdx,y0dm,y1dm,classId]);
+    if (fidelityV288.moabitMitte && isMoabitMitteV300OldNativeColumn([xIdx,zIdx,y0dm,y1dm,classId])) continue;
+    if (fidelityV288.westKiez && isWestKiezV302OldNativeColumn([xIdx,zIdx,y0dm,y1dm,classId])) continue;
     if (fidelityV288.chancelleryCanopy && isChancelleryCanopyOldColumnV289([xIdx,zIdx,y0dm,y1dm,classId])) continue;
     if (fidelityV288.historicDom && isBerlinHistoricDomColumnV288(xIdx,zIdx,y0dm,y1dm,classId)) continue;
     if (fidelityV288.potsdamerCorridor && isPotsdamerCorridorOldNativeColumnV288([xIdx,zIdx,y0dm,y1dm,classId])) continue;

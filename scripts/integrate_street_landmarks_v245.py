@@ -110,6 +110,9 @@ def predecessor_manifest_v245(current: dict, reader: Reader = Path.read_bytes) -
   from scripts.integrate_playgrounds_v255 import predecessor_manifest_v255
 
   current = predecessor_manifest_v255(current, reader)
+  from scripts.historical_asset_reader_v194 import manifest_asset_reader_v194
+
+  reader = manifest_asset_reader_v194(current, reader)
   if "streetLandmarksV245" not in current:
     assert not any(c["id"].startswith(PREFIXES) for c in current["chunks"])
     return current

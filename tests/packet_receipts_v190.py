@@ -10,6 +10,7 @@ import sys
 from functools import lru_cache
 from pathlib import Path
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 from scripts.spree_bridge_lineage_v242 import predecessor_packet_bytes_v242
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -268,7 +269,9 @@ def predecessor_v190(path: Path) -> bytes:
   if path.parent != PUBLIC or key not in changes:
     return predecessor_packet_bytes_v242(path)
   before, after = changes[key]
-  assert hashlib.sha256(path.read_bytes()).hexdigest() == after, str(path)
+  assert (
+    hashlib.sha256(historical_asset_bytes_v194(path, after)).hexdigest() == after
+  ), str(path)
   raw = baseline_v189(path)
   assert hashlib.sha256(raw).hexdigest() == before, str(path)
   return raw
@@ -299,7 +302,10 @@ def verify_subtractions_v190(chunks: list, owners: set, *, north: bool) -> None:
   for chunk in chunks:
     for mode, receipt in chunk["modes"].items():
       path = PUBLIC / f"{chunk['id']}.{mode}.json.gz"
-      before_bytes, after_bytes = baseline_v189(path), path.read_bytes()
+      before_bytes, after_bytes = (
+        baseline_v189(path),
+        historical_asset_bytes_v194(path, receipt["newSha256"]),
+      )
       assert hashlib.sha256(before_bytes).hexdigest() == receipt["oldSha256"]
       assert hashlib.sha256(after_bytes).hexdigest() == receipt["newSha256"]
       before, after = (

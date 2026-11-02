@@ -6,6 +6,7 @@ import json
 import pytest
 
 from scripts import build_primary_colours_v273 as builder
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 
 def test_complete_primary_inventory_and_unmodified_inputs():
@@ -18,7 +19,11 @@ def test_complete_primary_inventory_and_unmodified_inputs():
       source = builder.OUT / descriptor[mode]["url"]
       digest = hashlib.sha256(source.read_bytes()).hexdigest()
       assert digest == descriptor[mode]["sha256"]
-      assert digest == audit["packets"][f"{mode}:{descriptor['id']}"]["sha256"]
+      expected = audit["packets"][f"{mode}:{descriptor['id']}"]["sha256"]
+      assert (
+        hashlib.sha256(historical_asset_bytes_v194(source, expected)).hexdigest()
+        == expected
+      )
 
 
 def test_shards_are_complete_bounded_and_deterministic():

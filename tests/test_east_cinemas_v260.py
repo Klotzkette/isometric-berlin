@@ -12,6 +12,8 @@ from pathlib import Path
 import numpy as np
 from shapely.geometry import Point, Polygon
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from build_east_cinemas_v260 import corrected, depth, digest, source  # noqa: E402
@@ -23,9 +25,16 @@ GEO = ROOT / "geo_data/regierungsviertel"
 def test_all_source_and_runtime_packet_bytes_remain_unchanged() -> None:
   evidence = json.loads((GEO / "east-cinemas-v260-evidence.json").read_text())
   for path, sha in evidence["retainedSourcePackets"].items():
-    assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == sha
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(ROOT / path, sha)).hexdigest() == sha
+    )
   for r in evidence["retainedRuntimePackets"]:
-    assert hashlib.sha256((ROOT / r["file"]).read_bytes()).hexdigest() == r["sha256"]
+    assert (
+      hashlib.sha256(
+        historical_asset_bytes_v194(ROOT / r["file"], r["sha256"])
+      ).hexdigest()
+      == r["sha256"]
+    )
   assert evidence["originalRoofSha256"] == evidence["correctedRoofSha256"]
   saved = json.loads(
     gzip.decompress((GEO / "east-cinemas-v260-source.json.gz").read_bytes())

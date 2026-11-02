@@ -11,6 +11,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
@@ -71,7 +73,10 @@ def test_no_source_sheet_of_any_thirteen_owner_is_retired(replay):
 def test_original_inputs_and_retained_owner_evidence_remain_complete():
   evidence = receipt.read(receipt.EVIDENCE)
   for name, digest in evidence["sourceInputs"].items():
-    assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == digest, name
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(ROOT / name, digest)).hexdigest()
+      == digest
+    ), name
   owners = evidence["retainedSourceOwners"]
   assert {o["owner"] for o in owners} == receipt.OWNERS
   assert sum(o["emittedSourceTriangles"] for o in owners) == 3174

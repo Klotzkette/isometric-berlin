@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import sys
 from pathlib import Path
 
 import numpy as np
 from shapely.geometry import Polygon
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -28,9 +31,9 @@ def test_complete_source_owners_and_roofs_are_preserved():
   assert m.sha(m.SOURCE) == evidence["sourceSha256"]
   assert m.sha(m.RUNTIME) == evidence["runtimeSha256"]
   assert m.sha(m.PREVIOUS) == evidence["previousSha256"]
-  assert all(
-    m.sha(ROOT / path) == digest for path, digest in evidence["sourceInputs"].items()
-  )
+  for path, digest in evidence["sourceInputs"].items():
+    raw = historical_asset_bytes_v194(ROOT / path, digest)
+    assert hashlib.sha256(raw).hexdigest() == digest, path
   assert {b["id"] for b in expected} == m.OWNERS
   assert all(
     any(s["kind"] == "RoofSurface" for p in b["parts"] for s in p["surfaces"])

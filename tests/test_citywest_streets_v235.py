@@ -1,12 +1,16 @@
 """Verify source-positive paint and unchanged retained City West street owners."""
 
 import base64
+import gzip
+import hashlib
+import json
 
 import numpy as np
 from shapely.geometry import Polygon, shape
 from shapely.ops import unary_union
 
 from scripts import build_citywest_streets_v235 as build
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 
 def test_complete_named_roads_and_original_packets_are_retained() -> None:
@@ -25,9 +29,12 @@ def test_complete_named_roads_and_original_packets_are_retained() -> None:
   for filename, digest in source["inputs"].items():
     path = build.ROOT / filename
     if path.exists():
-      assert build.base.digest(path) == digest
+      assert (
+        hashlib.sha256(historical_asset_bytes_v194(path, digest)).hexdigest() == digest
+      )
   for record in evidence["packets"].values():
-    assert build.base.digest(build.ROOT / record["url"]) == record["sha256"]
+    raw = historical_asset_bytes_v194(build.ROOT / record["url"], record["sha256"])
+    assert hashlib.sha256(raw).hexdigest() == record["sha256"]
 
 
 def test_only_explicit_marking_styles_no_inferred_zebras_or_signals() -> None:
@@ -55,7 +62,9 @@ def test_all_new_triangles_stay_on_old_asphalt_clear_of_old_paint() -> None:
   assert set(data["ids"]) == set(data["packets"])
   assert len(data["ids"]) <= 4 and build.OUTPUT.stat().st_size < 30_000
   for key, plan in data["packets"].items():
-    packet = build.base.read_json(build.ROOT / evidence["packets"][key]["url"])
+    receipt = evidence["packets"][key]
+    raw = historical_asset_bytes_v194(build.ROOT / receipt["url"], receipt["sha256"])
+    packet = json.loads(gzip.decompress(raw))
     assert plan["guard"] == build.curbs.ground_guard(packet["nav"]["ground"])
     assert plan["groundY"] == packet["nav"]["groundY"]
     mesh = plan["mesh"]

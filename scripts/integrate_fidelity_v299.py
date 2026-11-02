@@ -17,6 +17,11 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Callable
 
+from scripts.integrate_lossless_v194 import (
+  predecessor_manifest_v194,
+  predecessor_packet_bytes_v194,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
 GEO = ROOT / "geo_data/regierungsviertel"
@@ -141,7 +146,16 @@ def predecessor_packet_bytes_v299(
   path: Path, reader: Reader = Path.read_bytes
 ) -> bytes:
   """Normalize only registered Public gzip files; every other input is exact."""
-  raw = reader(path)
+  supplied = reader(path)
+  if path.resolve().parent == PUBLIC and path.name.endswith(".json.gz"):
+    receipt = lossless_rows(reader).get(path.name)
+    if receipt is not None and sha(supplied) == receipt["gzipSha256"]:
+      return verified_lossless_bytes(path, supplied, receipt)
+
+  def retained(source: Path) -> bytes:
+    return supplied if source.resolve() == path.resolve() else reader(source)
+
+  raw = predecessor_packet_bytes_v194(path, retained)
   if path.resolve().parent != PUBLIC or not path.name.endswith(".json.gz"):
     return raw
   rows = lossless_rows(reader)
@@ -223,6 +237,7 @@ def predecessor_manifest_v299(current: dict, reader: Reader = Path.read_bytes) -
       "Unreceipted v299 descriptor without marker"
     )
     return current
+  current = predecessor_manifest_v194(current, reader)
   supplement = verify_supplement(reader)
   previous = json.loads(original_manifest_bytes())
   expected = copy.deepcopy(previous)

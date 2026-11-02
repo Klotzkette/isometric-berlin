@@ -1,0 +1,768 @@
+[
+  {
+    "id": "karl-marx-allee5",
+    "address": "Karl-Marx-Allee 5",
+    "owner": "DEBE01YYK00006pl",
+    "packet": "6_-1",
+    "type": "qp-slab",
+    "floors": 10,
+    "reference": "ba-mitte-kma-photo",
+    "addressNode": "node/320932757",
+    "point": [
+      3246.1436043969006,
+      -257.1933777164668
+    ],
+    "columns": 27,
+    "balconyColumns": [
+      4,
+      5,
+      14,
+      15,
+      23,
+      24
+    ],
+    "windowWidth": 1.34,
+    "windowHeight": 1.42,
+    "frontOnly": true
+  },
+  {
+    "id": "karl-marx-allee19",
+    "address": "Karl-Marx-Allee 19",
+    "owner": "DEBE01YYK0000121",
+    "packet": "6_-1",
+    "type": "qp-slab",
+    "floors": 10,
+    "reference": "ba-mitte-kma-photo",
+    "addressNode": "node/320943673",
+    "point": [
+      3354.159996934235,
+      -201.6505701802671
+    ],
+    "columns": 27,
+    "balconyColumns": [
+      3,
+      4,
+      13,
+      14,
+      22,
+      23
+    ],
+    "windowWidth": 1.34,
+    "windowHeight": 1.42,
+    "frontOnly": true
+  },
+  {
+    "id": "karl-marx-allee14",
+    "address": "Karl-Marx-Allee 14",
+    "owner": "DEBE01YYK00004OL",
+    "packet": "6_-1",
+    "type": "qp-slab",
+    "floors": 10,
+    "reference": "ba-mitte-kma-photo",
+    "addressNode": "node/3213713647",
+    "point": [
+      3224.7501633676,
+      -118.10069437883794
+    ],
+    "columns": 31,
+    "balconyColumns": [
+      5,
+      6,
+      15,
+      16,
+      25,
+      26
+    ],
+    "windowWidth": 1.34,
+    "windowHeight": 1.42,
+    "frontOnly": true
+  },
+  {
+    "id": "karl-marx-allee24",
+    "address": "Karl-Marx-Allee 24",
+    "owner": "DEBE01YYK00006Xy",
+    "packet": "6_-1",
+    "type": "qp-slab",
+    "floors": 10,
+    "reference": "ba-mitte-kma-photo",
+    "addressNode": "node/3213713660",
+    "point": [
+      3334.0328135192394,
+      -59.49201026186347
+    ],
+    "columns": 31,
+    "balconyColumns": [
+      4,
+      5,
+      14,
+      15,
+      24,
+      25
+    ],
+    "windowWidth": 1.34,
+    "windowHeight": 1.42,
+    "frontOnly": true
+  },
+  {
+    "id": "karl-marx-allee38",
+    "address": "Karl-Marx-Allee 38",
+    "owner": "DEBE01YYK00001SJ",
+    "packet": "6_0",
+    "type": "qp-slab",
+    "floors": 10,
+    "reference": "ba-mitte-kma-photo",
+    "addressNode": "node/3937025657",
+    "point": [
+      3521.116717427154,
+      45.59117254521698
+    ],
+    "columns": 31,
+    "balconyColumns": [
+      4,
+      5,
+      14,
+      15,
+      24,
+      25
+    ],
+    "windowWidth": 1.34,
+    "windowHeight": 1.42,
+    "frontOnly": true
+  },
+  {
+    "id": "kraut1",
+    "address": "Krautstraße 1",
+    "owner": "DEBE02YY200002JL",
+    "packet": "7_0",
+    "type": "qp61-slab",
+    "floors": 8,
+    "reference": "fk-kma2021-p38",
+    "addressNode": "node/1289040649",
+    "point": [
+      3907.8328091579606,
+      285.66298373322934
+    ],
+    "columns": 28,
+    "balconyColumns": [
+      4,
+      11,
+      18,
+      25
+    ],
+    "windowWidth": 1.55,
+    "windowHeight": 1.4,
+    "frontOnly": true
+  },
+  {
+    "id": "kraut5",
+    "address": "Krautstraße 5",
+    "owner": "DEBE02YY200002kN",
+    "packet": "7_0",
+    "type": "qp61-slab",
+    "floors": 9,
+    "reference": "fk-kma2021-p38",
+    "addressNode": "node/1289042393",
+    "point": [
+      3891.699181589356,
+      357.61803375929594
+    ],
+    "columns": 32,
+    "balconyColumns": [
+      5,
+      12,
+      19,
+      26
+    ],
+    "windowWidth": 1.55,
+    "windowHeight": 1.4,
+    "frontOnly": true
+  },
+  {
+    "id": "kraut9",
+    "address": "Krautstraße 9",
+    "owner": "DEBE02YY200009J9",
+    "packet": "7_0",
+    "type": "qp61-slab",
+    "floors": 8,
+    "reference": "fk-kma2021-p38",
+    "addressNode": "node/1289042390",
+    "point": [
+      3874.699722187419,
+      426.6054168092087
+    ],
+    "columns": 28,
+    "balconyColumns": [
+      4,
+      11,
+      18,
+      25
+    ],
+    "windowWidth": 1.55,
+    "windowHeight": 1.4,
+    "frontOnly": true
+  },
+  {
+    "id": "lichtenbergerstraße20",
+    "address": "Lichtenberger Straße 20",
+    "owner": "DEBE02YY200002xW",
+    "packet": "7_0",
+    "type": "qp61-slab",
+    "floors": 10,
+    "reference": "fk-kma2021-p38",
+    "addressNode": "node/6974131161",
+    "point": [
+      3764.3796894074185,
+      236.94984037335962
+    ],
+    "columns": 42,
+    "balconyColumns": [
+      5,
+      12,
+      19,
+      26,
+      33,
+      40
+    ],
+    "windowWidth": 1.55,
+    "windowHeight": 1.4,
+    "frontOnly": true
+  },
+  {
+    "id": "koppen58",
+    "address": "Koppenstraße 58",
+    "owner": "DEBE02YY2000051J",
+    "packet": "8_0",
+    "type": "qp61-slab",
+    "floors": 10,
+    "reference": "fk-kma2021-p29",
+    "addressNode": "node/2755192317",
+    "point": [
+      4322.820476500317,
+      438.29792765155435
+    ],
+    "columns": 30,
+    "balconyColumns": [
+      4,
+      11,
+      18,
+      25
+    ],
+    "windowWidth": 1.55,
+    "windowHeight": 1.4,
+    "frontOnly": true
+  },
+  {
+    "id": "andreas22",
+    "address": "Andreasstraße 22",
+    "owner": "DEBE02YY2000020e",
+    "packet": "8_1",
+    "type": "metal-highrise-1969",
+    "floors": 18,
+    "reference": "gullotta-andreas22",
+    "addressNode": "node/2321394619",
+    "point": [
+      4130.682779180002,
+      549.8323444304988
+    ],
+    "paneGroups": {
+      "side": 3,
+      "end": 2,
+      "members": 3
+    },
+    "endLoggiaWidth": 3.1
+  },
+  {
+    "id": "kleineandreas1",
+    "address": "Kleine Andreasstraße 1",
+    "owner": "DEBE02YY200004JF",
+    "packet": "7_1",
+    "type": "grossblock-five",
+    "floors": 5,
+    "reference": "fk-kma2021-p38",
+    "addressNode": "node/4890409495",
+    "point": [
+      3878.5830634300364,
+      625.5708293663338
+    ],
+    "columns": 25,
+    "stairColumns": [
+      2,
+      7,
+      12,
+      17,
+      22
+    ],
+    "windowWidth": 1.75,
+    "windowHeight": 1.5,
+    "frontOnly": true
+  },
+  {
+    "id": "kleineandreas6",
+    "address": "Kleine Andreasstraße 6",
+    "owner": "DEBE02YY200002sS",
+    "packet": "7_1",
+    "type": "grossblock-five",
+    "floors": 5,
+    "reference": "fk-kma2021-p38",
+    "addressNode": "node/4890423643",
+    "point": [
+      3930.7424408054794,
+      643.5861606085673
+    ],
+    "columns": 25,
+    "stairColumns": [
+      2,
+      7,
+      12,
+      17,
+      22
+    ],
+    "windowWidth": 1.75,
+    "windowHeight": 1.5,
+    "frontOnly": true
+  },
+  {
+    "id": "kleineandreas11",
+    "address": "Kleine Andreasstraße 11",
+    "owner": "DEBE02YY200006Vi",
+    "packet": "7_1",
+    "type": "grossblock-five",
+    "floors": 5,
+    "reference": "fk-kma2021-p38",
+    "addressNode": "node/4890423648",
+    "point": [
+      3983.4647192746634,
+      657.5850305687636
+    ],
+    "columns": 25,
+    "stairColumns": [
+      2,
+      7,
+      12,
+      17,
+      22
+    ],
+    "windowWidth": 1.75,
+    "windowHeight": 1.5,
+    "frontOnly": true
+  },
+  {
+    "id": "kleinemarkus1",
+    "address": "Kleine Markusstraße 1",
+    "owner": "DEBE02YY200001yA",
+    "packet": "7_1",
+    "type": "grossblock-five",
+    "floors": 5,
+    "reference": "fk-kma2021-p28",
+    "addressNode": "node/2803774485",
+    "point": [
+      3842.478037944529,
+      532.7830919818953
+    ],
+    "columns": 20,
+    "stairColumns": [
+      2,
+      7,
+      12,
+      17
+    ],
+    "windowWidth": 1.75,
+    "windowHeight": 1.5,
+    "frontOnly": true
+  },
+  {
+    "id": "kleinemarkus6",
+    "address": "Kleine Markusstraße 6",
+    "owner": "DEBE02YY200004XA",
+    "packet": "7_1",
+    "type": "grossblock-five",
+    "floors": 5,
+    "reference": "fk-kma2021-p28",
+    "addressNode": "node/2803775236",
+    "point": [
+      3745.177074196399,
+      518.7794059226289
+    ],
+    "columns": 20,
+    "stairColumns": [
+      2,
+      7,
+      12,
+      17
+    ],
+    "windowWidth": 1.75,
+    "windowHeight": 1.5,
+    "frontOnly": true
+  },
+  {
+    "id": "strausbergerstraße38",
+    "address": "Strausberger Straße 38",
+    "owner": "DEBE02YY200003qP",
+    "packet": "8_-1",
+    "type": "aufbau-five",
+    "floors": 5,
+    "reference": "fk-kma2021-p37",
+    "addressNode": "node/3874226721",
+    "point": [
+      4152.143866530154,
+      -126.81709301564842
+    ],
+    "columns": 15,
+    "windowWidth": 1.3,
+    "windowHeight": 1.72,
+    "frontOnly": true
+  },
+  {
+    "id": "strausbergerstraße39",
+    "address": "Strausberger Straße 39",
+    "owner": "DEBE02YY200003Zv",
+    "packet": "8_-1",
+    "type": "aufbau-five",
+    "floors": 5,
+    "reference": "fk-kma2021-p37",
+    "addressNode": "node/2830768817",
+    "point": [
+      4099.9446791491355,
+      -156.08105644024909
+    ],
+    "columns": 7,
+    "windowWidth": 1.3,
+    "windowHeight": 1.72,
+    "frontOnly": true
+  },
+  {
+    "id": "strausbergerstraße41",
+    "address": "Strausberger Straße 41",
+    "owner": "DEBE02YY200000jQ",
+    "packet": "8_-1",
+    "type": "aufbau-five",
+    "floors": 5,
+    "reference": "fk-kma2021-p37",
+    "addressNode": "node/2830768841",
+    "point": [
+      4115.897367221478,
+      -180.53756544645876
+    ],
+    "columns": 6,
+    "windowWidth": 1.3,
+    "windowHeight": 1.72,
+    "frontOnly": true
+  },
+  {
+    "id": "strausbergerstraße42",
+    "address": "Strausberger Straße 42",
+    "owner": "DEBE02YY200004TQ",
+    "packet": "8_-1",
+    "type": "aufbau-five",
+    "floors": 5,
+    "reference": "fk-kma2021-p37",
+    "addressNode": "node/2830768851",
+    "point": [
+      4122.655871313764,
+      -190.7615326717496
+    ],
+    "columns": 5,
+    "windowWidth": 1.3,
+    "windowHeight": 1.72,
+    "frontOnly": true
+  },
+  {
+    "id": "strausbergerstraße43",
+    "address": "Strausberger Straße 43",
+    "owner": "DEBE02YY2000089n",
+    "packet": "8_-1",
+    "type": "aufbau-five",
+    "floors": 5,
+    "reference": "fk-kma2021-p37",
+    "addressNode": "node/2830768859",
+    "point": [
+      4132.165362340806,
+      -205.14305771514773
+    ],
+    "columns": 6,
+    "windowWidth": 1.3,
+    "windowHeight": 1.72,
+    "frontOnly": true
+  },
+  {
+    "id": "strausbergerstraße44",
+    "address": "Strausberger Straße 44",
+    "owner": "DEBE02YY200008DF",
+    "packet": "8_-1",
+    "type": "aufbau-five",
+    "floors": 5,
+    "reference": "fk-kma2021-p37",
+    "addressNode": "node/2830768868",
+    "point": [
+      4138.116791674518,
+      -214.14942783582956
+    ],
+    "columns": 5,
+    "windowWidth": 1.3,
+    "windowHeight": 1.72,
+    "frontOnly": true
+  },
+  {
+    "id": "strausbergerstraße45",
+    "address": "Strausberger Straße 45",
+    "owner": "DEBE02YY200005M2",
+    "packet": "8_-1",
+    "type": "aufbau-five",
+    "floors": 5,
+    "reference": "fk-kma2021-p37",
+    "addressNode": "node/2830768876",
+    "point": [
+      4147.08011206059,
+      -227.7639204710722
+    ],
+    "columns": 5,
+    "windowWidth": 1.3,
+    "windowHeight": 1.72,
+    "frontOnly": true
+  },
+  {
+    "id": "dieffenbach11",
+    "address": "Dieffenbachstraße 11",
+    "owner": "DEBE02YY40000A1J",
+    "packet": "ring182-5_5",
+    "type": "gruenderzeit-ornament",
+    "floors": 5,
+    "reference": "lda-dieffen11-13",
+    "addressNode": "node/288407749",
+    "point": [
+      2850.726575647772,
+      2945.5199811588973
+    ],
+    "columns": 7,
+    "balconyColumns": [
+      2,
+      4
+    ],
+    "windowWidth": 1.25,
+    "windowHeight": 2.05,
+    "frontOnly": true,
+    "ornament": "stucco-bands",
+    "reveal": 14538955
+  },
+  {
+    "id": "dieffenbach12",
+    "address": "Dieffenbachstraße 12",
+    "owner": "DEBE02YY400006Mr",
+    "packet": "ring182-5_5",
+    "type": "gruenderzeit-ornament",
+    "floors": 5,
+    "reference": "lda-dieffen11-13",
+    "addressNode": "node/873726171",
+    "point": [
+      2888.9922993070795,
+      2961.3154363287613
+    ],
+    "columns": 6,
+    "balconyColumns": [
+      1,
+      4
+    ],
+    "windowWidth": 1.25,
+    "windowHeight": 2.05,
+    "frontOnly": true,
+    "ornament": "stucco-bands",
+    "reveal": 14538955
+  },
+  {
+    "id": "dieffenbach13",
+    "address": "Dieffenbachstraße 13",
+    "owner": "DEBE02YY400003Xr",
+    "packet": "ring182-5_5",
+    "type": "gruenderzeit-ornament",
+    "floors": 5,
+    "reference": "lda-dieffen11-13",
+    "addressNode": "node/2092136463",
+    "point": [
+      2899.239629180287,
+      2968.205724145286
+    ],
+    "columns": 7,
+    "balconyColumns": [
+      1,
+      4,
+      5
+    ],
+    "windowWidth": 1.25,
+    "windowHeight": 2.05,
+    "frontOnly": true,
+    "ornament": "neo-renaissance",
+    "reveal": 14538955
+  },
+  {
+    "id": "wrangel41",
+    "address": "Wrangelstraße 41",
+    "owner": "DEBE02YY400002Nz",
+    "packet": "8_4",
+    "type": "gruenderzeit-ornament",
+    "floors": 5,
+    "reference": "esser-wrangel41",
+    "addressNode": "node/2830792365",
+    "point": [
+      4519.9094686812605,
+      2229.0452131899074
+    ],
+    "columns": 4,
+    "windowWidth": 1.26,
+    "windowHeight": 2.05,
+    "frontOnly": true,
+    "ornament": "pediment",
+    "reveal": 15325113
+  },
+  {
+    "id": "wrangel43",
+    "address": "Wrangelstraße 43",
+    "owner": "DEBE02YY400007Qt",
+    "packet": "8_4",
+    "type": "gruenderzeit-ornament",
+    "floors": 5,
+    "reference": "lda-wrangel43",
+    "addressNode": "node/2830792373",
+    "point": [
+      4569.056036408001,
+      2259.472793586552
+    ],
+    "columns": 7,
+    "windowWidth": 1.25,
+    "windowHeight": 2.05,
+    "frontOnly": true,
+    "ornament": "rusticated",
+    "reveal": 14866629
+  },
+  {
+    "id": "wrangel44",
+    "address": "Wrangelstraße 44",
+    "owner": "DEBE02YY40000DCi",
+    "packet": "8_4",
+    "type": "gruenderzeit-ornament",
+    "floors": 5,
+    "reference": "lda-wrangel44",
+    "addressNode": "node/3073260054",
+    "point": [
+      4574.221411482547,
+      2263.0450406046584
+    ],
+    "columns": 5,
+    "windowWidth": 1.25,
+    "windowHeight": 2.05,
+    "frontOnly": true,
+    "ornament": "pediment",
+    "reveal": 14866629
+  },
+  {
+    "id": "wrangel45",
+    "address": "Wrangelstraße 45",
+    "owner": "DEBE02YY400003iu",
+    "packet": "8_4",
+    "type": "gruenderzeit-ornament",
+    "floors": 5,
+    "reference": "lda-wrangel45",
+    "addressNode": "node/2830792377",
+    "point": [
+      4588.2406188515015,
+      2272.9731720853597
+    ],
+    "columns": 6,
+    "windowWidth": 1.25,
+    "windowHeight": 2.05,
+    "frontOnly": true,
+    "ornament": "stucco-bands",
+    "reveal": 14866629
+  },
+  {
+    "id": "wrangel46",
+    "address": "Wrangelstraße 46",
+    "owner": "DEBE02YY400000Ot",
+    "packet": "8_4",
+    "type": "gruenderzeit-ornament",
+    "floors": 5,
+    "reference": "lda-wrangel46",
+    "addressNode": "node/3073263403",
+    "point": [
+      4606.845637992257,
+      2288.7865679832175
+    ],
+    "columns": 6,
+    "windowWidth": 1.25,
+    "windowHeight": 2.05,
+    "frontOnly": true,
+    "ornament": "rusticated",
+    "reveal": 14866629
+  },
+  {
+    "id": "samariter38",
+    "address": "Samariterstraße 38",
+    "owner": "DEBE02YY200000qC",
+    "packet": "ring182-12_1",
+    "type": "jugendstil-balconies",
+    "floors": 5,
+    "reference": "lda-samariter38",
+    "addressNode": "node/2824979717",
+    "point": [
+      6304.957000909955,
+      515.890535778366
+    ],
+    "columns": 7,
+    "balconyColumns": [
+      1,
+      2,
+      4,
+      5
+    ],
+    "windowWidth": 1.22,
+    "windowHeight": 2.08,
+    "frontOnly": true,
+    "ornament": "jugendstil",
+    "reveal": 13947592
+  },
+  {
+    "id": "mariannen50",
+    "address": "Mariannenstraße 50",
+    "owner": "DEBE02YY400002Pd",
+    "packet": "6_4",
+    "type": "gruenderzeit-ornament",
+    "floors": 5,
+    "reference": "esser-mariannen50",
+    "addressNode": "node/876258116",
+    "point": [
+      3511.9262959301705,
+      2064.26902370248
+    ],
+    "columns": 8,
+    "windowWidth": 1.28,
+    "windowHeight": 2.02,
+    "frontOnly": true,
+    "ornament": "pediment",
+    "reveal": 11700840
+  },
+  {
+    "id": "frankfurterallee13",
+    "address": "Frankfurter Allee 13",
+    "owner": "DEBE02YY200000m6",
+    "packet": "ring182-11_0",
+    "type": "allee-classical",
+    "floors": 8,
+    "reference": "sgplus-frankfurter",
+    "addressNode": "node/1448068786",
+    "point": [
+      5810.890568703529,
+      448.9408544097096
+    ],
+    "columns": 34,
+    "balconyColumns": [
+      7,
+      8,
+      24,
+      25
+    ],
+    "windowWidth": 1.12,
+    "windowHeight": 1.7,
+    "frontOnly": true,
+    "ornament": "bands",
+    "reveal": 14605509
+  }
+]

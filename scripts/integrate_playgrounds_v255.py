@@ -81,6 +81,9 @@ def predecessor_manifest_v255(current: dict, reader: Reader = Path.read_bytes) -
   from scripts.integrate_height_reconstruction_v259 import predecessor_manifest_v259
 
   current = predecessor_manifest_v259(current, reader)
+  from scripts.historical_asset_reader_v194 import manifest_asset_reader_v194
+
+  reader = manifest_asset_reader_v194(current, reader)
   if "playgroundsV255" not in current:
     assert not any(c["id"].startswith("play255-") for c in current["chunks"])
     return current

@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import sys
 from pathlib import Path
 
 import numpy as np
 from shapely.geometry import Polygon
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -24,10 +27,9 @@ def test_exact_source_owners_and_existing_input_files_are_preserved():
     expected, key=lambda b: b["id"]
   )
   assert [a["sourceSheets"] for a in evidence["owners"]] == [153, 236, 21, 22]
-  assert all(
-    model.sha(ROOT / path) == digest
-    for path, digest in evidence["sourceInputs"].items()
-  )
+  for path, digest in evidence["sourceInputs"].items():
+    raw = historical_asset_bytes_v194(ROOT / path, digest)
+    assert hashlib.sha256(raw).hexdigest() == digest, path
   assert model.sha(model.RUNTIME) == evidence["runtimeSha256"]
   assert model.sha(model.PREVIOUS) == evidence["previousSha256"]
   assert evidence["retiredTriangles"] == 9080

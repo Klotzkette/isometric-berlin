@@ -12,6 +12,8 @@ from pathlib import Path
 import numpy as np
 from shapely.geometry import LineString, Point, Polygon, box, shape
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_gips_koppen_v252 as builder  # noqa: E402
@@ -32,7 +34,10 @@ def load() -> tuple[dict, dict, dict]:
 def test_complete_old_buildings_and_authored_sources_are_unchanged() -> None:
   data, ev, source = load()
   for path, digest in source["sourceHashes"].items():
-    assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(ROOT / path, digest)).hexdigest()
+      == digest
+    )
   original = json.loads(
     gzip.decompress(
       (
@@ -65,7 +70,10 @@ def test_complete_old_buildings_and_authored_sources_are_unchanged() -> None:
   assert {p["level"] for p in ev["koppenOpenings"]} == {0, 1, 2}
   assert sum(p["height"] == 4.45 for p in ev["koppenOpenings"]) == 12
   for path, digest in ev["koppenOldPacketReceipts"].items():
-    assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(ROOT / path, digest)).hexdigest()
+      == digest
+    )
   assert data["labels"][0]["text"] == "MILCHHALLE"
   front = next(a for a in ev["faceAudit"] if a["rings"][0][0] == [2086.0, 14.2, -814.1])
   low_members = [
@@ -194,7 +202,10 @@ def test_native_clock_clears_actual_roof_without_changing_drawn_or_other_rows() 
   assert audit["offsetY"] == 1.25
   assert audit["roofTopY"] == max(r[4] for r in audit["roofSpans"]) == 31
   for path, digest in audit["roofPacketReceipts"].items():
-    assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest
+    assert (
+      hashlib.sha256(historical_asset_bytes_v194(ROOT / path, digest)).hexdigest()
+      == digest
+    )
   first, count = audit["nativeFirst"], audit["nativeCount"]
   assert count == 547
   clock_rows = data["nativeRows"][audit["clockNativeFirst"] : first + count]
@@ -219,8 +230,23 @@ def test_native_clock_clears_actual_roof_without_changing_drawn_or_other_rows() 
     )
 
 
-def test_generation_replays_exactly_with_fixed_surface_only_budgets() -> None:
+def test_generation_replays_exactly_with_fixed_surface_only_budgets(
+  monkeypatch,
+) -> None:
   data, evidence, _ = load()
+  pins = {
+    (ROOT / name).resolve(): digest
+    for name, digest in evidence["koppenOldPacketReceipts"].items()
+  }
+  original = builder.current_triangles.__globals__["sha"]
+
+  def digest(path):
+    expected = pins.get(path.resolve())
+    if expected is None:
+      return original(path)
+    return hashlib.sha256(historical_asset_bytes_v194(path, expected)).hexdigest()
+
+  monkeypatch.setitem(builder.current_triangles.__globals__, "sha", digest)
   rebuilt, audit = builder.build()
   assert rebuilt == data
   assert audit == evidence

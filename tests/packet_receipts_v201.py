@@ -41,6 +41,17 @@ def baseline(path: Path, release: str = BASE) -> bytes:
 
 
 def checked(raw: bytes, asset: dict) -> dict:
+  # A later lossless wire encoding may differ, but only the complete declared
+  # historical descriptor can select an independently proved predecessor.
+  if digest(raw) != asset["sha256"]:
+    from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
+    path = PUBLIC / asset["url"]
+
+    def supplied(source: Path) -> bytes:
+      return raw if source.resolve() == path.resolve() else source.read_bytes()
+
+    raw = historical_asset_bytes_v194(path, asset["sha256"], asset["bytes"], supplied)
   assert digest(raw) == asset["sha256"]
   assert len(raw) == asset["bytes"] < 650_000
   plain = gzip.decompress(raw)

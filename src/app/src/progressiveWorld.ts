@@ -115,7 +115,7 @@ type ProgressiveWorldWorkerInputBase = {
   parliamentaryDiningV296?: boolean;
   waterfrontV296?: boolean;
   potsdamerStationPhoto?: boolean;
-  historicDomV288?: boolean; potsdamerCorridorV288?: boolean; chancelleryCanopySourceV289?: boolean;
+  moabitMitteV300?: boolean; westKiezV302?: boolean; historicDomV288?: boolean; potsdamerCorridorV288?: boolean; chancelleryCanopySourceV289?: boolean;
   /** Attached scene batches survive suspension and must not be rebuilt. */
   completedBatchIds?: readonly string[];
   /** A settled receipt confirms all surfaces are attached to this retained world. */

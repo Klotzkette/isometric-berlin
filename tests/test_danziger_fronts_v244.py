@@ -13,6 +13,8 @@ from shapely.affinity import translate
 from shapely.geometry import LineString, Point, Polygon, shape
 from shapely.strtree import STRtree
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
 OUT = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
@@ -135,7 +137,8 @@ def test_packet_receipts_and_companion_limits_preserve_source() -> None:
     == EVIDENCE["sourceSha256"]
   )
   for url, sha in SOURCE["packetReceipts"].items():
-    assert hashlib.sha256((OUT / url).read_bytes()).hexdigest() == sha
+    raw = historical_asset_bytes_v194(OUT / url, sha)
+    assert hashlib.sha256(raw).hexdigest() == sha
   assert ADDITION["chunks"] == EVIDENCE["companions"]
   assert len(ADDITION["chunks"]) == 8
   for family in ("drawn", "minecraft"):
@@ -143,7 +146,9 @@ def test_packet_receipts_and_companion_limits_preserve_source() -> None:
     for desc in ADDITION["chunks"]:
       assert desc["id"] == "danzigerfront244-" + desc["detailCompanionOf"]
       asset = desc[family]
-      raw = (OUT / asset["url"]).read_bytes()
+      raw = historical_asset_bytes_v194(
+        OUT / asset["url"], asset["sha256"], asset["bytes"]
+      )
       decoded = gzip.decompress(raw)
       assert len(raw) == asset["bytes"]
       assert len(decoded) == asset["decodedBytes"] < 4 * 1024 * 1024

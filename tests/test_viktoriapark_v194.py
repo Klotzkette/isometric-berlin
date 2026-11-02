@@ -13,6 +13,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
 from scripts.build_park_relief_v182 import sample  # noqa: E402
 from scripts.build_viktoriapark_v194 import DEST, make_payload  # noqa: E402
+from scripts.historical_asset_reader_v194 import (
+  historical_asset_bytes_v194,  # noqa: E402
+)
 from scripts.integrate_viktoriapark_v194 import (  # noqa: E402
   BASE,
   BASINS,
@@ -67,10 +70,12 @@ def test_exact_packet_substitution_preserves_all_other_triangles_and_water_xz():
   for mode in ("drawn", "minecraft"):
     r = receipt["modes"][mode]
     path = DEFAULT_OUTPUT / descriptor[mode]["url"]
-    blob = path.read_bytes()
-    assert (
-      hashlib.sha256(blob).hexdigest() == r["newSha256"] == descriptor[mode]["sha256"]
-    )
+    delivered = path.read_bytes()
+    assert hashlib.sha256(delivered).hexdigest() == descriptor[mode]["sha256"]
+    assert len(delivered) == descriptor[mode]["bytes"]
+    blob = historical_asset_bytes_v194(path, r["newSha256"])
+    assert hashlib.sha256(blob).hexdigest() == r["newSha256"]
+    assert gzip.decompress(delivered) == gzip.decompress(blob)
     assert hashlib.sha256(original(path)).hexdigest() == r["oldSha256"]
     before = json.loads(gzip.decompress(original(path)))
     after = json.loads(gzip.decompress(blob))

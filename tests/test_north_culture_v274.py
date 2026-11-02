@@ -11,13 +11,32 @@ from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
 
 from scripts import build_north_culture_v274 as M
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 @pytest.fixture(scope="module")
-def rebuilt():
-  return M.build()
+def rebuilt(tmp_path_factory):
+  # The retained parent receipt records the original gzip wire bytes. Rebuild
+  # against those exact proven packets, without rewriting any public asset.
+  root = tmp_path_factory.mktemp("north-culture-v274-packet-replay")
+  old = json.loads(
+    gzip.decompress((M.GEO / "north-culture-v274-source.json.gz").read_bytes())
+  )
+  for parent in old["parents"]:
+    relative = (
+      Path("src/app/public/mesh/surrounding-berlin-v159")
+      / f"{parent['placementPacket']}.drawn.json.gz"
+    )
+    target = root / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(
+      historical_asset_bytes_v194(ROOT / relative, parent["placementSha256"])
+    )
+  with pytest.MonkeyPatch.context() as historical:
+    historical.setattr(M, "ROOT", root)
+    return M.build()
 
 
 def test_source_rebuild_and_complete_retained_parents(rebuilt):
@@ -44,15 +63,13 @@ def test_source_datums_match_actual_unchanged_primary_packets(rebuilt):
       / "src/app/public/mesh/surrounding-berlin-v159"
       / f"{parent['placementPacket']}.drawn.json.gz"
     )
-    packet = json.loads(gzip.decompress(packet_path.read_bytes()))
+    original = historical_asset_bytes_v194(packet_path, parent["placementSha256"])
+    packet = json.loads(gzip.decompress(original))
     row = next(
       b for b in packet["nav"]["buildings"] if b.get("sourceId") == parent["id"]
     )
     ground = packet["nav"]["groundY"] + row.get("groundOffset", 0)
-    assert (
-      parent["placementSha256"]
-      == M.hashlib.sha256(packet_path.read_bytes()).hexdigest()
-    )
+    assert parent["placementSha256"] == M.hashlib.sha256(original).hexdigest()
     assert runtime[parent["key"]]["groundY"] == parent["groundY"] == ground
     assert min(p["ground_y_m"] for p in parent["sourceParts"]) + parent[
       "verticalOffset"

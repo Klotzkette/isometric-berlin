@@ -108,13 +108,17 @@ def test_all_previous_descriptors_coverage_and_limits_are_preserved(previous, ad
 
 
 def test_six_base_packets_keep_exact_bytes_and_navigation(source, previous):
+  from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
   descriptors = {d["id"]: d for d in previous["chunks"]}
   for site in source["sites"]:
     parent = descriptors[EXPECTED[site["id"]][2]]
     assert site["parentDescriptor"] == parent
     for mode in FAMILIES:
       asset = parent[mode]
-      data = (PUBLIC / asset["url"]).read_bytes()
+      data = historical_asset_bytes_v194(
+        PUBLIC / asset["url"], asset["sha256"], asset["bytes"]
+      )
       assert len(data) == asset["bytes"]
       assert hashlib.sha256(data).hexdigest() == asset["sha256"]
       packet = json.loads(gzip.decompress(data))
@@ -278,8 +282,12 @@ def test_reconstruction_replays_byte_exactly_without_mutating_retained_inputs(
   monkeypatch.syspath_prepend(str(ROOT / "scripts"))
   builder = importlib.import_module("build_height_reconstruction_v259")
   source_before = builder.SOURCE.read_bytes()
-  for url in source["packetReceipts"]:
-    (tmp_path / url).write_bytes((PUBLIC / url).read_bytes())
+  from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
+  for url, receipt in source["packetReceipts"].items():
+    (tmp_path / url).write_bytes(
+      historical_asset_bytes_v194(PUBLIC / url, receipt["sha256"])
+    )
   for name in ("EVIDENCE", "ADDITION"):
     monkeypatch.setattr(builder, name, tmp_path / getattr(builder, name).name)
   monkeypatch.setattr(builder, "OUT", tmp_path)
@@ -293,7 +301,9 @@ def test_reconstruction_replays_byte_exactly_without_mutating_retained_inputs(
   for descriptor in addition["chunks"]:
     for mode in FAMILIES:
       url = descriptor[mode]["url"]
-      assert (tmp_path / url).read_bytes() == (PUBLIC / url).read_bytes()
+      assert (tmp_path / url).read_bytes() == historical_asset_bytes_v194(
+        PUBLIC / url, descriptor[mode]["sha256"], descriptor[mode]["bytes"]
+      )
   for url, receipt in source["packetReceipts"].items():
     assert (
       hashlib.sha256((tmp_path / url).read_bytes()).hexdigest() == receipt["sha256"]

@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import base64
 import gzip
+import hashlib
 import importlib.util
 import sys
 from pathlib import Path
 
 import numpy as np
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -54,7 +57,8 @@ def test_finite_owner_sets_and_every_previous_payload_unchanged():
     b["id"] for b in source["officialReferenceFamilies"]
   } == m.GOOGLE | m.DELIVERY | {m.LEO}
   for path, digest in source["preservation"].items():
-    assert m.sha(ROOT / path) == digest
+    raw = historical_asset_bytes_v194(ROOT / path, digest)
+    assert hashlib.sha256(raw).hexdigest() == digest, path
   originals = {}
   for tile in ["390_5820", "391_5820"]:
     originals.update(

@@ -1,6 +1,9 @@
 // Finite audited JSON module ownership, initially the three v263 main chunks.
 // Codec selection only: field thresholds and strong/weak/eager lifetimes stay intact.
 export const LOSSLESS_BASE85_SOURCES_V263: ReadonlySet<string> = new Set([
+  "data/moabitMitteV300.json",
+  "data/ostHousingV301.json",
+  "data/westKiezV302.json",
   "data/operaTheatresV274.json",
   "data/operaTheatresV274Navigation.json",
   "data/operaTheatresV274Ownership.json",

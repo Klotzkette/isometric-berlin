@@ -1,6 +1,5 @@
 import{expect,test}from"bun:test";
 import{readFileSync}from"node:fs";
-import{createHash}from"node:crypto";
 import{gunzipSync}from"node:zlib";
 import{InstancedMesh,Matrix4,BoxGeometry,MeshBasicMaterial,MeshStandardMaterial,Group}from"three";
 import data from"../src/data/littenStadthausV297.json";
@@ -8,12 +7,18 @@ import packets from"../src/data/littenStadthausV297Packets.json";
 import{createLittenStadthausV297,littenStadthausGeometryV297,podewilFacadeRowsV297,hasCompleteLittenStadthausV297}from"../src/LittenStadthausV297";
 import{prepareLittenStadthausV297,applyLittenStadthausTrianglesV297,littenStadthausPacketCandidateV297}from"../src/LittenStadthausV297Packets";
 import type{SurroundingCityChunk}from"../src/SurroundingCityGeometry";
+import{verifiedPriorPacketShaV193}from"./helpers/losslessPacketsV193";
 function finish<T>(it:Generator<void,T>):T{let next=it.next();while(!next.done)next=it.next();return next.value;}
 function rawPacket(path:string):SurroundingCityChunk{const raw=readFileSync(new URL(`../../../${path}`,import.meta.url));return JSON.parse((path.endsWith(".gz")?gunzipSync(raw):raw).toString());}
 const recipes=packets.packets as Record<string,{packetPath:string;records:{mesh:number;triangles:number[]}[]}>;
 
 test("every previous source file and exact original site record is pinned; the ambiguous dictated place is not invented",()=>{
-  for(const[path,sha]of Object.entries(data.sourceReceipts))expect(createHash("sha256").update(readFileSync(new URL(`../../../${path}`,import.meta.url))).digest("hex")).toBe(sha);
+  for(const[path,sha]of Object.entries(data.sourceReceipts)){
+    const url=new URL(`../../../${path}`,import.meta.url),raw=readFileSync(url);
+    // Preserve the original full wire pin. Only the finite, independently
+    // captured v194 lossless receipt may project an exact newer gzip encoding.
+    expect(verifiedPriorPacketShaV193(url,raw)).toBe(sha);
+  }
   expect(data.sourceOwners).toHaveLength(15);expect(data.sourceOwners).toContain("DEBE01YYK0000626");expect(data.sourceOwners).toContain("DEBE01YYK00005yc");expect(data.sourceOwners).toContain("DEBE01YYK00006oT");
   expect(new Set(data.faces.map(f=>f.key))).toEqual(new Set(["instanz-centre","instanz-north","instanz-south","stadthaus","neues-stadthaus","podewil","verwaltung-c","muenze-court","direktorenhaus","muenze-front"]));
 });

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import gzip
+import hashlib
 import importlib
 import json
 import math
@@ -12,6 +14,8 @@ import numpy as np
 import pytest
 from shapely.geometry import box
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 M = importlib.import_module("build_schools_courts_v274")
@@ -19,7 +23,43 @@ M = importlib.import_module("build_schools_courts_v274")
 
 @pytest.fixture(scope="module")
 def rebuilt():
-  return M.build()
+  # Bind only the complete original source receipts. Later lossless gzip wire
+  # encodings must not replace the historical compiler's recorded input hash.
+  expected = M.read(M.EVIDENCE)["sourceSha256"]
+  original_read, original_sha = M.read, M.sha
+  original_triangles = M.current_triangles
+
+  def historical_read(path):
+    digest = expected.get(str(path.relative_to(ROOT)))
+    if digest is None:
+      return original_read(path)
+    raw = historical_asset_bytes_v194(path, digest)
+    return json.loads(gzip.decompress(raw) if path.suffix == ".gz" else raw)
+
+  def historical_sha(path):
+    digest = expected.get(str(path.relative_to(ROOT)))
+    if digest is None:
+      return original_sha(path)
+    return hashlib.sha256(historical_asset_bytes_v194(path, digest)).hexdigest()
+
+  def historical_triangles(zone):
+    keys, receipts = original_triangles(zone)
+    for name in receipts:
+      path = ROOT / name
+      digest = expected.get(name)
+      if digest is not None:
+        raw = historical_asset_bytes_v194(path, digest)
+        # Triangle keys were read by the original imported constructor. Prove
+        # its full decoded input identical before replaying the old wire pin.
+        assert gzip.decompress(raw) == gzip.decompress(path.read_bytes())
+        receipts[name] = hashlib.sha256(raw).hexdigest()
+    return keys, receipts
+
+  with pytest.MonkeyPatch.context() as historical:
+    historical.setattr(M, "read", historical_read)
+    historical.setattr(M, "sha", historical_sha)
+    historical.setattr(M, "current_triangles", historical_triangles)
+    return M.build()
 
 
 def decode(site, key, palette):
@@ -50,7 +90,9 @@ def test_rebuild_exact_seven_sites_and_prior_sources_unchanged(rebuilt):
     "fuerstenberger",
   }
   assert all(
-    M.sha(ROOT / path) == digest for path, digest in ev["sourceSha256"].items()
+    hashlib.sha256(historical_asset_bytes_v194(ROOT / path, digest)).hexdigest()
+    == digest
+    for path, digest in ev["sourceSha256"].items()
   )
   assert M.OUT.stat().st_size < 350_000
   assert model["counts"]["nativeRows"] < 6000
