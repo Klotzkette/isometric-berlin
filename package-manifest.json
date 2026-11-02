@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "package_name": "isometric-berlin-regierungsviertel-local",
-  "package_version": "1.0.194",
+  "package_version": "1.0.195",
   "start_page": "START-HERE.html",
   "start_page_mode": "3d-launch-guide",
   "full_3d_start_page": "index.html",
@@ -50,6 +50,9 @@
     "hauptbahnhof-six-moving-panoramic-lift-cabins",
     "hauptbahnhof-current-verified-tenant-interiors",
     "hauptbahnhof-blumen-roewer-police-ditsch-northwest-og1",
+    "source-bound-friedrichshain-and-boxhagener-houses",
+    "source-bound-rixdorf-and-schudomastreet-roofs-and-courts",
+    "complete-neukoelln-arcaden-and-rathaus-source-models",
     "source-bound-court-neighbourhoods-and-rolleracht-underpass",
     "connected-gustav-heinemann-and-alexanderufer-approaches",
     "public-parliament-interiors-and-dome-circulation",
@@ -147,7 +150,7 @@
     "surrounding_city": {
       "path": "mesh/surrounding-berlin-v159/manifest.json",
       "bytes": 2174881,
-      "sha256": "e857777aa707055c43130275d6aeadb72e3773f3d7a3688c10392ac65a0b18b8"
+      "sha256": "e604a386661943d66c0789db1ff6fb9dbfa12d2ad5068a5699b6be0270ed2ad4"
     },
     "start_page": {
       "path": "START-HERE.html",
