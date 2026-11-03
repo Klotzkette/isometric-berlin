@@ -5,6 +5,13 @@ import {
 import { registerInkRenderObserver } from "./inkDrawVisibility";
 import { staticStorageInfo } from "./losslessStaticStorage";
 
+// Only this manager's already-validated offscreen eviction can enter this
+// synchronous scope. CPU/source ownership survives this GPU-handle release.
+const retainedGpuGeometryRetirementsV309 = new WeakSet<BufferGeometry>();
+export function isSceneGeometryGpuRetirementV309(geometry: BufferGeometry): boolean {
+  return retainedGpuGeometryRetirementsV309.has(geometry);
+}
+
 export const MOBILE_GEOMETRY_GPU_BUFFER_BUDGET = 6_000;
 // A few large buffers can consume substantial memory below the handle target.
 // Both targets apply only to offscreen retention, never to visible detail.
@@ -40,6 +47,8 @@ export type SceneGeometryGpuResidency = {
   enqueue: (root: Object3D) => void;
   /** Unregister immediately before the root's authored disposal/removal. */
   release: (root: Object3D) => void;
+  /** Retire the old registered geometry before a source reference changes. */
+  retireForRebind: (object: Object3D) => boolean;
   /** Run before drawing; immediate also retires all eligible previous-view buffers. */
   refresh: (now?: number, immediate?: boolean) => number;
   readonly residentBuffers: number;
@@ -192,6 +201,9 @@ export function createSceneGeometryGpuResidency(
     owner.active = false;
     if (owner.object.onAfterRender === owner.wrapped) owner.object.onAfterRender = owner.original;
     owners.delete(owner.object);
+    detachEntry(owner);
+  };
+  const detachEntry = (owner: Owner): void => {
     const entry = owner.entry;
     entry.owners.delete(owner);
     if (entry.owners.size) return;
@@ -212,7 +224,7 @@ export function createSceneGeometryGpuResidency(
       if (!renderable(object)) return;
       const previous = owners.get(object);
       if (previous?.entry.geometry === object.geometry) return;
-      if (previous) removeOwner(previous);
+      if (previous) detachEntry(previous);
       let entry = geometries.get(object.geometry);
       if (!entry) {
         entry = {
@@ -225,6 +237,7 @@ export function createSceneGeometryGpuResidency(
         object.geometry.addEventListener("dispose", entry.onDispose);
         scan.push(entry);
       }
+      if (previous) { previous.entry=entry;entry.owners.add(previous);return; }
       const owner: Owner = {
         object, entry, active: true, original: object.onAfterRender, wrapped: object.onAfterRender,
       };
@@ -252,6 +265,16 @@ export function createSceneGeometryGpuResidency(
       if (owner) removeOwner(owner);
     });
     compactScan();
+  };
+  const retireForRebind = (object: Object3D): boolean => {
+    if(disposed)return false;if(!renderable(object))return true;const owner=owners.get(object);if(!owner)return true;
+    const entry=owner.entry;if(object.geometry!==entry.geometry)return false;
+    if(entry.owners.size===1){
+      if(entry.mutable||!unchangedStorage(entry)||entry.attributes.some(a=>(attributeOwners.get(a)?.size??0)!==1))return false;
+      if(entry.resident){retainedGpuGeometryRetirementsV309.add(entry.geometry);try{entry.geometry.dispose();}finally{retainedGpuGeometryRetirementsV309.delete(entry.geometry);}options.onEvict?.(entry.geometry);}
+    }
+    // Other owners of this same geometry keep its original handles alive.
+    return true;
   };
   const protectedOwner = (owner: Owner): boolean => {
     const object = owner.object;
@@ -335,7 +358,9 @@ export function createSceneGeometryGpuResidency(
     let evicted = 0;
     for (const entry of candidates) {
       if (!immediate && !jumped && residentBuffers <= budget && residentBytes <= byteBudget) break;
-      entry.geometry.dispose();
+      retainedGpuGeometryRetirementsV309.add(entry.geometry);
+      try { entry.geometry.dispose(); }
+      finally { retainedGpuGeometryRetirementsV309.delete(entry.geometry); }
       options.onEvict?.(entry.geometry);
       evicted++;
     }
@@ -351,7 +376,7 @@ export function createSceneGeometryGpuResidency(
   };
   renderer.domElement?.addEventListener("webglcontextlost", contextLost);
   return {
-    enqueue, release, refresh,
+    enqueue, release, refresh, retireForRebind,
     get residentBuffers() { return residentBuffers; },
     get residentBytes() { return residentBytes; },
     dispose: () => {

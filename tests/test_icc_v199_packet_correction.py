@@ -9,6 +9,8 @@ import json
 import sys
 from pathlib import Path
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from build_karl_marx_allee_v161 import mesh_signature  # noqa: E402
@@ -47,7 +49,7 @@ def test_scoped_packets_remove_only_audited_icc_faces_and_nav() -> None:
       old = json.loads(
         gzip.decompress(base64.b64decode(checkpoint[(chunk["id"], mode)]["gzipBase64"]))
       )
-      blob = (PUBLIC / report["newDescriptor"]["url"]).read_bytes()
+      blob = historical_asset_bytes_v194(PUBLIC / report["newDescriptor"]["url"], report["newDescriptor"]["sha256"], report["newDescriptor"]["bytes"], reader=lambda source: source.read_bytes())
       assert hashlib.sha256(blob).hexdigest() == report["newDescriptor"]["sha256"]
       new = json.loads(gzip.decompress(blob))
       if mode == "drawn":

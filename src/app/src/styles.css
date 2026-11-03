@@ -559,6 +559,27 @@ button:active:not(:disabled) {
   background: #b77f41;
 }
 
+.three-progress-track.is-indeterminate {
+  overflow: hidden;
+}
+
+.three-progress-track.is-indeterminate span {
+  width: 30%;
+  animation: startup-work-activity 1.25s ease-in-out infinite;
+}
+
+@keyframes startup-work-activity {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(440%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .three-progress-track.is-indeterminate span {
+    animation: none;
+    transform: translateX(110%);
+  }
+}
+
 .app-shell--night .three-progress--startup {
   border-color: rgba(235, 233, 212, 0.17);
   color: #edeade;

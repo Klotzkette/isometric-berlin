@@ -2964,6 +2964,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
                   <StartupPresentation
                     label={copy.loadingCity}
                     percentage={0}
+                    indeterminate
                     showBackdrop
                   />
                 </div>
@@ -2984,6 +2985,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
                 pedestrianMode={isPedestrianMode}
                 precipitationEnabled={precipitationEnabled}
                 progressLabel={copy.loadingCity}
+                startupLanguage={language}
                 sceneUrl={sceneUrl}
                 selectedLandmark={selected}
                 openingLandmark={openingLandmarkRef.current}

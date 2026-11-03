@@ -1,5 +1,7 @@
 import { expect, test } from "bun:test";
 import ts from "typescript";
+import { Group } from "three";
+import { createNorthernLoaderV309 } from "../src/northernLoaderV309";
 
 const source = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
 const parsed = ts.createSourceFile("ThreeViewer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
@@ -17,6 +19,9 @@ function factory(name: string, overrides: Record<string, unknown>) {
     ts.forEachChild(node, visit);
   };
   visit(node);
+  // Legacy navigation fixtures intentionally have no measured Northern owner.
+  // A generic false-returning sampler is not a valid optional bundle.
+  bindings.currentNorthernV309 = () => undefined;
   Object.assign(bindings, overrides);
   const code = ts.transpileModule(node.getText(parsed), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
   return new Function(...Object.keys(bindings), `${code}; return ${name};`)(...Object.values(bindings));
@@ -144,3 +149,26 @@ for (const outcome of ["success", "disposed", "replaced", "failed"] as const) {
     load(); expect(fetches).toBe(1);
   });
 }
+
+// Exercise the actual runtime getter separately from the legacy no-North
+// fixtures, with real loader attachment, family selection and revocation.
+test("Northern runtime lookup routes the current family and preserves the loader live gate", async () => {
+  const worlds = [new Group(), new Group()];
+  let admitted = true, restored = 0, released = 0;
+  const loader = createNorthernLoaderV309({
+    load: async () => true, world: native => worlds[Number(native)], active: () => true,
+    build: function* (_module, _native, onCreate) { const root = new Group(); onCreate(root); yield; return { root, prepared: () => true, complete: () => admitted && root.parent !== null }; },
+    publish: () => {}, rollback: () => { restored++; }, release: () => { released++; }, yieldTask: async () => {},
+  });
+  const current = factory("currentNorthernV309", { voxelModeActive: (runtime: { lightingMode: string }) => runtime.lightingMode === "minecraft" });
+  const runtime = { lightingMode: "day", northernV309: loader };
+  expect(current({ lightingMode: "day" })).toBeUndefined();
+  expect(current(runtime)).toBeUndefined();
+  const drawn = await loader.ensure(false), native = await loader.ensure(true);
+  expect(current(runtime)).toBe(drawn);
+  runtime.lightingMode = "minecraft"; expect(current(runtime)).toBe(native);
+  admitted = false; expect(current(runtime)).toBeUndefined(); expect(restored).toBe(1); expect(released).toBe(1);
+  runtime.lightingMode = "day"; expect(current(runtime)).toBeUndefined(); expect(restored).toBe(2); expect(released).toBe(2);
+  expect(worlds.every(world => world.children.length === 0)).toBe(true);
+  loader.dispose();
+});

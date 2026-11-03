@@ -14,6 +14,7 @@ from shapely.geometry import Point, Polygon, box, shape
 from shapely.ops import unary_union
 
 from scripts.build_prisons_memorials_v209 import build
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
@@ -186,10 +187,32 @@ def test_native_skin_is_hollow_and_preserves_every_sampled_surface_cell() -> Non
   assert not hsh.covers(Point(8900, -2345))
 
 
-def test_old_source_shell_and_ink_receipts_match_every_original_primitive() -> None:
+def test_old_source_shell_and_ink_receipts_match_every_original_primitive(monkeypatch) -> None:
   from scripts.build_prisons_memorials_ownership_v209 import build as ownership
 
-  receipt = ownership()
+  _original_receipt_v314 = json.loads(
+    (ROOT / "src/app/src/data/prisonsMemorialsOwnershipV209.json").read_bytes()
+  )
+  _expected_v314 = {}
+  for _record_v314 in (
+    _original_receipt_v314["records"]
+    + _original_receipt_v314["navigationRecords"]
+  ):
+    _path_v314 = (
+      ROOT / "src/app/public/mesh/surrounding-berlin-v159"
+      / f"{_record_v314['tile']}.{_record_v314['mode']}.json.gz"
+    ).resolve()
+    assert (
+      _path_v314 not in _expected_v314
+      or _expected_v314[_path_v314] == _record_v314["sha256"]
+    )
+    _expected_v314[_path_v314] = _record_v314["sha256"]
+  _reader_v314 = Path.read_bytes
+  with monkeypatch.context() as _scope_v314:
+    _scope_v314.setattr(
+      Path, "read_bytes", _historical_source_reader_v314(_expected_v314, _reader_v314)
+    )
+    receipt = ownership()
   assert receipt == json.loads(
     (ROOT / "src/app/src/data/prisonsMemorialsOwnershipV209.json").read_bytes()
   )
@@ -220,3 +243,13 @@ def test_all_prepared_json_is_strict_finite_json() -> None:
       path.read_bytes(),
       parse_constant=lambda value: pytest.fail(f"{path.name}: nonfinite {value}"),
     )
+
+
+def _historical_source_reader_v314(expected, reader):
+  def historical(path):
+    digest = expected.get(path.resolve())
+    if digest is None:
+      return reader(path)
+    return historical_asset_bytes_v194(path, digest, reader=reader)
+
+  return historical

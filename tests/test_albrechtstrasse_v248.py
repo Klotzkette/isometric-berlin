@@ -1,5 +1,6 @@
 """The finite Albrechtstraße 131 overlay must stay on real, exposed source walls."""
 
+import gzip
 import hashlib
 import importlib.util
 import json
@@ -8,6 +9,8 @@ from pathlib import Path
 
 import numpy as np
 from shapely.geometry import Point, Polygon, box
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -18,6 +21,27 @@ def load():
   )
   module = importlib.util.module_from_spec(spec)
   spec.loader.exec_module(module)
+  # Replay only the compiler's declared complete original source fingerprints.
+  # Its source() still decodes the actual current packet bytes below.
+  receipts = json.loads(module.EVIDENCE.read_bytes())
+  expected = {}
+  for key in ["preservedSha256", "packetSha256"]:
+    for name, digest in receipts[key].items():
+      assert name not in expected or expected[name] == digest
+      expected[name] = digest
+  original_sha = module.sha
+
+  def historical_sha(path):
+    digest = expected.get(str(path.relative_to(ROOT)))
+    if digest is None:
+      return original_sha(path)
+    raw = historical_asset_bytes_v194(path, digest)
+    if path.suffix == ".gz":
+      # Keep the actual decoded geometry authoritative, byte for byte.
+      assert gzip.decompress(raw) == gzip.decompress(path.read_bytes())
+    return hashlib.sha256(raw).hexdigest()
+
+  module.sha = historical_sha
   return module
 
 
@@ -29,7 +53,7 @@ def test_exact_replay_and_immutable_source_receipts():
   assert len(evidence["preservedSha256"]) == 5
   for key in ["preservedSha256", "packetSha256"]:
     for name, sha in evidence[key].items():
-      assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == sha
+      assert hashlib.sha256(historical_asset_bytes_v194(ROOT / name, sha)).hexdigest() == sha
   assert evidence["owner"] == "DEBE06YYB0000PVc"
   assert evidence["heritage"]["id"] == "09065472"
 

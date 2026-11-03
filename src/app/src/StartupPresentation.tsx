@@ -2,6 +2,9 @@ type StartupPresentationProps = {
   label: string;
   percentage: number;
   showBackdrop: boolean;
+  detail?: string;
+  counter?: string;
+  indeterminate?: boolean;
 };
 
 /** A lightweight title plate shared by the lazy import and scene assembly. */
@@ -9,6 +12,9 @@ export function StartupPresentation({
   label,
   percentage,
   showBackdrop,
+  detail,
+  counter,
+  indeterminate = false,
 }: StartupPresentationProps) {
   if (!showBackdrop && percentage >= 100) return null;
 
@@ -39,12 +45,12 @@ export function StartupPresentation({
             <strong className="three-startup-title">Berlin</strong>
           </header>
         ) : null}
-        <span className="three-progress-label">{label}</span>
+        <span className="three-progress-label">{detail ?? label}</span>
         <strong className="three-progress-percentage" aria-hidden="true">
-          {percentage}%
+          {counter ?? (indeterminate ? "…" : `${percentage}%`)}
         </strong>
-        <div className="three-progress-track" aria-hidden="true">
-          <span style={{ width: `${percentage}%` }} />
+        <div className={`three-progress-track${indeterminate ? " is-indeterminate" : ""}`} aria-hidden="true">
+          <span style={indeterminate ? undefined : { width: `${percentage}%` }} />
         </div>
       </div>
     </>

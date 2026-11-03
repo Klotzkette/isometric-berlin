@@ -12,6 +12,8 @@ from pathlib import Path
 import numpy as np
 from shapely.geometry import box, shape
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 spec = importlib.util.spec_from_file_location(
@@ -81,65 +83,75 @@ def test_complete_measured_owners_and_height_offsets():
         assert len(nav["holes"]) == len(p["holes"])
 
 
-def test_exact_old_owner_receipts_keep_other_meshes_and_navigation():
+def test_exact_old_owner_receipts_keep_other_meshes_and_navigation(monkeypatch):
   source = m.read(m.SOURCE)
   receipt = m.read(m.REPLACEMENT)
-  for b in source["buildings"]:
-    for mode in ("drawn", "minecraft"):
-      r = receipt["packets"][mode + ":" + b["packet"]]
-      path = m.OUT / f"{b['packet']}.{mode}.json.gz"
-      assert m.sha(path) == r["sourcePacketSha256"]
-      old = m.read(path)
-      tile = box(
-        old["origin"][0],
-        old["origin"][2],
-        old["origin"][0] + 512,
-        old["origin"][2] + 512,
-      )
-      owner = {**b["oldOwner"], "geometry": shape(b["oldOwner"]["geometry"])}
-      # Source owner lies completely inside the ground, independent of ground triangles.
-      full = m.chunk_payload(
-        b["packet"], tile, tile, [owner], {}, minecraft=mode == "minecraft"
-      )
-      empty = m.chunk_payload(
-        b["packet"], tile, tile, [], {}, minecraft=mode == "minecraft"
-      )
-      expected = m.mesh_signature(full) - m.mesh_signature(empty)
-      actual = Counter()
-      for record in r["records"]:
-        mesh = old["meshes"][record["mesh"]]
-        assert record["fingerprint"] == m.fingerprint(
-          [mesh[k] for k in ("positions", "colors", "indices")]
+  _expected_v314 = {
+    (m.OUT / f"{key.split(':')[1]}.{key.split(':')[0]}.json.gz").resolve():
+    record["sourcePacketSha256"]
+    for key, record in receipt["packets"].items()
+  }
+  _reader_v314 = Path.read_bytes
+  with monkeypatch.context() as _scope_v314:
+    _scope_v314.setattr(
+      Path, "read_bytes", _historical_source_reader_v314(_expected_v314, _reader_v314)
+    )
+    for b in source["buildings"]:
+      for mode in ("drawn", "minecraft"):
+        r = receipt["packets"][mode + ":" + b["packet"]]
+        path = m.OUT / f"{b['packet']}.{mode}.json.gz"
+        assert m.sha(path) == r["sourcePacketSha256"]
+        old = m.read(path)
+        tile = box(
+          old["origin"][0],
+          old["origin"][2],
+          old["origin"][0] + 512,
+          old["origin"][2] + 512,
         )
-        assert mesh["kind"] == "city"
-        keys = signatures(mesh)
-        assert len(record["triangles"]) == len(set(record["triangles"]))
-        actual.update(keys[i] for i in record["triangles"])
-      assert actual == expected
-      nav = [n for n in old["nav"]["buildings"] if n["sourceId"] == b["owner"]]
-      assert [n["original"] for n in r["navigationRecords"]] == nav
-      assert all(n["owner"] == b["owner"] for n in r["navigationRecords"])
-      if mode == "drawn":
-        assert r["lineFingerprint"] == m.fingerprint(
-          [old["lines"][k] for k in ("positions", "colors")]
+        owner = {**b["oldOwner"], "geometry": shape(b["oldOwner"]["geometry"])}
+        # Source owner lies completely inside the ground, independent of ground triangles.
+        full = m.chunk_payload(
+          b["packet"], tile, tile, [owner], {}, minecraft=mode == "minecraft"
         )
-        # Remove only exact owner roof outlines; no road/curb/source line is selected.
-        expected_lines = m.line_signature(full["lines"]) - m.line_signature(
-          empty["lines"]
+        empty = m.chunk_payload(
+          b["packet"], tile, tile, [], {}, minecraft=mode == "minecraft"
         )
-        mesh = old["lines"]
-        v = np.column_stack(
-          [
-            vertices(mesh),
-            np.frombuffer(base64.b64decode(mesh["colors"]), "u1").reshape(-1, 3),
-          ]
-        ).reshape(-1, 2, 6)
-        selected = Counter(
-          b"".join(sorted(p.tobytes() for p in v[i])) for i in r["segments"]
-        )
-        assert selected == expected_lines
-      else:
-        assert not r["segments"]
+        expected = m.mesh_signature(full) - m.mesh_signature(empty)
+        actual = Counter()
+        for record in r["records"]:
+          mesh = old["meshes"][record["mesh"]]
+          assert record["fingerprint"] == m.fingerprint(
+            [mesh[k] for k in ("positions", "colors", "indices")]
+          )
+          assert mesh["kind"] == "city"
+          keys = signatures(mesh)
+          assert len(record["triangles"]) == len(set(record["triangles"]))
+          actual.update(keys[i] for i in record["triangles"])
+        assert actual == expected
+        nav = [n for n in old["nav"]["buildings"] if n["sourceId"] == b["owner"]]
+        assert [n["original"] for n in r["navigationRecords"]] == nav
+        assert all(n["owner"] == b["owner"] for n in r["navigationRecords"])
+        if mode == "drawn":
+          assert r["lineFingerprint"] == m.fingerprint(
+            [old["lines"][k] for k in ("positions", "colors")]
+          )
+          # Remove only exact owner roof outlines; no road/curb/source line is selected.
+          expected_lines = m.line_signature(full["lines"]) - m.line_signature(
+            empty["lines"]
+          )
+          mesh = old["lines"]
+          v = np.column_stack(
+            [
+              vertices(mesh),
+              np.frombuffer(base64.b64decode(mesh["colors"]), "u1").reshape(-1, 3),
+            ]
+          ).reshape(-1, 2, 6)
+          selected = Counter(
+            b"".join(sorted(p.tobytes() for p in v[i])) for i in r["segments"]
+          )
+          assert selected == expected_lines
+        else:
+          assert not r["segments"]
 
 
 def test_native_orthogonal_and_bounded_companions_with_valid_empty_nav():
@@ -217,3 +229,13 @@ def test_access_sources_and_no_hall_window_invention():
     if s["key"] == "huxleys"
     for d in s["details"]
   )
+
+
+def _historical_source_reader_v314(expected, reader):
+  def historical(path):
+    digest = expected.get(path.resolve())
+    if digest is None:
+      return reader(path)
+    return historical_asset_bytes_v194(path, digest, reader=reader)
+
+  return historical

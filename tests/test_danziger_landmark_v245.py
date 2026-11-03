@@ -10,6 +10,8 @@ import numpy as np
 from shapely.affinity import translate
 from shapely.geometry import Point, Polygon, shape
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
 OUT = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
@@ -50,7 +52,9 @@ def test_exact_named_owner_and_all_previous_packets_are_preserved() -> None:
     for mode in ("drawn", "minecraft"):
       assert SOURCE["packetReceipts"][desc[mode]["url"]] == desc[mode]["sha256"]
   for url, sha in SOURCE["packetReceipts"].items():
-    assert hashlib.sha256((OUT / url).read_bytes()).hexdigest() == sha
+    historical = historical_asset_bytes_v194(OUT / url, sha, reader=Path.read_bytes)
+    assert gzip.decompress(historical) == gzip.decompress((OUT / url).read_bytes())
+    assert hashlib.sha256(historical).hexdigest() == sha
   assert ADDITION["chunks"] == EVIDENCE["companions"]
   assert len(ADDITION["chunks"]) == 1
 

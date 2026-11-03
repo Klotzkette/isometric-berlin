@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+import gzip
+import hashlib
 import importlib.util
 import json
 import math
 from pathlib import Path
 
 import numpy as np
+import pytest
 from shapely.geometry import Polygon, shape
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location(
@@ -35,13 +40,29 @@ def footprint(row: list, native: bool = False) -> Polygon:
 
 
 def test_original_sources_packets_and_rebuild_are_exact() -> None:
-  for path, digest in (E["sourceSha256"] | E["packetSha256"]).items():
-    assert M.sha(ROOT / path) == digest
-  built, evidence = M.build()
-  assert built == DATA
-  assert json.loads(json.dumps(evidence)) == E
-  assert len(DATA["boxes"]) < 600
-  assert len(DATA["nativeRows"]) < 1200
+  original_sha = M.sha
+  expected_sources = E["sourceSha256"] | E["packetSha256"]
+
+  def historical_sha(path):
+    expected = expected_sources.get(str(path.relative_to(ROOT)))
+    if expected is None:
+      return original_sha(path)
+    raw = path.read_bytes()
+    historical = historical_asset_bytes_v194(path, expected, reader=Path.read_bytes)
+    assert (
+      gzip.decompress(historical) if path.suffix == ".gz" else historical
+    ) == (gzip.decompress(raw) if path.suffix == ".gz" else raw)
+    return hashlib.sha256(historical).hexdigest()
+
+  with pytest.MonkeyPatch.context() as historical:
+    historical.setattr(M, "sha", historical_sha)
+    for path, digest in (E["sourceSha256"] | E["packetSha256"]).items():
+      assert M.sha(ROOT / path) == digest
+    built, evidence = M.build()
+    assert built == DATA
+    assert json.loads(json.dumps(evidence)) == E
+    assert len(DATA["boxes"]) < 600
+    assert len(DATA["nativeRows"]) < 1200
 
 
 def test_school_panes_preserve_original_opening_register_and_frame_clearance() -> None:

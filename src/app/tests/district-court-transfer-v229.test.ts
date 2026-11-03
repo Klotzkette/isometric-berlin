@@ -2,6 +2,7 @@ import { expect,test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
+import { verifiedPriorPacketShaV193 } from './helpers/losslessPacketsV193';
 import receipt from '../src/data/districtCourtsV229Ownership.json';
 import { transferExactPacketTriangles,transferExactPacketLines } from '../src/exactPacketTransfer';
 import { createProgressiveBuildingCoverage,hideReplacedBuildingPreview,restoreBuildingPreview } from '../src/progressiveBuildingCoverage';
@@ -17,7 +18,7 @@ test('every packet transfer is exact, reversible, and safe across parked reloads
  for(const record of receipt.records){
   const desc=manifest.chunks.find((r:any)=>r.id===record.tile);
   const bytes=readFileSync(new URL(path+desc[record.mode].url,import.meta.url));
-  expect(createHash('sha256').update(bytes).digest('hex')).toBe(record.sha256);
+  expect(verifiedPriorPacketShaV193(new URL(path+desc[record.mode].url,import.meta.url), bytes)).toBe(record.sha256);
   const packet=JSON.parse(gunzipSync(bytes).toString());const mesh=packet.meshes.find((m:any)=>m.kind===record.kind);
   const raw=Buffer.from(mesh.indices,'base64');const original=new Uint32Array(raw.buffer,raw.byteOffset,raw.byteLength/4).slice();
   const result=original.slice();const n=finish(transferExactPacketTriangles(receipt.records,record.tile,record.mode==='minecraft',mesh,result,0));

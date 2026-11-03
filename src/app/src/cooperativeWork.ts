@@ -6,11 +6,15 @@ export async function completeCooperatively<T>(
     isCancelled: () => boolean;
     budgetMs?: number;
     now?: () => number;
+    onCheckpoint?: (completedSteps: number) => void;
+    /** Synchronous final publication, before a resolved-Promise microtask gap. */
+    onComplete?: (value: T) => void;
   },
 ): Promise<T> {
   const now = options.now ?? (() => performance.now());
   const budgetMs = options.budgetMs ?? 8;
   let complete = false;
+  let completedSteps = 0;
   try {
     await options.yieldTask();
     let deadline = now() + budgetMs;
@@ -20,10 +24,14 @@ export async function completeCooperatively<T>(
       }
       const next = steps.next();
       if (next.done) {
+        options.onCheckpoint?.(completedSteps);
+        options.onComplete?.(next.value);
         complete = true;
         return next.value;
       }
+      completedSteps += 1;
       if (now() >= deadline) {
+        options.onCheckpoint?.(completedSteps);
         await options.yieldTask();
         deadline = now() + budgetMs;
       }

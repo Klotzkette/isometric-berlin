@@ -13,6 +13,8 @@ import numpy as np
 import pytest
 from shapely.ops import unary_union
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_moabit_mitte_v300_stream as build  # noqa: E402
@@ -170,4 +172,4 @@ def test_native_anchor_receipts_match_retained_resident_source(source: tuple) ->
 def test_full_source_receipts_remain_unchanged(source: tuple) -> None:
   _, evidence = source
   for file, digest in evidence["sourceHashes"].items():
-    assert hashlib.sha256((ROOT / file).read_bytes()).hexdigest() == digest
+    assert hashlib.sha256(historical_asset_bytes_v194(ROOT / file, digest, reader=lambda path: path.read_bytes())).hexdigest() == digest

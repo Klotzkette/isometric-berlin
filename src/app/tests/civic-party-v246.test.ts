@@ -3,6 +3,7 @@ import { Box3, InstancedMesh } from "three";
 import { createCivicPartyDetailsV246, CIVIC_V246 } from "../src/CivicPartyDetailsV246";
 import receipt from "../../../geo_data/regierungsviertel/civic-v246-source.json";
 import { disposeStaticAudit } from "./helpers/staticGeometryAudit";
+import { verifiedPriorPacketShaV193 } from "./helpers/losslessPacketsV193";
 
 test("v246 identity and unchanged complete source envelopes are retained", async () => {
   expect(CIVIC_V246.rosa.address).toBe("Straße der Pariser Kommune 8A");
@@ -10,7 +11,7 @@ test("v246 identity and unchanged complete source envelopes are retained", async
   expect(receipt.sites.map(s => s.osm).sort()).toEqual(Object.values(CIVIC_V246).map(s => s.osm).sort());
   for (const [path, hash] of Object.entries(receipt.unchangedFiles)) {
     const bytes = await Bun.file(`${import.meta.dir}/../../../${path}`).arrayBuffer();
-    expect(new Bun.CryptoHasher("sha256").update(bytes).digest("hex")).toBe(hash);
+    expect(verifiedPriorPacketShaV193(`${import.meta.dir}/../../../${path}`, new Uint8Array(bytes))).toBe(hash);
   }
 });
 

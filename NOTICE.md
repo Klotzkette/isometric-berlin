@@ -2802,3 +2802,25 @@ operator/architectural references in [the v305 notes](docs/neukoelln-landmarks-v
 The Rathaus tower supplements a missing official-model element; conflicting
 published heights and the estimated interpretation are documented there.
 No photographic pixels, logos, private-image files or photo textures are bundled.
+
+
+## Northern parks, railway sites and hospitals
+
+Land Berlin / Geoportal Berlin supplies complete LoD2 building sheets, bounded
+DGM1 terrain and bDOM height observations, and reference-only DOP 2025 imagery
+(dl-de/zero-2-0). © OpenStreetMap contributors supply the retained mapped
+streets, bridges, railway alignment, addresses and public-space context (ODbL).
+The current Lessing school identity follows the Berlin school directory and
+Landesdenkmalamt Berlin; the LDA 2004 photograph is an architectural reference.
+WBM, Museum Pankow and Berliner Bäder-Betriebe establish the Thälmannpark
+identities; Berlin.de/dpa photographs inform the monument interpretation.
+
+The hospital references include the respective operators, architects and
+engineers, the retained official models and the LDA's 2026 CBF facade record.
+Individual URLs, creators, observation dates and the distinction between
+measured geometry and small display estimates are in the
+[northern site notes](docs/north-sites-v306.md),
+[rail/SSE notes](docs/rail-sse-v307.md) and
+[hospital reference ledger](geo_data/regierungsviertel/hospitals-v308-reference-evidence.json).
+No photographic pixels, downloaded reference images, plans or textures are
+distributed. Earlier source records and original models remain retained.

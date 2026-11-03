@@ -100,6 +100,9 @@ export type SurroundingPackedMesh = {
   positions: string;
   positionType: "u16cm";
   colors: string;
+  /** Omitted/u8 is the original source palette. u16linear retains the exact
+   * final decoder colours of a source-owned terrain complement. */
+  colorType?: "u8" | "u16linear";
   indices: string;
 };
 export type SurroundingPackedLines = {
@@ -205,8 +208,19 @@ function* interleavedPositions(encoded: string, values: Uint16Array,
 }
 
 function* interleavedColors(encoded: string, values: Uint16Array,
-  vertexOffset: number, owners?: SurroundingColourOwners, grounded = false): Generator<void> {
+  vertexOffset: number, owners?: SurroundingColourOwners, grounded = false,
+  linearWords = false): Generator<void> {
   let to = vertexOffset * 6 + 3;
+  if (linearWords) {
+    for (const bytes of binarySlices(encoded, 6)) {
+      const source = new Uint16Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / 2);
+      for (let i = 0; i < source.length; i += 3, to += 6) {
+        values[to] = source[i]; values[to + 1] = source[i + 1]; values[to + 2] = source[i + 2];
+      }
+      yield;
+    }
+    return;
+  }
   const scratch: [number, number, number] = [0, 0, 0];
   for (const bytes of binarySlices(encoded, 3)) {
     for (let i = 0; i < bytes.length; i += 3, to += 6) {
@@ -285,8 +299,9 @@ export type SurroundingOwnershipOptions = {
   stralauSisyphosV299?: boolean;
   neighbourhoodV300?: boolean;
   sourceQuartersV303?: boolean;
-  sourceQuarterSourcesV303?: readonly {source:SourceQuarterSourceV303;kind:string;requiredReplacement?:boolean}[];
+  sourceQuarterSourcesV303?: readonly {source:SourceQuarterSourceV303;kind:string;requiredReplacement?:boolean;admission?:"north-v309"}[];
   neukoellnLandmarksV305?: boolean;
+  northFidelityV309?: boolean;
   westKiezV302?: boolean;
 };
 
@@ -354,7 +369,7 @@ export function* buildSurroundingCityChunk(
   }
   const quarterTicketsV303:SourceQuarterTicketV303[]=[];
   if(ownership.sourceQuartersV303===true)for(const entry of ownership.sourceQuarterSourcesV303??[]){
-    if(entry.requiredReplacement&&ownership.neukoellnLandmarksV305!==true)continue;
+    if(entry.admission==="north-v309"?ownership.northFidelityV309!==true:entry.requiredReplacement&&ownership.neukoellnLandmarksV305!==true)continue;
     if(!neighbourhoodPacketCandidateV300(entry.source as unknown as NeighbourhoodSourceV300,id,minecraft))continue;
     const plan=entry.source.packets[`${minecraft?"minecraft":"drawn"}:${id}`];
     const ticket=plan?.preparedRecords
@@ -383,14 +398,16 @@ export function* buildSurroundingCityChunk(
     let vertexCount = 0, indexCount = 0;
     for (const part of chunk.meshes) {
       if (part.positionType !== "u16cm" || typeof part.positions !== "string" ||
-          typeof part.colors !== "string" || typeof part.indices !== "string") {
+          typeof part.colors !== "string" || typeof part.indices !== "string" ||
+          (part.colorType !== undefined && part.colorType !== "u8" && part.colorType !== "u16linear")) {
         throw new Error("Invalid surrounding-city mesh encoding");
       }
       const positionBytes = encodedBytes(part.positions, 6);
-      const colorBytes = encodedBytes(part.colors, 3);
+      const colorStride = part.colorType === "u16linear" ? 6 : 3;
+      const colorBytes = encodedBytes(part.colors, colorStride);
       const indexBytes = encodedBytes(part.indices, 12);
       const count = positionBytes / 6;
-      if (colorBytes !== count * 3) throw new Error("Surrounding-city colour count differs from positions");
+      if (colorBytes !== count * colorStride) throw new Error("Surrounding-city colour count differs from positions");
       vertexCount += count;
       indexCount += indexBytes / 4;
       if (vertexCount > MAX_VERTEX_COUNT || indexCount > MAX_INDEX_COUNT) {
@@ -402,13 +419,13 @@ export function* buildSurroundingCityChunk(
     // source index while avoiding four-byte indices where two are sufficient.
     // WebGL2 reserves 0xffff for primitive restart, so 65,536 vertices require U32.
     let indices = vertexCount <= 65_535 ? new Uint16Array(indexCount) : new Uint32Array(indexCount);
-    const colourOwners = chunk.meshes.some(part => part.kind === "city")
+    const colourOwners = chunk.meshes.some(part => part.kind === "city" && part.colorType !== "u16linear")
       ? yield* surroundingColourOwners(chunk.nav.buildings, chunk.nav.groundY, chunk.origin[1], chunk.origin[0], chunk.origin[2], undefined, refineOuterRoofsV230(id), refineOuterHousePaletteV262(id), refineOuterHousePaletteV262(id) ? primaryHousePaletteV273 : undefined) : undefined;
     let vertexOffset = 0, indexOffset = 0;
     for (const [meshIndex, part] of chunk.meshes.entries()) {
       const count = encodedBytes(part.positions, 6) / 6;
       yield* interleavedPositions(part.positions, vertices, vertexOffset, 6);
-      yield* interleavedColors(part.colors, vertices, vertexOffset, part.kind === "city" ? colourOwners : undefined, !minecraft);
+      yield* interleavedColors(part.colors, vertices, vertexOffset, part.kind === "city" ? colourOwners : undefined, !minecraft, part.colorType === "u16linear");
       let written = 0;
       for (const bytes of binarySlices(part.indices, 12)) {
         const source = new Uint32Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / 4);
@@ -431,10 +448,13 @@ export function* buildSurroundingCityChunk(
       if (siteTransferred) root.userData.siteTransferredTrianglesV209 = (root.userData.siteTransferredTrianglesV209 ?? 0) + siteTransferred;
       // The v169 core resident packets contain source shells only. Refine the
       // existing streamed drawn window recipes; never add a second facade.
-      if (!minecraft && !id.startsWith("alt-mitte-v169-") && part.kind === "alt-mitte-v169") {
+      if (part.colorType !== "u16linear" && !minecraft && !id.startsWith("alt-mitte-v169-") && part.kind === "alt-mitte-v169") {
         const shaded = yield* shadeAltMitteFacadeV186(vertices, indices, indexOffset, written);
         root.userData.altMitteWindowRelief = (root.userData.altMitteWindowRelief ?? 0) + shaded;
       }
+      // Already-decoded linear colours must not pass through historical palette
+      // recipes a second time. Source topology transfers still run below.
+      if (part.colorType !== "u16linear") {
       const greyCorners = yield* applyGreyClusterColoursV263(chunk, id, minecraft, meshIndex, vertices, vertexOffset, count, undefined, primaryHousePaletteV273);
       if (greyCorners) root.userData.greyClusterColourVerticesV263 = (root.userData.greyClusterColourVerticesV263 ?? 0) + greyCorners;
       const primaryColours = yield* applyPrimaryColoursV273(chunk, id, minecraft, meshIndex, vertices, vertexOffset, count);
@@ -465,6 +485,7 @@ export function* buildSurroundingCityChunk(
       if (outerPanes) root.userData.outerHousePanesV230 = (root.userData.outerHousePanesV230 ?? 0) + outerPanes;
       const golgathaAppearance = yield* applyGolgathaColoursV270(ownership.golgathaV270 === true, id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (golgathaAppearance) root.userData.golgathaMaterialVerticesV270 = (root.userData.golgathaMaterialVerticesV270 ?? 0) + golgathaAppearance;
+      }
       const replacedRoof = yield* applyRoofHouseV233Triangles(chunk, meshIndex, indices, indexOffset);
       if (replacedRoof) root.userData.roofHouseTrianglesV233 = (root.userData.roofHouseTrianglesV233 ?? 0) + replacedRoof;
       const outerRoofs = yield* applyOuterRoofsV262Triangles(chunk, meshIndex, indices, indexOffset);
@@ -571,7 +592,7 @@ export function* buildSurroundingCityChunk(
       root.userData.cityWestTransferredLineSegmentsV281 = yield* applyCityWestTransportV281Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.koepenickerLandmarksTransferredLineSegmentsV268 = yield* applyKoepenickerLandmarksV268Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.streetCurveSegmentsV276 = yield* applyStreetCurveLinesV276(chunk, values.subarray(0,hillLineStartV298*(hasLineColors?6:3)), hasLineColors ? 6 : 3, sourceLineCount);
-      root.userData.mauerparkTerrainLineSegmentsV298=yield* applyMauerparkTerrainLinesV298(chunk,values,hasLineColors?6:3,hillLineStartV298);
+      root.userData.mauerparkTerrainLineSegmentsV298=yield* applyMauerparkTerrainLinesV298(chunk,values.subarray(0,quarterLineStartV303*(hasLineColors?6:3)),hasLineColors?6:3,hillLineStartV298);
       root.userData.sourceQuarterLineSegmentsV303=yield*applySourceQuarterLinesV303(chunk,values,hasLineColors?6:3,quarterLineStartV303);
       geometryBytes += values.byteLength;
       yield* geometryBounds(geometry);

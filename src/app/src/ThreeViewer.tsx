@@ -1,4 +1,10 @@
-import {SOURCE_QUARTERS_V303} from "./SourceQuartersV303";
+import {assignStableInkRenderOrder} from "./stableInkRenderOrderV310";
+import {loadSourceQuarterRecipesV309} from "./SourceQuarterCatalogueV309";
+import {createNorthernLoaderV309, type NorthernLoaderV309} from "./northernLoaderV309";
+import {createNorthernQuarterLoadingV309} from "./northernQuarterLoadingV309";
+import {northernFidelityVisibleV309} from "./northernVisibilityV309";
+import type {NorthernFidelityBundleV309} from "./NorthernFidelityV309";
+import type {NorthTerrainDrapingV309Transaction} from "./northTerrainDrapingV309";
 import {syncQuarterLegacyFittingsV303,type QuarterLegacyReceiptV303} from "./QuarterLegacyFittingsV303";
 import legacyQuartersV304 from "./data/legacyFittingsV304.json";
 import {hasCompleteNeukoellnLandmarksV305} from "./NeukoellnLandmarksV305";
@@ -98,6 +104,7 @@ import { sovietMemorialWalkableAt, sovietMemorialSolidAt, sovietMemorialGroundAt
 import { setSovietMemorialSmoothVisibility } from "./MinecraftSovietMemorial";
 import { setComposerMemorialSmoothVisibility } from "./MusicComposerMemorial";
 import { completeCooperatively } from "./cooperativeWork";
+import { startupWorkPresentationV309, type StartupWorkV309 } from "./startupWorkV309";
 import { WORLD_ORBIT_BASE_DISTANCE_M, worldCameraFarM } from "./worldCameraDepth";
 import { createSceneGpuWarmup, type SceneGpuWarmup } from "./sceneGpuWarmup";
 import { createSceneGpuResidency, type SceneGpuResidency } from "./sceneGpuResidency";
@@ -411,7 +418,7 @@ import {
   SURFACE_WORLD_FILE,
   PRISM_WORLD_FILE,
   createBridgeStructures,
-  createIsometricCity,
+  createIsometricCityStepsV309,
   setIsoNightPresentation,
 } from "./IsometricCityWorld";
 import {
@@ -440,6 +447,7 @@ import {
   VOXEL_WORLD_FILE,
   WATER_TOP_Y,
   smoothGroundTopSampler,
+  worldGroundSampler,
 } from "./terrainPayload";
 import { setMinecraftArchitecturePresentation } from "./MinecraftArchitecturalLandmarks";
 import { hauptbahnhofGroundAt, hauptbahnhofSolidAt, hauptbahnhofCirculationBoundsAt } from "./HauptbahnhofNavigation";
@@ -614,6 +622,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { flushSync } from "react-dom";
 
 type SceneLandmark = {
   name: string;
@@ -670,6 +679,7 @@ type ThreeViewerProps = {
   pedestrianMode: boolean;
   precipitationEnabled: boolean;
   progressLabel: string;
+  startupLanguage?: "de" | "en";
   sceneUrl: string;
   selectedLandmark: string;
   openingLandmark?: string | null;
@@ -866,6 +876,11 @@ type Runtime = {
   worldFailureReported: boolean;
   contextLost: boolean;
   reportCoreProgress: (loaded: number, total: number) => void;
+  reportStartupWork?: (work: StartupWorkV309) => void;
+  northernV309?: NorthernLoaderV309<NorthernFidelityBundleV309>;
+  northernLastScanV309?: number;
+  outerOutlineTaskV309?: Promise<void>;
+  northernOriginalGroundV309?: { drawn?: (x:number,z:number)=>number|null; native?: (x:number,z:number)=>number|null };
   startDeferredDetails: () => void;
   trafficSignals?: Group | null;
   potsdamerTrafficTower: Group;
@@ -1679,6 +1694,103 @@ function fidelityAdmissionV296(runtime:Runtime):FidelityAdmissionV296 {
   return {native,courtsPark:world?.userData.courtsParkV293===true,south:world?.userData.southFidelityV294===true,dining:world?.userData.parliamentaryDiningV296===true,waterfront:world?.userData.waterfrontV296===true,wallGallery:world?.userData.wallGalleryV298===true};
 }
 
+function currentNorthernV309(runtime: Runtime): NorthernFidelityBundleV309 | undefined {
+  return runtime.northernV309?.current(voxelModeActive(runtime));
+}
+
+function installNorthernNavigationV309(runtime: Runtime, environment: PedestrianEnvironment): void {
+  const ground = environment.groundAt, floor = environment.interiorGroundAt, solid = environment.interiorSolidAt;
+  environment.groundAt = (x,z) => currentNorthernV309(runtime)?.terrainAt(x,z) ?? ground(x,z);
+  environment.interiorGroundAt = (x,z,current) => {
+    const bundle = currentNorthernV309(runtime), hint = current ?? environment.groundAt(x,z) ?? 0;
+    return bundle?.floorAt(x,z,hint) ?? bundle?.terrainAt(x,z) ?? floor?.(x,z,current) ?? null;
+  };
+  environment.interiorSolidAt = (x,y,z,radius=0) => currentNorthernV309(runtime)?.solidAt(x,y,z,radius) || solid?.(x,y,z,radius) || false;
+}
+
+const northernReadyMarksV310 = new WeakSet<Group>();
+
+function ensureNorthernV309(runtime: Runtime, native: boolean): Promise<NorthernFidelityBundleV309 | undefined> {
+  // The required measured Core transfer includes the settled worker surface,
+  // whose real owner does not exist in the temporary preview. Keep that
+  // complete predecessor until its ordinary base construction has finished.
+  if (!native && runtime.progressiveWorldInput && runtime.progressiveWorldState !== "complete") return Promise.resolve(undefined);
+  runtime.northernV309 ??= createNorthernLoaderV309({
+    load: async () => {
+      // The small old rail and hospital owners may live in the independent
+      // outline root. Its real constructor must finish before late transfer.
+      await runtime.outerOutlineTaskV309;
+      if (runtime.disposed || runtime.loadSignal.aborted) throw new DOMException("Northern loading cancelled", "AbortError");
+      if (!runtime.outerThinOutlines) throw Error("Northern predecessor is not ready");
+      return import("./NorthernFidelityV309");
+    },
+    build: (module, native, onCreate) => {
+      const world = native ? runtime.voxelWorld : runtime.isoWorld;
+      const originalGroundAt = native ? runtime.northernOriginalGroundV309?.native : runtime.northernOriginalGroundV309?.drawn;
+      if (!world || !originalGroundAt) throw Error("Northern original navigation source is not ready");
+      return module.createNorthernFidelityStepsV309(native, runtime.coarsePointer, {
+        world, originalGroundAt,
+        props: () => native ? [world] : [world, runtime.parkDetails],
+        beforeSwap: (mesh, kind) => kind === "instances"
+          ? runtime.gpuResidency?.retireForRebind(mesh as InstancedMesh) ?? true
+          : runtime.geometryResidency?.retireForRebind(mesh) ?? true,
+        afterSwap: () => {
+          runtime.gpuResidency?.enqueue(world);
+          runtime.geometryResidency?.enqueue(world);
+          runtime.gpuWarmup?.enqueue(world);
+          runtime.scheduleGpuWarmup?.();
+        },
+      }, onCreate);
+    },
+    world: native => native ? runtime.voxelWorld : runtime.isoWorld,
+    active: native => !runtime.disposed && !runtime.contextLost && !document.hidden &&
+      native === (runtime.lightingMode === "minecraft") &&
+      (native ? runtime.voxelWorld : runtime.isoWorld)?.parent === runtime.scene,
+    publish: (bundle, world, native) => {
+      if (!bundle.syncPrevious(runtime.scene, true)) throw Error("Incomplete northern predecessor transaction");
+      setIsoNightPresentation(bundle.root, runtime.lightingMode === "night", runtime.nightLightsOn, runtime.lightingMode);
+      if (runtime.lightingMode === "minecraft") setMinecraftMaterialPresentation(bundle.root, runtime.minecraftMaterialState, true);
+      runtime.gpuResidency?.enqueue(bundle.root);
+      runtime.geometryResidency?.enqueue(bundle.root);
+      runtime.gpuWarmup?.enqueue(bundle.root);
+      runtime.scheduleGpuWarmup?.();
+      void parkCompletedGeometry(runtime, bundle.root);
+      // Late terrain transfer replaces only a few retained storage objects.
+      // Repark those finished copies through the same serial queue; all already
+      // parked geometry remains an identity-preserving no-op.
+      void parkCompletedGeometry(runtime, world, true);
+      if (!native) void parkCompletedGeometry(runtime, runtime.parkDetails, true);
+      invalidateScenePresentation(runtime);
+    },
+    rollback: bundle => { bundle.syncPrevious(runtime.scene, false); invalidateScenePresentation(runtime); },
+    release: root => disposeObject3D(runtime, root),
+    yieldTask: yieldStartupWork,
+    signal: runtime.loadSignal,
+  });
+  return runtime.northernV309.ensure(native).then(bundle => {
+    if (bundle && !runtime.disposed && bundle.complete()) {
+      if (!northernReadyMarksV310.has(bundle.root)) {
+        northernReadyMarksV310.add(bundle.root);
+        performance.mark(native ? "isometric-northern-native-ready" : "isometric-northern-drawn-ready");
+      }
+      runtime.surroundingCity?.refresh();
+    }
+    return bundle;
+  });
+}
+
+/** Existing frame cadence, no new timer or cold-start model work. */
+function refreshNorthernV309(runtime: Runtime, timestamp: number): void {
+  if (!runtime.surroundingCity || !runtime.presentationReady || runtime.disposed || timestamp - (runtime.northernLastScanV309 ?? -Infinity) < 250) return;
+  runtime.northernLastScanV309 = timestamp;
+  const bundle = currentNorthernV309(runtime);
+  if (bundle) { bundle.syncPrevious(runtime.scene, true); return; }
+  if (!northernFidelityVisibleV309(runtime.camera)) return;
+  void ensureNorthernV309(runtime, runtime.lightingMode === "minecraft").catch(error => {
+    if (!runtime.disposed && !(error instanceof DOMException && error.name === "AbortError")) console.warn("Northern Berlin details:", error);
+  });
+}
+
 function startSurroundingCity(runtime: Runtime): void {
   if (runtime.disposed || runtime.surroundingCity) return;
   const city = createSurroundingCity({
@@ -1686,7 +1798,15 @@ function startSurroundingCity(runtime: Runtime): void {
     schlossplatzV239: true,
     stralauSisyphosV299:true,
     neighbourhoodV300:true,
-    sourceQuartersV303:true,sourceQuarterSourcesV303:SOURCE_QUARTERS_V303,
+    sourceQuartersV303:true,loadSourceQuarterSourcesV309:createNorthernQuarterLoadingV309({
+      loadRecipes:loadSourceQuarterRecipesV309,
+      // A closed required-model gate renders the exact original packet. The
+      // existing ensure completion refresh admits only affected north residents.
+      requestNorthern:native=>ensureNorthernV309(runtime,native),
+      active:native=>!runtime.disposed&&!runtime.loadSignal.aborted&&!runtime.contextLost&&!document.hidden&&native===(runtime.lightingMode==="minecraft"),
+      onError:error=>{if(!runtime.disposed&&!(error instanceof DOMException&&error.name==="AbortError"))console.warn("Northern Berlin details:",error);},
+    }),
+    northFidelityV309:native=>runtime.northernV309?.current(native)?.complete()===true,
     neukoellnLandmarksV305:native=>(native?runtime.voxelWorld:runtime.isoWorld)?.userData.hasNeukoellnLandmarksV305?.()===true,
     onQuarterResidentsV303:keys=>{runtime.sourceQuarterKeysV303=keys;if(runtime.outerThinOutlines)syncQuarterLegacyFittingsV303(runtime.outerThinOutlines,keys,legacyQuartersV304.records as QuarterLegacyReceiptV303[]);},
     westKiezV302: native=>(native?runtime.voxelWorld:runtime.isoWorld)?.userData.westKiezV302===true,
@@ -1716,7 +1836,7 @@ function startSurroundingCity(runtime: Runtime): void {
   runtime.surroundingCity = city;
   city.root.visible = !runtime.underside;
   runtime.scene.add(city.root);
-  void import("./OuterThinOutlines").then(async ({ createOuterThinOutlinesSteps }) => {
+  runtime.outerOutlineTaskV309 = import("./OuterThinOutlines").then(async ({ createOuterThinOutlinesSteps }) => {
     if (runtime.disposed || runtime.loadSignal.aborted) return;
     const outlines = await completeCooperatively(createOuterThinOutlinesSteps(runtime.lightingMode, previous => {
       runtime.gpuWarmup?.release(previous);
@@ -1741,6 +1861,7 @@ function startSurroundingCity(runtime: Runtime): void {
     syncQuarterLegacyFittingsV303(outlines,runtime.sourceQuarterKeysV303??new Set(),legacyQuartersV304.records as QuarterLegacyReceiptV303[]);
     outlines.visible = !runtime.underside;
     runtime.scene.add(outlines);
+    currentNorthernV309(runtime)?.syncPrevious(runtime.scene, true);
     runtime.gpuResidency?.enqueue(outlines);
     runtime.geometryResidency?.enqueue(outlines);
     runtime.gpuWarmup?.enqueue(outlines);
@@ -1757,11 +1878,11 @@ function startSurroundingCity(runtime: Runtime): void {
 }
 
 /** Serial, cancellable CPU storage work; never holds several decode jobs. */
-const geometryParkingQueues = new WeakMap<Runtime, { roots: Array<{ root: Object3D; resolve: () => void }>; running: boolean }>();
-function parkCompletedGeometry(runtime: Runtime, root: Object3D): Promise<void> {
+const geometryParkingQueues = new WeakMap<Runtime, { roots: Array<{ root: Object3D; instances: boolean; resolve: () => void }>; running: boolean }>();
+function parkCompletedGeometry(runtime: Runtime, root: Object3D, instances = false): Promise<void> {
   let queue = geometryParkingQueues.get(runtime);
   if (!queue) geometryParkingQueues.set(runtime, queue = { roots: [], running: false });
-  const done = new Promise<void>(resolve => queue.roots.push({ root, resolve }));
+  const done = new Promise<void>(resolve => queue.roots.push({ root, instances, resolve }));
   if (queue.running) return done;
   queue.running = true;
   void (async () => {
@@ -1774,6 +1895,10 @@ function parkCompletedGeometry(runtime: Runtime, root: Object3D): Promise<void> 
           // A camera turn may have already retired this complete chunk.
           if (task.root.parent) await completeCooperatively(parkStaticGeometrySteps(task.root,
             task.root.userData.progressiveWorldBatch === true), {
+            budgetMs: 4, yieldTask: yieldStartupWork,
+            isCancelled: () => runtime.disposed || runtime.loadSignal.aborted,
+          });
+          if (task.instances && task.root.parent) await completeCooperatively(parkStaticInstancesSteps(task.root), {
             budgetMs: 4, yieldTask: yieldStartupWork,
             isCancelled: () => runtime.disposed || runtime.loadSignal.aborted,
           });
@@ -1804,7 +1929,7 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       if (industrialGround !== null) return industrialGround;
       const courtGround = districtCourtsV229TerrainAt(x, z, runtime.lightingMode === "minecraft");
       if (courtGround !== null) return courtGround;
-      const hospitalGround = hospitalV228TerrainAt(x, z, runtime.lightingMode === "minecraft");
+      const hospitalGround = currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) ? null : hospitalV228TerrainAt(x, z, runtime.lightingMode === "minecraft");
       if (hospitalGround !== null) return hospitalGround;
       const townhallGround = districtTownhallV227TerrainAt(x, z, runtime.lightingMode === "minecraft");
       if (townhallGround !== null) return townhallGround;
@@ -1827,7 +1952,7 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       ubahnV281SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       ubahnV261SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       rosenthalerV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
-      hospitalV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
+      (!currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) && hospitalV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft")) ||
       schoolCultureV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       eastSquaresV163SolidAt(x,z,y,radius) ||
       prisonsMemorialsV209SolidAt(x,y,z,radius) ||
@@ -2191,46 +2316,9 @@ function registerBerlinerEnsembleRoofSignTargets(
   );
 }
 
-/**
- * Lock transparent ink to a deterministic order inside its authored layer.
- *
- * Three.js otherwise falls back to camera-space depth for objects sharing a
- * renderOrder. Nearly co-planar facade and roof lines can exchange places
- * while orbiting, changing blended pixels even though their geometry is
- * static. The tiny rank stays inside the original layer and is independent of
- * the camera; object ids are stable for the lifetime of the scene.
- */
-export const STABLE_INK_RENDER_ORDER_SPAN = 1e-4;
-
-export function assignStableInkRenderOrder(
-  lines: ReadonlyArray<LineSegments<BufferGeometry, LineBasicMaterial>>,
-): void {
-  const layers = new Map<
-    number,
-    Array<LineSegments<BufferGeometry, LineBasicMaterial>>
-  >();
-  for (const line of lines) {
-    const storedOrder = line.userData.stableInkBaseRenderOrder;
-    const baseOrder =
-      typeof storedOrder === "number" && Number.isFinite(storedOrder)
-        ? storedOrder
-        : Number.isFinite(line.renderOrder)
-          ? line.renderOrder
-          : 0;
-    line.userData.stableInkBaseRenderOrder = baseOrder;
-    const layer = layers.get(baseOrder) ?? [];
-    layer.push(line);
-    layers.set(baseOrder, layer);
-  }
-  for (const [baseOrder, layer] of layers) {
-    layer.sort((left, right) => left.id - right.id);
-    const denominator = layer.length + 1;
-    layer.forEach((line, index) => {
-      line.renderOrder =
-        baseOrder + (STABLE_INK_RENDER_ORDER_SPAN * (index + 1)) / denominator;
-    });
-  }
-}
+// Preserve the established public viewer API; source admission uses the same
+// real assignment function and its private per-line provenance.
+export {STABLE_INK_RENDER_ORDER_SPAN,assignStableInkRenderOrder} from "./stableInkRenderOrderV310";
 
 /**
  * Make a drawn line temporally stable without letting it show through walls.
@@ -2847,6 +2935,7 @@ function setSceneLighting(
     syncQuarterLegacyFittingsV303(runtime.outerThinOutlines,runtime.sourceQuarterKeysV303??new Set(),legacyQuartersV304.records as QuarterLegacyReceiptV303[]);
     applyRefinedCivicLightingV207(runtime.outerThinOutlines, mode, lightsOn);
   }
+  currentNorthernV309(runtime)?.syncPrevious(runtime.scene, true);
   if (runtime.underwater) {
     runtime.underwater = false;
     setUnderwaterPresentation(runtime, true);
@@ -3789,6 +3878,7 @@ function prepareIsoNavigation(
   prisms: PrismPayload,
   monuments: StreetDetailsPayload["monuments"],
 ): { environment: PedestrianEnvironment; installWorldDetails: () => void } {
+  (runtime.northernOriginalGroundV309 ??= {}).drawn = worldGroundSampler(ground);
   const memorialProtection = createSchwellenraumMemorialProtectionIndex(monuments);
   const pedestrianEnvironment = createPedestrianEnvironment(
     ground,
@@ -3853,7 +3943,7 @@ function prepareIsoNavigation(
     if (centralNamedV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (westIndustrialV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (districtCourtsV229SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
-    if (hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (!currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) && hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (schoolCultureV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (ubahnV281SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (ubahnV261SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -3934,7 +4024,7 @@ function prepareIsoNavigation(
     if (industrialFloor !== null) return industrialFloor;
     const courtFloor = districtCourtsV229GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (courtFloor !== null) return courtFloor;
-    const hospitalFloor = hospitalV228GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const hospitalFloor = currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) ? null : hospitalV228GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (hospitalFloor !== null) return hospitalFloor;
     const schoolFloor = schoolCultureV228GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (schoolFloor !== null) return schoolFloor;
@@ -4021,6 +4111,7 @@ function prepareIsoNavigation(
     }
   };
   installFidelityNavigationV296(pedestrianEnvironment,()=>fidelityAdmissionV296(runtime));
+  installNorthernNavigationV309(runtime,pedestrianEnvironment);
   return { environment: pedestrianEnvironment, installWorldDetails };
 }
 
@@ -4051,6 +4142,7 @@ function ensureIsoWorld(
   const totalParts = 6;
   let loadedParts = 0;
   runtime.reportCoreProgress(0, totalParts);
+  runtime.reportStartupWork?.({ phase: "sources", completed: 0, total: 5 });
   const tracked = async <T,>(task: Promise<T>): Promise<T> => {
     try {
       return await task;
@@ -4058,6 +4150,7 @@ function ensureIsoWorld(
       loadedParts += 1;
       if (isoWorldIntentActive(runtime)) {
         runtime.reportCoreProgress(loadedParts, totalParts);
+        runtime.reportStartupWork?.({ phase: "sources", completed: loadedParts, total: 5 });
       }
     }
   };
@@ -4170,6 +4263,9 @@ function ensureIsoWorld(
         return;
       }
       const pendingSignatures = new Group();
+      runtime.reportStartupWork?.({ phase: "owners", completed: 0 });
+      await yieldStartupPaintV309(runtime.loadSignal);
+      if (runtime.disposed || runtime.loadSignal.aborted || !isoWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
       const fidelityV288 = prepareRequiredFidelityV288(prisms, ground, false, admitsChancelleryCanopyLegacyV289(runtime.signatures),runtime.coarsePointer,true);
       provisionalIsoWorld = fidelityV288.root;
       const stationPhotoAdmitted = canReplacePotsdamerSouthStationPhoto(prisms.buildings);
@@ -4180,10 +4276,14 @@ function ensureIsoWorld(
       const pendingCatenary = new Group();
       provisionalIsoAddons = new Group();
       provisionalIsoAddons.add(pendingSignatures, pendingStaffage, pendingUnderground, pendingCatenary);
+      provisionalIsoAddons.add(fidelityV288.root);
       let pendingWorldDetailsInstaller: (() => void) | null = null;
       let pendingPathTerrainAt: ParkPathTerrainAt | undefined;
       let pendingTrafficSignals: Group | null | undefined;
       if (ground && surfaces) {
+        runtime.reportStartupWork?.({ phase: "navigation", completed: 0 });
+        await yieldStartupPaintV309(runtime.loadSignal);
+        if (runtime.disposed || runtime.loadSignal.aborted || !isoWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
         const navigation = prepareIsoNavigation(runtime, ground, surfaces, prisms, street?.monuments);
         provisionalPedestrianEnvironment = navigation.environment;
         pendingWorldDetailsInstaller = navigation.installWorldDetails;
@@ -4250,8 +4350,9 @@ function ensureIsoWorld(
       // Keep the old scene intact until every exact layer is ready. Task
       // boundaries release constructor scratch space and let context loss or
       // a mode switch cancel remaining work before it allocates.
+      let cityBuiltV309 = false;
       const isoWorld = await completeCooperatively((function* () {
-        const isoWorld = createIsometricCity(
+        const isoWorld = yield* createIsometricCityStepsV309(
           prisms,
           ground,
           runtime.tunnelPortalCourse,
@@ -4278,7 +4379,12 @@ function ensureIsoWorld(
             smoothSurfaces:
               runtime.coarsePointer || progressiveInput ? null : undefined,
           },
+          root => { provisionalIsoWorld = root; },
+          work => {
+            if (isoWorldIntentActive(runtime)) runtime.reportStartupWork?.(work);
+          },
         );
+        cityBuiltV309 = true;
         provisionalIsoWorld = isoWorld;
         isoWorld.add(fidelityV288.root);
         let neukoellnAdmissionV305=applyNeukoellnLegacyV227V305(isoWorld,false,true,fidelityV288.neukoellnModel);
@@ -4644,6 +4750,9 @@ function ensureIsoWorld(
         return isoWorld;
       })(), {
         yieldTask: yieldStartupWork,
+        onCheckpoint: completed => {
+          if (cityBuiltV309 && isoWorldIntentActive(runtime)) runtime.reportStartupWork?.({ phase: "details", completed });
+        },
         isCancelled: () => runtime.disposed || runtime.loadSignal.aborted ||
           runtime.worldFailureReported || !isoWorldIntentActive(runtime),
       });
@@ -4697,6 +4806,7 @@ function ensureIsoWorld(
       collectFarZoomAntiFlickerTargets(runtime);
       loadedParts += 1;
       runtime.reportCoreProgress(loadedParts, totalParts);
+      runtime.reportStartupWork?.({ phase: "presentation", completed: 0 });
       performance.mark("isometric-city-preview-ready");
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       if (provisionalPedestrianEnvironment) {
@@ -4804,6 +4914,7 @@ function ensureIsoWorld(
  */
 /** Native navigation must not retain the world constructor's async context. */
 function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms: PrismPayload): PedestrianEnvironment {
+  (runtime.northernOriginalGroundV309 ??= {}).native = worldGroundSampler(payload);
   const environment = createPedestrianEnvironment(
     payload,
     { water: [] },
@@ -4844,7 +4955,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     if (centralNamedV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (westIndustrialV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (districtCourtsV229SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
-    if (hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (!currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) && hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (schoolCultureV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (ubahnV281SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (ubahnV261SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -4900,7 +5011,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     centralNamedV230GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     westIndustrialV230GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     districtCourtsV229GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
-    hospitalV228GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
+    (currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) ? null : hospitalV228GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft")) ??
     schoolCultureV228GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     ubahnV281FloorAt(x, z, runtime.lightingMode === "minecraft") ??
     ubahnV261FloorAt(x, z, runtime.lightingMode === "minecraft") ??
@@ -4928,6 +5039,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
       ? minecraftHeroGroundAt(x, z)
       : null);
   installFidelityNavigationV296(environment,()=>fidelityAdmissionV296(runtime));
+  installNorthernNavigationV309(runtime,environment);
   return environment;
 }
 
@@ -4976,6 +5088,7 @@ function ensureVoxelWorld(
   }
   runtime.voxelWorldState = "loading";
   runtime.reportCoreProgress(0, 4);
+  runtime.reportStartupWork?.({ phase: "sources", completed: 0, total: 3, native: true });
   let loadedParts = 0;
   const tracked = async <T,>(task: Promise<T>): Promise<T> => {
     try {
@@ -4984,6 +5097,7 @@ function ensureVoxelWorld(
       loadedParts += 1;
       if (voxelWorldIntentActive(runtime)) {
         runtime.reportCoreProgress(loadedParts, 4);
+        runtime.reportStartupWork?.({ phase: "sources", completed: loadedParts, total: 3, native: true });
       }
     }
   };
@@ -5052,6 +5166,9 @@ function ensureVoxelWorld(
         {
           yieldTask: yieldStartupWork,
           isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
+          onCheckpoint: completed => {
+            if (voxelWorldIntentActive(runtime)) runtime.reportStartupWork?.({ phase: "buildings", completed, native: true });
+          },
         },
       );
       // Finish source-bound matrix corrections, then retire the complete
@@ -5059,12 +5176,18 @@ function ensureVoxelWorld(
       await completeCooperatively(sitesV209.addRequiredSiteEnvelopesV209Steps(provisionalVoxelWorld, true), {
         yieldTask: yieldStartupWork,
         isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
+        onCheckpoint: completed => {
+          if (voxelWorldIntentActive(runtime)) runtime.reportStartupWork?.({ phase: "architecture", completed, native: true });
+        },
       });
       provisionalVoxelWorld.userData.prepareNeukoellnLegacyV305?.();
       provisionalVoxelWorld.add(createRosengartenMinecraft());
       await completeCooperatively(parkStaticInstancesSteps(provisionalVoxelWorld), {
         yieldTask: yieldStartupWork,
         isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
+        onCheckpoint: completed => {
+          if (voxelWorldIntentActive(runtime)) runtime.reportStartupWork?.({ phase: "details", completed, native: true });
+        },
       });
       pedestrianSnapshot = capturePedestrianAttachment(runtime);
       provisionalMinecraftMobs = createMinecraftMobs(
@@ -5084,6 +5207,9 @@ function ensureVoxelWorld(
       // builder has not yet created the shared navigation environment. Load
       // only the water polygons in the background; block presentation stays
       // on the existing fast voxel+prism critical path.
+      // A warm Day visit already owns the shared walking environment. Native
+      // terrain still needs its own original source grid before publication.
+      (runtime.northernOriginalGroundV309 ??= {}).native = worldGroundSampler(payload);
       if (prisms && runtime.pedestrian.environment === null) {
         provisionalEnvironment = prepareVoxelNavigation(runtime, payload, prisms);
       }
@@ -5885,6 +6011,26 @@ function yieldStartupWork(): Promise<void> {
   return new Promise((resolve) => window.setTimeout(resolve, 0));
 }
 
+/** Separate paint opportunities from geometry-construction checkpoints. */
+function yieldStartupPaintV309(signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    let frame = 0;
+    const abort = () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      signal?.removeEventListener("abort", abort);
+      reject(signal?.reason ?? new DOMException("World construction cancelled", "AbortError"));
+    };
+    if (signal?.aborted) { abort(); return; }
+    signal?.addEventListener("abort", abort, { once: true });
+    frame = window.requestAnimationFrame(() => {
+      frame = 0;
+      signal?.removeEventListener("abort", abort);
+      // Resume in a new task, after this frame's React commit and paint.
+      yieldStartupWork().then(resolve, reject);
+    });
+  });
+}
+
 export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
   function ThreeViewer(
     {
@@ -5896,6 +6042,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       pedestrianMode,
       precipitationEnabled,
       progressLabel,
+      startupLanguage = "de",
       sceneUrl,
       selectedLandmark,
       openingLandmark = null,
@@ -5948,6 +6095,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const onWarningRef = useRef(onWarning);
     const onViewChangeRef = useRef(onViewChange);
     const [progress, setProgress] = useState({ loaded: 0, total: 1 });
+    const [startupWork, setStartupWork] = useState<StartupWorkV309 | null>(null);
     const [presentationReady, setPresentationReady] = useState(false);
     const pedestrianPoseEmissionRef = useRef({
       active: false,
@@ -6789,6 +6937,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         "Deferred Schwellenraum accessible architecture",
       );
       scene.add(schwellenraumInteriors);
+      let startupWorkFrameV309: number | null = null;
+      let pendingStartupWorkV309: StartupWorkV309 | null = null;
       const runtime: Runtime = {
         camera,
         centralDetails,
@@ -6908,6 +7058,27 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         progressiveWorldBatches: [],
         progressiveWorldMessages: [],
         progressiveWorldState: "idle",
+        reportStartupWork: (() => {
+          let lastAt = Number.NEGATIVE_INFINITY;
+          let lastPhase: StartupWorkV309["phase"] | undefined;
+          return (work: StartupWorkV309) => {
+            if (disposed || Boolean(work.native) !== (lightingModeRef.current === "minecraft")) return;
+            const now = performance.now();
+            if (work.phase !== lastPhase || work.completed === work.total || now - lastAt >= 32) {
+              lastAt = now; lastPhase = work.phase;
+              pendingStartupWorkV309 = work;
+              if (startupWorkFrameV309 === null) startupWorkFrameV309 = window.requestAnimationFrame(() => {
+                startupWorkFrameV309 = null;
+                const pending = pendingStartupWorkV309;
+                pendingStartupWorkV309 = null;
+                if (disposed || !pending || Boolean(pending.native) !== (lightingModeRef.current === "minecraft")) return;
+                // scheduler.yield continuations can outrank React's normal
+                // task queue. Commit only the actual latest work at a frame.
+                flushSync(() => setStartupWork(pending));
+              });
+            }
+          };
+        })(),
         reportCoreProgress: (loaded, total) => {
           if (!disposed) {
             setProgress({ loaded, total });
@@ -8566,6 +8737,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           // when this settled view does not need another rendered frame.
           runtime.gpuResidency?.refresh(timestamp);
           runtime.geometryResidency?.refresh(timestamp);
+          refreshNorthernV309(runtime, timestamp);
           runtime.surroundingCity?.refresh(timestamp, runtime.controls.target);
           return;
         }
@@ -8647,6 +8819,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (runtime.hbfStationV291?.update(timestamp, camera, runtime.lightingMode === "minecraft", reducedMotion, runtime.underside)) runtime.renderInvalidated = true;
         runtime.gpuResidency?.refresh(timestamp);
         runtime.geometryResidency?.refresh(timestamp);
+        refreshNorthernV309(runtime, timestamp);
         runtime.surroundingCity?.refresh(timestamp, runtime.controls.target);
         if (runtime.zooAnimalsV282?.update(timestamp, camera, runtime.lightingMode === 'minecraft',
           reducedMotion || runtime.underside)) runtime.renderInvalidated = true;
@@ -9506,6 +9679,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   };
                   let staging: Group | null = null;
                   let details: Group;
+                  let northPropsOwner: NorthernFidelityBundleV309 | undefined;
+                  let northPropsTransaction: NorthTerrainDrapingV309Transaction | undefined;
                   const constructionCancelled = () => runtime.disposed || loadController.signal.aborted ||
                     (runtime.coarsePointer && (document.hidden || !isoWorldIntentActive(runtime)));
                   try {
@@ -9520,12 +9695,22 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                     await completeCooperatively(parkStaticInstancesSteps(details), {
                       yieldTask: yieldStartupWork, isCancelled: constructionCancelled,
                     });
+                    // Pin the final mobile attribute layout before staging
+                    // retained trees/paths against any live measured terrain.
+                    if (runtime.coarsePointer) interleaveStaticGeometry(details);
+                    if (!voxelModeActive(runtime)) {
+                      northPropsOwner = currentNorthernV309(runtime);
+                      if (northPropsOwner) northPropsTransaction = await completeCooperatively(northPropsOwner.preparePropsSteps(details), {
+                        yieldTask: yieldStartupWork, isCancelled: constructionCancelled,
+                      });
+                    }
                     // Recheck after the promise boundary, before touching the
                     // scene or collision index of a possibly retired runtime.
-                    if (constructionCancelled()) {
+                    if (constructionCancelled() || northPropsOwner && currentNorthernV309(runtime) !== northPropsOwner) {
                       throw new DOMException("Park construction cancelled", "AbortError");
                     }
                   } catch (error: unknown) {
+                    northPropsTransaction?.rollback();
                     if (staging) disposeObject3D(runtime, staging);
                     // Hidden/cancelled work owns no published park resources.
                     // Resume through the existing visibility/mode lifecycle.
@@ -9542,12 +9727,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                     details.visible = !runtime.underside && !voxelMode;
                     setParkDetailsFocus(details, selectedRef.current);
                     scene.add(details);
+                    if (northPropsTransaction) {
+                      if (!northPropsTransaction.adoptParent(scene)) throw Error("Northern park detail parent changed before publication");
+                      northPropsTransaction.commit(() => currentNorthernV309(runtime) === northPropsOwner && northPropsOwner?.complete() === true);
+                      if (!northPropsTransaction.complete()) throw Error("Northern park detail source changed before publication");
+                    }
                     applyLightingToRoot(
                       details,
                       runtime.lightingMode,
                       runtime.nightLightsOn,
                     );
-                    if (runtime.coarsePointer) interleaveStaticGeometry(details);
                     if (runtime.lightingMode === "minecraft" && !voxelMode) {
                       // Only the smooth fallback needs toon clones. A completed
                       // voxel world keeps this large deferred layer hidden, so
@@ -9570,8 +9759,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                       );
                     }
                     published = true;
+                    northPropsOwner?.retireProps(previousDetails);
+                    if (northPropsTransaction) void parkCompletedGeometry(runtime, details, true);
                   } finally {
                     if (!published) {
+                      northPropsTransaction?.rollback();
                       runtime.parkDetails = previousDetails;
                       previousParent?.add(previousDetails);
                       disposeObject3D(runtime, details);
@@ -9686,7 +9878,12 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       return () => {
         contextRecovery?.dispose();
         disposed = true;
+        if (startupWorkFrameV309 !== null) window.cancelAnimationFrame(startupWorkFrameV309);
+        startupWorkFrameV309 = null;
+        pendingStartupWorkV309 = null;
         runtime.disposed = true;
+        runtime.northernV309?.dispose();
+        runtime.northernV309 = undefined;
         runtime.pergamonReveal?.dispose();
         runtime.pergamonReveal = undefined;
         runtime.columbiahalleV257?.dispose();
@@ -9789,6 +9986,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       100,
       Math.round((progress.loaded / Math.max(1, progress.total)) * 100),
     );
+    const workPresentation = startupWork ? startupWorkPresentationV309(startupWork, startupLanguage) : null;
     return (
       <div
         ref={hostRef}
@@ -9797,7 +9995,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       >
         <StartupPresentation
           label={progressLabel}
-          percentage={percentage}
+          percentage={presentationReady ? 100 : workPresentation?.percentage ?? percentage}
+          detail={workPresentation?.label}
+          counter={workPresentation?.counter}
+          indeterminate={!workPresentation || workPresentation.percentage === undefined}
           showBackdrop={!presentationReady}
         />
       </div>

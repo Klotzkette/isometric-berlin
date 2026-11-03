@@ -2,6 +2,13 @@ import { Frustum, InstancedMesh, Matrix4, Quaternion, Vector3, type Camera, type
 import { registerInkRenderObserver } from "./inkDrawVisibility";
 import { staticStorageInfo } from "./losslessStaticStorage";
 
+// This readonly query cannot bless an authored dispose or a public model tag.
+// Only the verified manager retirement below opens the synchronous scope.
+const retainedGpuInstanceRetirementsV309 = new WeakSet<InstancedMesh>();
+export function isSceneInstanceGpuRetirementV309(mesh: InstancedMesh): boolean {
+  return retainedGpuInstanceRetirementsV309.has(mesh);
+}
+
 export const MOBILE_INSTANCE_GPU_BUDGET_BYTES = 48 * 1024 * 1024;
 export const MOBILE_INSTANCE_GPU_BUDGET_BUFFERS = 2_500;
 export const MOBILE_GPU_RESIDENCY_GRACE_MS = 2_000;
@@ -20,11 +27,14 @@ type Entry = {
   bytes: number;
   lastUse: number;
   active: boolean;
+  rebinding: boolean;
 };
 
 export type SceneGpuResidency = {
   enqueue: (root: Object3D) => void;
   release: (root: Object3D) => void;
+  /** Before a source-owned attribute reference changes; no CPU arrays change. */
+  retireForRebind: (mesh: InstancedMesh) => boolean;
   refresh: (now?: number, immediate?: boolean) => number;
   readonly residentBytes: number;
   readonly residentBuffers: number;
@@ -99,13 +109,24 @@ export function createSceneGpuResidency(
   const enqueue = (root: Object3D): void => {
     if (disposed) return;
     root.traverse((object) => {
-      if (!(object instanceof InstancedMesh) || entries.has(object)) return;
+      if (!(object instanceof InstancedMesh)) return;
       const attributes = [object.instanceMatrix, ...(object.instanceColor ? [object.instanceColor] : [])];
+      const previous = entries.get(object);
+      if (previous) {
+        if (attributes.length === previous.attributes.length && attributes.every((a,i)=>a===previous.attributes[i])) { previous.rebinding=false; return; }
+        // Never lose the old observed handles after an unannounced ref swap.
+        if (previous.resident && !previous.rebinding) return;
+        forgetUpload(previous);
+        for (const attribute of previous.attributes) { const owners=attributeOwners.get(attribute);owners?.delete(previous);if(!owners?.size)attributeOwners.delete(attribute); }
+        previous.attributes=attributes;previous.bytes=attributes.reduce((n,a)=>n+staticStorageInfo(a).byteLength,0);previous.rebinding=false;
+        for (const attribute of attributes) { const owners=attributeOwners.get(attribute)??new Set<Entry>();owners.add(previous);attributeOwners.set(attribute,owners); }
+        return;
+      }
       const entry: Entry = {
         mesh: object, original: object.onAfterRender, wrapped: object.onAfterRender,
         onDispose: () => forgetUpload(entry), attributes,
         resident: false, bytes: attributes.reduce((sum, attribute) => sum + staticStorageInfo(attribute).byteLength, 0),
-        lastUse: -Infinity, active: true,
+        lastUse: -Infinity, active: true, rebinding: false,
       };
       entry.wrapped = function (this: InstancedMesh, drawingRenderer, scene, drawingCamera, geometry, material, group) {
         if (!disposed && entry.active && drawingRenderer === renderer) {
@@ -145,6 +166,14 @@ export function createSceneGpuResidency(
     for (const entry of scan) if (entry.active) scan[length++] = entry;
     scan.length = length;
     cursor = scan.length ? cursor % scan.length : 0;
+  };
+  const retireForRebind = (mesh: InstancedMesh): boolean => {
+    const entry=entries.get(mesh);if(disposed)return false;if(!entry)return true;
+    if(mesh.morphTexture!==null||mesh.instanceMatrix!==entry.attributes[0]||(mesh.instanceColor??undefined)!==entry.attributes[1]||entry.attributes.some(a=>(attributeOwners.get(a)?.size??0)!==1))return false;
+    if(entry.resident){retainedGpuInstanceRetirementsV309.add(mesh);try{mesh.dispose();}finally{retainedGpuInstanceRetirementsV309.delete(mesh);}options.onEvict?.(mesh);}
+    // Keep the stable wrapper/entry. enqueue changes its owner catalogue only
+    // after the caller's synchronous swap, without nesting inactive wrappers.
+    entry.rebinding=true;return true;
   };
   const overBudget = (): boolean => residentBytes > budget || residentAttributes.size > bufferBudget;
   const refresh = (now = clock(), immediate = false): number => {
@@ -197,7 +226,9 @@ export function createSceneGpuResidency(
         mesh.updateWorldMatrix(true, false);
         if (frustum.intersectsObject(mesh)) continue;
       }
-      mesh.dispose();
+      retainedGpuInstanceRetirementsV309.add(mesh);
+      try { mesh.dispose(); }
+      finally { retainedGpuInstanceRetirementsV309.delete(mesh); }
       options.onEvict?.(mesh);
       evicted++;
     }
@@ -215,7 +246,7 @@ export function createSceneGpuResidency(
   };
   renderer.domElement?.addEventListener("webglcontextlost", contextLost);
   return {
-    enqueue, release, refresh,
+    enqueue, release, refresh, retireForRebind,
     get residentBytes() { return residentBytes; },
     get residentBuffers() { return residentAttributes.size; },
     dispose: () => {

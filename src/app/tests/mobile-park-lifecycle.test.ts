@@ -114,6 +114,9 @@ function host(options: {
   const bindings = {
     parkStaticGeometrySteps, parkStaticInstancesSteps, completeCooperatively,
     interleaveStaticGeometry,
+    // This legacy park fixture has no loaded Northern ensemble. Its real
+    // deferred closure must receive absence, not a fabricated partial bundle.
+    currentNorthernV309: () => undefined,
     Group, Mesh, InstancedMesh, Line, LineSegments, Material, Points, Texture,
     runtime, scene, document, loadController,
     lightingModeRef: { get current() { return runtime.lightingMode; } },

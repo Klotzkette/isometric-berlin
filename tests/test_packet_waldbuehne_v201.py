@@ -17,6 +17,8 @@ from packet_waldbuehne_v201 import (
 )
 from shapely.geometry import box
 
+from scripts.integrate_lossless_v196 import predecessor_manifest_v196
+
 
 def fixture():
   from build_surrounding_outlines import COLORS, linear_rgb_bytes
@@ -179,7 +181,12 @@ def test_final_waldbuehne_packets_preserve_every_unrelated_face() -> None:
   terrain = {
     d["id"]: d for d in terrain["replacementDescriptors"] + terrain["extraDescriptors"]
   }
-  current = {d["id"]: d for d in load(PUBLIC / "manifest.json")["chunks"]}
+  current = {
+    d["id"]: d
+    for d in predecessor_manifest_v196(
+      load(PUBLIC / "manifest.json"), lambda path: path.read_bytes()
+    )["chunks"]
+  }
   checkpoints, final, counts = audit_waldbuehne(terrain, current)
   assert len(checkpoints) == 4 and set(final) == IDS
   assert counts == {FAMILY: (70, 47)}

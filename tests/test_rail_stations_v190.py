@@ -13,6 +13,8 @@ import pytest
 from shapely.geometry import LineString, Point, Polygon, box, shape
 from shapely.ops import unary_union
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
 PUBLIC = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
@@ -128,7 +130,9 @@ def test_only_audited_ostkreuz_packet_triangles_and_named_navigation_are_changed
         capture_output=True,
         cwd=ROOT,
       ).stdout
-      current = path.read_bytes()
+      current = historical_asset_bytes_v194(
+        path, d["sha256"], d["bytes"], lambda source: source.read_bytes()
+      )
       receipt = chunk["modes"][mode]
       assert hashlib.sha256(previous).hexdigest() == receipt["oldSha256"]
       assert hashlib.sha256(current).hexdigest() == receipt["newSha256"] == d["sha256"]

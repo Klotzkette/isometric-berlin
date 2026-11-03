@@ -5,6 +5,8 @@ import json
 import sys
 from pathlib import Path
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
@@ -38,7 +40,12 @@ def test_immutable_packets_and_unchanged_native_neighbours():
     "geo_data/regierungsviertel/charite-bridges-v265-alt-mitte-evidence.json"
   )
   for relative, expected in evidence["inputs"].items():
-    assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == expected
+    assert (
+      hashlib.sha256(
+        historical_asset_bytes_v194(ROOT / relative, expected, reader=Path.read_bytes)
+      ).hexdigest()
+      == expected
+    )
   assert evidence["exactMatchMissing"] == 0
   assert evidence["unownedTriangleLoss"] == 0
   assert evidence["sharedInkPreserved"] is True

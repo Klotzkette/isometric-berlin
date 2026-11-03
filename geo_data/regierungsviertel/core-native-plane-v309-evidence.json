@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "scope": "Exactly two newly authored horizontal inside-native Y words only. Vertical side-face vertices, original variants/outside, all indices/normals/colours and every other field remain bit-identical.",
+  "originalRawSha256": "e7556eee87721c4c81dd29488244115399dd3a13780eda37bede4e735b943806",
+  "newRawSha256": "a592ae53e15bf7527b2ae03da5026f2cc24c21c368523e7bb2c696d1a5b35658",
+  "originalPositionSha256": "7ec52741de994fd18ab2b288418b335747ceb3167bba93d50d2b969ef2171e8d",
+  "newPositionSha256": "70d4fb8b00e76bc68638c890c4afa7b4bc64fed7c53ef59219d71a8caa39b96d",
+  "unchangedVariantsSha256": "6085986e6134c2ef23816277588ae0f43e45b7445577208a7c81901c70261044",
+  "deltas": [
+    {
+      "meshKey": "core:humboldthain:minecraft:minecraft:Voxel ground runs",
+      "vertexOrdinal": 62981,
+      "wordOrdinal": 188944,
+      "beforeUInt32": 1099497473,
+      "afterUInt32": 1099497472,
+      "beforeFloat32": 17.125001907348633,
+      "afterFloat32": 17.125,
+      "pointXZ": [
+        1088,
+        -2992
+      ]
+    },
+    {
+      "meshKey": "core:humboldthain:minecraft:minecraft:Voxel ground runs",
+      "vertexOrdinal": 62982,
+      "wordOrdinal": 188947,
+      "beforeUInt32": 1099497473,
+      "afterUInt32": 1099497472,
+      "beforeFloat32": 17.125001907348633,
+      "afterFloat32": 17.125,
+      "pointXZ": [
+        1092,
+        -2996
+      ]
+    }
+  ]
+}

@@ -66,7 +66,26 @@ def baseline(path: Path) -> bytes:
   )
 
 
-def verify_asset(data: bytes, asset: dict) -> dict:
+def historical_wire_v205(data: bytes, asset: dict, read_asset=None) -> bytes:
+  """Use the supplied bytes, including corrupt input, for this exact target."""
+  if digest(data) == asset["sha256"]:
+    return data
+  from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
+  path = PUBLIC / asset["url"]
+
+  def supplied(source: Path) -> bytes:
+    if source.resolve() == path.resolve():
+      return data
+    return read_asset(source) if read_asset is not None else source.read_bytes()
+
+  return historical_asset_bytes_v194(
+    path, asset["sha256"], asset["bytes"], supplied
+  )
+
+
+def verify_asset(data: bytes, asset: dict, read_asset=None) -> dict:
+  data = historical_wire_v205(data, asset, read_asset)
   assert len(data) == asset["bytes"] < 650_000 and digest(data) == asset["sha256"]
   raw = gzip.decompress(data)
   assert len(raw) == asset["decodedBytes"] < 2_600_000
@@ -172,7 +191,7 @@ def normalize_v209_additions(current_manifest: dict, read_asset) -> tuple[dict, 
       assert set(asset) == {"url", "encoding", "bytes", "decodedBytes", "sha256"}
       assert asset["url"] == f"{descriptor['id']}.{mode}.json.gz"
       assert asset["encoding"] == "gzip"
-      payload = verify_asset(read_asset(PUBLIC / asset["url"]), asset)
+      payload = verify_asset(read_asset(PUBLIC / asset["url"]), asset, read_asset)
       assert set(payload) == {"id", "schemaVersion", "origin", "meshes", "nav"}
       assert payload["id"] == descriptor["id"] and payload["schemaVersion"] == 1
       assert payload["origin"] == [
@@ -318,8 +337,10 @@ def audit(receipt: dict, current_manifest: dict, read_asset) -> tuple[dict, dict
       path = PUBLIC / before_descriptor[mode]["url"]
       original_bytes = baseline(path)
       before = verify_asset(original_bytes, before_descriptor[mode])
-      after_bytes = read_asset(path)
-      after = verify_asset(after_bytes, after_descriptor[mode])
+      after_bytes = historical_wire_v205(
+        read_asset(path), after_descriptor[mode], read_asset
+      )
+      after = verify_asset(after_bytes, after_descriptor[mode], read_asset)
       assert report["oldSha256"] == digest(original_bytes) and report[
         "newSha256"
       ] == digest(after_bytes)

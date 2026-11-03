@@ -1,12 +1,17 @@
 """Finite Staatsoper ownership, complete measured shell and native fidelity."""
 
 import base64
+import gzip
+import hashlib
 import importlib.util
 import sys
 from collections import Counter
 from pathlib import Path
 
 import numpy as np
+import pytest
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -19,15 +24,31 @@ spec.loader.exec_module(m)
 
 def test_original_sources_packets_and_navigation_are_immutable():
   evidence = m.read(m.EVIDENCE)
-  for path, digest in evidence["inputs"].items():
-    assert m.sha(ROOT / path) == digest
-  assert set(evidence["parents"]) == m.PARENTS
-  assert len(evidence["sourceParts"]) == 12
-  assert evidence["previous"][m.MAIN]["shellTriangles"] == 386
-  assert evidence["previous"]["DEBE00YY1P700099"]["shellTriangles"] == 22
-  for packet in m.read(m.RUNTIME).values():
-    assert not packet["nav"]["buildings"]
-    assert not packet["nav"]["ground"]
+  original_sha = m.sha
+  expected_sources = evidence["inputs"]
+
+  def historical_sha(path):
+    expected = expected_sources.get(str(path.relative_to(ROOT)))
+    if expected is None:
+      return original_sha(path)
+    raw = path.read_bytes()
+    historical = historical_asset_bytes_v194(path, expected, reader=Path.read_bytes)
+    assert (
+      gzip.decompress(historical) if path.suffix == ".gz" else historical
+    ) == (gzip.decompress(raw) if path.suffix == ".gz" else raw)
+    return hashlib.sha256(historical).hexdigest()
+
+  with pytest.MonkeyPatch.context() as historical:
+    historical.setattr(m, "sha", historical_sha)
+    for path, digest in evidence["inputs"].items():
+      assert m.sha(ROOT / path) == digest
+    assert set(evidence["parents"]) == m.PARENTS
+    assert len(evidence["sourceParts"]) == 12
+    assert evidence["previous"][m.MAIN]["shellTriangles"] == 386
+    assert evidence["previous"]["DEBE00YY1P700099"]["shellTriangles"] == 22
+    for packet in m.read(m.RUNTIME).values():
+      assert not packet["nav"]["buildings"]
+      assert not packet["nav"]["ground"]
 
 
 def test_v182_only_generic_windows_yield_and_every_measured_edge_remains():

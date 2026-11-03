@@ -319,6 +319,7 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
       }
       if (taskCount === options.modeAtTask) runtime.lightingMode = "minecraft";
     },
+    yieldStartupPaintV309: async () => {},
     loadAddon: (path: keyof typeof modules) => {
       if (options.failStationPhotoImport && path === "./PotsdamerStationDrawn") return Promise.reject(new Error("Required south hall import failed"));
       if (options.failRequiredSitesImport && path === "./RequiredSiteEnvelopesV209") return Promise.reject(new Error("Required sites import failed"));
@@ -346,14 +347,14 @@ function host(options: { stopAtTask?: number; stopAfterModel?: string; modeAtTas
     splitProgressiveBuildings: () => ({ initial: [], remaining: options.progressiveDistrict ? [[]] : [], omitted: [] }),
     buildingDetailProfile: () => ({ batchSize: 240 }),
     buildingDetailDistricts: () => [], selectBuildingDetailDistricts: () => [], buildingDetailViewPoints: () => [],
-    createIsometricCity: (_prisms: unknown, _ground: unknown, _tunnel: unknown, _surfaces: unknown, buildOptions: { includeAltMitteCoreV169: boolean; coreSpreeBridgeFactoryV242: unknown; potsdamerStationPhoto?: boolean; hbfCirculationV291?:boolean }) => {
+    createIsometricCityStepsV309: function* (_prisms: unknown, _ground: unknown, _tunnel: unknown, _surfaces: unknown, buildOptions: { includeAltMitteCoreV169: boolean; coreSpreeBridgeFactoryV242: unknown; potsdamerStationPhoto?: boolean; hbfCirculationV291?:boolean }, onCreate?: (root: Group) => void) {
       expect(buildOptions.includeAltMitteCoreV169).toBe(false);
       expect(buildOptions.coreSpreeBridgeFactoryV242).toBe(coreSpreeBridgeFactory);
       expect(buildOptions.potsdamerStationPhoto).toBe(options.stationSource === undefined && options.stationStripSource === undefined);
       circulationCalls.push({phase:"core",value:buildOptions.hbfCirculationV291});
       neighbourhoodCalls.push({phase:"core",moabitMitteV300:(buildOptions as Record<string,unknown>).moabitMitteV300 as boolean,westKiezV302:(buildOptions as Record<string,unknown>).westKiezV302 as boolean});
       fidelityCalls.push({phase:"core",...Object.fromEntries(["historicDomV288","potsdamerCorridorV288","chancelleryCanopySourceV289","parliamentaryDiningV296","waterfrontV296","parliamentInteriorsV295"].map(k=>[k,(buildOptions as Record<string,unknown>)[k]]))});
-      const city = model("core"); city.add(model("drawn bridge structures")); return city;
+      const city = model("core"); city.add(model("drawn bridge structures")); onCreate?.(city); return city;
     },
     createInitialDrawnWater: () => options.initialWater ? model("source-bound drawn water") : null,
     createSchlossNaturkundeShells: () => model("Schloss and Naturkunde shells"),

@@ -284,7 +284,7 @@ describe("progressive exact-world scheduling", () => {
     expect(mobileBranch).not.toContain("surfaces,");
     expect(mobileBranch).not.toContain("tunnel:");
     const desktopEnd = threeViewerSource.indexOf(
-      "const isoWorld = createIsometricCity",
+      "const isoWorld = yield* createIsometricCityStepsV309(",
       desktopBranch,
     );
     const desktopInput = threeViewerSource.slice(desktopBranch, desktopEnd);
@@ -559,7 +559,7 @@ describe("progressive exact-world scheduling", () => {
       threeViewerSource.indexOf("function ensureVoxelWorld("),
     );
     const previewBuild = isoLoader.indexOf(
-      "const isoWorld = createIsometricCity",
+      "const isoWorld = yield* createIsometricCityStepsV309(",
     );
     const committedRoot = isoLoader.indexOf("runtime.isoWorld = isoWorld");
     const progressiveStart = isoLoader.indexOf(

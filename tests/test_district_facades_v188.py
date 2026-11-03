@@ -24,6 +24,9 @@ from shapely.geometry import LineString, Point, Polygon, shape
 from shapely.ops import nearest_points
 from shapely.strtree import STRtree
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+from scripts.integrate_lossless_v196 import predecessor_manifest_v196
+
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
 OUT = ROOT / "src/app/public/mesh/surrounding-berlin-v159"
@@ -36,7 +39,9 @@ def read(path: Path) -> dict:
 
 EVIDENCE = read(GEO / "district-facades-v188-evidence.json.gz")
 CONTEXT = read(GEO / "district-facades-v188-context.json.gz")
-MANIFEST = read(OUT / "manifest.json")
+MANIFEST = predecessor_manifest_v196(
+  read(OUT / "manifest.json"), lambda path: path.read_bytes()
+)
 
 
 def test_every_previous_packet_descriptor_and_payload_is_retained() -> None:
@@ -215,7 +220,10 @@ def test_new_packets_have_no_navigation_ownership_and_bounded_native_geometry() 
     assert desc["bounds"] == previous[desc["detailCompanionOf"]]["bounds"]
     for family in ["drawn", "minecraft"]:
       asset = desc[family]
-      raw = (OUT / asset["url"]).read_bytes()
+      raw = historical_asset_bytes_v194(
+        OUT / asset["url"], asset["sha256"], asset["bytes"],
+        lambda path: path.read_bytes(),
+      )
       assert hashlib.sha256(raw).hexdigest() == asset["sha256"]
       assert len(gzip.decompress(raw)) == asset["decodedBytes"] < 12 * 1024 * 1024
       packet = read(OUT / asset["url"])

@@ -1,0 +1,14 @@
+/** Compute controls for the explicit actual-client guard/ordinal derivative.
+ * Original v307 and v309 receipts are read-only inputs. */
+import{readFileSync,writeFileSync}from'node:fs';
+import{createHash}from'node:crypto';
+import{gzipSync}from'node:zlib';
+const baseDir=import.meta.dir+'/../src/data/',path=process.argv[2]??baseDir+'coreTerrainActualV310.json';
+const source=JSON.parse(readFileSync(baseDir+'coreTerrainContactV307.json','utf8')),delta=JSON.parse(readFileSync(path,'utf8')),bridge=JSON.parse(readFileSync(baseDir+'gesundbrunnenBridgeCoreV309Delta.json','utf8'));
+const fnv=(value:unknown)=>{let h=2166136261;const text=JSON.stringify(value);for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),16777619)>>>0;return h;};
+for(const[key,control]of Object.entries(delta.baseVariantControls))if(fnv(source.variants[key])!==control)throw Error('Immutable original variant changed: '+key);
+const variants={...source.variants};for(const[key,change]of Object.entries(delta.variants)as[string,any][]){const original=source.variants[key];if(original.parts.length!==1)throw Error('Exactly one original Main part required');change.basePartControl=fnv(original.parts[0]);variants[key]={...original,captureSha256:change.captureSha256,parts:[{...original.parts[0],instances:change.instances,retire:change.retire}]};}
+writeFileSync(path,JSON.stringify(delta));
+const afterBridge={...variants};for(const[key,patch]of Object.entries(bridge.variants)as[string,any][]){const original=afterBridge[key];afterBridge[key]={...original,parts:original.parts.map((part:any)=>{const p=patch.parts.find((p:any)=>p.name===part.name&&p.parentName===part.parentName&&(p.batchId??null)===(part.batchId??null));if(!p)return part;if(fnv(part)!==p.basePartControl)throw Error('A bridge delta also owns the changed actual Main');return{...part,retire:[...part.retire,...p.retire].sort((a:number,b:number)=>a-b),outsideAdditions:p.outsideAdditions};})};}
+const result={deltaSha256:createHash('sha256').update(readFileSync(path)).digest('hex'),deltaControl:fnv(delta),actualVariantControls:Object.fromEntries(Object.entries(variants).map(([k,v])=>[k,fnv(v)])),composedBridgeControls:Object.fromEntries(Object.entries(afterBridge).map(([k,v])=>[k,fnv(v)])),parts:Object.fromEntries(Object.entries(delta.variants).map(([k,v])=>[k,{basePartControl:(v as any).basePartControl,instances:(v as any).instances,retireCount:(v as any).retire.length}]))};
+writeFileSync(import.meta.dir+'/../../../geo_data/regierungsviertel/core-terrain-actual-v310-controls.json.gz',gzipSync(JSON.stringify({schemaVersion:1,originalCoreSha256:createHash('sha256').update(readFileSync(baseDir+'coreTerrainContactV307.json')).digest('hex'),originalBridgeDeltaSha256:createHash('sha256').update(readFileSync(baseDir+'gesundbrunnenBridgeCoreV309Delta.json')).digest('hex'),...result})));if(process.argv[3])writeFileSync(process.argv[3],JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));

@@ -10,6 +10,8 @@ from pathlib import Path
 from shapely.geometry import Polygon, box, shape
 from shapely.ops import unary_union
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -22,16 +24,25 @@ def load():
   return module
 
 
-def test_replay_and_every_earlier_source_and_packet_remains_identical():
+def test_replay_and_every_earlier_source_and_packet_remains_identical(monkeypatch):
   module = load()
-  data, evidence = module.build()
-  assert data == json.loads(module.OUT.read_text())
-  assert json.loads(json.dumps(evidence)) == json.loads(module.EVIDENCE.read_text())
-  for category in ["sourceSha256", "preservedSha256", "packetSha256"]:
-    for name, digest in evidence[category].items():
-      assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == digest
-  assert len(evidence["preservedSha256"]) == 4
-  assert len(evidence["packetSha256"]) == 4
+  _expected_v314 = {
+    (ROOT / _name_v314).resolve(): _sha_v314
+    for _name_v314, _sha_v314 in json.loads(module.EVIDENCE.read_text())["packetSha256"].items()
+  }
+  _reader_v314 = Path.read_bytes
+  with monkeypatch.context() as _scope_v314:
+    _scope_v314.setattr(
+      Path, "read_bytes", _historical_source_reader_v314(_expected_v314, _reader_v314)
+    )
+    data, evidence = module.build()
+    assert data == json.loads(module.OUT.read_text())
+    assert json.loads(json.dumps(evidence)) == json.loads(module.EVIDENCE.read_text())
+    for category in ["sourceSha256", "preservedSha256", "packetSha256"]:
+      for name, digest in evidence[category].items():
+        assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == digest
+    assert len(evidence["preservedSha256"]) == 4
+    assert len(evidence["packetSha256"]) == 4
 
 
 def test_complete_paving_contour_and_both_source_holes_survive_triangulation():
@@ -80,3 +91,13 @@ def test_native_is_complete_independent_interior_cells_with_no_hole_fill():
         actual.add((ix, iz))
   assert actual == expected
   assert len(actual) == evidence["nativeCompleteCells"] == 4975
+
+
+def _historical_source_reader_v314(expected, reader):
+  def historical(path):
+    digest = expected.get(path.resolve())
+    if digest is None:
+      return reader(path)
+    return historical_asset_bytes_v194(path, digest, reader=reader)
+
+  return historical

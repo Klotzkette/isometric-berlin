@@ -6,8 +6,11 @@ import math
 from collections import Counter
 from pathlib import Path
 
+import pytest
 from shapely.geometry import Polygon, shape
 from shapely.ops import unary_union
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
@@ -59,7 +62,33 @@ def test_whole_island_and_named_warehouse_sources_retained():
   )
 
 
-def test_all_prior_owners_have_independent_exact_replay():
+@pytest.fixture
+def historical_ownership_digest(monkeypatch):
+  # Match only immutable packet fingerprints already declared by this receipt.
+  from scripts import build_west_industrial_ownership_v230 as ownership
+
+  receipt = read(DATA / "westIndustrialV230Ownership.json")
+  expected = {}
+  for row in receipt["records"] + receipt["lineRecords"]:
+    path = (ownership.OUT / f"{row['tile']}.{row['mode']}.json.gz").resolve()
+    assert path not in expected or expected[path] == row["sha256"]
+    expected[path] = row["sha256"]
+  original_digest = ownership.digest
+
+  def historical_digest(path):
+    digest = expected.get(path.resolve())
+    if digest is None:
+      return original_digest(path)
+    return hashlib.sha256(
+      historical_asset_bytes_v194(
+        path, digest, reader=lambda source: source.read_bytes()
+      )
+    ).hexdigest()
+
+  monkeypatch.setattr(ownership, "digest", historical_digest)
+
+
+def test_all_prior_owners_have_independent_exact_replay(historical_ownership_digest):
   from scripts.build_west_industrial_ownership_v230 import build
 
   receipt = read(DATA / "westIndustrialV230Ownership.json")

@@ -2,14 +2,19 @@
 
 from __future__ import annotations
 
+import gzip
+import hashlib
 import json
 import math
 import sys
 from pathlib import Path
 
 import numpy as np
+import pytest
 from shapely.geometry import Polygon, box, shape
 from shapely.ops import unary_union
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -20,15 +25,30 @@ EVIDENCE = build.read(build.EVIDENCE)
 
 
 def test_replay_and_earlier_sources_are_unchanged():
-  for name, digest in EVIDENCE["sourceSha256"].items():
-    assert build.sha(ROOT / name) == digest
-  data, evidence = build.build()
-  assert data == DATA
-  assert json.loads(json.dumps(evidence)) == EVIDENCE
-  assert len(DATA["boxes"]) == 88
-  assert len(DATA["nativeRows"]) == 217
-  assert EVIDENCE["counts"]["drawnAttributeBytes"] <= 12000
-  assert EVIDENCE["counts"]["nativeAttributeBytes"] <= 18000
+  original_sha = build.sha
+
+  def historical_sha(path):
+    expected = EVIDENCE["sourceSha256"].get(str(path.relative_to(ROOT)))
+    if expected is None:
+      return original_sha(path)
+    raw = path.read_bytes()
+    historical = historical_asset_bytes_v194(path, expected, reader=Path.read_bytes)
+    assert (
+      gzip.decompress(historical) if path.suffix == ".gz" else historical
+    ) == (gzip.decompress(raw) if path.suffix == ".gz" else raw)
+    return hashlib.sha256(historical).hexdigest()
+
+  with pytest.MonkeyPatch.context() as historical:
+    historical.setattr(build, "sha", historical_sha)
+    for name, digest in EVIDENCE["sourceSha256"].items():
+      assert build.sha(ROOT / name) == digest
+    data, evidence = build.build()
+    assert data == DATA
+    assert json.loads(json.dumps(evidence)) == EVIDENCE
+    assert len(DATA["boxes"]) == 88
+    assert len(DATA["nativeRows"]) == 217
+    assert EVIDENCE["counts"]["drawnAttributeBytes"] <= 12000
+    assert EVIDENCE["counts"]["nativeAttributeBytes"] <= 18000
 
 
 def test_full_rim_contour_and_open_inner_basin_match_existing_plaza_hole():

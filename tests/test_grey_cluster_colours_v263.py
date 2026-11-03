@@ -7,6 +7,7 @@ from shapely.geometry import Polygon
 
 from scripts import build_grey_cluster_colours_v263 as build
 from scripts.build_surrounding_outlines import PackedMesh, navigation_polygons
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 
 def fixture(same_height: bool = False) -> dict:
@@ -86,7 +87,7 @@ def test_nine_independent_packet_pairs_reproduce_receipts_and_original_bytes():
     assert tile in build.TILES
     path = build.OUT / f"{tile}.{mode}.json.gz"
     assert (
-      hashlib.sha256(path.read_bytes()).hexdigest() == evidence["inputs"][path.name]
+      hashlib.sha256(historical_asset_bytes_v194(path, evidence["inputs"][path.name], reader=lambda source: source.read_bytes())).hexdigest() == evidence["inputs"][path.name]
     )
     packet = build.base.read_json(path)
     assert build.nav_fingerprint(packet["nav"]) == plan["guard"]

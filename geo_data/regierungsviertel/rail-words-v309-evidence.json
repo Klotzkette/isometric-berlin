@@ -1,0 +1,336 @@
+{
+  "schemaVersion": 1,
+  "codec": "u32-delta-byteplanes-v1",
+  "source": "railSseArchitectureV307.json",
+  "scope": "new models.positions and models.indices only",
+  "beforeSha256": "8769ea8e7b619d4313ce82b06cf0be43dda4eeaf79852071ef7ed53aec37e081",
+  "afterSha256": "ecef68e412d5476ee969ec70b10a6c4f383bf30721a81606e615441d92bce944",
+  "unchangedComplementSha256": "474a5b30bd95006a7acd773f683cdafda163d370c82ffad55ca6969e8c4cbafa",
+  "beforeBytes": 70210019,
+  "afterBytes": 70211618,
+  "beforeGzipBytes": 9839889,
+  "afterGzipBytes": 2725704,
+  "words": [
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:-1_-6",
+      "field": "positions",
+      "stride": 3,
+      "count": 1251,
+      "decodedBytes": 5004,
+      "packedBytes": 5004,
+      "decodedSha256": "5bfbb85983566ef6c7e3f99f3360dc1541fe58a3163fc18b4eff8a34b91a1a55",
+      "packedSha256": "9684ac313dafcc4dfa99b05ccdca8f74f950949befa203c48799dde092271fb2"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:-1_-6",
+      "field": "indices",
+      "stride": 1,
+      "count": 663,
+      "decodedBytes": 2652,
+      "packedBytes": 2652,
+      "decodedSha256": "b4ce3894c7410641f062ea1cf96bdf6df261e79072683dd24517d083423d4f4d",
+      "packedSha256": "8e13c91068de04927ae23aa6e96d096efde086c4b41c237d0839216fa2ac1839"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:1_-7",
+      "field": "positions",
+      "stride": 3,
+      "count": 84627,
+      "decodedBytes": 338508,
+      "packedBytes": 338508,
+      "decodedSha256": "f260ea9114a9d210705d128508882043efa8cd771f18eadd8cbafd8ad2448d02",
+      "packedSha256": "1a59898cbe682d0721153b87f0b13447fdaa94258c27709df1ef90c3b9d531aa"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:1_-7",
+      "field": "indices",
+      "stride": 1,
+      "count": 42285,
+      "decodedBytes": 169140,
+      "packedBytes": 169140,
+      "decodedSha256": "5b25d6193c3790c4c5a615b0cfd7eff9ae1addd844f350b7964d5657771d62b7",
+      "packedSha256": "14128fe076abd3bd16f9d44019d3b75db6c061c8717b48e263f2f6ede485c09f"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:2_-7",
+      "field": "positions",
+      "stride": 3,
+      "count": 820056,
+      "decodedBytes": 3280224,
+      "packedBytes": 3280224,
+      "decodedSha256": "4e7633b54c90c1c5368447ad4436a2ad27199afdfa06b28b011354fa599d390f",
+      "packedSha256": "9b8b559543012fff968efb711a1a0e637bd5efcbc4a00998f65346c189f26ace"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:2_-7",
+      "field": "indices",
+      "stride": 1,
+      "count": 432075,
+      "decodedBytes": 1728300,
+      "packedBytes": 1728300,
+      "decodedSha256": "6858ee64b9ac02f59f8bb1fe90d4873a5cccd6a9fbccb71254bd5df5e5ac7647",
+      "packedSha256": "79b7d3cdea499dddf1e1b27a6a73a12a3355f38edfb71a13238b795ad4286398"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:3_-7",
+      "field": "positions",
+      "stride": 3,
+      "count": 297324,
+      "decodedBytes": 1189296,
+      "packedBytes": 1189296,
+      "decodedSha256": "591e6450736f978e452b80aeba2726602abbd6a662a483fc1347e90ecc074208",
+      "packedSha256": "4b2359e67568fd2455d3f11f1aa3504440c135dd72260e94a91c5065c082ca6a"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:3_-7",
+      "field": "indices",
+      "stride": 1,
+      "count": 148626,
+      "decodedBytes": 594504,
+      "packedBytes": 594504,
+      "decodedSha256": "31876cff327579c2e5d7efaf48e01895cf36b1cf3652d0e0d961beef0bdfcd08",
+      "packedSha256": "430449ef926ba526882f578b8c34338db05b9223cca178886ecf2059c39951a1"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:10_-3",
+      "field": "positions",
+      "stride": 3,
+      "count": 31680,
+      "decodedBytes": 126720,
+      "packedBytes": 126720,
+      "decodedSha256": "6b25c9864f2f5dbd6aa7c291c9d2bb4e327ef1eb7031d4b920cf5e4922076593",
+      "packedSha256": "c7424cab9b294676c666d6172234062c1158f429bc4e4702ebe47466c55877e2"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:10_-3",
+      "field": "indices",
+      "stride": 1,
+      "count": 19677,
+      "decodedBytes": 78708,
+      "packedBytes": 78708,
+      "decodedSha256": "9dab50056a327488664a848a61ea4db4d65d708ff4f60d7b427d08b8d321dd2c",
+      "packedSha256": "5ccc696b56819951f12e8efc3fb443af3d359ff1b0266641a4322eef9b509a3f"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:10_-2",
+      "field": "positions",
+      "stride": 3,
+      "count": 7059,
+      "decodedBytes": 28236,
+      "packedBytes": 28236,
+      "decodedSha256": "42f7eed56ee516142280f821e30a287fb4905ea69eb129e8172e292ee4727535",
+      "packedSha256": "b423e25bdbcc9d9006f2d71ebbec18c45485f63904af01bf361b860b7d0fc11a"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:10_-2",
+      "field": "indices",
+      "stride": 1,
+      "count": 3567,
+      "decodedBytes": 14268,
+      "packedBytes": 14268,
+      "decodedSha256": "50c6f0450df64187287b568ceb5d20fc2eea67141c243bf758dc0ba9f28f918e",
+      "packedSha256": "b90c67013f800b235fba48076d576ee8dec8ef3e5678bb65b086c6f818a018c8"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:11_-3",
+      "field": "positions",
+      "stride": 3,
+      "count": 70518,
+      "decodedBytes": 282072,
+      "packedBytes": 282072,
+      "decodedSha256": "1ad37516c8ca20fb9703e35e378fe15f71fd64e7b508dcabbd2ab2753a87f998",
+      "packedSha256": "2e3a4b73ee4a6742ac277c027446ec28cf9fe0741bc99b469e49782668c5605b"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:11_-3",
+      "field": "indices",
+      "stride": 1,
+      "count": 37704,
+      "decodedBytes": 150816,
+      "packedBytes": 150816,
+      "decodedSha256": "059e5a3e2b75cdeb0ce09f1e929fc6e46b5ea1faf96c814e6b2fa8bac11a8a2f",
+      "packedSha256": "c830c3c5c6e6fb1050701c1c44f78f7e7f332413a806a6055d3b54211ccec4e2"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:11_-2",
+      "field": "positions",
+      "stride": 3,
+      "count": 52107,
+      "decodedBytes": 208428,
+      "packedBytes": 208428,
+      "decodedSha256": "5034f5441ae06dc992f1ca68d0409c4e057bffbc70010f07d1bb44a8f348029e",
+      "packedSha256": "cfe41a64ad476d85e1443d5535b56c0e5c77836b93681e490fc08ec5b1d56a98"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:drawn:11_-2",
+      "field": "indices",
+      "stride": 1,
+      "count": 31452,
+      "decodedBytes": 125808,
+      "packedBytes": 125808,
+      "decodedSha256": "6cc0b9674f5dcf4d122586d29eb1d08a0c123a0d91066fcf319de0bd29205d84",
+      "packedSha256": "3558717d5eed0c99abffd38cb0dfae4441fb1f9d198f5477a2b0aaf35e15f374"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:-1_-6",
+      "field": "positions",
+      "stride": 3,
+      "count": 27516,
+      "decodedBytes": 110064,
+      "packedBytes": 110064,
+      "decodedSha256": "418f8b6950ac019521cafbac53dfd6a1371caa18b26d5d7ac4207283df5a1487",
+      "packedSha256": "8f4ef5e39cd86a865d4bfbda3de992072e6336a298ad08b393ca25c2232dd748"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:-1_-6",
+      "field": "indices",
+      "stride": 1,
+      "count": 13788,
+      "decodedBytes": 55152,
+      "packedBytes": 55152,
+      "decodedSha256": "69f955bed954dcd580c2a98cad0a68b1b23c19432bc952b4b44c8cf8a5e72fc0",
+      "packedSha256": "a7f1acd81d10c3f6951136d13fb26ab85fad59b235b25cbd72a20ea4e2cd329d"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:1_-7",
+      "field": "positions",
+      "stride": 3,
+      "count": 169392,
+      "decodedBytes": 677568,
+      "packedBytes": 677568,
+      "decodedSha256": "af8cbe2c3cb7d61e6d252e39b5bad1c845e949bcabd80746cdfd0006134ccd47",
+      "packedSha256": "34d49eefe63f62e2a4db2f2a74b265fe08d8d8dcf78c9534b4e0b54006e39f69"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:1_-7",
+      "field": "indices",
+      "stride": 1,
+      "count": 84594,
+      "decodedBytes": 338376,
+      "packedBytes": 338376,
+      "decodedSha256": "de96758743b73a7118e42424106e868b14e66052ee64270f19a507e5d8525b89",
+      "packedSha256": "1cc8a6e26cb82cca0d901a877540ca31c3cd8ab9b4279c717c0a04d5cb173b86"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:2_-7",
+      "field": "positions",
+      "stride": 3,
+      "count": 1851300,
+      "decodedBytes": 7405200,
+      "packedBytes": 7405200,
+      "decodedSha256": "4cf7c3f3f292eba9ac6f5a46a62fb6f6224cb1b201556ad57e57294dfe1f29be",
+      "packedSha256": "681534cfd51df0cd16f5b3bafd5b3125756857e17d2059959970b7cd7aa95ee7"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:2_-7",
+      "field": "indices",
+      "stride": 1,
+      "count": 1127394,
+      "decodedBytes": 4509576,
+      "packedBytes": 4509576,
+      "decodedSha256": "f6a131e7238910846f985840d750f93f37a68b5401c6e47d5ec39af2f75e1499",
+      "packedSha256": "a0032dbe8e9734e9b00a5fab4562c0c60475a53c5a52c55f2dcf2a9db49b99ec"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:3_-7",
+      "field": "positions",
+      "stride": 3,
+      "count": 592458,
+      "decodedBytes": 2369832,
+      "packedBytes": 2369832,
+      "decodedSha256": "78cf262a6af1c73a77f0d62a13f510542bf8c5526484d3aba5aef0593f22600f",
+      "packedSha256": "a1280b242d8eed2d7819aea87ddd607de04e99e098dc76875e6d086da9f70aa1"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:3_-7",
+      "field": "indices",
+      "stride": 1,
+      "count": 297096,
+      "decodedBytes": 1188384,
+      "packedBytes": 1188384,
+      "decodedSha256": "ace6c4f13db0de7af21c24b19d4ba1ae06e78183faefdd3ecdba75c38f343bf7",
+      "packedSha256": "6f8055d39581e6b2f777e86b49487eceda581c9b00b130cfde152a0662edddc7"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:10_-3",
+      "field": "positions",
+      "stride": 3,
+      "count": 461004,
+      "decodedBytes": 1844016,
+      "packedBytes": 1844016,
+      "decodedSha256": "0239411e6a9b929c3c0e70905c08f0a4080caa0745083c5e777e2df1e2672c51",
+      "packedSha256": "07596496cb02dac41c9096ce85fb73dd3b2f718becf82f57622b7de354c394b2"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:10_-3",
+      "field": "indices",
+      "stride": 1,
+      "count": 313884,
+      "decodedBytes": 1255536,
+      "packedBytes": 1255536,
+      "decodedSha256": "19d2d678a13ffc500fdada79557635d2ec3c1d19741192f50cdffc7cfbae0f49",
+      "packedSha256": "9011fb578e42a4f62ed254411efa35c39d6856c975a39718877fa9f8ed001a27"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:10_-2",
+      "field": "positions",
+      "stride": 3,
+      "count": 18054,
+      "decodedBytes": 72216,
+      "packedBytes": 72216,
+      "decodedSha256": "27e449991ebd7391c01d7609a833f3d0e16d2bbd91b34b8639d7f86c95e47f85",
+      "packedSha256": "85da6e08788a94321e2ccbd0d3df1efd6306fe22bdc91d88fdeeee6c1901f00e"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:10_-2",
+      "field": "indices",
+      "stride": 1,
+      "count": 12420,
+      "decodedBytes": 49680,
+      "packedBytes": 49680,
+      "decodedSha256": "527b966c644b6be28e035aaf54269136fd0c33529dc271c3163430600c0c7687",
+      "packedSha256": "f425c75dab7dd4284496bf842676e86b87bcfd9c29fcedea38393ff1cbb1cc6f"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:11_-3",
+      "field": "positions",
+      "stride": 3,
+      "count": 165126,
+      "decodedBytes": 660504,
+      "packedBytes": 660504,
+      "decodedSha256": "56a2afcef61ea3d888a44998d5cac3401cc14397a01864181ee0beab06a0946d",
+      "packedSha256": "39658187f3759c1c4c1ce9488f0e3ff7e67e93734e89fb2586e87668da91793d"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:11_-3",
+      "field": "indices",
+      "stride": 1,
+      "count": 101226,
+      "decodedBytes": 404904,
+      "packedBytes": 404904,
+      "decodedSha256": "d51372698d1192d34d31a7bb18b5488b4f507bfcf12842cced5cd8c5104c4d1b",
+      "packedSha256": "c51759b064d89f78f08ea25ece3986ae896642887bbc920624841b75501629f9"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:11_-2",
+      "field": "positions",
+      "stride": 3,
+      "count": 109818,
+      "decodedBytes": 439272,
+      "packedBytes": 439272,
+      "decodedSha256": "e9fa413f9cdc350310c2c66aae4e9123c30e2abefc603daef625efd55e120c54",
+      "packedSha256": "35a5a818b0dd6eb6e04333c8bf888e5ab8792b8dc2074143afd78afa5e104e84"
+    },
+    {
+      "mesh": "complete-rail-sports-architecture-v307:minecraft:11_-2",
+      "field": "indices",
+      "stride": 1,
+      "count": 67218,
+      "decodedBytes": 268872,
+      "packedBytes": 268872,
+      "decodedSha256": "9a7008a7e4e2e4a7058929afadf39e6125d42f0860b6d5869f1b68db3f028877",
+      "packedSha256": "bb8e7a2fc239a9dad7d7ca8883df012f5fd866e49e585681e8ace7ed0babcd3b"
+    }
+  ],
+  "unchangedMeshFieldsSha256": "e42a0d5af0a31b939d89aa805499625871478489b100f3dd9e7ffabe77ae504c"
+}

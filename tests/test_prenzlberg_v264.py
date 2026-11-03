@@ -11,6 +11,8 @@ from pathlib import Path
 import pytest
 from shapely.geometry import LineString, Polygon, box
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_prenzlberg_v264 as builder  # noqa: E402
@@ -24,7 +26,7 @@ def generated():
 def test_all_previous_source_and_detail_inputs_remain_byte_exact():
   source = builder.read(builder.SOURCE)
   for path, expected in source["inputSha256"].items():
-    assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == expected, path
+    assert hashlib.sha256(historical_asset_bytes_v194(ROOT / path, expected, reader=lambda source: source.read_bytes())).hexdigest() == expected, path
 
 
 def test_original_sheets_immutable_and_corrected_footprints_exact(generated):

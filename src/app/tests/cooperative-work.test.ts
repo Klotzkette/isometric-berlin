@@ -117,3 +117,46 @@ test("constructor failures propagate for the caller's resource rollback", async 
     }),
   ).rejects.toBe(error);
 });
+
+test("checkpoints report actual finished slices without changing work order", async () => {
+  let time = 0;
+  const completed: number[] = [];
+  function* build() {
+    for (let index = 0; index < 7; index++) { time += 3; yield; }
+    return "complete";
+  }
+  expect(await completeCooperatively(build(), {
+    now: () => time, yieldTask: async () => {}, isCancelled: () => false,
+    onCheckpoint: count => completed.push(count),
+  })).toBe("complete");
+  expect(completed).toEqual([3, 6, 7]);
+});
+
+test("a checkpoint failure releases suspended constructor locals", async () => {
+  let closed = false;
+  const error = new Error("checkpoint stopped");
+  function* build() { try { yield; yield; } finally { closed = true; } }
+  await expect(completeCooperatively(build(), {
+    budgetMs: 0, yieldTask: async () => {}, isCancelled: () => false,
+    onCheckpoint: () => { throw error; },
+  })).rejects.toBe(error);
+  expect(closed).toBeTrue();
+});
+
+test("completion runs in the final generator job before an already queued continuation", async () => {
+  const events: string[] = [];
+  function* build() { yield; queueMicrotask(() => events.push("queued continuation")); return 42; }
+  const value = await completeCooperatively(build(), {
+    yieldTask: async () => {}, isCancelled: () => false,
+    onComplete: result => { expect(result).toBe(42); events.push("synchronous publication"); },
+  });
+  expect(value).toBe(42); expect(events).toEqual(["synchronous publication", "queued continuation"]);
+});
+
+test("synchronous publication errors reject the cooperative result", async () => {
+  const error = Error("publication failed");
+  function* build() { yield; return 42; }
+  await expect(completeCooperatively(build(), {
+    yieldTask: async () => {}, isCancelled: () => false, onComplete: () => { throw error; },
+  })).rejects.toBe(error);
+});

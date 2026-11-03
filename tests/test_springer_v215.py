@@ -9,6 +9,8 @@ from pathlib import Path
 import numpy as np
 from shapely.geometry import Point, Polygon
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "src/app/src/data"
 SOURCE_PATH = ROOT / "geo_data/regierungsviertel/springer-v215-source.json.gz"
@@ -44,7 +46,10 @@ def test_complete_old_source_and_every_original_packet_remain_immutable():
     assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == expected
   for record in SOURCE["originalPackets"]:
     assert (
-      hashlib.sha256((ROOT / record["file"]).read_bytes()).hexdigest()
+      hashlib.sha256(historical_asset_bytes_v194(
+            ROOT / record["file"], record["sha256"],
+            reader=lambda source: source.read_bytes(),
+          )).hexdigest()
       == record["sha256"]
     )
   assert {r["part"] for r in OWNERSHIP["records"] + OWNERSHIP["lineRecords"]} == {

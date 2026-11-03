@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import sys
 from pathlib import Path
 
 import numpy as np
+import pytest
 from shapely.geometry import Polygon, shape
 from shapely.ops import unary_union
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -17,6 +21,23 @@ import build_schlossstrasse_v247 as build  # noqa: E402
 
 DATA = build.base.read(build.OUT)
 EVIDENCE = build.base.read(build.EVIDENCE)
+
+
+@pytest.fixture
+def historical_source_sha(monkeypatch):
+  # Scope this binding to the existing replay test, not its shared base module.
+  original_sha = build.base.sha
+
+  def historical_sha(path):
+    digest = EVIDENCE["sourceSha256"].get(str(path.relative_to(ROOT)))
+    if digest is None:
+      return original_sha(path)
+    raw = historical_asset_bytes_v194(
+      path, digest, reader=lambda source: source.read_bytes()
+    )
+    return hashlib.sha256(raw).hexdigest()
+
+  monkeypatch.setattr(build.base, "sha", historical_sha)
 
 
 def footprint(row, native=False):
@@ -32,7 +53,7 @@ def footprint(row, native=False):
   )
 
 
-def test_sources_and_finite_payload_are_deterministic_and_preserved():
+def test_sources_and_finite_payload_are_deterministic_and_preserved(historical_source_sha):
   for path, digest in EVIDENCE["sourceSha256"].items():
     assert build.base.sha(ROOT / path) == digest
   data, evidence = build.build()

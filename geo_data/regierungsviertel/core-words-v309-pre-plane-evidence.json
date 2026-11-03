@@ -1,0 +1,416 @@
+{
+  "schemaVersion": 1,
+  "codec": "u32-delta-byteplanes-v1",
+  "source": "coreTerrainContactV307.json",
+  "scope": "new meshes.positions and meshes.indices only",
+  "beforeSha256": "e7556eee87721c4c81dd29488244115399dd3a13780eda37bede4e735b943806",
+  "afterSha256": "810ec3de6ac2cedc10c78d8754b1f9313ab60ba6a33f4e8ba7cb943e8a4ba4c6",
+  "unchangedVariantsSha256": "6085986e6134c2ef23816277588ae0f43e45b7445577208a7c81901c70261044",
+  "beforeBytes": 45757186,
+  "afterBytes": 45759185,
+  "beforeGzipBytes": 10417507,
+  "afterGzipBytes": 6281257,
+  "words": [
+    {
+      "mesh": "core:humboldthain:drawn-initial:drawn-initial:Drawn ground slabs",
+      "field": "positions",
+      "stride": 3,
+      "count": 238674,
+      "decodedBytes": 954696,
+      "packedBytes": 954696,
+      "decodedSha256": "3d6081815e573c07a322ef0ddcf5b468e06f94ff7f27b1343f56a379e8cf838a",
+      "packedSha256": "63bf68e14b78ed1db421691c9740d47bc1c9559d98c522fd084ad2279b667022"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-initial:drawn-initial:Drawn ground slabs",
+      "field": "indices",
+      "stride": 1,
+      "count": 140454,
+      "decodedBytes": 561816,
+      "packedBytes": 561816,
+      "decodedSha256": "6f30ba317997e44854faf80837fae0d1e1d22a58d71e2596f16830b139ef4048",
+      "packedSha256": "dd06ff72eb4851e9afeb518682b5597026ff9315b46e83e38fc584d0a5840369"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:surface-parks-1:smooth parkland lawns",
+      "field": "positions",
+      "stride": 3,
+      "count": 1137351,
+      "decodedBytes": 4549404,
+      "packedBytes": 4549404,
+      "decodedSha256": "ea2d05f6ec41b78c251f0961348dc6736cd1f116d19145177a4e2d86b162f521",
+      "packedSha256": "f95cbf2cb5b1bd8bdcc7094b51d1b261cece58dff4dba27c418fac7f1ba78a9c"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:surface-parks-1:smooth parkland lawns",
+      "field": "indices",
+      "stride": 1,
+      "count": 2251266,
+      "decodedBytes": 9005064,
+      "packedBytes": 9005064,
+      "decodedSha256": "ecc9984c632efc15a345b7b04da14ef4dc22183661a4759f92ebb75f903c9590",
+      "packedSha256": "c6e866b828c7a60cc94d760f33ac04279f881e29e1f5ea871a4724560f519f3b"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:surface-parks-1:smooth garden beds",
+      "field": "positions",
+      "stride": 3,
+      "count": 25272,
+      "decodedBytes": 101088,
+      "packedBytes": 101088,
+      "decodedSha256": "c81b8bd6e86f933cee1e76525ef04e6904f33e253ffd90ad5fc14b2920f595b4",
+      "packedSha256": "8ebc0e20ad1f227655bbeb72462fad24930dedb83e2fe3fe95afeaf67ab93039"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:surface-parks-1:smooth garden beds",
+      "field": "indices",
+      "stride": 1,
+      "count": 48846,
+      "decodedBytes": 195384,
+      "packedBytes": 195384,
+      "decodedSha256": "5c978546f59c95e6eebf2347e03daa1ffa768fcfec83eb133d3d9b252525fe43",
+      "packedSha256": "d8ed66e5ca98f96743e180ef4f4132d89d07e7f672fda429f5bc24427806fd06"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:surface-parks-3:smooth parkland lawns",
+      "field": "positions",
+      "stride": 3,
+      "count": 6909,
+      "decodedBytes": 27636,
+      "packedBytes": 27636,
+      "decodedSha256": "e5ed6520552243ed4ee3bd1cfc9ea0d214384240213a9c645fe545a218b53365",
+      "packedSha256": "304893a98b3a3e2c5bd6ec2e59e7e0050a9b8dce998321ac4cd8cc575a3a479d"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:surface-parks-3:smooth parkland lawns",
+      "field": "indices",
+      "stride": 1,
+      "count": 13191,
+      "decodedBytes": 52764,
+      "packedBytes": 52764,
+      "decodedSha256": "5d6de53a724a67b2a7059e66b48ba985e793de8bffd6fb2e12889748e6d260c3",
+      "packedSha256": "e6b63e51e57bc07bd41350d70e67acbe0e2aabcbfca5495eda4e72759a4ef57a"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:surface-parks-4:smooth parkland lawns",
+      "field": "positions",
+      "stride": 3,
+      "count": 1296,
+      "decodedBytes": 5184,
+      "packedBytes": 5184,
+      "decodedSha256": "b2c7d5a3a0ebf0df224c3f06306a3bf9eac372a3a16e1967cb18938b535c0f48",
+      "packedSha256": "184416b172f1fb5c6b0545fdfd8c608514f1d69e09233ca69d3d9e4e7fa5072f"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:surface-parks-4:smooth parkland lawns",
+      "field": "indices",
+      "stride": 1,
+      "count": 2310,
+      "decodedBytes": 9240,
+      "packedBytes": 9240,
+      "decodedSha256": "7a79be7bb4ffb98ba49b6effee8fdaccba6b30b67d4e7dad06ab62165ee3136a",
+      "packedSha256": "8adab256cd7eb16838e65abd0b88ff6994661da78ef235de3b238586df7532e6"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:surface-parks-6:smooth parkland lawns",
+      "field": "positions",
+      "stride": 3,
+      "count": 3717,
+      "decodedBytes": 14868,
+      "packedBytes": 14868,
+      "decodedSha256": "444628ee4effd160fcfd5ba13654f0fb2976a7fb8420f34b4918f1174cc4d0ac",
+      "packedSha256": "54d06695451d40f79cc265a309eb3521e0853a82354383d1ba700304aa27374d"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:surface-parks-6:smooth parkland lawns",
+      "field": "indices",
+      "stride": 1,
+      "count": 6504,
+      "decodedBytes": 26016,
+      "packedBytes": 26016,
+      "decodedSha256": "ad0a5f19302c4f4c60b6de32557665f7077a372d924d6c9e2ab03a27a11fe901",
+      "packedSha256": "5c3168d2748692368bfd461ff17125c73309d3c1a07d7ad02b8c380b9f3114c6"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:surface-sand:smooth park paths",
+      "field": "positions",
+      "stride": 3,
+      "count": 85692,
+      "decodedBytes": 342768,
+      "packedBytes": 342768,
+      "decodedSha256": "dc4f5a54302246c7e4dd68bd708f7d48df761879cb370bdbe634bcdd4dd33fd0",
+      "packedSha256": "084176377825c091f9cf11c1342d9a3599672673ca852e6392f53707e5c0d030"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:surface-sand:smooth park paths",
+      "field": "indices",
+      "stride": 1,
+      "count": 162060,
+      "decodedBytes": 648240,
+      "packedBytes": 648240,
+      "decodedSha256": "89b18eb3beaacb80e0905fceb652e0d1a7a7d0295ff173a51ed5babeb6f4c670",
+      "packedSha256": "d65ff2b3deda551269b08535b2009a44101d1aec80a09d66d29b86c94e0a07d1"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:surface-earth:smooth earth desire paths",
+      "field": "positions",
+      "stride": 3,
+      "count": 5883,
+      "decodedBytes": 23532,
+      "packedBytes": 23532,
+      "decodedSha256": "9644e392493e12fc924dc581a16cc098c8d347542dac313242311dbc91bf900a",
+      "packedSha256": "c8cf50e63fa4fbd6c5fa2d7d03072f794a6936d3713804186e4edbaa19f1ee8a"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:surface-earth:smooth earth desire paths",
+      "field": "indices",
+      "stride": 1,
+      "count": 10935,
+      "decodedBytes": 43740,
+      "packedBytes": 43740,
+      "decodedSha256": "5708ef329c83f1a65a84cb34fa7b570145c7bad42ac7ed5ce3ea1780110a1486",
+      "packedSha256": "f3f091f99325e1d2692a9b8c2b01ee1733108991089e2cda65526ba5ac075b5a"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-asphalt-1--7:smooth carriageways",
+      "field": "positions",
+      "stride": 3,
+      "count": 3252,
+      "decodedBytes": 13008,
+      "packedBytes": 13008,
+      "decodedSha256": "55d2864a9c0530f84c363937077f77e2389a0bd226a8461d00f847c75d2de492",
+      "packedSha256": "a08edd56cfeeec4cfdf6ea50757c9b2993a1a02e0398cc78c6ad8300661f6b7e"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-asphalt-1--7:smooth carriageways",
+      "field": "indices",
+      "stride": 1,
+      "count": 4491,
+      "decodedBytes": 17964,
+      "packedBytes": 17964,
+      "decodedSha256": "00cd5713302cae189c50e960c43f30312f73013d3a57c4730fef181f77fc45c6",
+      "packedSha256": "8a181c9e319cadbab54ec33ade24e32e339b9d5ad6e55a20db8911eb1217b82e"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-asphalt-1--6:smooth carriageways",
+      "field": "positions",
+      "stride": 3,
+      "count": 357,
+      "decodedBytes": 1428,
+      "packedBytes": 1428,
+      "decodedSha256": "f5e50dd32dfc8850faf0b262b47d1960185bbb8d2383809ac73a5976fe27b90c",
+      "packedSha256": "10a2e8d6263ba8b1e97912f80ff3565a9bdf648d36a344148874651517442d8f"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-asphalt-1--6:smooth carriageways",
+      "field": "indices",
+      "stride": 1,
+      "count": 459,
+      "decodedBytes": 1836,
+      "packedBytes": 1836,
+      "decodedSha256": "1e46e31b0bc221dbb0e34eab756b54349305c227674700f1d15c237663274696",
+      "packedSha256": "407151cd27bef45a6e01a191f50549020d0ec1bed7a6c8379cb156291c2324a4"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-asphalt-2--7:smooth carriageways",
+      "field": "positions",
+      "stride": 3,
+      "count": 4824,
+      "decodedBytes": 19296,
+      "packedBytes": 19296,
+      "decodedSha256": "5dd142125729acc1c3ab1939ba3e2a61a5a44727396980eab15919eedf68106a",
+      "packedSha256": "3f6a9ecf96edecc64378535844ab45ffc7f81a4ca1be7b0d1787c8565c0f77b3"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-asphalt-2--7:smooth carriageways",
+      "field": "indices",
+      "stride": 1,
+      "count": 6696,
+      "decodedBytes": 26784,
+      "packedBytes": 26784,
+      "decodedSha256": "2b1bb73aa4bf02a883249443dfb562b296b9a0db888d7c0714cdd755e822f9a0",
+      "packedSha256": "feef484be0b0ce2357e4e58d3940ad3f3111265c4642603706fa29c47df376ff"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-asphalt-2--6:smooth carriageways",
+      "field": "positions",
+      "stride": 3,
+      "count": 1143,
+      "decodedBytes": 4572,
+      "packedBytes": 4572,
+      "decodedSha256": "3096c7d5d9622a9956f0b2798e007ee428a8b22408eaba92cb243a59869bc196",
+      "packedSha256": "e36ff9586cdb704878bdf6f3d0cae5b452a07d616f4ea774a373b14febcf01e9"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-asphalt-2--6:smooth carriageways",
+      "field": "indices",
+      "stride": 1,
+      "count": 1575,
+      "decodedBytes": 6300,
+      "packedBytes": 6300,
+      "decodedSha256": "b199bdd30653ca6642cbe0938ae635687dda000c580780049b481ddfcabbadad",
+      "packedSha256": "ad9eb84cbaf6ed47254f6e7e45dd8fd057918cdda8c0906156faa108c8b08a3f"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-paving-1--7:smooth paved paths",
+      "field": "positions",
+      "stride": 3,
+      "count": 2985,
+      "decodedBytes": 11940,
+      "packedBytes": 11940,
+      "decodedSha256": "fc416031603651922dfcede758f3f827a60504366df252b42e3cd1187fc8d3a9",
+      "packedSha256": "641dd04176c8bceaa09928cfef50103eaf23dc3e5fca2215bcab599bfd49f0d5"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-paving-1--7:smooth paved paths",
+      "field": "indices",
+      "stride": 1,
+      "count": 4224,
+      "decodedBytes": 16896,
+      "packedBytes": 16896,
+      "decodedSha256": "ab87d2689596066acd1b3cd525e9edec8beed2f2ac5c8c6d886456d089e1dd12",
+      "packedSha256": "cd2d9759c3ffd1a9d9464beb3e2968036f7505bd25282a837de8731ea0273735"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-paving-1--6:smooth paved paths",
+      "field": "positions",
+      "stride": 3,
+      "count": 1107,
+      "decodedBytes": 4428,
+      "packedBytes": 4428,
+      "decodedSha256": "5e727d20acea74f1295c67226ecdd026eb46cf623febd4fad714af3a5e3ef7eb",
+      "packedSha256": "3064bcb6a152105d0aa9b2dba5f7fc9179fff069faff319a4f1d47971132dd3f"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-paving-1--6:smooth paved paths",
+      "field": "indices",
+      "stride": 1,
+      "count": 1620,
+      "decodedBytes": 6480,
+      "packedBytes": 6480,
+      "decodedSha256": "c2847096fe84c94b333674f1a12e8cd612092dc1fe0b5a07172abc8188b551fd",
+      "packedSha256": "beb1f4f6b7829e0641a6cf2470faecc54645cdedc4b70b8ccd34480fa5cebac2"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-paving-2--7:smooth paved paths",
+      "field": "positions",
+      "stride": 3,
+      "count": 1803,
+      "decodedBytes": 7212,
+      "packedBytes": 7212,
+      "decodedSha256": "7e89185486334c45d0b6a72a9f67cfc8c5142e14f96e294b699540c66627d0d7",
+      "packedSha256": "e753d791ae7a173f377aedb28c58a82cabfefd7435412e7d0be317cdbbf33bd0"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-paving-2--7:smooth paved paths",
+      "field": "indices",
+      "stride": 1,
+      "count": 2493,
+      "decodedBytes": 9972,
+      "packedBytes": 9972,
+      "decodedSha256": "ed6226b53eb3f410dd3a50100a0cdbc4dd19df3b69566ecadf05ecd5d886bc06",
+      "packedSha256": "450ea8f56ed7e201ae25a34de3d41ff4bda3ef9416cdfd1b425daf64784f2ab1"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-kerbs-1--7:smooth kerb upstands",
+      "field": "positions",
+      "stride": 3,
+      "count": 3387,
+      "decodedBytes": 13548,
+      "packedBytes": 13548,
+      "decodedSha256": "f321c47c485dc98bec7457a50e784ff70a20c426bac26aab62faf2f6bd1795bc",
+      "packedSha256": "cddcde7f1554793215cf061a4f60b1a9f5dd9a5a692b295959fa2a1a7f6896b9"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-kerbs-1--7:smooth kerb upstands",
+      "field": "indices",
+      "stride": 1,
+      "count": 3774,
+      "decodedBytes": 15096,
+      "packedBytes": 15096,
+      "decodedSha256": "95fd6fe8728aa4eb03254a5c10668f858de54b8a725c4d1d9875a5cc1601afad",
+      "packedSha256": "7f153b1c163f391817fbb6ab4f322402bdbbf97fb01a6ad57b89a91365ab29b1"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-kerbs-1--6:smooth kerb upstands",
+      "field": "positions",
+      "stride": 3,
+      "count": 411,
+      "decodedBytes": 1644,
+      "packedBytes": 1644,
+      "decodedSha256": "80c3227b3a73d00e5d88c3d60f034d50d2f50c3f75315877a630f4b1c9059048",
+      "packedSha256": "ed9304dfec5893ae23c1e2853b7c2d62668d7d76ef4e67820428201ebd546eea"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-kerbs-1--6:smooth kerb upstands",
+      "field": "indices",
+      "stride": 1,
+      "count": 468,
+      "decodedBytes": 1872,
+      "packedBytes": 1872,
+      "decodedSha256": "95929ead3324b7025d8ed2a3610394065c19b036d143cf524c89f26296bb29c0",
+      "packedSha256": "906bf18e3c9eedf16631857c83e7bfa0131a8a1e7adbeb67ae2eb39d54c32513"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-kerbs-2--7:smooth kerb upstands",
+      "field": "positions",
+      "stride": 3,
+      "count": 5013,
+      "decodedBytes": 20052,
+      "packedBytes": 20052,
+      "decodedSha256": "44194a99a78d174e9df1b8e9443c385bead8e6b752ba89fa74c740bbcdd27cb9",
+      "packedSha256": "a2778502b47a3b721e9e540dfd5e84aa6fc036c67d3d12dde3418cf1b27a5c8a"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-kerbs-2--7:smooth kerb upstands",
+      "field": "indices",
+      "stride": 1,
+      "count": 5706,
+      "decodedBytes": 22824,
+      "packedBytes": 22824,
+      "decodedSha256": "1d1996e1ab4b2de9aa87317978f056835f055c3a378f8747fc7705e007aca191",
+      "packedSha256": "28074cb537b8e1d5ce5e8101167f7ea1329a30d0d98666dbc06da6d8de824db7"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-kerbs-2--6:smooth kerb upstands",
+      "field": "positions",
+      "stride": 3,
+      "count": 1296,
+      "decodedBytes": 5184,
+      "packedBytes": 5184,
+      "decodedSha256": "e150a28195ff0b84d888b5216741f99f878a96e6f41e51a6ff5acbf9759549d2",
+      "packedSha256": "0cae5227cc97487d5c89584eab33d319e714fe7cfb86d5b40e1ef2d4018a2492"
+    },
+    {
+      "mesh": "core:humboldthain:drawn-worker:restored-kerbs-2--6:smooth kerb upstands",
+      "field": "indices",
+      "stride": 1,
+      "count": 1482,
+      "decodedBytes": 5928,
+      "packedBytes": 5928,
+      "decodedSha256": "84f74961cadbc4f0a1e70f799535e9374b22bced51439e165eec9a956dec9bb4",
+      "packedSha256": "585636e45d14dc54e454b9f247c805595c0b611af8d5100cf4315beb09615b43"
+    },
+    {
+      "mesh": "core:humboldthain:minecraft:minecraft:Voxel ground runs",
+      "field": "positions",
+      "stride": 3,
+      "count": 223335,
+      "decodedBytes": 893340,
+      "packedBytes": 893340,
+      "decodedSha256": "7ec52741de994fd18ab2b288418b335747ceb3167bba93d50d2b969ef2171e8d",
+      "packedSha256": "61273076b43cc55590dc94333bb24e1be46a26fc576756f8b3082a7d848e4888"
+    },
+    {
+      "mesh": "core:humboldthain:minecraft:minecraft:Voxel ground runs",
+      "field": "indices",
+      "stride": 1,
+      "count": 140943,
+      "decodedBytes": 563772,
+      "packedBytes": 563772,
+      "decodedSha256": "4d798f5a1f2e61edd33840e9cb71bfdcc0e00e1feec9ed9b3b51e2e89f9d23d4",
+      "packedSha256": "983cc345aeb8912bc5eae929bfce9d8c8d8b76ed8f7b033f40a7369781999c22"
+    }
+  ],
+  "unchangedMeshFieldsSha256": "34cdad317af09106a92637699b6d212a2c4c8eb0efb58b7a550aa01ad723a75b"
+}

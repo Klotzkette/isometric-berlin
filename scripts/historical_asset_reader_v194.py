@@ -14,6 +14,7 @@ from typing import Callable
 
 from scripts.integrate_lossless_v194 import PUBLIC, predecessor_packet_bytes_v194
 from scripts.integrate_lossless_v195 import predecessor_packet_bytes_v195
+from scripts.integrate_lossless_v196 import predecessor_packet_bytes_v196
 
 Reader = Callable[[Path], bytes]
 
@@ -45,6 +46,7 @@ def historical_asset_bytes_v194(
   from scripts.spree_bridge_lineage_v242 import predecessor_packet_bytes_v242
 
   for project in (
+    predecessor_packet_bytes_v196,
     predecessor_packet_bytes_v195,
     predecessor_packet_bytes_v194,
     predecessor_packet_bytes_v299,

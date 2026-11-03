@@ -16,6 +16,8 @@ from scripts.integrate_ber_airport_v236 import (
   verify_assets,
 )
 from scripts.integrate_hansa_tiergarten_v237 import normalize_hansa_additions
+from scripts.integrate_lossless_v196 import rows_v196
+from scripts.integrate_lossless_v196 import sha as wire_sha_v196
 from scripts.spree_bridge_lineage_v242 import baseline, receipts
 
 
@@ -83,5 +85,15 @@ def test_historical_asset_audit_rejects_corrupted_current_bridge_bytes():
     value = path.read_bytes()
     return value[:-1] + bytes([value[-1] ^ 1]) if path == target else value
 
-  with pytest.raises(AssertionError, match="Unreceipted v242 bytes"):
+  actual_wire = target.read_bytes()
+  registered_wire = rows_v196(reader=lambda path: path.read_bytes()).get(target.name)
+  expected_stage = "Unreceipted v242 bytes"
+  if (
+    registered_wire is not None
+    and target.resolve().parent == PUBLIC.resolve()
+    and len(actual_wire) == registered_wire["newGzipBytes"]
+    and wire_sha_v196(actual_wire) == registered_wire["newGzipSha256"]
+  ):
+    expected_stage = "^" + "Changed registered v196 wire bytes" + "$"
+  with pytest.raises(AssertionError, match=expected_stage):
     verify_assets([descriptor], corrupted)

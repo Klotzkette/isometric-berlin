@@ -362,7 +362,7 @@ describe("idle-frame anti-flicker contract", () => {
       viewerSource.indexOf("function ensureVoxelWorld("),
     );
     const construction = isoLoader.indexOf(
-      "const isoWorld = createIsometricCity(",
+      "const isoWorld = yield* createIsometricCityStepsV309(",
     );
     const commit = isoLoader.indexOf("runtime.isoWorld = isoWorld");
     const workerStart = isoLoader.indexOf(

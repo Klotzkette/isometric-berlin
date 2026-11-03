@@ -54,7 +54,7 @@ export type SurroundingCityManifest = {
   footprint: SurroundingPolygon[];
   groundY: number;
 };
-type Resident = SurroundingChunkGeometry & { descriptor: SurroundingChunkDescriptor; lastWanted: number; southOwnersReadyV294: boolean; littenReadyV297:boolean; wallReadyV298:boolean;westReadyV302:boolean;neukoellnReadyV305:boolean };
+type Resident = SurroundingChunkGeometry & { descriptor: SurroundingChunkDescriptor; lastWanted: number; southOwnersReadyV294: boolean; littenReadyV297:boolean; wallReadyV298:boolean;westReadyV302:boolean;neukoellnReadyV305:boolean;northCandidateV309:boolean;northReadyV309:boolean };
 export type SurroundingNavigationTile = {
   origin: readonly [number, number, number];
   bounds: readonly [number, number, number, number];
@@ -80,7 +80,11 @@ export type SurroundingCityOptions = {
   neighbourhoodV300?:boolean;
   sourceQuartersV303?:boolean;
   sourceQuarterSourcesV303?:SurroundingOwnershipOptions["sourceQuarterSourcesV303"];
+  /** Exact lazy recipes may load in parallel with the same tile's transport.
+   * The complete result is required before geometry construction/admission. */
+  loadSourceQuarterSourcesV309?:(id:string,native:boolean)=>Promise<NonNullable<SurroundingOwnershipOptions["sourceQuarterSourcesV303"]>>;
   neukoellnLandmarksV305?:(native:boolean)=>boolean;
+  northFidelityV309?:(native:boolean)=>boolean;
   onQuarterResidentsV303?:(keys:ReadonlySet<string>)=>void;
   westKiezV302?: (native:boolean)=>boolean;
   manifestUrl: URL;
@@ -286,6 +290,22 @@ async function consumePrefetch(job: Prefetch, signal: AbortSignal, asset: Asset)
   // decompression/validation path consumes these exact source bytes.
   const source = new ReadableStream<Uint8Array>({ start(stream) { stream.enqueue(bytes); stream.close(); } });
   return readJsonBounded(source, headers, signal, asset.bytes + 64, asset);
+}
+
+async function awaitPacketAndRecipesV309(
+  loading:Promise<unknown>,
+  recipes:Promise<SurroundingOwnershipOptions["sourceQuarterSourcesV303"]>,
+  signal:AbortSignal,
+):Promise<[unknown,SurroundingOwnershipOptions["sourceQuarterSourcesV303"]]> {
+  // Native/drawn changes must release the foreground immediately even when a
+  // module import itself cannot be cancelled. Late imports have no admission.
+  let onAbort:()=>void=()=>undefined;
+  const aborted=new Promise<never>((_,reject)=>{
+    onAbort=()=>reject(new DOMException("Aborted","AbortError"));
+    if(signal.aborted)onAbort();else signal.addEventListener("abort",onAbort,{once:true});
+  });
+  try{return await Promise.race([Promise.all([loading,recipes]),aborted]);}
+  finally{signal.removeEventListener("abort",onAbort);}
 }
 
 /** Default for unit/standalone use; the viewer supplies its residency-aware disposer. */
@@ -514,11 +534,17 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
         try {
           const loading = prefetched ? consumePrefetch(prefetched, task.signal, asset)
             : fetchJsonBounded(fetcher, packetUrl(asset, options.manifestUrl), task.signal, asset.bytes + 64, asset, transportIdleMs);
+          const recipes=options.sourceQuartersV303===true&&options.loadSourceQuarterSourcesV309
+            ?Promise.resolve().then(()=>options.loadSourceQuarterSourcesV309!(descriptor.id,minecraft))
+            :Promise.resolve(options.sourceQuarterSourcesV303);
           fillPrefetches();
-          const data = await loading;
+          const [data,sourceQuarterSourcesV303] = await awaitPacketAndRecipesV309(loading,recipes,task.signal);
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) continue;
           const littenReadyV297=options.littenStadthausV297?.(minecraft)===true,wallReadyV298=options.wallGalleryV298?.(minecraft)===true;
           const neukoellnReadyV305=options.neukoellnLandmarksV305?.(minecraft)===true;
+          const northCandidateV309=sourceQuarterSourcesV303?.some(entry=>entry.admission==="north-v309")===true;
+          const northReadyV309=options.northFidelityV309?.(minecraft)===true;
+          const northChangedV309=()=>northCandidateV309&&northReadyV309!==(options.northFidelityV309?.(minecraft)===true);
           const neukoellnChangedV305=()=>["ring182-7_8","ring182-8_8"].includes(descriptor.id)&&neukoellnReadyV305!==(options.neukoellnLandmarksV305?.(minecraft)===true);
           const westReadyV302=options.westKiezV302?.(minecraft)===true;
           const westAdmissionChangedV302=()=>westKiezPacketCandidateV302(descriptor.id,minecraft)&&westReadyV302!==(options.westKiezV302?.(minecraft)===true);
@@ -528,17 +554,17 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           const southAdmissionChanged = (): boolean => southReceiptTile && southOwnersReady !== (options.southFidelityV294?.(minecraft) === true);
           const entry = await createStreamedSurroundingCityChunkV255(
             data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
-            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303:options.sourceQuarterSourcesV303,neukoellnLandmarksV305:neukoellnReadyV305 },
+            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309 },
           );
           unpublished = entry.root;
           // onAttach can synchronously dispose this controller during error recovery.
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id) ||
-              (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305())) {
+              (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305()||northChangedV309())) {
             release(entry.root); unpublished = null; continue;
           }
           options.onAttach?.(entry.root, mode);
-          if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id) || (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305())) { release(entry.root); unpublished = null; continue; }
-          residents.set(descriptor.id, { ...entry, descriptor, lastWanted: now(), southOwnersReadyV294:southOwnersReady,littenReadyV297,wallReadyV298,westReadyV302,neukoellnReadyV305 });
+          if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id) || (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305()||northChangedV309())) { release(entry.root); unpublished = null; continue; }
+          residents.set(descriptor.id, { ...entry, descriptor, lastWanted: now(), southOwnersReadyV294:southOwnersReady,littenReadyV297,wallReadyV298,westReadyV302,neukoellnReadyV305,northCandidateV309,northReadyV309 });
           geometryBytes += entry.geometryBytes;
           bufferCount += entry.bufferCount;
           root.add(entry.root);
@@ -554,6 +580,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
             failedAt.set(descriptor.id, now());
             report(error);
           }
+          task.abort();
         } finally {
           if (active?.controller === task) active = null;
         }
@@ -601,6 +628,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     }
     const neukoellnNowV305=options.neukoellnLandmarksV305?.(mode==="minecraft")===true;
     for(const[id,entry]of residents)if(["ring182-7_8","ring182-8_8"].includes(id)&&entry.neukoellnReadyV305!==neukoellnNowV305){evict(id);failedAt.delete(id);lastScan=-Infinity;}
+    const northNowV309=options.northFidelityV309?.(mode==="minecraft")===true;
+    for(const[id,entry]of residents)if(entry.northCandidateV309&&entry.northReadyV309!==northNowV309){evict(id);failedAt.delete(id);lastScan=-Infinity;}
     if (!manifest) return;
     if (timestamp - lastScan < SURROUNDING_CITY_SCAN_MS) return;
     lastScan = timestamp;

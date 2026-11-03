@@ -21,6 +21,7 @@ function digest(array: ArrayBufferView): string {
 
 async function run(cancellation?: "mode" | "disposed" | "parking-failure") {
   const events: string[] = [], disposedRoots: Group[] = [], warnings: string[] = [];
+  const voxelPayload = {}, originalGroundAt = (_x: number, _z: number): number | null => null;
   const backing: Array<{ mesh: InstancedMesh; original: Float32Array; hash: string }> = [];
   let phase = "start", parkingYields = 0, bytesBeforeParking = 0, done = false;
   const runtime = {
@@ -47,7 +48,12 @@ async function run(cancellation?: "mode" | "disposed" | "parking-failure") {
     Group,
     createZooAnimalRuntimeV282,
     createHbfStationRuntimeV291,
-    fetchVoxelPayload: async () => ({}), fetchPrismPayload: async () => ({ buildings: [] }),
+    fetchVoxelPayload: async () => voxelPayload, fetchPrismPayload: async () => ({ buildings: [] }),
+    worldGroundSampler(payload: unknown) {
+      expect(payload).toBe(voxelPayload);
+      expect(runtime.voxelWorld).toBeNull();
+      return originalGroundAt;
+    },
     voxelWorldIntentActive: () => runtime.lightingMode === "minecraft",
     preloadAltMitteNativeV169Source: async () => {},
     loadBuilder: async () => ({ buildColumnToneLookup: () => null,
@@ -83,7 +89,10 @@ async function run(cancellation?: "mode" | "disposed" | "parking-failure") {
     capturePedestrianAttachment: () => { afterParking("capture"); return { underside: false }; },
     createMinecraftMobs: () => { afterParking("mobs"); return { group: new Group() }; },
     createMinecraftLootBoxes: () => { afterParking("loot"); return { group: new Group() }; },
-    prepareVoxelNavigation: () => { afterParking("navigation"); return {}; },
+    prepareVoxelNavigation: () => {
+      expect((runtime as typeof runtime & { northernOriginalGroundV309?: { native?: typeof originalGroundAt } }).northernOriginalGroundV309?.native).toBe(originalGroundAt);
+      afterParking("navigation"); return {};
+    },
     createBridgeStructures: () => { afterParking("bridges"); return new Group(); },
     createCoreSpreeBridgesV242: () => new Group(),
     registerBerlinerEnsembleRoofSignTargets() {}, isEuropaCenterStarTarget: () => false,

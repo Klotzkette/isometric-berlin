@@ -15,6 +15,7 @@ from shapely.ops import unary_union
 from isometric_berlin.data.fetch_lod2 import leaf_building_parts
 from scripts.build_bebelplatz_building_source import extract_parent, part_profile
 from scripts.build_breitscheid_towers_v161 import triangles_for
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -75,7 +76,7 @@ def test_every_original_sheet_survives_complete_same_packet_replacement() -> Non
 
 def test_exact_receipts_reconstruct_and_all_original_inputs_remain_immutable() -> None:
   for name, digest in EVIDENCE["inputs"].items():
-    assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == digest
+    assert hashlib.sha256(historical_asset_bytes_v194(ROOT / name, digest, reader=lambda source: source.read_bytes())).hexdigest() == digest
   owner = EVIDENCE["previousOwner"]
   poly = shape(owner["geometry"])
   for family, expected in [("drawn", 184), ("minecraft", 514)]:

@@ -1,5 +1,6 @@
 """Mapped missing bridge, preserved old owners and replayable bounded geometry."""
 
+import gzip
 import importlib.util
 import json
 from pathlib import Path
@@ -12,6 +13,8 @@ from packet_additions_v230 import (
 )
 from shapely.geometry import Point, Polygon, box, shape
 from shapely.ops import unary_union
+
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location(
@@ -41,7 +44,12 @@ def audited_protected_files() -> dict[str, str]:
     if box(*chunk["bounds"]).intersects(box(-3800, 6490, -3000, 7400)):
       for mode in ("drawn", "minecraft"):
         path = folder / chunk[mode]["url"]
-        result[str(path.relative_to(ROOT))] = digest(path.read_bytes())
+        asset = chunk[mode]
+        historical = historical_asset_bytes_v194(
+          path, asset["sha256"], asset["bytes"], reader=lambda source: source.read_bytes()
+        )
+        assert gzip.decompress(historical) == gzip.decompress(path.read_bytes())
+        result[str(path.relative_to(ROOT))] = digest(historical)
   return result
 
 

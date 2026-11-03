@@ -1,3 +1,4 @@
+import {assertNativeHistorySourcesV306,nativeSourceAtPublishedV195V306,projectNativeSourceBeforeV306} from "./sourceHistoryV306";
 /** Test-only strict current → published v194 source layer, before frozen v300. */
 import {createHash} from "node:crypto";
 import {readFileSync} from "node:fs";
@@ -7,6 +8,12 @@ export const NATIVE_HISTORY_PREVIOUS_PROOF_V300="a8cf059389bff3dd94a788d9cc8d4d8
 export type NativeSourceInverseV303={beforeSha256:string;currentSha256:string;replacements:{before:string;current:string}[]};
 export type NativeSourceLayerV303={schemaVersion:number;publishedCommit:string;previousProofSha256:string;captureToolSha256:string;currentGraph:Record<string,string>;publishedGraph:Record<string,string>;additions:string[];changes:Record<string,NativeSourceInverseV303>};
 const sha=(value:string|Uint8Array)=>createHash("sha256").update(value).digest("hex");
+const immutableLayers=new WeakMap<object,boolean>();
+function newerLayer(layer:NativeSourceLayerV303){
+ let immutable=immutableLayers.get(layer);
+ if(immutable===undefined){immutable=sha(JSON.stringify(layer)+"\n")==="299981a770ce72ec05d507ab60b5e88a3c3da49cc068a9f3a0f831d0526cadb0";if(immutable)freezeSourceLayerV303(layer);immutableLayers.set(layer,immutable);}
+ return immutable?assertNativeHistorySourcesV306(layer.currentGraph):undefined;
+}
 const pathValid=(path:string)=>/^src\/app\/(?:src|public)\/[\w./-]+\.(?:ts|tsx|json)$/.test(path)&&!path.split("/").includes("..");
 const digestValid=(digest:unknown)=>typeof digest==="string"&&/^[a-f0-9]{64}$/.test(digest);
 
@@ -64,13 +71,16 @@ export function assertNativeHistorySourcesV303(previousGraph:Record<string,strin
   matchImmutablePreviousGraphV303(previousGraph,immutableGraph);
   const layer=JSON.parse(readFileSync(new URL("../fixtures/source-history-v303.json",import.meta.url),"utf8"))as NativeSourceLayerV303;
   if(sha(readFileSync(resolve(import.meta.dir,"../../../../scripts/build_native_history_v303_source.py")))!==layer.captureToolSha256)throw Error("Changed v303 source capture implementation");
-  verifyNativeSourceLayerV303(layer,immutableGraph,path=>readFileSync(resolve(import.meta.dir,"../../../..",path)));
+  const newer=assertNativeHistorySourcesV306(layer.currentGraph);
+  verifyNativeSourceLayerV303(layer,immutableGraph,path=>nativeSourceAtPublishedV195V306(path,readFileSync(resolve(import.meta.dir,"../../../..",path)),newer));
   immutablePreviousGraphV303=Object.freeze(immutableGraph);
   checked=freezeSourceLayerV303(layer);return checked;
 }
 
 /** File projection verifies exact bytes, never substitutes by path alone. */
 export function nativeSourceAtPublishedV194V303(path:string,raw:Uint8Array,layer:NativeSourceLayerV303):Uint8Array{
+  const newer=newerLayer(layer);
+  if(newer&&sha(raw)!==layer.currentGraph[path])raw=nativeSourceAtPublishedV195V306(path,raw,newer);
   if(!Object.hasOwn(layer.currentGraph,path)||sha(raw)!==layer.currentGraph[path]||!Object.hasOwn(layer.publishedGraph,path))throw Error(`Unknown exact v303 source bytes: ${path}`);
   const receipt=layer.changes[path];return receipt?Buffer.from(invertNativeSourceV303(Buffer.from(raw).toString("utf8"),receipt)):raw;
 }
@@ -78,6 +88,8 @@ export function nativeSourceAtPublishedV194V303(path:string,raw:Uint8Array,layer
 /** String-only historical callers are matched by a complete input fingerprint,
  * then the old v300 pools still prove the complete remaining lineage. */
 export function projectNativeSourceBeforeV303(source:string,layer:NativeSourceLayerV303):string{
+  const newer=newerLayer(layer);
+  if(newer)source=projectNativeSourceBeforeV306(source,newer);
   const digest=sha(source),records=Object.values(layer.changes).filter(r=>r.currentSha256===digest);
   if(!records.length)return source;
   if(records.some(r=>JSON.stringify(r)!==JSON.stringify(records[0])))throw Error("Ambiguous full v303 source fingerprint");

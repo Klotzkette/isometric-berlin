@@ -19,6 +19,14 @@ export const SCHWELLENRAUM_MATERIAL_GRADE = {
 type PatchableShader = {
   fragmentShader: string;
 };
+const materialProvenance = new WeakMap<Object3D, { day: Material; grade: Material; disposed: boolean }>();
+
+/** Exact provenance for late source-owner admission. A copied public label or
+ * cloned material never acquires the receipt created by the real factory. */
+export function hasSchwellenraumMaterialProvenance(object: Object3D, day: Material, candidate: unknown): candidate is Material {
+  const receipt = materialProvenance.get(object);
+  return !!receipt && !receipt.disposed && receipt.day === day && receipt.grade === candidate;
+}
 
 function gradeFragmentShader(source: string): string {
   const { saturation, highlightTint, shadowLift, strength, tint } =
@@ -65,6 +73,11 @@ export function schwellenraumMaterialFor(
   material.customProgramCacheKey = () =>
     `${previousProgramCacheKey}|schwellenraum-material-grade-v3`;
   material.needsUpdate = true;
+  const receipt = { day: dayMaterial, grade: material, disposed: false };
+  const invalidate = () => { receipt.disposed = true; };
+  dayMaterial.addEventListener("dispose", invalidate);
+  material.addEventListener("dispose", invalidate);
+  materialProvenance.set(object, receipt);
   object.userData.schwellenraumMaterial = material;
   return material;
 }

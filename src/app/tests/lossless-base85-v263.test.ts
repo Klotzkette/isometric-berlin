@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { gzipSync } from "node:zlib";
 import { encodeLosslessBase85, decodeLosslessBase85, decodeLosslessGzipJson } from "../src/losslessGzipBase85";
-import { LOSSLESS_BASE85_SOURCES_V263 } from "../losslessBase85SourcesV263";
+import { LOSSLESS_BASE85_BEFORE_V309 as LOSSLESS_BASE85_SOURCES_V263 } from "../losslessBase85SourcesV263";
 import { transformLosslessJsonData } from "../losslessJsonData";
 import { LOSSLESS_EAGER_FIELDS_V270 } from "../losslessEagerFieldsV270";
 

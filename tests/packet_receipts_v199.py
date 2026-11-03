@@ -35,6 +35,17 @@ def baseline(path: Path) -> bytes:
 
 
 def checked(raw: bytes, descriptor: dict) -> dict:
+  if digest(raw) != descriptor["sha256"]:
+    from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
+    path = PUBLIC / descriptor["url"]
+
+    def supplied(source: Path) -> bytes:
+      return raw if source.resolve() == path.resolve() else source.read_bytes()
+
+    raw = historical_asset_bytes_v194(
+      path, descriptor["sha256"], descriptor["bytes"], supplied
+    )
   assert digest(raw) == descriptor["sha256"]
   assert len(raw) == descriptor["bytes"] < 650_000
   plain = gzip.decompress(raw)
@@ -61,7 +72,14 @@ def audited_v199_changes() -> tuple[dict, dict]:
   from repair_funkturm_packets_v199 import OWNERS, repair_payload
 
   old = {d["id"]: d for d in json.loads(baseline(PUBLIC / "manifest.json"))["chunks"]}
-  current = {d["id"]: d for d in load(PUBLIC / "manifest.json")["chunks"]}
+  from scripts.integrate_lossless_v196 import predecessor_manifest_v196
+
+  current = {
+    d["id"]: d
+    for d in predecessor_manifest_v196(
+      load(PUBLIC / "manifest.json"), reader=lambda path: path.read_bytes()
+    )["chunks"]
+  }
   receipt = load(GEO / "icc-v199-packet-audit.json")
   source = verify_replacement()
   assert receipt["sourceSha256"] == digest(

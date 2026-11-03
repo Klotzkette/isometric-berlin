@@ -2365,3 +2365,36 @@ release; region implementations use isolated versioned files and existing
 bounded packet lifetimes wherever possible. Any further finite lossless wire
 audit must prove complete decompressed byte equality without changing geometry
 or weakening old immutable history controls.
+
+### Step 10 — v306–v309 northern sites, rail cuttings and desktop startup
+
+The owner's next request names Lessing-Gymnasium in Wedding, Humboldthain and
+its flak tower, the measured hills of Volkspark Friedrichshain, the Thälmann
+monument/housing/swimming hall and Zeiss-Großplanetarium, Ringbahn alignment and
+stations (especially Wedding and the deep Gesundbrunnen cutting), SSE and
+Velodrom, and the existing Bundeswehr, Vivantes Friedrichshain, Benjamin Franklin
+and Charité hospital sites. Refine these finite sites inside retained coverage
+from attributed primary architectural references, complete official building
+families and bounded official terrain samples. Resolve spoken names against
+actual addresses. Preserve earlier correct planetarium, hospital and park work;
+do not duplicate models or turn paths, courts and landscaped roofs into fill.
+The explicitly named Lessing-Gymnasium at Schöningstraße 17 is missing from the
+previous coverage. The request permits only its exact mapped school parcel and
+complete official building families as a finite named-site supplement in
+`bounds-named-v306.geojson`, subtracting all previous scopes. Preserve the old
+bounds; do not infer an adjoining Wedding district expansion.
+Any exact false terrain/owner correction needs a complete replacement, original
+source evidence, unchanged outside complements and matching drawn/native walking
+geometry. Unsurveyed facade details and interstation elevation fits stay labelled
+estimates. Keep all existing source records, full drawn touch detail, independent
+cardinal native forms, six modes, 93 tour stops and every runtime/package ceiling.
+
+The owner also requests faster, smoother desktop startup and rendering, with
+honest continuous loading feedback instead of the old 0/50/83-percent stalls.
+Measure actual stages and long CPU tasks; report completed work and readiness,
+never fabricate timer-driven progress or open the curtain before the required
+city exists. Reduce redundant work and bound main-thread slices without lowering
+resolution, geometry, visible distance, shadows or existing quality. Root owns
+shared integration, progress/performance work, immutable history capture and
+publication. Region agents edit isolated versioned modules. Use one internal
+full-city browser at a time, and no photographic pixels or new coverage.

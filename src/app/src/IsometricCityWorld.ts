@@ -326,7 +326,7 @@ import {
 import {
   type VoxelPayload,
   WATER_TOP_Y,
-  createGroundSlabs,
+  createGroundSlabsSteps,
   groundTopSampler,
   smoothGroundTopSampler,
   worldGroundSampler,
@@ -11895,6 +11895,8 @@ function addBasinsAndSunkenWalls(
  * The public wrapper alone appends recognition context, allowing its unused
  * constructors and dependencies to be pruned from the Worker bundle.
  */
+export type CityBuildProgressV309 = { phase: "buildings" | "geometry" | "architecture"; completed: number; total: number };
+
 export function createIsometricCityCore(
   prisms: PrismPayload,
   ground: VoxelPayload | null,
@@ -11902,12 +11904,37 @@ export function createIsometricCityCore(
   surfaces?: SurfacePayload | null,
   options: IsometricCityBuildOptions = {},
 ): Group {
+  const steps = createIsometricCityCoreStepsV309(prisms, ground, tunnel, surfaces, options);
+  for (;;) {
+    const next = steps.next();
+    if (next.done) return next.value;
+  }
+}
+
+export function* createIsometricCityCoreStepsV309(
+  prisms: PrismPayload,
+  ground: VoxelPayload | null,
+  tunnel?: TunnelPortalCourseInput | null,
+  surfaces?: SurfacePayload | null,
+  options: IsometricCityBuildOptions = {},
+  onCreate?: (root: Group) => void,
+  onProgress?: (progress: CityBuildProgressV309) => void,
+): Generator<void, Group> {
   const group = new Group();
   group.name = "Drawn isometric city (LoD2 prisms + ink lines)";
+  onCreate?.(group);
 
   const bodyGeometries = [];
   const glassGeometries = [];
   const edgeGeometries = [];
+  const disposedScratch = new WeakSet<BufferGeometry>();
+  const disposeScratch = (geometry: BufferGeometry): void => {
+    if (disposedScratch.has(geometry)) return;
+    disposedScratch.add(geometry);
+    geometry.dispose();
+  };
+  let completed = false;
+  try {
   const mullionPositions: number[] = [];
   // Slender facade glazing axes: ink lines by day, warm strips by night.
   const buildings = options.buildings ?? prisms.buildings;
@@ -12069,7 +12096,13 @@ export function createIsometricCityCore(
     }
     geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   };
+  onProgress?.({ phase: "buildings", completed: 0, total: buildings.length });
+  let inspectedBuildings = 0;
   for (const sourceBuilding of buildings) {
+    if (inspectedBuildings++ > 0) {
+      onProgress?.({ phase: "buildings", completed: inspectedBuildings - 1, total: buildings.length });
+      yield;
+    }
     if (options.chancelleryCanopySourceV289 && isChancelleryCanopyOldPrismV289(sourceBuilding)) continue;
     if (options.moabitMitteV300 && isMoabitMitteV300OldCore(sourceBuilding)) continue;
     if (options.westKiezV302 && isWestKiezV302OldCore(sourceBuilding)) continue;
@@ -12878,6 +12911,8 @@ export function createIsometricCityCore(
       }
     }
   }
+  onProgress?.({ phase: "buildings", completed: buildings.length, total: buildings.length });
+  yield;
 
   // Body normals have already done their job for face shading and edge
   // extraction. Day/Schwellenraum use MeshBasicMaterial and the night
@@ -12904,9 +12939,11 @@ export function createIsometricCityCore(
     mesh.name = "LoD2 prism buildings";
     group.add(mesh);
     for (const geometry of bodyGeometries) {
-      geometry.dispose();
+      disposeScratch(geometry);
     }
   }
+  onProgress?.({ phase: "geometry", completed: 1, total: 11 });
+  yield;
 
   for (const geometry of glassGeometries) geometry.deleteAttribute("normal");
   const glass =
@@ -12934,9 +12971,11 @@ export function createIsometricCityCore(
     mesh.renderOrder = 1;
     group.add(mesh);
     for (const geometry of glassGeometries) {
-      geometry.dispose();
+      disposeScratch(geometry);
     }
   }
+  onProgress?.({ phase: "geometry", completed: 2, total: 11 });
+  yield;
 
   if (mullionPositions.length > 0) {
     const geometry = new BufferGeometry();
@@ -12958,6 +12997,8 @@ export function createIsometricCityCore(
     mullions.renderOrder = 2;
     group.add(mullions);
   }
+  onProgress?.({ phase: "geometry", completed: 3, total: 11 });
+  yield;
 
   const plazaFacadeDetails = {
     attributeBytes: 0,
@@ -12971,6 +13012,8 @@ export function createIsometricCityCore(
   group.userData.plazaFacadeDetails = plazaFacadeDetails;
   group.userData.buildingDetailCoverage = buildingDetailCoverage;
   if (ordinaryPanesV288.length) group.add(createOrdinaryWindowsV288(ordinaryPanesV288));
+  onProgress?.({ phase: "geometry", completed: 4, total: 11 });
+  yield;
   group.userData.ordinaryWindowsV288 = { count: ordinaryPanesV288.length, budget: ORDINARY_WINDOWS_V288_LIMIT, geometryStatus: "estimated glazing and frames on existing mapped-storey axes; covered party walls excluded", native: "independent native source-column windows retained" };
 
   // Facade glazing axes: fine ink lines (day). A subtle grey so they
@@ -13023,6 +13066,8 @@ export function createIsometricCityCore(
     axes.userData.buildingDetailCoverage = buildingDetailCoverage;
     group.add(axes);
   }
+  onProgress?.({ phase: "geometry", completed: 5, total: 11 });
+  yield;
   if (kollhoffClinkerJointPositions.length > 0) {
     const geometry = new BufferGeometry();
     geometry.setAttribute(
@@ -13046,6 +13091,8 @@ export function createIsometricCityCore(
       "inferred close-view ceramic bond over exact LoD2 facade planes";
     group.add(joints);
   }
+  onProgress?.({ phase: "geometry", completed: 6, total: 11 });
+  yield;
   if (kollhoffWindows.length > 0) {
     const dayMaterial = new MeshBasicMaterial({
       color: 0xffffff,
@@ -13136,6 +13183,8 @@ export function createIsometricCityCore(
       group.add(litPanes);
     }
   }
+  onProgress?.({ phase: "geometry", completed: 7, total: 11 });
+  yield;
   if (chariteWindows.length > 0) {
     const dayMaterial = new MeshBasicMaterial({
       color: 0xffffff,
@@ -13226,6 +13275,8 @@ export function createIsometricCityCore(
       group.add(litPanes);
     }
   }
+  onProgress?.({ phase: "geometry", completed: 8, total: 11 });
+  yield;
   // Night light strips: thin warm vertical bars on the lit axes only,
   // hidden by day. Instanced quads (0.28 m wide) facing outward.
   if (windowAxes.length > 0) {
@@ -13271,6 +13322,8 @@ export function createIsometricCityCore(
       group.add(strips);
     }
   }
+  onProgress?.({ phase: "geometry", completed: 9, total: 11 });
+  yield;
 
   const edges =
     edgeGeometries.length > 0 ? mergeGeometries(edgeGeometries, false) : null;
@@ -13284,9 +13337,11 @@ export function createIsometricCityCore(
     ink.renderOrder = 2;
     group.add(ink);
     for (const geometry of edgeGeometries) {
-      geometry.dispose();
+      disposeScratch(geometry);
     }
   }
+  onProgress?.({ phase: "geometry", completed: 10, total: 11 });
+  yield;
 
   if (ground) {
     const insideTunnelApproach = tunnel
@@ -13295,7 +13350,7 @@ export function createIsometricCityCore(
     const insideTillaDurieux = surfaces
       ? createTillaDurieuxGroundTester(surfaces)
       : null;
-    const slabs = createGroundSlabs(
+    const slabs = yield* createGroundSlabsSteps(
       ground,
       "Drawn ground slabs",
       ISO_GROUND_SHADES,
@@ -13458,6 +13513,8 @@ export function createIsometricCityCore(
       group.add(createNorthernHumboldthafenRefinements(ground));
     }
   }
+  onProgress?.({ phase: "geometry", completed: 11, total: 11 });
+  yield;
   // These exact retained Lehrter bodies keep their original source roofs;
   // only the proved obsolete street fittings yield after their complete owner.
   if (options.moabitMitteV300) {
@@ -13489,7 +13546,13 @@ export function createIsometricCityCore(
   }
   freezeStaticSceneTransforms(group);
 
+  completed = true;
   return group;
+  } finally {
+    if (!completed) {
+      for (const geometry of new Set([...bodyGeometries, ...glassGeometries, ...edgeGeometries])) disposeScratch(geometry);
+    }
+  }
 }
 
 export function createIsometricCity(
@@ -13499,60 +13562,83 @@ export function createIsometricCity(
   surfaces?: SurfacePayload | null,
   options: IsometricCityBuildOptions = {},
 ): Group {
-  const group = createIsometricCityCore(prisms, ground, tunnel, surfaces, options);
+  const steps = createIsometricCityStepsV309(prisms, ground, tunnel, surfaces, options);
+  for (;;) {
+    const next = steps.next();
+    if (next.done) return next.value;
+  }
+}
+
+export function* createIsometricCityStepsV309(
+  prisms: PrismPayload,
+  ground: VoxelPayload | null,
+  tunnel?: TunnelPortalCourseInput | null,
+  surfaces?: SurfacePayload | null,
+  options: IsometricCityBuildOptions = {},
+  onCreate?: (root: Group) => void,
+  onProgress?: (progress: CityBuildProgressV309) => void,
+): Generator<void, Group> {
+  const group = yield* createIsometricCityCoreStepsV309(prisms, ground, tunnel, surfaces, options, onCreate, onProgress);
+  const builders: (() => unknown)[] = [];
   if (options.includeContext !== false) {
-    group.add(createPresentationBackdrop());
-    group.add(createExtrapolatedMargin());
-    group.add(createSiegessaeule());
-    group.add(createBismarckMoltkeMonuments({ mobileLike: options.detailProfile === "mobile" }));
-    group.add(createHotelAdlon());
-    group.add(createPaulLoebeCanopy());
-    group.add(createLandmarkRefinements());
-    group.add(createGymnasiumTiergarten());
-    if (options.includeLegacyMuseumFront === false) group.add(createChariteCampusV265());
-    group.add(createHistoricChariteCampus(prisms, options.detailProfile ?? "full", false, { includeLegacyMuseumFront: options.includeLegacyMuseumFront }));
-    group.add(createChariteHistoricFacades(prisms, options.detailProfile ?? "full"));
-    group.add(createParliamentArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
-    group.add(createHumboldthafenBuildingDetails(prisms, { mobileLike: options.detailProfile === "mobile" }));
-    group.add(createMuseumLenneArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
-    if (options.includeBreitscheidTowers !== false) group.add(createBreitscheidTowers());
-    if (options.includeOranienV167 !== false) group.add(createNeueSynagogeV167(),createTachelesV167(),createMonbijouBathV167());
-    if (options.includeAltMitteCoreV169 !== false) group.add(createAltMitteCoreV169());
-    if (options.includeUniversitiesV168 !== false) group.add(createHumboldtMainV168Details(),createTeehausRuinV168(),createTuWaterV168());
-    if (options.includeCityRefinementsV166 !== false) group.add(createUpbeatV166FacadeDetails(),createAlexanderNorthV166(),createCityWestCinemasV166(),createMoabitJusticeV166(),createMitteHeritageV166(options.includeLegacyMonbijou === false),createKosmosV166());
-    if (options.includeCityWestV165 !== false) group.add(createKranzlerV165(), createZooStationV165(), createZooGroundsV165(), createHuthmacherHaus());
+    builders.push(() => group.add(createPresentationBackdrop()));
+    builders.push(() => group.add(createExtrapolatedMargin()));
+    builders.push(() => group.add(createSiegessaeule()));
+    builders.push(() => group.add(createBismarckMoltkeMonuments({ mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createHotelAdlon()));
+    builders.push(() => group.add(createPaulLoebeCanopy()));
+    builders.push(() => group.add(createLandmarkRefinements()));
+    builders.push(() => group.add(createGymnasiumTiergarten()));
+    if (options.includeLegacyMuseumFront === false) builders.push(() => group.add(createChariteCampusV265()));
+    builders.push(() => group.add(createHistoricChariteCampus(prisms, options.detailProfile ?? "full", false, { includeLegacyMuseumFront: options.includeLegacyMuseumFront })));
+    builders.push(() => group.add(createChariteHistoricFacades(prisms, options.detailProfile ?? "full")));
+    builders.push(() => group.add(createParliamentArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createHumboldthafenBuildingDetails(prisms, { mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createMuseumLenneArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" })));
+    if (options.includeBreitscheidTowers !== false) builders.push(() => group.add(createBreitscheidTowers()));
+    if (options.includeOranienV167 !== false) builders.push(() => group.add(createNeueSynagogeV167(),createTachelesV167(),createMonbijouBathV167()));
+    if (options.includeAltMitteCoreV169 !== false) builders.push(() => group.add(createAltMitteCoreV169()));
+    if (options.includeUniversitiesV168 !== false) builders.push(() => group.add(createHumboldtMainV168Details(),createTeehausRuinV168(),createTuWaterV168()));
+    if (options.includeCityRefinementsV166 !== false) builders.push(() => group.add(createUpbeatV166FacadeDetails(),createAlexanderNorthV166(),createCityWestCinemasV166(),createMoabitJusticeV166(),createMitteHeritageV166(options.includeLegacyMonbijou === false),createKosmosV166()));
+    if (options.includeCityWestV165 !== false) builders.push(() => group.add(createKranzlerV165(), createZooStationV165(), createZooGroundsV165(), createHuthmacherHaus()));
     if (options.includeKulturforumAndNorthRail !== false) {
-      group.add(createConcertHalls());
-      group.add(createKulturforumMuseums());
+      builders.push(() => group.add(createConcertHalls()));
+      builders.push(() => group.add(createKulturforumMuseums()));
       if (ground) {
         const sample = smoothGroundTopSampler(ground);
-        group.add(createHbfNorthApproach((x, z) => sample(
+        builders.push(() => group.add(createHbfNorthApproach((x, z) => sample(
           x / ground.cell_m - ground.grid.min_x_idx,
           z / ground.cell_m - ground.grid.min_z_idx,
-        )));
+        ))));
       }
     }
-    group.add(createDeutschesTheater(prisms, { mobileLike: options.detailProfile === "mobile" }));
-    group.add(createLuisenCorridorArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" }));
-  group.add(createKalkscheuneFacadesV218(false));
-    group.add(createBoellStiftungArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
-    group.add(createBundesratArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
-    group.add(createRohwedderHausArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
-    group.add(createBellevueArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" }));
-    group.add(createFiftyHertzArchitecture({ mobileLike: options.detailProfile === "mobile" }));
-    group.add(createEuropacityArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" }));
-    group.add(createFriedrichstrasseArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" }));
-    group.add(createMuseumTriadArchitecture({ mobileLike: options.detailProfile === "mobile" }));
-    group.add(createDomAltesMuseum({ mobileLike: options.detailProfile === "mobile" }));
-    group.add(createDbTowerArchitecture({ mobileLike: options.detailProfile === "mobile" }));
-    group.add(createTopographyTerrorArchitecture({ mobileLike: options.detailProfile === "mobile" }));
-    group.add(createTerrassenhausHafenplatz(prisms));
-    group.add(createArdHauptstadtstudio(prisms));
-    group.add(createBerlinerEnsemble(prisms));
-    group.add(createReichstagspraesidentenpalais(prisms));
-    group.add(createEconomicMinistryDetails(prisms));
-    group.add(createZollpackhofDetails());
-    group.add(createFederalStateRepresentations({ mobileLike: options.detailProfile === "mobile" }));
+    builders.push(() => group.add(createDeutschesTheater(prisms, { mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createLuisenCorridorArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" })));
+  builders.push(() => group.add(createKalkscheuneFacadesV218(false)));
+    builders.push(() => group.add(createBoellStiftungArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createBundesratArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createRohwedderHausArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createBellevueArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createFiftyHertzArchitecture({ mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createEuropacityArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createFriedrichstrasseArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createMuseumTriadArchitecture({ mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createDomAltesMuseum({ mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createDbTowerArchitecture({ mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createTopographyTerrorArchitecture({ mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createTerrassenhausHafenplatz(prisms)));
+    builders.push(() => group.add(createArdHauptstadtstudio(prisms)));
+    builders.push(() => group.add(createBerlinerEnsemble(prisms)));
+    builders.push(() => group.add(createReichstagspraesidentenpalais(prisms)));
+    builders.push(() => group.add(createEconomicMinistryDetails(prisms)));
+    builders.push(() => group.add(createZollpackhofDetails()));
+    builders.push(() => group.add(createFederalStateRepresentations({ mobileLike: options.detailProfile === "mobile" })));
+  }
+  onProgress?.({ phase: "architecture", completed: 0, total: builders.length });
+  for (let index = 0; index < builders.length; index++) {
+    builders[index]();
+    onProgress?.({ phase: "architecture", completed: index + 1, total: builders.length });
+    yield;
   }
   return group;
 }

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.196 — 2026-11-03
+
+- Refine the actual Lessing-Gymnasium in Wedding, Thälmannpark housing and memorial, and measured park relief at Humboldthain and Volkspark Friedrichshain. Preserve the existing flak tower and planetarium source models.
+- Represent the Gesundbrunnen railway cutting and source-supported station structures, Wedding’s concrete rail architecture, and the embedded SSE/Velodrom landscape with matching walking heights.
+- Retain complete measured hospital families and refine Bundeswehrkrankenhaus, Vivantes Friedrichshain, Charité Mitte and Campus Benjamin Franklin, including separately evidenced roof corrections.
+- Show real loading stages and split desktop construction into interruptible work. Load neighbourhood recipes only when needed and save 27,748,130 bytes in existing surroundings with every decompressed byte unchanged. Keep full touch detail, all six modes, 93 stops and existing quality and memory limits.
+
 ## 1.0.195 — 2026-11-02
 
 - Refine Rigaer Straße, Silvio-Meier-Straße, Simon-Dach-Straße and the Boxhagener quarter using mapped building owners and architectural references. Correct four false low building bodies with complete official source families, roofs and matching navigation.

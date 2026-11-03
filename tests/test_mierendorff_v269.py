@@ -11,6 +11,8 @@ from shapely.affinity import translate
 from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA = json.loads((ROOT / "src/app/src/data/mierendorffV269.json").read_text())
 EVIDENCE = json.loads(
@@ -46,7 +48,7 @@ def test_exact_input_receipts_and_all_previous_owner_sheets_survive():
 
   for record in EVIDENCE["sourceInputs"]:
     assert (
-      hashlib.sha256((ROOT / record["path"]).read_bytes()).hexdigest()
+      hashlib.sha256(historical_asset_bytes_v194(ROOT / record["path"], record["sha256"], reader=lambda path: path.read_bytes())).hexdigest()
       == record["sha256"]
     )
   assert len(EVIDENCE["faces"]) == 37

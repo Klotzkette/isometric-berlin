@@ -12,6 +12,7 @@ from shapely.ops import unary_union
 
 from scripts.build_opera_theatres_ownership_v274 import build
 from scripts.build_theatres_v272 import digest
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "src/app/src/data"
@@ -46,41 +47,51 @@ def test_complete_source_leaves_and_datum_retained():
   assert max(q["topY"] for q in p["parts"] if q["parentId"] == "DEBE04YY500004Vq") > 42
 
 
-def test_exact_previous_owner_replay_and_neighbours_stay():
+def test_exact_previous_owner_replay_and_neighbours_stay(monkeypatch):
   expected = json.loads((DATA / "operaTheatresV274Ownership.json").read_bytes())
-  assert build() == expected
-  assert len(expected["records"]) == 6
-  assert sum(len(r["triangles"]) for r in expected["records"]) == 1220
-  assert sum(len(r["segments"]) for r in expected["lineRecords"]) == 100
-  assert {r["owner"] for r in expected["records"]} == {
-    "DEBE04YY500002EM",
-    "DEBE04YY50002cf0",
+  _expected_v314 = {
+    (ROOT / "src/app/public/mesh/surrounding-berlin-v159" /
+     f"{_record_v314['tile']}.{_record_v314['mode']}.json.gz").resolve(): _record_v314["sha256"]
+    for _record_v314 in expected["records"]
   }
-  p = source()
-  assert {o["id"] for o in p["legacyPrisms"]} == {
-    "49449348",
-    "67502908",
-    "74917641",
-    "49449351",
-    "49449350",
-    "23471381",
-  }
-  feet = unary_union(
-    [
-      Polygon(q["ring"], q["holes"]).buffer(0)
-      for f in p["parents"]
-      if f["name"] == "Schillertheater"
-      for q in f["sourceParts"]
-    ]
-  )
-  for o in p["legacyPrisms"]:
-    foot = Polygon(
-      [[x / 10, z / 10] for x, z in o["ring"]],
-      [[[x / 10, z / 10] for x, z in h] for h in o["holes"]],
+  _reader_v314 = Path.read_bytes
+  with monkeypatch.context() as _scope_v314:
+    _scope_v314.setattr(
+      Path, "read_bytes", _historical_source_reader_v314(_expected_v314, _reader_v314)
     )
-    assert feet.intersection(foot).area / foot.area > 0.94
-  # The small overlap with this unrelated neighbour never claims its ownership.
-  assert "49449347" not in {o["id"] for o in p["legacyPrisms"]}
+    assert build() == expected
+    assert len(expected["records"]) == 6
+    assert sum(len(r["triangles"]) for r in expected["records"]) == 1220
+    assert sum(len(r["segments"]) for r in expected["lineRecords"]) == 100
+    assert {r["owner"] for r in expected["records"]} == {
+      "DEBE04YY500002EM",
+      "DEBE04YY50002cf0",
+    }
+    p = source()
+    assert {o["id"] for o in p["legacyPrisms"]} == {
+      "49449348",
+      "67502908",
+      "74917641",
+      "49449351",
+      "49449350",
+      "23471381",
+    }
+    feet = unary_union(
+      [
+        Polygon(q["ring"], q["holes"]).buffer(0)
+        for f in p["parents"]
+        if f["name"] == "Schillertheater"
+        for q in f["sourceParts"]
+      ]
+    )
+    for o in p["legacyPrisms"]:
+      foot = Polygon(
+        [[x / 10, z / 10] for x, z in o["ring"]],
+        [[[x / 10, z / 10] for x, z in h] for h in o["holes"]],
+      )
+      assert feet.intersection(foot).area / foot.area > 0.94
+    # The small overlap with this unrelated neighbour never claims its ownership.
+    assert "49449347" not in {o["id"] for o in p["legacyPrisms"]}
 
 
 def test_prior_measured_edges_and_authored_details_preserved():
@@ -138,3 +149,13 @@ def test_architectural_identity_not_a_palette_only_change():
   assert len(glass) == 1 and -4269 < glass[0][0] < -4264
   assert all(r[2] < 669 for r in glass)
   assert {q["text"] for q in p["labels"]} == {"SCHILLERTHEATER", "DEUTSCHE OPER BERLIN"}
+
+
+def _historical_source_reader_v314(expected, reader):
+  def historical(path):
+    digest = expected.get(path.resolve())
+    if digest is None:
+      return reader(path)
+    return historical_asset_bytes_v194(path, digest, reader=reader)
+
+  return historical

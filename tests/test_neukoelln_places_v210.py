@@ -7,6 +7,8 @@ from pathlib import Path
 import numpy as np
 from shapely.geometry import Point, shape
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
 DATA = ROOT / "src/app/src/data"
@@ -58,27 +60,37 @@ def test_every_original_sheet_is_present_with_one_uniform_parent_datum():
         assert abs(expected - found) < 0.03, (p["id"], si, expected, found)
 
 
-def test_exact_seven_owner_transfer_does_not_mutate_old_assets():
+def test_exact_seven_owner_transfer_does_not_mutate_old_assets(monkeypatch):
   source = read(GEO / "neukoelln-places-v210-source.json")
   receipt = read(DATA / "neukoellnPlacesV210Ownership.json")
-  expected = {o["id"] for b in source["buildings"] for o in b["osmOwners"]}
-  assert len(expected) == 7
-  assert {r["owner"] for r in receipt["records"]} == expected
-  for r in receipt["records"] + receipt["lineRecords"]:
-    path = (
-      ROOT
-      / "src/app/public/mesh/surrounding-berlin-v159"
-      / f"{r['tile']}.{r['mode']}.json.gz"
+  _expected_v314 = {
+    (ROOT / "src/app/public/mesh/surrounding-berlin-v159" /
+     f"{_record_v314['tile']}.{_record_v314['mode']}.json.gz").resolve(): _record_v314["sha256"]
+    for _record_v314 in receipt["records"] + receipt["lineRecords"]
+  }
+  _reader_v314 = Path.read_bytes
+  with monkeypatch.context() as _scope_v314:
+    _scope_v314.setattr(
+      Path, "read_bytes", _historical_source_reader_v314(_expected_v314, _reader_v314)
     )
-    assert hashlib.sha256(path.read_bytes()).hexdigest() == r["sha256"]
-  assert {r["mode"] for r in receipt["records"]} == {"drawn", "minecraft"}
-  assert {r["owner"] for r in receipt["navigationRecords"]} == expected
-  assert (
-    receipt["sourceSha256"]
-    == hashlib.sha256(
-      (GEO / "neukoelln-places-v210-source.json").read_bytes()
-    ).hexdigest()
-  )
+    expected = {o["id"] for b in source["buildings"] for o in b["osmOwners"]}
+    assert len(expected) == 7
+    assert {r["owner"] for r in receipt["records"]} == expected
+    for r in receipt["records"] + receipt["lineRecords"]:
+      path = (
+        ROOT
+        / "src/app/public/mesh/surrounding-berlin-v159"
+        / f"{r['tile']}.{r['mode']}.json.gz"
+      )
+      assert hashlib.sha256(path.read_bytes()).hexdigest() == r["sha256"]
+    assert {r["mode"] for r in receipt["records"]} == {"drawn", "minecraft"}
+    assert {r["owner"] for r in receipt["navigationRecords"]} == expected
+    assert (
+      receipt["sourceSha256"]
+      == hashlib.sha256(
+        (GEO / "neukoelln-places-v210-source.json").read_bytes()
+      ).hexdigest()
+    )
 
 
 def test_mapped_furniture_current_store_and_independent_budget():
@@ -126,3 +138,13 @@ def test_legacy_receipt_retains_all_rows_and_moves_only_obsolete_cornice():
       a, b = r["original"][i], r["replacement"][i]
       assert a[:1] + a[2:] == b[:1] + b[2:]
       assert b[1] == (11.02 if r["mode"] == "drawn" else 11.5)
+
+
+def _historical_source_reader_v314(expected, reader):
+  def historical(path):
+    digest = expected.get(path.resolve())
+    if digest is None:
+      return reader(path)
+    return historical_asset_bytes_v194(path, digest, reader=reader)
+
+  return historical

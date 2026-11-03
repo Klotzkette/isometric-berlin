@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { createHash } from "node:crypto";
+import { verifiedPriorPacketShaV193 } from "./helpers/losslessPacketsV193";
 import { isDeepStrictEqual } from "node:util";
 import { InterleavedBufferAttribute, LineSegments, Mesh } from "three";
 import { createSurroundingCityChunk, type SurroundingCityChunk } from "../src/SurroundingCityGeometry";
@@ -102,7 +102,7 @@ test("all new Ringbahn packets decode through the production renderer without lo
       }
     }
     if (triangleReceipts.length || lineReceipts.length) {
-      const sha256 = createHash("sha256").update(packed).digest("hex");
+      const sha256 = verifiedPriorPacketShaV193(new URL(descriptor[family].url, folder), packed);
       for (const receipt of [...triangleReceipts, ...lineReceipts]) {
         expect(receipt.sha256).toBe(sha256);
         if (neukoellnReceipt.records.includes(receipt as never) || neukoellnReceipt.lineRecords.includes(receipt as never))

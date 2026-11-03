@@ -66,7 +66,13 @@ erläutern auch die gezeichneten Wandbilder und ihre Grenzen.
 Die Häuser im [Boxhagener Viertel](docs/friedrichshain-v303.md), die Dorfhöfe
 von [Böhmisch-Rixdorf](docs/rixdorf-v304.md) und die
 [Neuköllner Wahrzeichen](docs/neukoelln-landmarks-v305.md) besitzen eigene
-Quellen- und Detailnachweise.
+Quellen- und Detailnachweise. Die [nördlichen Parks und Schulbauten](docs/north-sites-v306.md),
+[Ringbahn und Europasportpark](docs/rail-sse-v307.md) sowie die
+[Klinikstandorte](docs/hospitals-v308.md) sind ebenfalls einzeln dokumentiert.
+
+Beim Start zeigt der Viewer die tatsächlich geladenen Dateien und die laufenden
+Aufbauschritte. Weitere Stadtbereiche werden passend zur Ansicht nachgeladen.
+Die vollständige gezeichnete Detailstufe steht auch auf Touchgeräten bereit.
 
 ### Herunterladen und lokal starten
 
@@ -131,6 +137,12 @@ The [Boxhagener quarter](docs/friedrichshain-v303.md),
 [Böhmisch-Rixdorf](docs/rixdorf-v304.md) and
 [Neukölln landmarks](docs/neukoelln-landmarks-v305.md) have separate architectural
 and source notes.
+
+The [northern parks and school](docs/north-sites-v306.md),
+[Ringbahn and Europasportpark](docs/rail-sse-v307.md) and
+[hospital campuses](docs/hospitals-v308.md) have individual source notes.
+Startup shows actual file and construction work; further areas load for the
+current view. Touch devices retain the full drawn detail.
 
 ### Run locally
 
@@ -197,8 +209,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.195** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.195/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.196** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.196/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

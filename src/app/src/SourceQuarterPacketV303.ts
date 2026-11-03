@@ -21,8 +21,8 @@ const admissions=new WeakMap<object,readonly Transfer[]>();
 const known=new WeakMap<object,ReadonlySet<string>>();
 const bytes=(s:string)=>s.length/4*3-(s.endsWith("==")?2:s.endsWith("=")?1:0);
 const encoded=(s:unknown):s is string=>typeof s==="string"&&s.length<=16*1024*1024&&s.length%4===0&&!/[^A-Za-z0-9+/=]/.test(s)&&(s.indexOf("=")<0||(s.indexOf("=")>=s.length-2&&/^={1,2}$/.test(s.slice(s.indexOf("=")))));
-const partValid=(p:SurroundingPackedMesh)=>!!p&&p.positionType==="u16cm"&&typeof p.kind==="string"&&encoded(p.positions)&&encoded(p.colors)&&encoded(p.indices)&&bytes(p.positions)%6===0&&bytes(p.colors)===bytes(p.positions)/2&&bytes(p.indices)%12===0;
-const samePart=(a:SurroundingPackedMesh,b:SurroundingPackedMesh)=>a.kind===b.kind&&a.positionType===b.positionType&&a.positions===b.positions&&a.colors===b.colors&&a.indices===b.indices;
+const partValid=(p:SurroundingPackedMesh)=>!!p&&p.positionType==="u16cm"&&typeof p.kind==="string"&&(p.colorType===undefined||p.colorType==="u8"||p.colorType==="u16linear")&&encoded(p.positions)&&encoded(p.colors)&&encoded(p.indices)&&bytes(p.positions)%6===0&&bytes(p.colors)===bytes(p.positions)/(p.colorType==="u16linear"?1:2)&&bytes(p.indices)%12===0;
+const samePart=(a:SurroundingPackedMesh,b:SurroundingPackedMesh)=>a.kind===b.kind&&a.positionType===b.positionType&&a.colorType===b.colorType&&a.positions===b.positions&&a.colors===b.colors&&a.indices===b.indices;
 const lineSame=(a:SurroundingPackedLines|undefined,b:SurroundingPackedLines|undefined)=>a?!!b&&a.positions===b.positions&&a.colors===b.colors:!b;
 function freezeSnapshot<T>(value:T):T{if(value&&typeof value==="object"){for(const child of Object.values(value))freezeSnapshot(child);Object.freeze(value);}return value;}
 function transfers(chunk:SurroundingCityChunk):readonly Transfer[]{const d=Object.getOwnPropertyDescriptor(chunk,marker);return d&&"value"in d?admissions.get(d.value)??[]:[];}

@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
-import { createHash } from "node:crypto";
+import { verifiedPriorPacketShaV193 } from "./helpers/losslessPacketsV193";
 import { InstancedMesh, Matrix4, Mesh } from "three";
 import { createArenaStationEnvelopesV225, createArenaStationV225 } from "../src/ArenaStationV225";
 import { arenaStationV225GroundAt, arenaStationV225RoofAt, arenaStationV225SolidAt, transferArenaStationNavigationV225 } from "../src/arenaStationV225Navigation";
@@ -111,7 +111,7 @@ test("actual immutable packets lose exactly their audited indices and fully equa
     const bytes = readFileSync(new URL(`../public/mesh/surrounding-berlin-v159/${tile}.${mode}.json.gz`, import.meta.url));
     const payload = JSON.parse(gunzipSync(bytes).toString());
     const rows = receipt.records.filter(r => r.tile === tile && r.mode === mode);
-    for (const r of rows) expect(createHash("sha256").update(bytes).digest("hex")).toBe(r.sha256);
+    for (const r of rows) expect(verifiedPriorPacketShaV193(new URL(`../public/mesh/surrounding-berlin-v159/${tile}.${mode}.json.gz`, import.meta.url), bytes)).toBe(r.sha256);
     for (const part of payload.meshes) {
       if (part.kind !== "city") continue;
       const encoded = structuredClone(part), indices = new Uint32Array(Uint8Array.from(Buffer.from(part.indices, "base64")).buffer);

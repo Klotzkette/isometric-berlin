@@ -1,7 +1,9 @@
 """Verify finite Kollwitz paint receipts against immutable source geometry."""
 
 import base64
+import hashlib
 from collections import Counter
+from pathlib import Path
 
 import numpy as np
 from shapely.affinity import translate
@@ -9,6 +11,7 @@ from shapely.geometry import Polygon, box, shape
 from shapely.ops import unary_union
 
 from scripts import build_kollwitz_materials_v271 as build
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
 
 
 def test_owner_scope_material_priority_and_positive_ordinary_evidence():
@@ -70,46 +73,60 @@ def test_owner_scope_material_priority_and_positive_ordinary_evidence():
       assert owner in fronts and proof["facadeOwner"] == owner
 
 
-def test_receipts_replay_exact_existing_generic_surfaces_only():
+def test_receipts_replay_exact_existing_generic_surfaces_only(monkeypatch):
   evidence = build.base.read_json(build.EVIDENCE)
-  output = build.base.read_json(build.OUTPUT)
-  assert build.OUTPUT.stat().st_size < 26_000
-  assert len(output["packets"]) == 12
-  assert len(set(tuple(row["wall"]) for row in evidence["owners"].values())) == 12
-  counts = Counter()
-  changed_owners = set()
-  for asset in evidence["assets"]:
-    path = build.OUT / asset["url"]
-    assert build.appearance.digest(path) == asset["sha256"]
-    family = "minecraft" if ".minecraft." in path.name else "drawn"
-    tile = path.name.removesuffix(f".{family}.json.gz")
-    assert tile in build.TILES
-    packet = build.base.read_json(path)
-    for receipt in output["packets"][family + ":" + tile]:
-      part = packet["meshes"][receipt["mesh"]]
-      assert part["kind"] == "city"
-      assert build.appearance.fingerprint(part) == receipt["fingerprint"]
-      expected, owners = build.previous.owned_colours(
-        part, packet, evidence["owners"], family == "minecraft"
-      )
-      assert owners <= set(evidence["owners"])
-      actual = {}
-      original = np.frombuffer(base64.b64decode(part["colors"]), "u1").reshape(-1, 3)
-      for first, count, palette in np.frombuffer(
-        base64.b64decode(receipt["runs"]), "<u4"
-      ).reshape(-1, 3):
-        value = output["palette"][palette]
-        for vertex in range(int(first), int(first + count)):
-          assert vertex not in actual
-          assert tuple(original[vertex]) in {build.previous.WALL, build.previous.ROOF}
-          actual[vertex] = (value >> 16, (value >> 8) & 255, value & 255)
-      assert actual == expected
-      changed_owners.update(
-        build.changed_owners(part, packet, actual, evidence["owners"])
-      )
-      counts[family + "Vertices"] += len(actual)
-  assert dict(counts) == evidence["counts"]
-  assert changed_owners == set(evidence["owners"])
+  _expected_v314 = {
+    (build.OUT / _asset_v314["url"]).resolve(): _asset_v314["sha256"]
+    for _asset_v314 in evidence["assets"]
+  }
+  _reader_v314 = Path.read_bytes
+  _digest_v315 = build.appearance.digest
+  with monkeypatch.context() as _scope_v314:
+    _scope_v314.setattr(
+      Path, "read_bytes", _historical_source_reader_v314(_expected_v314, _reader_v314)
+    )
+    _scope_v314.setattr(
+      build.appearance, "digest",
+      _historical_source_digest_v315(_expected_v314, _reader_v314, _digest_v315),
+    )
+    output = build.base.read_json(build.OUTPUT)
+    assert build.OUTPUT.stat().st_size < 26_000
+    assert len(output["packets"]) == 12
+    assert len(set(tuple(row["wall"]) for row in evidence["owners"].values())) == 12
+    counts = Counter()
+    changed_owners = set()
+    for asset in evidence["assets"]:
+      path = build.OUT / asset["url"]
+      assert build.appearance.digest(path) == asset["sha256"]
+      family = "minecraft" if ".minecraft." in path.name else "drawn"
+      tile = path.name.removesuffix(f".{family}.json.gz")
+      assert tile in build.TILES
+      packet = build.base.read_json(path)
+      for receipt in output["packets"][family + ":" + tile]:
+        part = packet["meshes"][receipt["mesh"]]
+        assert part["kind"] == "city"
+        assert build.appearance.fingerprint(part) == receipt["fingerprint"]
+        expected, owners = build.previous.owned_colours(
+          part, packet, evidence["owners"], family == "minecraft"
+        )
+        assert owners <= set(evidence["owners"])
+        actual = {}
+        original = np.frombuffer(base64.b64decode(part["colors"]), "u1").reshape(-1, 3)
+        for first, count, palette in np.frombuffer(
+          base64.b64decode(receipt["runs"]), "<u4"
+        ).reshape(-1, 3):
+          value = output["palette"][palette]
+          for vertex in range(int(first), int(first + count)):
+            assert vertex not in actual
+            assert tuple(original[vertex]) in {build.previous.WALL, build.previous.ROOF}
+            actual[vertex] = (value >> 16, (value >> 8) & 255, value & 255)
+        assert actual == expected
+        changed_owners.update(
+          build.changed_owners(part, packet, actual, evidence["owners"])
+        )
+        counts[family + "Vertices"] += len(actual)
+    assert dict(counts) == evidence["counts"]
+    assert changed_owners == set(evidence["owners"])
 
 
 def test_mapped_material_receipts_never_overlap_new_colour_vertices():
@@ -170,3 +187,25 @@ def test_northern_kastanien_gap_uses_exact_roads_and_preserves_all_nineteen_fron
     row["path"].endswith("northShopfrontsV254.json")
     for row in evidence["preservedFittingSources"]
   )
+
+
+def _historical_source_reader_v314(expected, reader):
+  def historical(path):
+    digest = expected.get(path.resolve())
+    if digest is None:
+      return reader(path)
+    return historical_asset_bytes_v194(path, digest, reader=reader)
+
+  return historical
+
+
+def _historical_source_digest_v315(expected, reader, digest):
+  def historical(path):
+    expected_digest = expected.get(path.resolve())
+    if expected_digest is None:
+      return digest(path)
+    return hashlib.sha256(
+      historical_asset_bytes_v194(path, expected_digest, reader=reader)
+    ).hexdigest()
+
+  return historical

@@ -8,6 +8,8 @@ from pathlib import Path
 import numpy as np
 from shapely.geometry import Polygon
 
+from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
+
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT = json.loads(
   (
@@ -21,7 +23,9 @@ def test_exact_old_packet_bytes_and_scope_are_preserved():
   assert AUDIT["part"] == "DEBE3DbYCNYOhBDw"
   for original in AUDIT["originalPackets"]:
     assert (
-      hashlib.sha256((ROOT / original["file"]).read_bytes()).hexdigest()
+      hashlib.sha256(
+        historical_asset_bytes_v194(ROOT / original["file"], original["sha256"], reader=Path.read_bytes)
+      ).hexdigest()
       == original["sha256"]
     )
   assert {r["part"] for r in AUDIT["records"]} == {"DEBE3DbYCNYOhBDw"}
