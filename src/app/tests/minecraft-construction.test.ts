@@ -263,7 +263,7 @@ test("late inactive downloads cannot leave progress above an already-ready world
     const loader = source.slice(source.indexOf(`function ${loaderName}(`));
     const tracked = loader.slice(loader.indexOf("const tracked ="), loader.indexOf("let provisional"));
     expect(tracked).toContain(`if (${intent}(runtime))`);
-    expect(tracked.indexOf(`if (${intent}(runtime))`)).toBeLessThan(tracked.indexOf("runtime.reportCoreProgress"));
+    expect(tracked.indexOf(`if (${intent}(runtime))`)).toBeLessThan(tracked.indexOf("runtime.reportStartupWork"));
   }
-  expect(source.replaceAll("\r\n", "\n")).toContain('if (currentStartupPresentationStatus(runtime) === "ready") {\n        runtime.reportCoreProgress(1, 1);');
+  expect(source).toContain("percentage={presentationReady ? 100 : workPresentation?.percentage ?? 0}");
 });

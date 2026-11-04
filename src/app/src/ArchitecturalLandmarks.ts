@@ -2188,14 +2188,13 @@ function createReichstagModel(signature: ReichstagModelSignature, interiorV295 =
   placeMetricGroup(group, signature);
 
   const stoneAccent = nightEmitter(
-    modelMaterial(0xd8d6cf, { roughness: 0.84 }),
+    modelMaterial(0xc5beb1, { roughness: 0.9 }),
     0x65778d,
     0.5,
   );
-  // A restrained neutral limestone step gives Wallot's mouldings depth
-  // without turning the Reichstag into a yellow sandstone block.
+  // The exposed sandstone reads warmer on the cornices and darker in the relief.
   const stoneRelief = nightEmitter(
-    modelMaterial(0xadaaa2, { roughness: 0.88 }),
+    modelMaterial(0xa79d8c, { roughness: 0.94 }),
     0x596878,
     0.36,
   );
@@ -2384,12 +2383,12 @@ function createReichstagModel(signature: ReichstagModelSignature, interiorV295 =
     "Reichstag DEM DEUTSCHEN VOLKE inscription band",
     [0.26, bandHeight, bandWidth],
     [westX - 3.8, 18.55, 0],
-    modelMaterial(0xd9dad5, { roughness: 0.72 }),
+    modelMaterial(0xc0b7a6, { roughness: 0.85 }),
   );
   const dedicationTexture = createDedicationTexture({
     bandHeightM: bandHeight,
     bandWidthM: bandWidth,
-    fieldColor: "#d9dad5",
+    fieldColor: "#c0b7a6",
     letterColor: "#4b321b",
   });
   const dedicationMaterial = nightEmitter(
@@ -2522,7 +2521,7 @@ function addChancelleryOfficeBand(
   height: number,
 ): void {
   const glass = nightEmitter(
-    modelMaterial(0x9bc7cd, {
+    modelMaterial(0x82959b, {
       metalness: 0.08,
       opacity: 0.26,
       roughness: 0.28,
@@ -2531,7 +2530,7 @@ function addChancelleryOfficeBand(
     0.18,
   );
   const concrete = nightEmitter(
-    modelMaterial(0xf0f2ef, {
+    modelMaterial(0xd6d4ca, {
       opacity: 0.86,
       roughness: 0.76,
     }),
@@ -2539,7 +2538,7 @@ function addChancelleryOfficeBand(
     0.32,
   );
   const darkPane = nightEmitter(
-    modelMaterial(0x79aab3, {
+    modelMaterial(0x657e86, {
       metalness: 0.1,
       opacity: 0.36,
       roughness: 0.26,
@@ -2548,7 +2547,7 @@ function addChancelleryOfficeBand(
     0.12,
   );
   const litPane = nightEmitter(
-    modelMaterial(0x79aab3, {
+    modelMaterial(0x657e86, {
       metalness: 0.1,
       opacity: 0.36,
       roughness: 0.26,
@@ -2958,7 +2957,7 @@ function addChancelleryCourtyardArchitecture(
   const forward = court.clone().sub(cube).normalize();
   const lateral = new Vector3(-forward.z, 0, forward.x);
   const concrete = nightEmitter(
-    modelMaterial(0xf3f1e9, { roughness: 0.78 }),
+    modelMaterial(0xd9d6cb, { roughness: 0.86 }),
     0x6d7480,
     0.28,
   );
@@ -3826,14 +3825,14 @@ function createChancelleryModel(signature: ChancelleryModelSignature, photoDetai
   placeMetricGroup(group, signature);
 
   const concrete = nightEmitter(
-    modelMaterial(0xf0f2ef, {
-      roughness: 0.78,
+    modelMaterial(0xd7d5cb, {
+      roughness: 0.86,
     }),
     0x55687b,
     0.32,
   );
   const glass = nightEmitter(
-    modelMaterial(0xb2cfd0, {
+    modelMaterial(0x84969d, {
       metalness: 0.06,
       opacity: 0.24,
       roughness: 0.2,
@@ -3890,7 +3889,7 @@ function createChancelleryModel(signature: ChancelleryModelSignature, photoDetai
     group,
     "Chancellery batched central-cube curtain-wall grid",
     cubeGrid,
-    0xa8d6d9,
+    0x92a3a6,
     0.58,
   );
 
@@ -3942,7 +3941,7 @@ function createChancelleryModel(signature: ChancelleryModelSignature, photoDetai
 
   const windowGlass = nightEmitter(
     new MeshPhysicalMaterial({
-      color: 0xb7d6d8,
+      color: 0x8f9fa4,
       depthWrite: false,
       metalness: 0.04,
       opacity: 0.28,
@@ -3954,7 +3953,7 @@ function createChancelleryModel(signature: ChancelleryModelSignature, photoDetai
     0x2b4a55,
     0.22,
   );
-  const archFrame = modelMaterial(0xf0f1ec, { roughness: 0.68 });
+  const archFrame = modelMaterial(0xdcd9d0, { roughness: 0.83 });
   const windowGrid: VectorSegment[] = [];
   for (const xDirection of [-1, 1]) {
     const glassWindow = new Mesh(
@@ -3999,7 +3998,7 @@ function createChancelleryModel(signature: ChancelleryModelSignature, photoDetai
     group,
     "Chancellery batched semicircular leadership-window grid",
     windowGrid,
-    0xdce9e7,
+    0xb7c2c1,
     0.82,
   );
 
@@ -7732,23 +7731,23 @@ function createBrandenburgGateModel(
   placeMetricGroup(group, signature);
 
   const sandstone = nightEmitter(
-    modelMaterial(0xe2d6c0, { roughness: 0.86 }),
+    modelMaterial(0xc7bba6, { roughness: 0.92 }),
     0xf0c184,
     0.72,
   );
   const sandstoneShadow = nightEmitter(
-    modelMaterial(0xc3b69f, { roughness: 0.92 }),
+    modelMaterial(0xb3a58f, { roughness: 0.94 }),
     0x9a7650,
     0.46,
   );
   const sandstoneRelief = nightEmitter(
-    modelMaterial(0xaa9b82, { roughness: 0.94 }),
+    modelMaterial(0xa0927e, { roughness: 0.95 }),
     0x8d6d4b,
     0.38,
   );
   const recess = modelMaterial(0x716c63, { opacity: 0.82, roughness: 0.92 });
   const paving = modelMaterial(0xb6b6b1, { roughness: 0.96 });
-  const patinatedCopper = modelMaterial(0x668f7a, {
+  const patinatedCopper = modelMaterial(0x61796b, {
     metalness: 0.36,
     roughness: 0.56,
   });

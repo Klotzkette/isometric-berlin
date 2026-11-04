@@ -1312,13 +1312,13 @@ describe("real-colour facade tones", () => {
     // Every facade now lands in the bright paint band, floor included: the
     // darkest possible sample must not fall back into the mid register.
     expect(cleanedTone([18, 18, 20]).r).toBeGreaterThan(0.72);
-    // The Reichstag pin is pale neutral limestone, never yellow or muddy.
+    // The Reichstag uses weathered sandstone, with muted warm undertones.
     const reichstag = HERO_PRISM_TONES.K0002MCN;
     const r = (reichstag >> 16) & 255;
     const b = reichstag & 255;
     expect(r - b).toBeLessThan(40);
-    expect(r).toBeGreaterThanOrEqual(215);
-    expect(r).toBeLessThanOrEqual(235);
+    expect(r).toBeGreaterThanOrEqual(175);
+    expect(r).toBeLessThanOrEqual(200);
   });
 
   test("keeps a bright but materially distinct day palette", () => {

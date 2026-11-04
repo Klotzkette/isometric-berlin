@@ -104,7 +104,8 @@ import { sovietMemorialWalkableAt, sovietMemorialSolidAt, sovietMemorialGroundAt
 import { setSovietMemorialSmoothVisibility } from "./MinecraftSovietMemorial";
 import { setComposerMemorialSmoothVisibility } from "./MusicComposerMemorial";
 import { completeCooperatively } from "./cooperativeWork";
-import { startupWorkPresentationV309, type StartupWorkV309 } from "./startupWorkV309";
+import { startupWorkPositionV309, startupWorkPresentationV309, type StartupWorkV309 } from "./startupWorkV309";
+import { createBndPublicArtV314 } from "./BndPublicArtV314";
 import { WORLD_ORBIT_BASE_DISTANCE_M, worldCameraFarM } from "./worldCameraDepth";
 import { createSceneGpuWarmup, type SceneGpuWarmup } from "./sceneGpuWarmup";
 import { createSceneGpuResidency, type SceneGpuResidency } from "./sceneGpuResidency";
@@ -875,7 +876,6 @@ type Runtime = {
   ensurePedestrianWater: () => void;
   worldFailureReported: boolean;
   contextLost: boolean;
-  reportCoreProgress: (loaded: number, total: number) => void;
   reportStartupWork?: (work: StartupWorkV309) => void;
   northernV309?: NorthernLoaderV309<NorthernFidelityBundleV309>;
   northernLastScanV309?: number;
@@ -3868,6 +3868,20 @@ function parliamentWorldReadyV295(runtime:Runtime):boolean {
   return (voxelModeActive(runtime)?runtime.voxelWorld:runtime.isoWorld)?.userData.parliamentInteriorsV295 === true;
 }
 
+function europacityRoadFloor(runtime: Runtime, x: number, z: number, currentY?: number): number | null {
+  const native = voxelModeActive(runtime);
+  const world = native ? runtime.voxelWorld : runtime.isoWorld;
+  const floor = world?.userData.perlebergerRoadFloorAtV313 as typeof import("./EuropacityRailV313").perlebergerRoadFloorAtV313 | undefined;
+  return floor?.(x, z, native, currentY) ?? null;
+}
+
+function northContextSolid(runtime: Runtime, x: number, y: number, z: number, radius = 0): boolean {
+  const native = voxelModeActive(runtime);
+  const world = native ? runtime.voxelWorld : runtime.isoWorld;
+  const solid = world?.userData.northContextSolidAtV312 as typeof import("./NorthContextV312").northContextSolidAtV312 | undefined;
+  return solid?.(x, y, z, radius, native) === true;
+}
+
 /** Keep long-lived navigation callbacks out of the asynchronous construction
  * scope. Otherwise their shared lexical context pins the consumed JSON payloads
  * and generator inputs even after the fulfilled request promises are released. */
@@ -3932,6 +3946,7 @@ function prepareIsoNavigation(
     (schwellenraumProtectedAt(x, y, z) ||
       schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
   pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
+    if (northContextSolid(runtime, x, y, z, radius)) return true;
     if (parliamentWorldReadyV295(runtime) && parliamentSolidAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,y,z,0)) return true;
     if (eastCinemasSolidAtV260(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (coreSpreeBridges.solidAt(x, y, z, radius)) return true;
@@ -4003,6 +4018,8 @@ function prepareIsoNavigation(
   const formerBridgeGround = pedestrianEnvironment.bridgeGroundAt;
   pedestrianEnvironment.bridgeGroundAt = (x, z) => monbijouV231DeckAt(x, z, runtime.lightingMode === "minecraft") ?? formerBridgeGround?.(x, z) ?? null;
   pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+    const perlebergerFloor = europacityRoadFloor(runtime, x, z, currentGroundY);
+    if (perlebergerFloor !== null) return perlebergerFloor;
     if (parliamentWorldReadyV295(runtime)) { const floor=parliamentGroundAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,z,currentGroundY); if(floor!==null)return floor; }
     const piazzettaFloor = kulturforumPiazzettaFloorAt(x, z, runtime.lightingMode === "minecraft");
     if (piazzettaFloor !== null) return piazzettaFloor;
@@ -4139,9 +4156,7 @@ function ensureIsoWorld(
     return;
   }
   runtime.isoWorldState = "loading";
-  const totalParts = 6;
   let loadedParts = 0;
-  runtime.reportCoreProgress(0, totalParts);
   runtime.reportStartupWork?.({ phase: "sources", completed: 0, total: 5 });
   const tracked = async <T,>(task: Promise<T>): Promise<T> => {
     try {
@@ -4149,7 +4164,6 @@ function ensureIsoWorld(
     } finally {
       loadedParts += 1;
       if (isoWorldIntentActive(runtime)) {
-        runtime.reportCoreProgress(loadedParts, totalParts);
         runtime.reportStartupWork?.({ phase: "sources", completed: loadedParts, total: 5 });
       }
     }
@@ -4198,6 +4212,8 @@ function ensureIsoWorld(
   const concertDetails = import("./ConcertHalls");
   const kulturforumMuseumDetails = import("./KulturforumMuseums");
   const northRailDetails = import("./HbfNorthApproach");
+  const northContextDetails = import("./NorthContextV312");
+  const europacityRailDetails = import("./EuropacityRailV313");
   const breitscheidDetails = import("./BreitscheidTowers");
   const westSquaresDetails = import("./WestSquaresV163");
   const eastSquaresDetails = import("./EastSquaresV163");
@@ -4248,10 +4264,11 @@ function ensureIsoWorld(
     concertDetails,
     kulturforumMuseumDetails,
     northRailDetails,
+    northContextDetails, europacityRailDetails,
     breitscheidDetails, westSquaresDetails, eastSquaresDetails, hackescherDetails,
     cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details, neueSynagogeV167Details, tachelesV167Details, monbijouBathV167Details, humboldtMainV168Details, teehausRuinV168Details, tuWaterV168Details, altMitteCoreV169Details, bndV174Details, weinbergV174Details, zionV174Details, wallV174Details, zionFrontagesV175Details, northCorridorDetails, requiredSites, potsdamerStationPhoto,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208, sitesV209, stationPhoto]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, northContext, europacityRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208, sitesV209, stationPhoto]) => {
       if (runtime.disposed) {
         return;
       }
@@ -4350,7 +4367,9 @@ function ensureIsoWorld(
       // Keep the old scene intact until every exact layer is ready. Task
       // boundaries release constructor scratch space and let context loss or
       // a mode switch cancel remaining work before it allocates.
-      let cityBuiltV309 = false;
+      const reportDetailStep = (completed: number) => {
+        if (isoWorldIntentActive(runtime)) runtime.reportStartupWork?.({ phase: "details", completed, total: 6 });
+      };
       const isoWorld = await completeCooperatively((function* () {
         const isoWorld = yield* createIsometricCityStepsV309(
           prisms,
@@ -4384,7 +4403,7 @@ function ensureIsoWorld(
             if (isoWorldIntentActive(runtime)) runtime.reportStartupWork?.(work);
           },
         );
-        cityBuiltV309 = true;
+        reportDetailStep(0);
         provisionalIsoWorld = isoWorld;
         isoWorld.add(fidelityV288.root);
         let neukoellnAdmissionV305=applyNeukoellnLegacyV227V305(isoWorld,false,true,fidelityV288.neukoellnModel);
@@ -4431,6 +4450,7 @@ function ensureIsoWorld(
         yield* compactStaticGeometrySteps(isoWorld);
         const initialWater = createInitialDrawnWater(ground, surfaces, runtime.coarsePointer);
         if (initialWater) isoWorld.add(initialWater);
+        reportDetailStep(1);
         yield;
         isoWorld.add(createGendarmenmarktShells());
         yield;
@@ -4482,7 +4502,10 @@ function ensureIsoWorld(
         yield;
         isoWorld.add(tuWaterV168.createTuWaterV168());
         yield;
-        isoWorld.add(bndV174.createBndHeadquartersV174());
+        isoWorld.add(bndV174.createBndHeadquartersV174(), createBndPublicArtV314());
+        yield;
+        isoWorld.add(northContext.createNorthContextV312());
+        isoWorld.userData.northContextSolidAtV312 = northContext.northContextSolidAtV312;
         yield;
         isoWorld.add(weinbergV174.createWeinbergPlaygroundV174());
         yield;
@@ -4494,7 +4517,8 @@ function ensureIsoWorld(
         yield;
         // Complete source envelopes stay resident before the first interactive
         // frame. Only additional facade detail uses camera-following residency.
-        isoWorld.add(yield* altMitteCoreV169.buildAltMitteCoreV169Steps({ neighbourhoodV300:true,westKiezV302:fidelityV288.westKiez, golgathaV270: true, tachelesFrontsV270: true, northernSitesV266: true, chariteBridgesV265: true, schlossplatzV239: true, staatsoperV240: true, architectureV241: true }));
+        isoWorld.add(yield* altMitteCoreV169.buildAltMitteCoreV169Steps({ bndPublicArtV314: true, neighbourhoodV300:true,westKiezV302:fidelityV288.westKiez, golgathaV270: true, tachelesFrontsV270: true, northernSitesV266: true, chariteBridgesV265: true, schlossplatzV239: true, staatsoperV240: true, architectureV241: true }));
+        reportDetailStep(2);
         yield;
 
         isoWorld.add(zooGrounds.createZooGroundsV165());
@@ -4536,6 +4560,7 @@ function ensureIsoWorld(
         isoWorld.add(createSchlossNaturkundeFacades());
         yield;
         isoWorld.add(createBebelplatzBuildingShells());
+        reportDetailStep(3);
         yield;
         if (ground) {
           isoWorld.add(createDistrictStreets(ground, new Set(altMitteTransportCorrectionsV206.suppressedMarkingIndices)));
@@ -4590,6 +4615,7 @@ function ensureIsoWorld(
         isoWorld.add(abgeordnetenhaus.createAbgeordnetenhausDetails(civicDetailProfile, { parliamentInteriorsV295 }));
         yield;
         isoWorld.add(gropiusBau.createGropiusBauDetails(civicDetailProfile));
+        reportDetailStep(4);
         yield;
         // Metric bridge profiles are recognition geometry, not a soft surface
         // layer. Keep them beside the hero signatures so Golda-Meir, Moltke,
@@ -4700,7 +4726,12 @@ function ensureIsoWorld(
         if (ground && rail) {
           // The Stadtbahn viaduct carries the tracks off both ends of the
           // Hauptbahnhof instead of letting them stop in mid-air.
-          const railway = createRailNetwork(rail, ground);
+          const retainedRail = europacityRail.replaceEuropacityRailPayloadV313(rail);
+          if (retainedRail) {
+            isoWorld.add(europacityRail.createEuropacityRailV313(ground));
+            isoWorld.userData.perlebergerRoadFloorAtV313 = europacityRail.perlebergerRoadFloorAtV313;
+          }
+          const railway = createRailNetwork(retainedRail ?? rail, ground);
           if (railway) {
             isoWorld.add(railway);
           }
@@ -4736,6 +4767,7 @@ function ensureIsoWorld(
             pendingCatenary.add(catenary);
           }
         }
+        reportDetailStep(5);
         yield* compactStaticGeometrySteps(isoWorld);
         yield* compactStaticGeometrySteps(provisionalIsoAddons!);
         if (runtime.coarsePointer) {
@@ -4747,12 +4779,10 @@ function ensureIsoWorld(
         // Authored architecture uses fixed instance placements. Moving props
         // and particle effects live in their separate runtime roots.
         yield* parkStaticInstancesSteps(isoWorld);
+        reportDetailStep(6);
         return isoWorld;
       })(), {
         yieldTask: yieldStartupWork,
-        onCheckpoint: completed => {
-          if (cityBuiltV309 && isoWorldIntentActive(runtime)) runtime.reportStartupWork?.({ phase: "details", completed });
-        },
         isCancelled: () => runtime.disposed || runtime.loadSignal.aborted ||
           runtime.worldFailureReported || !isoWorldIntentActive(runtime),
       });
@@ -4804,8 +4834,6 @@ function ensureIsoWorld(
       (runtime.zooAnimalsV282 ??= createZooAnimalRuntimeV282()).register(isoWorld);
       runtime.progressiveWorldInput = progressiveInput ?? undefined;
       collectFarZoomAntiFlickerTargets(runtime);
-      loadedParts += 1;
-      runtime.reportCoreProgress(loadedParts, totalParts);
       runtime.reportStartupWork?.({ phase: "presentation", completed: 0 });
       performance.mark("isometric-city-preview-ready");
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
@@ -4944,6 +4972,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
     zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId, parliamentWorldReadyV295(runtime));
   environment.interiorSolidAt = (x, y, z, radius) => {
+    if (northContextSolid(runtime, x, y, z, radius)) return true;
     if (parliamentWorldReadyV295(runtime) && parliamentSolidAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,y,z,0)) return true;
     if (eastCinemasSolidAtV260(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (coreSpreeBridges.solidAt(x, y, z, radius)) return true;
@@ -5000,6 +5029,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
   const formerBridgeGround = environment.bridgeGroundAt;
   environment.bridgeGroundAt = (x, z) => monbijouV231DeckAt(x, z, runtime.lightingMode === "minecraft") ?? formerBridgeGround?.(x, z) ?? null;
   environment.interiorGroundAt = (x, z, currentGroundY) =>
+    europacityRoadFloor(runtime, x, z, currentGroundY) ??
     (parliamentWorldReadyV295(runtime) ? parliamentGroundAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,z,currentGroundY) : null) ??
     kulturforumPiazzettaFloorAt(x, z, runtime.lightingMode === "minecraft") ??
     museumColonnadesV231GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
@@ -5087,8 +5117,7 @@ function ensureVoxelWorld(
     return;
   }
   runtime.voxelWorldState = "loading";
-  runtime.reportCoreProgress(0, 4);
-  runtime.reportStartupWork?.({ phase: "sources", completed: 0, total: 3, native: true });
+  runtime.reportStartupWork?.({ phase: "sources", completed: 0, total: 5, native: true });
   let loadedParts = 0;
   const tracked = async <T,>(task: Promise<T>): Promise<T> => {
     try {
@@ -5096,8 +5125,7 @@ function ensureVoxelWorld(
     } finally {
       loadedParts += 1;
       if (voxelWorldIntentActive(runtime)) {
-        runtime.reportCoreProgress(loadedParts, 4);
-        runtime.reportStartupWork?.({ phase: "sources", completed: loadedParts, total: 3, native: true });
+        runtime.reportStartupWork?.({ phase: "sources", completed: loadedParts, total: 5, native: true });
       }
     }
   };
@@ -5135,13 +5163,13 @@ function ensureVoxelWorld(
         runtime.voxelWorldState = "idle";
         return;
       }
-      const sitesV209 = await import("./RequiredSiteEnvelopesV209");
+      const sitesV209 = await tracked(import("./RequiredSiteEnvelopesV209"));
       if (runtime.disposed || runtime.loadSignal.aborted || runtime.worldFailureReported) return;
       if (!voxelWorldIntentActive(runtime)) {
         runtime.voxelWorldState = "idle";
         return;
       }
-      const { buildColumnToneLookup, buildMinecraftVoxelWorldSteps } = await import("./MinecraftVoxelWorld");
+      const { buildColumnToneLookup, buildMinecraftVoxelWorldSteps } = await tracked(import("./MinecraftVoxelWorld"));
       if (runtime.disposed || runtime.loadSignal.aborted || runtime.worldFailureReported) return;
       if (!voxelWorldIntentActive(runtime)) {
         runtime.voxelWorldState = "idle";
@@ -5158,6 +5186,10 @@ function ensureVoxelWorld(
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             sourcePrisms: prisms?.buildings,
             neighbourhoodV300: true,
+            currentSitesV311: true,
+            onBuildProgress: (completed, total) => {
+              if (voxelWorldIntentActive(runtime)) runtime.reportStartupWork?.({ phase: "buildings", completed, total, native: true });
+            },
             parliamentInteriorsV295: true,
             includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
             staatsoperV240: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyMonbijou: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false,
@@ -5166,9 +5198,6 @@ function ensureVoxelWorld(
         {
           yieldTask: yieldStartupWork,
           isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
-          onCheckpoint: completed => {
-            if (voxelWorldIntentActive(runtime)) runtime.reportStartupWork?.({ phase: "buildings", completed, native: true });
-          },
         },
       );
       // Finish source-bound matrix corrections, then retire the complete
@@ -5240,8 +5269,7 @@ function ensureVoxelWorld(
         }
       });
       updateEuropaCenterStars(runtime.europaCenterStarTargets, runtime.europaCenterStarElapsedSeconds);
-      loadedParts += 1;
-      runtime.reportCoreProgress(loadedParts, 4);
+      runtime.reportStartupWork?.({ phase: "presentation", completed: 0, native: true });
       setSceneLighting(runtime, runtime.lightingMode, runtime.nightLightsOn);
       if (provisionalEnvironment) {
         runtime.pedestrian.environment = provisionalEnvironment;
@@ -6001,6 +6029,9 @@ function disposeObject3D(runtime: Runtime, root: Object3D): void {
   }
 }
 
+let startupYieldChannel: MessageChannel | undefined;
+const startupYieldWaiters: Array<() => void> = [];
+
 function yieldStartupWork(): Promise<void> {
   const scheduler = (
     window as unknown as { scheduler?: { yield?: () => Promise<void> } }
@@ -6008,7 +6039,19 @@ function yieldStartupWork(): Promise<void> {
   if (typeof scheduler?.yield === "function") {
     return scheduler.yield();
   }
-  return new Promise((resolve) => window.setTimeout(resolve, 0));
+  if (typeof window.MessageChannel !== "function") {
+    return new Promise((resolve) => window.setTimeout(resolve, 0));
+  }
+  // Queue a browser task without accumulating nested timer delays.
+  if (!startupYieldChannel) {
+    startupYieldChannel = new window.MessageChannel();
+    startupYieldChannel.port1.onmessage = () => startupYieldWaiters.shift()?.();
+  }
+  const channel = startupYieldChannel;
+  return new Promise((resolve) => {
+    startupYieldWaiters.push(resolve);
+    channel.port2.postMessage(null);
+  });
 }
 
 /** Separate paint opportunities from geometry-construction checkpoints. */
@@ -6094,7 +6137,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const onReadyRef = useRef(onReady);
     const onWarningRef = useRef(onWarning);
     const onViewChangeRef = useRef(onViewChange);
-    const [progress, setProgress] = useState({ loaded: 0, total: 1 });
     const [startupWork, setStartupWork] = useState<StartupWorkV309 | null>(null);
     const [presentationReady, setPresentationReady] = useState(false);
     const pedestrianPoseEmissionRef = useRef({
@@ -6238,9 +6280,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.startDeferredDetails();
       }
       setSceneLighting(runtime, lightingMode, nightLightsOn);
-      if (currentStartupPresentationStatus(runtime) === "ready") {
-        runtime.reportCoreProgress(1, 1);
-      }
       notifyPresentationReadyWhenPossible(runtime);
     }, [lightingMode, nightLightsOn]);
 
@@ -6754,7 +6793,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return runtime ? triggerPedestrianJump(runtime, higher) : false;
         },
       }),
-      [progress.total],
+      [],
     );
 
     useEffect(() => {
@@ -6768,6 +6807,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         return;
       }
       setPresentationReady(false);
+      setStartupWork(null);
       let disposed = false;
       let frame = 0;
       let resizeObserver: ResizeObserver | null = null;
@@ -7059,31 +7099,26 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         progressiveWorldMessages: [],
         progressiveWorldState: "idle",
         reportStartupWork: (() => {
-          let lastAt = Number.NEGATIVE_INFINITY;
-          let lastPhase: StartupWorkV309["phase"] | undefined;
+          let last: StartupWorkV309 | undefined;
+          let lastPosition = -1;
           return (work: StartupWorkV309) => {
             if (disposed || Boolean(work.native) !== (lightingModeRef.current === "minecraft")) return;
-            const now = performance.now();
-            if (work.phase !== lastPhase || work.completed === work.total || now - lastAt >= 32) {
-              lastAt = now; lastPhase = work.phase;
-              pendingStartupWorkV309 = work;
-              if (startupWorkFrameV309 === null) startupWorkFrameV309 = window.requestAnimationFrame(() => {
-                startupWorkFrameV309 = null;
-                const pending = pendingStartupWorkV309;
-                pendingStartupWorkV309 = null;
-                if (disposed || !pending || Boolean(pending.native) !== (lightingModeRef.current === "minecraft")) return;
-                // scheduler.yield continuations can outrank React's normal
-                // task queue. Commit only the actual latest work at a frame.
-                flushSync(() => setStartupWork(pending));
-              });
-            }
+            const position = startupWorkPositionV309(work);
+            if (work.phase === last?.phase && work.native === last.native && position === lastPosition) return;
+            pendingStartupWorkV309 = work;
+            if (startupWorkFrameV309 !== null) return;
+            startupWorkFrameV309 = window.requestAnimationFrame(() => {
+              startupWorkFrameV309 = null;
+              const pending = pendingStartupWorkV309;
+              pendingStartupWorkV309 = null;
+              if (disposed || !pending || Boolean(pending.native) !== (lightingModeRef.current === "minecraft")) return;
+              last = pending;
+              lastPosition = startupWorkPositionV309(pending);
+              // Commit only a visible change, after a real work checkpoint.
+              flushSync(() => setStartupWork(pending));
+            });
           };
         })(),
-        reportCoreProgress: (loaded, total) => {
-          if (!disposed) {
-            setProgress({ loaded, total });
-          }
-        },
         startDeferredDetails: () => undefined,
         snowstorm,
         renderer,
@@ -9982,11 +10017,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
     }, [sceneUrl]);
 
-    const percentage = Math.min(
-      100,
-      Math.round((progress.loaded / Math.max(1, progress.total)) * 100),
-    );
-    const workPresentation = startupWork ? startupWorkPresentationV309(startupWork, startupLanguage) : null;
+    const workPresentation = startupWork && Boolean(startupWork.native) === (lightingMode === "minecraft")
+      ? startupWorkPresentationV309(startupWork, startupLanguage)
+      : null;
     return (
       <div
         ref={hostRef}
@@ -9995,10 +10028,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       >
         <StartupPresentation
           label={progressLabel}
-          percentage={presentationReady ? 100 : workPresentation?.percentage ?? percentage}
+          percentage={presentationReady ? 100 : workPresentation?.percentage ?? 0}
           detail={workPresentation?.label}
-          counter={workPresentation?.counter}
-          indeterminate={!workPresentation || workPresentation.percentage === undefined}
+          indeterminate={workPresentation?.indeterminate ?? true}
           showBackdrop={!presentationReady}
         />
       </div>

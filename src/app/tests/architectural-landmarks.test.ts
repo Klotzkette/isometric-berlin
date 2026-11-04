@@ -160,7 +160,7 @@ describe("metre-scale architectural recognition models", () => {
     const gateStone = gate!.getObjectByName(
       "Brandenburg Gate Doric column 1:1",
     ) as Mesh;
-    expect(gateStone.material.color.getHex()).toBe(0xe2d6c0);
+    expect(gateStone.material.color.getHex()).toBe(0xc7bba6);
     expect(gateStone.material.userData.nightEmissive).toBe(0xf0c184);
     expect(gateStone.material.userData.nightEmissiveIntensity).toBe(0.72);
     expect(BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.sourceViewCount).toBe(6);
@@ -921,7 +921,7 @@ describe("metre-scale architectural recognition models", () => {
     expect(reichstagStone.material.userData.nightEmissiveIntensity).toBe(0.5);
     expect(reichstagStone.material.opacity).toBe(1);
     expect(reichstagStone.material.transparent).toBe(false);
-    expect(reichstagStone.material.color.getHex()).toBe(0xd8d6cf);
+    expect(reichstagStone.material.color.getHex()).toBe(0xc5beb1);
     expect(
       reichstag!.getObjectByName(
         "Reichstag west tympanum allegorical relief bodies",
@@ -937,7 +937,7 @@ describe("metre-scale architectural recognition models", () => {
     const tympanumField = reichstag!.getObjectByName(
       "Reichstag west triangular tympanum relief field",
     ) as Mesh;
-    expect(tympanumField.material.color.getHex()).toBe(0xadaaa2);
+    expect(tympanumField.material.color.getHex()).toBe(0xa79d8c);
     expect(tympanumField.material.opacity).toBe(1);
     expect(tympanumField.material.transparent).toBe(false);
     expect(tympanumField.geometry.getAttribute("position").count).toBe(6);

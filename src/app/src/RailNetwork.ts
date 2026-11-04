@@ -394,6 +394,7 @@ export function createRailNetwork(
   }
   const replacements=HBF_NORTH_APPROACH_SOURCE.rail_track_replacements as Record<string,number[][][]>;
   for (const [index, original] of payload.embankment_tracks.entries()) {
+   if (!original.length) continue;
    for(const path of replacements[String(index)] ?? [original]){
     addTrack(builder, path, (x, z) => {
       const foot = sample(x, z);

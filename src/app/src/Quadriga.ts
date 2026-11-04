@@ -96,12 +96,8 @@ export type QuadrigaPalette = {
 };
 
 /**
- * The Quadriga is bronze. In daylight it reads as a mid-dark warm metal
- * with green oxidation in the folds — dark enough to stand off the pale
- * sandstone attic, light enough not to become a silhouette. The Iron
- * Cross and the wreath stay inside the bronze family (they are cast in
- * the same metal) but each takes its own tonal step, so the emblem still
- * reads as an emblem at distance instead of dissolving into the staff.
+ * The hammered copper Quadriga has a muted green patina. Give the highlights,
+ * creases and separate emblem enough contrast to read against the sandstone.
  *
  * `QUADRIGA_HISTORIC_CROSS` offers the heraldic black-and-silver reading
  * for anyone who wants the cross to answer its own colours instead; it is
@@ -110,23 +106,23 @@ export type QuadrigaPalette = {
  */
 export const QUADRIGA_PALETTES: Record<QuadrigaMode, QuadrigaPalette> = {
   day: {
-    bronze: 0x9fb9a5,
-    bronzeLit: 0xc2d2c2,
-    bronzeShadow: 0x76927e,
-    patina: 0xabc3ad,
-    harness: 0x688473,
-    hoof: 0x536d5e,
+    bronze: 0x627d6e,
+    bronzeLit: 0x8b9f8f,
+    bronzeShadow: 0x4c6357,
+    patina: 0x779185,
+    harness: 0x546e61,
+    hoof: 0x465b50,
     eye: 0x2f2b25,
-    mane: 0x7d9884,
-    tail: 0x75917c,
-    robe: 0xa8bda9,
-    robeFold: 0x829b87,
-    wingUpper: 0xb3c7b5,
-    wingLower: 0x8aa48f,
-    wreath: 0x9ab38f,
+    mane: 0x597266,
+    tail: 0x50695c,
+    robe: 0x728878,
+    robeFold: 0x536a5d,
+    wingUpper: 0x809687,
+    wingLower: 0x607a6c,
+    wreath: 0x748e77,
     crossIron: 0x534d43,
-    crossRim: 0xb9c5b3,
-    eagle: 0xa8bca9,
+    crossRim: 0x929e8c,
+    eagle: 0x778d7c,
     snow: 0xf2f5f7,
     snowShadow: 0xdbe2e8,
     ink: 0x485c50,

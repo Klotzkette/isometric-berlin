@@ -4,7 +4,7 @@ import {
   type AltMitteCoreV169Source,
 } from "./AltMitteCoreV169";
 import { preloadAltMitteV169NativeNavigation } from "./altMitteV169Profile";
-import type { SurroundingOwnershipOptions } from "./SurroundingCityGeometry";
+import { bndArtCourtOwnershipV314, type BndArtCourtOptionsV314 } from "./bndArtCourtOwnershipV314";
 
 let payload: AltMitteCoreV169Source | undefined;
 let loading: Promise<void> | undefined;
@@ -58,10 +58,10 @@ export function assertAltMitteNativeV169SourceReady(): void {
 
 /** Separate block-native shell payload, with identical full/touch coverage. */
 export function createMinecraftAltMitteCoreV169(
-  options: { mobileLike?: boolean } & SurroundingOwnershipOptions = {},
+  options: { mobileLike?: boolean } & BndArtCourtOptionsV314 = {},
 ) {
-  return createAltMitteCoreV169FromSource(preparedSource(), true, options);
+  return createAltMitteCoreV169FromSource(preparedSource(), true, bndArtCourtOwnershipV314(options));
 }
-export function buildMinecraftAltMitteCoreV169Steps(ownership: SurroundingOwnershipOptions = {}) {
-  return buildCore(preparedSource(), true, ownership);
+export function buildMinecraftAltMitteCoreV169Steps(ownership: BndArtCourtOptionsV314 = {}) {
+  return buildCore(preparedSource(), true, bndArtCourtOwnershipV314(ownership));
 }

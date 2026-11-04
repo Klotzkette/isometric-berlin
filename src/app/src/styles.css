@@ -469,7 +469,7 @@ button:active:not(:disabled) {
   bottom: 174px;
   display: grid;
   width: min(250px, calc(100vw - 36px));
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px 12px;
   padding: 10px 12px;
   border: 1px solid rgba(255, 255, 255, 0.34);
@@ -481,11 +481,8 @@ button:active:not(:disabled) {
   pointer-events: none;
 }
 
-.three-progress strong {
-  font-variant-numeric: tabular-nums;
-}
-
-.three-progress > div {
+.three-progress-track {
+  position: relative;
   height: 4px;
   grid-column: 1 / -1;
   overflow: hidden;
@@ -493,7 +490,7 @@ button:active:not(:disabled) {
   background: rgba(255, 255, 255, 0.16);
 }
 
-.three-progress > div span {
+.three-progress-fill {
   display: block;
   height: 100%;
   background: #ffc45d;
@@ -545,26 +542,28 @@ button:active:not(:disabled) {
   letter-spacing: -0.065em;
 }
 
-.three-progress--startup .three-progress-percentage {
-  color: #7a6950;
-  font-weight: 500;
-}
-
 .three-progress--startup .three-progress-track {
-  height: 3px;
+  height: 4px;
   background: #e5e5d9;
 }
 
-.three-progress--startup .three-progress-track span {
+.three-progress--startup .three-progress-fill {
   background: #b77f41;
 }
 
-.three-progress-track.is-indeterminate {
+.three-progress-remaining {
+  position: absolute;
+  inset: 0 0 0 auto;
   overflow: hidden;
+  transition: left 160ms ease;
 }
 
-.three-progress-track.is-indeterminate span {
+.three-progress-remaining::after {
+  content: "";
+  display: block;
   width: 30%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #b77f4190, transparent);
   animation: startup-work-activity 1.25s ease-in-out infinite;
 }
 
@@ -574,9 +573,13 @@ button:active:not(:disabled) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .three-progress-track.is-indeterminate span {
-    animation: none;
-    transform: translateX(110%);
+  .three-progress-fill,
+  .three-progress-remaining {
+    transition: none;
+  }
+
+  .three-progress-remaining::after {
+    display: none;
   }
 }
 
@@ -587,15 +590,11 @@ button:active:not(:disabled) {
   box-shadow: 0 22px 70px rgba(0, 10, 15, 0.28);
 }
 
-.app-shell--night .three-progress--startup .three-progress-percentage {
-  color: #d7be94;
-}
-
 .app-shell--night .three-progress--startup .three-progress-track {
   background: #3d4c43;
 }
 
-.app-shell--night .three-progress--startup .three-progress-track span {
+.app-shell--night .three-progress--startup .three-progress-fill {
   background: #d7ad6a;
 }
 

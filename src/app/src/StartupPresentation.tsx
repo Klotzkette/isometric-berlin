@@ -3,7 +3,6 @@ type StartupPresentationProps = {
   percentage: number;
   showBackdrop: boolean;
   detail?: string;
-  counter?: string;
   indeterminate?: boolean;
 };
 
@@ -13,7 +12,6 @@ export function StartupPresentation({
   percentage,
   showBackdrop,
   detail,
-  counter,
   indeterminate = false,
 }: StartupPresentationProps) {
   if (!showBackdrop && percentage >= 100) return null;
@@ -25,7 +23,6 @@ export function StartupPresentation({
       ) : null}
       <div
         className={`three-progress${showBackdrop ? " three-progress--startup" : ""}`}
-        role="status"
       >
         {showBackdrop ? (
           <header className="three-startup-brand" aria-hidden="true">
@@ -45,12 +42,16 @@ export function StartupPresentation({
             <strong className="three-startup-title">Berlin</strong>
           </header>
         ) : null}
-        <span className="three-progress-label">{detail ?? label}</span>
-        <strong className="three-progress-percentage" aria-hidden="true">
-          {counter ?? (indeterminate ? "…" : `${percentage}%`)}
-        </strong>
-        <div className={`three-progress-track${indeterminate ? " is-indeterminate" : ""}`} aria-hidden="true">
-          <span style={indeterminate ? undefined : { width: `${percentage}%` }} />
+        <span className="three-progress-label" role="status">{detail ?? label}</span>
+        <div
+          className="three-progress-track"
+          role="progressbar"
+          aria-label={label}
+          aria-valuenow={indeterminate ? undefined : percentage}
+          aria-valuetext={detail ?? label}
+        >
+          <span className="three-progress-fill" style={{ width: `${percentage}%` }} />
+          <span className="three-progress-remaining" style={{ left: `${percentage}%` }} aria-hidden="true" />
         </div>
       </div>
     </>

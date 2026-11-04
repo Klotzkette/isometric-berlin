@@ -141,6 +141,7 @@ import { createFriedrichstrasseArchitecture } from "./FriedrichstrasseArchitectu
 import { ADMIRALSPALAST_IDS, FRIEDRICHSTRASSE_ARCHITECTURE_IDS, FRIEDRICHSTRASSE_ARCHITECTURE_TONES } from "./friedrichstrasseArchitectureProfile";
 import { createEuropacityArchitecture } from "./EuropacityArchitecture";
 import { EUROPACITY_ARCHITECTURE_IDS, EUROPACITY_ARCHITECTURE_TONES } from "./europacityArchitectureProfile";
+import { createDrawnOttoWeidtFountainV314, matchesOttoWeidtBasinV314 } from "./OttoWeidtFountainV314";
 import { createFiftyHertzArchitecture } from "./FiftyHertzArchitecture";
 import { FIFTY_HERTZ_IDS, FIFTY_HERTZ_PRISM_TONES } from "./fiftyHertzProfile";
 import { createBellevueArchitecture } from "./BellevueArchitecture";
@@ -815,7 +816,7 @@ export const CHANCELLERY_CENTRAL_PRISM_IDS: ReadonlySet<string> = new Set([
 
 // Hand-pinned facade tones for hero prisms (payload building ids, last 8
 // chars of the LoD2 id), matching the owner's colour direction: the
-// Reichstag reads as pale grey sandstone (not warm yellow or muddy),
+// Reichstag reads as weathered grey-beige sandstone,
 // the Chancellery as its real light grey/white.
 export const HERO_PRISM_TONES: Record<string, number> = {
   ...Object.fromEntries([...WILHELM_REFINEMENT_PRISM_TONES].map(([id, tones]) => [id, tones[0]])),
@@ -823,7 +824,7 @@ export const HERO_PRISM_TONES: Record<string, number> = {
   ...Object.fromEntries([...CHARITE_LESSER_V261_IDS].map(id => [id, CHARITE_LESSER_V261_TONE])),
   ...Object.fromEntries([...HUMBOLDTHAFEN_BUILDING_IDS].map(id => [id, 0xe7e3d6])),
   ...GROPIUS_BAU_PRISM_TONES,
-  K0002MCN: 0xe0e3df,
+  K0002MCN: 0xc7c1b5,
   MLwG4KW9: 0xeeeeea,
   // Sozialgericht Berlin: warm ochre sandstone body matching the restored
   // Invalidenstrasse facade beneath its dedicated Neo-Renaissance detail.
@@ -997,15 +998,14 @@ export const HERO_PRISM_TONES: Record<string, number> = {
 };
 
 // Pinned roof-plate tones: the Reichstag's huge cap (and its corner
-// towers) read as the real light stone terrace instead of sun-warmed
-// facade brown; the Chancellery roof stays light.
+// towers) distinguish the light stone terrace from the darker roof caps.
 export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
   ...Object.fromEntries([...WILHELM_REFINEMENT_PRISM_TONES].map(([id, tones]) => [id, tones[1]])),
   ...CHARITE_HISTORIC_FACADE_ROOF_TONES,
   ...GROPIUS_BAU_PRISM_ROOF_TONES,
-  K0002MCN: 0xe1e3dc,
-  K0003Ty1: 0xe1e3dc,
-  K0003VDk: 0xe1e3dc,
+  K0002MCN: 0xc1beb4,
+  K0003Ty1: 0x777b70,
+  K0003VDk: 0x777b70,
   MLwG4KW9: 0xeff1ec,
   K00006ot: 0x668574,
   // Pariser Platz 4a: reference-supported patina, with the source cap intact.
@@ -1022,8 +1022,8 @@ export const HERO_PRISM_ROOF_TONES: Record<string, number> = {
   yrDOCds1: 0x729083,
   Vkos5eqV: 0x729083,
   N5S9pjJi: 0x729083,
-  UbQkgNZe: 0xe1e3dc,
-  ycOYQRVL: 0xe1e3dc,
+  UbQkgNZe: 0x777b70,
+  ycOYQRVL: 0x777b70,
   ...Object.fromEntries(
     [...KOLLHOFF_TOWER_PRISM_IDS].map((id) => [id, 0x74483e]),
   ),
@@ -1722,10 +1722,9 @@ function facadeColorFor(
   const panorama = potsdamerPanoramaMaterialFor(building.id);
   if (panorama) return target.setHex(panorama.facade);
   // Keep every official part inside the Reichstag footprint in the same
-  // bright, cool limestone register. Checking the region before individual
-  // pins prevents the large main prism from reverting to the older beige.
+  // muted sandstone register. Keep the authored mouldings a step lighter.
   if (inReichstagRegion(building)) {
-    return target.setHex(0xdfe2df).lerp(IVORY, 0.1);
+    return target.setHex(HERO_PRISM_TONES.K0002MCN);
   }
   const pinned = HERO_PRISM_TONES[building.id];
   if (pinned !== undefined) {
@@ -1820,7 +1819,7 @@ function districtOrdinaryRoofV225(building: PrismBuilding): boolean {
 function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Color {
   const pinnedRoof = potsdamerPanoramaMaterialFor(building.id)?.roof ??
     HERO_PRISM_ROOF_TONES[building.id] ??
-    (inReichstagRegion(building) ? 0xe1e3dc : isScharounGoldPrism(building)
+    (inReichstagRegion(building) ? HERO_PRISM_ROOF_TONES.K0002MCN : isScharounGoldPrism(building)
       ? 0xf6e0a7 : (urbanFacadeScope(building)
         ? urbanMappedRoofTone(buildingAttributes(building.id))
         : mappedRoofTone(buildingAttributes(building.id))));
@@ -10938,12 +10937,14 @@ export function createSmoothSurfaces(
   }
 
   const pondLevels = addNaturalPonds(group, ponds, bankY, terrainAt);
+  const replacedBasins = new Set<SurfacePolygon>();
   const basinLevels = addBasinsAndSunkenWalls(
     group,
     surfaces,
     basins,
     bankY,
     terrainAt,
+    replacedBasins,
   );
   const localLevels = new Map([...pondLevels, ...basinLevels]);
   addStaticWaterRipples(
@@ -10952,6 +10953,7 @@ export function createSmoothSurfaces(
     [...ponds, ...basins],
     localLevels,
     waterTopY,
+    replacedBasins,
   );
   addBeaverEasterEggs(group, ponds, pondLevels);
   return freezeStaticSceneTransforms(group);
@@ -11097,11 +11099,13 @@ function addStaticWaterRipples(
   basins: SurfacePolygon[],
   basinLevels: Map<SurfacePolygon, number>,
   waterTopY: number,
+  replacedBasins: ReadonlySet<SurfacePolygon>,
 ): void {
   const positions: number[] = [];
   const waters = [...rivers, ...basins];
   waters.forEach((surface, surfaceIndex) => {
-    if (surface.area_m2 < 70 || surface.ring.length < 4) {
+    // Keep the original iteration order and therefore every other ribbon.
+    if (replacedBasins.has(surface) || surface.area_m2 < 70 || surface.ring.length < 4) {
       return;
     }
     const [cx, cz] = surfaceCentroidM(surface);
@@ -11488,7 +11492,8 @@ function addBasinsAndSunkenWalls(
   surfaces: SurfacePayload,
   basins: SurfacePolygon[],
   bankY: number,
-  terrainAt?: (x: number, z: number) => number,
+  terrainAt: ((x: number, z: number) => number) | undefined,
+  replacedBasins: Set<SurfacePolygon>,
 ): Map<SurfacePolygon, number> {
   if (basins.length === 0) {
     return new Map();
@@ -11523,6 +11528,11 @@ function addBasinsAndSunkenWalls(
     try {
       shape = shapeFromSurface(basin);
     } catch {
+      continue;
+    }
+    if (matchesOttoWeidtBasinV314(basin)) {
+      group.add(createDrawnOttoWeidtFountainV314(shape, level - 0.10));
+      replacedBasins.add(basin);
       continue;
     }
     const basinCx =

@@ -1,3 +1,5 @@
+import { createDkbLetteringV313 } from "./DkbLetteringV313";
+import { createSapEntranceSignV313 } from "./SapEntranceSignV313";
 import { createPotsdamerStationDrawn } from "./PotsdamerStationDrawn";
 import { createBendlerblockV202 } from "./BendlerblockV202";
 import { appendCharlottenburgerTorV201 } from "./CharlottenburgerTorV201";
@@ -4740,19 +4742,10 @@ function addRooftopSigns(
       group.add(sideSign);
     }
   }
-  const dkb = anchor(byName, "DKB Campus Upbeat");
-  if (dkb) {
-    const profile = EUROPACITY_PROFILE.upbeat;
-    const sign = createLetterSign(
-      "DKB",
-      17,
-      4.6,
-      new Vector3(-636.87, profile.groundY + profile.heightM - 5.8, -1945.96),
-      2.828,
-      "#f2f6f6",
-      "#1479b8",
-    );
-    if (sign) group.add(sign);
+  if (anchor(byName, "DKB Campus Upbeat")) {
+    group.add(createDkbLetteringV313());
+    const sap = createSapEntranceSignV313();
+    if (sap) group.add(sap);
   }
   if (byName.has("Oggi's Gemüsekebab")) {
     const profile = NORTHERN_CITY_PROFILE.funbox;

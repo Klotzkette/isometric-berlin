@@ -64,6 +64,10 @@ import { createMinecraftBerlinWallMemorialV174 } from "./BerlinWallMemorialV174"
 import { berlinWallMemorialV174SourceColumn } from "./berlinWallMemorialV174Profile";
 import { createMinecraftZionskircheV174 } from "./ZionskircheV174";
 import { createMinecraftBndHeadquartersV174 } from "./BndHeadquartersV174";
+import { createBndPublicArtV314 } from "./BndPublicArtV314";
+import { createNativeOttoWeidtFountainV314 } from "./OttoWeidtFountainV314";
+import { createEuropacityRailV313, perlebergerRoadFloorAtV313 } from "./EuropacityRailV313";
+import { createNorthContextV312, northContextSolidAtV312 } from "./NorthContextV312";
 import { createMinecraftWeinbergPlaygroundV174 } from "./WeinbergPlaygroundV174";
 import { buildMinecraftAltMitteCoreV169Steps, assertAltMitteNativeV169SourceReady } from "./AltMitteNativeCoreV169";
 import { altMitteV169SourceColumn } from "./altMitteV169Profile";
@@ -355,6 +359,8 @@ import {
 } from "./TunnelPortals";
 
 export type MinecraftVoxelWorldOptions = {
+  currentSitesV311?: boolean;
+  onBuildProgress?: (completed: number, total: number) => void;
   neighbourhoodV300?: boolean;
   parliamentInteriorsV295?: boolean;
   golgathaV270?: boolean;
@@ -2401,6 +2407,8 @@ export function* buildMinecraftVoxelWorldSteps(
 ): Generator<void, Group> {
   assertAltMitteNativeV169SourceReady();
   group.name = "Minecraft voxel world (LoD2 + OSM + official tree points)";
+  const reportBuildStep = (completed: number) => options.onBuildProgress?.(completed, 6);
+  reportBuildStep(0);
   const mobileDetail = options.detailProfile === "mobile";
   // Complete owners precede the resident native Podewil correction as well.
   const fidelityV288 = prepareRequiredFidelityV288({buildings:options.sourcePrisms ?? []}, payload, true, false, mobileDetail, options.neighbourhoodV300===true);
@@ -2451,6 +2459,7 @@ export function* buildMinecraftVoxelWorldSteps(
   tintSintiRomaNativeWaterV256(groundSlabs);
   cutUbahnGroundSlabsV281(groundSlabs, true);
   group.add(groundSlabs);
+  reportBuildStep(1);
   yield;
   // Own every completed result immediately in the unpublished staged root.
   // Failure or cancellation can dispose it before any later fallible step.
@@ -2542,6 +2551,18 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftBndHeadquartersV174());
   yield;
+  if (options.currentSitesV311) {
+    group.add(createBndPublicArtV314(true));
+    const fountain = createNativeOttoWeidtFountainV314(payload);
+    if (fountain) group.add(fountain);
+    yield;
+    group.add(createEuropacityRailV313(payload, true));
+    group.userData.perlebergerRoadFloorAtV313 = perlebergerRoadFloorAtV313;
+    yield;
+    group.add(createNorthContextV312(true));
+    group.userData.northContextSolidAtV312 = northContextSolidAtV312;
+    yield;
+  }
   group.add(createMinecraftWeinbergPlaygroundV174());
   yield;
   group.add(createMinecraftZionskirchplatzV175());
@@ -2550,7 +2571,8 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftBerlinWallMemorialV174());
   yield;
-  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ neighbourhoodV300:options.neighbourhoodV300===true,westKiezV302:fidelityV288.westKiez, littenStadthausV297:fidelityV288.littenStadthaus, wallGalleryV298:fidelityV288.wallGallery, golgathaV270: options.golgathaV270, tachelesFrontsV270: options.tachelesFrontsV270, northernSitesV266: options.northernSitesV266, chariteBridgesV265: options.chariteBridgesV265, schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true }));
+  group.add(yield* buildMinecraftAltMitteCoreV169Steps({ bndPublicArtV314:options.currentSitesV311, neighbourhoodV300:options.neighbourhoodV300===true,westKiezV302:fidelityV288.westKiez, littenStadthausV297:fidelityV288.littenStadthaus, wallGalleryV298:fidelityV288.wallGallery, golgathaV270: options.golgathaV270, tachelesFrontsV270: options.tachelesFrontsV270, northernSitesV266: options.northernSitesV266, chariteBridgesV265: options.chariteBridgesV265, schlossplatzV239: options.includeLegacySchlossplatzEnvelopes === false, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true }));
+  reportBuildStep(2);
   yield;
 
   group.add(createMinecraftZooGroundsV165());
@@ -2762,6 +2784,7 @@ export function* buildMinecraftVoxelWorldSteps(
     ? createCampusCanopyColumnTesterV266(options.sourcePrisms, cell) : () => false;
   const chariteBridgeColumnAt = options.chariteBridgesV265
     ? createChariteBridgeColumnTesterV265(options.sourcePrisms, cell) : () => false;
+  reportBuildStep(3);
   const visibleBuildingColumns: VoxelBuildingColumn[] = [];
   const parliamentOriginalColumnsV295 = new Map<string,VoxelBuildingColumn>();
   const diningColumnCutsV296=createDiningColumnOpeningsV296((options.sourcePrisms??[]) as readonly DiningPrismV296[],cell,fidelityV288.parliamentaryDining);
@@ -2972,8 +2995,12 @@ export function* buildMinecraftVoxelWorldSteps(
   };
   const facadePaint = new Color();
   const layerPaint = new Color();
+  reportBuildStep(4);
   for (let i = 0; i < visibleBuildingColumns.length; i += 1) {
-    if (i % 1024 === 0) yield;
+    if (i % 1024 === 0) {
+      reportBuildStep(4 + i / visibleBuildingColumns.length);
+      yield;
+    }
     const [xIdx, zIdx, y0dm, y1dm, classId] = visibleBuildingColumns[i];
     const className = payload.classes[classId] ?? "concrete";
     const shades = CLASS_SHADES[className] ?? FALLBACK_SHADES;
@@ -3205,6 +3232,7 @@ export function* buildMinecraftVoxelWorldSteps(
     }
   }
 
+  reportBuildStep(5);
   const visibleTrees: VoxelTreeBlock[] = [];
   let lenneOakVoxel: VoxelTreeBlock | null = null;
   let sourceTreeCount = 0;
@@ -3364,5 +3392,6 @@ export function* buildMinecraftVoxelWorldSteps(
   }
   // Only the world container is fixed: descendants retain flag/sign motion.
   // Its former per-frame identity update also invalidated every frozen model.
+  reportBuildStep(6);
   return freezeStaticSceneTransform(group);
 }

@@ -2398,3 +2398,15 @@ resolution, geometry, visible distance, shadows or existing quality. Root owns
 shared integration, progress/performance work, immutable history capture and
 publication. Region agents edit isolated versioned modules. Use one internal
 full-city browser at a time, and no photographic pixels or new coverage.
+
+### Step 10 — v311–v314 loading, landmarks and northern Mitte
+
+The owner requests a single loading bar without work counters, photo-guided
+material colours for the Reichstag, Chancellery and Brandenburg Gate, and
+bounded refinement around Helmholtzplatz, Danziger Straße, Nordbahnhof, the BND
+and Otto-Weidt-Platz. In Europacity, distinguish the measured rail levels and
+Perleberger Brücke approaches. Display the DKB or SAP signs only where an
+external reference establishes the sign and its location. Retain source
+building sheets, rail courses outside the exact corrected owners, all earlier
+details and the existing touch, native, residency and release limits. Keep
+references outside the rendered assets. Keep the real startup readiness gate.

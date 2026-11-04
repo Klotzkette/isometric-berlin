@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.197 — 2026-11-04
+
+- Show a single loading bar with a plain-language stage label. Schedule updates only when the bar or label changes and retain the first-view readiness gate.
+- Refine the sandstone, concrete, glass and patinated copper of the Reichstag, Federal Chancellery and Brandenburg Gate. [Materials and references](docs/government-materials-v311.md)
+- Detail the surviving Stettiner Vorortbahnhof, a measured section of the raised park edge, the Stettiner Carrée, MYJUMP, the Danziger Straße school and the mapped tables at Helmholtzplatz. [North context and sources](docs/north-context-v312.md)
+- Separate the S-Bahn and mainline levels at the Europacity junction. Model the Perleberger Brücke approaches and place the evidenced DKB and SAP signs.
+- Add the BND palms and weathering-steel artwork and model the Otto-Weidt-Platz fountain as a low granite water stone with jets.
+
 ## 1.0.196 — 2026-11-03
 
 - Refine the actual Lessing-Gymnasium in Wedding, Thälmannpark housing and memorial, and measured park relief at Humboldthain and Volkspark Friedrichshain. Preserve the existing flak tower and planetarium source models.

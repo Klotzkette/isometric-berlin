@@ -17,6 +17,33 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Regierungsviertel material study (v1.0.197):** The Bundestag building
+  history and the owner's v285 Reichstag photograph guide the sandstone.
+  Federal Government architecture photographs (Stefan Müller and
+  Bundesregierung/Krünkelfeld) and the owner's v287 views guide the Chancellery.
+  Steinhof Restaurierung and the Landesdenkmalamt Berlin document the gate.
+  The visual references remain external and the material values are illustrative.
+  [Individual references](docs/government-materials-v311.md)
+
+- **Nordbahnhof, Helmholtzplatz and Danziger Straße (v1.0.197):** Retained
+  LoD2 and DGM1 from Geoportal Berlin (dl-de/zero-2-0) and OpenStreetMap
+  (ODbL-1.0) anchor the local refinements. The Landesdenkmalamt, Bezirksämter
+  Mitte and Pankow, WICONA and MYJUMP supply external architectural and place
+  references. [Site-specific credits and fit](docs/north-context-v312.md)
+
+- **Europacity rail and signage (v1.0.197):** Retained OpenStreetMap
+  (ODbL-1.0), Geoportal Berlin DGM and bDOM (dl-de/zero-2-0) and Berlin's
+  bridge register anchor the crossing. DKB's campus photograph and the SAP
+  entrance contractor Atanassow document the modelled signs. Placement and
+  small fittings use the estimates recorded with the source data.
+  [Rail and sign references](docs/europacity-rail-v313.md)
+
+- **BND art and Otto-Weidt-Platz (v1.0.197):** The federal art inventory
+  documents Ulrich Brüschke’s *0° Breite* and Stefan Sous’s untitled Corten work.
+  Berlin's orthophoto and surface model (dl-de/zero-2-0) anchor the open courts.
+  The Berlin Senate and retained OpenStreetMap (ODbL-1.0) document the granite
+  fountain and its location. [Art, fountain and site references](docs/public-art-v314.md)
+
 - **Charité and Scheunenviertel (v1.0.165):** Berlin LoD2 (dl-de/zero-2-0)
   and retained OpenStreetMap (ODbL-1.0) anchor complete source geometry and
   mapped entrances. Museum references: Rustler Schriever Architekten /
