@@ -3609,6 +3609,94 @@
       "role": "Pale platform/edge strips, round columns with flared capitals and blue-grey glass annuli, panel ceiling, linear lights, blue track signs and escalators. Page updated2024-07-03; photograph date not stated Display fittings are estimates; no photographic pixels bundled.",
       "checked": "2026-11-01",
       "pixels_bundled": false
+    },
+    {
+      "id": "reichstag-section-v318",
+      "landmark_id": "reichstag",
+      "title": "Public architecture and longitudinal section",
+      "page_url": "https://www.bundestag.de/besuche/architektur/reichstag/architektur/",
+      "credit": "Deutscher Bundestag; reference photographs DBT/Erfurt, Huthmacher, Simone M. Neumann and Jörg F. Müller",
+      "license": "Reference-only, copyright retained by publisher and photographer; no redistribution licence asserted",
+      "role": "Public room/level identities, foyer and plenary fittings; unsurveyed coordinates and small dimensions are display estimates.",
+      "checked": "2026-11-05",
+      "pixels_bundled": false
+    },
+    {
+      "id": "linden-context-v315",
+      "landmark_id": "linden-corridor",
+      "title": "Komische Oper functional building",
+      "page_url": "https://www.komische-oper-berlin.de/entdecken/sanierung/vermietung-funktionsgebaeude/",
+      "credit": "Komische Oper Berlin",
+      "license": "Reference-only, copyright retained by publisher and photographer; no redistribution licence asserted",
+      "role": "1966 framed facade and open-cell screen at Unter den Linden41; reference-only north elevation.",
+      "checked": "2026-11-05",
+      "pixels_bundled": false
+    },
+    {
+      "id": "hackesches-context-v315",
+      "landmark_id": "hackescher-markt",
+      "title": "Hackesches Quartier",
+      "page_url": "https://gruentuchernst.de/projekte/p207/",
+      "credit": "Grüntuch Ernst; Stefan Müller, Markus Löffelhardt, euroluftbild.de/Grahn",
+      "license": "Reference-only, copyright retained by publisher and photographer; no redistribution licence asserted",
+      "role": "Rounded exterior, diagonal structure and floor rhythm; complete measured source retained.",
+      "checked": "2026-11-05",
+      "pixels_bundled": false
+    },
+    {
+      "id": "museum-garden-v316",
+      "landmark_id": "computerspielemuseum",
+      "title": "Museum facade and display",
+      "page_url": "https://www.computerspielemuseum.de/mediabase/img/1119.jpg",
+      "credit": "Computerspielemuseum; entrance context FKU Berlin",
+      "license": "Reference-only, copyright retained by publisher and photographer; no redistribution licence asserted",
+      "role": "White raised letters, entrance grille and pixel window. Original static procedural display does not copy source pixels.",
+      "checked": "2026-11-05",
+      "pixels_bundled": false
+    },
+    {
+      "id": "james-june-v316",
+      "landmark_id": "james-june",
+      "title": "Summer garden in2026",
+      "page_url": "https://www.jamesjune.de/galerie/",
+      "credit": "James June; reference photo Toni Boening",
+      "license": "Reference-only, copyright retained by publisher and photographer; no redistribution licence asserted",
+      "role": "Summer seating, parasols and lamps. Winter closure after7October2026; model is summer appearance.",
+      "checked": "2026-11-05",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ringbrunnen-v316",
+      "landmark_id": "strausberger-platz",
+      "title": "Schwebender Ring during restoration",
+      "page_url": "https://www.berlin.de/sen/stadtentwicklung/quartiersentwicklung/staedtebaufoerderung/nachhaltige-erneuerung/aktuell/artikel.1453454.php",
+      "credit": "Berlin Senate; Fritz-Kühn-Gesellschaft; Bildhauerei in Berlin",
+      "license": "Reference-only, copyright retained by publisher and photographer; no redistribution licence asserted",
+      "role": "Intact normal-operation illustration retained during restoration; documented copper panels, plumbing and nozzles. Does not claim current installation or pump operation.",
+      "checked": "2026-11-05",
+      "pixels_bundled": false
+    },
+    {
+      "id": "dom-east-housing-v318",
+      "landmark_id": "dom-east-housing-v318",
+      "title": "dom-east-housing-v318",
+      "page_url": "https://ngbk.de/de/besuch/ngbk-alexanderplatz",
+      "credit": "nGbK / Thomas Bruns (December2023); Henselmann-Stiftung (Henselmann1/2017,p8)",
+      "license": "Reference-only, copyright retained by publisher and photographer; no redistribution licence asserted",
+      "role": "Retained99source sheets and two long exterior wall planes; loggia and glazing subdivisions are display estimates. Exact primary page URLs in docs/dom-east-housing-v318.md.",
+      "checked": "2026-11-05",
+      "pixels_bundled": false
+    },
+    {
+      "id": "treptow-waterfront-v317",
+      "landmark_id": "treptow-waterfront-v317",
+      "title": "treptow-waterfront-v317",
+      "page_url": "https://www.arena.berlin/veranstaltungsort/badeschiff/",
+      "credit": "Arena Berlin; reference photo Markus Nass; AMP Arquitectos, Gilbert Wilk and Susanne Lorenz. Treptowers references Priedemann and IGP.",
+      "license": "Reference-only, copyright retained by publisher and photographer; no redistribution licence asserted",
+      "role": "Complete481official source sheets, current venue identity and procedural pool/deck. Historical Allianz image does not assert current branding. Small fittings/datum alignment are estimates.",
+      "checked": "2026-11-05",
+      "pixels_bundled": false
     }
   ]
 }

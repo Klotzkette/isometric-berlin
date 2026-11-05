@@ -1,4 +1,4 @@
-import{$ as e,Bt as t,D as n,I as r,Q as i,Rt as a,St as o,_ as s,et as c,f as l,j as u,mt as d,nt as f,u as p,y as m,zt as h}from"./three-engine-BfgqnBwf.js";import{n as g}from"./staticSceneTransforms-lrUlPhzI.js";import{n as _,r as v,t as y}from"./fernsehturmDetailProfile-CD4bbo6B.js";import{n as b}from"./materialGrade-BNftH6ML.js";var x=`
+import{$ as e,Bt as t,D as n,I as r,Q as i,Rt as a,St as o,_ as s,et as c,f as l,j as u,mt as d,nt as f,u as p,y as m,zt as h}from"./three-engine-BfgqnBwf.js";import{n as g}from"./staticSceneTransforms-lrUlPhzI.js";import{n as _,r as v,t as y}from"./fernsehturmDetailProfile-CD4bbo6B.js";import{n as b}from"./materialGrade-xpatTHJl.js";var x=`
   #ifdef USE_FOG
     #ifdef FOG_EXP2
       float towerFog = 1. - exp(-fogDensity * fogDensity * vFogDepth * vFogDepth);
