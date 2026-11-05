@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.198 — 2026-11-05
+
+- Open a reversible longitudinal Reichstag section by click or tap, showing source-clipped levels and the existing plenary chamber. Refine the president’s dais, government/Bundesrat desks, lectern, foyer and lift details; retain normal entry and complete dome routes.
+- Add short grass to the retained Platz der Republik lawn, keeping all source terrain and path geometry.
+- Refine the Komische Oper functional facade, rounded Hackesches Quartier, Karl-Liebknecht-Straße 9–11/13 housing and Mohrenstraße 67–69 with complete retained source buildings.
+- Model the Computerspielemuseum entrance and display, James June summer garden and extra Schwebender Ring fittings; document the fountain’s present restoration separately from the normal-operation illustration.
+- Replace exactly admitted combined-height Treptowers and Arena proxies with all complete measured leaves and roofs; refine the Badeschiff, keeping original source evidence, outside complements and matched navigation.
+- Preserve all six views, full drawn mobile detail, 93 stops and existing runtime and package ceilings.
+
 ## 1.0.197 — 2026-11-04
 
 - Show a single loading bar with a plain-language stage label. Schedule updates only when the bar or label changes and retain the first-view readiness gate.

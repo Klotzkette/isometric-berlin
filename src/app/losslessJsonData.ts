@@ -10,6 +10,7 @@ import { createLosslessZopfliPreparation, type LosslessZopfliField } from "./los
 import { LOSSLESS_ZOPFLI_FIELDS_V274 } from "./losslessZopfliFieldsV274";
 import { transformNeighbourhoodPlansV300 } from "./losslessNeighbourhoodPlansV300";
 import { LOSSLESS_NORTHERN_EAGER_FIELDS_V309 } from "./losslessNorthernSourcesV309";
+import { LOSSLESS_EAGER_FIELDS_V318 } from "./losslessEagerFieldsV318";
 
 export const LOSSLESS_JSON_FIELD_BYTES = 64 * 1024;
 
@@ -62,6 +63,7 @@ const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
  * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
   "bndArtCourtsV314.json": ["packets"],
+  "treptowWaterfrontV317Core.json": ["models", "facades"],
   "northSitesV306.json": ["sites"],
   "railTerrainContactV307.json": ["meshes"],
   "railTerrainContactApproachV309.json": ["meshes"],
@@ -413,7 +415,8 @@ export function transformLosslessJsonData(
   const eagerV274 = LOSSLESS_EAGER_FIELDS_V274[sourcePath] ?? [];
   const eagerV282 = LOSSLESS_EAGER_FIELDS_V282[sourcePath] ?? [];
   const eagerV309 = LOSSLESS_NORTHERN_EAGER_FIELDS_V309[sourcePath] ?? [];
-  const eagerFields = [...(eagerV282.length ? eagerV282 : eagerV274.length ? eagerV274 : LOSSLESS_EAGER_FIELDS_V270[sourcePath] ?? []), ...eagerV309];
+  const eagerV318 = LOSSLESS_EAGER_FIELDS_V318[sourcePath] ?? [];
+  const eagerFields = [...(eagerV282.length ? eagerV282 : eagerV274.length ? eagerV274 : LOSSLESS_EAGER_FIELDS_V270[sourcePath] ?? []), ...eagerV309, ...eagerV318];
   if ((!DATA_JSON.test(normalizedId) && !eagerRetainedSource && !eagerFields.length) ||
       (!eagerRetainedSource && !eagerFields.length && source.length < thresholdBytes)) {
     return undefined;
@@ -496,7 +499,7 @@ export function transformLosslessJsonData(
     // ordinary object and navigation identity remains eager and unchanged.
     const constructionObject = weakFields.includes(key) && value !== null && typeof value === "object";
     const packedString = typeof value === "string" && packedStrings.includes(key);
-    if (DATA_JSON.test(normalizedId) && !packedPacket && !eagerV274.includes(key) && !eagerV282.includes(key) && !eagerV309.includes(key) && (!packedFields.includes(key) || packedString) && (Array.isArray(value) || constructionObject || packedString) && json.length >= thresholdBytes) {
+    if (DATA_JSON.test(normalizedId) && !packedPacket && !eagerV274.includes(key) && !eagerV282.includes(key) && !eagerV309.includes(key) && !eagerV318.includes(key) && (!packedFields.includes(key) || packedString) && (Array.isArray(value) || constructionObject || packedString) && json.length >= thresholdBytes) {
       lazyFields += 1;
       const cache = `__cache${index}`;
       const loaded = `__loaded${index}`;

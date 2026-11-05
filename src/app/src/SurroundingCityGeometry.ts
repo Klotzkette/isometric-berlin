@@ -299,9 +299,10 @@ export type SurroundingOwnershipOptions = {
   stralauSisyphosV299?: boolean;
   neighbourhoodV300?: boolean;
   sourceQuartersV303?: boolean;
-  sourceQuarterSourcesV303?: readonly {source:SourceQuarterSourceV303;kind:string;requiredReplacement?:boolean;admission?:"north-v309"}[];
+  sourceQuarterSourcesV303?: readonly {source:SourceQuarterSourceV303;kind:string;requiredReplacement?:boolean;admission?:"north-v309"|"treptow-v317"}[];
   neukoellnLandmarksV305?: boolean;
   northFidelityV309?: boolean;
+  treptowWaterfrontV317?: boolean;
   westKiezV302?: boolean;
 };
 
@@ -369,7 +370,9 @@ export function* buildSurroundingCityChunk(
   }
   const quarterTicketsV303:SourceQuarterTicketV303[]=[];
   if(ownership.sourceQuartersV303===true)for(const entry of ownership.sourceQuarterSourcesV303??[]){
-    if(entry.admission==="north-v309"?ownership.northFidelityV309!==true:entry.requiredReplacement&&ownership.neukoellnLandmarksV305!==true)continue;
+    if(entry.admission==="north-v309"?ownership.northFidelityV309!==true:
+      entry.admission==="treptow-v317"?ownership.treptowWaterfrontV317!==true:
+      entry.requiredReplacement&&ownership.neukoellnLandmarksV305!==true)continue;
     if(!neighbourhoodPacketCandidateV300(entry.source as unknown as NeighbourhoodSourceV300,id,minecraft))continue;
     const plan=entry.source.packets[`${minecraft?"minecraft":"drawn"}:${id}`];
     const ticket=plan?.preparedRecords

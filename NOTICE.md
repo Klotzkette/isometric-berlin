@@ -2851,3 +2851,29 @@ measured geometry and small display estimates are in the
 [hospital reference ledger](geo_data/regierungsviertel/hospitals-v308-reference-evidence.json).
 No photographic pixels, downloaded reference images, plans or textures are
 distributed. Earlier source records and original models remain retained.
+
+## Reichstag section and named central/eastern sites (v1.0.198)
+
+The public Reichstag interpretation uses the Deutscher Bundestag's architectural,
+visitor and seating documentation. Reference photographs are credited by the
+Bundestag to DBT/Erfurt, DBT/Huthmacher, DBT/Simone M. Neumann and DBT/Jörg F.
+Müller. Original Geoportal Berlin LoD2 source plans retain all six courtyards;
+© OpenStreetMap contributors supplies the exact existing lawn/path context.
+No photograph, plan page or image texture is distributed. Level heights, room
+subdivisions and small furniture are display estimates. See
+[section, materials and lawn](docs/reichstag-section-v318.md).
+
+The separate [Linden/Hackescher/Mohren references](docs/linden-east-context-v315.md),
+[Computerspielemuseum, garden and fountain references](docs/karl-marx-places-v316.md)
+and [Treptowers/Arena/Badeschiff references](docs/treptow-waterfront-v317.md)
+record the individual publishers, architectural identities, retained measured
+sources and display estimates. Photographs remain external references, with
+copyright held by their credited owners. No image pixels are redistributed.
+
+DDR housing east of the Dom uses the Henselmann-Stiftung architectural account
+and nGbK exterior photograph by Thomas Bruns, December2023; see
+[complete measured owner and references](docs/dom-east-housing-v318.md).
+Treptowers references include Priedemann and IGP. Arena Berlin supplies Arena
+Halle and Badeschiff images, including Markus Nass; designers AMP Arquitectos,
+Gilbert Wilk and Susanne Lorenz are credited for Badeschiff. All remain external
+visual references; no image pixels or unverified current Allianz sign are bundled.

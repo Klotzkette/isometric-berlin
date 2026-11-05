@@ -35,6 +35,10 @@ import { botanicalV230GroundAt, botanicalV230FloorAt, botanicalV230WaterAt, bota
 import { westIndustrialV230TerrainAt, westIndustrialV230GroundAt, westIndustrialV230SolidAt } from "./westIndustrialV230Navigation";
 import { createViewerContextRecovery } from "./viewerContextRecovery";
 import { createPergamonReveal, type PergamonReveal } from "./PergamonReveal";
+import { createReichstagSectionV318, type ReichstagSectionV318 } from "./ReichstagSectionV318";
+import { createReichstagSectionRoomsV318 } from "./ReichstagRoomsV318";
+import { createReichstagLawnV318 } from "./ReichstagLawnV318";
+import { parliamentWorldPointV295 } from "./parliamentInteriorsV295Profile";
 import { PergamonRevealGesture } from "./pergamonRevealGesture";
 import { createColumbiahalleV257, type ColumbiahalleV257 } from "./ColumbiahalleV257";
 import { bendlerblockV202PassageAt, bendlerblockV202GroundAt } from "./bendlerblockV202Profile";
@@ -688,6 +692,8 @@ type ThreeViewerProps = {
   initialWalkingStart?: boolean;
   initialFlightStart?: boolean;
   initialFlightView?: StartupFlightView | null;
+  reichstagSectionOpen?: boolean;
+  onReichstagSectionChange?: (open: boolean) => void;
   pergamonRevealed?: boolean;
   onPergamonRevealChange?: (revealed: boolean) => void;
   onConcertInteriorChange?: (entered: boolean, restoreAudio?: boolean) => void;
@@ -746,6 +752,7 @@ type ProgressiveWorldQueuedMessage = {
 };
 
 type Runtime = {
+  reichstagSectionV318?: ReichstagSectionV318;
   pergamonReveal?: PergamonReveal;
   columbiahalleV257?: ColumbiahalleV257;
   camera: PerspectiveCamera;
@@ -1509,6 +1516,7 @@ function schwellenraumWaterRoots(runtime: Runtime): Object3D[] {
 
 function setEnvironmentalPresentation(runtime: Runtime): void {
   runtime.pergamonReveal?.sync();
+  runtime.reichstagSectionV318?.sync();
   const obstructed =
     runtime.underside ||
     runtime.underwater ||
@@ -1807,6 +1815,7 @@ function startSurroundingCity(runtime: Runtime): void {
       onError:error=>{if(!runtime.disposed&&!(error instanceof DOMException&&error.name==="AbortError"))console.warn("Northern Berlin details:",error);},
     }),
     northFidelityV309:native=>runtime.northernV309?.current(native)?.complete()===true,
+    treptowWaterfrontV317:native=>(native?runtime.voxelWorld:runtime.isoWorld)?.userData.hasTreptowWaterfrontV317?.()===true,
     neukoellnLandmarksV305:native=>(native?runtime.voxelWorld:runtime.isoWorld)?.userData.hasNeukoellnLandmarksV305?.()===true,
     onQuarterResidentsV303:keys=>{runtime.sourceQuarterKeysV303=keys;if(runtime.outerThinOutlines)syncQuarterLegacyFittingsV303(runtime.outerThinOutlines,keys,legacyQuartersV304.records as QuarterLegacyReceiptV303[]);},
     westKiezV302: native=>(native?runtime.voxelWorld:runtime.isoWorld)?.userData.westKiezV302===true,
@@ -3900,7 +3909,7 @@ function prepareIsoNavigation(
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { neukoellnLandmarksV305: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasNeukoellnLandmarksV305?.()===true, moabitMitteV300: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.moabitMitteV300 === true, westKiezV302: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.westKiezV302 === true, chancelleryCanopySourceV289: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.chancelleryCanopySourceV289 === true, klosterruineV288: () => runtime.outerThinOutlines?.userData.hasKlosterruineV288?.(publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime))) === true, historicDomV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.historicDomV288 === true, potsdamerCorridorV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerCorridorV288 === true, requiredSitesV281: true, potsdamerStationPhoto: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerStationPhoto === true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { treptowWaterfrontV317: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasTreptowWaterfrontV317?.()===true, neukoellnLandmarksV305: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasNeukoellnLandmarksV305?.()===true, moabitMitteV300: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.moabitMitteV300 === true, westKiezV302: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.westKiezV302 === true, chancelleryCanopySourceV289: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.chancelleryCanopySourceV289 === true, klosterruineV288: () => runtime.outerThinOutlines?.userData.hasKlosterruineV288?.(publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime))) === true, historicDomV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.historicDomV288 === true, potsdamerCorridorV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerCorridorV288 === true, requiredSitesV281: true, potsdamerStationPhoto: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerStationPhoto === true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   // Compile the future owners now, but keep their authored solids/floors
   // inactive until the required models finish in the same unpublished transaction.
@@ -3947,6 +3956,7 @@ function prepareIsoNavigation(
       schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
   pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
     if (northContextSolid(runtime, x, y, z, radius)) return true;
+    if ((voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.karlMarxPlacesSolidAtV316?.(x,y,z,radius,voxelModeActive(runtime))) return true;
     if (parliamentWorldReadyV295(runtime) && parliamentSolidAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,y,z,0)) return true;
     if (eastCinemasSolidAtV260(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (coreSpreeBridges.solidAt(x, y, z, radius)) return true;
@@ -4213,6 +4223,10 @@ function ensureIsoWorld(
   const kulturforumMuseumDetails = import("./KulturforumMuseums");
   const northRailDetails = import("./HbfNorthApproach");
   const northContextDetails = import("./NorthContextV312");
+  const lindenContextV315Details = import("./LindenEastContextV315");
+  const karlMarxV316Details = import("./KarlMarxPlacesV316");
+  const treptowV317Details = import("./TreptowWaterfrontV317");
+  const domEastHousingV318Details = import("./DomEastHousingV318");
   const europacityRailDetails = import("./EuropacityRailV313");
   const breitscheidDetails = import("./BreitscheidTowers");
   const westSquaresDetails = import("./WestSquaresV163");
@@ -4264,11 +4278,11 @@ function ensureIsoWorld(
     concertDetails,
     kulturforumMuseumDetails,
     northRailDetails,
-    northContextDetails, europacityRailDetails,
+    northContextDetails, lindenContextV315Details, karlMarxV316Details, treptowV317Details, domEastHousingV318Details, europacityRailDetails,
     breitscheidDetails, westSquaresDetails, eastSquaresDetails, hackescherDetails,
     cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details, neueSynagogeV167Details, tachelesV167Details, monbijouBathV167Details, humboldtMainV168Details, teehausRuinV168Details, tuWaterV168Details, altMitteCoreV169Details, bndV174Details, weinbergV174Details, zionV174Details, wallV174Details, zionFrontagesV175Details, northCorridorDetails, requiredSites, potsdamerStationPhoto,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, northContext, europacityRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208, sitesV209, stationPhoto]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, northContext, lindenContextV315, karlMarxV316, treptowV317, domEastHousingV318, europacityRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208, sitesV209, stationPhoto]) => {
       if (runtime.disposed) {
         return;
       }
@@ -4503,9 +4517,21 @@ function ensureIsoWorld(
         isoWorld.add(tuWaterV168.createTuWaterV168());
         yield;
         isoWorld.add(bndV174.createBndHeadquartersV174(), createBndPublicArtV314());
+        if (ground) isoWorld.add(createReichstagLawnV318(worldGroundSampler(ground)));
         yield;
         isoWorld.add(northContext.createNorthContextV312());
         isoWorld.userData.northContextSolidAtV312 = northContext.northContextSolidAtV312;
+        yield;
+        const treptowModelV317 = treptowV317.createTreptowWaterfrontV317();
+        isoWorld.add(treptowModelV317);
+        isoWorld.userData.hasTreptowWaterfrontV317 = () => treptowModelV317.parent === isoWorld && treptowV317.hasCompleteTreptowWaterfrontV317(treptowModelV317, false);
+        yield;
+        isoWorld.add(lindenContextV315.createLindenEastContextV315());
+        yield;
+        isoWorld.add(domEastHousingV318.createDomEastHousingV318());
+        yield;
+        isoWorld.add(karlMarxV316.createKarlMarxPlacesV316());
+        isoWorld.userData.karlMarxPlacesSolidAtV316 = karlMarxV316.karlMarxPlacesSolidAtV316;
         yield;
         isoWorld.add(weinbergV174.createWeinbergPlaygroundV174());
         yield;
@@ -4949,7 +4975,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { neukoellnLandmarksV305: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasNeukoellnLandmarksV305?.()===true, moabitMitteV300: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.moabitMitteV300 === true, westKiezV302: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.westKiezV302 === true, chancelleryCanopySourceV289: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.chancelleryCanopySourceV289 === true, klosterruineV288: () => runtime.outerThinOutlines?.userData.hasKlosterruineV288?.(publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime))) === true, historicDomV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.historicDomV288 === true, potsdamerCorridorV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerCorridorV288 === true, requiredSitesV281: true, potsdamerStationPhoto: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerStationPhoto === true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { treptowWaterfrontV317: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasTreptowWaterfrontV317?.()===true, neukoellnLandmarksV305: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasNeukoellnLandmarksV305?.()===true, moabitMitteV300: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.moabitMitteV300 === true, westKiezV302: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.westKiezV302 === true, chancelleryCanopySourceV289: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.chancelleryCanopySourceV289 === true, klosterruineV288: () => runtime.outerThinOutlines?.userData.hasKlosterruineV288?.(publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime))) === true, historicDomV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.historicDomV288 === true, potsdamerCorridorV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerCorridorV288 === true, requiredSitesV281: true, potsdamerStationPhoto: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerStationPhoto === true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   environment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
@@ -4973,6 +4999,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId, parliamentWorldReadyV295(runtime));
   environment.interiorSolidAt = (x, y, z, radius) => {
     if (northContextSolid(runtime, x, y, z, radius)) return true;
+    if ((voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.karlMarxPlacesSolidAtV316?.(x,y,z,radius,voxelModeActive(runtime))) return true;
     if (parliamentWorldReadyV295(runtime) && parliamentSolidAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,y,z,0)) return true;
     if (eastCinemasSolidAtV260(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (coreSpreeBridges.solidAt(x, y, z, radius)) return true;
@@ -6093,6 +6120,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       initialWalkingStart = false,
       initialFlightStart = false,
       initialFlightView = null,
+      reichstagSectionOpen = false,
+      onReichstagSectionChange,
       pergamonRevealed = false,
       onPergamonRevealChange,
       onConcertInteriorChange,
@@ -6137,6 +6166,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const onReadyRef = useRef(onReady);
     const onWarningRef = useRef(onWarning);
     const onViewChangeRef = useRef(onViewChange);
+    const [sectionOpenV318, setSectionOpenV318] = useState(reichstagSectionOpen);
     const [startupWork, setStartupWork] = useState<StartupWorkV309 | null>(null);
     const [presentationReady, setPresentationReady] = useState(false);
     const pedestrianPoseEmissionRef = useRef({
@@ -6228,6 +6258,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       orbitInputRef.current.set(0, 0);
       pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
       if (pedestrianMode) {
+        runtime.reichstagSectionV318?.setOpen(false);
         runtime.ensurePedestrianWater();
         activatePedestrianMode(runtime);
       } else {
@@ -7172,6 +7203,30 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           onWarningRef.current("Pergamon altar could not be opened. Please try again.");
         },
       });
+      runtime.reichstagSectionV318 = createReichstagSectionV318({
+        scene, camera, canvas: renderer.domElement, renderer,
+        initiallyOpen: reichstagSectionOpen,
+        ready: () => parliamentWorldReadyV295(runtime),
+        native: () => voxelModeActive(runtime),
+        presentRooms: root => applyLightingToRoot(root, runtime.lightingMode, runtime.nightLightsOn),
+        createRooms: native => {
+          const rooms = createReichstagSectionRoomsV318(native);
+          markAuthoredFlatUnlit(rooms);
+          applyLightingToRoot(rooms, runtime.lightingMode, runtime.nightLightsOn);
+          runtime.gpuResidency?.enqueue(rooms); runtime.geometryResidency?.enqueue(rooms);
+          return rooms;
+        },
+        disposeObject: root => disposeObject3D(runtime, root),
+        onChange: open => {
+          setSectionOpenV318(open); onReichstagSectionChange?.(open);
+          if (open && !runtime.pedestrian.enabled) {
+            camera.position.set(...parliamentWorldPointV295("reichstag", [-140, 62, 60]));
+            controls.target.set(...parliamentWorldPointV295("reichstag", [0, 17, 25]));
+            camera.fov = 40; camera.updateProjectionMatrix(); controls.update();
+          }
+        },
+        invalidate: () => { setEnvironmentalPresentation(runtime); invalidateScenePresentation(runtime); },
+      });
       const pergamonGesture = new PergamonRevealGesture();
       // Every device retires only unused offscreen GPU copies. The identical
       // CPU arrays remain available for the next draw; visible detail is never
@@ -7727,7 +7782,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         lastPedestrianTap = null;
         if (event.pointerType === "touch" && touchPoints.size === 0 &&
-            !runtime.pergamonReveal?.hit(event.clientX, event.clientY)) {
+            !runtime.pergamonReveal?.hit(event.clientX, event.clientY) && !runtime.reichstagSectionV318?.hit(event.clientX, event.clientY)) {
           const now = performance.now();
           if (
             now - lastViewerTapAt < 340 &&
@@ -7986,7 +8041,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const onPointerUp = (event: PointerEvent) => {
         const museumTap = event.type !== "pointercancel" &&
           pergamonGesture.up(event.pointerId, event.clientX, event.clientY, performance.now()) &&
-          runtime.pergamonReveal?.tap(event.clientX, event.clientY);
+          (runtime.pergamonReveal?.tap(event.clientX, event.clientY) || runtime.reichstagSectionV318?.tap(event.clientX, event.clientY));
         if (museumTap) lastPedestrianTap = null;
         if (pedestrianLookPointer?.id === event.pointerId) {
           const finishedPointer = pedestrianLookPointer;
@@ -8224,7 +8279,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         event.preventDefault();
-        if (runtime.pergamonReveal?.hit(event.clientX, event.clientY)) return;
+        if (runtime.pergamonReveal?.hit(event.clientX, event.clientY) || runtime.reichstagSectionV318?.hit(event.clientX, event.clientY)) return;
         renderer.domElement.focus({ preventScroll: true });
         if (runtime.pedestrian.enabled) {
           // A touch double-tap is the jump gesture. Ignore the synthetic
@@ -9919,6 +9974,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.disposed = true;
         runtime.northernV309?.dispose();
         runtime.northernV309 = undefined;
+        runtime.reichstagSectionV318?.dispose();
+        runtime.reichstagSectionV318 = undefined;
         runtime.pergamonReveal?.dispose();
         runtime.pergamonReveal = undefined;
         runtime.columbiahalleV257?.dispose();
@@ -10026,6 +10083,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         className={`${active ? "three-viewer is-active" : "three-viewer"}${presentationReady ? " is-presentation-ready" : ""}`}
         aria-hidden={!active}
       >
+        {presentationReady && sectionOpenV318 && (
+          <button className="reichstag-section-close" onClick={() => runtimeRef.current?.reichstagSectionV318?.setOpen(false)}>
+            {startupLanguage === "de" ? "Reichstag · Schnitt schließen" : "Reichstag · Close section"}
+          </button>
+        )}
         <StartupPresentation
           label={progressLabel}
           percentage={presentationReady ? 100 : workPresentation?.percentage ?? 0}

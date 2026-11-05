@@ -7,6 +7,7 @@ import {
 } from "three";
 
 import type { VisualMode } from "../../visualMode";
+import { restoreInheritedReichstagSectionV318 } from "../../reichstagSectionMaterialV318";
 
 export const SCHWELLENRAUM_MATERIAL_GRADE = {
   saturation: 0.38,
@@ -61,6 +62,7 @@ export function schwellenraumMaterialFor(
   if (cached instanceof Material) return cached;
 
   const material = dayMaterial.clone();
+  restoreInheritedReichstagSectionV318(dayMaterial, material);
   material.name = `${dayMaterial.name || dayMaterial.type} Schwellenraum grade`;
   material.userData.schwellenraumMaterialGrade = true;
   const previousOnBeforeCompile = material.onBeforeCompile.bind(material);

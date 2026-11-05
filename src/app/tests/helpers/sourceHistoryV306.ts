@@ -1,7 +1,8 @@
 /** Test-only strict current → published v195 source layer, before frozen v303. */
 import {createHash} from "node:crypto";
-import {readFileSync, readdirSync} from "node:fs";
+import {readFileSync} from "node:fs";
 import {resolve} from "node:path";
+import {assertSourceLayerV318,sourceAtPublished197V318,projectSourceBeforeV318,SOURCE_HISTORY_BRIDGE_V311_SHA_V318} from "./sourceHistoryV318";
 export const NATIVE_HISTORY_PUBLISHED_V195="9727870f79db9c6a6e9d6437668e5ac13229522f";
 export const NATIVE_HISTORY_PREVIOUS_PROOF_V303="299981a770ce72ec05d507ab60b5e88a3c3da49cc068a9f3a0f831d0526cadb0";
 export type NativeSourceInverseV306={beforeSha256:string;currentSha256:string;replacements:{before:string;current:string}[]};
@@ -52,7 +53,10 @@ const publishedV196Proof = "4a2bad690d9465ab3e03f5915ba015b85c160b9a2de358c7eba1
 let publishedV196Bridge: PublishedV196Bridge | undefined;
 
 function readV196Bridge(graph: Record<string, string>): PublishedV196Bridge {
-  const bridge = JSON.parse(readFileSync(new URL("../fixtures/source-history-v311.json", import.meta.url), "utf8")) as PublishedV196Bridge;
+  const newest = assertSourceLayerV318();
+  const rawBridge = readFileSync(new URL("../fixtures/source-history-v311.json", import.meta.url));
+  if (sha(rawBridge) !== SOURCE_HISTORY_BRIDGE_V311_SHA_V318) throw Error("Changed immutable v311 source fixture");
+  const bridge = JSON.parse(rawBridge.toString("utf8")) as PublishedV196Bridge;
   if (bridge.publishedCommit !== "a7625d82136b1cb8ea0fde23521a4963c67d67f0" ||
       bridge.publishedProofSha256 !== publishedV196Proof) throw Error("Unknown v196 source anchor");
   for (const [path, receipt] of Object.entries(bridge.changes)) {
@@ -60,11 +64,10 @@ function readV196Bridge(graph: Record<string, string>): PublishedV196Bridge {
         !digestValid(receipt.currentSha256) || receipt.currentSha256 === receipt.beforeSha256 ||
         !receipt.replacements.length) throw Error(`Invalid v196 source bridge: ${path}`);
   }
-  const newSources = readdirSync(resolve(repoRoot, "src/app/src"), { recursive: true })
-    .map(path => `src/app/src/${path}`)
-    .filter(path => pathValid(path) && !Object.hasOwn(graph, path));
+  const newSources = Object.keys(newest.publishedGraph)
+    .filter(path => path.startsWith("src/app/src/") && pathValid(path) && !Object.hasOwn(graph, path));
   if (newSources.length !== Object.keys(bridge.additions).length || newSources.some(path =>
-    !Object.hasOwn(bridge.additions, path) || sha(readFileSync(resolve(repoRoot, path))) !== bridge.additions[path]
+    !Object.hasOwn(bridge.additions, path) || sha(sourceAtPublished197V318(path, readFileSync(resolve(repoRoot, path)), newest)) !== bridge.additions[path]
   )) throw Error("Changed or unaccounted new source after v196");
   return bridge;
 }
@@ -99,7 +102,7 @@ export function assertNativeHistorySourcesV306(previousGraph:Record<string,strin
   const layer = JSON.parse(publishedProof.toString("utf8")) as NativeSourceLayerV306;
   if(sha(readFileSync(resolve(import.meta.dir,"../../../../scripts/build_native_history_v306_source.py")))!==layer.captureToolSha256)throw Error("Changed v306 source capture implementation");
   const bridge = readV196Bridge(layer.currentGraph);
-  verifyNativeSourceLayerV306(layer, immutableGraph, path => sourceAtV196(path, readFileSync(resolve(repoRoot, path)), bridge));
+  verifyNativeSourceLayerV306(layer, immutableGraph, path => sourceAtV196(path, sourceAtPublished197V318(path, readFileSync(resolve(repoRoot, path))), bridge));
   publishedV196Bridge = freezeSourceLayerV306(bridge);
   immutablePreviousGraphV306=Object.freeze(immutableGraph);
   checked=freezeSourceLayerV306(layer);return checked;
@@ -107,7 +110,7 @@ export function assertNativeHistorySourcesV306(previousGraph:Record<string,strin
 
 /** File projection verifies exact bytes, never substitutes by path alone. */
 export function nativeSourceAtPublishedV195V306(path:string,raw:Uint8Array,layer:NativeSourceLayerV306):Uint8Array{
-  if (layer === checked && publishedV196Bridge) raw = sourceAtV196(path, raw, publishedV196Bridge);
+  if (layer === checked && publishedV196Bridge) raw = sourceAtV196(path, sourceAtPublished197V318(path, raw), publishedV196Bridge);
   if(!Object.hasOwn(layer.currentGraph,path)||sha(raw)!==layer.currentGraph[path]||!Object.hasOwn(layer.publishedGraph,path))throw Error(`Unknown exact v306 source bytes: ${path}`);
   const receipt=layer.changes[path];return receipt?Buffer.from(invertNativeSourceV306(Buffer.from(raw).toString("utf8"),receipt)):raw;
 }
@@ -116,6 +119,7 @@ export function nativeSourceAtPublishedV195V306(path:string,raw:Uint8Array,layer
  * then the old v303 pools still prove the complete remaining lineage. */
 export function projectNativeSourceBeforeV306(source:string,layer:NativeSourceLayerV306):string{
   if (layer === checked && publishedV196Bridge) {
+    source = projectSourceBeforeV318(source);
     const digest = sha(source);
     const records = Object.values(publishedV196Bridge.changes).filter(receipt => receipt.currentSha256 === digest);
     if (records.length > 1) throw Error("Ambiguous v196 source bridge fingerprint");

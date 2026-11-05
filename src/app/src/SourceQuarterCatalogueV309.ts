@@ -10,7 +10,7 @@ export type SourceQuarterCatalogueEntryV309={
   keys:readonly string[];
   kind:string;
   requiredReplacement?:boolean;
-  admission?:"north-v309";
+  admission?:"north-v309"|"treptow-v317";
   load:()=>Promise<{default:unknown}>;
 };
 const families=(ids:readonly string[])=>ids.flatMap(id=>[`drawn:${id}`,`minecraft:${id}`]);
@@ -19,6 +19,7 @@ export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV
   {keys:families(["ring182-9_9","ring182-9_10","ring182-10_9","ring182-10_10"]),kind:"rixdorf-v304",load:()=>import("./data/rixdorfV304.json")},
   {keys:families(["ring182-7_8","ring182-8_8"]),kind:"neukoelln-landmarks-v305",requiredReplacement:true,load:()=>import("./data/neukoellnLandmarksV305Packets.json")},
   {keys:northernIndex.keys,kind:"northern-fidelity-v309",requiredReplacement:true,admission:"north-v309",load:()=>import("./data/northernFidelityV309Packets.json")},
+  {keys:families(["10_4","10_5","ring182-11_5"]),kind:"treptow-waterfront-v317",requiredReplacement:true,admission:"treptow-v317",load:()=>import("./data/treptowWaterfrontV317Packets.json")},
 ];
 
 /** Separate factory permits deterministic transport/retry tests without mocks

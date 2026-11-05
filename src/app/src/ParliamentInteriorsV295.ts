@@ -2,6 +2,7 @@ import { BoxGeometry, Color, Euler, Group, InstancedBufferAttribute, InstancedMe
 import { MINECRAFT_PALETTE } from "./visual-modes/minecraft/palette";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { reichstagRampPoints } from "./ReichstagDome";
+import { appendReichstagRoomsV318 } from "./ReichstagRoomsV318";
 import { REICHSTAG_DOME_EVIDENCE as DOME } from "./HeroArchitectureEvidence";
 import { PARLIAMENT_FLIGHTS_V295 as FLIGHTS, PARLIAMENT_INTERIORS_V295 as P, PARLIAMENT_LOCAL_AIR_V295 as AIR, parliamentFlightTopV295, parliamentBerlinRoofTopV295, parliamentLocalPointV295, parliamentWorldPointV295, parliamentYawV295, type ParliamentSiteV295 as Site, type ParliamentPointV295 as Point } from "./parliamentInteriorsV295Profile";
 export const PARLIAMENT_INTERIORS_GROUP_V295 = "Parliament public rooms and circulation v295";
@@ -270,6 +271,7 @@ function members(isNative = false): readonly Member[] {
   const p = new Plan(isNative);
   stairs(p);
   reichstag(p);
+  appendReichstagRoomsV318(p);
   abgeordnetenhaus(p);
   if(isNative)for(const m of p.members){
     m.color=MINECRAFT_PALETTE.reduce((best,c)=>{const distance=(n:number)=>[16,8,0].reduce((sum,shift)=>sum+(((m.color>>shift)&255)-((n>>shift)&255))**2,0);return distance(c)<distance(best)?c:best;},MINECRAFT_PALETTE[0] as number);

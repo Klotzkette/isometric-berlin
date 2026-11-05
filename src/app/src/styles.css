@@ -2673,3 +2673,5 @@ button:active:not(:disabled) {
   }
 
 }
+
+.reichstag-section-close { position: absolute; left: 50%; bottom: 100px; transform: translateX(-50%); z-index: 12; border: 1px solid #c9d0ca; border-radius: 20px; background: #fffffff2; color: #283a32; padding: 10px 16px; font: inherit; box-shadow: 0 3px 14px #0002; cursor: pointer; pointer-events: auto; }

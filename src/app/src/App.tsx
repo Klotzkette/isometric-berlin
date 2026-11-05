@@ -801,6 +801,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
 }) {
   const appShellRef = useRef<HTMLElement | null>(null);
   const [pergamonRevealed, setPergamonRevealed] = useState(false);
+  const [reichstagSectionOpen, setReichstagSectionOpen] = useState(false);
 
   const ambientSoundscapeRef = useRef<AmbientSoundscape | null>(null);
   const ambientStartAttemptRef = useRef(0);
@@ -2992,6 +2993,8 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
                 initialFlightStart={INITIAL_FLIGHT_VIEW !== null}
                 initialFlightView={INITIAL_FLIGHT_VIEW}
                 initialNavigation={retainedNavigationRef.current}
+                reichstagSectionOpen={reichstagSectionOpen}
+                onReichstagSectionChange={setReichstagSectionOpen}
                 pergamonRevealed={pergamonRevealed}
                 onPergamonRevealChange={setPergamonRevealed}
                 onConcertInteriorChange={handleConcertInteriorChange}

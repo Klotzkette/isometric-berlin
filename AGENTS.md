@@ -2410,3 +2410,35 @@ external reference establishes the sign and its location. Retain source
 building sheets, rail courses outside the exact corrected owners, all earlier
 details and the existing touch, native, residency and release limits. Keep
 references outside the rendered assets. Keep the real startup readiness gate.
+
+### Step 10 — v315–v318 Reichstag section and named central/eastern places
+
+The owner requests a reversible click/tap longitudinal section of the Reichstag,
+recognisable parliamentary levels, plenary furniture and normal public interiors,
+and grass-like detail on its existing lawn. Temporarily clip only the finite
+western display volume; retain every original buffer and restore the exact
+exterior and material state on close/disposal. No invented public route through
+closed functional wings is implied. Every new slab retains all six source courts
+and existing public-room/stair air. Interior heights and small fittings remain
+explicit display estimates. Preserve the complete dome, mirrors and ramps.
+
+The same request authorizes source-bound refinement along Unter den Linden,
+at the named east-Dom/Hackescher Markt and Mohrenstraße buildings, Computerspiele-
+museum and its evidenced neighbouring garden, Strausberger Platz fountain,
+Treptowers, Arena and Badeschiff. Differentiate current restoration from an
+illustrative intact fountain and verify current tenants/signs. Complete measured
+leaves may replace only exactly admitted old combined-height owners, retaining
+all source sheets and full outside complements. Attach both complete independent
+families before any gate opens; changed/foreign sources and missing/disposed
+models keep the original owners. Matching granular navigation and stale-publication
+checks are required. Keep all previous architecture, full drawn mobile detail,
+93 stops and every runtime/release ceiling. No extra bounds, timer, reference
+pixels or external browser. Root coordinates integration, immutable-history
+capture, build and publication; retain the preceding package until verified.
+
+The finite v318 archive audit may encode only the six exactly named eager fields
+in court/park detail, legacy fittings, the canopy receipt and the new Treptow
+packet plan. Preserve eager evaluation, strong ownership, ordinary writable
+data descriptors, named-export identity, every source byte and all numeric
+values including negative zero. Use the existing gzip/base85 decoder and
+admission decision; no new codec, weak reclassification or higher ceiling.
