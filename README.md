@@ -32,8 +32,10 @@ weitere Orte erhalten eigene architektonische Details. Straßen, Wasser,
 Grünflächen und Bahntrassen geben der Stadt ihren Zusammenhang. Im Hauptbahnhof
 führen Treppen und Rolltreppen durch die Ebenen; Reichstag und Abgeordnetenhaus
 erhalten begehbare Plenarsäle, der Reichstag auch den Weg in die Glaskuppel.
-Ein Klick auf den Reichstag öffnet seinen Längsschnitt; ein weiterer Klick oder
-**Schnitt schließen** stellt die Außenansicht wieder her.
+Ein Klick auf den Reichstag öffnet seinen Längsschnitt durch Plenarsaal, Büros
+und Nebenräume. **Untergeschoss** und **Verbindungen** zeigen die untere Ebene
+und die dargestellten Tunnel; **Schnitt schließen** stellt die Außenansicht wieder her.
+Raumaufteilungen und Innenmaße sind [architektonische Modellnäherungen](docs/reichstag-section-v319.md).
 
 - **Frei bewegen:** die Ansicht drehen und zoomen, zu Fuß durch Berlin gehen
   oder über die Dächer schweben. Maus, Tastatur und Touch werden unterstützt.
@@ -109,8 +111,10 @@ Chancellery, Kulturforum and Potsdamer Platz their character. Streets, parks,
 waterways and railway lines connect them into a city you can explore. Connected
 stairs and escalators lead through Hauptbahnhof, while the Reichstag and Berlin
 House of Representatives include walkable plenary rooms and the Reichstag dome.
-Click the Reichstag to open a longitudinal section through its floors and
-chamber. Click again or choose **Close section** to restore the exterior.
+Click the Reichstag to open a longitudinal section through the chamber, offices
+and adjoining rooms. **Basement** and **Connections** reveal the lower level
+and represented tunnels; **Close section** restores the exterior. Room layouts
+and interior dimensions are [architectural display estimates](docs/reichstag-section-v319.md).
 
 - **Move freely:** orbit, zoom, walk through the streets or fly above the
   rooftops, using a mouse, keyboard or touch controls.
@@ -213,8 +217,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.198** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.198/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.199** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.199/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

@@ -35,10 +35,9 @@ import { botanicalV230GroundAt, botanicalV230FloorAt, botanicalV230WaterAt, bota
 import { westIndustrialV230TerrainAt, westIndustrialV230GroundAt, westIndustrialV230SolidAt } from "./westIndustrialV230Navigation";
 import { createViewerContextRecovery } from "./viewerContextRecovery";
 import { createPergamonReveal, type PergamonReveal } from "./PergamonReveal";
-import { createReichstagSectionV318, type ReichstagSectionV318 } from "./ReichstagSectionV318";
-import { createReichstagSectionRoomsV318 } from "./ReichstagRoomsV318";
+import { createReichstagSectionV319, createReichstagSectionRoomsV319, reichstagSectionCameraV319, type ReichstagSectionV319, type ReichstagSectionViewV319 } from "./ReichstagSectionV319";
+import { hasNorthernCoreSourceBatchesV319 } from "./northernCoreReadinessV319";
 import { createReichstagLawnV318 } from "./ReichstagLawnV318";
-import { parliamentWorldPointV295 } from "./parliamentInteriorsV295Profile";
 import { PergamonRevealGesture } from "./pergamonRevealGesture";
 import { createColumbiahalleV257, type ColumbiahalleV257 } from "./ColumbiahalleV257";
 import { bendlerblockV202PassageAt, bendlerblockV202GroundAt } from "./bendlerblockV202Profile";
@@ -693,6 +692,8 @@ type ThreeViewerProps = {
   initialFlightStart?: boolean;
   initialFlightView?: StartupFlightView | null;
   reichstagSectionOpen?: boolean;
+  reichstagSectionView?: ReichstagSectionViewV319;
+  onReichstagSectionViewChange?: (view: ReichstagSectionViewV319) => void;
   onReichstagSectionChange?: (open: boolean) => void;
   pergamonRevealed?: boolean;
   onPergamonRevealChange?: (revealed: boolean) => void;
@@ -752,7 +753,7 @@ type ProgressiveWorldQueuedMessage = {
 };
 
 type Runtime = {
-  reichstagSectionV318?: ReichstagSectionV318;
+  reichstagSectionV319?: ReichstagSectionV319;
   pergamonReveal?: PergamonReveal;
   columbiahalleV257?: ColumbiahalleV257;
   camera: PerspectiveCamera;
@@ -1516,7 +1517,6 @@ function schwellenraumWaterRoots(runtime: Runtime): Object3D[] {
 
 function setEnvironmentalPresentation(runtime: Runtime): void {
   runtime.pergamonReveal?.sync();
-  runtime.reichstagSectionV318?.sync();
   const obstructed =
     runtime.underside ||
     runtime.underwater ||
@@ -1601,6 +1601,9 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
     runtime.schwellenraumInteriors,
     interiorsVisible,
   );
+  // Include the water and atmospheric material variants created lazily above
+  // on their very first mode entry while an architectural section is open.
+  runtime.reichstagSectionV319?.sync();
   if (
     floodChanged ||
     rainChanged ||
@@ -1722,7 +1725,7 @@ function ensureNorthernV309(runtime: Runtime, native: boolean): Promise<Northern
   // The required measured Core transfer includes the settled worker surface,
   // whose real owner does not exist in the temporary preview. Keep that
   // complete predecessor until its ordinary base construction has finished.
-  if (!native && runtime.progressiveWorldInput && runtime.progressiveWorldState !== "complete") return Promise.resolve(undefined);
+  if (!native && !hasNorthernCoreSourceBatchesV319(runtime.isoWorld)) return Promise.resolve(undefined);
   runtime.northernV309 ??= createNorthernLoaderV309({
     load: async () => {
       // The small old rail and hospital owners may live in the independent
@@ -1736,6 +1739,7 @@ function ensureNorthernV309(runtime: Runtime, native: boolean): Promise<Northern
       const world = native ? runtime.voxelWorld : runtime.isoWorld;
       const originalGroundAt = native ? runtime.northernOriginalGroundV309?.native : runtime.northernOriginalGroundV309?.drawn;
       if (!world || !originalGroundAt) throw Error("Northern original navigation source is not ready");
+      if (!native && !hasNorthernCoreSourceBatchesV319(world)) throw new DOMException("Northern Core source batches are not ready", "AbortError");
       return module.createNorthernFidelityStepsV309(native, runtime.coarsePointer, {
         world, originalGroundAt,
         props: () => native ? [world] : [world, runtime.parkDetails],
@@ -6121,6 +6125,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       initialFlightStart = false,
       initialFlightView = null,
       reichstagSectionOpen = false,
+      reichstagSectionView = "longitudinal",
+      onReichstagSectionViewChange,
       onReichstagSectionChange,
       pergamonRevealed = false,
       onPergamonRevealChange,
@@ -6167,6 +6173,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const onWarningRef = useRef(onWarning);
     const onViewChangeRef = useRef(onViewChange);
     const [sectionOpenV318, setSectionOpenV318] = useState(reichstagSectionOpen);
+    const [sectionViewV319, setSectionViewV319] = useState<ReichstagSectionViewV319>(reichstagSectionView);
     const [startupWork, setStartupWork] = useState<StartupWorkV309 | null>(null);
     const [presentationReady, setPresentationReady] = useState(false);
     const pedestrianPoseEmissionRef = useRef({
@@ -6258,7 +6265,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       orbitInputRef.current.set(0, 0);
       pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
       if (pedestrianMode) {
-        runtime.reichstagSectionV318?.setOpen(false);
+        runtime.reichstagSectionV319?.setOpen(false);
         runtime.ensurePedestrianWater();
         activatePedestrianMode(runtime);
       } else {
@@ -7203,14 +7210,23 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           onWarningRef.current("Pergamon altar could not be opened. Please try again.");
         },
       });
-      runtime.reichstagSectionV318 = createReichstagSectionV318({
+      const frameReichstagSectionV319 = (view: ReichstagSectionViewV319) => {
+        if (runtime.pedestrian.enabled) return;
+        const framing = reichstagSectionCameraV319(view);
+        camera.position.set(...framing.eye); controls.target.set(...framing.target);
+        camera.fov = framing.fov; camera.updateProjectionMatrix(); controls.update();
+      };
+      runtime.reichstagSectionV319 = createReichstagSectionV319({
         scene, camera, canvas: renderer.domElement, renderer,
         initiallyOpen: reichstagSectionOpen,
-        ready: () => parliamentWorldReadyV295(runtime),
+        initialView: reichstagSectionView,
+        onViewChange: view => { setSectionViewV319(view); onReichstagSectionViewChange?.(view); frameReichstagSectionV319(view); },
+        ready: () => parliamentWorldReadyV295(runtime) && !runtime.pedestrian.enabled,
         native: () => voxelModeActive(runtime),
+        floodMaterial: () => runtime.floodWater?.material,
         presentRooms: root => applyLightingToRoot(root, runtime.lightingMode, runtime.nightLightsOn),
         createRooms: native => {
-          const rooms = createReichstagSectionRoomsV318(native);
+          const rooms = createReichstagSectionRoomsV319(native);
           markAuthoredFlatUnlit(rooms);
           applyLightingToRoot(rooms, runtime.lightingMode, runtime.nightLightsOn);
           runtime.gpuResidency?.enqueue(rooms); runtime.geometryResidency?.enqueue(rooms);
@@ -7219,11 +7235,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         disposeObject: root => disposeObject3D(runtime, root),
         onChange: open => {
           setSectionOpenV318(open); onReichstagSectionChange?.(open);
-          if (open && !runtime.pedestrian.enabled) {
-            camera.position.set(...parliamentWorldPointV295("reichstag", [-140, 62, 60]));
-            controls.target.set(...parliamentWorldPointV295("reichstag", [0, 17, 25]));
-            camera.fov = 40; camera.updateProjectionMatrix(); controls.update();
-          }
+          if (open) frameReichstagSectionV319(runtime.reichstagSectionV319!.view);
         },
         invalidate: () => { setEnvironmentalPresentation(runtime); invalidateScenePresentation(runtime); },
       });
@@ -7782,7 +7794,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         lastPedestrianTap = null;
         if (event.pointerType === "touch" && touchPoints.size === 0 &&
-            !runtime.pergamonReveal?.hit(event.clientX, event.clientY) && !runtime.reichstagSectionV318?.hit(event.clientX, event.clientY)) {
+            !runtime.pergamonReveal?.hit(event.clientX, event.clientY) && !runtime.reichstagSectionV319?.hit(event.clientX, event.clientY)) {
           const now = performance.now();
           if (
             now - lastViewerTapAt < 340 &&
@@ -8041,7 +8053,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const onPointerUp = (event: PointerEvent) => {
         const museumTap = event.type !== "pointercancel" &&
           pergamonGesture.up(event.pointerId, event.clientX, event.clientY, performance.now()) &&
-          (runtime.pergamonReveal?.tap(event.clientX, event.clientY) || runtime.reichstagSectionV318?.tap(event.clientX, event.clientY));
+          (runtime.pergamonReveal?.tap(event.clientX, event.clientY) || runtime.reichstagSectionV319?.tap(event.clientX, event.clientY));
         if (museumTap) lastPedestrianTap = null;
         if (pedestrianLookPointer?.id === event.pointerId) {
           const finishedPointer = pedestrianLookPointer;
@@ -8279,7 +8291,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         event.preventDefault();
-        if (runtime.pergamonReveal?.hit(event.clientX, event.clientY) || runtime.reichstagSectionV318?.hit(event.clientX, event.clientY)) return;
+        if (runtime.pergamonReveal?.hit(event.clientX, event.clientY) || runtime.reichstagSectionV319?.hit(event.clientX, event.clientY)) return;
         renderer.domElement.focus({ preventScroll: true });
         if (runtime.pedestrian.enabled) {
           // A touch double-tap is the jump gesture. Ignore the synthetic
@@ -9974,8 +9986,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.disposed = true;
         runtime.northernV309?.dispose();
         runtime.northernV309 = undefined;
-        runtime.reichstagSectionV318?.dispose();
-        runtime.reichstagSectionV318 = undefined;
+        runtime.reichstagSectionV319?.dispose();
+        runtime.reichstagSectionV319 = undefined;
         runtime.pergamonReveal?.dispose();
         runtime.pergamonReveal = undefined;
         runtime.columbiahalleV257?.dispose();
@@ -10084,9 +10096,20 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         aria-hidden={!active}
       >
         {presentationReady && sectionOpenV318 && (
-          <button className="reichstag-section-close" onClick={() => runtimeRef.current?.reichstagSectionV318?.setOpen(false)}>
-            {startupLanguage === "de" ? "Reichstag · Schnitt schließen" : "Reichstag · Close section"}
-          </button>
+          <div className="reichstag-section-panel" role="group" aria-label={startupLanguage === "de" ? "Reichstag Schnittansichten" : "Reichstag section views"}>
+            <div className="reichstag-section-views">
+              {(["longitudinal", "rooms", "basement", "connections"] as const).map(view => (
+                <button key={view} aria-pressed={sectionViewV319 === view} onClick={() => runtimeRef.current?.reichstagSectionV319?.setView(view)}>
+                  {startupLanguage === "de" ? ({longitudinal: "Längsschnitt", rooms: "Räume", basement: "Untergeschoss", connections: "Verbindungen"}[view]) : ({longitudinal: "Longitudinal", rooms: "Rooms", basement: "Basement", connections: "Connections"}[view])}
+                </button>
+              ))}
+              <button className="reichstag-section-close" onClick={() => runtimeRef.current?.reichstagSectionV319?.setOpen(false)}>
+                {startupLanguage === "de" ? "Schnitt schließen" : "Close section"}
+              </button>
+            </div>
+            {sectionViewV319 === "basement" && <p>{startupLanguage === "de" ? "Archiv der Deutschen Abgeordneten · Christian Boltanski. Innenmaße und Raumaufteilung schematisch." : "Archive of German Members of Parliament · Christian Boltanski. Interior dimensions and layout are schematic."}</p>}
+            {sectionViewV319 === "connections" && <p>{startupLanguage === "de" ? "Fußgängertunnel: Jakob-Kaiser-Haus · Paul-Löbe-Haus. Versorgungstunnel: zusätzlich Marie-Elisabeth-Lüders-Haus. Verlauf und Innenmaße schematisch." : "Pedestrian links: Jakob-Kaiser-Haus · Paul-Löbe-Haus. Service tunnel: also Marie-Elisabeth-Lüders-Haus. Routes and interior dimensions are schematic."}</p>}
+          </div>
         )}
         <StartupPresentation
           label={progressLabel}

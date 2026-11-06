@@ -2442,3 +2442,63 @@ packet plan. Preserve eager evaluation, strong ownership, ordinary writable
 data descriptors, named-export identity, every source byte and all numeric
 values including negative zero. Use the existing gzip/base85 decoder and
 admission decision; no new codec, weak reclassification or higher ceiling.
+
+
+### Step 10 — v319 furnished Reichstag section and underground links
+
+The owner requests a more complete longitudinal section through furnished rooms,
+offices and the basement, including publicly evidenced underground connections.
+Keep the v318 controller/floors and every original source sheet as evidence;
+add bounded on-request room geometry and reversible finite terrain/exterior
+reveal volumes. Preserve all six measured courts and the existing public foyer,
+chamber, stairs, dome, mirrors and ramps. Whole room footprints, not just their
+centres, must clear the retained source voids and public circulation. Unknown
+interior dimensions and room positions remain explicit display estimates.
+
+Distinguish the documented pedestrian links to Jakob-Kaiser-Haus and Paul-Löbe-
+Haus from the mapped goods/vehicle UES network that also reaches Marie-Elisabeth-
+Lüders-Haus. Preserve all mapped route vertices; public endpoint-fitted pedestrian
+connections and unsurveyed vertical fits remain schematic. The east basement's
+Boltanski archive is a credited procedural interpretation, with no photograph,
+plan page, private occupant or unsupported operational-room inventory.
+
+Additional basement/connection view controls may remove only their finite
+display volumes while open. Close/disposal restores exact material/shader and
+shadow state, full source terrain/exterior and normal walking. Do not invent
+public navigation through restricted parliamentary rooms. Retain selected view
+through mobile family remounts, full drawn touch detail and separate orthogonal
+native construction. Existing v295 room and v318 floor ceilings remain; the
+new lazy exhibit is finite at20,000members per family. Keep every runtime city,
+package and release ceiling, all93tourstops, source records and older immutable
+history fixtures. No coverage expansion, texture, media request, new scene timer
+or external browser. Root owns shared integration/build/publication.
+
+The finite v319 lossless archive offset may encode only the exact ordinary
+eager `penguin` field in retained `zooHousesV282.json`. Preserve complete
+source bytes, eager/strong ownership, writable descriptors, named identity and
+all numbers including negative zero. Reuse the established gzip/base85 codec
+and admission decision; no source edit, new codec, weak reclassification or
+higher package ceiling is authorised. Prove decoded equality against published198.
+
+The same real-browser verification identified an older exact Worker fitting
+receipt mismatch for one Moabit facade-axis endpoint at source owner sN3KUQ9U.
+A bounded v319 compatibility reader may admit only the independently captured
+V8 Float32 word21.50322151184082 for that exact line, retaining the canonical
+JSC word21.503223419189453 and its jointly captured night-strip height/centre words, with every other
+literal owner/line/instance check intact. Both alternative records must match
+together; partial hybrid, duplicate and foreign-owner variants stay rejected.
+Keep original source arrays, complete outside bytes and the immutable old
+receipt. No epsilon, user-agent switch, general rounding, source normalisation
+or permissive missing-row acceptance. The actual constructor tests must prove
+both complete variants and reject changed, duplicate and foreign-owner words.
+Northern late transfer must wait for its17actual attached source-owner batches
+and retain every full hash/admission/lifetime check. This does not authorise
+omitting source surfaces, silently accepting a failed Worker or raising budgets.
+
+To expose the separately built room bays in the native filled-column model,
+the reversible longitudinal view may additionally cut only the two finite wing
+strips x−8…13.2m, absolute z44…63.5m, y4.9…27.9m in the existing Reichstag frame.
+Use the same drawn/native openings, retaining every outside source fragment and
+exact full restoration. This is a display cut, not a permanent source or normal
+walking exemption. The close room camera must avoid existing neighbouring trees
+without removing or relocating them.

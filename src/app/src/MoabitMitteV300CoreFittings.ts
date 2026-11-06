@@ -2,6 +2,7 @@
 import { BufferAttribute, Group, InstancedMesh, LineSegments } from "three";
 import data from "./data/moabitMitteV300CoreFittingReceipts.json";
 import { isMoabitMitteV300RetainedCore } from "./MoabitMitteV300Ownership";
+import { moabitCoreFittingVariantV319, type MoabitFittingRecordVariantV319 } from "./MoabitCoreFittingVariantV319";
 type Batch = { kind: string; name: string; records: number[][] };
 type Family = { kind: string; receipts: { owner: string; sourceRetired: boolean; batches: Batch[] }[] };
 const source = data as { schemaVersion: number; families: Family[] };
@@ -11,12 +12,15 @@ export type CoreFittingRetirementV300 = { lineSegments: number; instances: numbe
 /** Source body filtering already prevents every old fallback's own fittings.
  * Only exact remaining fronts on retained measured bodies need a transaction. */
 export function prepareMoabitMitteV300CoreFittingRetirement(root: Group, options: Options = {}): CoreFittingRetirementV300 | undefined {
-  return prepare(root, "moabit-mitte-v300", options.sourceBodiesFiltered === true, options.buildings);
+  const original = prepare(root, "moabit-mitte-v300", options.sourceBodiesFiltered === true, options.buildings);
+  if (original) return original;
+  const variant = moabitCoreFittingVariantV319(root, options.buildings, source);
+  return variant ? prepare(root, "moabit-mitte-v300", options.sourceBodiesFiltered === true, options.buildings, variant) : undefined;
 }
 export function prepareWestKiezV302CoreFittingRetirement(root: Group, options: Options = {}): CoreFittingRetirementV300 | undefined {
   return prepare(root, "west-kiez-v302", options.sourceBodiesFiltered === true, options.buildings);
 }
-function prepare(root: Group, family: string, filtered: boolean, buildings?: readonly unknown[]): CoreFittingRetirementV300 | undefined {
+function prepare(root: Group, family: string, filtered: boolean, buildings?: readonly unknown[], variant?: MoabitFittingRecordVariantV319): CoreFittingRetirementV300 | undefined {
   if (source.schemaVersion !== 1 || !filtered) return undefined;
   const selected = source.families.find(f => f.kind === family); if (!selected) return undefined;
   let active: Set<string> | undefined;
@@ -37,7 +41,7 @@ function prepare(root: Group, family: string, filtered: boolean, buildings?: rea
     for (const batch of receipt.batches) {
       const state = wanted.get(batch.name) ?? { kind: batch.kind, records: new Map<string, number>() };
       if (state.kind !== batch.kind) return undefined;
-      for (const record of batch.records) { const k = record.join(","); state.records.set(k, (state.records.get(k) ?? 0) + 1); }
+      for (const record of batch.records) { const k = (variant ? variant(receipt.owner, batch.kind, batch.name, record) : record).join(","); state.records.set(k, (state.records.get(k) ?? 0) + 1); }
       wanted.set(batch.name, state);
     }
   }

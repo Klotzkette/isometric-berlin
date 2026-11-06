@@ -1,3 +1,4 @@
+import type { ReichstagSectionViewV319 } from "./ReichstagSectionV319";
 import { simulationStartLabel } from "./simulationStartViews";
 import { StartupPresentation } from "./StartupPresentation";
 import { StartupModeSelection } from "./StartupModeSelection";
@@ -802,6 +803,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   const appShellRef = useRef<HTMLElement | null>(null);
   const [pergamonRevealed, setPergamonRevealed] = useState(false);
   const [reichstagSectionOpen, setReichstagSectionOpen] = useState(false);
+  const [reichstagSectionView, setReichstagSectionView] = useState<ReichstagSectionViewV319>("longitudinal");
 
   const ambientSoundscapeRef = useRef<AmbientSoundscape | null>(null);
   const ambientStartAttemptRef = useRef(0);
@@ -2994,6 +2996,8 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
                 initialFlightView={INITIAL_FLIGHT_VIEW}
                 initialNavigation={retainedNavigationRef.current}
                 reichstagSectionOpen={reichstagSectionOpen}
+                reichstagSectionView={reichstagSectionView}
+                onReichstagSectionViewChange={setReichstagSectionView}
                 onReichstagSectionChange={setReichstagSectionOpen}
                 pergamonRevealed={pergamonRevealed}
                 onPergamonRevealChange={setPergamonRevealed}

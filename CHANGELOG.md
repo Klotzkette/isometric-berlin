@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.199 — 2026-11-06
+
+- Reichstag click section includes furnished offices, meeting/press/reading
+  rooms and service spaces around the retained plenary chamber and source courts.
+- Separate basement and connection views expose the east-side archive and
+  distinguish pedestrian passages from the mapped underground service network.
+- Finite reversible source/terrain/shadow clipping restores the complete exterior
+  on close; the existing public interior and dome walking routes remain intact.
+- Room layouts and unsurveyed tunnel elevations remain explicit architectural
+  estimates, with primary-source references and unchanged city/package limits.
+
 ## 1.0.198 — 2026-11-05
 
 - Open a reversible longitudinal Reichstag section by click or tap, showing source-clipped levels and the existing plenary chamber. Refine the president’s dais, government/Bundesrat desks, lectern, foyer and lift details; retain normal entry and complete dome routes.

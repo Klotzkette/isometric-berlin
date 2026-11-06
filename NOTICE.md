@@ -2877,3 +2877,23 @@ Treptowers references include Priedemann and IGP. Arena Berlin supplies Arena
 Halle and Badeschiff images, including Markus Nass; designers AMP Arquitectos,
 Gilbert Wilk and Susanne Lorenz are credited for Badeschiff. All remain external
 visual references; no image pixels or unverified current Allianz sign are bundled.
+
+
+## Furnished Reichstag section and basement (v1.0.199)
+
+The Deutscher Bundestag's public architectural and use accounts establish
+room functions and level colours. Its UES description and public architecture
+booklets distinguish goods/vehicle tunnels from pedestrian links. Retained
+OpenStreetMap route nodes anchor the mapped UES (© OpenStreetMap contributors,
+ODbL1.0); Geoportal Berlin LoD2 (dl-de/zero-2-0) retains the complete building
+footprint and six courts. Unmapped pedestrian alignments, elevations, room
+positions and furnishings are explicitly illustrative estimates.
+
+Christian Boltanski's *Archiv der Deutschen Abgeordneten* (1999) is interpreted
+procedurally as serial metal-box stacks, a narrow aisle and lamps. The original
+work and credited Bundestag reference photographs retain their rights; no
+photographic pixels, plan pages or image textures are distributed. See the
+[section implementation](docs/reichstag-section-v319.md),
+[furnished-wing references](docs/reichstag-rooms-v319.md) and
+[underground references](docs/reichstag-underground-v319.md) for exact sources,
+credits and limits.
