@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.203 — 2026-11-06
+
+- Show a visible loading bar from the initial HTML response through application loading and city construction. Use a clearer eight-pixel track and keep a static activity segment for reduced motion. Preserve measured progress, required-world readiness, geometry and existing budgets.
+
 ## v1.0.202 — 2026-11-06
 
 - Refine eighteen university site groups across HU, FU, TU, BHT, HWR, HTW, ASH, UdK, Weißensee and the confessional universities, preserving existing detailed main buildings. Retain complete measured building families, roof steps and courts; distinguish the current ASH extension's published height from estimated subdivisions.

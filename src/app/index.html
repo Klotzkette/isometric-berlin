@@ -68,6 +68,33 @@
         line-height: 1.12;
         letter-spacing: -0.065em;
       }
+      .boot-progress-track {
+        width: 100%;
+        height: 8px;
+        margin-top: 14px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #d8dcd1;
+      }
+      .boot-progress-activity {
+        display: block;
+        width: 34%;
+        height: 100%;
+        border-radius: inherit;
+        background: #b77f41;
+        animation: boot-work-activity 1.25s ease-in-out infinite alternate;
+      }
+      @keyframes boot-work-activity {
+        from { transform: translateX(0); }
+        to { transform: translateX(194%); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .boot-progress-activity {
+          width: 100%;
+          animation: none;
+          background: repeating-linear-gradient(135deg, #b77f41 0 8px, #e4d0af 8px 16px);
+        }
+      }
     </style>
   </head>
   <body>
@@ -89,6 +116,9 @@
           <span class="boot-eyebrow">Isometric</span>
           <strong>Berlin</strong>
           <span>Berlin wird gezeichnet · Drawing Berlin…</span>
+          <div class="boot-progress-track" role="progressbar" aria-label="Berlin wird geladen · Loading Berlin">
+            <span class="boot-progress-activity" aria-hidden="true"></span>
+          </div>
         </div>
       </div>
     </div>
