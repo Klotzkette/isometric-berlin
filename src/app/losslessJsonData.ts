@@ -66,6 +66,9 @@ const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
  * Do not extend by filename pattern: navigation and mutable source caches have
  * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "wilhelmHousingV324.json": ["drawn", "native"],
+  "wilhelmHousingV324Core.json": ["drawn", "nativeFull", "nativeMobile"],
+  "wilhelmHousingV324Previous.json": ["previous", "legacy"],
   "universitiesArchitectureV322.json": ["models"],
   "youthTheatresV322.json": ["models"],
   "federalMinistriesV321.json": ["models", "justiceColonnade"],
@@ -331,6 +334,10 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
 // These arrays contain only a few records of already-packed base64 strings.
 // Direct literals avoid a second retained copy inside a JSON.parse literal.
 const PACKED_SOURCE_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  // New source-bound housing metadata is read through ordinary own-data
+  // descriptors. Only its separate constructor rows use weak decoding.
+  "wilhelmHousingV324.json": ["runs"],
+  "wilhelmHousingV324Sources.json": ["nativeVoxels"],
   "districtStreets.json": ["surfaces"],
   "schlossEastStreets.json": ["surfaces"],
   // Already-packed ground complements: share each base64 literal once.

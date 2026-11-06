@@ -26,11 +26,14 @@ export {universitiesPreviousPrismV322} from "./UniversitiesArchitectureV322";
 import {createYouthTheatresV322Steps,hasCompleteYouthTheatresV322} from "./YouthTheatresV322";
 import {requiredYouthTheatresNavigationV322} from "./youthTheatresV322Navigation";
 import {createMaisonDeFranceV322Steps,hasCompleteMaisonDeFranceV322} from "./MaisonDeFranceV322";
+import {hasCompleteWilhelmHousingV324} from "./WilhelmHousingV324";
+import {wilhelmHousingCorePlanV324} from "./WilhelmHousingV324Core";
 import type {PrismBuilding} from "./IsometricCityWorld";
 import type {DeutschesTheaterVoxelPayload} from "./DeutschesTheater";
 // The viewer imports this namespace lazily; central preparation must not keep
 // the complete office-plan graph in its synchronous startup imports either.
 export {createGovernmentCentralV321,type GovernmentCentralV321} from "./GovernmentCentralV321";
+export * from "./WilhelmHousingV324Runtime";
 
 export type GovernmentOfficesV321={
   root:Group;
@@ -56,7 +59,9 @@ export function governmentPreviousPrismV321(prism:PrismBuilding):boolean{
 }
 export type GovernmentOfficesOptionsV321={sourcePrisms:readonly PrismBuilding[];
   voxels?:DeutschesTheaterVoxelPayload;native:boolean;mobileLike:boolean;
-  includeUniversitiesV322?:boolean};
+  includeUniversitiesV322?:boolean;
+  wilhelmHousingV324?:Group;
+  onWilhelmRevokeV324?:()=>void};
 function disposeUnpublished(root:Group):void{
   const geometries=new Set<Mesh["geometry"]>(),materials=new Set<Material>();
   root.traverse(object=>{if(object instanceof Mesh||object instanceof Line||object instanceof Points){
@@ -70,6 +75,8 @@ function disposeUnpublished(root:Group):void{
 export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptionsV321,onCreate?:(root:Group)=>void):Generator<void,GovernmentOfficesV321|null>{
   const {sourcePrisms,voxels,native,mobileLike}=options;
   const includeUniversities=options.includeUniversitiesV322===true;
+  const housing=options.wilhelmHousingV324;
+  if(housing&&!hasCompleteWilhelmHousingV324(housing,native))return null;
   const root=new Group();root.name=`Government offices V321${native?" native":" drawn"}`;
   let delivered=false;
   try{
@@ -78,6 +85,7 @@ export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptio
     federalMinistryPreviousPlanV321(native,mobileLike),
     berlinSenatePreviousPlanV321(native,mobileLike),
     ...(includeUniversities?[uniExactPlansV322(native,mobileLike,false)]:[]),
+    ...(housing?[wilhelmHousingCorePlanV324(native,mobileLike)]:[]),
   ],sourcePrisms,voxels);
   if(!source)return null;
   // The coverage preview has a different actual constructor/host from full
@@ -140,8 +148,10 @@ export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptio
     hasCompleteBerlinSenateBuildingsV321(senate,native)&&
     (!universities||hasCompleteUniversitiesArchitectureV322(universities,native))&&
     (!theatres||hasCompleteYouthTheatresV322(theatres,native))&&
-    (!maison||hasCompleteMaisonDeFranceV322(maison,native));
-  const modelsReady=()=>!closed&&expectedWorld!==null&&root.parent===expectedWorld&&contentsReady();
+    (!maison||hasCompleteMaisonDeFranceV322(maison,native))&&
+    (!housing||hasCompleteWilhelmHousingV324(housing,native));
+  const modelsReady=()=>!closed&&expectedWorld!==null&&root.parent===expectedWorld&&
+    (!housing||housing.parent===expectedWorld)&&contentsReady();
   const values=(object:Object3D)=>[...object.matrix.elements,...object.position.toArray(),...object.quaternion.toArray(),
     ...object.scale.toArray(),+object.matrixAutoUpdate,+object.matrixWorldAutoUpdate];
   const worldPath=(family:Object3D):Link[]|null=>{
@@ -161,7 +171,8 @@ export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptio
   const theatreNav=theatres?requiredYouthTheatresNavigationV322(theatres,native):null;
   const rollback=()=>{if(closed)return;closed=true;root.visible=false;
     const current=[...families.values()].reverse();families.clear();
-    for(const family of current){family.phase="released";family.tx.rollback();}};
+    for(const family of current){family.phase="released";family.tx.rollback();}
+    if(housing)options.onWilhelmRevokeV324?.();};
   const complete=()=>{if(closed)return false;let ready=modelsReady();
     for(const [object,family]of families){
       if(family.phase==="active"&&!pathReady(object,family.path))ready=false;

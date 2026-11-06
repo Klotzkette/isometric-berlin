@@ -13,11 +13,12 @@ export type SourceQuarterCatalogueEntryV309={
   keys:readonly string[];
   kind:string;
   requiredReplacement?:boolean;
-  admission?:"north-v309"|"treptow-v317"|"government-v321"|"universities-v322";
+  admission?:"north-v309"|"treptow-v317"|"government-v321"|"universities-v322"|"wilhelm-v324";
   load:()=>Promise<{default:unknown}>;
 };
 const families=(ids:readonly string[])=>ids.flatMap(id=>[`drawn:${id}`,`minecraft:${id}`]);
 export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV309[]=[
+  {keys:["drawn:1_0","drawn:1_1"],kind:"wilhelm-housing-v324",requiredReplacement:true,admission:"wilhelm-v324",load:()=>import("./data/wilhelmHousingV324Packets.json")},
   {keys:universitiesIndexV322.keys,kind:"universities-v322",requiredReplacement:true,admission:"universities-v322",load:()=>import("./data/universitiesV322Packets.json")},
   {keys:theatresIndexV322.keys,kind:"youth-theatres-v322",requiredReplacement:true,admission:"universities-v322",load:()=>import("./data/youthTheatreFrontsV322Packets.json")},
   {keys:federalIndexV321.keys,kind:"federal-ministries-v321",requiredReplacement:true,admission:"government-v321",load:()=>import("./data/federalMinistriesV321Packets.json")},

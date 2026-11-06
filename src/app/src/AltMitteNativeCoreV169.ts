@@ -56,6 +56,11 @@ export function assertAltMitteNativeV169SourceReady(): void {
   preparedSource();
 }
 
+/** Borrow the already-preloaded original; never starts a Drawn/native fetch. */
+export function preparedWilhelmHousingNativeSourceV324(): AltMitteCoreV169Source {
+  return preparedSource();
+}
+
 /** Separate block-native shell payload, with identical full/touch coverage. */
 export function createMinecraftAltMitteCoreV169(
   options: { mobileLike?: boolean } & BndArtCourtOptionsV314 = {},

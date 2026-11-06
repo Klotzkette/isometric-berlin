@@ -1764,10 +1764,13 @@ function governmentSwapHooksV321(runtime:Runtime,family:Object3D){return{
 };}
 type GovernmentModuleV323 = typeof import("./GovernmentOfficesV321");
 let governmentModuleV323: Promise<GovernmentModuleV323 | null> | undefined;
+let wilhelmHousingModuleV324:typeof import("./WilhelmHousingV324Runtime")|undefined;
 /** Fetch alongside required world inputs; admission still uses the unchanged
  * complete model transaction, and a failed optional import keeps original owners. */
 function loadGovernmentModuleV323(): Promise<GovernmentModuleV323 | null> {
-  return governmentModuleV323 ??= loadStartupModuleV323(()=>import("./GovernmentOfficesV321"),yieldStartupWork).catch(() => {
+  return governmentModuleV323 ??= loadStartupModuleV323(()=>import("./GovernmentOfficesV321"),yieldStartupWork).then(module=>{
+    wilhelmHousingModuleV324=module;return module;
+  }).catch(() => {
     governmentModuleV323 = undefined;
     return null;
   });
@@ -1796,9 +1799,28 @@ function* prepareGovernmentOfficesV321Steps(runtime:Runtime,world:Object3D,optio
  * avoids competing index owners; a rejected optional supplement retries the
  * complete unchanged office path only after exact rollback of the first pass. */
 function* preparePublicOfficesV322Steps(runtime:Runtime,world:Object3D,options:GovernmentOfficesOptionsV321,module:GovernmentModuleV323|null):Generator<void,GovernmentOfficesV321|null>{
+  const housing=module?.getWilhelmHousingModelV324(world,options.native);
+  if(housing&&module){
+    const combined=yield*prepareGovernmentOfficesV321Steps(runtime,world,{...options,includeUniversitiesV322:true,
+      wilhelmHousingV324:housing,onWilhelmRevokeV324:()=>module.releaseWilhelmHousingRuntimeV324(world,options.native)},module);
+    if(combined&&module.attachWilhelmHousingCoreGateV324(world,options.native,()=>combined.complete()))return combined;
+    if(combined){combined.rollback();combined.root.removeFromParent();disposeObject3D(runtime,combined.root);}
+    module.releaseWilhelmHousingRuntimeV324(world,options.native);
+    if(runtime.disposed||runtime.loadSignal.aborted)return null;
+  }
   const combined=yield*prepareGovernmentOfficesV321Steps(runtime,world,{...options,includeUniversitiesV322:true},module);
   if(combined||runtime.disposed||runtime.loadSignal.aborted)return combined;
   return yield*prepareGovernmentOfficesV321Steps(runtime,world,{...options,includeUniversitiesV322:false},module);
+}
+/** One late cultural-family arrival; no recurring scene scan or frame timer. */
+async function ensureWilhelmHousingLegacyV324(runtime:Runtime):Promise<void>{
+  const world=runtime.isoWorld,module=wilhelmHousingModuleV324,signatures=runtime.culturalDetails;
+  if(runtime.disposed||!world||!module||!module.getWilhelmHousingModelV324(world,false)||
+    !runtime.culturalDetails.getObjectByName("Wilhelmstrasse Stresemannstrasse recognition facades"))return;
+  try{await completeCooperatively(module.stageWilhelmHousingLegacyV324Steps(world,false,signatures,
+    governmentSwapHooksV321(runtime,signatures)),{
+    yieldTask:yieldStartupWork,isCancelled:()=>runtime.disposed||runtime.isoWorld!==world||runtime.culturalDetails!==signatures,
+  });}catch{/* The cooperative transaction restores its original on cancellation. */}
 }
 function installGovernmentNavigationV321(runtime:Runtime,environment:PedestrianEnvironment):void{
   const floor=environment.interiorGroundAt,solid=environment.interiorSolidAt;
@@ -1933,6 +1955,11 @@ function startSurroundingCity(runtime: Runtime): void {
     berlinSenateV321:berlinSenateSourceV321,
     governmentOfficesV321:native=>!!currentGovernmentOfficesV321(runtime,native),
     universitiesV322:native=>publicOfficesAdmissionV322(runtime,native).universities,
+    wilhelmHousingV324:native=>{
+      const world=native?runtime.voxelWorld:runtime.isoWorld;
+      return !runtime.disposed&&!!world&&world.parent===runtime.scene&&
+        wilhelmHousingModuleV324?.hasWilhelmHousingRuntimeV324(world,native)===true;
+    },
     publicOfficesAdmissionV322:native=>publicOfficesAdmissionV322(runtime,native),
     sourceQuartersV303:true,loadSourceQuarterSourcesV309:createNorthernQuarterLoadingV309({
       loadRecipes:loadSourceQuarterRecipesV309,
@@ -4621,6 +4648,7 @@ function ensureIsoWorld(
         reportDetailStep(0);
         provisionalIsoWorld = isoWorld;
         isoWorld.add(fidelityV288.root);
+        yield*governmentV323.createWilhelmHousingRuntimeV324Steps(isoWorld,prisms.buildings,ground??undefined,false,runtime.coarsePointer);
         let neukoellnAdmissionV305=applyNeukoellnLegacyV227V305(isoWorld,false,true,fidelityV288.neukoellnModel);
         isoWorld.userData.hasNeukoellnLandmarksV305=()=>{
           const live=!!fidelityV288.neukoellnModel&&fidelityV288.neukoellnModel.parent===fidelityV288.root&&fidelityV288.root.parent===isoWorld&&fidelityV288.root.visible&&fidelityV288.neukoellnModel.visible&&hasCompleteNeukoellnLandmarksV305(fidelityV288.neukoellnModel,false);
@@ -5012,6 +5040,7 @@ function ensureIsoWorld(
             };
           }
         }
+        yield*governmentV323.prepareWilhelmHousingRuntimePreviousV324Steps(isoWorld,false,governmentSwapHooksV321(runtime,isoWorld));
         provisionalGovernmentV321=yield*preparePublicOfficesV322Steps(runtime,isoWorld,{sourcePrisms:prisms.buildings,voxels:ground??undefined,native:false,mobileLike:runtime.coarsePointer},governmentV323);
         // The first GPU pass needs these exact original arrays. Park every
         // other field now; avoid deflating then immediately inflating this
@@ -5078,6 +5107,7 @@ function ensureIsoWorld(
         );
       }
       runtime.scene.add(isoWorld);
+      void ensureWilhelmHousingLegacyV324(runtime);
       (runtime.hbfStationV291 ??= createHbfStationRuntimeV291()).register(runtime.signatures);
       runtime.hbfStationV291.register(isoWorld);
       (runtime.zooAnimalsV282 ??= createZooAnimalRuntimeV282()).register(isoWorld);
@@ -5168,6 +5198,7 @@ function ensureIsoWorld(
         mutableRootSnapshots = null;
       }
       if (provisionalIsoWorld) {
+        wilhelmHousingModuleV324?.releaseWilhelmHousingRuntimeV324(provisionalIsoWorld,false);
         disposeObject3D(runtime, provisionalIsoWorld);
         provisionalIsoWorld = null;
       }
@@ -5482,6 +5513,7 @@ function ensureVoxelWorld(
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             sourcePrisms: prisms?.buildings,
             neighbourhoodV300: true,
+            wilhelmHousingV324: true,
             currentSitesV311: true,
             onBuildProgress: (completed, total) => {
               if (voxelWorldIntentActive(runtime)) runtime.reportStartupWork?.({ phase: "buildings", completed, total, native: true });
@@ -5507,6 +5539,9 @@ function ensureVoxelWorld(
       });
       provisionalVoxelWorld.userData.prepareNeukoellnLegacyV305?.();
       provisionalVoxelWorld.add(createRosengartenMinecraft());
+      await completeCooperatively(governmentV323.prepareWilhelmHousingRuntimePreviousV324Steps(provisionalVoxelWorld,true,governmentSwapHooksV321(runtime,provisionalVoxelWorld)),{
+        yieldTask:yieldStartupWork,isCancelled:()=>runtime.disposed||!voxelWorldIntentActive(runtime),
+      });
       provisionalGovernmentNativeV321=prisms?await completeCooperatively(preparePublicOfficesV322Steps(runtime,provisionalVoxelWorld,{sourcePrisms:prisms.buildings,voxels:payload,native:true,mobileLike:runtime.coarsePointer},governmentV323),{
         yieldTask:yieldStartupWork,isCancelled:()=>runtime.disposed||!voxelWorldIntentActive(runtime),
       }):null;
@@ -5626,6 +5661,7 @@ function ensureVoxelWorld(
         provisionalMinecraftMobs = null;
       }
       if (provisionalVoxelWorld) {
+        wilhelmHousingModuleV324?.releaseWilhelmHousingRuntimeV324(provisionalVoxelWorld,true);
         if (runtime.voxelWorld === provisionalVoxelWorld) {
           runtime.voxelWorld = null;
         }
@@ -9976,6 +10012,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.nightLightsOn,
           );
           if (runtime.coarsePointer) interleaveStaticGeometry(runtime.culturalDetails);
+          await ensureWilhelmHousingLegacyV324(runtime);
           // Cultural details arrive after the initial anti-flicker scan. Add
           // the thin storefront mullions, lettering and Adlon facade accents
           // immediately so late-loaded close detail remains stable at range.
@@ -10289,6 +10326,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.governmentOfficesV321?.drawn?.rollback();
         runtime.governmentOfficesV321?.native?.rollback();
         runtime.governmentOfficesV321=undefined;
+        if(runtime.isoWorld)wilhelmHousingModuleV324?.releaseWilhelmHousingRuntimeV324(runtime.isoWorld,false);
+        if(runtime.voxelWorld)wilhelmHousingModuleV324?.releaseWilhelmHousingRuntimeV324(runtime.voxelWorld,true);
         runtime.surroundingCity?.dispose();
         runtime.surroundingCity = undefined;
         runtime.zooAnimalsV282?.dispose();

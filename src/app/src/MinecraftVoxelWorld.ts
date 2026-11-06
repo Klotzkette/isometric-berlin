@@ -75,7 +75,8 @@ import { createNativeOttoWeidtFountainV314 } from "./OttoWeidtFountainV314";
 import { createEuropacityRailV313, perlebergerRoadFloorAtV313 } from "./EuropacityRailV313";
 import { createNorthContextV312, northContextSolidAtV312 } from "./NorthContextV312";
 import { createMinecraftWeinbergPlaygroundV174 } from "./WeinbergPlaygroundV174";
-import { buildMinecraftAltMitteCoreV169Steps, assertAltMitteNativeV169SourceReady } from "./AltMitteNativeCoreV169";
+import { buildMinecraftAltMitteCoreV169Steps, assertAltMitteNativeV169SourceReady,preparedWilhelmHousingNativeSourceV324 } from "./AltMitteNativeCoreV169";
+import {createWilhelmHousingRuntimeV324Steps} from "./WilhelmHousingV324Runtime";
 import { altMitteV169SourceColumn } from "./altMitteV169Profile";
 import { createMinecraftTuWaterV168 } from "./TuWaterV168";
 import { tuWaterV168SourceColumn } from "./tuWaterV168Profile";
@@ -365,6 +366,7 @@ import {
 } from "./TunnelPortals";
 
 export type MinecraftVoxelWorldOptions = {
+  wilhelmHousingV324?: boolean;
   currentSitesV311?: boolean;
   onBuildProgress?: (completed: number, total: number) => void;
   neighbourhoodV300?: boolean;
@@ -2419,6 +2421,7 @@ export function* buildMinecraftVoxelWorldSteps(
   // Complete owners precede the resident native Podewil correction as well.
   const fidelityV288 = prepareRequiredFidelityV288({buildings:options.sourcePrisms ?? []}, payload, true, false, mobileDetail, options.neighbourhoodV300===true);
   group.add(fidelityV288.root);
+  if(options.wilhelmHousingV324)yield*createWilhelmHousingRuntimeV324Steps(group,options.sourcePrisms??[],payload,true,mobileDetail,preparedWilhelmHousingNativeSourceV324());
   const cell = payload.cell_m;
   // Buildings/trees carry ABSOLUTE cell indices; ground runs are grid
   // offsets (see the payload origin note): cell (x_idx, z_idx) spans

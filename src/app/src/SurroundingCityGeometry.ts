@@ -302,8 +302,10 @@ export type SurroundingOwnershipOptions = {
   berlinSenateV321?: NeighbourhoodSourceV300;
   governmentOfficesV321?:boolean;
   universitiesV322?:boolean;
+  /** Complete resident Wilhelm housing fittings, proved by the main-thread owner. */
+  wilhelmHousingV324?:boolean;
   sourceQuartersV303?: boolean;
-  sourceQuarterSourcesV303?: readonly {source:SourceQuarterSourceV303;kind:string;requiredReplacement?:boolean;admission?:"north-v309"|"treptow-v317"|"government-v321"|"universities-v322"}[];
+  sourceQuarterSourcesV303?: readonly {source:SourceQuarterSourceV303;kind:string;requiredReplacement?:boolean;admission?:"north-v309"|"treptow-v317"|"government-v321"|"universities-v322"|"wilhelm-v324"}[];
   neukoellnLandmarksV305?: boolean;
   northFidelityV309?: boolean;
   treptowWaterfrontV317?: boolean;
@@ -386,6 +388,7 @@ export function* buildSurroundingCityChunk(
       entry.admission==="treptow-v317"?ownership.treptowWaterfrontV317!==true:
       entry.admission==="government-v321"?ownership.governmentOfficesV321!==true:
       entry.admission==="universities-v322"?ownership.universitiesV322!==true:
+      entry.admission==="wilhelm-v324"?ownership.wilhelmHousingV324!==true:
       entry.requiredReplacement&&ownership.neukoellnLandmarksV305!==true)continue;
     if(!neighbourhoodPacketCandidateV300(entry.source as unknown as NeighbourhoodSourceV300,id,minecraft))continue;
     const plan=entry.source.packets[`${minecraft?"minecraft":"drawn"}:${id}`];

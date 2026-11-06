@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.205 — 2026-11-06
+
+- Refine the complete seventeen historic housing families between the Holocaust Memorial, Wilhelmstraße and An der Kolonnade, with distinct window groups, loggias, oriels, stone-panel joints and plinths drawn from attributed photographic references. Distinguish the two modern residential families from the historic prefabricated housing.
+- Preserve all 83 original building leaves, roofs, courtyards, passages and navigation. Replace only proven obsolete fittings through reversible shared-owner transactions, with independent cardinal Native architecture and identical full/touch coverage.
+
+
 ## v1.0.204 — 2026-11-06
 
 - Keep Native-only packet data out of Day’s shared lossless codec; fetch complete required office models alongside world inputs and load the surrounding city at its actual first use.

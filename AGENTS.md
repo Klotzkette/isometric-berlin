@@ -2735,3 +2735,56 @@ Step10 full native RLE intervals: actual BHT cells contain several original vert
 Step10 Allied additions are finite: mapped Max Bill monument node/9671927947, British Cross of Sacrifice node/7503268449 and Stone of Remembrance footprint way/802156616 within cemetery way/5077552. Preserve existing Luftbrücke monument. Maison de France has only new source-bound fittings on the seven original blank rounded facets; no old body, roof or door retirement. Berlin and Pyramide share one exact Drawn authored-host transaction; Cadillac, French and British works have no invented old-owner plans. Native-first compiled author sources stay distinct from unchanged strict Drawn old-input proofs.
 
 V322 admission performance must preserve full positive gates: one atomic office/university readiness read per relevant checkpoint, no timed admission cache; no duplicate full proof for the two flags. Only residents with a relevant source-quarter recipe require readiness polling. Negative navigation broad-phase bounds derive from completed actual render bounds, conservatively expanded for Float32 edge rounding; they never authorize positive admission or alter exact owner-word comparisons. All positive queries and hook/await checkpoints retain fresh complete validation.
+
+
+## V324 — finite Wilhelm housing correction (v1.0.205)
+
+The owner requests the existing residential families east/southeast of the
+Holocaust Memorial, west of Wilhelmstraße, including An der Kolonnade and the
+Georg-Elser memorial/tennis-court context. The complete finite audit is seventeen
+historic families (45 original leaves) plus the two modern Embassy of Exchange
+families DEBE01AL1H500002/DEBE01AL1H500005 (38 leaves). It does not authorize a
+new district, courtyard fill, roof replacement, street or navigation change.
+Keep every original prism, source wall, roof, passage and walking surface.
+
+New fittings bind all 83 literal original prism records; Native additionally
+binds the eight original packet records and complete original positive-area
+voxel intervals/contributors/exposure topology. Original native body surfaces
+are borrowed independently for cardinal fitting support; no rotated Drawn clone.
+Full/touch have identical new fitting coverage. Fine joinery, colors and shopfront
+rhythms are attributed display estimates, not survey measurements. Reference
+photographs stay outside the product; no photographic pixels or new texture.
+
+A full private model/source receipt precedes any old-fitting transfer. Only
+modeled wall masks retire generic Drawn packet fittings in 1_0/1_1; the Source
+Quarter recipe remains retire-only and required, with default-closed admission.
+Dedicated old V288 west fittings retire only their three covered runs; the
+unmodeled fourth west face remains. The exact old modern slab fittings were
+incorrect DDR illustrations and may retire in full once both complete modern
+families admit. Clip obsolete An-der-Kolonnade fittings only to the modeled mask
+and replay their geometric outside complement; retain Czech-embassy, HIT,
+tennis and every other original component. Native old generic glass coloring
+on structural Alt-Mitte facets requires exact neutral-backing replay with the
+same original facets; no body/index hole, whole-cell or broad owner deletion.
+
+The twenty Core owners with positively selected obsolete fittings join the
+existing Government/University ExactOwners composition. Keep all their original
+body and ink components with retireBody=false; do not create a competing index
+transaction on shared Core. The other audited original prism records remain
+source-bound and unchanged. Native full retires only whole actual pane instances
+inside independently proven cardinal support; Native touch has no old panes and
+retains all original body rows. Pending, cancelled, detached or revoked models
+restore all previous complements; late Worker/cultural arrivals use the same
+private gates. Hidden mode ancestors and legitimate GPU/lossless parking do not
+invalidate a complete model. No recurring scene timer or admission time cache.
+
+Only new wilhelmHousingV324.drawn/native, wilhelmHousingV324Core.drawn/nativeFull/
+nativeMobile and new retirement constructor inputs may use the established weak
+construction codec. New .runs and literal source-binding metadata retain ordinary
+strong own-data descriptors. No older cache lifetime or eager field is changed.
+Retain v306/311/318–323 immutable source fixtures and capture a new v324 bridge
+after the final finite production delta. Keep the 894 MiB archive ceiling,
+400 KiB bootstrap ceiling, 16 MiB Worker ceiling, existing streaming/scene limits,
+all six views, full touch detail and all 93 tour stops. Preserve the preceding
+complete package by rename and publish the public release as latest only after
+Pages, exact artifacts and the visible viewer have been verified.
