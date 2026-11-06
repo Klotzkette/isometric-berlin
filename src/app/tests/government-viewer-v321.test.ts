@@ -199,7 +199,8 @@ test("actual Viewer requires exactly one existing mode-correct PressQuarter grou
 test("actual Viewer government lighting selects only the active admitted family and forwards mode plus lights-off",()=>{
   const voxelMode=actual("voxelModeActive",{}),currentGovernment=actual("currentGovernmentOfficesV321",{voxelModeActive:voxelMode});
   const calls:any[]=[];const relight=actual("applyGovernmentLightingV321",{
-    currentGovernmentOfficesV321:currentGovernment,applyLightingToRoot:(root:Group,mode:string,lightsOn:boolean)=>calls.push({root,mode,lightsOn}),
+    currentGovernmentOfficesV321:currentGovernment,voxelModeActive:voxelMode,wilhelmHousingModuleV324:undefined,wilhelmStreetModuleV325:undefined,
+    applyLightingToRoot:(root:Group,mode:string,lightsOn:boolean)=>calls.push({root,mode,lightsOn}),
   });
   const scene=new Group(),drawnWorld=new Group(),nativeWorld=new Group(),drawnRoot=new Group(),nativeRoot=new Group();
   scene.add(drawnWorld,nativeWorld);drawnWorld.add(drawnRoot);nativeWorld.add(nativeRoot);

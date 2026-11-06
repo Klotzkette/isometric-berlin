@@ -2788,3 +2788,123 @@ after the final finite production delta. Keep the 894 MiB archive ceiling,
 all six views, full touch detail and all 93 tour stops. Preserve the preceding
 complete package by rename and publish the public release as latest only after
 Pages, exact artifacts and the visible viewer have been verified.
+
+
+## V325 — complete Wilhelmstraße and Georg Elser context (v1.0.206)
+
+The owner's correction expressly identifies the entire Wilhelmstraße and its
+immediate surroundings, centered on Georg Elser's memorial at An der Kolonnade.
+Use the complete current 2.407 km ordered street chain from Reichstagufer to
+Hallesches Ufer. Keep the nineteen approved V324 residential families and their
+83 original leaves, masks, complete source binders and outside complements.
+Recompose their fittings with shared real-looking storey axes, explicit main
+front/oriel/ground-floor composition and independently borrowed full original
+cardinal Native wall support; do not reset a grid on each microscopic wall.
+Photographic proportions remain display estimates, not measured survey data.
+
+The additional finite street coverage is eleven complete original families,
+87 actual Core prism rows, grouped into nine photographic facade compositions:
+Wilhelmstraße 67 and 65, 43, Block 9 at 110–113 (three families), Rossi 36–38,
+former school/current Kita 116/117, De Rossi 119, terraces 120/121, and Fehling /
+Gogel 149/150. Preserve every old body, roof, mapped color, passage and walking
+surface. Do not claim that fittings correct an unresolved coarse original mass.
+The mapped actual exterior support determines Native fitting placement; omit an
+occluded optional return without cutting a body or inventing a support plane.
+Full and touch retain equal new fitting coverage, with independent orthogonal
+Native construction. No new district, geographic fill, media fetch or timer.
+
+Only complete private model/source receipts admit generic-fitting retirement.
+The first three northern families share existing Alt-Mitte hosts: their exact
+Drawn retire-only recipes join the actual sequential SourceQuarter pipeline in
+1_0/1_1; their Native original glass backing joins the existing V324 Previous
+controller in one disjoint finite transaction. Never create two index owners
+on those eight resident meshes. The eight southern Core families join the
+existing Government/University/V324 ExactOwners composition, retaining all
+original body and ink components (retireBody=false). All actual host sources,
+engine-specific complete alternatives and geometric complements remain exact.
+Failure/cancellation/revocation restores previous owners; an optional street
+failure must permit restaging the existing complete V324 correction.
+
+Street furniture uses complete original municipal source inputs and only fourteen
+photographically supported original lamp IDs for replacement. Preserve all other
+municipal lamps. Thirteen additional actual southern OSM lamps, three mapped
+backless benches and two mapped U-stands use their own literal source positions
+and the existing actual terrain sampler. Heights and small furniture dimensions
+are estimates. Keep furniture independently batched and source-checked.
+
+Preserve the existing Georg Elser sculpture's source anchor, 17 m height and
+three-layer profile. Built photographs support exactly two flush illuminated
+pavement inscriptions and one narrow glass information stele at its own OSM
+point. Do not copy the third band from the unrealized artist's proposal into
+the built scene. Original photographs remain external references, never product
+pixels. Small stele and band dimensions/heading are labeled estimates.
+
+Only new wilhelmStreetFrontsV325.drawn/native and its new Core/Previous
+constructor fields may use the established weak construction codec. New .runs
+and complete source-binding metadata/nativeVoxels remain ordinary eager strong
+own-data properties; new streamed plans use the established per-packet codec.
+The new exact data/wilhelmStreetFrontsV325Sources.json.nativeVoxels object may
+also use eager strong gzip encoding with its complete raw/field SHA pins and
+the same real production before/after audit; it never becomes a lazy field.
+The new wilhelmStreetFrontsV325.json.runs metadata array may use the same finite
+raw/field-pinned eager strong codec after full value/descriptor/alias/mutation
+and negative-zero auditing. Its two negative-zero values remain exact; no
+constructor or metadata ownership is reclassified.
+One finite old ordinary eager object, data/wilhelmHousingV324Sources.json.
+nativeVoxels, is approved for existing lossless gzip/Base64 encoding after a
+complete real before/after production value, descriptor, alias, mutation and
+metadata-elimination audit. Raw-source and JSON-field SHA pins in
+losslessEagerFieldsV325.ts must remain exact. No cache lifetime changes.
+
+Retain all older immutable fixtures and Git/release history. Add a new finite
+V325 bridge only after reviewing the final production delta. Preserve the
+preceding complete package by rename. Keep the 894 MiB archive, 400 KiB
+bootstrap, 16 MiB Worker, streaming, startup and scene budgets, all six views,
+full touch detail and all 93 tour stops. Verify public Pages, both exact archive
+inventories/digests and the visible viewer before publishing latest last.
+
+
+V325 final finite archive offset: the exact unchanged published205
+`data/altMitteV169Native/packet-062.json.meshes` field is one additional explicit
+exception to the packed-packet literal rule, alongside the four V322 fields.
+It may use only the existing eager strong gzip/Base64 codec, with complete raw
+source/field SHA pins in losslessEagerFieldsV325.ts. Its complete 824,502-byte
+JSON field remains below 840 KiB and loads only through the existing Native-only
+source preload, preserving parallel sibling fetches and synchronous module
+evaluation. Preserve every original packed string, decoded
+binary word, own-data descriptor, named/default alias, mutation and ordinary
+strong lifetime. Metadata-only imports must eliminate its decode; no Native
+packet enters the Day bootstrap or geometry Worker. All other packed packets
+keep their existing rules, raw source files and full source-history graph stay
+unchanged, and no runtime, geometry or residency budget is increased. This
+finite source-only offset requires a real before/after production mini-build
+with full values, source bytes, identity, descriptors, mutations and metadata
+elimination verified before the final package build.
+
+
+V325 actual-caller validation: Drawn canonical and complete literal V8 plans
+share the same source-prism records. Source binding alone cannot select the
+rendered alternative. At the actual Core family stage, try the complete V8
+receipt only when canonical preparation returns null, before any commit or
+bundle rollback; a rejected commit/hook never selects another variant. Keep
+preview, PressQuarter, Native and no-street defaults unchanged. The same finite
+rule applies to pending/late Worker families, with full word and outside proofs.
+
+The two private Wilhelm model roots are world siblings of the Government root.
+Their authored warm-glazing emission must follow the existing initial lighting
+and Day/Night On/Off calls explicitly on their full privately admitted roots.
+A material swap alone is insufficient. Do not broaden unrelated accessory
+whitelists, accept public labels or add a timer; keep raw/full gate recursion
+separate and preserve actual full admission through material/parking passes.
+
+
+V325 final synchronous proof round: one Gov complete() call may share its full
+model proof only with the current private Family transaction's complete check
+inside that same synchronous pass. Check the complete model set before and
+after; each family's source, exact words, topology and path remain freshly
+validated. A nested complete/stage/release interrupts the pass; no positive
+admission follows a callback mutation. Clear the scope in finally before any
+rollback. Preparation, commit hooks, parking, navigation, other families and
+all asynchronous boundaries retain independent fresh gates. This is no timed
+cache or persistent model-valid flag. Native previous callbacks capture the
+stable actual world, never the provisional variable cleared by publication.

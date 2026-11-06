@@ -1,4 +1,5 @@
 import { createGovernmentStreetLampBatchV286, type GovernmentStreetFurnitureTerrainAtV286 } from "./GovernmentStreetLampBatchV286";
+import {createWilhelmStreetFurnitureV325,wilhelmStreetFurnitureReplacementSourceIdsV325} from "./WilhelmStreetFurnitureV325";
 import { createChancelleryTreeBranchesV287 } from "./ChancelleryTreesV287";
 import { staticModelDetailProfile } from "./staticModelDetail";
 import {
@@ -1996,6 +1997,7 @@ function addStreetLights(
   lights: StreetLight[],
   includeLightCones = true,
   furnitureTerrainAt?: GovernmentStreetFurnitureTerrainAtV286,
+  completeSourceLights:readonly StreetLight[]=lights,
 ): void {
   if (lights.length === 0) {
     return;
@@ -2003,8 +2005,11 @@ function addStreetLights(
   // Build the entire admitted family synchronously before its exact admitted
   // generic poles/heads yield. The existing cone pass remains unchanged.
   const governmentLamps = createGovernmentStreetLampBatchV286(lights, furnitureTerrainAt);
-  const replaced = new Set<string>(governmentLamps?.userData.replacementSourceIds ?? []);
+  const wilhelmFurniture=createWilhelmStreetFurnitureV325(false,completeSourceLights,furnitureTerrainAt);
+  const replaced = new Set<string>([...(governmentLamps?.userData.replacementSourceIds ?? []),
+    ...(wilhelmFurniture?wilhelmStreetFurnitureReplacementSourceIdsV325(wilhelmFurniture):[])]);
   if (governmentLamps) group.add(governmentLamps);
+  if(wilhelmFurniture)group.add(wilhelmFurniture);
   const poles: Transform[] = [];
   const heads: Transform[] = [];
   const cones: Transform[] = [];
@@ -2935,7 +2940,7 @@ function* createParkDetailsSteps(
     detailProfile === "full",
   );
   yield;
-  addStreetLights(group, streetLights, detailProfile === "full", options.streetFurnitureTerrainAt);
+  addStreetLights(group, streetLights, detailProfile === "full", options.streetFurnitureTerrainAt, sourceStreetLights);
   yield;
   group.userData.wallStoneCount =
     detailProfile === "mobile"

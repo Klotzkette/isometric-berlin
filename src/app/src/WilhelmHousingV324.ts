@@ -23,7 +23,7 @@ type Profile = {schemaVersion:number;families:{id:string;parts:string[];style:st
 const source = data as unknown as Profile;
 // Generated over the complete finite recipe. Unknown, changed or partial input
 // cannot acquire a private model receipt, even if public labels are copied.
-const METADATA_CONTROL = 2242021758, DRAWN_ROWS_CONTROL = 1983764761, NATIVE_ROWS_CONTROL = 2118526591;
+const METADATA_CONTROL = 1295951375, DRAWN_ROWS_CONTROL = 999225574, NATIVE_ROWS_CONTROL = 4101089191;
 const jsonHash=(q:unknown):number=>{let h=2166136261;for(const c of JSON.stringify(q))h=Math.imul(h^c.charCodeAt(0),16777619)>>>0;return h;};
 const META_KEYS=['schemaVersion','references','families','runs','estimates']as const;
 const metadata=()=>Object.fromEntries(META_KEYS.map(k=>{const d=Object.getOwnPropertyDescriptor(source,k);return[k,d&&'value'in d?d.value:undefined];}));

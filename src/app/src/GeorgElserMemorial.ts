@@ -14,6 +14,7 @@ import {
 
 import { createLetteringTexture } from "./drawnLettering";
 import { POTSDAMER_DETAIL_PROFILE } from "./expandedCityProfiles";
+import {createGeorgElserContextV325} from "./GeorgElserContextV325";
 
 type Point2 = readonly [number, number];
 
@@ -186,23 +187,23 @@ function plaqueLine(
     bandHeightM: height,
     bandWidthM: width,
     capHeightM: height * 0.56,
-    fieldColor: "#202427",
-    letterColor: "#f2f0e9",
+    fieldColor: "#5e6258",
+    letterColor: "#ddc58b",
     text: renderedText,
     texelsPerMetre: 320,
   });
   const day = texture
     ? new MeshBasicMaterial({ map: texture, side: DoubleSide })
-    : new MeshBasicMaterial({ color: 0x202427, side: DoubleSide });
+    : new MeshBasicMaterial({ color: 0x5e6258, side: DoubleSide });
   const night = texture
     ? new MeshStandardMaterial({
         map: texture,
         roughness: 0.66,
         side: DoubleSide,
       })
-    : new MeshStandardMaterial({ color: 0x202427, side: DoubleSide });
-  night.userData.nightEmissive = 0x879da2;
-  night.userData.nightEmissiveIntensity = 0.14;
+    : new MeshStandardMaterial({ color: 0x5e6258, side: DoubleSide });
+  night.userData.nightEmissive = 0xc9ad77;
+  night.userData.nightEmissiveIntensity = 0.26;
   const line = new Mesh(new PlaneGeometry(width, height), day);
   line.name = name;
   line.position.set(0, 0.084, z);
@@ -267,7 +268,7 @@ export function createGeorgElserMemorial(): Group {
   const plaque = new Group();
   plaque.name = "Georg Elser pavement inscription plaque";
   plaque.position.z = 2.05;
-  const rimMaterials = materialPair({ color: 0x8a8d89 });
+  const rimMaterials = materialPair({ color: 0x797b72 });
   const rim = modeMesh(
     "Georg Elser pavement plaque steel rim",
     new BoxGeometry(profile.plaqueWidthM, 0.055, profile.plaqueDepthM),
@@ -275,7 +276,7 @@ export function createGeorgElserMemorial(): Group {
   );
   rim.position.y = 0.028;
   plaque.add(rim);
-  const fieldMaterials = materialPair({ color: 0x202427 });
+  const fieldMaterials = materialPair({ color: 0x5e6258 });
   const field = modeMesh(
     "Georg Elser pavement plaque dark field",
     new BoxGeometry(
@@ -306,5 +307,6 @@ export function createGeorgElserMemorial(): Group {
     ),
   );
   memorial.add(plaque);
+  memorial.add(createGeorgElserContextV325(profile));
   return memorial;
 }

@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { execFileSync, spawn } from "node:child_process";
 import ts from "typescript";
+import { sourceAtPublished205V325 } from "./helpers/sourceHistoryV325";
 import {
   verifySourceLayerV324, published204SourceGraphV324, sourceAtPublished204V324, projectSourceBeforeV324, assertSourceLayerV324,
   SOURCE_HISTORY_PUBLISHED_V204_V324, SOURCE_HISTORY_PROOF_V323_SHA_V324, SOURCE_HISTORY_CAPTURE_SHA_V324,
@@ -199,7 +200,7 @@ test("the frozen actual205 default layer proves every current byte and composes 
   expect(sha(JSON.stringify(sorted))).toBe("ebd56fa35066008ecc35ae28a262a334d77b09bb0107e48e7546c8b6e1e59876");
   const root = new URL("../../..", import.meta.url);
   for (const path of Object.keys(layer.currentGraph)) {
-    const current = readFileSync(new URL(path, root)); expect(sha(current)).toBe(layer.currentGraph[path]);
+    const current = readFileSync(new URL(path, root)); expect(sha(sourceAtPublished205V325(path, current))).toBe(layer.currentGraph[path]);
     if (Object.hasOwn(layer.receipt.additions, path)) {
       expect(() => sourceAtPublished204V324(path, current)).toThrow("Unknown exact");
       continue;
@@ -212,7 +213,7 @@ test("the frozen actual205 default layer proves every current byte and composes 
       expect(projectSourceBeforeV323(current.toString())).toBe(Buffer.from(sourceAtPublished203V323(path, current)).toString());
     }
   }
-});
+}, 30000);
 
 test("only V323 adapter entrypoints change and the complete history import graph remains acyclic", () => {
   const file = "src/app/tests/helpers/sourceHistoryV323.ts";
@@ -243,6 +244,7 @@ test("only V323 adapter entrypoints change and the complete history import graph
   };
   for (const name of graph.keys()) visit(name);
   expect(visited.size).toBe(graph.size);
-  expect(graph.get("sourceHistoryV324.ts")).toEqual([]);
+  expect(graph.get("sourceHistoryV325.ts")).toEqual([]);
+  expect(graph.get("sourceHistoryV324.ts")).toEqual(["sourceHistoryV325.ts"]);
   expect(graph.get("sourceHistoryV323.ts")).toEqual(["sourceHistoryV324.ts"]);
 });

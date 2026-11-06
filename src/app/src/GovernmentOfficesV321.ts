@@ -28,12 +28,15 @@ import {requiredYouthTheatresNavigationV322} from "./youthTheatresV322Navigation
 import {createMaisonDeFranceV322Steps,hasCompleteMaisonDeFranceV322} from "./MaisonDeFranceV322";
 import {hasCompleteWilhelmHousingV324} from "./WilhelmHousingV324";
 import {wilhelmHousingCorePlanV324} from "./WilhelmHousingV324Core";
+import {hasCompleteWilhelmStreetFrontsV325} from "./WilhelmStreetFrontsV325";
+import {wilhelmStreetFrontsCorePlanV325} from "./WilhelmStreetFrontsV325Core";
 import type {PrismBuilding} from "./IsometricCityWorld";
 import type {DeutschesTheaterVoxelPayload} from "./DeutschesTheater";
 // The viewer imports this namespace lazily; central preparation must not keep
 // the complete office-plan graph in its synchronous startup imports either.
 export {createGovernmentCentralV321,type GovernmentCentralV321} from "./GovernmentCentralV321";
 export * from "./WilhelmHousingV324Runtime";
+export * from "./WilhelmStreetFrontsV325Runtime";
 
 export type GovernmentOfficesV321={
   root:Group;
@@ -61,7 +64,9 @@ export type GovernmentOfficesOptionsV321={sourcePrisms:readonly PrismBuilding[];
   voxels?:DeutschesTheaterVoxelPayload;native:boolean;mobileLike:boolean;
   includeUniversitiesV322?:boolean;
   wilhelmHousingV324?:Group;
-  onWilhelmRevokeV324?:()=>void};
+  onWilhelmRevokeV324?:()=>void;
+  wilhelmStreetFrontsV325?:Group;
+  onWilhelmStreetRevokeV325?:()=>void};
 function disposeUnpublished(root:Group):void{
   const geometries=new Set<Mesh["geometry"]>(),materials=new Set<Material>();
   root.traverse(object=>{if(object instanceof Mesh||object instanceof Line||object instanceof Points){
@@ -77,17 +82,29 @@ export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptio
   const includeUniversities=options.includeUniversitiesV322===true;
   const housing=options.wilhelmHousingV324;
   if(housing&&!hasCompleteWilhelmHousingV324(housing,native))return null;
+  const streetFronts=options.wilhelmStreetFrontsV325;
+  if(streetFronts&&!hasCompleteWilhelmStreetFrontsV325(streetFronts,native))return null;
   const root=new Group();root.name=`Government offices V321${native?" native":" drawn"}`;
   let delivered=false;
   try{
   onCreate?.(root);
-  const source=yield*composeExactOwnersSourcesV321Steps([
+  const baseSources=[
     federalMinistryPreviousPlanV321(native,mobileLike),
     berlinSenatePreviousPlanV321(native,mobileLike),
     ...(includeUniversities?[uniExactPlansV322(native,mobileLike,false)]:[]),
     ...(housing?[wilhelmHousingCorePlanV324(native,mobileLike)]:[]),
+  ];
+  const source=yield*composeExactOwnersSourcesV321Steps([
+    ...baseSources,
+    ...(streetFronts?[wilhelmStreetFrontsCorePlanV325(native,mobileLike)]:[]),
   ],sourcePrisms,voxels);
-  if(!source)return null;
+  // Source inputs are identical across both captured engines. Bind both full
+  // alternatives now, then choose only when actual host-word staging rejects
+  // the canonical receipt. Source binding alone cannot distinguish engines.
+  const alternativeSource=streetFronts&&!native?yield*composeExactOwnersSourcesV321Steps([
+    ...baseSources,wilhelmStreetFrontsCorePlanV325(false,mobileLike,true),
+  ],sourcePrisms,voxels):null;
+  if(!source||streetFronts&&!native&&!alternativeSource)return null;
   // The coverage preview has a different actual constructor/host from full
   // Core bodies. Never combine the two into one partially present family.
   const previewSource=native?null:yield*composeExactOwnersSourcesV321Steps([
@@ -143,15 +160,20 @@ export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptio
   const staging=new Set<Object3D>();
   let expectedWorld:Object3D|null=null;
   let closed=false;
+  // Only the currently checked private transaction may reuse the model proof
+  // within one synchronous complete pass. Source/path/word checks stay fresh.
+  let completing=false,completionInterrupted=false;
+  let completingFamily:Family|null=null;
   const contentsReady=()=>rootPoseReady()&&root.visible&&root.children.length===expectedChildren.length&&expectedChildren.every((child,i)=>root.children[i]===child&&child.parent===root&&child.visible)&&
     federal.visible&&senate.visible&&hasCompleteFederalMinistriesV321(federal,native)&&
     hasCompleteBerlinSenateBuildingsV321(senate,native)&&
     (!universities||hasCompleteUniversitiesArchitectureV322(universities,native))&&
     (!theatres||hasCompleteYouthTheatresV322(theatres,native))&&
     (!maison||hasCompleteMaisonDeFranceV322(maison,native))&&
-    (!housing||hasCompleteWilhelmHousingV324(housing,native));
+    (!housing||hasCompleteWilhelmHousingV324(housing,native))&&
+    (!streetFronts||hasCompleteWilhelmStreetFrontsV325(streetFronts,native));
   const modelsReady=()=>!closed&&expectedWorld!==null&&root.parent===expectedWorld&&
-    (!housing||housing.parent===expectedWorld)&&contentsReady();
+    (!housing||housing.parent===expectedWorld)&&(!streetFronts||streetFronts.parent===expectedWorld)&&contentsReady();
   const values=(object:Object3D)=>[...object.matrix.elements,...object.position.toArray(),...object.quaternion.toArray(),
     ...object.scale.toArray(),+object.matrixAutoUpdate,+object.matrixWorldAutoUpdate];
   const worldPath=(family:Object3D):Link[]|null=>{
@@ -172,17 +194,36 @@ export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptio
   const rollback=()=>{if(closed)return;closed=true;root.visible=false;
     const current=[...families.values()].reverse();families.clear();
     for(const family of current){family.phase="released";family.tx.rollback();}
-    if(housing)options.onWilhelmRevokeV324?.();};
-  const complete=()=>{if(closed)return false;let ready=modelsReady();
-    for(const [object,family]of families){
-      if(family.phase==="active"&&!pathReady(object,family.path))ready=false;
-      // Pending batches may still have parent=null while the Worker scan or
-      // caller's publish task yields. They have not acquired a world path yet.
-      if(!family.tx.complete())ready=false;
+    if(housing)options.onWilhelmRevokeV324?.();
+    if(streetFronts)options.onWilhelmStreetRevokeV325?.();};
+  const complete=()=>{
+    if(closed)return false;
+    if(completing){completionInterrupted=true;return false;}
+    completing=true;completionInterrupted=false;
+    let ready=false;
+    try{
+      if(!modelsReady()||completionInterrupted)return false;
+      for(const [object,family]of families){
+        if(family.phase==="active"&&!pathReady(object,family.path))return false;
+        // Pending batches may still have parent=null while the Worker scan or
+        // caller's publish task yields. They have no world path yet.
+        completingFamily=family;
+        let sourceReady=false;
+        try{sourceReady=family.tx.complete();}finally{completingFamily=null;}
+        if(!sourceReady||closed||completionInterrupted)return false;
+      }
+      // No transaction may borrow the first proof after this pass. Recheck
+      // all models after every family has finished, before returning ready.
+      ready=modelsReady()&&!completionInterrupted;
+      return ready;
+    }finally{
+      completingFamily=null;completing=false;completionInterrupted=false;
+      if(!ready&&expectedWorld!==null)rollback();
     }
-    if(!ready&&expectedWorld!==null)rollback();return ready;};
+  };
   if(!contentsReady())return null;
   function* stage(family:Object3D,kind:FamilyKind,receipt:ExactOwnersSourceV321|null,hooks:ExactOwnersHooksV321):Generator<void,boolean>{
+    if(completing){completionInterrupted=true;return false;}
     if(closed||!receipt||family===root||staging.has(family))return false;
     if(expectedWorld===null){if(!root.parent)return false;expectedWorld=root.parent;}
     if(!complete())return false;
@@ -192,11 +233,17 @@ export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptio
     const path=worldPath(family);
     if(!path&&(family.parent!==null||kind!=="core"))return false;
     let state:Family|undefined,tx:ExactOwnersTransactionV321|null=null,delivered=false;
-    const familyReady=()=>modelsReady()&&(kind!=="press"||family.name===pressName)&&(!state||state.phase!=="released")&&
+    const familyReady=()=>!closed&&((!!state&&completingFamily===state)||modelsReady())&&
+      (kind!=="press"||family.name===pressName)&&(!state||state.phase!=="released")&&
       (state?.phase==="active"?pathReady(family,state.path):path?pathReady(family,path):family.parent===null||worldPath(family)!==null);
     staging.add(family);
     try{
       tx=yield*stageExactOwnersV321Steps(family,receipt,familyReady,hooks);
+      // A rejected stage has published nothing. Retry one independently
+      // captured complete alternative before any commit, never after a failed
+      // publication hook and never by mixing individual owner components.
+      if(!tx&&kind==="core"&&alternativeSource)
+        tx=yield*stageExactOwnersV321Steps(family,alternativeSource,familyReady,hooks);
       // Stage already proves the full original cooperatively; commit repeats
       // the strict source/word gate after retirement hooks before any swap.
       if(!tx||kind==="press"&&(tx.activeOwners.length!==pressOwnerIds.length||pressOwnerIds.some(owner=>!tx!.activeOwners.includes(owner)))||
@@ -236,6 +283,7 @@ export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptio
       return true;
     },
     releaseFamily(family){
+      if(completing){completionInterrupted=true;return;}
       const state=families.get(family);emptyFamilies.delete(family);
       if(!state)return;
       if(state.phase==="active"&&!pathReady(family,state.path)){rollback();return;}

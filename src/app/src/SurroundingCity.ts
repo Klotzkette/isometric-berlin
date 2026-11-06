@@ -55,7 +55,7 @@ export type SurroundingCityManifest = {
   footprint: SurroundingPolygon[];
   groundY: number;
 };
-type Resident = SurroundingChunkGeometry & { descriptor: SurroundingChunkDescriptor; lastWanted: number; southOwnersReadyV294: boolean; littenReadyV297:boolean; wallReadyV298:boolean;westReadyV302:boolean;neukoellnReadyV305:boolean;northCandidateV309:boolean;northReadyV309:boolean;treptowCandidateV317:boolean;treptowReadyV317:boolean;governmentCandidateV321:boolean;governmentReadyV321:boolean;universitiesCandidateV322:boolean;universitiesReadyV322:boolean;wilhelmCandidateV324:boolean;wilhelmReadyV324:boolean };
+type Resident = SurroundingChunkGeometry & { descriptor: SurroundingChunkDescriptor; lastWanted: number; southOwnersReadyV294: boolean; littenReadyV297:boolean; wallReadyV298:boolean;westReadyV302:boolean;neukoellnReadyV305:boolean;northCandidateV309:boolean;northReadyV309:boolean;treptowCandidateV317:boolean;treptowReadyV317:boolean;governmentCandidateV321:boolean;governmentReadyV321:boolean;universitiesCandidateV322:boolean;universitiesReadyV322:boolean;wilhelmCandidateV324:boolean;wilhelmReadyV324:boolean;wilhelmStreetCandidateV325:boolean;wilhelmStreetReadyV325:boolean };
 export type SurroundingNavigationTile = {
   origin: readonly [number, number, number];
   bounds: readonly [number, number, number, number];
@@ -84,6 +84,7 @@ export type SurroundingCityOptions = {
   governmentOfficesV321?:(native:boolean)=>boolean;
   universitiesV322?:(native:boolean)=>boolean;
   wilhelmHousingV324?:(native:boolean)=>boolean;
+  wilhelmStreetFrontsV325?:(native:boolean)=>boolean;
   publicOfficesAdmissionV322?:(native:boolean)=>{government:boolean;universities:boolean};
   sourceQuartersV303?:boolean;
   sourceQuarterSourcesV303?:SurroundingOwnershipOptions["sourceQuarterSourcesV303"];
@@ -540,6 +541,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           const wilhelmCandidateV324=sourceQuarterSourcesV303?.some(entry=>entry.admission==="wilhelm-v324")===true;
           const wilhelmReadyV324=wilhelmCandidateV324&&options.wilhelmHousingV324?.(minecraft)===true;
           const wilhelmChangedV324=()=>wilhelmCandidateV324&&wilhelmReadyV324!==(options.wilhelmHousingV324?.(minecraft)===true);
+          const wilhelmStreetCandidateV325=sourceQuarterSourcesV303?.some(entry=>entry.admission==="wilhelm-street-v325")===true;
+          const wilhelmStreetReadyV325=wilhelmStreetCandidateV325&&options.wilhelmStreetFrontsV325?.(minecraft)===true;
+          const wilhelmStreetChangedV325=()=>wilhelmStreetCandidateV325&&wilhelmStreetReadyV325!==(options.wilhelmStreetFrontsV325?.(minecraft)===true);
           const universitiesCandidateV322=sourceQuarterSourcesV303?.some(entry=>entry.admission==="universities-v322")===true;
           const officeAdmissionV322=options.publicOfficesAdmissionV322?.(minecraft);
           const universitiesReadyV322=officeAdmissionV322?officeAdmissionV322.universities===true:options.universitiesV322?.(minecraft)===true;
@@ -562,17 +566,17 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           const southAdmissionChanged = (): boolean => southReceiptTile && southOwnersReady !== (options.southFidelityV294?.(minecraft) === true);
           const entry = await createStreamedSurroundingCityChunkV255(
             data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
-            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,clusterFacadesV320:options.clusterFacadesV320,berlinSenateV321:options.berlinSenateV321,governmentOfficesV321:governmentReadyV321,universitiesV322:universitiesReadyV322,wilhelmHousingV324:wilhelmReadyV324,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317 },
+            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,clusterFacadesV320:options.clusterFacadesV320,berlinSenateV321:options.berlinSenateV321,governmentOfficesV321:governmentReadyV321,universitiesV322:universitiesReadyV322,wilhelmHousingV324:wilhelmReadyV324,wilhelmStreetFrontsV325:wilhelmStreetReadyV325,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317 },
           );
           unpublished = entry.root;
           // onAttach can synchronously dispose this controller during error recovery.
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id) ||
-              (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305()||northChangedV309()||treptowChangedV317()||officesChangedV322()||wilhelmChangedV324())) {
+              (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305()||northChangedV309()||treptowChangedV317()||officesChangedV322()||wilhelmChangedV324()||wilhelmStreetChangedV325())) {
             release(entry.root); unpublished = null; continue;
           }
           options.onAttach?.(entry.root, mode);
-          if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id) || (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305()||northChangedV309()||treptowChangedV317()||officesChangedV322()||wilhelmChangedV324())) { release(entry.root); unpublished = null; continue; }
-          residents.set(descriptor.id, { ...entry, descriptor, lastWanted: now(), southOwnersReadyV294:southOwnersReady,littenReadyV297,wallReadyV298,westReadyV302,neukoellnReadyV305,northCandidateV309,northReadyV309,treptowCandidateV317,treptowReadyV317,governmentCandidateV321,governmentReadyV321,universitiesCandidateV322,universitiesReadyV322,wilhelmCandidateV324,wilhelmReadyV324 });
+          if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id) || (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305()||northChangedV309()||treptowChangedV317()||officesChangedV322()||wilhelmChangedV324()||wilhelmStreetChangedV325())) { release(entry.root); unpublished = null; continue; }
+          residents.set(descriptor.id, { ...entry, descriptor, lastWanted: now(), southOwnersReadyV294:southOwnersReady,littenReadyV297,wallReadyV298,westReadyV302,neukoellnReadyV305,northCandidateV309,northReadyV309,treptowCandidateV317,treptowReadyV317,governmentCandidateV321,governmentReadyV321,universitiesCandidateV322,universitiesReadyV322,wilhelmCandidateV324,wilhelmReadyV324,wilhelmStreetCandidateV325,wilhelmStreetReadyV325 });
           geometryBytes += entry.geometryBytes;
           bufferCount += entry.bufferCount;
           root.add(entry.root);
@@ -640,16 +644,19 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     for(const[id,entry]of residents)if(entry.northCandidateV309&&entry.northReadyV309!==northNowV309){evict(id);failedAt.delete(id);lastScan=-Infinity;}
     const treptowNowV317=options.treptowWaterfrontV317?.(mode==="minecraft")===true;
     for(const[id,entry]of residents)if(entry.treptowCandidateV317&&entry.treptowReadyV317!==treptowNowV317){evict(id);failedAt.delete(id);lastScan=-Infinity;}
-    // Only the two affected drawn residents need the complete housing gate.
-    if([...residents.values()].some(entry=>entry.wilhelmCandidateV324)){
-      let ready=options.wilhelmHousingV324?.(mode==="minecraft")===true;
-      // A release hook may synchronously change the complete owner. Each
-      // restart removes one resident, so the recheck stays finite.
+    // Recheck both relevant Wilhelm families after each real release. A
+    // release hook can change either source gate during this synchronous pass.
+    const housingCandidateV325=[...residents.values()].some(e=>e.wilhelmCandidateV324);
+    const streetCandidateV325=[...residents.values()].some(e=>e.wilhelmStreetCandidateV325);
+    if(housingCandidateV325||streetCandidateV325){
+      const read=()=>({housing:housingCandidateV325&&options.wilhelmHousingV324?.(mode==="minecraft")===true,
+        street:streetCandidateV325&&options.wilhelmStreetFrontsV325?.(mode==="minecraft")===true});
+      let ready=read();
       for(;;){let removed=false;
-        for(const[id,entry]of residents)if(entry.wilhelmCandidateV324&&entry.wilhelmReadyV324!==ready){
+        for(const[id,e]of residents)if(e.wilhelmCandidateV324&&e.wilhelmReadyV324!==ready.housing||
+          e.wilhelmStreetCandidateV325&&e.wilhelmStreetReadyV325!==ready.street){
           evict(id);failedAt.delete(id);lastScan=-Infinity;removed=true;
-          if(disposed)return;
-          ready=options.wilhelmHousingV324?.(mode==="minecraft")===true;break;
+          if(disposed)return;ready=read();break;
         }
         if(!removed)break;
       }

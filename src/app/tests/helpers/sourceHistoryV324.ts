@@ -1,7 +1,8 @@
 /** Test-only finite current -> published204 delta, before immutable v323.
  * This module deliberately imports no older history helper: V323 calls it. */
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
+import { assertSourceLayerV325, sourceAtPublished205V325, projectSourceBeforeV325 } from "./sourceHistoryV325";
 import { resolve } from "node:path";
 
 export const SOURCE_HISTORY_PUBLISHED_V204_V324 = "3d4ac50baa7777ce63b82cfcc482fd5611b50edc";
@@ -126,21 +127,23 @@ let checked: SourceLayerV324 | undefined;
 const repoRoot = resolve(import.meta.dir, "../../../..");
 export function assertSourceLayerV324(): SourceLayerV324 {
   if (checked) return checked;
+  const newest = assertSourceLayerV325();
   const raws = [318, 319, 320, 321, 322, 323].map(version => readFileSync(new URL(`../fixtures/source-history-v${version}.json`, import.meta.url)));
   const graph = published204SourceGraphV324(raws[0], raws[1], raws[2], raws[3], raws[4], raws[5]);
   const receipt = JSON.parse(readFileSync(new URL("../fixtures/source-history-v324.json", import.meta.url), "utf8")) as SourceReceiptV324;
-  const files = readdirSync(resolve(repoRoot, "src/app/src"), { recursive: true }).map(path => `src/app/src/${path}`)
-    .filter(path => /\.(?:ts|tsx|json)$/.test(path) && statSync(resolve(repoRoot, path)).isFile());
-  checked = verifySourceLayerV324(receipt, graph, [...new Set([...Object.keys(graph), ...files])], path => readFileSync(resolve(repoRoot, path)));
+  checked = verifySourceLayerV324(receipt, graph, Object.keys(newest.publishedGraph),
+    path => sourceAtPublished205V325(path, readFileSync(resolve(repoRoot, path)), newest));
   return checked;
 }
 export function sourceAtPublished204V324(path: string, raw: Uint8Array, layer = assertSourceLayerV324()): Uint8Array {
+  if (layer === checked) raw = sourceAtPublished205V325(path, raw);
   if (!admitted.has(layer) || !Object.hasOwn(layer.currentGraph, path) || sha(raw) !== layer.currentGraph[path]
       || !Object.hasOwn(layer.publishedGraph, path)) throw Error(`Unknown exact v324 source bytes: ${path}`);
   const receipt = layer.receipt.changes[path];
   return receipt ? Buffer.from(inverse(Buffer.from(raw).toString("utf8"), receipt)) : raw;
 }
 export function projectSourceBeforeV324(source: string, layer = assertSourceLayerV324()): string {
+  if (layer === checked) source = projectSourceBeforeV325(source);
   if (!admitted.has(layer)) throw Error("Unverified v324 source layer");
   const digest = sha(source), records = Object.values(layer.receipt.changes).filter(r => r.currentSha256 === digest);
   if (records.length && Object.values(layer.currentGraph).filter(value => value === digest).length !== 1) throw Error("Ambiguous full v324 source fingerprint");

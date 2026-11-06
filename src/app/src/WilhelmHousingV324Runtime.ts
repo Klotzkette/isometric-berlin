@@ -13,6 +13,7 @@ import {
   type WilhelmHousingPreviousV324Transaction,
 } from "./WilhelmHousingV324Previous";
 import type { NorthCoreTerrainRebindV309 } from "./NorthCoreTerrainV309";
+import {hasWilhelmStreetFrontsPreviousInputV325,type WilhelmStreetFrontsPreviousV325Input} from "./WilhelmStreetFrontsV325Previous";
 
 export type WilhelmHousingRuntimeHooksV324 = {
   beforeSwap?: NorthCoreTerrainRebindV309;
@@ -24,6 +25,7 @@ type State = {
   source?: WilhelmHousingSourcesV324Receipt;
   creating: boolean; released: boolean; checking: boolean;
   previous?: Transaction; pendingPrevious?: Transaction; preparingPrevious: boolean;
+  previousAdditional?: WilhelmStreetFrontsPreviousV325Input;
   legacy: Map<Object3D, Transaction>; pendingLegacy: Map<Object3D, Transaction>;
   preparingLegacy: Set<Object3D>; coreGate?: () => boolean;
 };
@@ -143,6 +145,9 @@ export function hasWilhelmHousingRuntimeV324(world: Object3D, native = false): b
     for (const transaction of state.legacy.values()) if (!transactionComplete(transaction)) { ready = false; localReady = false; }
     if (!stillOwned(state)) { ready = false; localReady = false; }
   } finally { state.checking = false; }
+  if(!ready&&state.previousAdditional&&rawComplete(state)&&!hasWilhelmStreetFrontsPreviousInputV325(state.previousAdditional,world)){
+    resetWilhelmHousingRuntimePreviousV324(world,native);return false;
+  }
   // Until Government attaches its actual gate this is merely an unpublished
   // complete model, not an invalidated published owner.
   if (!ready && (!localReady || state.coreGate) && !state.released) release(state);
@@ -152,10 +157,13 @@ export function hasWilhelmHousingRuntimeV324(world: Object3D, native = false): b
 /** Only dedicated old v288/native-Alt owners. Shared Core is never staged here. */
 export function* prepareWilhelmHousingRuntimePreviousV324Steps(
   world: Object3D, native = false, hooks: WilhelmHousingRuntimeHooksV324 = {},
+  additional?: WilhelmStreetFrontsPreviousV325Input,
 ): Generator<void, boolean> {
   const state = stateFor(world, native);
   if (!state || !rawComplete(state) || state.preparingPrevious) return false;
   if (state.previous) {
+    if(!!additional!==!!state.previousAdditional||additional&&state.previousAdditional&&
+      (additional.model!==state.previousAdditional.model||additional.sourceReceipt!==state.previousAdditional.sourceReceipt))return false;
     const ready = transactionComplete(state.previous);
     if (!ready) release(state);
     return ready;
@@ -163,19 +171,23 @@ export function* prepareWilhelmHousingRuntimePreviousV324Steps(
   state.preparingPrevious = true;
   let transaction: Transaction | null = null, delivered = false;
   try {
-    transaction = yield* guarded(prepareWilhelmHousingPreviousV324Steps(world, native, state.model!, state.source!, hooks), () => rawComplete(state));
+    transaction = yield* guarded(prepareWilhelmHousingPreviousV324Steps(world, native, state.model!, state.source!, hooks, additional), () => rawComplete(state));
     if (!transaction) return false;
     state.pendingPrevious = transaction;
     if (!transaction.prepared() || !transaction.commit(() => rawComplete(state)) || !transactionComplete(transaction)) return false;
     yield* guarded(transaction.parkRetiredSourcesSteps(), () => rawComplete(state) && transactionComplete(transaction!));
     if (!rawComplete(state) || !transactionComplete(transaction)) return false;
-    state.previous = transaction; state.pendingPrevious = undefined;
+    state.previous = transaction; state.pendingPrevious = undefined; state.previousAdditional = additional;
     delivered = true;
     return true;
   } catch { return false; }
   finally {
     state.preparingPrevious = false;
-    if (!delivered) { rollback(transaction ?? undefined); state.pendingPrevious = undefined; release(state); }
+    if (!delivered) {
+      rollback(transaction ?? undefined); state.pendingPrevious = undefined;
+      if(additional&&rawComplete(state))resetWilhelmHousingRuntimePreviousV324(world,native);
+      else release(state);
+    }
   }
 }
 
@@ -224,4 +236,23 @@ export function* stageWilhelmHousingLegacyV324Steps(
 export function releaseWilhelmHousingRuntimeV324(world: Object3D, native = false): void {
   const state = stateFor(world, native);
   if (state) release(state);
+}
+
+/** Shared-native witness excludes Core/Legacy, avoiding gate recursion. On a
+ * revoked extension restore old indices immediately, retaining the original
+ * complete V324 model so its ordinary transaction can be staged again. */
+export function hasWilhelmHousingRuntimePreviousV324(world:Object3D,native=false):boolean {
+ const state=stateFor(world,native);if(!state||state.creating||!rawComplete(state)||!state.previous)return false;
+ if(transactionComplete(state.previous))return true;
+ if(state.previousAdditional&&!hasWilhelmStreetFrontsPreviousInputV325(state.previousAdditional,world))resetWilhelmHousingRuntimePreviousV324(world,native);
+ else release(state);
+ return false;
+}
+/** Call after the composed Government rollback and before releasing a failed
+ * additional model. It changes no old source/model, only this owned transaction. */
+export function resetWilhelmHousingRuntimePreviousV324(world:Object3D,native=false):boolean {
+ const state=stateFor(world,native);if(!state||state.creating||state.preparingPrevious)return false;
+ const transactions=new Set([state.previous,state.pendingPrevious]);state.previous=undefined;state.pendingPrevious=undefined;state.previousAdditional=undefined;state.coreGate=undefined;
+ for(const transaction of transactions)rollback(transaction);
+ return rawComplete(state);
 }

@@ -1,2 +1,2 @@
-1733f83959d17d7398b5af7dffce28bd4358a019ee9903823b75a93f9832dce3  isometric-berlin-regierungsviertel-local.zip
-037626aaff0e10c73b8712b99a8c7d1724c03a49cd7f8f2354f2c99110205147  isometric-berlin-viewer-v1.0.205.tar.gz
+5d18f2e61402b9aa5d1d8c0db6c6331e35e6cae67fbddbfa7227bc77eab0af88  isometric-berlin-regierungsviertel-local.zip
+2ef16e3d7d053efa71f06fe7f632a34e62e5f84d74fbc7786e4fb82ca0f275eb  isometric-berlin-viewer-v1.0.206.tar.gz

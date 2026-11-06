@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.206 — 2026-11-06
+
+- Recompose the nineteen housing families east of the Holocaust Memorial around shared storeys, continuous ground floors and explicit oriel rhythms. Add nine source-bound facade groups along the complete Wilhelmstraße, from Reichstagufer to Hallesches Ufer, while preserving all original building bodies, roofs, courts, passages and navigation.
+- Add the built Georg Elser memorial context with two illuminated pavement inscriptions and its separately mapped glass information stele. Refine the photographed street-light types and mapped southern lamps, benches and bicycle stands.
+- Combine the additional northern Native fittings with the existing shared-host transaction, select exact engine alternatives at actual host admission, and apply authored glazing emission through the existing light toggle. Keep full touch detail and all six views; lossless source encoding preserves all original values and ownership within existing package and runtime budgets.
+
+
 ## v1.0.205 — 2026-11-06
 
 - Refine the complete seventeen historic housing families between the Holocaust Memorial, Wilhelmstraße and An der Kolonnade, with distinct window groups, loggias, oriels, stone-panel joints and plinths drawn from attributed photographic references. Distinguish the two modern residential families from the historic prefabricated housing.

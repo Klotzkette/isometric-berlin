@@ -35,7 +35,7 @@ describe('finite full Wilhelm housing fronts v324',()=>{
   expect(profile.families).toHaveLength(19);expect(profile.families.reduce((n,q)=>n+q.parts.length,0)).toBe(83);
   expect(profile.runs).toHaveLength(38);expect(new Set(profile.runs.map(q=>q.family)).size).toBe(19);
   expect(profile.runs.reduce((n,q)=>n+q.patches.length,0)).toBe(276);
-  expect(profile.runs.reduce((n,q)=>n+q.windowCount,0)).toBe(3784);
+  expect(profile.runs.reduce((n,q)=>n+q.windowCount,0)).toBe(3675);
   let supported=0;
   for(const row of profile.drawn){
    const[x,y,z,w,h,,angle,,,id]=row as [number,number,number,number,number,number,number,number,string,number];
@@ -86,7 +86,7 @@ describe('finite full Wilhelm housing fronts v324',()=>{
   }finally{disposeWilhelmHousingV324(root);}expect(hasCompleteWilhelmHousingV324(root,false)).toBe(false);
  });
  test('native independently covers every family/run and full/touch deliver identical cardinal buffers',()=>{
-  expect(new Set(profile.native.map(r=>r[9])).size).toBe(38);expect(profile.native).toHaveLength(15108);expect(profile.native.every(r=>r[6]===0)).toBe(true);
+  expect(new Set(profile.native.map(r=>r[9])).size).toBe(38);expect(profile.native).toHaveLength(22665);expect(profile.native.every(r=>r[6]===0)).toBe(true);
   expect(profile.native.length*76).toBeLessThan(8*1024*1024);expect(profile.native.length).not.toBe(profile.drawn.length);
   const roots=[false,true].map(mobileLike=>drain(createWilhelmHousingV324Steps({native:true,sourcePrisms:prisms,nativeSource,mobileLike}))!);
   try{for(const root of roots){expect(root).not.toBeNull();expect(hasCompleteWilhelmHousingV324(root,true)).toBe(true);expect(hasCompleteWilhelmHousingV324(root,false)).toBe(false);

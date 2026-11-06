@@ -13,11 +13,12 @@ export type SourceQuarterCatalogueEntryV309={
   keys:readonly string[];
   kind:string;
   requiredReplacement?:boolean;
-  admission?:"north-v309"|"treptow-v317"|"government-v321"|"universities-v322"|"wilhelm-v324";
+  admission?:"north-v309"|"treptow-v317"|"government-v321"|"universities-v322"|"wilhelm-v324"|"wilhelm-street-v325";
   load:()=>Promise<{default:unknown}>;
 };
 const families=(ids:readonly string[])=>ids.flatMap(id=>[`drawn:${id}`,`minecraft:${id}`]);
 export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV309[]=[
+  {keys:["drawn:1_0","drawn:1_1"],kind:"wilhelm-street-v325",requiredReplacement:true,admission:"wilhelm-street-v325",load:()=>import("./data/wilhelmStreetFrontsV325Packets.json")},
   {keys:["drawn:1_0","drawn:1_1"],kind:"wilhelm-housing-v324",requiredReplacement:true,admission:"wilhelm-v324",load:()=>import("./data/wilhelmHousingV324Packets.json")},
   {keys:universitiesIndexV322.keys,kind:"universities-v322",requiredReplacement:true,admission:"universities-v322",load:()=>import("./data/universitiesV322Packets.json")},
   {keys:theatresIndexV322.keys,kind:"youth-theatres-v322",requiredReplacement:true,admission:"universities-v322",load:()=>import("./data/youthTheatreFrontsV322Packets.json")},

@@ -73,10 +73,14 @@ test("production source descriptors stay ordinary and metadata imports decode no
   const sources = JSON.stringify(dataPath("wilhelmHousingV324Sources"));
   const { fixture: [value, nativeVoxels], decoded } = await production(
     `import data,{nativeVoxels} from ${sources};window.fixture=[data,nativeVoxels];`);
-  expect(decoded).toHaveLength(0); ordinary(value, "nativeVoxels");
+  // V325 losslessly encodes this one ordinary eager object. Its value still
+  // exists strongly at module evaluation; no lazy source or mode is introduced.
+  expect(decoded).toHaveLength(1); expect(decoded[0]).toBe(nativeVoxels); ordinary(value, "nativeVoxels");
   expect(value.nativeVoxels).toBe(nativeVoxels); expect(nativeVoxels).toEqual(raw("wilhelmHousingV324Sources").nativeVoxels);
   nativeVoxels.probe = { exact: true }; expect(value.nativeVoxels.probe).toBe(nativeVoxels.probe);
   value.nativeVoxels = {}; expect(nativeVoxels.probe.exact).toBeTrue();
+  const sourceMetadata = await production(`import {schemaVersion,baselineCommit} from ${sources};window.fixture=[schemaVersion,baselineCommit];`);
+  expect(sourceMetadata.decoded).toHaveLength(0); expect(sourceMetadata.code.length).toBeLessThan(500);
   const housing = JSON.stringify(dataPath("wilhelmHousingV324"));
   const metadata = await production(`import {schemaVersion,estimates} from ${housing};window.fixture=[schemaVersion,estimates];`);
   expect(metadata.decoded).toHaveLength(0); expect(metadata.fixture).toEqual([1, raw("wilhelmHousingV324").estimates]);

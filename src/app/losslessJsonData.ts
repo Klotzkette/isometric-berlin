@@ -15,6 +15,7 @@ import { exactEagerFieldsV319, assertEagerFieldV319 } from "./losslessEagerField
 import { exactEagerFieldsV320, assertEagerFieldV320 } from "./losslessEagerFieldsV320";
 import { exactEagerFieldsV321, assertEagerFieldV321 } from "./losslessEagerFieldsV321";
 import { exactEagerFieldsV322, assertEagerFieldV322 } from "./losslessEagerFieldsV322";
+import { exactEagerFieldsV325, assertEagerFieldV325 } from "./losslessEagerFieldsV325";
 
 export const LOSSLESS_JSON_FIELD_BYTES = 64 * 1024;
 
@@ -66,6 +67,9 @@ const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
  * Do not extend by filename pattern: navigation and mutable source caches have
  * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "wilhelmStreetFrontsV325.json": ["drawn", "native"],
+  "wilhelmStreetFrontsV325Core.json": ["drawn", "drawnV8", "nativeFull", "nativeMobile"],
+  "wilhelmStreetFrontsV325Previous.json": ["previous"],
   "wilhelmHousingV324.json": ["drawn", "native"],
   "wilhelmHousingV324Core.json": ["drawn", "nativeFull", "nativeMobile"],
   "wilhelmHousingV324Previous.json": ["previous", "legacy"],
@@ -334,6 +338,8 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
 // These arrays contain only a few records of already-packed base64 strings.
 // Direct literals avoid a second retained copy inside a JSON.parse literal.
 const PACKED_SOURCE_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "wilhelmStreetFrontsV325.json": ["runs"],
+  "wilhelmStreetFrontsV325Sources.json": ["nativeVoxels"],
   // New source-bound housing metadata is read through ordinary own-data
   // descriptors. Only its separate constructor rows use weak decoding.
   "wilhelmHousingV324.json": ["runs"],
@@ -438,13 +444,14 @@ export function transformLosslessJsonData(
   const eagerV320 = exactEagerFieldsV320(sourcePath, source);
   const eagerV321 = exactEagerFieldsV321(sourcePath, source);
   const eagerV322 = exactEagerFieldsV322(sourcePath, source);
+  const eagerV325 = exactEagerFieldsV325(sourcePath, source);
   const authoredEagerV322 = sourcePath === "data/memorialPreviousV322.json" ? ["families"]
     : sourcePath === "data/youthTheatresV322.json" ? ["navigation"]
     : sourcePath === "data/universitiesPreviousV322.json" ? ["plans"] : [];
   const governmentEagerV321 = sourcePath === "data/federalMinistriesV321.json" || sourcePath === "data/berlinSenateBuildingsV321.json" || sourcePath === "data/universitiesArchitectureV322.json"
     ? ["sites", "navigation", "oldBodies", "sourcePrisms"]
     : sourcePath === "data/berlinSenatePreviousV321.json" ? ["drawn", "nativeFull", "nativeMobile", "preview"] : [];
-  const eagerFields = [...(eagerV282.length ? eagerV282 : eagerV274.length ? eagerV274 : LOSSLESS_EAGER_FIELDS_V270[sourcePath] ?? []), ...eagerV309, ...eagerV318, ...eagerV319, ...eagerV320, ...eagerV321, ...eagerV322, ...governmentEagerV321, ...authoredEagerV322];
+  const eagerFields = [...(eagerV282.length ? eagerV282 : eagerV274.length ? eagerV274 : LOSSLESS_EAGER_FIELDS_V270[sourcePath] ?? []), ...eagerV309, ...eagerV318, ...eagerV319, ...eagerV320, ...eagerV321, ...eagerV322, ...eagerV325, ...governmentEagerV321, ...authoredEagerV322];
   if ((!DATA_JSON.test(normalizedId) && !eagerRetainedSource && !eagerFields.length) ||
       (!eagerRetainedSource && !eagerFields.length && source.length < thresholdBytes)) {
     return undefined;
@@ -490,7 +497,8 @@ export function transformLosslessJsonData(
   // strings, not huge numeric arrays. Wrapping them in JSON.parse would retain
   // both the encoded JSON text and another copy of every base64 string after
   // the first read. Direct literals share the original string constants.
-  // Four separately source/field-pinned V322 native mesh fields instead use
+  // Four separately source/field-pinned V322 native mesh fields and the one
+  // exact V325 packet-062 mesh field instead use
   // eager gzip/Base64 below. Their complete string values and strong ownership
   // stay exact; every other packed packet keeps the direct literal rule.
   const packedPacket = PACKED_PACKET_JSON.test(normalizedId);
@@ -597,6 +605,7 @@ export function transformLosslessJsonData(
         if (eagerV320.includes(key)) assertEagerFieldV320(sourcePath, key, json);
         if (eagerV321.includes(key)) assertEagerFieldV321(sourcePath, key, json);
         if (eagerV322.includes(key)) assertEagerFieldV322(sourcePath, key, json);
+        if (eagerV325.includes(key)) assertEagerFieldV325(sourcePath, key, json);
         const { encoded: packed, admissionLength } = pack(json);
         if (admissionLength < json.length * .8) {
           literal = `/* @__PURE__ */ __decodeLosslessGzip(${JSON.stringify(packed)})`;
