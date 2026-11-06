@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.200 — 2026-11-06
+
+- Refine 200 selected ordinary street fronts in 50 nonempty groups: 28 inside and 22 outside the S-Bahn Ring. Distinguish local window proportions, frames, recessed glazing, sill returns, plinths and eaves using attributed architectural context.
+- Replace only exact obsolete generic fitting triangles after complete source-guarded drawn/native fronts exist. Preserve existing bodies, measured roofs, courts, doors, mapped material evidence, lines and navigation. Unsurveyed fittings and contextual colours remain display estimates.
+- Reuse the bounded per-packet construction and disposal path, full drawn touch detail and independent cardinal native faces. Losslessly encode seven exact eager fields to preserve existing archive limits and data ownership.
+
 ## v1.0.199 — 2026-11-06
 
 - Reichstag click section includes furnished offices, meeting/press/reading

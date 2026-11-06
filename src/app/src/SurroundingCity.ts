@@ -78,6 +78,7 @@ export type SurroundingCityOptions = {
   wallGalleryV298?: (native:boolean)=>boolean;
   stralauSisyphosV299?:boolean;
   neighbourhoodV300?:boolean;
+  clusterFacadesV320?:SurroundingOwnershipOptions["clusterFacadesV320"];
   sourceQuartersV303?:boolean;
   sourceQuarterSourcesV303?:SurroundingOwnershipOptions["sourceQuarterSourcesV303"];
   /** Exact lazy recipes may load in parallel with the same tile's transport.
@@ -558,7 +559,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           const southAdmissionChanged = (): boolean => southReceiptTile && southOwnersReady !== (options.southFidelityV294?.(minecraft) === true);
           const entry = await createStreamedSurroundingCityChunkV255(
             data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
-            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317 },
+            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,clusterFacadesV320:options.clusterFacadesV320,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317 },
           );
           unpublished = entry.root;
           // onAttach can synchronously dispose this controller during error recovery.

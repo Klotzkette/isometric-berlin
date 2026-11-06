@@ -62,7 +62,9 @@ weiteren Stadtlandschaft.
 
 Die Detaillierung hängt vom Ort und von den verfügbaren Quellen ab:
 individuell anhand von Fotoreferenzen ausgearbeitete Gebäude ergänzen amtliche
-LoD2-Geometrie, OSM-Daten und einfachere Umgebungsmodelle. Abdeckung und
+LoD2-Geometrie, OSM-Daten und einfachere Umgebungsmodelle. Ausgewählte Straßenfronten
+in [50 Häusergruppen](docs/cluster-facades-v320.md) erhalten örtlich passende
+Fensterproportionen, Rahmen, Laibungen, Sockel und Gesimse. Abdeckung und
 Genauigkeit sind in den [Datennotizen](docs/data.md) und den
 [Angaben zur metrischen Präzision](docs/metric-precision.md) dokumentiert.
 Die [Detailnotizen zu Altstadt, Mauerorten und Spreeufer](docs/fidelity-v297-v299.md)
@@ -115,6 +117,8 @@ Click the Reichstag to open a longitudinal section through the chamber, offices
 and adjoining rooms. **Basement** and **Connections** reveal the lower level
 and represented tunnels; **Close section** restores the exterior. Room layouts
 and interior dimensions are [architectural display estimates](docs/reichstag-section-v319.md).
+[50 selected building groups](docs/cluster-facades-v320.md) include local facade
+proportions, window frames and reveals, sills, plinths and eave details.
 
 - **Move freely:** orbit, zoom, walk through the streets or fly above the
   rooftops, using a mouse, keyboard or touch controls.
@@ -217,8 +221,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.199** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.199/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.200** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.200/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

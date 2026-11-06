@@ -1,0 +1,3396 @@
+{
+  "schemaVersion": 1,
+  "region": "south",
+  "policy": "Sixteen distinct retained ordinary residential street groups, exactly four source owners each. Full measured/fallback source walls, independent cardinal native geometry, source roofs, court voids and mapped doors remain. Opening proportions and restrained material tones are explicit local context estimates, not surveyed per-house paint or historical restoration.",
+  "clusters": [
+    {
+      "id": "south-bergmannkiez-west",
+      "label": "Bergmannkiez-West / Bergmannstraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030459",
+          "title": "Ensemble Chamissoplatz: five-storey perimeter rows, contrasting late-classical and later stucco fronts",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Landesdenkmalamt Berlin"
+        }
+      ],
+      "style": {
+        "key": "south-context-01",
+        "floorPitchM": 4.25,
+        "bayPitchM": 3.35,
+        "windowWidthRatio": 0.43,
+        "windowHeightRatio": 0.65,
+        "frameWidthM": 0.075,
+        "revealDepthM": 0.055,
+        "sillProjectionM": 0.055,
+        "transomRatio": 0.68,
+        "mullions": 1,
+        "plinthHeightM": 0.48,
+        "eaveBands": 1,
+        "frameRgb": [
+          232,
+          225,
+          207
+        ],
+        "wallRgb": [
+          220,
+          211,
+          190
+        ],
+        "glassRgb": [
+          76,
+          100,
+          108
+        ],
+        "plinthRgb": [
+          151,
+          146,
+          132
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE02YY40000EBt",
+          "chunk": "2_6"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY400000IJ",
+          "chunk": "2_6"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY400007gl",
+          "chunk": "2_6"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY400003MK",
+          "chunk": "2_6"
+        }
+      ]
+    },
+    {
+      "id": "south-chamissoplatz",
+      "label": "Chamissoplatz / Willibald-Alexis-Straße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030459",
+          "title": "Chamissoplatz / Willibald-Alexis-Straße retained historic facade sequence",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Landesdenkmalamt Berlin"
+        }
+      ],
+      "style": {
+        "key": "south-context-02",
+        "floorPitchM": 4.35,
+        "bayPitchM": 3.55,
+        "windowWidthRatio": 0.46,
+        "windowHeightRatio": 0.66,
+        "frameWidthM": 0.086,
+        "revealDepthM": 0.07,
+        "sillProjectionM": 0.065,
+        "transomRatio": 0.72,
+        "mullions": 1,
+        "plinthHeightM": 0.55,
+        "eaveBands": 2,
+        "frameRgb": [
+          236,
+          231,
+          218
+        ],
+        "wallRgb": [
+          215,
+          208,
+          190
+        ],
+        "glassRgb": [
+          79,
+          104,
+          112
+        ],
+        "plinthRgb": [
+          143,
+          142,
+          132
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE02YY40000AHr",
+          "chunk": "2_6"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY4000014m",
+          "chunk": "2_6"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY400001VP",
+          "chunk": "2_6"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY400006eh",
+          "chunk": "2_6"
+        }
+      ]
+    },
+    {
+      "id": "south-graefekiez",
+      "label": "Graefekiez / Graefestraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://www.berlin.de/special/stadtteile/kieze/7429782-7429665-graefekiez.html",
+          "title": "Graefekiez: retained Gründerzeit streetscape, including photographed Graefestraße",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Berlin.de / dpa; visitBerlin / Dagmar Schwelle for separately captioned canal photograph"
+        }
+      ],
+      "style": {
+        "key": "south-context-03",
+        "floorPitchM": 4.1,
+        "bayPitchM": 3.2,
+        "windowWidthRatio": 0.45,
+        "windowHeightRatio": 0.65,
+        "frameWidthM": 0.097,
+        "revealDepthM": 0.085,
+        "sillProjectionM": 0.075,
+        "transomRatio": 0.7,
+        "mullions": 1,
+        "plinthHeightM": 0.62,
+        "eaveBands": 1,
+        "frameRgb": [
+          231,
+          228,
+          216
+        ],
+        "wallRgb": [
+          220,
+          217,
+          205
+        ],
+        "glassRgb": [
+          82,
+          108,
+          116
+        ],
+        "plinthRgb": [
+          147,
+          150,
+          143
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE02YY400009G2",
+          "chunk": "ring182-5_5"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY400005Kn",
+          "chunk": "ring182-5_5"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY400009rp",
+          "chunk": "ring182-5_5"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY400007kV",
+          "chunk": "ring182-5_5"
+        }
+      ]
+    },
+    {
+      "id": "south-reichenberger-lausitzer",
+      "label": "Reichenberger-Lausitzer / Reichenberger Straße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://www.quartiersmanagement-berlin.de/fileadmin/user_upload/Broschuere_QM_Wrangelkiez_Webversion.pdf",
+          "title": "Southern Luisenstadt residential perimeter and mixed working streets",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Quartiersmanagement Berlin / photo credits as listed in brochure"
+        }
+      ],
+      "style": {
+        "key": "south-context-04",
+        "floorPitchM": 4.2,
+        "bayPitchM": 3.45,
+        "windowWidthRatio": 0.48,
+        "windowHeightRatio": 0.62,
+        "frameWidthM": 0.108,
+        "revealDepthM": 0.055,
+        "sillProjectionM": 0.085,
+        "transomRatio": 0.74,
+        "mullions": 1,
+        "plinthHeightM": 0.69,
+        "eaveBands": 2,
+        "frameRgb": [
+          225,
+          221,
+          207
+        ],
+        "wallRgb": [
+          204,
+          202,
+          190
+        ],
+        "glassRgb": [
+          85,
+          112,
+          108
+        ],
+        "plinthRgb": [
+          139,
+          142,
+          135
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE02YY400006i7",
+          "chunk": "7_5"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY400003oM",
+          "chunk": "7_5"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE00YY2aE0002w",
+          "chunk": "7_5"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY40000ALV",
+          "chunk": "7_5"
+        }
+      ]
+    },
+    {
+      "id": "south-wrangelkiez",
+      "label": "Wrangelkiez / Wrangelstraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/service-und-organisationseinheiten/wirtschaftsfoerderung/wirtschaftsstandort/artikel.114249.php",
+          "title": "Wrangelkiez public street photograph and existing mixed frontage",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Bezirksamt Friedrichshain-Kreuzberg, BA FK"
+        }
+      ],
+      "style": {
+        "key": "south-context-05",
+        "floorPitchM": 4.15,
+        "bayPitchM": 3.05,
+        "windowWidthRatio": 0.45,
+        "windowHeightRatio": 0.64,
+        "frameWidthM": 0.075,
+        "revealDepthM": 0.07,
+        "sillProjectionM": 0.055,
+        "transomRatio": 0.68,
+        "mullions": 1,
+        "plinthHeightM": 0.48,
+        "eaveBands": 1,
+        "frameRgb": [
+          233,
+          230,
+          216
+        ],
+        "wallRgb": [
+          217,
+          211,
+          193
+        ],
+        "glassRgb": [
+          88,
+          100,
+          112
+        ],
+        "plinthRgb": [
+          149,
+          145,
+          132
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE02YY400003dZ",
+          "chunk": "8_4"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY400001K3",
+          "chunk": "8_4"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY4000039d",
+          "chunk": "8_4"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY400009x0",
+          "chunk": "8_4"
+        }
+      ]
+    },
+    {
+      "id": "south-schillerkiez",
+      "label": "Schillerkiez / Herrfurthstraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://www.berlin.de/ba-neukoelln/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/weitere-staedtebauliche-planungen/ifek-hermannstrasse_2015.pdf",
+          "title": "Schillerquartier retained urban form: high roofs, structured facades, lost historic decoration not reconstructed",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Bezirksamt Neukölln / plan and photo credits in IFEK"
+        }
+      ],
+      "style": {
+        "key": "south-context-06",
+        "floorPitchM": 3.15,
+        "bayPitchM": 3.1,
+        "windowWidthRatio": 0.47,
+        "windowHeightRatio": 0.68,
+        "frameWidthM": 0.086,
+        "revealDepthM": 0.085,
+        "sillProjectionM": 0.065,
+        "transomRatio": 0.72,
+        "mullions": 1,
+        "plinthHeightM": 0.55,
+        "eaveBands": 2,
+        "frameRgb": [
+          235,
+          231,
+          218
+        ],
+        "wallRgb": [
+          220,
+          211,
+          191
+        ],
+        "glassRgb": [
+          76,
+          104,
+          116
+        ],
+        "plinthRgb": [
+          156,
+          148,
+          132
+        ]
+      },
+      "faces": [
+        {
+          "family": "primary",
+          "owner": "OSM-way-32492402",
+          "chunk": "ring182-6_9",
+          "a": [
+            3427.39,
+            4721.31
+          ],
+          "b": [
+            3417.99,
+            4722.89
+          ],
+          "low": 3.0,
+          "high": 22.5,
+          "normal": [
+            -0.16575984217574602,
+            -0.9861661496532275
+          ],
+          "streetId": "155605306",
+          "streetName": "Herrfurthstraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-32492402",
+              "chunk": "ring182-6_9",
+              "a": [
+                3427.505978723404,
+                4722.0
+              ],
+              "b": [
+                3417.840404255319,
+                4722.0
+              ],
+              "low": 3.0,
+              "high": 23.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "155605306",
+              "streetName": "Herrfurthstraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "32492402",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999459,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-43011462",
+          "chunk": "ring182-6_9",
+          "a": [
+            3452.38,
+            4720.3
+          ],
+          "b": [
+            3442.75,
+            4721.92
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            -0.16589333313433965,
+            -0.9861437025208745
+          ],
+          "streetId": "155605306",
+          "streetName": "Herrfurthstraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-43011462",
+              "chunk": "ring182-6_9",
+              "a": [
+                3452.0,
+                4720.0
+              ],
+              "b": [
+                3448.0,
+                4720.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "155605306",
+              "streetName": "Herrfurthstraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-43011462",
+              "chunk": "ring182-6_9",
+              "a": [
+                3448.0,
+                4722.0
+              ],
+              "b": [
+                3442.763457943925,
+                4722.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "155605306",
+              "streetName": "Herrfurthstraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "43011462",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999232,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-446988832",
+          "chunk": "ring182-6_9",
+          "a": [
+            3428.45,
+            4698.88
+          ],
+          "b": [
+            3446.77,
+            4695.76
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            0.16788836056214035,
+            0.9858060145828674
+          ],
+          "streetId": "155605306",
+          "streetName": "Herrfurthstraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-446988832",
+              "chunk": "ring182-6_9",
+              "a": [
+                3428.300131004367,
+                4698.0
+              ],
+              "b": [
+                3440.0,
+                4698.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "155605306",
+              "streetName": "Herrfurthstraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-446988832",
+              "chunk": "ring182-6_9",
+              "a": [
+                3440.0,
+                4696.0
+              ],
+              "b": [
+                3446.8108733624454,
+                4696.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "155605306",
+              "streetName": "Herrfurthstraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "446988832",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999553,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-42480688",
+          "chunk": "ring182-6_9",
+          "a": [
+            3410.73,
+            4701.83
+          ],
+          "b": [
+            3428.45,
+            4698.88
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            0.1642184420591669,
+            0.9864239977249438
+          ],
+          "streetId": "155605306",
+          "streetName": "Herrfurthstraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-42480688",
+              "chunk": "ring182-6_9",
+              "a": [
+                3410.7583013544017,
+                4702.0
+              ],
+              "b": [
+                3416.0,
+                4702.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "155605306",
+              "streetName": "Herrfurthstraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-42480688",
+              "chunk": "ring182-6_9",
+              "a": [
+                3416.0,
+                4700.0
+              ],
+              "b": [
+                3428.0,
+                4700.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "155605306",
+              "streetName": "Herrfurthstraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "42480688",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999419,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        }
+      ]
+    },
+    {
+      "id": "south-reuterkiez",
+      "label": "Reuterkiez / Hobrechtstraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://www.berlin.de/ba-neukoelln/politik-und-verwaltung/sozialraumorientierte-planungskoordination/bezirksregionenprofile-bzrp/reuterstrasse/artikel.1644245.php",
+          "title": "Reuterstraße 2026 district profile: Gründerzeit blocks with preserved wings and courts",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Bezirksamt Neukölln / OE SPK"
+        }
+      ],
+      "style": {
+        "key": "south-context-07",
+        "floorPitchM": 3.1,
+        "bayPitchM": 3.25,
+        "windowWidthRatio": 0.44,
+        "windowHeightRatio": 0.65,
+        "frameWidthM": 0.097,
+        "revealDepthM": 0.055,
+        "sillProjectionM": 0.075,
+        "transomRatio": 0.7,
+        "mullions": 1,
+        "plinthHeightM": 0.62,
+        "eaveBands": 1,
+        "frameRgb": [
+          232,
+          228,
+          218
+        ],
+        "wallRgb": [
+          212,
+          209,
+          197
+        ],
+        "glassRgb": [
+          79,
+          108,
+          108
+        ],
+        "plinthRgb": [
+          144,
+          143,
+          133
+        ]
+      },
+      "faces": [
+        {
+          "family": "primary",
+          "owner": "OSM-way-44012654",
+          "chunk": "ring182-7_6",
+          "a": [
+            3610.19,
+            3275.78
+          ],
+          "b": [
+            3644.38,
+            3271.41
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            0.126783731364334,
+            0.9919303833744263
+          ],
+          "streetId": "4686464",
+          "streetName": "Lenaustraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-44012654",
+              "chunk": "ring182-7_6",
+              "a": [
+                3610.2181193331385,
+                3276.0
+              ],
+              "b": [
+                3616.0,
+                3276.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "4686464",
+              "streetName": "Lenaustraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-44012654",
+              "chunk": "ring182-7_6",
+              "a": [
+                3616.0,
+                3274.0
+              ],
+              "b": [
+                3632.0,
+                3274.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "4686464",
+              "streetName": "Lenaustraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-44012654",
+              "chunk": "ring182-7_6",
+              "a": [
+                3632.0,
+                3272.0
+              ],
+              "b": [
+                3644.0,
+                3272.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "4686464",
+              "streetName": "Lenaustraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "44012654",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999626,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-42733735",
+          "chunk": "ring182-7_6",
+          "a": [
+            3663.11,
+            3269.0
+          ],
+          "b": [
+            3679.96,
+            3266.89
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            0.12425216156975545,
+            0.9922506741470339
+          ],
+          "streetId": "4686464",
+          "streetName": "Lenaustraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-42733735",
+              "chunk": "ring182-7_6",
+              "a": [
+                3662.9847774480713,
+                3268.0
+              ],
+              "b": [
+                3680.0,
+                3268.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "4686464",
+              "streetName": "Lenaustraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "42733735",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999592,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-44012649",
+          "chunk": "ring182-7_6",
+          "a": [
+            3686.99,
+            3266.0
+          ],
+          "b": [
+            3697.63,
+            3264.62
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            0.12862192759066385,
+            0.9916937025830416
+          ],
+          "streetId": "4686464",
+          "streetName": "Lenaustraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-44012649",
+              "chunk": "ring182-7_6",
+              "a": [
+                3686.99,
+                3266.0
+              ],
+              "b": [
+                3694.0,
+                3266.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "4686464",
+              "streetName": "Lenaustraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-44012649",
+              "chunk": "ring182-7_6",
+              "a": [
+                3694.0,
+                3264.0
+              ],
+              "b": [
+                3697.5495864661657,
+                3264.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "4686464",
+              "streetName": "Lenaustraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "44012649",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999281,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-132073548",
+          "chunk": "ring182-7_6",
+          "a": [
+            3647.08,
+            3290.03
+          ],
+          "b": [
+            3633.3,
+            3291.79
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            -0.12669216726778762,
+            -0.9919420823581339
+          ],
+          "streetId": "4686464",
+          "streetName": "Lenaustraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-132073548",
+              "chunk": "ring182-7_6",
+              "a": [
+                3647.0761683599417,
+                3290.0
+              ],
+              "b": [
+                3640.0,
+                3290.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "4686464",
+              "streetName": "Lenaustraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-132073548",
+              "chunk": "ring182-7_6",
+              "a": [
+                3640.0,
+                3292.0
+              ],
+              "b": [
+                3633.3268214804066,
+                3292.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "4686464",
+              "streetName": "Lenaustraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "132073548",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999649,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        }
+      ]
+    },
+    {
+      "id": "south-flughafenstra-e",
+      "label": "Flughafenstraße / Flughafenstraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://www.berlin.de/special/stadtteile/neukoelln/908298-5170841-neukoelln.html",
+          "title": "Northern Neukölln existing turn-of-century housing and later infill",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Berlin.de / page-specific photograph credits"
+        }
+      ],
+      "style": {
+        "key": "south-context-08",
+        "floorPitchM": 3.25,
+        "bayPitchM": 3.4,
+        "windowWidthRatio": 0.49,
+        "windowHeightRatio": 0.62,
+        "frameWidthM": 0.108,
+        "revealDepthM": 0.07,
+        "sillProjectionM": 0.085,
+        "transomRatio": 0.74,
+        "mullions": 1,
+        "plinthHeightM": 0.69,
+        "eaveBands": 2,
+        "frameRgb": [
+          225,
+          224,
+          211
+        ],
+        "wallRgb": [
+          205,
+          206,
+          195
+        ],
+        "glassRgb": [
+          82,
+          112,
+          112
+        ],
+        "plinthRgb": [
+          141,
+          145,
+          138
+        ]
+      },
+      "faces": [
+        {
+          "family": "primary",
+          "owner": "OSM-way-127721140",
+          "chunk": "ring182-7_8",
+          "a": [
+            3592.55,
+            4296.66
+          ],
+          "b": [
+            3613.89,
+            4293.06
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            0.1663468732736675,
+            0.9860672987945976
+          ],
+          "streetId": "155605281",
+          "streetName": "Flughafenstraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-127721140",
+              "chunk": "ring182-7_8",
+              "a": [
+                3592.4386597938146,
+                4296.0
+              ],
+              "b": [
+                3602.0,
+                4296.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "155605281",
+              "streetName": "Flughafenstraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-127721140",
+              "chunk": "ring182-7_8",
+              "a": [
+                3602.0,
+                4294.0
+              ],
+              "b": [
+                3614.0,
+                4294.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "155605281",
+              "streetName": "Flughafenstraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "127721140",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999539,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-127721144",
+          "chunk": "ring182-7_8",
+          "a": [
+            3613.89,
+            4293.06
+          ],
+          "b": [
+            3631.64,
+            4290.07
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            0.16611044461996086,
+            0.9861071545162621
+          ],
+          "streetId": "881132958",
+          "streetName": "Flughafenstraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-127721144",
+              "chunk": "ring182-7_8",
+              "a": [
+                3614.0,
+                4292.0
+              ],
+              "b": [
+                3626.0,
+                4292.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "881132958",
+              "streetName": "Flughafenstraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-127721144",
+              "chunk": "ring182-7_8",
+              "a": [
+                3626.0,
+                4290.0
+              ],
+              "b": [
+                3631.6282084507043,
+                4290.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "881132958",
+              "streetName": "Flughafenstraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "127721144",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999507,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-127721142",
+          "chunk": "ring182-7_8",
+          "a": [
+            3637.14,
+            4289.18
+          ],
+          "b": [
+            3649.42,
+            4287.11
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            0.16622174169167225,
+            0.9860883999870331
+          ],
+          "streetId": "881132958",
+          "streetName": "Flughafenstraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-127721142",
+              "chunk": "ring182-7_8",
+              "a": [
+                3638.0,
+                4288.0
+              ],
+              "b": [
+                3649.5700244299674,
+                4288.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "881132958",
+              "streetName": "Flughafenstraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "127721142",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.99954,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-127721146",
+          "chunk": "ring182-7_8",
+          "a": [
+            3649.42,
+            4287.11
+          ],
+          "b": [
+            3658.8,
+            4285.53
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            0.16610353342488518,
+            0.9861083186870335
+          ],
+          "streetId": "881132958",
+          "streetName": "Flughafenstraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-127721146",
+              "chunk": "ring182-7_8",
+              "a": [
+                3650.0,
+                4286.0
+              ],
+              "b": [
+                3658.879168443497,
+                4286.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "881132958",
+              "streetName": "Flughafenstraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "127721146",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999532,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        }
+      ]
+    },
+    {
+      "id": "south-donaukiez",
+      "label": "Donaukiez / Donaustraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://donaustrasse-nord.de/fileadmin/user_upload/IHEK/2017_05_31_IHEK_Donaustrasse_2017.pdf",
+          "title": "Donaustraße-Nord: mostly pre-1918 apartment stock, retained local scale",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Quartiersmanagement Donaustraße-Nord / published IHEK credits"
+        }
+      ],
+      "style": {
+        "key": "south-context-09",
+        "floorPitchM": 3.2,
+        "bayPitchM": 3.35,
+        "windowWidthRatio": 0.46,
+        "windowHeightRatio": 0.64,
+        "frameWidthM": 0.075,
+        "revealDepthM": 0.085,
+        "sillProjectionM": 0.055,
+        "transomRatio": 0.68,
+        "mullions": 1,
+        "plinthHeightM": 0.48,
+        "eaveBands": 1,
+        "frameRgb": [
+          232,
+          228,
+          214
+        ],
+        "wallRgb": [
+          216,
+          210,
+          193
+        ],
+        "glassRgb": [
+          85,
+          100,
+          116
+        ],
+        "plinthRgb": [
+          147,
+          143,
+          131
+        ]
+      },
+      "faces": [
+        {
+          "family": "primary",
+          "owner": "OSM-way-151864526",
+          "chunk": "ring182-8_7",
+          "a": [
+            4180.57,
+            4072.31
+          ],
+          "b": [
+            4190.94,
+            4080.48
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            -0.6188580640581974,
+            0.7855028303896429
+          ],
+          "streetId": "657255429",
+          "streetName": "Donaustraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-151864526",
+              "chunk": "ring182-8_7",
+              "a": [
+                4186.0,
+                4078.0
+              ],
+              "b": [
+                4190.0,
+                4078.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "657255429",
+              "streetName": "Donaustraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "151864526",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999584,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-149732580",
+          "chunk": "ring182-8_8",
+          "a": [
+            4225.49,
+            4135.24
+          ],
+          "b": [
+            4204.28,
+            4116.49
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            0.6623223272543871,
+            -0.749219016590164
+          ],
+          "streetId": "155605274",
+          "streetName": "Donaustraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-149732580",
+              "chunk": "ring182-8_8",
+              "a": [
+                4226.0,
+                4134.0
+              ],
+              "b": [
+                4222.0,
+                4134.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "155605274",
+              "streetName": "Donaustraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-149732580",
+              "chunk": "ring182-8_8",
+              "a": [
+                4208.0,
+                4118.0
+              ],
+              "b": [
+                4204.0,
+                4118.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "155605274",
+              "streetName": "Donaustraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "149732580",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999518,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-151864465",
+          "chunk": "ring182-8_7",
+          "a": [
+            4166.19,
+            4061.08
+          ],
+          "b": [
+            4171.8,
+            4065.46
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            -0.6153986236028414,
+            0.7882160452995919
+          ],
+          "streetId": "657255429",
+          "streetName": "Donaustraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-151864465",
+              "chunk": "ring182-8_7",
+              "a": [
+                4168.0,
+                4064.0
+              ],
+              "b": [
+                4172.0,
+                4064.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "657255429",
+              "streetName": "Donaustraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "151864465",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999504,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-151853619",
+          "chunk": "ring182-8_8",
+          "a": [
+            4241.46,
+            4123.98
+          ],
+          "b": [
+            4246.85,
+            4128.72
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            -0.6603766045849554,
+            0.7509345777874697
+          ],
+          "streetId": "155605274",
+          "streetName": "Donaustraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-151853619",
+              "chunk": "ring182-8_8",
+              "a": [
+                4244.0,
+                4128.0
+              ],
+              "b": [
+                4247.483172541745,
+                4128.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "155605274",
+              "streetName": "Donaustraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "151853619",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.895498,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        }
+      ]
+    },
+    {
+      "id": "south-emser-sonnenallee",
+      "label": "Emser-Sonnenallee / Emser Straße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://www.berlin.de/ba-neukoelln/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/weitere-staedtebauliche-planungen/ifek-hermannstrasse_2015.pdf",
+          "title": "Emserstraße urban context in southern Schillerquartier; no lost historic turret invention",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Bezirksamt Neukölln / plan and photo credits in IFEK"
+        }
+      ],
+      "style": {
+        "key": "south-context-10",
+        "floorPitchM": 3.1,
+        "bayPitchM": 3.45,
+        "windowWidthRatio": 0.48,
+        "windowHeightRatio": 0.6,
+        "frameWidthM": 0.086,
+        "revealDepthM": 0.055,
+        "sillProjectionM": 0.065,
+        "transomRatio": 0.72,
+        "mullions": 1,
+        "plinthHeightM": 0.55,
+        "eaveBands": 2,
+        "frameRgb": [
+          225,
+          223,
+          213
+        ],
+        "wallRgb": [
+          205,
+          204,
+          190
+        ],
+        "glassRgb": [
+          88,
+          104,
+          108
+        ],
+        "plinthRgb": [
+          140,
+          140,
+          130
+        ]
+      },
+      "faces": [
+        {
+          "family": "primary",
+          "owner": "OSM-way-289090290",
+          "chunk": "ring182-8_10",
+          "a": [
+            4317.82,
+            5609.13
+          ],
+          "b": [
+            4342.63,
+            5604.48
+          ],
+          "low": 3.0,
+          "high": 19.5,
+          "normal": [
+            0.18421677635036787,
+            0.98288563897896
+          ],
+          "streetId": "1132782785",
+          "streetName": "Emser Straße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-289090290",
+              "chunk": "ring182-8_10",
+              "a": [
+                4318.0,
+                5608.0
+              ],
+              "b": [
+                4330.0,
+                5608.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "1132782785",
+              "streetName": "Emser Straße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-289090290",
+              "chunk": "ring182-8_10",
+              "a": [
+                4330.0,
+                5606.0
+              ],
+              "b": [
+                4340.0,
+                5606.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "1132782785",
+              "streetName": "Emser Straße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "289090290",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999507,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-289090294",
+          "chunk": "ring182-8_10",
+          "a": [
+            4294.21,
+            5613.56
+          ],
+          "b": [
+            4317.82,
+            5609.13
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            0.1844142044527379,
+            0.9828486156046943
+          ],
+          "streetId": "1132782785",
+          "streetName": "Emser Straße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-289090294",
+              "chunk": "ring182-8_10",
+              "a": [
+                4294.292558238035,
+                5614.0
+              ],
+              "b": [
+                4298.0,
+                5614.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "1132782785",
+              "streetName": "Emser Straße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-289090294",
+              "chunk": "ring182-8_10",
+              "a": [
+                4298.0,
+                5612.0
+              ],
+              "b": [
+                4308.0,
+                5612.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "1132782785",
+              "streetName": "Emser Straße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-289090294",
+              "chunk": "ring182-8_10",
+              "a": [
+                4308.0,
+                5610.0
+              ],
+              "b": [
+                4317.983240152478,
+                5610.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "1132782785",
+              "streetName": "Emser Straße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "289090294",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999413,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-289090291",
+          "chunk": "ring182-8_10",
+          "a": [
+            4361.3,
+            5600.96
+          ],
+          "b": [
+            4386.29,
+            5596.28
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            0.18407480088068526,
+            0.9829122380358971
+          ],
+          "streetId": "1132782785",
+          "streetName": "Emser Straße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-289090291",
+              "chunk": "ring182-8_10",
+              "a": [
+                4361.120216086435,
+                5600.0
+              ],
+              "b": [
+                4372.0,
+                5600.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "1132782785",
+              "streetName": "Emser Straße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-289090291",
+              "chunk": "ring182-8_10",
+              "a": [
+                4372.0,
+                5598.0
+              ],
+              "b": [
+                4382.0,
+                5598.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "1132782785",
+              "streetName": "Emser Straße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-289090291",
+              "chunk": "ring182-8_10",
+              "a": [
+                4382.0,
+                5596.0
+              ],
+              "b": [
+                4386.0,
+                5596.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "1132782785",
+              "streetName": "Emser Straße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "289090291",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999614,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-38838594",
+          "chunk": "ring182-8_11",
+          "a": [
+            4347.31,
+            5672.01
+          ],
+          "b": [
+            4368.87,
+            5667.97
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            0.1841784328318904,
+            0.9828928247167077
+          ],
+          "streetId": "795574341",
+          "streetName": "Siegfriedstraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-38838594",
+              "chunk": "ring182-8_11",
+              "a": [
+                4348.0,
+                5672.0
+              ],
+              "b": [
+                4352.0,
+                5672.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "795574341",
+              "streetName": "Siegfriedstraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-38838594",
+              "chunk": "ring182-8_11",
+              "a": [
+                4352.0,
+                5670.0
+              ],
+              "b": [
+                4364.0,
+                5670.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "795574341",
+              "streetName": "Siegfriedstraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "OSM-way-38838594",
+              "chunk": "ring182-8_11",
+              "a": [
+                4364.0,
+                5668.0
+              ],
+              "b": [
+                4368.0,
+                5668.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "795574341",
+              "streetName": "Siegfriedstraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "38838594",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999278,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        }
+      ]
+    },
+    {
+      "id": "south-akazienkiez",
+      "label": "Akazienkiez / Akazienstraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://www.berlin.de/special/stadtteile/kieze/7538928-7429665-akazienkiez.html",
+          "title": "Akazienkiez / Belziger Straße public architectural context",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Berlin.de / page-specific photograph credits"
+        }
+      ],
+      "style": {
+        "key": "south-context-11",
+        "floorPitchM": 4.15,
+        "bayPitchM": 3.3,
+        "windowWidthRatio": 0.45,
+        "windowHeightRatio": 0.66,
+        "frameWidthM": 0.097,
+        "revealDepthM": 0.07,
+        "sillProjectionM": 0.075,
+        "transomRatio": 0.7,
+        "mullions": 1,
+        "plinthHeightM": 0.62,
+        "eaveBands": 1,
+        "frameRgb": [
+          232,
+          229,
+          215
+        ],
+        "wallRgb": [
+          214,
+          207,
+          190
+        ],
+        "glassRgb": [
+          76,
+          108,
+          112
+        ],
+        "plinthRgb": [
+          147,
+          144,
+          131
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE07YY90000PFh",
+          "chunk": "-3_6"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE07YY900006qe",
+          "chunk": "-3_6"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE07YY90000EbR",
+          "chunk": "-3_6"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE07YY90000CnQ",
+          "chunk": "-3_6"
+        }
+      ]
+    },
+    {
+      "id": "south-friedenau-cranach",
+      "label": "Friedenau-Cranach / Cranachstraße",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://www.berlin.de/ba-tempelhof-schoeneberg/ueber-den-bezirk/spaziergaenge/2018/artikel.671989.php",
+          "title": "Cranachstraße / Beckerstraße: retained historical residential context",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Bezirksamt Tempelhof-Schöneberg / page-specific photograph credits"
+        }
+      ],
+      "style": {
+        "key": "south-context-12",
+        "floorPitchM": 3.5,
+        "bayPitchM": 3.55,
+        "windowWidthRatio": 0.46,
+        "windowHeightRatio": 0.64,
+        "frameWidthM": 0.108,
+        "revealDepthM": 0.085,
+        "sillProjectionM": 0.085,
+        "transomRatio": 0.74,
+        "mullions": 1,
+        "plinthHeightM": 0.69,
+        "eaveBands": 2,
+        "frameRgb": [
+          235,
+          231,
+          219
+        ],
+        "wallRgb": [
+          220,
+          214,
+          196
+        ],
+        "glassRgb": [
+          79,
+          112,
+          116
+        ],
+        "plinthRgb": [
+          151,
+          147,
+          134
+        ]
+      },
+      "faces": [
+        {
+          "family": "primary",
+          "owner": "OSM-way-99870406",
+          "chunk": "city183--5_11",
+          "a": [
+            -2138.71,
+            5965.21
+          ],
+          "b": [
+            -2113.11,
+            5963.69
+          ],
+          "low": 3.0,
+          "high": 18.0,
+          "normal": [
+            0.059270615880993215,
+            0.9982419516795954
+          ],
+          "streetId": "1119244722",
+          "streetName": "Peter-Vischer-Straße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-99870406",
+              "chunk": "city183--5_11",
+              "a": [
+                -2136.0,
+                5964.0
+              ],
+              "b": [
+                -2114.0,
+                5964.0
+              ],
+              "low": 3.0,
+              "high": 19.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "1119244722",
+              "streetName": "Peter-Vischer-Straße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "99870406",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999539,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-310363744",
+          "chunk": "city183--5_11",
+          "a": [
+            -2086.73,
+            5962.14
+          ],
+          "b": [
+            -2079.62,
+            5961.72
+          ],
+          "low": 3.0,
+          "high": 16.5,
+          "normal": [
+            0.058968934412635815,
+            0.998259818270894
+          ],
+          "streetId": "151044535",
+          "streetName": "Peter-Vischer-Straße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-310363744",
+              "chunk": "city183--5_11",
+              "a": [
+                -2086.0,
+                5962.0
+              ],
+              "b": [
+                -2080.0,
+                5962.0
+              ],
+              "low": 3.0,
+              "high": 17.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "151044535",
+              "streetName": "Peter-Vischer-Straße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "310363744",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.99955,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-94619403",
+          "chunk": "city183--5_11",
+          "a": [
+            -2076.7799999999997,
+            5731.42
+          ],
+          "b": [
+            -2087.09,
+            5732.02
+          ],
+          "low": 3.0,
+          "high": 16.5,
+          "normal": [
+            -0.05809762791254693,
+            -0.9983109062966983
+          ],
+          "streetId": "1086805490",
+          "streetName": "Beckerstraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-94619403",
+              "chunk": "city183--5_11",
+              "a": [
+                -2076.7462463627544,
+                5732.0
+              ],
+              "b": [
+                -2086.0,
+                5732.0
+              ],
+              "low": 3.0,
+              "high": 17.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "1086805490",
+              "streetName": "Beckerstraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "94619403",
+            "osmRelationId": null,
+            "building": "residential",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999532,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "OSM-way-99870398",
+          "chunk": "city183--5_11",
+          "a": [
+            -2146.34,
+            5965.66
+          ],
+          "b": [
+            -2138.71,
+            5965.21
+          ],
+          "low": 3.0,
+          "high": 16.5,
+          "normal": [
+            0.05887541313919383,
+            0.9982653383383043
+          ],
+          "streetId": "1119244721",
+          "streetName": "Peter-Vischer-Straße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "OSM-way-99870398",
+              "chunk": "city183--5_11",
+              "a": [
+                -2146.3199475753604,
+                5966.0
+              ],
+              "b": [
+                -2138.663407601573,
+                5966.0
+              ],
+              "low": 3.0,
+              "high": 17.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "1119244721",
+              "streetName": "Peter-Vischer-Straße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "99870398",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.999377,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        }
+      ]
+    },
+    {
+      "id": "south-steglitz-albrecht",
+      "label": "Steglitz-Albrecht / Albrechtstraße",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09065468",
+          "title": "Albrechtstraße: residential architecture context; referenced house is not asserted as selected owner",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Landesdenkmalamt Berlin"
+        }
+      ],
+      "style": {
+        "key": "south-context-13",
+        "floorPitchM": 3.75,
+        "bayPitchM": 3.4,
+        "windowWidthRatio": 0.43,
+        "windowHeightRatio": 0.62,
+        "frameWidthM": 0.075,
+        "revealDepthM": 0.055,
+        "sillProjectionM": 0.055,
+        "transomRatio": 0.68,
+        "mullions": 1,
+        "plinthHeightM": 0.48,
+        "eaveBands": 1,
+        "frameRgb": [
+          232,
+          229,
+          217
+        ],
+        "wallRgb": [
+          213,
+          210,
+          196
+        ],
+        "glassRgb": [
+          82,
+          100,
+          108
+        ],
+        "plinthRgb": [
+          145,
+          147,
+          137
+        ]
+      },
+      "faces": [
+        {
+          "family": "primary",
+          "owner": "DEBE06YYB0000Aw8",
+          "chunk": "ring182--7_13",
+          "a": [
+            -3231.7200000000003,
+            7029.44
+          ],
+          "b": [
+            -3245.01,
+            7020.29
+          ],
+          "low": 3.0,
+          "high": 29.49,
+          "normal": [
+            0.567081055297104,
+            -0.8236619917922176
+          ],
+          "streetId": "1201692355",
+          "streetName": "Albrechtstraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "DEBE06YYB0000Aw8",
+              "chunk": "ring182--7_13",
+              "a": [
+                -3232.0,
+                7028.0
+              ],
+              "b": [
+                -3236.0,
+                7028.0
+              ],
+              "low": 3.0,
+              "high": 29.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "1201692355",
+              "streetName": "Albrechtstraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "DEBE06YYB0000Aw8",
+              "chunk": "ring182--7_13",
+              "a": [
+                -3238.0,
+                7024.0
+              ],
+              "b": [
+                -3242.0,
+                7024.0
+              ],
+              "low": 3.0,
+              "high": 29.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "1201692355",
+              "streetName": "Albrechtstraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "255477838",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.995737,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "DEBE06YYB0000msv",
+          "chunk": "ring182--7_13",
+          "a": [
+            -3245.01,
+            7020.29
+          ],
+          "b": [
+            -3255.76,
+            7012.77
+          ],
+          "low": 3.0,
+          "high": 28.2,
+          "normal": [
+            0.5732065302613504,
+            -0.8194109308922743
+          ],
+          "streetId": "1201692355",
+          "streetName": "Albrechtstraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "DEBE06YYB0000msv",
+              "chunk": "ring182--7_13",
+              "a": [
+                -3246.0,
+                7018.0
+              ],
+              "b": [
+                -3250.0,
+                7018.0
+              ],
+              "low": 3.0,
+              "high": 29.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "1201692355",
+              "streetName": "Albrechtstraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "DEBE06YYB0000msv",
+              "chunk": "ring182--7_13",
+              "a": [
+                -3252.0,
+                7014.0
+              ],
+              "b": [
+                -3256.6204279069766,
+                7014.0
+              ],
+              "low": 3.0,
+              "high": 29.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "1201692355",
+              "streetName": "Albrechtstraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "255477839",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.98461,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "DEBE06YYB0000FDM",
+          "chunk": "ring182--7_13",
+          "a": [
+            -3256.42,
+            7012.31
+          ],
+          "b": [
+            -3269.27,
+            7003.36
+          ],
+          "low": 3.0,
+          "high": 23.99,
+          "normal": [
+            0.5715321476699312,
+            -0.8205796757048007
+          ],
+          "streetId": "1410854475",
+          "streetName": "Albrechtstraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "DEBE06YYB0000FDM",
+              "chunk": "ring182--7_13",
+              "a": [
+                -3258.0,
+                7010.0
+              ],
+              "b": [
+                -3262.0,
+                7010.0
+              ],
+              "low": 3.0,
+              "high": 23.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "1410854475",
+              "streetName": "Albrechtstraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "DEBE06YYB0000FDM",
+              "chunk": "ring182--7_13",
+              "a": [
+                -3266.0,
+                7004.0
+              ],
+              "b": [
+                -3269.715758754864,
+                7004.0
+              ],
+              "low": 3.0,
+              "high": 23.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "1410854475",
+              "streetName": "Albrechtstraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "128519849",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.985841,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "DEBE06YYB0000U9c",
+          "chunk": "ring182--7_13",
+          "a": [
+            -3216.12,
+            7013.33
+          ],
+          "b": [
+            -3202.61,
+            7022.75
+          ],
+          "low": 3.0,
+          "high": 22.5,
+          "normal": [
+            -0.571953636897564,
+            0.8202859484592245
+          ],
+          "streetId": "1201692357",
+          "streetName": "Albrechtstraße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "DEBE06YYB0000U9c",
+              "chunk": "ring182--7_13",
+              "a": [
+                -3214.0,
+                7016.0
+              ],
+              "b": [
+                -3210.0,
+                7016.0
+              ],
+              "low": 3.0,
+              "high": 23.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "1201692357",
+              "streetName": "Albrechtstraße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "DEBE06YYB0000U9c",
+              "chunk": "ring182--7_13",
+              "a": [
+                -3206.0,
+                7022.0
+              ],
+              "b": [
+                -3202.087054034049,
+                7022.0
+              ],
+              "low": 3.0,
+              "high": 23.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "1201692357",
+              "streetName": "Albrechtstraße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "128522642",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.975836,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        }
+      ]
+    },
+    {
+      "id": "south-alt-treptow-elsen",
+      "label": "Alt-Treptow-Elsen / Elsenstraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://www.berlin.de/ba-treptow-koepenick/ueber-den-bezirk/ortsteile/alt-treptow/",
+          "title": "Alt-Treptow public district architectural context",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Bezirksamt Treptow-Köpenick / page-specific photograph credits"
+        }
+      ],
+      "style": {
+        "key": "south-context-14",
+        "floorPitchM": 4.0,
+        "bayPitchM": 3.65,
+        "windowWidthRatio": 0.46,
+        "windowHeightRatio": 0.61,
+        "frameWidthM": 0.086,
+        "revealDepthM": 0.07,
+        "sillProjectionM": 0.065,
+        "transomRatio": 0.72,
+        "mullions": 1,
+        "plinthHeightM": 0.55,
+        "eaveBands": 2,
+        "frameRgb": [
+          230,
+          226,
+          211
+        ],
+        "wallRgb": [
+          211,
+          205,
+          185
+        ],
+        "glassRgb": [
+          85,
+          104,
+          112
+        ],
+        "plinthRgb": [
+          145,
+          144,
+          131
+        ]
+      },
+      "faces": [
+        {
+          "family": "primary",
+          "owner": "DEBE09YYP00007NP",
+          "chunk": "ring182-10_6",
+          "a": [
+            5497.32,
+            3440.35
+          ],
+          "b": [
+            5476.37,
+            3441.7
+          ],
+          "low": 3.0,
+          "high": 27.73,
+          "normal": [
+            -0.06430576739655722,
+            -0.9979302421910762
+          ],
+          "streetId": "4686242",
+          "streetName": "Plesser Straße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "DEBE09YYP00007NP",
+              "chunk": "ring182-10_6",
+              "a": [
+                5497.297446300716,
+                3440.0
+              ],
+              "b": [
+                5488.0,
+                3440.0
+              ],
+              "low": 3.0,
+              "high": 27.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "4686242",
+              "streetName": "Plesser Straße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "DEBE09YYP00007NP",
+              "chunk": "ring182-10_6",
+              "a": [
+                5488.0,
+                3442.0
+              ],
+              "b": [
+                5476.3893317422435,
+                3442.0
+              ],
+              "low": 3.0,
+              "high": 27.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "4686242",
+              "streetName": "Plesser Straße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "61907913",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.983339,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "DEBE09YYP0000Dxx",
+          "chunk": "ring182-10_6",
+          "a": [
+            5462.76,
+            3442.58
+          ],
+          "b": [
+            5449.43,
+            3443.44
+          ],
+          "low": 3.0,
+          "high": 29.45,
+          "normal": [
+            -0.06438227799797488,
+            -0.9979253089684575
+          ],
+          "streetId": "4686242",
+          "streetName": "Plesser Straße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "DEBE09YYP0000Dxx",
+              "chunk": "ring182-10_6",
+              "a": [
+                5462.7225806451615,
+                3442.0
+              ],
+              "b": [
+                5456.0,
+                3442.0
+              ],
+              "low": 3.0,
+              "high": 29.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "4686242",
+              "streetName": "Plesser Straße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "DEBE09YYP0000Dxx",
+              "chunk": "ring182-10_6",
+              "a": [
+                5456.0,
+                3444.0
+              ],
+              "b": [
+                5450.0,
+                3444.0
+              ],
+              "low": 3.0,
+              "high": 29.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "4686242",
+              "streetName": "Plesser Straße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "789349925",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.98161,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "DEBE09YYP0000ArP",
+          "chunk": "ring182-10_6",
+          "a": [
+            5441.18,
+            3421.96
+          ],
+          "b": [
+            5470.12,
+            3420.08
+          ],
+          "low": 3.0,
+          "high": 30.1,
+          "normal": [
+            0.06482535088851331,
+            0.9978966248475746
+          ],
+          "streetId": "4686242",
+          "streetName": "Plesser Straße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "DEBE09YYP0000ArP",
+              "chunk": "ring182-10_6",
+              "a": [
+                5442.0,
+                3422.0
+              ],
+              "b": [
+                5456.0,
+                3422.0
+              ],
+              "low": 3.0,
+              "high": 31.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "4686242",
+              "streetName": "Plesser Straße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "DEBE09YYP0000ArP",
+              "chunk": "ring182-10_6",
+              "a": [
+                5456.0,
+                3420.0
+              ],
+              "b": [
+                5470.114803040774,
+                3420.0
+              ],
+              "low": 3.0,
+              "high": 31.0,
+              "normal": [
+                -0.0,
+                1.0
+              ],
+              "streetId": "4686242",
+              "streetName": "Plesser Straße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "728109745",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.994079,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "DEBE09YYP000040t",
+          "chunk": "ring182-10_6",
+          "a": [
+            5434.21,
+            3444.42
+          ],
+          "b": [
+            5415.69,
+            3445.62
+          ],
+          "low": 3.0,
+          "high": 27.14,
+          "normal": [
+            -0.06465922695698256,
+            -0.997907402702939
+          ],
+          "streetId": "4686242",
+          "streetName": "Plesser Straße",
+          "omittedWindowColumns": [],
+          "nativeSpans": [
+            {
+              "owner": "DEBE09YYP000040t",
+              "chunk": "ring182-10_6",
+              "a": [
+                5434.182786177106,
+                3444.0
+              ],
+              "b": [
+                5426.0,
+                3444.0
+              ],
+              "low": 3.0,
+              "high": 27.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "4686242",
+              "streetName": "Plesser Straße",
+              "omittedWindowColumns": []
+            },
+            {
+              "owner": "DEBE09YYP000040t",
+              "chunk": "ring182-10_6",
+              "a": [
+                5426.0,
+                3446.0
+              ],
+              "b": [
+                5416.0,
+                3446.0
+              ],
+              "low": 3.0,
+              "high": 27.0,
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "streetId": "4686242",
+              "streetName": "Plesser Straße",
+              "omittedWindowColumns": []
+            }
+          ],
+          "ordinaryWallAudit": {
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "osmWayId": "789349926",
+            "osmRelationId": null,
+            "building": "apartments",
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "footprintIoU": 0.949598,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        }
+      ]
+    },
+    {
+      "id": "south-adlershof-d-rpfeld",
+      "label": "Adlershof-Dörpfeld / Dörpfeldstraße",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://www.berlin.de/sen/stadtentwicklung/quartiersentwicklung/staedtebaufoerderung/lebendige-zentren/gebiete/doerpfeldstrasse-1287503.php",
+          "title": "Dörpfeldstraße historic mixed shopping/residential street; proposed works not built",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Senatsverwaltung Stadtentwicklung; photographs Erik-Jan Ouwerkerk and Gerbsch as captioned"
+        }
+      ],
+      "style": {
+        "key": "south-context-15",
+        "floorPitchM": 3.65,
+        "bayPitchM": 3.15,
+        "windowWidthRatio": 0.44,
+        "windowHeightRatio": 0.65,
+        "frameWidthM": 0.097,
+        "revealDepthM": 0.085,
+        "sillProjectionM": 0.075,
+        "transomRatio": 0.7,
+        "mullions": 1,
+        "plinthHeightM": 0.62,
+        "eaveBands": 1,
+        "frameRgb": [
+          235,
+          230,
+          216
+        ],
+        "wallRgb": [
+          219,
+          208,
+          186
+        ],
+        "glassRgb": [
+          88,
+          108,
+          116
+        ],
+        "plinthRgb": [
+          151,
+          143,
+          127
+        ]
+      },
+      "faces": [
+        {
+          "family": "v230",
+          "owner": "DEBE09YYP0000LKR",
+          "chunk": "east200-23_17"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE09YYP0000AID",
+          "chunk": "east200-23_17"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE09YYP00001Hh",
+          "chunk": "east200-23_17"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE09YYP00003M7",
+          "chunk": "east200-23_17"
+        }
+      ]
+    },
+    {
+      "id": "south-alt-k-penick",
+      "label": "Alt-Köpenick / Alt-Köpenick",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://www.berlin.de/ba-treptow-koepenick/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/erhaltungs-verordnungen/artikel.94605.php",
+          "title": "Altstadt Köpenick facade guidance: varying heights, restrained plaster and differentiated later fronts",
+          "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced.",
+          "credit": "Bezirksamt Treptow-Köpenick"
+        }
+      ],
+      "style": {
+        "key": "south-context-16",
+        "floorPitchM": 4.05,
+        "bayPitchM": 3.45,
+        "windowWidthRatio": 0.43,
+        "windowHeightRatio": 0.6,
+        "frameWidthM": 0.108,
+        "revealDepthM": 0.055,
+        "sillProjectionM": 0.085,
+        "transomRatio": 0.74,
+        "mullions": 1,
+        "plinthHeightM": 0.69,
+        "eaveBands": 2,
+        "frameRgb": [
+          234,
+          230,
+          215
+        ],
+        "wallRgb": [
+          222,
+          215,
+          195
+        ],
+        "glassRgb": [
+          76,
+          112,
+          108
+        ],
+        "plinthRgb": [
+          152,
+          147,
+          131
+        ]
+      },
+      "faces": [
+        {
+          "family": "v230",
+          "owner": "DEBE09YYP0002oG8",
+          "chunk": "outer187-26_16"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE09YYP00030Cy",
+          "chunk": "outer187-26_16"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE09YYP0003PxI",
+          "chunk": "outer187-26_16"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE09YYP0003HPF",
+          "chunk": "outer187-26_16"
+        }
+      ]
+    }
+  ]
+}

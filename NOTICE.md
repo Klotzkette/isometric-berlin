@@ -2897,3 +2897,26 @@ photographic pixels, plan pages or image textures are distributed. See the
 [furnished-wing references](docs/reichstag-rooms-v319.md) and
 [underground references](docs/reichstag-underground-v319.md) for exact sources,
 credits and limits.
+
+
+## Ordinary-building street fronts (v1.0.200)
+
+This finite pass refines 200 measured street fronts in 50 distinct building groups
+within existing coverage, both inside and outside the S-Bahn Ring. Land Berlin /
+Geoportal Berlin LoD2 (dl-de/zero-2-0) and © OpenStreetMap contributors (ODbL-1.0)
+retain the existing building, roof, courtyard, street and entrance evidence.
+
+Public architectural and neighbourhood records from the Landesdenkmalamt Berlin,
+Berlin's Senate and district authorities, asum and the credited neighbourhood
+management organisations supply local context. The individually credited Commons
+street photographs are by Angela M. Arnold (44penguins), Boonekamp, Günter Haase
+and Z thomas. The selected files are expressly licensed CC BY-SA 3.0, CC BY-SA 4.0
+or CC0 1.0; their exact titles, authors and licence links are recorded individually
+in the packaged [visual-reference ledger](src/app/public/dzi/regierungsviertel/visual_reference_attribution.json).
+The three regional source profiles also retain the precise reference roles.
+
+These references guide local proportions and restrained material families.
+Unsurveyed window subdivisions, small joinery dimensions and unmapped paint
+remain explicit display estimates, not a current photographic full-building
+survey. Existing individually authored facades and mapped doors remain retained.
+No reference photograph, plan page, image pixel or photographic texture is bundled.

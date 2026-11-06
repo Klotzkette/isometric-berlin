@@ -3719,6 +3719,832 @@
       "role": "Publicly documented east basement archive, pedestrian links and separate mapped goods/vehicle network. Unsurveyed interior dimensions, pedestrian route bends and all depths are display estimates; see docs/reichstag-underground-v319.md.",
       "checked": "2026-11-06",
       "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-af380e02650f2093",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Charlottenburger Südseite Nummer 118 Weißensee.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Charlottenburger%20S%C3%BCdseite%20Nummer%20118%20Wei%C3%9Fensee.jpg",
+      "credit": "Boonekamp",
+      "author": "Boonekamp",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-charlottenburger"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "19 November 2015"
+    },
+    {
+      "id": "ordinary-clusters-v320-de64dc5d100d8992",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Ebelingstr F'hain 20110819 AMA fec(1).JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Ebelingstr%20F%27hain%2020110819%20AMA%20fec%281%29.JPG",
+      "credit": "44penguins (Angela M. Arnold)",
+      "author": "44penguins (Angela M. Arnold)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-ebeling"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "19 August 2011"
+    },
+    {
+      "id": "ordinary-clusters-v320-f30340d2f0dc4bd4",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Heidenfeldstr Friedrichshain110228 AMA fec.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Heidenfeldstr%20Friedrichshain110228%20AMA%20fec.jpg",
+      "credit": "Angela M. Arnold (=44penguins)",
+      "author": "Angela M. Arnold (=44penguins)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-heidenfeld"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "28 February 2011"
+    },
+    {
+      "id": "ordinary-clusters-v320-ec68d642375637b6",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Kochhannstr Friedrichshain110228 AMA fec.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Kochhannstr%20Friedrichshain110228%20AMA%20fec.jpg",
+      "credit": "Angela M. Arnold (=44penguins)",
+      "author": "Angela M. Arnold (=44penguins)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-kochhann"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "28 February 2011"
+    },
+    {
+      "id": "ordinary-clusters-v320-ea280221f24d209a",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Langhansstraße143.voralsKino.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Langhansstra%C3%9Fe143.voralsKino.jpg",
+      "credit": "Boonekamp",
+      "author": "Boonekamp",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-langhans"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "12 May 2016"
+    },
+    {
+      "id": "ordinary-clusters-v320-eecebc7380e98561",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Matternstr Friedrichshain 110401 AMA fec (5).JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Matternstr%20Friedrichshain%20110401%20AMA%20fec%20%285%29.JPG",
+      "credit": "Angela M. Arnold (=44penguins)",
+      "author": "Angela M. Arnold (=44penguins)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-mattern"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "1 April 2011"
+    },
+    {
+      "id": "ordinary-clusters-v320-ab81f8d6da5ba51a",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Muehsamstr F'hain 110311 AMA fec (65).JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Muehsamstr%20F%27hain%20110311%20AMA%20fec%20%2865%29.JPG",
+      "credit": "Angela M. Arnold (=44penguins)",
+      "author": "Angela M. Arnold (=44penguins)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-muehsam"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "11 March 2011"
+    },
+    {
+      "id": "ordinary-clusters-v320-f446261d9ee16767",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Niederschönhausen (17)Uhlandstraße West-E-Waldstraße.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Niedersch%C3%B6nhausen%20%2817%29Uhlandstra%C3%9Fe%20West-E-Waldstra%C3%9Fe.JPG",
+      "credit": "Günter Haase",
+      "author": "Günter Haase",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-uhland"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "1 February 2014, 11:40:52"
+    },
+    {
+      "id": "ordinary-clusters-v320-abeb4d29126b8641",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Niederschönhausen (29)Platanenstraße Ost-E-Waldstraße.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Niedersch%C3%B6nhausen%20%2829%29Platanenstra%C3%9Fe%20Ost-E-Waldstra%C3%9Fe.JPG",
+      "credit": "Günter Haase",
+      "author": "Günter Haase",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-platanen"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "1 February 2014, 11:47:32"
+    },
+    {
+      "id": "ordinary-clusters-v320-3e564136a03d5c65",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Orankestraße 84 althohenschönhausen april2107 (1).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Orankestra%C3%9Fe%2084%20althohensch%C3%B6nhausen%20april2107%20%281%29.jpg",
+      "credit": "Z thomas",
+      "author": "Z thomas",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-oranke"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "1 April 2017, 17:56"
+    },
+    {
+      "id": "ordinary-clusters-v320-cce15cd574d46471",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Palisadenstr F'hain 110314 AMA fec (12).JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Palisadenstr%20F%27hain%20110314%20AMA%20fec%20%2812%29.JPG",
+      "credit": "Angela M. Arnold (=44penguins)",
+      "author": "Angela M. Arnold (=44penguins)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-palisaden"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "14 March 2011"
+    },
+    {
+      "id": "ordinary-clusters-v320-3c814405045ac9b9",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Spiekermannstrasse.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Spiekermannstrasse.JPG",
+      "credit": "Boonekamp",
+      "author": "Boonekamp",
+      "license": "CC0 1.0 Universal",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-spiekermann"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "Undated capture; first file upload 13 September 2011."
+    },
+    {
+      "id": "ordinary-clusters-v320-46fdfbfef1af6099",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Strassmannstr Friedrichshain 110401 AMA fec (8).JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Strassmannstr%20Friedrichshain%20110401%20AMA%20fec%20%288%29.JPG",
+      "credit": "Angela M. Arnold (=44penguins)",
+      "author": "Angela M. Arnold (=44penguins)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-strassmann"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "1 April 2011"
+    },
+    {
+      "id": "ordinary-clusters-v320-59d9dc02e6f7ebf9",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Thule Ecke Baumbach.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Thule%20Ecke%20Baumbach.JPG",
+      "credit": "Boonekamp",
+      "author": "Boonekamp",
+      "license": "CC0 1.0 Universal",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-thule"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "14 September 2011"
+    },
+    {
+      "id": "ordinary-clusters-v320-07773b3725184fe5",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Waldowstraße 64 einfriedung althohenschönhausen april2017 (1).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Waldowstra%C3%9Fe%2064%20einfriedung%20althohensch%C3%B6nhausen%20april2017%20%281%29.jpg",
+      "credit": "Z thomas",
+      "author": "Z thomas",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-waldow"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "1 April 2017, 17:44"
+    },
+    {
+      "id": "ordinary-clusters-v320-949223babd67ecb9",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Weidenweg, Ostseite F'hain 110311 AMA fec (56).JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Weidenweg%2C%20Ostseite%20F%27hain%20110311%20AMA%20fec%20%2856%29.JPG",
+      "credit": "Angela M. Arnold (=44penguins)",
+      "author": "Angela M. Arnold (=44penguins)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-weidenweg"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false,
+      "reference_date": "11 March 2011"
+    },
+    {
+      "id": "ordinary-clusters-v320-4976af0f37eca389",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Rüsternallee — public architectural context",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09020524",
+      "credit": "Land Berlin / Landesdenkmalamt or Bezirksamt, page attribution applies",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Contextual local proportions and restrained material family; not an individual paint/window survey. Photos/plans are reference-only. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "west-ruestern"
+      ],
+      "regions": [
+        "west"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-bb9f127468705e63",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Ensemble Chamissoplatz: five-storey perimeter rows, contrasting late-classical and later stucco fronts / Chamissoplatz / Willibald-Alexis-Straße retained historic facade sequence",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030459",
+      "credit": "Landesdenkmalamt Berlin",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "south-bergmannkiez-west",
+        "south-chamissoplatz"
+      ],
+      "regions": [
+        "south"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-da72648c1566cb16",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Landesdenkmalamt Berlin: Wohnanlage Suermondtstraße38–55",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09045512",
+      "credit": "Landesdenkmalamt Berlin / LDA-DK",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Official ensemble identification and reference photograph; fitting dimensions are display estimates. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-suermondt"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-3a098de29940864d",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Albrechtstraße: residential architecture context; referenced house is not asserted as selected owner",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09065468",
+      "credit": "Landesdenkmalamt Berlin",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "south-steglitz-albrecht"
+      ],
+      "regions": [
+        "south"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-c17a48e34ae265de",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Im Dol in Dahlem — public architectural context",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09075353",
+      "credit": "Land Berlin / Landesdenkmalamt or Bezirksamt, page attribution applies",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Contextual local proportions and restrained material family; not an individual paint/window survey. Photos/plans are reference-only. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "west-dahlem-im-dol"
+      ],
+      "regions": [
+        "west"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-4a2db2700b5843d3",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Am Anger in Dahlem — public architectural context",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09075360",
+      "credit": "Land Berlin / Landesdenkmalamt or Bezirksamt, page attribution applies",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Contextual local proportions and restrained material family; not an individual paint/window survey. Photos/plans are reference-only. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "west-dahlem-am-anger"
+      ],
+      "regions": [
+        "west"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-740ddac39617cddd",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Löhleinstraße / Gelfertstraße — public architectural context",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09085198",
+      "credit": "Land Berlin / Landesdenkmalamt or Bezirksamt, page attribution applies",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Contextual local proportions and restrained material family; not an individual paint/window survey. Photos/plans are reference-only. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "west-dahlem-loehlein"
+      ],
+      "regions": [
+        "west"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-280602bbd5fbb13d",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Charlottenstraße in Spandau — public architectural context",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09085525",
+      "credit": "Land Berlin / Landesdenkmalamt or Bezirksamt, page attribution applies",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Contextual local proportions and restrained material family; not an individual paint/window survey. Photos/plans are reference-only. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "west-spandau-charlotten"
+      ],
+      "regions": [
+        "west"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-33466e176150045f",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Eichenallee / Ulmenallee — public architectural context",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09096141",
+      "credit": "Land Berlin / Landesdenkmalamt or Bezirksamt, page attribution applies",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Contextual local proportions and restrained material family; not an individual paint/window survey. Photos/plans are reference-only. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "west-eichen-ulmen"
+      ],
+      "regions": [
+        "west"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-4709f6f796040928",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Donaustraße-Nord: mostly pre-1918 apartment stock, retained local scale",
+      "page_url": "https://donaustrasse-nord.de/fileadmin/user_upload/IHEK/2017_05_31_IHEK_Donaustrasse_2017.pdf",
+      "credit": "Quartiersmanagement Donaustraße-Nord / published IHEK credits",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "south-donaukiez"
+      ],
+      "regions": [
+        "south"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-1a25002eae798408",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Klausenerplatz / Gardes-du-Corps-Straße — public architectural context / Seelingstraße — public architectural context / Knobelsdorffstraße — public architectural context",
+      "page_url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/geschichte/artikel.240397.php",
+      "credit": "Land Berlin / Landesdenkmalamt or Bezirksamt, page attribution applies",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Contextual local proportions and restrained material family; not an individual paint/window survey. Photos/plans are reference-only. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "west-klausenerplatz",
+        "west-seeling",
+        "west-knobelsdorff"
+      ],
+      "regions": [
+        "west"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-301b18397d0331b1",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Alt-Lietzow / Brauhofstraße — public architectural context",
+      "page_url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/spazieren-und-wandern/kiezspaziergaenge/artikel.1598364.php",
+      "credit": "Land Berlin / Landesdenkmalamt or Bezirksamt, page attribution applies",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Contextual local proportions and restrained material family; not an individual paint/window survey. Photos/plans are reference-only. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "west-alt-lietzow"
+      ],
+      "regions": [
+        "west"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-ea93d3b7160ba721",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Platanenallee — public architectural context",
+      "page_url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/spazieren-und-wandern/kiezspaziergaenge/artikel.162283.php",
+      "credit": "Land Berlin / Landesdenkmalamt or Bezirksamt, page attribution applies",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Contextual local proportions and restrained material family; not an individual paint/window survey. Photos/plans are reference-only. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "west-platanen"
+      ],
+      "regions": [
+        "west"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-714f320df416b0f1",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Wundtstraße am Lietzensee — public architectural context / Friedbergstraße — public architectural context / Suarezstraße / Leonhardtstraße — public architectural context",
+      "page_url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/spazieren-und-wandern/kiezspaziergaenge/artikel.354963.php",
+      "credit": "Land Berlin / Landesdenkmalamt or Bezirksamt, page attribution applies",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Contextual local proportions and restrained material family; not an individual paint/window survey. Photos/plans are reference-only. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "west-wundt",
+        "west-friedberg",
+        "west-suarez-leonhardt"
+      ],
+      "regions": [
+        "west"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-b7d02490974c42e7",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Bayernallee — public architectural context",
+      "page_url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/spazieren-und-wandern/kiezspaziergaenge/artikel.488439.php",
+      "credit": "Land Berlin / Landesdenkmalamt or Bezirksamt, page attribution applies",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Contextual local proportions and restrained material family; not an individual paint/window survey. Photos/plans are reference-only. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "west-bayernallee"
+      ],
+      "regions": [
+        "west"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-b04a6400bbd10928",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Bezirksamt Friedrichshain-Kreuzberg / asum: Sozialstudie Petersburger Straße2023",
+      "page_url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/petersburger-strasse/bericht_petersburger_23.pdf?ts=1744636908",
+      "credit": "Bezirksamt Friedrichshain-Kreuzberg / asum GmbH,19October2023",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Primary block-structure and mixed building-age context; no individual facade measurements. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "north-kochhann",
+        "north-heidenfeld",
+        "north-strassmann",
+        "north-ebeling",
+        "north-muehsam",
+        "north-mattern",
+        "north-weidenweg",
+        "north-palisaden"
+      ],
+      "regions": [
+        "north"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-3ce9c458b73710c9",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Wrangelkiez public street photograph and existing mixed frontage",
+      "page_url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/service-und-organisationseinheiten/wirtschaftsfoerderung/wirtschaftsstandort/artikel.114249.php",
+      "credit": "Bezirksamt Friedrichshain-Kreuzberg, BA FK",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "south-wrangelkiez"
+      ],
+      "regions": [
+        "south"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-17213e098fbf6774",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Schillerquartier retained urban form: high roofs, structured facades, lost historic decoration not reconstructed / Emserstraße urban context in southern Schillerquartier; no lost historic turret invention",
+      "page_url": "https://www.berlin.de/ba-neukoelln/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/weitere-staedtebauliche-planungen/ifek-hermannstrasse_2015.pdf",
+      "credit": "Bezirksamt Neukölln / plan and photo credits in IFEK",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "south-schillerkiez",
+        "south-emser-sonnenallee"
+      ],
+      "regions": [
+        "south"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-029052a0c75323b6",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Reuterstraße 2026 district profile: Gründerzeit blocks with preserved wings and courts",
+      "page_url": "https://www.berlin.de/ba-neukoelln/politik-und-verwaltung/sozialraumorientierte-planungskoordination/bezirksregionenprofile-bzrp/reuterstrasse/artikel.1644245.php",
+      "credit": "Bezirksamt Neukölln / OE SPK",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "south-reuterkiez"
+      ],
+      "regions": [
+        "south"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-9ca5717dc95bebd9",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Kolk / Möllentordamm — public architectural context",
+      "page_url": "https://www.berlin.de/ba-spandau/ueber-den-bezirk/tourismus/sehenswertes/artikel.288590.php",
+      "credit": "Land Berlin / Landesdenkmalamt or Bezirksamt, page attribution applies",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Contextual local proportions and restrained material family; not an individual paint/window survey. Photos/plans are reference-only. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "west-spandau-kolk"
+      ],
+      "regions": [
+        "west"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-2662870202aa2d45",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Cranachstraße / Beckerstraße: retained historical residential context",
+      "page_url": "https://www.berlin.de/ba-tempelhof-schoeneberg/ueber-den-bezirk/spaziergaenge/2018/artikel.671989.php",
+      "credit": "Bezirksamt Tempelhof-Schöneberg / page-specific photograph credits",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "south-friedenau-cranach"
+      ],
+      "regions": [
+        "south"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-0786e299ad2f1ccf",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Altstadt Köpenick facade guidance: varying heights, restrained plaster and differentiated later fronts",
+      "page_url": "https://www.berlin.de/ba-treptow-koepenick/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/erhaltungs-verordnungen/artikel.94605.php",
+      "credit": "Bezirksamt Treptow-Köpenick",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "south-alt-k-penick"
+      ],
+      "regions": [
+        "south"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-a820f5c577836e83",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Alt-Treptow public district architectural context",
+      "page_url": "https://www.berlin.de/ba-treptow-koepenick/ueber-den-bezirk/ortsteile/alt-treptow/",
+      "credit": "Bezirksamt Treptow-Köpenick / page-specific photograph credits",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "south-alt-treptow-elsen"
+      ],
+      "regions": [
+        "south"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-bfc27acc213ce478",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Dörpfeldstraße historic mixed shopping/residential street; proposed works not built",
+      "page_url": "https://www.berlin.de/sen/stadtentwicklung/quartiersentwicklung/staedtebaufoerderung/lebendige-zentren/gebiete/doerpfeldstrasse-1287503.php",
+      "credit": "Senatsverwaltung Stadtentwicklung; photographs Erik-Jan Ouwerkerk and Gerbsch as captioned",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "south-adlershof-d-rpfeld"
+      ],
+      "regions": [
+        "south"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-17699e36fcf87588",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Osnabrücker Straße auf der Mierendorffinsel — public architectural context",
+      "page_url": "https://www.berlin.de/sen/stadtentwicklung/quartiersentwicklung/staedtebaufoerderung/nachhaltige-erneuerung/foerdergebiete/charlottenburger-norden/",
+      "credit": "Land Berlin / Landesdenkmalamt or Bezirksamt, page attribution applies",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Contextual local proportions and restrained material family; not an individual paint/window survey. Photos/plans are reference-only. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "west-osnabruecker"
+      ],
+      "regions": [
+        "west"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-b26c9eab8b4f699b",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Graefekiez: retained Gründerzeit streetscape, including photographed Graefestraße",
+      "page_url": "https://www.berlin.de/special/stadtteile/kieze/7429782-7429665-graefekiez.html",
+      "credit": "Berlin.de / dpa; visitBerlin / Dagmar Schwelle for separately captioned canal photograph",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "south-graefekiez"
+      ],
+      "regions": [
+        "south"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-315840c54c25556a",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Akazienkiez / Belziger Straße public architectural context",
+      "page_url": "https://www.berlin.de/special/stadtteile/kieze/7538928-7429665-akazienkiez.html",
+      "credit": "Berlin.de / page-specific photograph credits",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "south-akazienkiez"
+      ],
+      "regions": [
+        "south"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-ac7780a7ea7d967d",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Northern Neukölln existing turn-of-century housing and later infill",
+      "page_url": "https://www.berlin.de/special/stadtteile/neukoelln/908298-5170841-neukoelln.html",
+      "credit": "Berlin.de / page-specific photograph credits",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "south-flughafenstra-e"
+      ],
+      "regions": [
+        "south"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "ordinary-clusters-v320-dc12d8331387327e",
+      "landmark_id": "ordinary-clusters-v320",
+      "title": "Southern Luisenstadt residential perimeter and mixed working streets",
+      "page_url": "https://www.quartiersmanagement-berlin.de/fileadmin/user_upload/Broschuere_QM_Wrangelkiez_Webversion.pdf",
+      "credit": "Quartiersmanagement Berlin / photo credits as listed in brochure",
+      "license": "External architectural reference only; no media redistribution licence asserted.",
+      "role": "Local architectural context only; window axes, neutral paint and small joinery are display estimates. No photograph, plan or historical lost ornament reproduced. Context for the interpretation of 50 groups and 200 street fronts; not a photographic survey of complete buildings.",
+      "cluster_ids": [
+        "south-reichenberger-lausitzer"
+      ],
+      "regions": [
+        "south"
+      ],
+      "checked": "2026-11-06",
+      "pixels_bundled": false
     }
   ]
 }

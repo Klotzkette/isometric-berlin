@@ -1,3 +1,4 @@
+import {clusterFacadesSourceV320} from "./ClusterFacadesV320";
 import {assignStableInkRenderOrder} from "./stableInkRenderOrderV310";
 import {loadSourceQuarterRecipesV309} from "./SourceQuarterCatalogueV309";
 import {createNorthernLoaderV309, type NorthernLoaderV309} from "./northernLoaderV309";
@@ -1810,6 +1811,7 @@ function startSurroundingCity(runtime: Runtime): void {
     schlossplatzV239: true,
     stralauSisyphosV299:true,
     neighbourhoodV300:true,
+    clusterFacadesV320:clusterFacadesSourceV320,
     sourceQuartersV303:true,loadSourceQuarterSourcesV309:createNorthernQuarterLoadingV309({
       loadRecipes:loadSourceQuarterRecipesV309,
       // A closed required-model gate renders the exact original packet. The

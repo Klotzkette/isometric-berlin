@@ -2502,3 +2502,36 @@ Use the same drawn/native openings, retaining every outside source fragment and
 exact full restoration. This is a display cut, not a permanent source or normal
 walking exemption. The close room camera must avoid existing neighbouring trees
 without removing or relocating them.
+
+### Step 10 — v320 fifty ordinary-building clusters
+
+The owner's next request authorizes a finite accuracy and appearance pass on
+50 distinct remaining generic ordinary-building groups within existing source
+coverage, both inside and outside the S-Bahn Ring. Identify all 50 nonempty
+groups and their exact source owners; sampling 50 groups while silently leaving
+some unchanged does not fulfil the request. Prefer complete retained measured
+street walls and independently verified native spans. Use attributed public
+architectural references for distinct local proportions and fitting styles;
+unsurveyed window layouts and small dimensions remain explicit display estimates.
+
+Complete new fronts may replace only exactly receipted old generic window
+fittings through the existing closed, atomic packet transaction. Preserve all
+original source files, bodies, roofs, courts, lines, navigation and every
+unrelated or individually authored facade. Do not repeat a global palette,
+invent roof shapes or entrances, cover mapped material evidence, add duplicate
+window grids or treat navigation polygons alone as proof of a visible wall.
+Keep equal full drawn touch detail, independent cardinal native construction,
+the 93 tour stops, existing streaming lifetimes and all runtime/archive limits.
+No new coverage, photograph pixels, texture requests, timer or quality reduction.
+Use one internal full-city browser at a time. Root owns shared runtime/history
+integration, build and publication; regional profiles remain isolated files.
+
+The finite v320 archive offset may encode only seven exact ordinary eager
+fields matched independently to published199: `surfaces` in
+`districtStreets.json`; `source`, `surfaces` and `blank_extension`
+in `schlossEastStreets.json`, `hill` in `wallGalleryV298.json`, `offsets` in
+`weinbergBuildingOffsetsV176.json`, and `native` in `mitteDdrV288Profile.json`.
+Preserve eager strong ownership, writable data
+descriptors, named-export aliases, every original source byte and all numbers.
+Reuse the existing gzip/Base85 codec, admission decision and OS marker; do not
+reclassify any old lazy/weak source or change a runtime or package ceiling.

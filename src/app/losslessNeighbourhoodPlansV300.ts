@@ -2,6 +2,7 @@
  * Each tile retains its own weak plan, rather than inflating an entire region
  * when the existing serial district decoder reads one key. */
 export const NEIGHBOURHOOD_PLAN_SOURCES_V300: ReadonlySet<string> = new Set([
+  "data/clusterFacadesV320.json",
   "data/moabitMitteV300.json", "data/ostHousingV301.json", "data/westKiezV302.json",
   "data/friedrichshainV303.json", "data/rixdorfV304.json", "data/neukoellnLandmarksV305Packets.json",
   "data/northernFidelityV309Packets.json",

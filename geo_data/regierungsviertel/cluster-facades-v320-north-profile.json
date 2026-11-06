@@ -1,0 +1,1326 @@
+{
+  "schemaVersion": 1,
+  "region": "north",
+  "policy": "Seventeen disjoint four-owner groups. Replace only exactly receipted old generic fittings; keep measured bodies/roofs/courts/lines/navigation and all authored or mapped material. A context-colour skin is admissible only on proven original ordinary generic paint and must exclude every existing mapped door aperture.",
+  "clusters": [
+    {
+      "id": "north-kochhann",
+      "label": "Kochhannstraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Kochhannstr%20Friedrichshain110228%20AMA%20fec.jpg",
+          "title": "Kochhannstr Friedrichshain110228 AMA fec.jpg",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Angela M. Arnold (=44penguins)",
+          "date": "28 February 2011",
+          "author": "Angela M. Arnold (=44penguins)",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+        },
+        {
+          "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/petersburger-strasse/bericht_petersburger_23.pdf?ts=1744636908",
+          "title": "Bezirksamt Friedrichshain-Kreuzberg / asum: Sozialstudie Petersburger Straße2023",
+          "role": "Primary block-structure and mixed building-age context; no individual facade measurements.",
+          "credit": "Bezirksamt Friedrichshain-Kreuzberg / asum GmbH,19October2023"
+        }
+      ],
+      "observations": "Fine light window casings in repeated postwar piers; preserve the measured wall and all balconies already present.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "postwar-fine-sash",
+        "floorPitchM": 3.15,
+        "bayPitchM": 2.65,
+        "windowWidthRatio": 0.48,
+        "windowHeightRatio": 0.57,
+        "frameWidthM": 0.085,
+        "revealDepthM": 0.105,
+        "sillProjectionM": 0.12,
+        "transomRatio": 0.68,
+        "mullions": 1,
+        "plinthHeightM": 1.0,
+        "eaveBands": 1,
+        "frameRgb": [
+          226,
+          225,
+          216
+        ],
+        "wallRgb": [
+          219,
+          214,
+          196
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200008BM",
+          "chunk": "10_-2"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200001qv",
+          "chunk": "10_-2"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200006Ib",
+          "chunk": "10_-2"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY2000093V",
+          "chunk": "10_-2"
+        }
+      ]
+    },
+    {
+      "id": "north-heidenfeld",
+      "label": "Heidenfeldstraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Heidenfeldstr%20Friedrichshain110228%20AMA%20fec.jpg",
+          "title": "Heidenfeldstr Friedrichshain110228 AMA fec.jpg",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Angela M. Arnold (=44penguins)",
+          "date": "28 February 2011",
+          "author": "Angela M. Arnold (=44penguins)",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+        },
+        {
+          "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/petersburger-strasse/bericht_petersburger_23.pdf?ts=1744636908",
+          "title": "Bezirksamt Friedrichshain-Kreuzberg / asum: Sozialstudie Petersburger Straße2023",
+          "role": "Primary block-structure and mixed building-age context; no individual facade measurements.",
+          "credit": "Bezirksamt Friedrichshain-Kreuzberg / asum GmbH,19October2023"
+        }
+      ],
+      "observations": "Neighbourhood photo shows slender twin-leaf openings and shallow sill shadows; balcony geometry is not inferred.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "heidenfeld-tall-twin-leaf",
+        "floorPitchM": 3.35,
+        "bayPitchM": 2.9,
+        "windowWidthRatio": 0.45,
+        "windowHeightRatio": 0.6,
+        "frameWidthM": 0.09,
+        "revealDepthM": 0.12,
+        "sillProjectionM": 0.15,
+        "transomRatio": 0.69,
+        "mullions": 1,
+        "plinthHeightM": 1.05,
+        "eaveBands": 2,
+        "frameRgb": [
+          228,
+          225,
+          214
+        ],
+        "wallRgb": [
+          224,
+          218,
+          198
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200004ih",
+          "chunk": "10_-2"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02AL4Iz0002v",
+          "chunk": "10_-2"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200005qV",
+          "chunk": "10_-2"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200003py",
+          "chunk": "10_-2"
+        }
+      ]
+    },
+    {
+      "id": "north-strassmann",
+      "label": "Straßmannstraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Strassmannstr%20Friedrichshain%20110401%20AMA%20fec%20%288%29.JPG",
+          "title": "Strassmannstr Friedrichshain 110401 AMA fec (8).JPG",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Angela M. Arnold (=44penguins)",
+          "date": "1 April 2011",
+          "author": "Angela M. Arnold (=44penguins)",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+        },
+        {
+          "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/petersburger-strasse/bericht_petersburger_23.pdf?ts=1744636908",
+          "title": "Bezirksamt Friedrichshain-Kreuzberg / asum: Sozialstudie Petersburger Straße2023",
+          "role": "Primary block-structure and mixed building-age context; no individual facade measurements.",
+          "credit": "Bezirksamt Friedrichshain-Kreuzberg / asum GmbH,19October2023"
+        }
+      ],
+      "observations": "Vertical cased openings on a mixed restored street; no blue wall is extrapolated across the group.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "strassmann-cased-vertical",
+        "floorPitchM": 3.3,
+        "bayPitchM": 2.8,
+        "windowWidthRatio": 0.44,
+        "windowHeightRatio": 0.61,
+        "frameWidthM": 0.095,
+        "revealDepthM": 0.13,
+        "sillProjectionM": 0.16,
+        "transomRatio": 0.67,
+        "mullions": 1,
+        "plinthHeightM": 0.95,
+        "eaveBands": 2,
+        "frameRgb": [
+          233,
+          231,
+          224
+        ],
+        "wallRgb": [
+          224,
+          221,
+          214
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE02YY2000034M",
+          "chunk": "10_-1"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY2000033H",
+          "chunk": "10_-1"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200006Pp",
+          "chunk": "10_-1"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200008C4",
+          "chunk": "10_-1"
+        }
+      ]
+    },
+    {
+      "id": "north-ebeling",
+      "label": "Ebelingstraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Ebelingstr%20F%27hain%2020110819%20AMA%20fec%281%29.JPG",
+          "title": "Ebelingstr F'hain 20110819 AMA fec(1).JPG",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "44penguins (Angela M. Arnold)",
+          "date": "19 August 2011",
+          "author": "44penguins (Angela M. Arnold)",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+        },
+        {
+          "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/petersburger-strasse/bericht_petersburger_23.pdf?ts=1744636908",
+          "title": "Bezirksamt Friedrichshain-Kreuzberg / asum: Sozialstudie Petersburger Straße2023",
+          "role": "Primary block-structure and mixed building-age context; no individual facade measurements.",
+          "credit": "Bezirksamt Friedrichshain-Kreuzberg / asum GmbH,19October2023"
+        }
+      ],
+      "observations": "Closely spaced pale casings and modest rectangular openings; preserve existing projecting parts.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "ebeling-close-set-sashes",
+        "floorPitchM": 3.25,
+        "bayPitchM": 2.7,
+        "windowWidthRatio": 0.47,
+        "windowHeightRatio": 0.6,
+        "frameWidthM": 0.08,
+        "revealDepthM": 0.1,
+        "sillProjectionM": 0.12,
+        "transomRatio": 0.7,
+        "mullions": 1,
+        "plinthHeightM": 0.9,
+        "eaveBands": 1,
+        "frameRgb": [
+          226,
+          224,
+          215
+        ],
+        "wallRgb": [
+          218,
+          212,
+          185
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200001hx",
+          "chunk": "10_-1"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200001rc",
+          "chunk": "10_-1"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200006A8",
+          "chunk": "10_-1"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200009PQ",
+          "chunk": "10_-1"
+        }
+      ]
+    },
+    {
+      "id": "north-muehsam",
+      "label": "Mühsamstraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Muehsamstr%20F%27hain%20110311%20AMA%20fec%20%2865%29.JPG",
+          "title": "Muehsamstr F'hain 110311 AMA fec (65).JPG",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Angela M. Arnold (=44penguins)",
+          "date": "11 March 2011",
+          "author": "Angela M. Arnold (=44penguins)",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+        },
+        {
+          "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/petersburger-strasse/bericht_petersburger_23.pdf?ts=1744636908",
+          "title": "Bezirksamt Friedrichshain-Kreuzberg / asum: Sozialstudie Petersburger Straße2023",
+          "role": "Primary block-structure and mixed building-age context; no individual facade measurements.",
+          "credit": "Bezirksamt Friedrichshain-Kreuzberg / asum GmbH,19October2023"
+        }
+      ],
+      "observations": "Regular postwar window/transom rhythm, with a restrained pale ochre context; no tenant or entrance inferred.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "muehsam-postwar-transom",
+        "floorPitchM": 2.95,
+        "bayPitchM": 2.8,
+        "windowWidthRatio": 0.54,
+        "windowHeightRatio": 0.54,
+        "frameWidthM": 0.075,
+        "revealDepthM": 0.09,
+        "sillProjectionM": 0.1,
+        "transomRatio": 0.64,
+        "mullions": 1,
+        "plinthHeightM": 0.85,
+        "eaveBands": 1,
+        "frameRgb": [
+          226,
+          224,
+          213
+        ],
+        "wallRgb": [
+          220,
+          207,
+          159
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200007Dv",
+          "chunk": "10_-1"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200005I4",
+          "chunk": "10_-1"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY20000A0B",
+          "chunk": "10_-1"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200000nD",
+          "chunk": "10_-1"
+        }
+      ]
+    },
+    {
+      "id": "north-mattern",
+      "label": "Matternstraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Matternstr%20Friedrichshain%20110401%20AMA%20fec%20%285%29.JPG",
+          "title": "Matternstr Friedrichshain 110401 AMA fec (5).JPG",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Angela M. Arnold (=44penguins)",
+          "date": "1 April 2011",
+          "author": "Angela M. Arnold (=44penguins)",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+        },
+        {
+          "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/petersburger-strasse/bericht_petersburger_23.pdf?ts=1744636908",
+          "title": "Bezirksamt Friedrichshain-Kreuzberg / asum: Sozialstudie Petersburger Straße2023",
+          "role": "Primary block-structure and mixed building-age context; no individual facade measurements.",
+          "credit": "Bezirksamt Friedrichshain-Kreuzberg / asum GmbH,19October2023"
+        }
+      ],
+      "observations": "Mixed postwar front with a muted sage tone, narrow frame and separate sill; no balcony invented.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "mattern-sage-framed",
+        "floorPitchM": 3.1,
+        "bayPitchM": 2.85,
+        "windowWidthRatio": 0.5,
+        "windowHeightRatio": 0.57,
+        "frameWidthM": 0.085,
+        "revealDepthM": 0.11,
+        "sillProjectionM": 0.14,
+        "transomRatio": 0.66,
+        "mullions": 1,
+        "plinthHeightM": 0.95,
+        "eaveBands": 1,
+        "frameRgb": [
+          223,
+          224,
+          216
+        ],
+        "wallRgb": [
+          194,
+          205,
+          181
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200005yM",
+          "chunk": "10_-1"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200008js",
+          "chunk": "10_-1"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY20000502",
+          "chunk": "10_-1"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200004s5",
+          "chunk": "10_-1"
+        }
+      ]
+    },
+    {
+      "id": "north-weidenweg",
+      "label": "Weidenweg",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Weidenweg%2C%20Ostseite%20F%27hain%20110311%20AMA%20fec%20%2856%29.JPG",
+          "title": "Weidenweg, Ostseite F'hain 110311 AMA fec (56).JPG",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Angela M. Arnold (=44penguins)",
+          "date": "11 March 2011",
+          "author": "Angela M. Arnold (=44penguins)",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+        },
+        {
+          "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/petersburger-strasse/bericht_petersburger_23.pdf?ts=1744636908",
+          "title": "Bezirksamt Friedrichshain-Kreuzberg / asum: Sozialstudie Petersburger Straße2023",
+          "role": "Primary block-structure and mixed building-age context; no individual facade measurements.",
+          "credit": "Bezirksamt Friedrichshain-Kreuzberg / asum GmbH,19October2023"
+        }
+      ],
+      "observations": "Repeated pale framed openings and clear masonry piers; existing balcony and shop geometry remains.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "weidenweg-wide-pier",
+        "floorPitchM": 3.05,
+        "bayPitchM": 2.95,
+        "windowWidthRatio": 0.51,
+        "windowHeightRatio": 0.56,
+        "frameWidthM": 0.09,
+        "revealDepthM": 0.12,
+        "sillProjectionM": 0.14,
+        "transomRatio": 0.68,
+        "mullions": 1,
+        "plinthHeightM": 1.1,
+        "eaveBands": 2,
+        "frameRgb": [
+          225,
+          222,
+          208
+        ],
+        "wallRgb": [
+          229,
+          223,
+          201
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE02YY2000047J",
+          "chunk": "11_0"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200001J3",
+          "chunk": "11_0"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY2000033x",
+          "chunk": "11_0"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200005wJ",
+          "chunk": "11_0"
+        }
+      ]
+    },
+    {
+      "id": "north-palisaden",
+      "label": "Palisadenstraße",
+      "ring": "inner",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Palisadenstr%20F%27hain%20110314%20AMA%20fec%20%2812%29.JPG",
+          "title": "Palisadenstr F'hain 110314 AMA fec (12).JPG",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Angela M. Arnold (=44penguins)",
+          "date": "14 March 2011",
+          "author": "Angela M. Arnold (=44penguins)",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+        },
+        {
+          "url": "https://www.berlin.de/ba-friedrichshain-kreuzberg/politik-und-verwaltung/aemter/stadtentwicklungsamt/stadtplanung/gruppe-infrastruktur-und-staedtebaufoerderung/erhaltungsgebiete/petersburger-strasse/bericht_petersburger_23.pdf?ts=1744636908",
+          "title": "Bezirksamt Friedrichshain-Kreuzberg / asum: Sozialstudie Petersburger Straße2023",
+          "role": "Primary block-structure and mixed building-age context; no individual facade measurements.",
+          "credit": "Bezirksamt Friedrichshain-Kreuzberg / asum GmbH,19October2023"
+        }
+      ],
+      "observations": "Regular multistorey postwar fronts with restrained fine frames; exact original envelope is retained.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "palisaden-regular-postwar",
+        "floorPitchM": 2.9,
+        "bayPitchM": 2.75,
+        "windowWidthRatio": 0.53,
+        "windowHeightRatio": 0.54,
+        "frameWidthM": 0.07,
+        "revealDepthM": 0.085,
+        "sillProjectionM": 0.1,
+        "transomRatio": 0.65,
+        "mullions": 1,
+        "plinthHeightM": 0.8,
+        "eaveBands": 1,
+        "frameRgb": [
+          219,
+          219,
+          214
+        ],
+        "wallRgb": [
+          217,
+          212,
+          185
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE02YY200003Tk",
+          "chunk": "8_0"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY2000079I",
+          "chunk": "8_0"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY2000016K",
+          "chunk": "8_0"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE02YY2000032Z",
+          "chunk": "9_0"
+        }
+      ]
+    },
+    {
+      "id": "north-spiekermann",
+      "label": "Spiekermannstraße",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Spiekermannstrasse.JPG",
+          "title": "Spiekermannstrasse.JPG",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Boonekamp",
+          "date": "Undated capture; first file upload 13 September 2011.",
+          "author": "Boonekamp",
+          "license": "CC0 1.0 Universal",
+          "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+        }
+      ],
+      "observations": "Pale reform-era street fronts with upright windows and visible reveals; this is not a claim that all selected houses belong to a named architect.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "spiekermann-reform-sash",
+        "floorPitchM": 3.15,
+        "bayPitchM": 2.8,
+        "windowWidthRatio": 0.47,
+        "windowHeightRatio": 0.59,
+        "frameWidthM": 0.095,
+        "revealDepthM": 0.14,
+        "sillProjectionM": 0.16,
+        "transomRatio": 0.68,
+        "mullions": 1,
+        "plinthHeightM": 1.0,
+        "eaveBands": 2,
+        "frameRgb": [
+          224,
+          224,
+          212
+        ],
+        "wallRgb": [
+          221,
+          218,
+          191
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70003yhP",
+          "chunk": "north190-7_-8"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70004GAj",
+          "chunk": "north190-7_-8"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY700041Jh",
+          "chunk": "north190-7_-8"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70003Xn9",
+          "chunk": "north190-7_-8"
+        }
+      ]
+    },
+    {
+      "id": "north-thule",
+      "label": "Thulestraße",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Thule%20Ecke%20Baumbach.JPG",
+          "title": "Thule Ecke Baumbach.JPG",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Boonekamp",
+          "date": "14 September 2011",
+          "author": "Boonekamp",
+          "license": "CC0 1.0 Universal",
+          "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+        }
+      ],
+      "observations": "Baumbach/Thule street photo shows tall openings with visible casings and deep piers; the Gutkind block at61/63 is not copied onto these owners.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "thule-recessed-upright",
+        "floorPitchM": 3.35,
+        "bayPitchM": 2.85,
+        "windowWidthRatio": 0.45,
+        "windowHeightRatio": 0.62,
+        "frameWidthM": 0.1,
+        "revealDepthM": 0.15,
+        "sillProjectionM": 0.17,
+        "transomRatio": 0.66,
+        "mullions": 1,
+        "plinthHeightM": 1.15,
+        "eaveBands": 2,
+        "frameRgb": [
+          224,
+          221,
+          210
+        ],
+        "wallRgb": [
+          216,
+          206,
+          198
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70003itT",
+          "chunk": "north190-6_-8"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70004JFl",
+          "chunk": "north190-6_-8"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70004HaU",
+          "chunk": "north190-6_-8"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY700046k8",
+          "chunk": "north190-6_-8"
+        }
+      ]
+    },
+    {
+      "id": "north-charlottenburger",
+      "label": "Charlottenburger Straße",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Charlottenburger%20S%C3%BCdseite%20Nummer%20118%20Wei%C3%9Fensee.jpg",
+          "title": "Charlottenburger Südseite Nummer 118 Weißensee.jpg",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Boonekamp",
+          "date": "19 November 2015",
+          "author": "Boonekamp",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+        }
+      ],
+      "observations": "Nearby street photograph shows light stucco, strongly separated openings and warm base/eave detail; no surveyed individual paint claim.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "charlottenburger-stucco-pier",
+        "floorPitchM": 3.3,
+        "bayPitchM": 3.0,
+        "windowWidthRatio": 0.43,
+        "windowHeightRatio": 0.59,
+        "frameWidthM": 0.105,
+        "revealDepthM": 0.14,
+        "sillProjectionM": 0.18,
+        "transomRatio": 0.7,
+        "mullions": 1,
+        "plinthHeightM": 1.1,
+        "eaveBands": 2,
+        "frameRgb": [
+          230,
+          225,
+          211
+        ],
+        "wallRgb": [
+          225,
+          218,
+          200
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70000Fhg",
+          "chunk": "north190-10_-7"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70000BCM",
+          "chunk": "north190-10_-7"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70000IKF",
+          "chunk": "north190-10_-7"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70000Lk3",
+          "chunk": "north190-10_-7"
+        }
+      ]
+    },
+    {
+      "id": "north-langhans",
+      "label": "Langhansstraße",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Langhansstra%C3%9Fe143.voralsKino.jpg",
+          "title": "Langhansstraße143.voralsKino.jpg",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Boonekamp",
+          "date": "12 May 2016",
+          "author": "Boonekamp",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+        }
+      ],
+      "observations": "Own-photographer view of Langhans143 shows upright pale openings on warm stucco; existing street-level shop/door details stay intact.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "langhans-warm-tall-frame",
+        "floorPitchM": 3.4,
+        "bayPitchM": 2.9,
+        "windowWidthRatio": 0.46,
+        "windowHeightRatio": 0.61,
+        "frameWidthM": 0.1,
+        "revealDepthM": 0.13,
+        "sillProjectionM": 0.16,
+        "transomRatio": 0.69,
+        "mullions": 1,
+        "plinthHeightM": 1.0,
+        "eaveBands": 2,
+        "frameRgb": [
+          230,
+          223,
+          207
+        ],
+        "wallRgb": [
+          212,
+          172,
+          144
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70000T61",
+          "chunk": "north190-10_-7"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70000fBw",
+          "chunk": "north190-10_-7"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70000g72",
+          "chunk": "north190-10_-7"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70000GZa",
+          "chunk": "north190-10_-7"
+        }
+      ]
+    },
+    {
+      "id": "north-uhland",
+      "label": "Uhlandstraße",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Niedersch%C3%B6nhausen%20%2817%29Uhlandstra%C3%9Fe%20West-E-Waldstra%C3%9Fe.JPG",
+          "title": "Niederschönhausen (17)Uhlandstraße West-E-Waldstraße.JPG",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Günter Haase",
+          "date": "1 February 2014, 11:40:52",
+          "author": "Günter Haase",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+        }
+      ],
+      "observations": "Street photo shows restrained low-rise apartment fronts, wide rectangular openings and plain frames; no planned new building is added.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "uhland-plain-wide-frame",
+        "floorPitchM": 3.0,
+        "bayPitchM": 2.8,
+        "windowWidthRatio": 0.54,
+        "windowHeightRatio": 0.55,
+        "frameWidthM": 0.075,
+        "revealDepthM": 0.09,
+        "sillProjectionM": 0.11,
+        "transomRatio": 0.62,
+        "mullions": 1,
+        "plinthHeightM": 0.8,
+        "eaveBands": 1,
+        "frameRgb": [
+          229,
+          228,
+          216
+        ],
+        "wallRgb": [
+          226,
+          226,
+          215
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v230",
+          "owner": "DEBE03YY700047Xr",
+          "chunk": "east200-3_-15"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70003oYw",
+          "chunk": "east200-3_-15"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70003h96",
+          "chunk": "east200-3_-15"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70003rwH",
+          "chunk": "east200-3_-15"
+        }
+      ]
+    },
+    {
+      "id": "north-platanen",
+      "label": "Platanenstraße",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Niedersch%C3%B6nhausen%20%2829%29Platanenstra%C3%9Fe%20Ost-E-Waldstra%C3%9Fe.JPG",
+          "title": "Niederschönhausen (29)Platanenstraße Ost-E-Waldstraße.JPG",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Günter Haase",
+          "date": "1 February 2014, 11:47:32",
+          "author": "Günter Haase",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+        }
+      ],
+      "observations": "Street photo shows low-rise residential openings and light frames; existing roofs, dormers and plots remain exactly as supplied.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "platanen-low-rise-group",
+        "floorPitchM": 2.95,
+        "bayPitchM": 2.7,
+        "windowWidthRatio": 0.56,
+        "windowHeightRatio": 0.55,
+        "frameWidthM": 0.08,
+        "revealDepthM": 0.1,
+        "sillProjectionM": 0.12,
+        "transomRatio": 0.63,
+        "mullions": 1,
+        "plinthHeightM": 0.85,
+        "eaveBands": 1,
+        "frameRgb": [
+          225,
+          223,
+          211
+        ],
+        "wallRgb": [
+          211,
+          204,
+          185
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70004DtB",
+          "chunk": "east200-3_-15"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70003VFL",
+          "chunk": "east200-3_-15"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70003ge7",
+          "chunk": "east200-3_-15"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE03YY70004Llh",
+          "chunk": "east200-3_-15"
+        }
+      ]
+    },
+    {
+      "id": "north-suermondt",
+      "label": "Suermondtstraße",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09045512",
+          "title": "Landesdenkmalamt Berlin: Wohnanlage Suermondtstraße38–55",
+          "role": "Official ensemble identification and reference photograph; fitting dimensions are display estimates.",
+          "credit": "Landesdenkmalamt Berlin / LDA-DK"
+        }
+      ],
+      "observations": "Official LDA photograph of Suermondt38–55 shows pale cross-light casings and warm rendered fronts; small dimensions remain estimates.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "suermondt-cross-light",
+        "floorPitchM": 3.2,
+        "bayPitchM": 2.9,
+        "windowWidthRatio": 0.45,
+        "windowHeightRatio": 0.59,
+        "frameWidthM": 0.105,
+        "revealDepthM": 0.15,
+        "sillProjectionM": 0.18,
+        "transomRatio": 0.62,
+        "mullions": 1,
+        "plinthHeightM": 1.2,
+        "eaveBands": 2,
+        "frameRgb": [
+          232,
+          228,
+          208
+        ],
+        "wallRgb": [
+          220,
+          197,
+          137
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v230",
+          "owner": "DEBE11YYH00004aY",
+          "chunk": "east200-15_-7"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE11YYH00009ME",
+          "chunk": "east200-15_-7"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE11YYH0000Aty",
+          "chunk": "east200-15_-7"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE11YYH00008g4",
+          "chunk": "east200-15_-7"
+        }
+      ]
+    },
+    {
+      "id": "north-waldow",
+      "label": "Waldowstraße",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Waldowstra%C3%9Fe%2064%20einfriedung%20althohensch%C3%B6nhausen%20april2017%20%281%29.jpg",
+          "title": "Waldowstraße 64 einfriedung althohenschönhausen april2017 (1).jpg",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Z thomas",
+          "date": "1 April 2017, 17:44",
+          "author": "Z thomas",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+        }
+      ],
+      "observations": "Street reference shows modest villa-scale framed openings and strong sill shadows; fence and roof shapes are not extrapolated.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "waldow-villa-upright",
+        "floorPitchM": 3.25,
+        "bayPitchM": 3.1,
+        "windowWidthRatio": 0.43,
+        "windowHeightRatio": 0.6,
+        "frameWidthM": 0.1,
+        "revealDepthM": 0.14,
+        "sillProjectionM": 0.17,
+        "transomRatio": 0.66,
+        "mullions": 1,
+        "plinthHeightM": 1.05,
+        "eaveBands": 2,
+        "frameRgb": [
+          227,
+          225,
+          206
+        ],
+        "wallRgb": [
+          210,
+          199,
+          167
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v230",
+          "owner": "DEBE11YYH000073H",
+          "chunk": "east200-15_-6"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE11YYH00005vX",
+          "chunk": "east200-15_-6"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE11YYH0000C2w",
+          "chunk": "east200-15_-6"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE11YYH000011Q",
+          "chunk": "east200-15_-6"
+        }
+      ]
+    },
+    {
+      "id": "north-oranke",
+      "label": "Orankestraße",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Orankestra%C3%9Fe%2084%20althohensch%C3%B6nhausen%20april2107%20%281%29.jpg",
+          "title": "Orankestraße 84 althohenschönhausen april2107 (1).jpg",
+          "role": "Street-context photograph only; no image pixels, tenant, exact present paint or surveyed window layout is copied.",
+          "credit": "Z thomas",
+          "date": "1 April 2017, 17:56",
+          "author": "Z thomas",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+        }
+      ],
+      "observations": "Street reference shows light villa-scale stucco and upright divided openings; decorative gables/roof forms are not invented.",
+      "estimate": "Complete measured wall and independently retained native spans; all new opening subdivisions, small dimensions and unmapped context colours are explicit procedural display estimates. No new roof, entrance, sign or occupancy is inferred.",
+      "style": {
+        "key": "oranke-light-villa",
+        "floorPitchM": 3.35,
+        "bayPitchM": 3.2,
+        "windowWidthRatio": 0.42,
+        "windowHeightRatio": 0.61,
+        "frameWidthM": 0.11,
+        "revealDepthM": 0.15,
+        "sillProjectionM": 0.19,
+        "transomRatio": 0.68,
+        "mullions": 1,
+        "plinthHeightM": 1.1,
+        "eaveBands": 2,
+        "frameRgb": [
+          235,
+          230,
+          211
+        ],
+        "wallRgb": [
+          225,
+          216,
+          177
+        ],
+        "glassRgb": [
+          69,
+          87,
+          91
+        ],
+        "plinthRgb": [
+          124,
+          123,
+          112
+        ]
+      },
+      "faces": [
+        {
+          "family": "v230",
+          "owner": "DEBE11YYH00009RD",
+          "chunk": "east200-15_-6"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE11YYH0000GrX",
+          "chunk": "east200-15_-6"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE11YYH0000Dmb",
+          "chunk": "east200-15_-6"
+        },
+        {
+          "family": "v230",
+          "owner": "DEBE11YYH00005Tk",
+          "chunk": "east200-15_-6"
+        }
+      ]
+    }
+  ]
+}
