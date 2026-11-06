@@ -2535,3 +2535,68 @@ Preserve eager strong ownership, writable data
 descriptors, named-export aliases, every original source byte and all numbers.
 Reuse the existing gzip/Base85 codec, admission decision and OS marker; do not
 reclassify any old lazy/weak source or change a runtime or package ceiling.
+
+
+### Step 10 — v321 ministries and state representations
+
+The owner requests a completeness and architectural-accuracy review of every
+current federal ministry's Berlin service seat, all Berlin Senatsverwaltungen
+and every Land's Berlin representation. Use current official ministry/state
+directories and public contact/building references, distinguishing primary Bonn
+seats from Berlin offices, co-located departments and shared representation
+houses. Berlin's own representation remains the separately retained Senate
+Chancellery/Rotes Rathaus; do not invent a sixteenth separate house. This is
+bounded public exterior refinement within existing coverage, with no Bonn
+geography or general district generation.
+
+Preserve every complete measured envelope, roof, court, source record, earlier
+authored feature, public approach and navigation. Correct only specifically
+evidenced wrong or generic fittings with complete source-bound replacements
+and exact old component/owner receipts; defaults stay closed and failed source
+admission retains the existing model. Existing complete ministry architecture
+remains authoritative. Current institutional names, addresses and building
+identities must not be inferred from stale ministry abbreviations or tenants.
+Unsurveyed small facade details and material tones remain explicit estimates.
+Keep full drawn touch detail, independent cardinal native construction, all
+93 tour stops, six modes and every startup/Worker/residency/decode/prefetch and
+archive ceiling. No photograph pixels, new media request, timer or unrelated
+source deletion. Root owns shared integration, immutable-history capture and
+publication; regional audits/implementations use isolated versioned files.
+Use one internal full-city viewer at a time and preserve the preceding complete
+package by rename until the replacement is verified.
+
+The X8/BMWSB audit identifies exactly three obsolete same-building OSM coarse
+owners, 32698095, 32698102 and 74476580. Their complete measured replacement
+is the 26 lower leaves of official family DEBE02YY4000042k; its two previously
+authored V272 tower leaves remain under their existing ownership. The small
+OSM/LoD2 boundary slivers are documented same-owner source conflicts, not new
+independent buildings: retain their original records/polygons as evidence while
+correcting these three complete coarse owners to the measured outline. Do not
+leave false 27-metre ghost wall fragments. Exact generic-fitting retirement
+follows all older validators and preserves every unrelated word; missing,
+duplicate, foreign or changed receipts keep the original geometry. Native
+columns require exclusive source-contribution proof and exact full signatures;
+mixed foreign/tower columns remain intact. Complete replacement construction
+and matching granular navigation must precede the private gate.
+
+The same finite whole-owner correction applies to the two demonstrated coarse
+BMJV owners 41953739 and n-280071, using their complete official source families
+while retaining the four already-authored ABQ leaves and all original records.
+Oranienstraße 106 similarly replaces only its evidenced n-400426 coarse owner
+with the complete eight-leaf source family; unrelated native contributors remain.
+The confirmed low-height source defects at Bildung/Bernhard-Weiß-Straße and the
+Württembergische-Straße tower may receive finite independently evidenced roof
+and upper-floor corrections. Preserve all original source planes/footprints and
+courts as evidence, every unaffected leaf and low wing. Use the exact existing
+family datum offset, independent bDOM elevations and attributed public roof/
+setback references; interpreted terrace splits and roof boundaries are not a
+survey and must be labelled accordingly. No whole-family scale or blind lift.
+Twenty-one unchanged published200 eager fields may use the existing lossless source
+encoding with literal source/field pins; keep their eager strong ownership,
+property descriptors, aliases and every decoded number/word unchanged.
+
+Mode-boundary shader-program retirement must not invalidate complete ministry
+or Senate roots. Distinguish only the synchronous private material-retirement
+scope of the existing real cache pass from authored resource disposal; ordinary
+disposal must still revoke provenance and exact-owner receipts. Preserve actual
+GPU program release, all material properties, source words and cache ceilings.

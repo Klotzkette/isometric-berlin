@@ -855,7 +855,13 @@ function addCharacterDetails(
   }
 }
 
-function buildSite(site: FederalStateRepresentationProfile, options: { mobileLike?: boolean } = {}): Group {
+export type FederalStateRepresentationOptions = {
+  mobileLike?: boolean;
+  /** Main-thread source-verified fittings; null retains the complete historical facade. */
+  fittingsFactoryV321?: (site: FederalStateRepresentationProfile, style: SiteStyle) => Group | null;
+};
+
+function buildSite(site: FederalStateRepresentationProfile, options: FederalStateRepresentationOptions = {}): Group {
   if (site.id === "sachsen-anhalt") {
     const group = createSachsenAnhaltFacade(options);
     group.userData.profile = site;
@@ -875,26 +881,32 @@ function buildSite(site: FederalStateRepresentationProfile, options: { mobileLik
       addClosedMassingZone(builder, zone, style.stone);
     }
   }
-  for (const [index, facade] of site.facadeRuns.entries()) {
-    addFacadeGrid(builder, site, facade, index, style);
+  const replacement = options.fittingsFactoryV321?.(site, style) ?? null;
+  if (!replacement) {
+    for (const [index, facade] of site.facadeRuns.entries()) {
+      addFacadeGrid(builder, site, facade, index, style);
+    }
+    addCharacterDetails(builder, site, style);
   }
-  addCharacterDetails(builder, site, style);
   const group = finishDrawnGroup(builder, {
     name: `Federal state representation ${site.id}`,
   });
-  if (!group) throw new Error(`Empty federal-state representation: ${site.id}`);
-  group.userData.profile = site;
-  group.userData.collisionPolicy =
+  const completeGroup = group ?? (replacement ? new Group() : null);
+  if (!completeGroup) throw new Error(`Empty federal-state representation: ${site.id}`);
+  if (replacement) completeGroup.add(replacement);
+  completeGroup.name = `Federal state representation ${site.id}`;
+  completeGroup.userData.profile = site;
+  completeGroup.userData.collisionPolicy =
     site.manualMassing === undefined
       ? "thin recognition overlay; retain named LoD2 obstacle and leave the entrance aperture visually open"
       : "closed source-bounded manual shell; collision is exported for the full authored height";
-  group.traverse((object) => {
+  completeGroup.traverse((object) => {
     if (!(object instanceof Mesh)) return;
     object.userData.federalStateRepresentation = true;
     object.userData.federalStateRepresentationId = site.id;
     object.userData.stateCodes = site.stateCodes;
   });
-  return group;
+  return completeGroup;
 }
 
 function pointInRing(
@@ -983,7 +995,7 @@ export function federalStateRepresentationSolidAt(
 }
 
 /** Build all 13 source-bound houses for the 15 Länder. */
-export function createFederalStateRepresentations(options: { mobileLike?: boolean } = {}): Group {
+export function createFederalStateRepresentations(options: FederalStateRepresentationOptions = {}): Group {
   const root = new Group();
   root.name = "Federal state representations source-bound details";
   root.userData.profile = FEDERAL_STATE_REPRESENTATIONS;

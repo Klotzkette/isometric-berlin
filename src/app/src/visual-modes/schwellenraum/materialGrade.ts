@@ -8,6 +8,7 @@ import {
 
 import type { VisualMode } from "../../visualMode";
 import { restoreInheritedReichstagSectionV318 } from "../../reichstagSectionMaterialV318";
+import { isSceneMaterialProgramRetirementV321 } from "../../sceneMaterialPrograms";
 
 export const SCHWELLENRAUM_MATERIAL_GRADE = {
   saturation: 0.38,
@@ -76,9 +77,12 @@ export function schwellenraumMaterialFor(
     `${previousProgramCacheKey}|schwellenraum-material-grade-v3`;
   material.needsUpdate = true;
   const receipt = { day: dayMaterial, grade: material, disposed: false };
-  const invalidate = () => { receipt.disposed = true; };
-  dayMaterial.addEventListener("dispose", invalidate);
-  material.addEventListener("dispose", invalidate);
+  dayMaterial.addEventListener("dispose", () => {
+    if (!isSceneMaterialProgramRetirementV321(dayMaterial)) receipt.disposed = true;
+  });
+  material.addEventListener("dispose", () => {
+    if (!isSceneMaterialProgramRetirementV321(material)) receipt.disposed = true;
+  });
   materialProvenance.set(object, receipt);
   object.userData.schwellenraumMaterial = material;
   return material;

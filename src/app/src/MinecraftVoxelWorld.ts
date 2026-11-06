@@ -1,3 +1,4 @@
+import {createNativeStateRepresentationsV321} from "./StateRepresentationsV321";
 import {hasCompleteNeukoellnLandmarksV305} from "./NeukoellnLandmarksV305";
 import {applyNeukoellnLegacyV227V305} from "./NeukoellnLandmarksV305Previous";
 import { createWaterfrontColumnOpeningsV296, type WaterfrontPrismV296 } from "./waterfrontV296Profile";
@@ -2716,6 +2717,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftTopographyTerrorArchitecture({ mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftSachsenAnhaltFacade({ voxels: payload, mobileLike: options.detailProfile === "mobile" }));
+  if (options.sourcePrisms) group.add(createNativeStateRepresentationsV321(options.sourcePrisms, payload));
   group.add(createMinecraftDeutschesTheater(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
   yield;
   const harbourBuildingColumnAt = createHumboldthafenBuildingColumnTester(options.sourcePrisms);

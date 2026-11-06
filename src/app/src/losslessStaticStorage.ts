@@ -10,6 +10,16 @@ const MIN_BYTES = 64 * 1024;
 type StorageInfo = { arrayIdentity: object; bufferIdentity: object; byteLength: number; bufferBytes: number };
 const arrayIds = new WeakMap<object, object>(), bufferIds = new WeakMap<object, object>();
 const storageInfo = new WeakMap<Storage, StorageInfo>();
+const parkedAccessorsV321=new WeakMap<Storage,{get:()=>Values;set:(values:Values)=>void;
+  needsUpdate:(value:boolean)=>void;version:number;canonicalOnly:()=>boolean}>();
+/** True only for this module's unchanged private compressed backing when no
+ * live mutable decoded view remains. It never invokes the array getter. */
+export function isParkedStaticStorageV321(storage:Storage):boolean{
+  const proof=parkedAccessorsV321.get(storage);if(!proof||storage.usage!==StaticDrawUsage||storage.version!==proof.version||!storageInfo.has(storage))return false;
+  const array=Object.getOwnPropertyDescriptor(storage,"array"),update=Object.getOwnPropertyDescriptor(storage,"needsUpdate");
+  return array?.get===proof.get&&array.set===proof.set&&update?.set===proof.needsUpdate&&proof.canonicalOnly();
+}
+
 function identity(ids: WeakMap<object, object>, value: object): object {
   let id = ids.get(value); if (!id) ids.set(value, id = {}); return id;
 }
@@ -97,6 +107,7 @@ function installStorage(storage: Storage, chunks: Uint8Array[], weak: WeakRef<Va
     if (retirement !== undefined) clearTimeout(retirement);
     if (storage.onUploadCallback === uploaded) storage.onUploadCallback = originalUpload;
     storageInfo.delete(storage);
+    parkedAccessorsV321.delete(storage);
     Object.defineProperty(storage, "array", { value: values, writable: true, configurable: true, enumerable: true });
     delete (storage as unknown as { needsUpdate?: boolean }).needsUpdate;
     chunks.length = 0;
@@ -104,11 +115,10 @@ function installStorage(storage: Storage, chunks: Uint8Array[], weak: WeakRef<Va
   };
   Object.defineProperty(storage, "array", { configurable: true, enumerable: true,
     get: read, set: writable });
-  Object.defineProperty(storage, "needsUpdate", { configurable: true,
-    set(value: boolean) {
-      if (value) { writable(read()); storage.version++; }
-    },
-  });
+  const needsUpdate=(value:boolean)=>{if(value){writable(read());storage.version++;}};
+  Object.defineProperty(storage, "needsUpdate", { configurable: true, set:needsUpdate });
+  parkedAccessorsV321.set(storage,{get:read,set:writable,needsUpdate,version:storage.version,
+    canonicalOnly:()=>{const view=weak.deref();return !view||view.byteLength!==byteLength;}});
 }
 
 /** Call after indexing, terrain draping, colours and optional interleaving. */

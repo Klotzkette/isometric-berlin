@@ -17,7 +17,7 @@ for (const version of versions) {
     let posted = 0;
     for (; posted < 4; posted++) host.add(`exact-${posted}`);
     let received = 0;
-    while (host.runNext()) {
+    while (await host.runNext()) {
       while (received < host.attached.length) {
         received++;
         if (posted < 18) host.add(`exact-${posted++}`);

@@ -4,7 +4,7 @@ import { progressiveAttachmentHost } from "./helpers/progressiveAttachmentHost";
 const source = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
 
 describe("production progressive attachment scheduling", () => {
-  test("idle road packets advance in separate tasks without one forced frame each", () => {
+  test("idle road packets advance in separate tasks without one forced frame each", async () => {
     const host = progressiveAttachmentHost(source, { inputPending: false });
     host.runtime.interactionUntil = 0;
     for (let i = 0; i < 400; i++) host.add(`restored-paving-${i}`);
@@ -12,17 +12,17 @@ describe("production progressive attachment scheduling", () => {
     // in-flight window is introduced to make the full street layer faster.
     expect(host.attached).toHaveLength(0);
     for (let i = 0; i < 400; i++) {
-      expect(host.runNext()).toBeTrue();
+      expect(await host.runNext()).toBeTrue();
       expect(host.attached).toHaveLength(i + 1);
       expect(host.attached[i].id).toBe(`restored-paving-${i}`);
     }
     expect(host.attached.at(-1)?.at).toBeLessThan(400 * 16);
   });
 
-  test("queued batches keep their original deadline while input stays busy", () => {
+  test("queued batches keep their original deadline while input stays busy", async () => {
     const host = progressiveAttachmentHost(source);
     for (let i = 0; i < 18; i++) host.add(`exact-${i}`);
-    const elapsed = host.drain();
+    const elapsed = await host.drain();
     expect(host.attached).toHaveLength(18);
     expect(host.attached[0].at).toBe(900);
     expect(elapsed).toBeLessThan(1_200);
@@ -31,46 +31,46 @@ describe("production progressive attachment scheduling", () => {
     expect(host.attached.slice(1).every((entry, i) => entry.at > host.attached[i].at)).toBeTrue();
   });
 
-  test("available idle time can attach geometry while a joystick is held", () => {
+  test("available idle time can attach geometry while a joystick is held", async () => {
     const host = progressiveAttachmentHost(source, { idleBudgetMs: 8, inputPending: false });
     for (let i = 0; i < 4; i++) host.add(`exact-${i}`);
-    expect(host.drain()).toBeLessThanOrEqual(64);
+    expect(await host.drain()).toBeLessThanOrEqual(64);
     expect(host.attached).toHaveLength(4);
   });
 
-  test("an early callback with insufficient budget does not restart the deadline", () => {
+  test("an early callback with insufficient budget does not restart the deadline", async () => {
     const host = progressiveAttachmentHost(source, { idleBudgetMs: 2, initialAgeMs: 850 });
     host.add("exact");
-    expect(host.drain()).toBeLessThanOrEqual(66);
+    expect(await host.drain()).toBeLessThanOrEqual(66);
     expect(host.attached).toHaveLength(1);
   });
 
-  test("critical previews are immediate; timer fallback still makes progress", () => {
+  test("critical previews are immediate; timer fallback still makes progress", async () => {
     const preview = progressiveAttachmentHost(source);
     preview.add("buildings-preview-1");
-    expect(preview.drain()).toBe(0);
+    expect(await preview.drain()).toBe(0);
     const fallback = progressiveAttachmentHost(source, { idleApi: false });
     for (let i = 0; i < 4; i++) fallback.add(`exact-${i}`);
-    expect(fallback.drain()).toBeLessThan(1_000);
+    expect(await fallback.drain()).toBeLessThan(1_000);
     expect(fallback.attached).toHaveLength(4);
   });
 
-  test("exact building shapes attach in the next task even with continuous pending input", () => {
+  test("exact building shapes attach in the next task even with continuous pending input", async () => {
     for (const idleApi of [true, false]) {
       const host = progressiveAttachmentHost(source, { idleApi, idleBudgetMs: 0, inputPending: true });
       host.add("buildings-exact-1", "buildings");
       host.add("buildings-exact-2", "buildings");
-      expect(host.runNext()).toBeTrue();
+      expect(await host.runNext()).toBeTrue();
       expect(host.attached).toEqual([{ id: "buildings-exact-1", at: 0 }]);
-      expect(host.drain()).toBe(0);
+      expect(await host.drain()).toBe(0);
       expect(host.attached).toHaveLength(2);
       host.complete();
-      expect(host.drain()).toBe(0);
+      expect(await host.drain()).toBe(0);
       expect(host.attached.at(-1)?.id).toBe("complete");
     }
   });
 
-  test("cancelled, hidden, disposed or replaced worlds cannot attach stale batches", () => {
+  test("cancelled, hidden, disposed or replaced worlds cannot attach stale batches", async () => {
     for (const stop of ["cancel", "hide", "dispose", "replace"]) {
       const host = progressiveAttachmentHost(source);
       host.add("exact");
@@ -78,7 +78,7 @@ describe("production progressive attachment scheduling", () => {
       if (stop === "hide") host.document.hidden = true;
       if (stop === "dispose") host.runtime.disposed = true;
       if (stop === "replace") host.runtime.progressiveWorldWorker = {};
-      host.drain();
+      await host.drain();
       expect(host.attached).toHaveLength(0);
     }
   });

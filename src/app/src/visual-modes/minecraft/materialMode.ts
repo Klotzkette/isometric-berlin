@@ -9,6 +9,7 @@ import {
   type Material,
 } from "three";
 import {hasSchwellenraumMaterialProvenance} from "../schwellenraum/materialGrade";
+import {isSceneMaterialProgramRetirementV321} from "../../sceneMaterialPrograms";
 
 export type MinecraftMaterialState = {
   gradientMap: DataTexture;
@@ -29,7 +30,7 @@ const factories=new WeakMap<Material,Factory>();
 const copiedStates=new WeakMap<Mesh,MinecraftMaterialState>();
 function resourceFor(material:Material):Resource{
  let record=resources.get(material);if(record)return record;
- record={disposed:false};const owned=record;material.addEventListener("dispose",()=>{owned.disposed=true;});resources.set(material,record);return record;
+ record={disposed:false};const owned=record;material.addEventListener("dispose",()=>{if(!isSceneMaterialProgramRetirementV321(material))owned.disposed=true;});resources.set(material,record);return record;
 }
 function invalidate(mesh:Mesh):void{
  const binding=privateBindings.get(mesh);if(!binding)return;

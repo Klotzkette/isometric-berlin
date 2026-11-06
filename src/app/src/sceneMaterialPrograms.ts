@@ -1,6 +1,14 @@
 import { Line, Material, Points, Scene, Sprite, type Object3D } from "three";
 import { objectMaterialsIncludingTransferredAlternates } from "./transferableObject3D";
 
+const retiringPrograms = new WeakSet<Material>();
+
+/** Only the synchronous real program-retirement call can qualify this event.
+ * Authored disposal outside that scope still ends a material's lifetime. */
+export function isSceneMaterialProgramRetirementV321(material: Material): boolean {
+  return retiringPrograms.has(material);
+}
+
 /**
  * Retire shader programs retained by an earlier drawn-mode presentation.
  * Call once at an actual mode boundary, before warming/rendering the new mode.
@@ -28,6 +36,14 @@ export function retireSceneMaterialPrograms(root: Object3D): number {
     }
     if (object instanceof Scene && object.overrideMaterial) materials.add(object.overrideMaterial);
   });
-  for (const material of materials) material.dispose();
+  for (const material of materials) {
+    const nested = retiringPrograms.has(material);
+    retiringPrograms.add(material);
+    try {
+      material.dispose();
+    } finally {
+      if (!nested) retiringPrograms.delete(material);
+    }
+  }
   return materials.size;
 }

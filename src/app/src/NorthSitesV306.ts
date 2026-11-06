@@ -1,3 +1,4 @@
+import {isSceneMaterialProgramRetirementV321} from "./sceneMaterialPrograms";
 import {BufferAttribute,BufferGeometry,DoubleSide,Group,Mesh,MeshBasicMaterial,MeshStandardMaterial} from "three";
 import type {Material} from "three";
 import data from "./data/northSitesV306.json";
@@ -38,9 +39,9 @@ export function createNorthSitesV306(native=false):Group{
    if(ps.some(v=>!Number.isFinite(v))||indices.some(i=>i>=p.vertices))throw Error("Invalid northern site geometry");
    const geometry=new BufferGeometry();resources.add(geometry);geometry.addEventListener("dispose",()=>{if(!isSceneGeometryGpuRetirementV309(geometry))invalidate();});geometry.setAttribute("position",new BufferAttribute(ps,3));geometry.setAttribute("color",new BufferAttribute(colors,3,true));geometry.setIndex(new BufferAttribute(indices,1));geometry.computeVertexNormals();geometry.computeBoundingBox();geometry.computeBoundingSphere();
    const day=new MeshBasicMaterial({vertexColors:true,side:DoubleSide}),night=new MeshStandardMaterial({vertexColors:true,side:DoubleSide,roughness:.94,flatShading:native});resources.add(day);resources.add(night);
-   day.addEventListener("dispose",invalidate);night.addEventListener("dispose",invalidate);
+   day.addEventListener("dispose",()=>{if(!isSceneMaterialProgramRetirementV321(day))invalidate();});night.addEventListener("dispose",()=>{if(!isSceneMaterialProgramRetirementV321(night))invalidate();});
    const mesh=new Mesh(geometry,day);mesh.name=site.key==="lessing"?"Complete measured Lessing-Gymnasium Schöningstraße17, nine source leaves":"Lew Kerbel Thälmann bust, fist, folded flag and source-contained granite courses";
-   mesh.userData={dayMaterial:day,nightMaterial:night,textureFree:true,fullStaticDetailOnTouch:true,sourceSheetsRetained:true,nativeMinecraft:native,blockNative:native,keepInMinecraft:native,northSiteV306:site.key};const grade=schwellenraumMaterialFor(mesh,day);resources.add(grade);grade.addEventListener("dispose",invalidate);root.add(mesh);
+   mesh.userData={dayMaterial:day,nightMaterial:night,textureFree:true,fullStaticDetailOnTouch:true,sourceSheetsRetained:true,nativeMinecraft:native,blockNative:native,keepInMinecraft:native,northSiteV306:site.key};const grade=schwellenraumMaterialFor(mesh,day);resources.add(grade);grade.addEventListener("dispose",()=>{if(!isSceneMaterialProgramRetirementV321(grade))invalidate();});root.add(mesh);
   }
   root.userData={northSitesV306:true,sourceReceipt:"north-sites-v306-source.json.gz",fullStaticDetailOnTouch:true,textureFree:true,nativeMinecraft:native,blockNative:native,keepInMinecraft:native,smallReferenceDimensionsEstimated:true};freezeStaticSceneTransforms(root);
   receipt.transform=transform(root);receipt.children=(root.children as Mesh[]).map(mesh=>({mesh,geometry:mesh.geometry,attributes:new Map(Object.entries(mesh.geometry.attributes).map(([k,a])=>[k,capture(a as BufferAttribute)])),index:capture(mesh.geometry.index!),day:mesh.userData.dayMaterial,night:mesh.userData.nightMaterial,grade:mesh.userData.schwellenraumMaterial,transform:transform(mesh)}));receipts.set(root,receipt);return root;

@@ -1,3 +1,4 @@
+import {isSceneMaterialProgramRetirementV321} from "./sceneMaterialPrograms";
 import {isSceneInstanceGpuRetirementV309} from "./sceneGpuResidency";
 import {isSceneGeometryGpuRetirementV309} from "./sceneGeometryGpuResidency";
 /** Full actual v190 station receipts, with live restoration on any revocation. */
@@ -27,6 +28,7 @@ function match(a:Attribute|null|undefined,p:AttributePin):boolean{if(!a||a!==p.a
 type ChildPin={child:Mesh;parent:Object3D|null;geometry:Mesh['geometry'];attributes:Map<string,AttributePin>;index:AttributePin|null;matrix?:AttributePin;color?:AttributePin;count?:number;day:Material;night:Material;grade:Material;transform:number[];pose:number[];auto:boolean;worldAuto:boolean;disposed:boolean};
 type Mask={architecture:Group;contact:Group;children:ChildPin[]};
 const states=new WeakMap<Object3D,Map<boolean,Mask>>(),grades=new WeakMap<Mesh,Material>();
+const authoredDisposed=new WeakSet<Mesh>();
 function stillMatches(p:ChildPin):boolean{
  const c=p.child;if(p.disposed||c.parent!==p.parent||c.geometry!==p.geometry||c.matrix.elements.some((v,i)=>v!==p.transform[i])||[...c.position.toArray(),...c.quaternion.toArray(),...c.scale.toArray()].some((v,i)=>v!==p.pose[i])||c.matrixAutoUpdate!==p.auto||c.matrixWorldAutoUpdate!==p.worldAuto||Object.keys(c.geometry.attributes).length!==p.attributes.size||![...p.attributes].every(([k,a])=>match(c.geometry.getAttribute(k)as Attribute,a))||(p.index?!match(c.geometry.index,p.index):!!c.geometry.index)||c.userData.dayMaterial!==p.day||c.userData.nightMaterial!==p.night||c.userData.schwellenraumMaterial!==p.grade||(![p.day,p.night,p.grade].includes(c.material as Material)&&!hasMinecraftMaterialProvenance(c,p.day,c.material)&&!hasMinecraftMaterialProvenance(c,p.night,c.material)&&!hasMinecraftMaterialProvenance(c,p.grade,c.material)))return false;
  return !(c instanceof InstancedMesh)||c.count===p.count&&!!p.matrix&&match(c.instanceMatrix,p.matrix)&&(!p.color?!c.instanceColor:match(c.instanceColor,p.color));
@@ -51,7 +53,7 @@ export function applyRailSseLegacyV307(root:Object3D,native=false,enabled=false,
   const choices=groups.filter(g=>g.userData.stationName===station.stationName&&g.name===station.name);if(choices.length!==1)return false;
   const group=choices[0];if(!group.visible||group.children.length!==station.children.length||group.position.toArray().some((v,i)=>v!==station.position[i]))return false;
   for(let i=0;i<station.children.length;i++){
-   const expected=station.children[i],child=group.children[i];if(!(child instanceof Mesh)||!child.visible||child.name!==expected.name||Object.keys(child.geometry.attributes).length!==Object.keys(expected.attributes).length||child.geometry.drawRange.start!==0||child.geometry.drawRange.count!==Infinity&&child.geometry.drawRange.count!==(child.geometry.index?.count??child.geometry.getAttribute('position').count))return false;
+   const expected=station.children[i],child=group.children[i];if(!(child instanceof Mesh)||authoredDisposed.has(child)||!child.visible||child.name!==expected.name||Object.keys(child.geometry.attributes).length!==Object.keys(expected.attributes).length||child.geometry.drawRange.start!==0||child.geometry.drawRange.count!==Infinity&&child.geometry.drawRange.count!==(child.geometry.index?.count??child.geometry.getAttribute('position').count))return false;
    for(const[key,a]of Object.entries(expected.attributes)){const actual=child.geometry.getAttribute(key);if(!actual||actual.count!==a.count||actual.itemSize!==a.itemSize||actual.normalized!==a.normalized||attributeBytes(actual)!==a.bytes)return false;}
    const ix=child.geometry.index;if(expected.index?(!ix||ix.count!==expected.index.count||bytes(ix.array)!==expected.index.bytes):!!ix)return false;
    if(expected.instanceCount!==null?(!(child instanceof InstancedMesh)||child.count!==expected.instanceCount||bytes(child.instanceMatrix.array)!==expected.matrix||(expected.color===null?!!child.instanceColor:!child.instanceColor||bytes(child.instanceColor.array)!==expected.color)):child instanceof InstancedMesh)return false;
@@ -64,7 +66,7 @@ export function applyRailSseLegacyV307(root:Object3D,native=false,enabled=false,
  const pins=selected.map(child=>{
   let grade=grades.get(child);if(!grade){grade=schwellenraumMaterialFor(child,child.userData.dayMaterial);grades.set(child,grade);}
   const p:ChildPin={child,parent:child.parent,geometry:child.geometry,attributes:new Map(Object.entries(child.geometry.attributes).map(([k,a])=>[k,pin(a as Attribute)])),index:child.geometry.index?pin(child.geometry.index):null,day:child.userData.dayMaterial,night:child.userData.nightMaterial,grade,transform:child.matrix.elements.slice(),pose:[...child.position.toArray(),...child.quaternion.toArray(),...child.scale.toArray()],auto:child.matrixAutoUpdate,worldAuto:child.matrixWorldAutoUpdate,disposed:false,...(child instanceof InstancedMesh?{matrix:pin(child.instanceMatrix),color:child.instanceColor?pin(child.instanceColor):undefined,count:child.count}:{})};
-  const disposed=()=>{p.disposed=true;};child.geometry.addEventListener('dispose',()=>{if(!isSceneGeometryGpuRetirementV309(p.geometry))disposed();});p.day.addEventListener('dispose',disposed);p.night.addEventListener('dispose',disposed);p.grade.addEventListener('dispose',disposed);if(child instanceof InstancedMesh)child.addEventListener('dispose',()=>{if(!isSceneInstanceGpuRetirementV309(child))disposed();});return p;
+  const disposed=()=>{p.disposed=true;authoredDisposed.add(child);};child.geometry.addEventListener('dispose',()=>{if(!isSceneGeometryGpuRetirementV309(p.geometry))disposed();});for(const material of[p.day,p.night,p.grade])material.addEventListener('dispose',()=>{if(!isSceneMaterialProgramRetirementV321(material))disposed();});if(child instanceof InstancedMesh)child.addEventListener('dispose',()=>{if(!isSceneInstanceGpuRetirementV309(child))disposed();});return p;
  });
  for(const p of pins)p.child.visible=false;
  const next=map??new Map<boolean,Mask>();next.set(native,{architecture:architecture!,contact:contact!,children:pins});states.set(root,next);return true;

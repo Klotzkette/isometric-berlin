@@ -43,6 +43,7 @@ export function progressiveAttachmentHost(source: string, options: {
   const runtime = {
     progressiveWorldMessages: [] as Array<{ enqueuedAt: number; message: { id: string; type: string; kind: "buildings" | "surfaces" } }>,
     progressiveWorldAttachCancel: undefined as (() => void) | undefined,
+    progressiveWorldAttachingV321: false,
     progressiveWorldWorker: worker as object | undefined,
     disposed: false, interactionUntil: Number.POSITIVE_INFINITY,
   };
@@ -54,7 +55,7 @@ export function progressiveAttachmentHost(source: string, options: {
       : progressiveAttachmentReady,
     progressiveAttachmentRemainingMs, PROGRESSIVE_ATTACHMENT_MAX_DEFERRAL_MS,
     browserInputPending: () => options.inputPending ?? true,
-    attachProgressiveWorldMessage: (_runtime: unknown, _worker: unknown, message: { id: string }) => {
+    attachProgressiveWorldMessage: async (_runtime: unknown, _worker: unknown, message: { id: string }) => {
       attached.push({ id: message.id, at: now });
     },
   };
@@ -71,14 +72,17 @@ export function progressiveAttachmentHost(source: string, options: {
       runtime.progressiveWorldMessages.push({ enqueuedAt: now, message: { id: "complete", type: "complete", kind: "surfaces" } });
       schedule(runtime, worker, () => {});
     },
-    runNext() {
+    async runNext() {
       const next = [...tasks].sort((a, b) => a[1].at - b[1].at || a[0] - b[0])[0];
       if (!next) return false;
       tasks.delete(next[0]); now = next[1].at; next[1].run();
+      // The real asynchronous attachment releases its serialized lane from
+      // Promise.finally before the next browser task can run.
+      for (let i = 0; i < 4; i++) await Promise.resolve();
       return true;
     },
-    drain() {
-      for (let count = 0; this.runNext(); count += 1) {
+    async drain() {
+      for (let count = 0; await this.runNext(); count += 1) {
         if (count > 10_000) throw new Error("Attachment scheduler did not make progress");
       }
       return now;

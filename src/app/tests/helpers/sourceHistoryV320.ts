@@ -1,7 +1,8 @@
 /** Test-only finite current -> published199 delta, before immutable v319. */
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { assertSourceLayerV321, sourceAtPublished200V321, projectSourceBeforeV321 } from "./sourceHistoryV321";
 
 export const SOURCE_HISTORY_PUBLISHED_V199_V320 = "e594dfff933c7a0114d3f58ac7c2d28872e612a2";
 export const SOURCE_HISTORY_PROOF_V319_SHA_V320 = "b9065605b7c6154fa5ca1dd85abcc2c7d298cbfeaf465da28aa4f633d57de9a2";
@@ -108,21 +109,23 @@ let checked: SourceLayerV320 | undefined;
 const repoRoot = resolve(import.meta.dir, "../../../..");
 export function assertSourceLayerV320(): SourceLayerV320 {
   if (checked) return checked;
+  const newest = assertSourceLayerV321();
   const graph = published199SourceGraphV320(readFileSync(new URL("../fixtures/source-history-v318.json", import.meta.url)),
     readFileSync(new URL("../fixtures/source-history-v319.json", import.meta.url)));
   const receipt = JSON.parse(readFileSync(new URL("../fixtures/source-history-v320.json", import.meta.url), "utf8")) as SourceReceiptV320;
-  const files = readdirSync(resolve(repoRoot, "src/app/src"), { recursive: true }).map(path => `src/app/src/${path}`)
-    .filter(path => /\.(?:ts|tsx|json)$/.test(path) && statSync(resolve(repoRoot, path)).isFile());
-  checked = verifySourceLayerV320(receipt, graph, [...new Set([...Object.keys(graph), ...files])], path => readFileSync(resolve(repoRoot, path)));
+  checked = verifySourceLayerV320(receipt, graph, Object.keys(newest.publishedGraph),
+    path => sourceAtPublished200V321(path, readFileSync(resolve(repoRoot, path)), newest));
   return checked;
 }
 export function sourceAtPublished199V320(path: string, raw: Uint8Array, layer = assertSourceLayerV320()): Uint8Array {
+  if (layer === checked) raw = sourceAtPublished200V321(path, raw);
   if (!admitted.has(layer) || !Object.hasOwn(layer.currentGraph, path) || sha(raw) !== layer.currentGraph[path]
       || !Object.hasOwn(layer.publishedGraph, path)) throw Error(`Unknown exact v320 source bytes: ${path}`);
   const receipt = layer.receipt.changes[path];
   return receipt ? Buffer.from(inverse(Buffer.from(raw).toString("utf8"), receipt)) : raw;
 }
 export function projectSourceBeforeV320(source: string, layer = assertSourceLayerV320()): string {
+  if (layer === checked) source = projectSourceBeforeV321(source);
   if (!admitted.has(layer)) throw Error("Unverified v320 source layer");
   const digest = sha(source), records = Object.values(layer.receipt.changes).filter(r => r.currentSha256 === digest);
   if (records.length && Object.values(layer.currentGraph).filter(value => value === digest).length !== 1) throw Error("Ambiguous full v320 source fingerprint");

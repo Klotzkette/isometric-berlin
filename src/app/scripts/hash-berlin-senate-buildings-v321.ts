@@ -1,0 +1,11 @@
+import {readFileSync,writeFileSync}from'node:fs';
+import path from'node:path';
+const root=path.resolve(import.meta.dir,'..');
+const fnv=(value:unknown)=>{let h=2166136261;for(const c of JSON.stringify(value))h=Math.imul(h^c.charCodeAt(0),16777619)>>>0;return h;};
+const data=JSON.parse(readFileSync(path.join(root,'src/data/berlinSenateBuildingsV321.json'),'utf8'));
+const previous=JSON.parse(readFileSync(path.join(root,'src/data/berlinSenatePreviousV321.json'),'utf8'));
+const target=path.join(root,'src/BerlinSenateBuildingsV321.ts');
+let source=readFileSync(target,'utf8');source=source.replace(/const MODEL_CONTROL=\d+;/,`const MODEL_CONTROL=${fnv(data)};`);
+const controls=Object.fromEntries(['drawn','nativeFull','nativeMobile','preview'].map(k=>[k,fnv(previous[k])]));
+source=source.replace(/const PREVIOUS_CONTROLS=\{[^;]+;/,`const PREVIOUS_CONTROLS=${JSON.stringify(controls)};`);writeFileSync(target,source);
+console.log({modelControl:fnv(data),previousControls:controls});

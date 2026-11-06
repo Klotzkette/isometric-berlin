@@ -2920,3 +2920,30 @@ Unsurveyed window subdivisions, small joinery dimensions and unmapped paint
 remain explicit display estimates, not a current photographic full-building
 survey. Existing individually authored facades and mapped doors remain retained.
 No reference photograph, plan page, image pixel or photographic texture is bundled.
+
+## Federal ministries, Berlin Senate and Länder representations (v321)
+
+The completeness review covers all sixteen current federal ministries' Berlin
+service seats, Berlin's ten Senate departments and all sixteen Länder
+representations. Current official contact directories identify the institutions;
+public operator, architect and heritage references guide the finite exterior
+refinements. Bonn's primary service seats are distinguished from Berlin offices.
+Shared houses are not duplicated. Details and individual reference links are in
+[government offices](docs/government-offices-v321.md),
+[Berlin Senate](docs/berlin-senate-v321.md) and
+[Länder representations](docs/state-representations-v321.md).
+
+Complete source building sheets, roof/court outlines and source metadata derive
+from Land Berlin / Geoportal Berlin LoD2, under dl-de/zero-2-0; retained mapped
+footprints and source attributes remain © OpenStreetMap contributors (ODbL-1.0).
+The finite roof corrections also use Geoportal Berlin's one-metre image-based
+surface model and DOP2025 orthophotos (dl-de/zero-2-0). Original measured data
+and every unaffected previously authored building remain retained. Interpreted
+upper-floor setbacks, small facade dimensions and colour nuances are display
+estimates, not an as-built survey or a photographic assessment of every facade.
+
+Public exterior reference images are used for architectural interpretation only.
+Photographers and individual operator/architect references are credited in the
+linked detail notes. No reference photograph, plan page, photo pixel or new
+photographic texture is included in the viewer or download. No private office
+layout or security installation is inferred.

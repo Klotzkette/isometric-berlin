@@ -415,6 +415,7 @@ export type PrismPayload = {
  * remaining batches without copying or simplifying any source coordinate.
  */
 export type IsometricCityBuildOptions = {
+  federalStateFittingsV321?: import("./FederalStateRepresentations").FederalStateRepresentationOptions["fittingsFactoryV321"];
   /** Only the completed required Hauptbahnhof model may open its retained source glazing. */
   hbfCirculationV291?: boolean;
   parliamentaryDiningV296?: boolean;
@@ -13642,7 +13643,7 @@ export function* createIsometricCityStepsV309(
     builders.push(() => group.add(createReichstagspraesidentenpalais(prisms)));
     builders.push(() => group.add(createEconomicMinistryDetails(prisms)));
     builders.push(() => group.add(createZollpackhofDetails()));
-    builders.push(() => group.add(createFederalStateRepresentations({ mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createFederalStateRepresentations({ mobileLike: options.detailProfile === "mobile", fittingsFactoryV321: options.federalStateFittingsV321 })));
   }
   onProgress?.({ phase: "architecture", completed: 0, total: builders.length });
   for (let index = 0; index < builders.length; index++) {

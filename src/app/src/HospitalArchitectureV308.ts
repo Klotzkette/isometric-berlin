@@ -1,3 +1,4 @@
+import {isSceneMaterialProgramRetirementV321} from "./sceneMaterialPrograms";
 /** Complete hospital bodies and source-clipped, reference-guided recognition. */
 import {
   BoxGeometry, BufferAttribute, BufferGeometry, Color, DoubleSide, Group,
@@ -195,6 +196,7 @@ export function createHospitalArchitectureV308(
       const invalidate=()=>{
         if(resource instanceof BufferGeometry&&isSceneGeometryGpuRetirementV309(resource))return;
         if(resource instanceof InstancedMesh&&isSceneInstanceGpuRetirementV309(resource))return;
+        if(isSceneMaterialProgramRetirementV321(resource as Material))return;
         receipt.invalid=true;
       };
       (resource as unknown as {addEventListener(type:"dispose",listener:()=>void):void}).addEventListener("dispose",invalidate);

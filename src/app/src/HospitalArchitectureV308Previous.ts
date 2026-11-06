@@ -1,3 +1,4 @@
+import {isSceneMaterialProgramRetirementV321} from "./sceneMaterialPrograms";
 /** Exact delivered v228 batches and only v214's corrected six-storey wall rows. */
 import {BufferAttribute,BufferGeometry,Group,InstancedMesh,InterleavedBufferAttribute,Mesh,Object3D} from "three";
 import type {Material} from "three";
@@ -36,7 +37,7 @@ function liveMatches(p:LivePin):boolean {
  (p.matrix?m instanceof InstancedMesh&&m.count===p.count&&attributeMatches(m.instanceMatrix,p.matrix)&&(p.color?attributeMatches(m.instanceColor,p.color):!m.instanceColor):!(m instanceof InstancedMesh))&&m.userData.dayMaterial===p.day&&m.userData.nightMaterial===p.night&&m.userData.schwellenraumMaterial===p.grade&&hasSchwellenraumMaterialProvenance(m,p.day,p.grade)&&(m.material===p.day||m.material===p.night||m.material===p.grade||hasMinecraftMaterialProvenance(m,p.day,m.material)||hasMinecraftMaterialProvenance(m,p.night,m.material)||hasMinecraftMaterialProvenance(m,p.grade,m.material));
 }
 function observe(state:State,resource:BufferGeometry|InstancedMesh|Material){
- const invalid=()=>{if(resource instanceof BufferGeometry&&isSceneGeometryGpuRetirementV309(resource))return;if(resource instanceof InstancedMesh&&isSceneInstanceGpuRetirementV309(resource))return;authoredDisposed.add(resource);state.invalid=true;state.invalidResources.add(resource);};
+ const invalid=()=>{if(resource instanceof BufferGeometry&&isSceneGeometryGpuRetirementV309(resource))return;if(resource instanceof InstancedMesh&&isSceneInstanceGpuRetirementV309(resource))return;if(isSceneMaterialProgramRetirementV321(resource as Material))return;authoredDisposed.add(resource);state.invalid=true;state.invalidResources.add(resource);};
  const event=resource as unknown as{addEventListener(type:"dispose",listener:()=>void):void;removeEventListener(type:"dispose",listener:()=>void):void};event.addEventListener("dispose",invalid);state.hooks.push(()=>event.removeEventListener("dispose",invalid));
 }
 const authoredDisposed=new WeakSet<object>();

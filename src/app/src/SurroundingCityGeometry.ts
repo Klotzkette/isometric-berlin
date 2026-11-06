@@ -299,8 +299,10 @@ export type SurroundingOwnershipOptions = {
   stralauSisyphosV299?: boolean;
   neighbourhoodV300?: boolean;
   clusterFacadesV320?: NeighbourhoodSourceV300;
+  berlinSenateV321?: NeighbourhoodSourceV300;
+  governmentOfficesV321?:boolean;
   sourceQuartersV303?: boolean;
-  sourceQuarterSourcesV303?: readonly {source:SourceQuarterSourceV303;kind:string;requiredReplacement?:boolean;admission?:"north-v309"|"treptow-v317"}[];
+  sourceQuarterSourcesV303?: readonly {source:SourceQuarterSourceV303;kind:string;requiredReplacement?:boolean;admission?:"north-v309"|"treptow-v317"|"government-v321"}[];
   neukoellnLandmarksV305?: boolean;
   northFidelityV309?: boolean;
   treptowWaterfrontV317?: boolean;
@@ -371,6 +373,9 @@ export function* buildSurroundingCityChunk(
   }
   // The main viewer supplies its finite weak catalogue. Core workers that do
   // not render these fronts retain no copy of that catalogue.
+  const senateTicketV321 = ownership.berlinSenateV321
+    ? yield* captureNeighbourhoodPacketV300(chunk, id, minecraft, true, ownership.berlinSenateV321, "berlin-senate-v321")
+    : undefined;
   const clusterTicketV320 = ownership.clusterFacadesV320
     ? yield* captureNeighbourhoodPacketV300(chunk, id, minecraft, true, ownership.clusterFacadesV320, "cluster-facades-v320")
     : undefined;
@@ -378,6 +383,7 @@ export function* buildSurroundingCityChunk(
   if(ownership.sourceQuartersV303===true)for(const entry of ownership.sourceQuarterSourcesV303??[]){
     if(entry.admission==="north-v309"?ownership.northFidelityV309!==true:
       entry.admission==="treptow-v317"?ownership.treptowWaterfrontV317!==true:
+      entry.admission==="government-v321"?ownership.governmentOfficesV321!==true:
       entry.requiredReplacement&&ownership.neukoellnLandmarksV305!==true)continue;
     if(!neighbourhoodPacketCandidateV300(entry.source as unknown as NeighbourhoodSourceV300,id,minecraft))continue;
     const plan=entry.source.packets[`${minecraft?"minecraft":"drawn"}:${id}`];
@@ -389,6 +395,7 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareSurroundingQuarterPredecessorV303(chunk,id,minecraft,ownership);
   for(const ticket of quarterTicketsV303)chunk=yield*prepareSourceQuarterPacketV303(chunk,ticket);
   chunk = yield* prepareNeighbourhoodPacketV300(chunk, clusterTicketV320);
+  chunk = yield* prepareNeighbourhoodPacketV300(chunk, senateTicketV321);
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;

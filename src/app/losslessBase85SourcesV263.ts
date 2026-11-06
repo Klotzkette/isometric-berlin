@@ -256,4 +256,9 @@ export const LOSSLESS_BASE85_BEFORE_V309: ReadonlySet<string> = new Set([
 ]);
 export const LOSSLESS_BASE85_SOURCES_V263: ReadonlySet<string> = new Set([
   ...LOSSLESS_BASE85_BEFORE_V309, ...LOSSLESS_NORTHERN_SOURCES_V309,
+  "data/berlinSenateV321.json", "data/federalMinistriesV321.json",
+  "data/federalMinistriesV321Previous.json", "data/federalMinistriesV321Packets.json",
+  "data/federalMinistryPressQuarterV321.json",
+  "data/berlinSenateBuildingsV321.json",
+  "data/berlinSenatePreviousV321.json",
 ]);

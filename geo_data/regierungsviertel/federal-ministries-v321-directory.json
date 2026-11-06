@@ -1,0 +1,1576 @@
+{
+  "schemaVersion": 1,
+  "checked": "2026-11-06",
+  "baseCommit": "4123bd3464",
+  "scope": "All16currentfederalministries,Berlinserviceaddressesonly;Berlin/Bonnorderfromcurrentofficialpages;notallsecondaryoffices;publicexterioronly",
+  "directoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien",
+  "directorySha256": "97a1a6a20da23b85b876b22fcc1d57dc11c29ad4a88a5cb335e92230be51aeec",
+  "statusCounts": {
+    "preserve": 8,
+    "refine": 8
+  },
+  "limits": [
+    "Mappedsiteintersectionsarecandidateinventories,notautomaticreplacementownership.",
+    "NoBonngeography,newtours,privateinteriors,securitylayoutorplannedunbuiltvolumes.",
+    "Referencepixelsstayexternal;externalcontactsheetisnotredistributionlicense.",
+    "Noexistingmodelclaimismadefromacontactaddressalone;oldnamedbuilderscheckedindependently."
+  ],
+  "ministries": [
+    {
+      "code": "BMF",
+      "currentOfficialName": "Bundesministerium der Finanzen",
+      "berlinServiceAddress": "Wilhelmstraße 97, Berlin",
+      "firstListedServiceSeat": "Berlin",
+      "bonnServiceAddress": "Am Propsthof 78a,53121 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesministerium-der-finanzen",
+      "officialPageSha256": "8f798b1e89dd0b95411b499e7be8651a4ce253493710943aa8bf6afcf04c5063",
+      "assessment": "preserve",
+      "finding": "RohwedderHausArchitecture.ts + BmfForecourtV281;21 retained records; roof/court/9-window Ehrenhof risalit/memorial remain authoritative.",
+      "existingReference": "docs/rohwedder-haus-refinement.md",
+      "publicArchitectureReference": "https://www.bundesfinanzministerium.de/Web/DE/Ministerium/Geschichte/geschichte.html",
+      "mappedIdentity": "relation/280070",
+      "candidateOwnerCount": 21,
+      "actualAltMittePartIds": [],
+      "actualAltMitteParents": [],
+      "corePrismCandidates": [
+        {
+          "id": "1prapKrM",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "pn8a4ah1",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "J2IDc8UM",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "hYDHONPH",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "DJWZE4MM",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K00005uY",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K00006PB",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0000FSo",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "BpVfJNGl",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "WJjXsCQe",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "mtHSfbdC",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "fEm77Df9",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "b2fhmrSW",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "nU6RPfQE",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "H1fcpzly",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K00002QC",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0000D45",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "5FMmOrjM",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "i8NvEZMM",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K000042J",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0001x3e",
+          "altMitteSuppressed": false
+        }
+      ]
+    },
+    {
+      "code": "BMI",
+      "currentOfficialName": "Bundesministerium des Innern",
+      "berlinServiceAddress": "Alt-Moabit 140, Berlin",
+      "firstListedServiceSeat": "Berlin",
+      "bonnServiceAddress": "Graurheindorfer Straße 198,53117 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesinnenministerium",
+      "officialPageSha256": "bd9e626baf6902bed24f33f8ee25c980c5abed9f3d751182ca9710c9f129d191",
+      "assessment": "refine",
+      "finding": "Measured mainparent DEBE01YYK0002NHr has9 leaves,including42.61m tallestleaf;5 ancillary measured owners. Current13-storey2025C tower requires comparison, not assumed missing. No named architectural builder found; replace exact generic facefittings with limestone deep reveals and fine frames only.",
+      "existingReference": "generic core measured prisms",
+      "publicArchitectureReference": "https://www.mueller-reimann.de/projekte/erweiterungsbau-bundesministerium-des-innern",
+      "mappedIdentity": "way/61765036",
+      "candidateOwnerCount": 14,
+      "actualAltMittePartIds": [],
+      "actualAltMitteParents": [],
+      "corePrismCandidates": [
+        {
+          "id": "K0002UxL",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0002OCh",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0003UMS",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0003U2F",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "IKgAc36m",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "RwlKbDS5",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "TGyeCGjY",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "dvgp4LwV",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "kFTnCXXi",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "ieb7nHT4",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "BQTtzW0K",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "28qSQUcB",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "nnKrCLDf",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "52954762",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "14937222",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0003UxD",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "90453429",
+          "altMitteSuppressed": false
+        }
+      ]
+    },
+    {
+      "code": "AA",
+      "currentOfficialName": "Auswärtiges Amt",
+      "berlinServiceAddress": "Werderscher Markt 1, Berlin",
+      "firstListedServiceSeat": "Berlin",
+      "bonnServiceAddress": "Adenauerallee 99–103,53113 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/auswaertiges-amt-aufgaben-kontakt",
+      "officialPageSha256": "169684deada0942691eb15d67a19eb04977830257d348c2e6193e1f9aa711668",
+      "assessment": "preserve",
+      "finding": "EastCivicArchitecture.ts owns14new+40old complete measuredparts,5+7parents; originalatria/openloggia/courts/roofs preserved. No gratuitous redo. Kurstraße futureextension is not a completed2026building.",
+      "existingReference": "docs/east-civic-v148.md",
+      "publicArchitectureReference": "https://www.auswaertiges-amt.de/de/aamt/geschichte-des-auswaertigen-amts/gebaeude",
+      "mappedIdentity": "way/187955354",
+      "candidateOwnerCount": 0,
+      "actualAltMittePartIds": [
+        "DEBE01YYK0000BYl",
+        "DEBE3DXjKWY4BVXr",
+        "DEBE3DBbPTb3hA29",
+        "DEBE3Ds6s7gYmnVu",
+        "DEBE3Ds6kvtKJW85",
+        "DEBE3DbKKQyGItc3",
+        "DEBE3DmqpWstifgR"
+      ],
+      "actualAltMitteParents": [
+        "DEBE01YYK000016t",
+        "DEBE01YYK000039z",
+        "DEBE01YYK0000BYl"
+      ],
+      "corePrismCandidates": [
+        {
+          "id": "15933948",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "15933949",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "on-57390",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "52909988",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "52909987",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "10374064",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "71989099",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "71989097",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "56466007",
+          "altMitteSuppressed": true
+        }
+      ]
+    },
+    {
+      "code": "BMVg",
+      "currentOfficialName": "Bundesministerium der Verteidigung",
+      "berlinServiceAddress": "Stauffenbergstraße 18, Berlin",
+      "firstListedServiceSeat": "Bonn",
+      "bonnServiceAddress": "Fontainengraben 150,53123 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesverteidigungsministerium-aufgaben-kontakt",
+      "officialPageSha256": "fd2192654398361d723c7ed111d55dea1cd7f2bf938ca49febe7178cf3df35c2",
+      "assessment": "preserve",
+      "finding": "BendlerblockV202 complete10 selected leaves/2parents plus memorial,sourcepassages and independent native; siteparcel contains other retainedowners, never blanket replace.",
+      "existingReference": "docs/bendlerblock-v202.md",
+      "publicArchitectureReference": "https://www.bmvg.de/de/ministerium/geschichte-des-verteidigungsministeriums",
+      "mappedIdentity": "relation/13461930",
+      "candidateOwnerCount": 12,
+      "actualAltMittePartIds": [],
+      "actualAltMitteParents": [],
+      "corePrismCandidates": [
+        {
+          "id": "Ihayvi55",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "yg98J51v",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "dT0GhZDa",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0003URC",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "w0KNc7fU",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "lSPuB8DI",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "velffOVN",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "8ITOvSLQ",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "63802972",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "63802977",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0003VXR",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0002Snf",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0003VQw",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "3gg0001d",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "53103481",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "65961094",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "-7903504",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "83858430",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "63802973",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "39694056",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "63802978",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "63802975",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "63802970",
+          "altMitteSuppressed": false
+        }
+      ]
+    },
+    {
+      "code": "BMWE",
+      "currentOfficialName": "Bundesministerium für Wirtschaft und Energie",
+      "berlinServiceAddress": "Scharnhorststraße 34–37, Berlin",
+      "firstListedServiceSeat": "Berlin",
+      "bonnServiceAddress": "Villemombler Straße 76,53123 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesministerium-fuer-wirtschaft-und-energie",
+      "officialPageSha256": "09116d562d125c83d77d3043430103150898a5c9d60267849ec67e6702f58870",
+      "assessment": "preserve",
+      "finding": "EconomicMinistrySourceGeometry/Details retain6prisms,5officialparts328sheets; DOPboundedroofcorrection/16courts/solarstrip retained. Campus parcel includes26 measured leaves and other independent owners; only the existing authored family is authoritative.",
+      "existingReference": "docs/economic-ministry-refinement-v114.md",
+      "publicArchitectureReference": "https://www.bundeswirtschaftsministerium.de/Redaktion/DE/Textsammlungen/Ministerium/architektur.html",
+      "mappedIdentity": "way/24911034",
+      "candidateOwnerCount": 26,
+      "actualAltMittePartIds": [
+        "DEBE00YY1BG00045",
+        "DEBE01YYK0001yg0",
+        "DEBE01YYK0000Ai5",
+        "DEBE01YYK0000BRr",
+        "DEBE01YYK0001xXf",
+        "DEBE01YYK0001y29",
+        "DEBE01YYK0000DEO",
+        "DEBE01YYK0001xnZ",
+        "DEBE3DeUSLJpG2cL",
+        "DEBE3DJpQzMZJZEe",
+        "DEBE3DNdOcUSp0gi",
+        "DEBE3DQzSJsuOkXc",
+        "DEBE01YYK0000DYk"
+      ],
+      "actualAltMitteParents": [
+        "DEBE00YY1BG00045",
+        "DEBE01YYK00005eK",
+        "DEBE01YYK0000Ai5",
+        "DEBE01YYK0000BRr",
+        "DEBE01YYK0000DEO",
+        "DEBE01YYK0000DYk",
+        "DEBE01YYK0001xXf",
+        "DEBE01YYK0001xnZ",
+        "DEBE01YYK0001y29",
+        "DEBE01YYK0001yg0"
+      ],
+      "corePrismCandidates": [
+        {
+          "id": "K0001yg0",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K0000Ai5",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K0000BRr",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K0001y29",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K0000EU2",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0000DEO",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "16BsNwRe",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0000A7g",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0001xnZ",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K00008CN",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "SLJpG2cL",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "QzMZJZEe",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "OcUSp0gi",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "SJsuOkXc",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K0000DYk",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "1BG00045",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "5SZ27Z6E",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "Ksmhl52z",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "WIMTHRhz",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0001xXf",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K0000B4S",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "VavfStgt",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "yAAWS2KQ",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "-3202585",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "mp0uscZH",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "IrgWIu9P",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "dL8PyOaX",
+          "altMitteSuppressed": false
+        }
+      ]
+    },
+    {
+      "code": "BMFTR",
+      "currentOfficialName": "Bundesministerium für Forschung, Technologie und Raumfahrt",
+      "berlinServiceAddress": "Kapelle-Ufer 1, Berlin",
+      "firstListedServiceSeat": "Bonn",
+      "bonnServiceAddress": "Heinemannstraße 2,53175 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesministerium-fuer-forschung-technologie-und-raumfahrt",
+      "officialPageSha256": "efacf50db0f62c932c4a7c1b95a5e5b35c6eb485c3204b2a1242b31b6d3c35e8",
+      "assessment": "preserve",
+      "finding": "MinistrySpreeV207,10mainleaves+portico,138originalsheets,greenventpanels/bronzelowerframes and technicalbars; actual nativeSpans preserved.",
+      "existingReference": "docs/ministry-spree-v207.md",
+      "publicArchitectureReference": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesministerium-fuer-forschung-technologie-und-raumfahrt",
+      "mappedIdentity": "way/1302352107",
+      "candidateOwnerCount": 11,
+      "actualAltMittePartIds": [
+        "DEBE3Dd2A3JNOhIR",
+        "DEBE3DtlPX6C0SWB",
+        "DEBE3DKGGir04pfY",
+        "DEBE3DJFYzwKd88t",
+        "DEBE3DQYkj2kXcNG",
+        "DEBE3DEBalHQjLM0",
+        "DEBE3DvYGtxhg1Aq",
+        "DEBE3DBlrT1zM4av",
+        "DEBE01YYK0001xGY",
+        "DEBE3Dl10HCH67YQ",
+        "DEBE3DxOdMgSqbjR"
+      ],
+      "actualAltMitteParents": [
+        "DEBE01YYK00005iG",
+        "DEBE01YYK0001xGY"
+      ],
+      "corePrismCandidates": [
+        {
+          "id": "dMgSqbjR",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "A3JNOhIR",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "PX6C0SWB",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "Gir04pfY",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "YzwKd88t",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "kj2kXcNG",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "alHQjLM0",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "Gtxhg1Aq",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "rT1zM4av",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K0001xGY",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "0HCH67YQ",
+          "altMitteSuppressed": true
+        }
+      ]
+    },
+    {
+      "code": "BMJV",
+      "currentOfficialName": "Bundesministerium der Justiz und für Verbraucherschutz",
+      "berlinServiceAddress": "Anton-Wilhelm-Amo-Straße 37, Berlin",
+      "firstListedServiceSeat": "Berlin",
+      "bonnServiceAddress": "Adenauerallee 99–103,53113 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesjustizministerium",
+      "officialPageSha256": "d385f6636fbcd67822a388e629ac64bdfff9bbd89d1793ef2e0363be5f50f370",
+      "assessment": "refine",
+      "finding": "Mapped site way41779671 has2 unsuppressed21m fallbackprisms41953739/n-280071 plus4 Alt169 leaves(parentK0000ABQ). Public7-arch south Mohrenkolonnade and distinctPrausenhof/HausNagel/HausStern recognition missing as named architecture. Need sourcebounded complete parts before altering old body.",
+      "existingReference": "generic core+AltMitteV169",
+      "publicArchitectureReference": "https://www.museum-der-1000-orte.de/liegenschaften/liegenschaft/bundesministerium-der-justiz",
+      "mappedIdentity": "way/41779671",
+      "candidateOwnerCount": 0,
+      "actualAltMittePartIds": [
+        "DEBE3DsI5vZAbL2f",
+        "DEBE3Dej1RZPvEiT",
+        "DEBE3DiPrLajOFJm",
+        "DEBE3DY3BYH50fSF"
+      ],
+      "actualAltMitteParents": [
+        "DEBE01YYK0000ABQ"
+      ],
+      "corePrismCandidates": [
+        {
+          "id": "41953739",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "n-280071",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "24247892",
+          "altMitteSuppressed": true
+        }
+      ]
+    },
+    {
+      "code": "BMBFSFJ",
+      "currentOfficialName": "Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend",
+      "berlinServiceAddress": "Glinkastraße 24, Berlin",
+      "firstListedServiceSeat": "Berlin",
+      "bonnServiceAddress": "Rochusstraße 8–10,53123 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesministerium-bildung-familie-senioren-frauen-und-jugend",
+      "officialPageSha256": "8a1ba4a9dbfe57ae6cb43f0dbaefc17648727f449408563c4ecb07fa5f17c574",
+      "assessment": "refine",
+      "finding": "44 intersecting measured leaves/11parents;36 inactualAlt169,8corecandidates. Existing CentralCivicDetails education motif is exactly5 green/glass strips and must have strict replacementreceipt if retired. Public7storey stonegrid moderncorner plushistoricreturns, not all-green ministry.",
+      "existingReference": "CentralCivicDetails.ts:addGreenFederalCampus secondblock",
+      "publicArchitectureReference": "https://www.museum-der-1000-orte.de/bauwerke/bauwerk/bundesministerium-fur-familie-senioren-frauen-und-jugend",
+      "mappedIdentity": "way/32699336",
+      "candidateOwnerCount": 44,
+      "actualAltMittePartIds": [
+        "DEBE3Dkl9Poqrc5Y",
+        "DEBE3DIcZapbRxhh",
+        "DEBE3DZ67fTx1hX0",
+        "DEBE3DHic4ojzPW3",
+        "DEBE3DMD34mGqok6",
+        "DEBE3DXphVjVwlFZ",
+        "DEBE3DaRKFOzDWtk",
+        "DEBE3Dw9rOcVE6VU",
+        "DEBE3DYfaLHbbVZQ",
+        "DEBE3DL7n1aUFui2",
+        "DEBE01YYK00007vi",
+        "DEBE3DJj5XwSun1b",
+        "DEBE3DGWolaVKPoL",
+        "DEBE3DW1V0Ha3oPD",
+        "DEBE3DgcnHxuhljQ",
+        "DEBE3DisutX8ZKaV",
+        "DEBE3DWsccbfGcuU",
+        "DEBE3DfDm97fZaA6",
+        "DEBE3DnSbpbGgD9p",
+        "DEBE3DwKftSNwWuO",
+        "DEBE3DiUZ3fdGHyw",
+        "DEBE3Du6ySvtVH61",
+        "DEBE01YYK0001z8q",
+        "DEBE3DtTnrhEJftp",
+        "DEBE3DcEfXmxcen5",
+        "DEBE3DG1BYrTEZIq",
+        "DEBE3DFfLSL3ucuw",
+        "DEBE3DrKYqDU5LMT",
+        "DEBE3DI0oF4QYyfL",
+        "DEBE3DBZcgbCFkgc",
+        "DEBE01YYK00003VB",
+        "DEBE3DJ20LrFSfy9",
+        "DEBE3DYmR6meOsk2",
+        "DEBE3Dgx5bWQKtGw",
+        "DEBE3DCJRqThaNTT",
+        "DEBE3DQD4arMUeIu"
+      ],
+      "actualAltMitteParents": [
+        "DEBE00YY18D0006z",
+        "DEBE01YYK00001uc",
+        "DEBE01YYK00002rE",
+        "DEBE01YYK00003VB",
+        "DEBE01YYK00004TZ",
+        "DEBE01YYK00004vF",
+        "DEBE01YYK00007vi",
+        "DEBE01YYK00008Ey",
+        "DEBE01YYK00009ht",
+        "DEBE01YYK0001z8q"
+      ],
+      "corePrismCandidates": [
+        {
+          "id": "ftSNwWuO",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "utX8ZKaV",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "ccbfGcuU",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "ySvtVH61",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "lgydSPwo",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "gmFHrfYX",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "BYrTEZIq",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "LSL3ucuw",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "YqDU5LMT",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "oF4QYyfL",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K0001z8q",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K00003VB",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "DBAFgNqK",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "5bWQKtGw",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "2KbmBKhJ",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "R6meOsk2",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "bJcBd3Zf",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "h2ZX2TH3",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "4arMUeIu",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "9Poqrc5Y",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "Z3fdGHyw",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "m97fZaA6",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "bpbGgD9p",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "nrhEJftp",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "c4ojzPW3",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "34mGqok6",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "hVjVwlFZ",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "7fTx1hX0",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "KFOzDWtk",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "rOcVE6VU",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "ZapbRxhh",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "olaVKPoL",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "fXmxcen5",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "8gTZWoQD",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "aLHbbVZQ",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "cgbCFkgc",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "0LrFSfy9",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "OHt2OfQ7",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "n1aUFui2",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "RqThaNTT",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K00007vi",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "5XwSun1b",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "V0Ha3oPD",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "nHxuhljQ",
+          "altMitteSuppressed": true
+        }
+      ]
+    },
+    {
+      "code": "BMAS",
+      "currentOfficialName": "Bundesministerium für Arbeit und Soziales",
+      "berlinServiceAddress": "Wilhelmstraße 49, Berlin",
+      "firstListedServiceSeat": "Berlin",
+      "bonnServiceAddress": "Rochusstraße 1,53123 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesarbeitsministerium-aufgaben-kontakt",
+      "officialPageSha256": "58d22270d2f7a810f0a39f8651b53c63130bdfdf0adc0cfb680237f5431bf8d3",
+      "assessment": "preserve",
+      "finding": "LabourQuartierV208 has41 selected authoredowners incl neighbouring Q206context; retain Muschelkalk mainhouse,Ritterschaftsbank,Kleisthaus,RegineHildebrandtHaus/glazedconnector. Parcelintersections are not the exact authoredownershipset.",
+      "existingReference": "docs/labour-quartier-v208-sources.json",
+      "publicArchitectureReference": "https://www.bmas.de/DE/Ministerium/Geschichte-des-Ministeriums/geschichte-des-ministeriums.html",
+      "mappedIdentity": "way/1351208381",
+      "candidateOwnerCount": 36,
+      "actualAltMittePartIds": [
+        "DEBE3DyOzEDhQvnR",
+        "DEBE3DowcxxVD8AD",
+        "DEBE3DXTNfK8LGQd",
+        "DEBE3DyZBJj466EP",
+        "DEBE3DrntX67xdNg",
+        "DEBE3DHQiwn8n9ct",
+        "DEBE3DewmPbzsuhz",
+        "DEBE01YYK0001xDF",
+        "DEBE3DOGZ5PQWIAl",
+        "DEBE3DYALdhIhSj3",
+        "DEBE3DctyFK5rFLk",
+        "DEBE3DuaUCw5k8Sk",
+        "DEBE3DMruP1zPOAU",
+        "DEBE3DPvryOSa8EO",
+        "DEBE3DUiA2pZB6Nf",
+        "DEBE01YYK0001z80",
+        "DEBE01YYK0000393",
+        "DEBE3DK1wp0XPwpn",
+        "DEBE3DKvGkdIBRdg",
+        "DEBE3DfCwWTMnc9z",
+        "DEBE3DIFjZdJzeQf",
+        "DEBE3DPK8N2iUzD5",
+        "DEBE3DEBYYbpeg17",
+        "DEBE01YYK0001xCP",
+        "DEBE3DZY4HwS8mhn",
+        "DEBE3Dpl2BK0FQcd",
+        "DEBE3DI8QPfyaLNi",
+        "DEBE3DDE38xYhWiI",
+        "DEBE3DWyFCyIQUkz",
+        "DEBE3DV7yeuygpwy",
+        "DEBE3DGs9UK6DPwq",
+        "DEBE3DiCABFvMF9J",
+        "DEBE01YYK000054P"
+      ],
+      "actualAltMitteParents": [
+        "DEBE01AL5DR00005",
+        "DEBE01YYK00001ld",
+        "DEBE01YYK00001xE",
+        "DEBE01YYK0000393",
+        "DEBE01YYK00004My",
+        "DEBE01YYK000054P",
+        "DEBE01YYK0000FJA",
+        "DEBE01YYK0001xCP",
+        "DEBE01YYK0001xDF",
+        "DEBE01YYK0001xRR",
+        "DEBE01YYK0001z80"
+      ],
+      "corePrismCandidates": [
+        {
+          "id": "Z5PQWIAl",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "LdhIhSj3",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "FCyIQUkz",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "yFK5rFLk",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "UCw5k8Sk",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "uP1zPOAU",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "yeuygpwy",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "A2pZB6Nf",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K0001z80",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K0000393",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "wp0XPwpn",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "9UK6DPwq",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "ABFvMF9J",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K000054P",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "ryOSa8EO",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "GkdIBRdg",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "wWTMnc9z",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "jZdJzeQf",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "8N2iUzD5",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "YYbpeg17",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K0001xCP",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "4HwS8mhn",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "2BK0FQcd",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "QPfyaLNi",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "38xYhWiI",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "zEDhQvnR",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "cxxVD8AD",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "NfK8LGQd",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "FrR7Rz8l",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "BJj466EP",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "tX67xdNg",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "VEfJ0mxA",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "iwn8n9ct",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K7g1Fa0s",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "mPbzsuhz",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K0001xDF",
+          "altMitteSuppressed": true
+        }
+      ]
+    },
+    {
+      "code": "BMDS",
+      "currentOfficialName": "Bundesministerium für Digitales und Staatsmodernisierung",
+      "berlinServiceAddress": "Friedrichstraße 108, Berlin",
+      "firstListedServiceSeat": "Berlin",
+      "bonnServiceAddress": null,
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesdigitalministerium",
+      "officialPageSha256": "e9fe08c7951d4508332ce2e225e6968899d0b6b420b8f8adf99e3a6f3318e5f2",
+      "assessment": "refine",
+      "finding": "Current official2026BMDS identity. ExactoldOSM25626371 alreadyAlt169-suppressed;25actualAltparts:24parentK00003r7+standaloneDEBE00YY173000Et. Reuse measuredgeometry; publicgmp1999corner tower,2storeycolonnade,lightstoneframe and darkglass require exteriorrecognition; no blindbodyoverride.",
+      "existingReference": "AltMitteDrawn/NativeCoreV169",
+      "publicArchitectureReference": "https://www.gmp.de/de/projekte/580/buro-und-geschaftshaus-friedrichstrasse-108",
+      "mappedIdentity": "way/25626371",
+      "candidateOwnerCount": 0,
+      "actualAltMittePartIds": [
+        "DEBE3DdjDUo311CW",
+        "DEBE3DmnUmOfzzvn",
+        "DEBE3DPPSpM14aZn",
+        "DEBE3DVH6xEZ2CKI",
+        "DEBE3DlcvH895zX3",
+        "DEBE00YY173000Et",
+        "DEBE3DuythQ5G3lI",
+        "DEBE3DrUdJpuzhMV",
+        "DEBE3DqmjOPwthJO",
+        "DEBE3DXyoqQLqlmx",
+        "DEBE3DZiQVVl7kyC",
+        "DEBE3Db96wOD6UMy",
+        "DEBE3DAdcamTSgnf",
+        "DEBE3DLw1HHs9uOu",
+        "DEBE3DcpzQPUYPaE",
+        "DEBE3DSyfVaCilt1",
+        "DEBE3DXKZI8GyhzD",
+        "DEBE3DX612BzCVB4",
+        "DEBE3DhsR3YboSat",
+        "DEBE3Dqz6QVwLLTy",
+        "DEBE3DRuFDlGBWtP",
+        "DEBE3DNeska0MC8l",
+        "DEBE3DRPm7UM2T0r",
+        "DEBE3DEOgahyI4e9",
+        "DEBE3DPrTehOIvVH"
+      ],
+      "actualAltMitteParents": [
+        "DEBE00YY173000Et",
+        "DEBE01YYK00003r7"
+      ],
+      "corePrismCandidates": [
+        {
+          "id": "25626371",
+          "altMitteSuppressed": true
+        }
+      ]
+    },
+    {
+      "code": "BMV",
+      "currentOfficialName": "Bundesministerium für Verkehr",
+      "berlinServiceAddress": "Invalidenstraße 44, Berlin",
+      "firstListedServiceSeat": "Berlin",
+      "bonnServiceAddress": "Robert-Schuman-Platz 1,53175 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesministerium-fuer-verkehr",
+      "officialPageSha256": "911167c53a289efaaf32c4e5ba7f333802cda23d77ddb17b930425c858ddc816",
+      "assessment": "preserve",
+      "finding": "InvalidenCivicV257 historicTiede13parts +Dudler2+3=18ministryparts; adjacentheatingplant3parts separately retained; entrance9steps/windowgrids/bronze lettering.",
+      "existingReference": "docs/invaliden-civic-v257.md",
+      "publicArchitectureReference": "https://www.bmv.de/SharedDocs/DE/Artikel/Z/anschriften.html",
+      "mappedIdentity": "way/43006518",
+      "candidateOwnerCount": 18,
+      "actualAltMittePartIds": [
+        "DEBE3DlCbgj33oJI",
+        "DEBE3DphCizeq2qQ",
+        "DEBE3DtIiIQTMwBQ",
+        "DEBE3DY2sadnS9NN",
+        "DEBE3DxThGsqgL1R",
+        "DEBE3DpTzeFTceQg",
+        "DEBE3DDnmmvkboqw",
+        "DEBE3DJd4RaJgpGw",
+        "DEBE3DjwVbTYHqTv",
+        "DEBE3DJ3F4RN5BnD",
+        "DEBE3DpMBmpsiB4y",
+        "DEBE3DbQNUV86NLr",
+        "DEBE3DzFmtfBBw3p",
+        "DEBE3DFg44mFLdBE",
+        "DEBE3DX7Bg0lAKLr",
+        "DEBE3DBHmLfmZqtj",
+        "DEBE3DRfkPPQJSMc",
+        "DEBE3DgcX7LJ3Gsy"
+      ],
+      "actualAltMitteParents": [
+        "DEBE01YYK00003e6",
+        "DEBE01YYK00009dA",
+        "DEBE01YYK0000AaT"
+      ],
+      "corePrismCandidates": [
+        {
+          "id": "F4RN5BnD",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "BmpsiB4y",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "NUV86NLr",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "kPPQJSMc",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "sadnS9NN",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "hGsqgL1R",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "zeFTceQg",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "mmvkboqw",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "4RaJgpGw",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "bgj33oJI",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "Cizeq2qQ",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "iIQTMwBQ",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "78998312",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "X7LJ3Gsy",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "44mFLdBE",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "Bg0lAKLr",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "mLfmZqtj",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "VbTYHqTv",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "mtfBBw3p",
+          "altMitteSuppressed": true
+        }
+      ]
+    },
+    {
+      "code": "BMUKN",
+      "currentOfficialName": "Bundesministerium für Umwelt, Klimaschutz, Naturschutz und nukleare Sicherheit",
+      "berlinServiceAddress": "Stresemannstraße 128, Berlin",
+      "firstListedServiceSeat": "Bonn",
+      "bonnServiceAddress": "Robert-Schuman-Platz 3,53175 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesministerium-umwelt-klimaschutz-naturschutz",
+      "officialPageSha256": "c6089e56011ce564da278591915adb7b393d294a2d08e0b495919016f82b89a8",
+      "assessment": "preserve",
+      "finding": "PotsdamerMinistryArchitecture v151 owns5complete ministry parts/4parents; pitchedhistoricroof/dormers/courtvscoveredatrium/metal/glass preserved; neighbourPotsdamerbuildings untouched.",
+      "existingReference": "docs/potsdamer-ministry-v151.md",
+      "publicArchitectureReference": "https://www.bundesumweltministerium.de/fileadmin/Daten_BMU/Pools/Broschueren/bmuv_gebaeude_bf.pdf",
+      "mappedIdentity": "way/145292263",
+      "candidateOwnerCount": 5,
+      "actualAltMittePartIds": [],
+      "actualAltMitteParents": [],
+      "corePrismCandidates": [
+        {
+          "id": "K00006XH",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "9mou3f2s",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K00008P4",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "K0001yEo",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "eWqXNxgp",
+          "altMitteSuppressed": false
+        }
+      ]
+    },
+    {
+      "code": "BMG",
+      "currentOfficialName": "Bundesministerium für Gesundheit",
+      "berlinServiceAddress": "Mauerstraße 29, Berlin",
+      "firstListedServiceSeat": "Bonn",
+      "bonnServiceAddress": "Rochusstraße 1,53123 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/gesundheitsministerium-aufgaben-kontakt",
+      "officialPageSha256": "1e1b91d53155b50646797abda78c49fb534a34509cb2608b4893882635355ee2",
+      "assessment": "refine",
+      "finding": "Current Haus1 atMauer29–32,7actualAltparts/parentsK00008iU+K0000Ae0; no dedicatedfacademodel found. Preserve actualcourt/roof/sourcevolumes. HistoricalBMGpoint atformerMohren40 (way418104659,parentK00005Ms) is not currentmainseat; do notwronglyrefine that asMauer29. House2Mauer27sharedfamilyministry, not wholehealthcampus.",
+      "existingReference": "AltMitteV169 measuredfamily",
+      "publicArchitectureReference": "https://www.bundesgesundheitsministerium.de/service/kontakt/",
+      "mappedIdentity": "way/188033973",
+      "candidateOwnerCount": 7,
+      "actualAltMittePartIds": [
+        "DEBE3DbJol15rE1k",
+        "DEBE3DNxCwtLi89Z",
+        "DEBE3DkSN7cwZZUD",
+        "DEBE3DWeQmMUgqYC",
+        "DEBE3DjPk2SA9HMH",
+        "DEBE3DvvfFjkS5AY",
+        "DEBE3DEDHzu11GMx"
+      ],
+      "actualAltMitteParents": [
+        "DEBE01YYK00008iU",
+        "DEBE01YYK0000Ae0"
+      ],
+      "corePrismCandidates": [
+        {
+          "id": "ol15rE1k",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "CwtLi89Z",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "N7cwZZUD",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "QmMUgqYC",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "k2SA9HMH",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "fFjkS5AY",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "Hzu11GMx",
+          "altMitteSuppressed": true
+        }
+      ]
+    },
+    {
+      "code": "BMLEH",
+      "currentOfficialName": "Bundesministerium für Landwirtschaft, Ernährung und Heimat",
+      "berlinServiceAddress": "Wilhelmstraße 54, Berlin",
+      "firstListedServiceSeat": "Bonn",
+      "bonnServiceAddress": "Rochusstraße 1,53123 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundeslandwirtschaftsministerium-aufgaben-kontakt",
+      "officialPageSha256": "cfccf7bee67a9dd61d47d5b3f96cc14df8ac3b196aa61129593b4d9cee492d4a",
+      "assessment": "refine",
+      "finding": "13actualAltparts/5parentsK00003LE,K00003Zk,K00005tV,K0000B6k,K0000EXO. Distinguish neobaroqueVohl historicfront from Anderhalten6storeybasalt/polygonalnewwing; retain sourcecourts/roof and mappedpaint.",
+      "existingReference": "AltMitteV169 measuredfamily",
+      "publicArchitectureReference": "https://www.museum-der-1000-orte.de/bauwerke/bauwerk/altbau-ehem-geheimes-zivilkabinett",
+      "mappedIdentity": "way/1351209838",
+      "candidateOwnerCount": 13,
+      "actualAltMittePartIds": [
+        "DEBE3DgLrLsMx2p6",
+        "DEBE3DtOwrl6YIfh",
+        "DEBE01YYK00003LE",
+        "DEBE3DuEedenfDkY",
+        "DEBE3DqXM7vscGc5",
+        "DEBE3DsQcGxTtPwc",
+        "DEBE3DxSrjnxLc6d",
+        "DEBE3DHjQy1VreMx",
+        "DEBE3DnBGMvUG0Up",
+        "DEBE01YYK00005tV",
+        "DEBE3DW9P21jSsav",
+        "DEBE3DJm34UFm9EK",
+        "DEBE01YYK0000EXO"
+      ],
+      "actualAltMitteParents": [
+        "DEBE01YYK00003LE",
+        "DEBE01YYK00003Zk",
+        "DEBE01YYK00005tV",
+        "DEBE01YYK0000B6k",
+        "DEBE01YYK0000EXO"
+      ],
+      "corePrismCandidates": [
+        {
+          "id": "Qy1VreMx",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "M7vscGc5",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "GMvUG0Up",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "rLsMx2p6",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "wrl6YIfh",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K00003LE",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "edenfDkY",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K00005tV",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "cGxTtPwc",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "rjnxLc6d",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "K0000EXO",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "P21jSsav",
+          "altMitteSuppressed": true
+        },
+        {
+          "id": "34UFm9EK",
+          "altMitteSuppressed": true
+        }
+      ]
+    },
+    {
+      "code": "BMZ",
+      "currentOfficialName": "Bundesministerium für wirtschaftliche Zusammenarbeit und Entwicklung",
+      "berlinServiceAddress": "Stresemannstraße 94, Berlin",
+      "firstListedServiceSeat": "Bonn",
+      "bonnServiceAddress": "Dahlmannstraße 4,53113 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesministerium-fuer-wirtschaftliche-zusammenarbeit",
+      "officialPageSha256": "8e530067bbb2a35d3dfb170522cd3e30ce174f13356c6f034877db0aad09e914",
+      "assessment": "refine",
+      "finding": "17retainedmeasuredleaves/parentsDEBE02YY400000zX,DEBE02YY40001M6F,DEBE02AL4Pd0001F. CurrentEuropahaus11storey1931steel-frame distinct horizontalribbonwindows/lightspandrels; no genericglassskyscraper or proposed2026campusvolumes. Germanyhouseadjacentmuseum remainsseparate.",
+      "existingReference": "generic measuredcore",
+      "publicArchitectureReference": "https://www.bmz.de/de/service/kontakt/dienstsitz-berlin-29552",
+      "mappedIdentity": "way/74597283",
+      "candidateOwnerCount": 17,
+      "actualAltMittePartIds": [],
+      "actualAltMitteParents": [],
+      "corePrismCandidates": [
+        {
+          "id": "EriSkt21",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "40001M6F",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "4Pd0001F",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "AwEUa2nr",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "RO1Bgs8v",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "L0pZOCMJ",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "2A9ccQZ3",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "M5cwCvrf",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "2F8exvYT",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "7jXKyukN",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "OpupG9LD",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "RqCOtGrR",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "oroUp0cv",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "pi3ObOOT",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "4N9Xc3Sg",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "RlcDof8O",
+          "altMitteSuppressed": false
+        },
+        {
+          "id": "RfstCaNV",
+          "altMitteSuppressed": false
+        }
+      ]
+    },
+    {
+      "code": "BMWSB",
+      "currentOfficialName": "Bundesministerium für Wohnen, Stadtentwicklung und Bauwesen",
+      "berlinServiceAddress": "Rudi-Dutschke-Straße 4, Berlin",
+      "firstListedServiceSeat": "Berlin",
+      "bonnServiceAddress": "Robert-Schuman-Platz 3,53175 Bonn",
+      "officialDirectoryUrl": "https://www.bundesregierung.de/breg-de/bundesregierung/bundesministerien/bundesbauministerium",
+      "officialPageSha256": "f41dff443f59c81458a1df15f6d10643dfed619655ff3e3c7dfbb04730ddabe9",
+      "assessment": "refine",
+      "finding": "CurrentX8/formerSpringerPassage,not oldKrausen17–18. Old32698095 flat27m prism lacks holes;169manifest explicitlycoreFallback with8960drawn/8256nativegenericfittings. WholeLoD2parentDEBE02YY4000042k has28leaves:2high alreadyV272,26lowunclaimed. Exactsubcomponent/otheroldbodyoverlap audit required before transfer; preserveevery existingtower/1994wing.",
+      "existingReference": "docs/press-quarter-v272.md + x8-source-family-audit.json",
+      "publicArchitectureReference": "https://www.officefirst.com/en/portfolio/x8-berlin/",
+      "mappedIdentity": "way/32698095",
+      "candidateOwnerCount": 0,
+      "actualAltMittePartIds": [],
+      "actualAltMitteParents": [],
+      "corePrismCandidates": [
+        {
+          "id": "32698095",
+          "altMitteSuppressed": false
+        }
+      ]
+    }
+  ]
+}

@@ -74,3 +74,14 @@ describe("two-phase complete core source transfer v309",()=>{
  });
  test("default production controller never admits a synthetic or altered recipe catalogue",()=>{const f=fixture();try{expect(done(prepareNorthCoreTerrainV309Steps(f.root,false,true,f.source))).toBeNull();expect(overlays(f.root)).toHaveLength(0);}finally{dispose(f.root);}});
 });
+
+
+test("source shader programs retire without ending the complete terrain lifetime; authored material disposal still closes",async()=>{
+ const {retireSceneMaterialPrograms}=await import("../src/sceneMaterialPrograms");
+ for(const native of[false,true]){const f=fixture(native);try{
+  const tx=done(f.controller.prepareSteps(f.root,native,()=>true,f.source));expect(tx).not.toBeNull();
+  expect(tx!.commit(()=>true)).toBe(true);expect(tx!.complete()).toBe(true);
+  expect(retireSceneMaterialPrograms(f.root)).toBeGreaterThan(0);expect(tx!.complete()).toBe(true);
+  f.box.userData.dayMaterial.dispose();expect(tx!.complete()).toBe(false);tx!.rollback();
+ }finally{f.controller.revoke(f.root);dispose(f.root);}}
+});

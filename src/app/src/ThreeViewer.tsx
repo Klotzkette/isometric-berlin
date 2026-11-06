@@ -1,3 +1,8 @@
+import {createGovernmentCentralV321,type GovernmentCentralV321} from "./GovernmentCentralV321";
+import {createGovernmentOfficesV321Steps,governmentPreviousPrismV321,type GovernmentOfficesV321} from "./GovernmentOfficesV321";
+import {prepareFederalMinistryPressQuarterSourceV321} from "./FederalMinistryPressQuarterV321";
+import {berlinSenateSourceV321} from "./BerlinSenateV321";
+import {createStateRepresentationFittingsV321} from "./StateRepresentationsV321";
 import {clusterFacadesSourceV320} from "./ClusterFacadesV320";
 import {assignStableInkRenderOrder} from "./stableInkRenderOrderV310";
 import {loadSourceQuarterRecipesV309} from "./SourceQuarterCatalogueV309";
@@ -419,6 +424,7 @@ import { setQuadrigaMode } from "./Quadriga";
 import { PRESENTATION_TONE } from "./presentationTone";
 import {
   type PrismPayload,
+  type PrismBuilding,
   type SurfacePayload,
   SURFACE_WORLD_FILE,
   PRISM_WORLD_FILE,
@@ -887,6 +893,11 @@ type Runtime = {
   contextLost: boolean;
   reportStartupWork?: (work: StartupWorkV309) => void;
   northernV309?: NorthernLoaderV309<NorthernFidelityBundleV309>;
+  governmentOfficesV321?: {drawn?:GovernmentOfficesV321;native?:GovernmentOfficesV321};
+  progressiveWorldAttachingV321?:boolean;
+  governmentCentralV321?:GovernmentCentralV321;
+  governmentCentralPendingV321?:Promise<void>;
+  governmentCentralRetryV321?:boolean;
   northernLastScanV309?: number;
   outerOutlineTaskV309?: Promise<void>;
   northernOriginalGroundV309?: { drawn?: (x:number,z:number)=>number|null; native?: (x:number,z:number)=>number|null };
@@ -1720,6 +1731,70 @@ function installNorthernNavigationV309(runtime: Runtime, environment: Pedestrian
   environment.interiorSolidAt = (x,y,z,radius=0) => currentNorthernV309(runtime)?.solidAt(x,y,z,radius) || solid?.(x,y,z,radius) || false;
 }
 
+function currentGovernmentOfficesV321(runtime:Runtime,native=voxelModeActive(runtime)):GovernmentOfficesV321|undefined{
+  const world=native?runtime.voxelWorld:runtime.isoWorld;
+  const bundle=runtime.governmentOfficesV321?.[native?"native":"drawn"];
+  const complete=bundle?.complete()===true;
+  return complete&&world&&world.parent===runtime.scene&&bundle?.root.parent===world?bundle:undefined;
+}
+function governmentSwapHooksV321(runtime:Runtime,family:Object3D){return{
+  beforeSwap:(object:Object3D,kind:"geometry"|"instances")=>kind==="instances"
+    ?runtime.gpuResidency?.retireForRebind(object as InstancedMesh)??true
+    :runtime.geometryResidency?.retireForRebind(object)??true,
+  afterSwap:()=>{if(!family.parent||runtime.disposed)return;runtime.gpuResidency?.enqueue(family);
+    runtime.geometryResidency?.enqueue(family);runtime.gpuWarmup?.enqueue(family);runtime.scheduleGpuWarmup?.();},
+};}
+/** An optional exterior correction must never block the complete original city.
+ * Every failed or cancelled transfer restores its original owners first. */
+function* prepareGovernmentOfficesV321Steps(runtime:Runtime,world:Object3D,options:Parameters<typeof createGovernmentOfficesV321Steps>[0]):Generator<void,GovernmentOfficesV321|null>{
+  let bundle:GovernmentOfficesV321|null=null,delivered=false;
+  try{
+    bundle=yield*createGovernmentOfficesV321Steps(options);
+    if(!bundle)return null;
+    world.add(bundle.root);
+    if(!(yield*bundle.stagePreviousSteps(world,governmentSwapHooksV321(runtime,world))))return null;
+    const pressName=options.native?"Press quarter v272 independent native architecture":"Press quarter v272 complete measured architecture";
+    const pressFamilies:Object3D[]=[];world.traverse(object=>{if(object.name===pressName)pressFamilies.push(object);});
+    if(pressFamilies.length!==1||!(yield*bundle.stagePressQuarterSteps(pressFamilies[0],governmentSwapHooksV321(runtime,pressFamilies[0]))))return null;
+    const preview=options.native?undefined:world.getObjectByName("Startup complete building coverage");
+    if(preview&&!(yield*bundle.stagePreviewSteps(preview,governmentSwapHooksV321(runtime,preview))))return null;
+    delivered=true;return bundle;
+  }catch{return null;}
+  finally{if(bundle&&!delivered){bundle.rollback();bundle.root.removeFromParent();disposeObject3D(runtime,bundle.root);}}
+}
+function installGovernmentNavigationV321(runtime:Runtime,environment:PedestrianEnvironment):void{
+  const floor=environment.interiorGroundAt,solid=environment.interiorSolidAt;
+  environment.interiorGroundAt=(x,z,current)=>currentGovernmentOfficesV321(runtime)?.groundAt(x,z,current)??floor?.(x,z,current)??null;
+  environment.interiorSolidAt=(x,y,z,radius=0)=>currentGovernmentOfficesV321(runtime)?.solidAt(x,y,z,radius)===true||solid?.(x,y,z,radius)===true;
+}
+function applyGovernmentLightingV321(runtime:Runtime,mode:LightingMode,lightsOn:boolean):void{
+  const bundle=currentGovernmentOfficesV321(runtime);
+  if(bundle)applyLightingToRoot(bundle.root,mode,lightsOn);
+}
+
+async function ensureGovernmentCentralV321(runtime:Runtime,sourcePrisms?:readonly PrismBuilding[]):Promise<void>{
+  if(runtime.disposed)return;
+  const manager=runtime.governmentCentralV321??=createGovernmentCentralV321({scene:runtime.scene,
+    activeWorld:()=>voxelModeActive(runtime)?runtime.voxelWorld:runtime.isoWorld,
+    ready:()=>!!currentGovernmentOfficesV321(runtime),
+  });
+  if(sourcePrisms&&!manager.prepare(sourcePrisms))return;
+  if(manager.sync()||!currentGovernmentOfficesV321(runtime))return;
+  if(runtime.governmentCentralPendingV321){runtime.governmentCentralRetryV321=true;return runtime.governmentCentralPendingV321;}
+  const root=runtime.centralDetails;
+  if(root.name==="Pending central transit and civic details")return;
+  const pending=completeCooperatively(manager.stageSteps(root,governmentSwapHooksV321(runtime,root)),{
+    yieldTask:yieldStartupWork,
+    isCancelled:()=>runtime.disposed||runtime.centralDetails!==root||!currentGovernmentOfficesV321(runtime),
+  }).then(admitted=>{if(admitted&&!runtime.disposed&&runtime.centralDetails===root){
+    runtime.gpuResidency?.enqueue(root);runtime.geometryResidency?.enqueue(root);invalidateScenePresentation(runtime);
+  }}).catch(()=>{manager.release(root);}).finally(()=>{
+    if(runtime.governmentCentralPendingV321===pending){runtime.governmentCentralPendingV321=undefined;
+      if(runtime.governmentCentralRetryV321&&!runtime.disposed){runtime.governmentCentralRetryV321=false;void ensureGovernmentCentralV321(runtime);}}
+  });
+  runtime.governmentCentralPendingV321=pending;return pending;
+}
+
 const northernReadyMarksV310 = new WeakSet<Group>();
 
 function ensureNorthernV309(runtime: Runtime, native: boolean): Promise<NorthernFidelityBundleV309 | undefined> {
@@ -1812,6 +1887,8 @@ function startSurroundingCity(runtime: Runtime): void {
     stralauSisyphosV299:true,
     neighbourhoodV300:true,
     clusterFacadesV320:clusterFacadesSourceV320,
+    berlinSenateV321:berlinSenateSourceV321,
+    governmentOfficesV321:native=>!!currentGovernmentOfficesV321(runtime,native),
     sourceQuartersV303:true,loadSourceQuarterSourcesV309:createNorthernQuarterLoadingV309({
       loadRecipes:loadSourceQuarterRecipesV309,
       // A closed required-model gate renders the exact original packet. The
@@ -2798,6 +2875,7 @@ function setSceneLighting(
   applyLightingToRoot(runtime.parkDetails, mode, lightsOn);
   applyLightingToRoot(runtime.cityStaffage, mode, lightsOn);
   applyLightingToRoot(runtime.tramCatenary, mode, lightsOn);
+  applyGovernmentLightingV321(runtime, mode, lightsOn);
   setUndergroundPresentation(runtime.undergroundNetwork, mode);
   setParkSnowPresentation(runtime.parkDetails, isSnowstorm);
   setQueerRainbowMemorialSnow(runtime.monuments, isSnowstorm);
@@ -2963,6 +3041,7 @@ function setSceneLighting(
   runtime.geometryResidency?.refresh(performance.now(), true);
   runtime.gpuWarmup?.enqueue(runtime.scene);
   runtime.scheduleGpuWarmup?.();
+  void ensureGovernmentCentralV321(runtime);
 }
 
 function voxelModeActive(runtime: Runtime): boolean {
@@ -3147,6 +3226,7 @@ function restoreProgressiveWorld(
   const retained = new Set(snapshot.batches);
   for (const batch of [...runtime.progressiveWorldBatches]) {
     if (!retained.has(batch)) {
+      runtime.governmentOfficesV321?.drawn?.releaseFamily(batch);
       disposeObject3D(runtime, batch);
     }
   }
@@ -3439,6 +3519,7 @@ function updateMobileBuildingDetails(
     restoreBuildingPreview(runtime.isoWorld, id.replace("buildings-", "buildings-preview-"));
     runtime.progressiveWorldBatches.splice(runtime.progressiveWorldBatches.indexOf(batch), 1);
     forgetFarZoomAntiFlickerTargets(runtime, batch);
+    runtime.governmentOfficesV321?.drawn?.releaseFamily(batch);
     disposeObject3D(runtime, batch);
     lastUsed.delete(id);
   }
@@ -3518,12 +3599,12 @@ function stopProgressiveWorld(runtime: Runtime): void {
   runtime.renderInvalidated = true;
 }
 
-function attachProgressiveWorldMessage(
+async function attachProgressiveWorldMessage(
   runtime: Runtime,
   worker: Worker,
   message: ProgressiveWorldAttachMessage,
   warn: (message: string) => void,
-): void {
+): Promise<void> {
   if (message.type === "settled") {
     if (message.viewRevision !== runtime.mobileBuildingViewRevision) return;
     // This receipt follows every surface ACK. Keep that ownership fact with
@@ -3597,10 +3678,37 @@ function attachProgressiveWorldMessage(
       child.geometry.userData.losslessStaticBacking = true;
     }
   });
+  let governmentForBatchV321:GovernmentOfficesV321|undefined;
+  if(message.kind==="buildings"){
+    const government=runtime.governmentOfficesV321?.drawn;
+    if(government?.complete()){
+      const ownerWorld=runtime.isoWorld;
+      const stale=()=>runtime.disposed||worker!==runtime.progressiveWorldWorker||runtime.isoWorld!==ownerWorld||runtime.governmentOfficesV321?.drawn!==government||!isoWorldIntentActive(runtime);
+      try{
+        const admitted=await completeCooperatively(government.stagePreviousSteps(object,governmentSwapHooksV321(runtime,object)),{
+          yieldTask:yieldStartupWork,
+          isCancelled:stale,
+        });
+        // Promise continuations can run after the last generator cancellation
+        // check. Recheck before any scene/residency publication.
+        if(stale()){government.releaseFamily(object);disposeObject3D(runtime,object);return;}
+        if(admitted)governmentForBatchV321=government;else government.releaseFamily(object);
+      }catch{
+        government.releaseFamily(object);
+        if(stale()){
+          disposeObject3D(runtime,object);return;
+        }
+        // A rejected office replacement preserves this complete original
+        // ordinary city batch; it never stops unrelated refinement.
+      }
+      setIsoNightPresentation(object,runtime.lightingMode==="night",runtime.nightLightsOn,runtime.lightingMode);
+    }
+  }
   object.userData.progressiveWorldBatch = true;
   object.userData.progressiveWorldBatchId = message.id;
   runtime.progressiveWorldBatches.push(object);
   runtime.isoWorld.add(object);
+  if(governmentForBatchV321&&!governmentForBatchV321.activateFamily(object))governmentForBatchV321.releaseFamily(object);
   const backingReady = parkCompletedGeometry(runtime, object);
   hideReplacedBuildingPreview(runtime.isoWorld, message.replaces);
   runtime.gpuResidency?.enqueue(object);
@@ -3638,6 +3746,7 @@ function scheduleProgressiveAttachment(
 ): void {
   if (
     runtime.progressiveWorldAttachCancel ||
+    runtime.progressiveWorldAttachingV321 ||
     runtime.progressiveWorldMessages.length === 0 ||
     runtime.disposed ||
     worker !== runtime.progressiveWorldWorker
@@ -3677,8 +3786,13 @@ function scheduleProgressiveAttachment(
       scheduleProgressiveAttachment(runtime, worker, warn);
       return;
     }
-    attachProgressiveWorldMessage(runtime, worker, entry.message, warn);
-    scheduleProgressiveAttachment(runtime, worker, warn);
+    runtime.progressiveWorldAttachingV321=true;
+    void attachProgressiveWorldMessage(runtime,worker,entry.message,warn).catch(()=>{
+      if(!runtime.disposed&&worker===runtime.progressiveWorldWorker)failProgressiveWorld(runtime,worker,warn);
+    }).finally(()=>{
+      runtime.progressiveWorldAttachingV321=false;
+      if(!runtime.disposed&&runtime.progressiveWorldWorker)scheduleProgressiveAttachment(runtime,runtime.progressiveWorldWorker,warn);
+    });
   };
 
   const remainingMs = progressiveAttachmentRemainingMs(
@@ -3915,7 +4029,7 @@ function prepareIsoNavigation(
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { treptowWaterfrontV317: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasTreptowWaterfrontV317?.()===true, neukoellnLandmarksV305: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasNeukoellnLandmarksV305?.()===true, moabitMitteV300: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.moabitMitteV300 === true, westKiezV302: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.westKiezV302 === true, chancelleryCanopySourceV289: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.chancelleryCanopySourceV289 === true, klosterruineV288: () => runtime.outerThinOutlines?.userData.hasKlosterruineV288?.(publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime))) === true, historicDomV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.historicDomV288 === true, potsdamerCorridorV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerCorridorV288 === true, requiredSitesV281: true, potsdamerStationPhoto: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerStationPhoto === true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { governmentPreviousV321: governmentPreviousPrismV321, governmentReadyV321: () => !!currentGovernmentOfficesV321(runtime), treptowWaterfrontV317: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasTreptowWaterfrontV317?.()===true, neukoellnLandmarksV305: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasNeukoellnLandmarksV305?.()===true, moabitMitteV300: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.moabitMitteV300 === true, westKiezV302: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.westKiezV302 === true, chancelleryCanopySourceV289: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.chancelleryCanopySourceV289 === true, klosterruineV288: () => runtime.outerThinOutlines?.userData.hasKlosterruineV288?.(publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime))) === true, historicDomV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.historicDomV288 === true, potsdamerCorridorV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerCorridorV288 === true, requiredSitesV281: true, potsdamerStationPhoto: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerStationPhoto === true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   // Compile the future owners now, but keep their authored solids/floors
   // inactive until the required models finish in the same unpublished transaction.
@@ -4145,6 +4259,7 @@ function prepareIsoNavigation(
   };
   installFidelityNavigationV296(pedestrianEnvironment,()=>fidelityAdmissionV296(runtime));
   installNorthernNavigationV309(runtime,pedestrianEnvironment);
+  installGovernmentNavigationV321(runtime,pedestrianEnvironment);
   return { environment: pedestrianEnvironment, installWorldDetails };
 }
 
@@ -4184,6 +4299,8 @@ function ensureIsoWorld(
       }
     }
   };
+  let provisionalGovernmentV321:GovernmentOfficesV321|null=null;
+  const previousGovernmentV321=runtime.governmentOfficesV321?.drawn;
   let provisionalIsoWorld: Group | null = null;
   let provisionalIsoAddons: Group | null = null;
   let provisionalPedestrianEnvironment: PedestrianEnvironment | null = null;
@@ -4325,6 +4442,10 @@ function ensureIsoWorld(
         provisionalPedestrianEnvironment = navigation.environment;
         pendingWorldDetailsInstaller = navigation.installWorldDetails;
       }
+      // The existing required-sites import has already loaded this source.
+      // Prove only Drawn's immutable fitting field before its optional swap.
+      await prepareFederalMinistryPressQuarterSourceV321(false);
+      if(runtime.disposed||runtime.loadSignal.aborted||runtime.worldFailureReported||!isoWorldIntentActive(runtime))throw new DOMException("World construction cancelled","AbortError");
       const initialBuildingCount = runtime.coarsePointer
         ? MOBILE_INITIAL_BUILDING_COUNT
         : DESKTOP_INITIAL_BUILDING_COUNT;
@@ -4398,6 +4519,7 @@ function ensureIsoWorld(
           surfaces,
           {
             buildings: initialBuildings,
+            federalStateFittingsV321: (site, style) => createStateRepresentationFittingsV321(site, prisms.buildings, style),
             moabitMitteV300:fidelityV288.moabitMitte, westKiezV302:fidelityV288.westKiez, hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
             includeLegacyChariteFacade: false,
             includeLegacyMuseumFront: false, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
@@ -4806,6 +4928,7 @@ function ensureIsoWorld(
           yield* interleaveStaticGeometrySteps(isoWorld);
           yield* interleaveStaticGeometrySteps(provisionalIsoAddons!);
         }
+        provisionalGovernmentV321=yield*prepareGovernmentOfficesV321Steps(runtime,isoWorld,{sourcePrisms:prisms.buildings,voxels:ground??undefined,native:false,mobileLike:runtime.coarsePointer});
         yield* parkStaticGeometrySteps(isoWorld);
         yield* parkStaticGeometrySteps(provisionalIsoAddons!);
         // Authored architecture uses fixed instance placements. Moving props
@@ -4852,6 +4975,7 @@ function ensureIsoWorld(
       // is deliberately started only after this pointer and scene attachment
       // exist; any later failure rolls both it and its batches back below.
       runtime.isoWorld = isoWorld;
+      (runtime.governmentOfficesV321??={}).drawn=provisionalGovernmentV321??undefined;
       setDiningLegacyVisibilityV296(runtime);
       if (fidelityV288.chancelleryCanopy && !setChancelleryCanopyLegacyV289(runtime.signatures, true)) throw new Error("Incomplete Chancellery canopy predecessor transaction");
       runtime.schwellenraumTowerSteam = pendingTowerSteam;
@@ -4887,12 +5011,14 @@ function ensureIsoWorld(
         runtime.startDeferredDetails();
       }
       releaseBuiltWorldPayloads(runtime);
+      provisionalGovernmentV321=null;
       provisionalIsoWorld = null;
       provisionalIsoAddons = null;
       provisionalPedestrianEnvironment = null;
       mutableRootSnapshots = null;
       pedestrianSnapshot = null;
       progressiveSnapshot = null;
+      void ensureGovernmentCentralV321(runtime,prisms.buildings);
       // Open the startup curtain only after every synchronous attachment
       // hook has succeeded and the rollback transaction has been committed.
       // A consumer callback must never turn a ready world into a rollback.
@@ -4905,6 +5031,9 @@ function ensureIsoWorld(
       }
     })
     .catch((error: unknown) => {
+      provisionalGovernmentV321?.rollback();
+      if(runtime.governmentOfficesV321?.drawn===provisionalGovernmentV321)runtime.governmentOfficesV321.drawn=previousGovernmentV321;
+      provisionalGovernmentV321=null;
       const transactionStarted = pedestrianSnapshot !== null;
       const rollbackUnderside =
         pedestrianSnapshot?.underside ?? runtime.underside;
@@ -4981,7 +5110,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     runtime.tunnelPortalCourse,
     prisms,
     surroundingPedestrianExtension(runtime),
-    { treptowWaterfrontV317: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasTreptowWaterfrontV317?.()===true, neukoellnLandmarksV305: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasNeukoellnLandmarksV305?.()===true, moabitMitteV300: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.moabitMitteV300 === true, westKiezV302: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.westKiezV302 === true, chancelleryCanopySourceV289: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.chancelleryCanopySourceV289 === true, klosterruineV288: () => runtime.outerThinOutlines?.userData.hasKlosterruineV288?.(publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime))) === true, historicDomV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.historicDomV288 === true, potsdamerCorridorV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerCorridorV288 === true, requiredSitesV281: true, potsdamerStationPhoto: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerStationPhoto === true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
+    { governmentPreviousV321: governmentPreviousPrismV321, governmentReadyV321: () => !!currentGovernmentOfficesV321(runtime), treptowWaterfrontV317: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasTreptowWaterfrontV317?.()===true, neukoellnLandmarksV305: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasNeukoellnLandmarksV305?.()===true, moabitMitteV300: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.moabitMitteV300 === true, westKiezV302: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.westKiezV302 === true, chancelleryCanopySourceV289: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.chancelleryCanopySourceV289 === true, klosterruineV288: () => runtime.outerThinOutlines?.userData.hasKlosterruineV288?.(publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime))) === true, historicDomV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.historicDomV288 === true, potsdamerCorridorV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerCorridorV288 === true, requiredSitesV281: true, potsdamerStationPhoto: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerStationPhoto === true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
   environment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
@@ -5103,6 +5232,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
       : null);
   installFidelityNavigationV296(environment,()=>fidelityAdmissionV296(runtime));
   installNorthernNavigationV309(runtime,environment);
+  installGovernmentNavigationV321(runtime,environment);
   return environment;
 }
 
@@ -5162,6 +5292,8 @@ function ensureVoxelWorld(
       }
     }
   };
+  let provisionalGovernmentNativeV321:GovernmentOfficesV321|null=null;
+  const previousGovernmentNativeV321=runtime.governmentOfficesV321?.native;
   let provisionalVoxelWorld: Group | null = null;
   let provisionalBridges: Group | null = null;
   let provisionalLootBoxes: MinecraftLootBoxField | null = null;
@@ -5202,6 +5334,9 @@ function ensureVoxelWorld(
         runtime.voxelWorldState = "idle";
         return;
       }
+      await prepareFederalMinistryPressQuarterSourceV321(true);
+      if(runtime.disposed||runtime.loadSignal.aborted||runtime.worldFailureReported)return;
+      if(!voxelWorldIntentActive(runtime)){runtime.voxelWorldState="idle";return;}
       const { buildColumnToneLookup, buildMinecraftVoxelWorldSteps } = await tracked(import("./MinecraftVoxelWorld"));
       if (runtime.disposed || runtime.loadSignal.aborted || runtime.worldFailureReported) return;
       if (!voxelWorldIntentActive(runtime)) {
@@ -5244,6 +5379,9 @@ function ensureVoxelWorld(
       });
       provisionalVoxelWorld.userData.prepareNeukoellnLegacyV305?.();
       provisionalVoxelWorld.add(createRosengartenMinecraft());
+      provisionalGovernmentNativeV321=prisms?await completeCooperatively(prepareGovernmentOfficesV321Steps(runtime,provisionalVoxelWorld,{sourcePrisms:prisms.buildings,voxels:payload,native:true,mobileLike:runtime.coarsePointer}),{
+        yieldTask:yieldStartupWork,isCancelled:()=>runtime.disposed||!voxelWorldIntentActive(runtime),
+      }):null;
       await completeCooperatively(parkStaticInstancesSteps(provisionalVoxelWorld), {
         yieldTask: yieldStartupWork,
         isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
@@ -5287,6 +5425,7 @@ function ensureVoxelWorld(
         );
       }
       runtime.voxelWorld = provisionalVoxelWorld;
+      (runtime.governmentOfficesV321??={}).native=provisionalGovernmentNativeV321??undefined;
       runtime.minecraftLootBoxes = provisionalLootBoxes;
       runtime.minecraftMobs = provisionalMinecraftMobs;
       runtime.scene.add(provisionalVoxelWorld);
@@ -5317,12 +5456,14 @@ function ensureVoxelWorld(
       // A Minecraft-only visit never renders the smooth park layer. Day's
       // successful loader calls the same idempotent hook later, so cold voxel
       // starts must not download/build a large group merely to hide it.
+      provisionalGovernmentNativeV321=null;
       provisionalVoxelWorld = null;
       provisionalBridges = null;
       provisionalLootBoxes = null;
       provisionalMinecraftMobs = null;
       provisionalEnvironment = null;
       pedestrianSnapshot = null;
+      void ensureGovernmentCentralV321(runtime,prisms?.buildings);
       // As above, readiness is the final, non-transactional publication step.
       try {
         notifyPresentationReadyWhenPossible(runtime);
@@ -5333,6 +5474,9 @@ function ensureVoxelWorld(
       }
     })
     .catch((error: unknown) => {
+      provisionalGovernmentNativeV321?.rollback();
+      if(runtime.governmentOfficesV321?.native===provisionalGovernmentNativeV321)runtime.governmentOfficesV321.native=previousGovernmentNativeV321;
+      provisionalGovernmentNativeV321=null;
       const rollbackUnderside =
         pedestrianSnapshot?.underside ?? runtime.underside;
       if (provisionalBridges) {
@@ -8670,6 +8814,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         // The unlit exhibit fade has no changing shadow casters.
+        runtime.governmentCentralV321?.sync();
         if (runtime.pergamonReveal?.update(timestamp)) runtime.renderInvalidated = true;
         updatePressehausV272(timestamp, false);
         if (runtime.hbfStationV291?.update(timestamp, camera, runtime.lightingMode === "minecraft", reducedMotion, runtime.underside)) runtime.renderInvalidated = true;
@@ -9319,6 +9464,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               true,
             );
           }
+          runtime.governmentCentralV321?.release(runtime.centralDetails);
           runtime.centralDetails.removeFromParent();
           runtime.centralDetails = createCentralCivicDetails(
             manifest.landmarks,
@@ -9337,6 +9483,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.nightLightsOn,
           );
           if (runtime.coarsePointer) interleaveStaticGeometry(runtime.centralDetails);
+          await ensureGovernmentCentralV321(runtime);
+          if(runtime.disposed)return;
           runtime.gpuResidency?.enqueue(runtime.centralDetails);
           runtime.geometryResidency?.enqueue(runtime.centralDetails);
           setBerlinerEnsemblePublicArtSnow(
@@ -10000,6 +10148,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         // numeric and separate, so release the old family before rebuilding it.
         pedestrianPoseEmissionRef.current.active = false;
         onPedestrianPoseChangeRef.current(null);
+        runtime.governmentCentralV321?.dispose();
+        runtime.governmentCentralV321=undefined;
+        runtime.governmentOfficesV321?.drawn?.rollback();
+        runtime.governmentOfficesV321?.native?.rollback();
+        runtime.governmentOfficesV321=undefined;
         runtime.surroundingCity?.dispose();
         runtime.surroundingCity = undefined;
         runtime.zooAnimalsV282?.dispose();
