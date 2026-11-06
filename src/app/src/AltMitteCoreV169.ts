@@ -4,7 +4,7 @@ import {
   type SurroundingCityChunk,
   type SurroundingOwnershipOptions,
 } from "./SurroundingCityGeometry";
-import { disposeSurroundingCityRoot } from "./SurroundingCity";
+import { disposeSurroundingCityRoot } from "./disposeSurroundingCityRootV323";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 export const ALT_MITTE_V169_GROUP =

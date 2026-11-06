@@ -1,3 +1,4 @@
+import { disposeSurroundingCityRoot } from "./disposeSurroundingCityRootV323";
 import { westKiezPacketCandidateV302 } from "./NeighbourhoodFidelityV300";
 import { fetchSurroundingTransport, SURROUNDING_TRANSPORT_IDLE_MS } from "./surroundingTransport";
 import { prepareTierparkV276 } from "./TierparkV276";
@@ -5,7 +6,7 @@ import { createZooAnimalsV282, type ZooAnimalHandleV282 } from './ZooAnimalsV282
 import { transferTierparkAnimalsV282 } from './tierparkAnimalTransferV282';
 import { createTierparkHouseV282 } from './ZooHousesV282';
 import { mierendorffFloorAtV269 } from "./MierendorffV269";
-import { Box3, Frustum, Group, InstancedMesh, Matrix4, Vector3, type BufferGeometry, type Camera, Material, Mesh, Line, Points } from "three";
+import { Box3, Frustum, Group, InstancedMesh, Matrix4, Vector3, type BufferGeometry, type Camera, Mesh } from "three";
 import {
   createSurroundingCityChunkCooperatively, surroundingBuildingSolidAt, surroundingPolygonContains, validSurroundingPolygon,
   type SurroundingCityChunk, type SurroundingChunkGeometry, type SurroundingNavigation, type SurroundingPolygon,
@@ -315,19 +316,7 @@ async function awaitPacketAndRecipesV309(
 }
 
 /** Default for unit/standalone use; the viewer supplies its residency-aware disposer. */
-export function disposeSurroundingCityRoot(root: Group): void {
-  const materials = new Set<Material>();
-  root.traverse(object => {
-    object.userData.disposeZooAnimalsV282?.();
-    if (!(object instanceof Mesh || object instanceof Line || object instanceof Points)) return;
-    if (object instanceof InstancedMesh) object.dispose();
-    object.geometry.dispose();
-    for (const material of Array.isArray(object.material) ? object.material : [object.material]) materials.add(material);
-    for (const value of Object.values(object.userData)) if (value instanceof Material) materials.add(value);
-  });
-  for (const material of materials) material.dispose();
-  root.clear();
-}
+export { disposeSurroundingCityRoot };
 
 function distanceSquared(bounds: readonly number[], x: number, z: number): number {
   const dx = Math.max(bounds[0] - x, 0, x - bounds[2]);

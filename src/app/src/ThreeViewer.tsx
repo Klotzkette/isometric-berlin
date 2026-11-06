@@ -1,5 +1,5 @@
-import {createGovernmentCentralV321,type GovernmentCentralV321} from "./GovernmentCentralV321";
-import {createGovernmentOfficesV321Steps,governmentPreviousPrismV321,universitiesPreviousPrismV322,type GovernmentOfficesV321} from "./GovernmentOfficesV321";
+import {governmentPreviousPrismV321,universitiesPreviousPrismV322} from "./GovernmentOfficeOwnershipV323";
+import type {GovernmentOfficesV321,GovernmentOfficesOptionsV321,GovernmentCentralV321} from "./GovernmentOfficesV321";
 import {prepareFederalMinistryPressQuarterSourceV321} from "./FederalMinistryPressQuarterV321";
 import {berlinSenateSourceV321} from "./BerlinSenateV321";
 import {createStateRepresentationFittingsV321} from "./StateRepresentationsV321";
@@ -88,7 +88,8 @@ import { createNeueWache } from "./NeueWache";
 import { neueWacheGroundAt, neueWacheSolidAt, neueWacheWalkableAt } from "./neueWacheProfile";
 import { urbanFacadeInkShader } from "./urbanFacadePresentation";
 import { interleaveStaticGeometry, interleaveStaticGeometrySteps } from "./interleaveStaticGeometry";
-import { createSurroundingCity, type SurroundingCity, type SurroundingNavigationTile } from "./SurroundingCity";
+import type { SurroundingCity, SurroundingNavigationTile } from "./SurroundingCity";
+import {loadStartupModuleV323} from "./startupModuleLoadingV323";
 import { surroundingScopeGroundAt } from "./surroundingCityScope";
 import { prisonsMemorialsV209SolidAt } from "./prisonsMemorialsV209Navigation";
 import { volksbuehneV209SolidAt } from "./volksbuehneV209Navigation";
@@ -101,6 +102,8 @@ import { steglitzMotorwayV226GroundAt, steglitzMotorwayV226SolidAt } from "./ste
 import { DATA_WEST_M, DATA_EAST_M, DATA_NORTH_M, DATA_SOUTH_M } from "./worldEnvelope";
 import { compactStaticGeometry, compactStaticGeometrySteps } from "./compactStaticGeometry";
 import { parkStaticGeometrySteps, parkStaticInstancesSteps } from "./losslessStaticStorage";
+import {collectFirstUploadParkingV323,type FirstUploadParkingV323} from "./firstUploadParkingV323";
+import {createFirstUploadScheduleV323,type FirstUploadScheduleV323} from "./firstUploadScheduleV323";
 import { createRosengarten, createRosengartenMinecraft } from "./Rosengarten";
 import { createTunnelPortalApproachTester } from "./TunnelPortals";
 import { pointInDistrictStreetScope } from "./districtStreetScope";
@@ -849,6 +852,8 @@ type Runtime = {
   gpuResidency?: SceneGpuResidency;
   geometryResidency?: SceneGeometryGpuResidency;
   surroundingCity?: SurroundingCity;
+  surroundingCityPendingV323?: Promise<void>;
+  firstUploadParkingV323?: FirstUploadScheduleV323;
   zooAnimalsV282?: ReturnType<typeof createZooAnimalRuntimeV282>;
   hbfStationV291?: ReturnType<typeof createHbfStationRuntimeV291>;
   outerThinOutlines?: Group;
@@ -1757,12 +1762,24 @@ function governmentSwapHooksV321(runtime:Runtime,family:Object3D){return{
   afterSwap:()=>{if(!family.parent||runtime.disposed)return;runtime.gpuResidency?.enqueue(family);
     runtime.geometryResidency?.enqueue(family);runtime.gpuWarmup?.enqueue(family);runtime.scheduleGpuWarmup?.();},
 };}
+type GovernmentModuleV323 = typeof import("./GovernmentOfficesV321");
+let governmentModuleV323: Promise<GovernmentModuleV323 | null> | undefined;
+/** Fetch alongside required world inputs; admission still uses the unchanged
+ * complete model transaction, and a failed optional import keeps original owners. */
+function loadGovernmentModuleV323(): Promise<GovernmentModuleV323 | null> {
+  return governmentModuleV323 ??= loadStartupModuleV323(()=>import("./GovernmentOfficesV321"),yieldStartupWork).catch(() => {
+    governmentModuleV323 = undefined;
+    return null;
+  });
+}
+
 /** An optional exterior correction must never block the complete original city.
  * Every failed or cancelled transfer restores its original owners first. */
-function* prepareGovernmentOfficesV321Steps(runtime:Runtime,world:Object3D,options:Parameters<typeof createGovernmentOfficesV321Steps>[0]):Generator<void,GovernmentOfficesV321|null>{
+function* prepareGovernmentOfficesV321Steps(runtime:Runtime,world:Object3D,options:GovernmentOfficesOptionsV321,module:GovernmentModuleV323|null):Generator<void,GovernmentOfficesV321|null>{
   let bundle:GovernmentOfficesV321|null=null,delivered=false;
   try{
-    bundle=yield*createGovernmentOfficesV321Steps(options);
+    if(!module)return null;
+    bundle=yield*module.createGovernmentOfficesV321Steps(options);
     if(!bundle)return null;
     world.add(bundle.root);
     if(!(yield*bundle.stagePreviousSteps(world,governmentSwapHooksV321(runtime,world))))return null;
@@ -1778,10 +1795,10 @@ function* prepareGovernmentOfficesV321Steps(runtime:Runtime,world:Object3D,optio
 /** New university receipts share the old office hosts. One combined transfer
  * avoids competing index owners; a rejected optional supplement retries the
  * complete unchanged office path only after exact rollback of the first pass. */
-function* preparePublicOfficesV322Steps(runtime:Runtime,world:Object3D,options:Parameters<typeof createGovernmentOfficesV321Steps>[0]):Generator<void,GovernmentOfficesV321|null>{
-  const combined=yield*prepareGovernmentOfficesV321Steps(runtime,world,{...options,includeUniversitiesV322:true});
+function* preparePublicOfficesV322Steps(runtime:Runtime,world:Object3D,options:GovernmentOfficesOptionsV321,module:GovernmentModuleV323|null):Generator<void,GovernmentOfficesV321|null>{
+  const combined=yield*prepareGovernmentOfficesV321Steps(runtime,world,{...options,includeUniversitiesV322:true},module);
   if(combined||runtime.disposed||runtime.loadSignal.aborted)return combined;
-  return yield*prepareGovernmentOfficesV321Steps(runtime,world,{...options,includeUniversitiesV322:false});
+  return yield*prepareGovernmentOfficesV321Steps(runtime,world,{...options,includeUniversitiesV322:false},module);
 }
 function installGovernmentNavigationV321(runtime:Runtime,environment:PedestrianEnvironment):void{
   const floor=environment.interiorGroundAt,solid=environment.interiorSolidAt;
@@ -1795,8 +1812,10 @@ function applyGovernmentLightingV321(runtime:Runtime,mode:LightingMode,lightsOn:
 }
 
 async function ensureGovernmentCentralV321(runtime:Runtime,sourcePrisms?:readonly PrismBuilding[]):Promise<void>{
-  if(runtime.disposed)return;
-  const manager=runtime.governmentCentralV321??=createGovernmentCentralV321({scene:runtime.scene,
+  if(runtime.disposed||runtime.loadSignal.aborted)return;
+  const module=await loadGovernmentModuleV323();
+  if(!module||runtime.disposed||runtime.loadSignal.aborted)return;
+  const manager=runtime.governmentCentralV321??=module.createGovernmentCentralV321({scene:runtime.scene,
     activeWorld:()=>voxelModeActive(runtime)?runtime.voxelWorld:runtime.isoWorld,
     ready:()=>!!currentGovernmentOfficesV321(runtime),
   });
@@ -1902,7 +1921,9 @@ function refreshNorthernV309(runtime: Runtime, timestamp: number): void {
 }
 
 function startSurroundingCity(runtime: Runtime): void {
-  if (runtime.disposed || runtime.surroundingCity) return;
+  if (runtime.disposed || runtime.loadSignal.aborted || runtime.firstUploadParkingV323?.pending || runtime.surroundingCity || runtime.surroundingCityPendingV323) return;
+  const pending = loadStartupModuleV323(()=>import("./SurroundingCity"),yieldStartupWork,()=>runtime.disposed||runtime.loadSignal.aborted).then(({ createSurroundingCity }) => {
+  if (runtime.disposed || runtime.loadSignal.aborted) return;
   const city = createSurroundingCity({
     manifestUrl: new URL("../surrounding-berlin-v159/manifest.json", runtime.sceneRootUrl),
     schlossplatzV239: true,
@@ -1952,7 +1973,7 @@ function startSurroundingCity(runtime: Runtime): void {
   runtime.surroundingCity = city;
   city.root.visible = !runtime.underside;
   runtime.scene.add(city.root);
-  runtime.outerOutlineTaskV309 = import("./OuterThinOutlines").then(async ({ createOuterThinOutlinesSteps }) => {
+  return import("./OuterThinOutlines").then(async ({ createOuterThinOutlinesSteps }) => {
     if (runtime.disposed || runtime.loadSignal.aborted) return;
     // Prepare only finite author-source proofs; old park cell graphs stay weak.
     for(const native of [false,true])await prepareMemorialPreviousV322(native,{keys:["schoenholz","treptow"]});
@@ -1997,6 +2018,16 @@ function startSurroundingCity(runtime: Runtime): void {
       if (runtime.openingGalleryRequired && !runtime.presentationReady) runtime.reportWorldFailure();
     }
   });
+  }).catch(error => {
+    if (!runtime.disposed && !runtime.loadSignal.aborted) {
+      console.warn("Berlin surroundings:", error);
+      if (runtime.openingGalleryRequired && !runtime.presentationReady) runtime.reportWorldFailure();
+    }
+  }).finally(() => {
+    if (runtime.surroundingCityPendingV323 === pending) runtime.surroundingCityPendingV323 = undefined;
+  });
+  runtime.surroundingCityPendingV323 = pending;
+  runtime.outerOutlineTaskV309 = pending;
 }
 
 /** Serial, cancellable CPU storage work; never holds several decode jobs. */
@@ -3883,6 +3914,7 @@ function startProgressiveWorld(
     document.hidden ||
     !isoWorldIntentActive(runtime) ||
     !input ||
+    runtime.firstUploadParkingV323?.pending ||
     runtime.progressiveWorldState !== "idle"
   ) {
     return;
@@ -4003,6 +4035,7 @@ function applyProgressiveWorldMode(
   mode: LightingMode,
   warn: (message: string) => void,
 ): void {
+  if(runtime.firstUploadParkingV323?.pending)return;
   const transition = progressiveWorldTransition(
     mode,
     runtime.progressiveWorldState,
@@ -4330,6 +4363,9 @@ function ensureIsoWorld(
       }
     }
   };
+  const governmentDetailsV323=loadGovernmentModuleV323();
+  let provisionalParkingV323:FirstUploadParkingV323|undefined;
+  let publishedParkingV323:FirstUploadScheduleV323|undefined;
   let provisionalGovernmentV321:GovernmentOfficesV321|null=null;
   const previousGovernmentV321=runtime.governmentOfficesV321?.drawn;
   let provisionalIsoWorld: Group | null = null;
@@ -4447,6 +4483,9 @@ function ensureIsoWorld(
         runtime.isoWorldState = "idle";
         return;
       }
+      const governmentV323=await governmentDetailsV323;
+      if(runtime.disposed||runtime.loadSignal.aborted||!isoWorldIntentActive(runtime))throw new DOMException("World construction cancelled","AbortError");
+      if(!governmentV323)throw Error("Required architecture module could not be loaded");
       if(street&&ground)await prepareMemorialPreviousV322(false,{keys:["berlin","pyramide","cadillacs","french","british"],street,ground});
       if(runtime.disposed||runtime.loadSignal.aborted||!isoWorldIntentActive(runtime))throw new DOMException("World construction cancelled","AbortError");
       const pendingSignatures = new Group();
@@ -4973,12 +5012,21 @@ function ensureIsoWorld(
             };
           }
         }
-        provisionalGovernmentV321=yield*preparePublicOfficesV322Steps(runtime,isoWorld,{sourcePrisms:prisms.buildings,voxels:ground??undefined,native:false,mobileLike:runtime.coarsePointer});
-        yield* parkStaticGeometrySteps(isoWorld);
-        yield* parkStaticGeometrySteps(provisionalIsoAddons!);
+        provisionalGovernmentV321=yield*preparePublicOfficesV322Steps(runtime,isoWorld,{sourcePrisms:prisms.buildings,voxels:ground??undefined,native:false,mobileLike:runtime.coarsePointer},governmentV323);
+        // The first GPU pass needs these exact original arrays. Park every
+        // other field now; avoid deflating then immediately inflating this
+        // camera subset before its first upload. Gallery arrival retains its
+        // existing full supplement gate and original eager storage sequence.
+        if(!runtime.presentationReady&&!runtime.openingGalleryRequired&&!runtime.contextLost){
+          provisionalParkingV323=collectFirstUploadParkingV323([isoWorld,provisionalIsoAddons!],runtime.camera);
+          if(!provisionalParkingV323.count){provisionalParkingV323.release();provisionalParkingV323=undefined;}
+        }
+        const shouldParkV323=provisionalParkingV323?.shouldPark;
+        yield* parkStaticGeometrySteps(isoWorld,false,shouldParkV323);
+        yield* parkStaticGeometrySteps(provisionalIsoAddons!,false,shouldParkV323);
         // Authored architecture uses fixed instance placements. Moving props
         // and particle effects live in their separate runtime roots.
-        yield* parkStaticInstancesSteps(isoWorld);
+        yield* parkStaticInstancesSteps(isoWorld,shouldParkV323);
         reportDetailStep(6);
         return isoWorld;
       })(), {
@@ -5046,6 +5094,26 @@ function ensureIsoWorld(
         }
       }
       markSurfaceInteraction(runtime, 400, true);
+      if(provisionalParkingV323){
+        provisionalParkingV323.reparent([isoWorld,runtime.signatures,runtime.cityStaffage,runtime.undergroundNetwork,runtime.tramCatenary]);
+        performance.mark("isometric-first-upload-parking-deferred",{detail:{bytes:provisionalParkingV323.bytes,count:provisionalParkingV323.count}});
+        const task=createFirstUploadScheduleV323(provisionalParkingV323,{
+          yieldTask:yieldStartupWork,yieldAfterPaint:()=>yieldStartupPaintV309(runtime.loadSignal),
+          isCancelled:()=>runtime.disposed||runtime.loadSignal.aborted||runtime.isoWorld!==isoWorld,
+          onSettled:()=>{
+            if(runtime.firstUploadParkingV323!==task)return;
+            runtime.firstUploadParkingV323=undefined;
+            if(runtime.disposed||runtime.loadSignal.aborted||runtime.isoWorld!==isoWorld)return;
+            performance.mark("isometric-first-upload-parking-complete");
+            startSurroundingCity(runtime);
+            applyProgressiveWorldMode(runtime,runtime.lightingMode,warn);
+            runtime.startDeferredDetails();
+          },
+          onError:error=>{if(!runtime.disposed&&!runtime.loadSignal.aborted)console.warn("Static geometry storage:",error);},
+        });
+        runtime.firstUploadParkingV323=publishedParkingV323=task;
+        provisionalParkingV323=undefined;
+      }
       if (!runtime.coarsePointer) {
         runtime.startDeferredDetails();
         applyProgressiveWorldMode(runtime, runtime.lightingMode, warn);
@@ -5076,6 +5144,9 @@ function ensureIsoWorld(
       }
     })
     .catch((error: unknown) => {
+      provisionalParkingV323?.release();provisionalParkingV323=undefined;
+      publishedParkingV323?.release();
+      if(runtime.firstUploadParkingV323===publishedParkingV323)runtime.firstUploadParkingV323=undefined;
       provisionalGovernmentV321?.rollback();
       if(runtime.governmentOfficesV321?.drawn===provisionalGovernmentV321)runtime.governmentOfficesV321.drawn=previousGovernmentV321;
       provisionalGovernmentV321=null;
@@ -5315,6 +5386,14 @@ function ensureVoxelWorld(
   runtime: Runtime,
   warn: (message: string) => void,
 ): void {
+  // Drain the same first-upload storage before allocating a second world,
+  // even when the visitor changes mode before the first Drawn render.
+  if(runtime.firstUploadParkingV323?.pending){
+    void runtime.firstUploadParkingV323.finish().then(()=>{
+      if(!runtime.disposed&&!runtime.loadSignal.aborted&&voxelWorldIntentActive(runtime))ensureVoxelWorld(runtime,warn);
+    }).catch(error=>{if(!runtime.disposed&&!runtime.loadSignal.aborted)warn(String(error));});
+    return;
+  }
   // The portal cut is part of the voxel world's immutable instance layout.
   // Wait for scene.json instead of constructing a Minecraft deep-link frame
   // without the tunnel course and permanently roofing both approaches.
@@ -5337,6 +5416,7 @@ function ensureVoxelWorld(
       }
     }
   };
+  const governmentDetailsV323=loadGovernmentModuleV323();
   let provisionalGovernmentNativeV321:GovernmentOfficesV321|null=null;
   const previousGovernmentNativeV321=runtime.governmentOfficesV321?.native;
   let provisionalVoxelWorld: Group | null = null;
@@ -5367,6 +5447,9 @@ function ensureVoxelWorld(
       // Native source packets are large and are irrelevant to a Day visit.
       // Preload only after confirming intent, then recheck after the await:
       // imports may finish after a mode switch or context retirement.
+      const governmentV323=await governmentDetailsV323;
+      if(runtime.disposed||runtime.loadSignal.aborted||!voxelWorldIntentActive(runtime))throw new DOMException("World construction cancelled","AbortError");
+      if(!governmentV323)throw Error("Required architecture module could not be loaded");
       await tracked(preloadAltMitteNativeV169Source());
       if (runtime.disposed || runtime.loadSignal.aborted || runtime.worldFailureReported) return;
       if (!voxelWorldIntentActive(runtime)) {
@@ -5424,7 +5507,7 @@ function ensureVoxelWorld(
       });
       provisionalVoxelWorld.userData.prepareNeukoellnLegacyV305?.();
       provisionalVoxelWorld.add(createRosengartenMinecraft());
-      provisionalGovernmentNativeV321=prisms?await completeCooperatively(preparePublicOfficesV322Steps(runtime,provisionalVoxelWorld,{sourcePrisms:prisms.buildings,voxels:payload,native:true,mobileLike:runtime.coarsePointer}),{
+      provisionalGovernmentNativeV321=prisms?await completeCooperatively(preparePublicOfficesV322Steps(runtime,provisionalVoxelWorld,{sourcePrisms:prisms.buildings,voxels:payload,native:true,mobileLike:runtime.coarsePointer},governmentV323),{
         yieldTask:yieldStartupWork,isCancelled:()=>runtime.disposed||!voxelWorldIntentActive(runtime),
       }):null;
       await completeCooperatively(parkStaticInstancesSteps(provisionalVoxelWorld), {
@@ -9423,6 +9506,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         if (shadowRefresh) renderer.shadowMap.needsUpdate = true;
         composer.render();
+        if(runtime.isoWorld&&!voxelModeActive(runtime))runtime.firstUploadParkingV323?.afterRender();
         if (shadowRefresh) runtime.shadowInvalidated = false;
         runtime.renderInvalidated = false;
       };
@@ -9925,9 +10009,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           let deferredDetailsStarted = false;
           runtime.startDeferredDetails = () => {
-            if (runtime.contextLost || deferredDetailsStarted || !manifest.park_details?.file) {
+            if (runtime.contextLost || runtime.firstUploadParkingV323?.pending || deferredDetailsStarted || !manifest.park_details?.file) {
               return;
             }
+            // Finish the required city before optional smooth park construction.
+            if(!runtime.isoWorld)return;
             if (
               runtime.coarsePointer &&
               (document.hidden ||
@@ -10182,6 +10268,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         startupWorkFrameV309 = null;
         pendingStartupWorkV309 = null;
         runtime.disposed = true;
+        runtime.firstUploadParkingV323?.release();
+        runtime.firstUploadParkingV323=undefined;
         runtime.northernV309?.dispose();
         runtime.northernV309 = undefined;
         runtime.reichstagSectionV319?.dispose();

@@ -88,11 +88,11 @@ test("actual Viewer rechecks publication ownership after the final cooperative P
 function centralFixture(){
   const waiters:Array<ReturnType<typeof deferred>>=[],staged:Group[]=[],released:Group[]=[],uploads:Group[]=[];
   let live:Group|null=null,ready=true,prepareResult=true;
-  const runtime:any={scene:new Group(),isoWorld:new Group(),centralDetails:new Group(),
+  const runtime:any={loadSignal:{aborted:false},scene:new Group(),isoWorld:new Group(),centralDetails:new Group(),
     gpuResidency:{enqueue:(root:Group)=>uploads.push(root)},geometryResidency:{enqueue:()=>{}}};
   const manager={prepare:()=>prepareResult,sync:()=>live===runtime.centralDetails&&ready,
     *stageSteps(root:Group){staged.push(root);yield;live=root;return true;},release:(root:Group)=>{released.push(root);if(live===root)live=null;}};
-  const ensure=actual("ensureGovernmentCentralV321",{createGovernmentCentralV321:()=>manager,
+  const ensure=actual("ensureGovernmentCentralV321",{loadGovernmentModuleV323:async()=>({createGovernmentCentralV321:()=>manager}),
     voxelModeActive:()=>false,currentGovernmentOfficesV321:()=>ready?{}:undefined,governmentSwapHooksV321:()=>({}),
     completeCooperatively:(steps:any,options:any)=>completeCooperatively(steps,{...options,budgetMs:0}),
     yieldStartupWork:()=>{const wait=deferred();waiters.push(wait);return wait.promise;},invalidateScenePresentation:()=>{},
@@ -102,23 +102,23 @@ function centralFixture(){
 }
 async function advance(f:ReturnType<typeof centralFixture>){const wait=f.waiters.shift();if(!wait)throw Error("Expected cooperative task");wait.resolve();await settle();}
 test("actual Viewer coalesces Central requests and retries a replacement root after pending work cancels",async()=>{
-  const f=centralFixture(),old=f.runtime.centralDetails;const first=f.ensure(f.runtime);
+  const f=centralFixture(),old=f.runtime.centralDetails;const first=f.ensure(f.runtime);await settle();
   f.manager.release(old);f.runtime.centralDetails=new Group();const next=f.runtime.centralDetails;
-  const second=f.ensure(f.runtime);expect(f.runtime.governmentCentralRetryV321).toBe(true);
+  const second=f.ensure(f.runtime);await settle();expect(f.runtime.governmentCentralRetryV321).toBe(true);
   await advance(f);await first;await second;await settle();
   expect(f.waiters).toHaveLength(1);await advance(f);await advance(f);
   expect(f.staged).toEqual([next]);expect(f.uploads).toEqual([next]);expect(f.runtime.governmentCentralPendingV321).toBeUndefined();
   expect(f.runtime.governmentCentralRetryV321).toBe(false);
 });
 test("actual Viewer retries a ready mode once, without duplicate staging or permanent retry loops",async()=>{
-  const f=centralFixture();const first=f.ensure(f.runtime);await advance(f);
-  for(let i=0;i<3;i++)void f.ensure(f.runtime);
+  const f=centralFixture();const first=f.ensure(f.runtime);await settle();await advance(f);
+  for(let i=0;i<3;i++)void f.ensure(f.runtime);await settle();
   expect(f.runtime.governmentCentralRetryV321).toBe(true);await advance(f);await first;await settle();
   expect(f.staged).toHaveLength(1);expect(f.uploads).toHaveLength(1);expect(f.waiters).toHaveLength(0);
   expect(f.runtime.governmentCentralRetryV321).toBe(false);
 });
 test("actual Viewer neither retries nor uploads canceled Central work after runtime disposal",async()=>{
-  const f=centralFixture();const first=f.ensure(f.runtime);void f.ensure(f.runtime);f.runtime.disposed=true;
+  const f=centralFixture();const first=f.ensure(f.runtime);await settle();void f.ensure(f.runtime);await settle();f.runtime.disposed=true;
   await advance(f);await first;expect(f.staged).toHaveLength(0);expect(f.uploads).toHaveLength(0);expect(f.waiters).toHaveLength(0);
 });
 
@@ -140,13 +140,14 @@ function preparation(failure?:PreparationFailure){
       if(failure==="preview-throw")throw Error("preview source rejected");return failure!=="preview-false";},
     rollback(){trace.push("rollback");core.geometry=originalCore;outline.geometry=originalOutline;street.geometry=originalStreet;},
   };
-  const prepare=actual("prepareGovernmentOfficesV321Steps",{
+  const dependencies={
     createGovernmentOfficesV321Steps:function*(){trace.push("factory");yield;
       if(failure==="factory-throw")throw Error("factory source rejected");return failure==="factory-null"?null:bundle;},
     governmentSwapHooksV321:()=>({}),disposeObject3D:(_runtime:any,object:Group)=>{disposed.push(object);object.removeFromParent();},
-  });
+  };
+  const prepare=actual("prepareGovernmentOfficesV321Steps",dependencies);
   return{world,preview,press,core,outline,street,neighbor,root,trace,disposed,bundle,originalCore,originalOutline,originalStreet,originalNeighbor,
-    start:(native=false)=>{press.name=native?"Press quarter v272 independent native architecture":"Press quarter v272 complete measured architecture";return prepare({},world,{native,sourcePrisms:[],mobileLike:false}) as Generator<void,typeof bundle|null>;}};
+    start:(native=false)=>{press.name=native?"Press quarter v272 independent native architecture":"Press quarter v272 complete measured architecture";return prepare({},world,{native,sourcePrisms:[],mobileLike:false},dependencies) as Generator<void,typeof bundle|null>;}};
 }
 function drain<T>(steps:Generator<void,T>){for(;;){const step=steps.next();if(step.done)return step.value;}}
 function originalCityRetained(f:ReturnType<typeof preparation>){

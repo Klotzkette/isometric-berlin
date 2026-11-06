@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.204 — 2026-11-06
+
+- Keep Native-only packet data out of Day’s shared lossless codec; fetch complete required office models alongside world inputs and load the surrounding city at its actual first use.
+- Preserve original first-upload buffers through the first graphics frame, then complete unchanged lossless storage before further construction. Keep offscreen parking, all model admission/rollback checks, six views, full touch detail and existing memory limits.
+- Start optional smooth park construction after the complete required world, keeping the visible loading bar and the existing first-view readiness checks.
+
 ## v1.0.203 — 2026-11-06
 
 - Show a visible loading bar from the initial HTML response through application loading and city construction. Use a clearer eight-pixel track and keep a static activity segment for reduced motion. Preserve measured progress, required-world readiness, geometry and existing budgets.

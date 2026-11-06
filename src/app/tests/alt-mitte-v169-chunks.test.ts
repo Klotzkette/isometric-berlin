@@ -43,9 +43,10 @@ test("each bounded Alt-Mitte source packet keeps a separate mode-specific output
 });
 
 test("the production output uses packet partitioning and retains the existing vendor chunks", () => {
-  const output = config.build!.rollupOptions!.output as {
-    manualChunks: (id: string) => string | undefined;
+  const configured = config.build!.rollupOptions!.output as {
+    codeSplitting: { groups: [{ name: string }, { name: (id: string) => string | undefined }] };
   };
+  const output = { manualChunks: configured.codeSplitting.groups[1].name };
   expect(
     output.manualChunks("/src/data/altMitteV169Native/packet-001.json"),
   ).toBe("alt-mitte-v169-native-packet-001");

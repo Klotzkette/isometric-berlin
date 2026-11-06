@@ -20,6 +20,15 @@ export function isParkedStaticStorageV321(storage:Storage):boolean{
   return array?.get===proof.get&&array.set===proof.set&&update?.set===proof.needsUpdate&&proof.canonicalOnly();
 }
 
+/** Private compressed backing, including a still-live decoded WeakRef. Alias
+ * bookkeeping must not invoke its getter. This does not promise canonical-only CPU residency. */
+export function hasParkedStaticStorageBackingV323(storage: Storage): boolean {
+  const proof = parkedAccessorsV321.get(storage);
+  if (!proof || storage.usage !== StaticDrawUsage || storage.version !== proof.version || !storageInfo.has(storage)) return false;
+  const array = Object.getOwnPropertyDescriptor(storage, "array"), update = Object.getOwnPropertyDescriptor(storage, "needsUpdate");
+  return array?.get === proof.get && array.set === proof.set && update?.set === proof.needsUpdate;
+}
+
 function identity(ids: WeakMap<object, object>, value: object): object {
   let id = ids.get(value); if (!id) ids.set(value, id = {}); return id;
 }
@@ -122,7 +131,8 @@ function installStorage(storage: Storage, chunks: Uint8Array[], weak: WeakRef<Va
 }
 
 /** Call after indexing, terrain draping, colours and optional interleaving. */
-export function* parkStaticGeometrySteps(root: Object3D, ownsBuffers = false): Generator<void, number> {
+export function* parkStaticGeometrySteps(root: Object3D, ownsBuffers = false,
+  shouldPark?: (storage: Storage) => boolean): Generator<void, number> {
   const storages = new Set<Storage>();
   const owners = new Map<object, Set<Storage>>();
   root.traverse(object => {
@@ -149,6 +159,7 @@ export function* parkStaticGeometrySteps(root: Object3D, ownsBuffers = false): G
   });
   let saved = 0;
   for (const storage of storages) {
+    if (shouldPark && !shouldPark(storage)) continue;
     if (parked.has(storage)) continue;
     const info = staticStorageInfo(storage);
     // Do not detach subviews or storage shared with any other attribute.
@@ -161,10 +172,14 @@ export function* parkStaticGeometrySteps(root: Object3D, ownsBuffers = false): G
 
 /** Caller owns these complete constructor-created matrices (no borrowed views).
  * Opt-in only for finished architectural/park roots, never mobs/effects. */
-export function* parkStaticInstancesSteps(root: Object3D): Generator<void, number> {
+export function* parkStaticInstancesSteps(root: Object3D,
+  shouldPark?: (storage: Storage) => boolean): Generator<void, number> {
   const matrices = new Set<BufferAttribute>();
   root.traverse(object => { if (object instanceof InstancedMesh) matrices.add(object.instanceMatrix); });
   let saved = 0;
-  for (const matrix of matrices) saved += yield* parkStaticAttribute(matrix, true);
+  for (const matrix of matrices) {
+    if (shouldPark && !shouldPark(matrix)) continue;
+    saved += yield* parkStaticAttribute(matrix, true);
+  }
   return saved;
 }

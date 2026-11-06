@@ -38,6 +38,30 @@ export function altMitteV169ManualChunk(moduleId: string): string | undefined {
     : undefined;
 }
 
+/** Shared decoders must not be absorbed into a manually partitioned packet.
+ * Otherwise a metadata/Day decoder import evaluates that packet's ordinary
+ * eager fields before its mode is requested. The packet itself stays eager. */
+export function losslessCodecManualChunk(moduleId: string): string | undefined {
+  const normalized = moduleId.replaceAll("\\", "/").split("?", 1)[0];
+  return /\/src\/app\/src\/(?:losslessGzipJson|losslessGzipBase85|decodeBase64Bytes|releaseScratchBuffer)\.ts$/.test(normalized) ||
+    normalized.endsWith("/node_modules/three/examples/jsm/libs/fflate.module.js")
+    ? "lossless-source-codecs"
+    : undefined;
+}
+
+/** Existing packet/vendor partition, independent of the strict codec group. */
+export function viewerManualChunk(moduleId: string): string | undefined {
+  const altMittePacket = altMitteV169ManualChunk(moduleId);
+  if (altMittePacket) return altMittePacket;
+  const normalizedModuleId = moduleId.replaceAll("\\", "/");
+  if (
+    normalizedModuleId.includes("/node_modules/react/") ||
+    normalizedModuleId.includes("/node_modules/react-dom/")
+  ) return "react-vendor";
+  if (normalizedModuleId.includes("/node_modules/three/")) return "three-engine";
+  return undefined;
+}
+
 /**
  * Guard the synchronous app shell, including all of its static JS imports.
  * Three.js stays deliberately dynamic and is therefore excluded from this
@@ -90,20 +114,16 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks(moduleId) {
-          const altMittePacket = altMitteV169ManualChunk(moduleId);
-          if (altMittePacket) return altMittePacket;
-          const normalizedModuleId = moduleId.replaceAll("\\", "/");
-          if (
-            normalizedModuleId.includes("/node_modules/react/") ||
-            normalizedModuleId.includes("/node_modules/react-dom/")
-          ) {
-            return "react-vendor";
-          }
-          if (normalizedModuleId.includes("/node_modules/three/")) {
-            return "three-engine";
-          }
-          return undefined;
+        codeSplitting: {
+          groups: [
+            {
+              name: "lossless-source-codecs",
+              test: (moduleId: string) => losslessCodecManualChunk(moduleId) !== undefined,
+              priority: 100,
+              includeDependenciesRecursively: false,
+            },
+            { name: viewerManualChunk },
+          ],
         },
       },
     },

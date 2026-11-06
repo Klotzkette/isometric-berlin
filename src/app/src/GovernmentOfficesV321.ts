@@ -28,6 +28,9 @@ import {requiredYouthTheatresNavigationV322} from "./youthTheatresV322Navigation
 import {createMaisonDeFranceV322Steps,hasCompleteMaisonDeFranceV322} from "./MaisonDeFranceV322";
 import type {PrismBuilding} from "./IsometricCityWorld";
 import type {DeutschesTheaterVoxelPayload} from "./DeutschesTheater";
+// The viewer imports this namespace lazily; central preparation must not keep
+// the complete office-plan graph in its synchronous startup imports either.
+export {createGovernmentCentralV321,type GovernmentCentralV321} from "./GovernmentCentralV321";
 
 export type GovernmentOfficesV321={
   root:Group;
