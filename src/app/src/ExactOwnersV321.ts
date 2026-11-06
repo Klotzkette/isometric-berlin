@@ -11,6 +11,7 @@ import { isSceneMaterialProgramRetirementV321 } from "./sceneMaterialPrograms";
 import { hasSchwellenraumMaterialProvenance } from "./visual-modes/schwellenraum/materialGrade";
 import { hasMinecraftMaterialProvenance, minecraftOriginalMaterialFor } from "./visual-modes/minecraft/materialMode";
 import { verifiedFederalMinistryPressQuarterSourceV321 } from "./FederalMinistryPressQuarterV321";
+import { verifiedMemorialPreviousSourceV322 } from "./MemorialPreviousV322";
 
 export type ExactAttributeV321 = { type:string; itemSize:number; normalized:boolean; bytes:string };
 export type ExactComponentV321 = { name:string; kind:"mesh"|"lines"|"instances";
@@ -97,20 +98,34 @@ function clipArea(ring:number[][],x0:number,z0:number,x1:number,z1:number):numbe
 function* bindNativeSteps(plan:ExactOwnersPlanV321,buildings:readonly unknown[],voxels:unknown,rows:Binding["rows"]):Generator<void,(()=>boolean)|null> {
  const spec=plan.nativeSource,v=voxels as {cell_m:number;grid:Record<string,number>;building_rows?:number[][][];buildings?:number[][]};
  if(!spec||!v||spec.cell!==v.cell_m||ownJSON(v.grid)!==ownJSON(spec.grid)||!spec.columns.length)return null;
- const columns=new Map<string,typeof spec.columns[number]>();for(const c of spec.columns){if(c.source.length!==5||c.source.some(n=>!Number.isSafeInteger(n))||!c.contributors.length||new Set(c.contributors).size!==c.contributors.length||columns.has(c.source.slice(0,2).join(",")))return null;columns.set(c.source.slice(0,2).join(","),c);}
+ // A real voxel cell can contain several original vertical RLE intervals.
+ // Require every full five-word source signature, including class and heights.
+ const columns=new Map<string,typeof spec.columns[number]>(),cells=new Map<string,typeof spec.columns>();
+ for(const c of spec.columns){const key=ownJSON(c.source),cell=c.source.slice(0,2).join(",");if(c.source.length!==5||c.source.some(n=>!Number.isSafeInteger(n))||!c.contributors.length||new Set(c.contributors).size!==c.contributors.length||!key||columns.has(key))return null;columns.set(key,c);const group=cells.get(cell)??[];group.push(c);cells.set(cell,group);}
  const sourceRows:{get:()=>unknown;row:unknown;text:string}[]=[],found=new Set<string>();
- const take=(source:number[],row:number[],get:()=>unknown)=>{const key=source.slice(0,2).join(","),expected=columns.get(key);if(!expected)return true;if(found.has(key)||ownJSON(source)!==ownJSON(expected.source))return false;
+ const take=(source:number[],row:number[],get:()=>unknown)=>{if(!cells.has(source.slice(0,2).join(",")))return true;const key=ownJSON(source),expected=key?columns.get(key):undefined;if(!key||!expected||found.has(key))return false;
   found.add(key);sourceRows.push({get,row,text:ownJSON(row)!});return true;};
- if(v.building_rows){const wantedZ=new Map<number,number[]>();for(const c of spec.columns){const z=c.source[1]-v.grid.min_z_idx,xs=wantedZ.get(z)??[];xs.push(c.source[0]);wantedZ.set(z,xs);}
+ const topologyPins:DataPin[]=[];
+ if(v.building_rows){const wantedZ=new Map<number,Set<number>>();for(const c of spec.columns){const z=c.source[1]-v.grid.min_z_idx,xs=wantedZ.get(z)??new Set<number>();xs.add(c.source[0]);wantedZ.set(z,xs);}
   for(const[z,xs]of wantedZ){const row=v.building_rows[z];if(!row)return null;for(let j=0;j<row.length;j++){const r=row[j],lo=v.grid.min_x_idx+r[0],hi=lo+r[1];for(const x of xs)if(x>=lo&&x<hi&&!take([x,v.grid.min_z_idx+z,r[2],r[3],r[4]],r,()=>v.building_rows?.[z]?.[j]))return null;}}}
  else if(v.buildings){for(let i=0;i<v.buildings.length;i++)if(!take(v.buildings[i],v.buildings[i],()=>v.buildings?.[i]))return null;}else return null;
  if(found.size!==columns.size)return null;
+ // Multi-interval cells additionally pin their complete containing row-list
+ // topology, so appending/replacing an interval cannot bypass the live gate.
+ const multi=[...cells.values()].filter(group=>group.length>1);
+ const lists=multi.length&&v.building_rows?[...new Set(spec.columns.map(column=>column.source[1]-v.grid.min_z_idx))].map(z=>({parent:v.building_rows!,key:String(z),list:v.building_rows![z]}))
+   :multi.length&&v.buildings?[{parent:v,key:"buildings",list:v.buildings}]:[];
+ for(const {parent,key,list}of lists){if(!Array.isArray(list)||Object.getPrototypeOf(list)!==Array.prototype||Reflect.ownKeys(list).length!==list.length+1)return null;
+  topologyPins.push({object:parent,key,value:list});for(const k of Object.getOwnPropertyNames(list)){const d=Object.getOwnPropertyDescriptor(list,k);if(!d||!("value"in d))return null;topologyPins.push({object:list,key:k,value:d.value});
+   if(k!=="length"){if(!Array.isArray(d.value))return null;for(const coordinate of["0","1","length"]){const q=Object.getOwnPropertyDescriptor(d.value,coordinate);if(!q||!("value"in q))return null;topologyPins.push({object:d.value,key:coordinate,value:q.value});}}}}
+ const sourceArray=v.building_rows??v.buildings,sourceField=v.building_rows?"building_rows":"buildings";
+ if(multi.length)topologyPins.push({object:v,key:sourceField,value:sourceArray});
  for(const owner of plan.owners)for(const c of owner.components)if(c.name==="Voxel building columns"&&c.instances){
   const retired=c.retire===true?Array.from({length:c.instances.count},(_,i)=>i):c.retire===false?[]:c.retire;
   if(retired.length&&!owner.retireBody)return null;const bytes=decodeBase64Bytes(c.instances.matrix);if(bytes.byteLength!==c.instances.count*64)return null;
   const matrix=new Float32Array(bytes.buffer,bytes.byteOffset,bytes.byteLength/4);
-  for(const row of retired){if(!Number.isSafeInteger(row)||row<0||row>=c.instances.count)return null;const x=Math.round(matrix[row*16+12]/spec.cell-.5),z=Math.round(matrix[row*16+14]/spec.cell-.5),column=columns.get(x+","+z);
-   if(!column?.retireBody||!column.contributors.includes(owner.id)||Math.abs(matrix[row*16+12]-(x+.5)*spec.cell)>.001||Math.abs(matrix[row*16+14]-(z+.5)*spec.cell)>.001)return null;}
+  for(const row of retired){if(!Number.isSafeInteger(row)||row<0||row>=c.instances.count)return null;const x=Math.round(matrix[row*16+12]/spec.cell-.5),z=Math.round(matrix[row*16+14]/spec.cell-.5),cell=cells.get(x+","+z);
+   if(!cell?.length||cell.some(column=>!column.retireBody||!column.contributors.includes(owner.id))||Math.abs(matrix[row*16+12]-(x+.5)*spec.cell)>.001||Math.abs(matrix[row*16+14]-(z+.5)*spec.cell)>.001)return null;}
  }
  // One bounded spatial index, not a selected-column by whole-city nested scan.
  const buckets=new Map<string,number[]>(),prisms=buildings as {id:string;ring:number[][];holes?:number[][][];h_dm:number}[];
@@ -126,7 +141,7 @@ function* bindNativeSteps(plan:ExactOwnersPlanV321,buildings:readonly unknown[],
  }
  if(sourceRows.some(r=>r.get()!==r.row||ownJSON(r.row)!==r.text)||ownJSON(v.grid)!==ownJSON(spec.grid))return null;
  const grid=v.grid,gridPins=dataPins(grid),rlePins=sourceRows.map(r=>({get:r.get,row:r.row,pins:dataPins(r.row)}));
- return()=>v.cell_m===spec.cell&&v.grid===grid&&pinsMatch(gridPins)&&rlePins.every(r=>r.get()===r.row&&pinsMatch(r.pins));
+ return()=>v.cell_m===spec.cell&&v.grid===grid&&pinsMatch(gridPins)&&pinsMatch(topologyPins)&&rlePins.every(r=>r.get()===r.row&&pinsMatch(r.pins));
 }
 /** Only complete own-data source rows can create this private receipt. The
  * caller must provide the actual complete retained constructor input. */
@@ -136,7 +151,7 @@ export function* createExactOwnersSourceV321Steps(plan:ExactOwnersPlanV321,build
   const text=ownJSON(plan);if(!text||!Number.isSafeInteger(expectedPlanControl)||control(plan)!==expectedPlanControl||plan.schemaVersion!==1||!Array.isArray(plan.owners)||!plan.owners.length||!Array.isArray(buildings))return null;
   // These two private literal authored-fitting plans have an independent
   // original V272 source proof; they neither claim a Core body nor voxel rows.
-  const authoredFittings=verifiedFederalMinistryPressQuarterSourceV321(plan);
+  const authoredFittings=verifiedFederalMinistryPressQuarterSourceV321(plan)??verifiedMemorialPreviousSourceV322(plan);
   const wanted=new Map<string,number>();for(let i=0;i<plan.owners.length;i++){const o=plan.owners[i];if(!o||typeof o.id!=="string"||wanted.has(o.id)||
     !o.components.length||!authoredFittings&&!o.components.some(c=>c.kind==="mesh"||c.name==="Voxel building columns"))return null;wanted.set(o.id,i);}
   const rows:Binding["rows"]=[],found=new Set<string>();
@@ -165,7 +180,7 @@ export function* composeExactOwnersSourcesV321Steps(parts:readonly {plan:ExactOw
   const owners=parts.flatMap(p=>p.plan.owners);if(new Set(owners.map(o=>o.id)).size!==owners.length)return null;
   const plan:ExactOwnersPlanV321={schemaVersion:1,native:parts[0].plan.native,owners};
   if(plan.native){const all=parts.map(p=>p.plan.nativeSource!);if(all.some(p=>p.cell!==all[0].cell||ownJSON(p.grid)!==ownJSON(all[0].grid)))return null;
-   const columns=new Map<string,typeof all[number]["columns"][number]>();for(const item of all)for(const c of item.columns){const k=c.source.slice(0,2).join(","),old=columns.get(k);if(old&&ownJSON(old)!==ownJSON(c))return null;columns.set(k,c);}plan.nativeSource={cell:all[0].cell,grid:all[0].grid,columns:[...columns.values()]};}
+   const columns=new Map<string,typeof all[number]["columns"][number]>();for(const item of all)for(const c of item.columns){const k=ownJSON(c.source);if(!k)return null;const old=columns.get(k);if(old&&ownJSON(old)!==ownJSON(c))return null;columns.set(k,c);}plan.nativeSource={cell:all[0].cell,grid:all[0].grid,columns:[...columns.values()]};}
   // Each constituent already proved its complete actual source, grid, columns
   // and every positive-area contributor. Composition reuses those private
   // proofs instead of scanning the same city a second time.

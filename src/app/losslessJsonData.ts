@@ -14,6 +14,7 @@ import { LOSSLESS_EAGER_FIELDS_V318 } from "./losslessEagerFieldsV318";
 import { exactEagerFieldsV319, assertEagerFieldV319 } from "./losslessEagerFieldsV319";
 import { exactEagerFieldsV320, assertEagerFieldV320 } from "./losslessEagerFieldsV320";
 import { exactEagerFieldsV321, assertEagerFieldV321 } from "./losslessEagerFieldsV321";
+import { exactEagerFieldsV322, assertEagerFieldV322 } from "./losslessEagerFieldsV322";
 
 export const LOSSLESS_JSON_FIELD_BYTES = 64 * 1024;
 
@@ -65,6 +66,8 @@ const EXPORT_NAME = /^[$_\p{ID_Start}][$_\u200c\u200d\p{ID_Continue}]*$/u;
  * Do not extend by filename pattern: navigation and mutable source caches have
  * different ownership contracts. See docs/source-cache-lifetime-v181.md. */
 export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "universitiesArchitectureV322.json": ["models"],
+  "youthTheatresV322.json": ["models"],
   "federalMinistriesV321.json": ["models", "justiceColonnade"],
   "federalMinistriesV321Previous.json": ["plans"],
   "federalMinistryPressQuarterV321.json": ["plans"],
@@ -427,10 +430,14 @@ export function transformLosslessJsonData(
   const eagerV319 = exactEagerFieldsV319(sourcePath, source);
   const eagerV320 = exactEagerFieldsV320(sourcePath, source);
   const eagerV321 = exactEagerFieldsV321(sourcePath, source);
-  const governmentEagerV321 = sourcePath === "data/federalMinistriesV321.json" || sourcePath === "data/berlinSenateBuildingsV321.json"
+  const eagerV322 = exactEagerFieldsV322(sourcePath, source);
+  const authoredEagerV322 = sourcePath === "data/memorialPreviousV322.json" ? ["families"]
+    : sourcePath === "data/youthTheatresV322.json" ? ["navigation"]
+    : sourcePath === "data/universitiesPreviousV322.json" ? ["plans"] : [];
+  const governmentEagerV321 = sourcePath === "data/federalMinistriesV321.json" || sourcePath === "data/berlinSenateBuildingsV321.json" || sourcePath === "data/universitiesArchitectureV322.json"
     ? ["sites", "navigation", "oldBodies", "sourcePrisms"]
     : sourcePath === "data/berlinSenatePreviousV321.json" ? ["drawn", "nativeFull", "nativeMobile", "preview"] : [];
-  const eagerFields = [...(eagerV282.length ? eagerV282 : eagerV274.length ? eagerV274 : LOSSLESS_EAGER_FIELDS_V270[sourcePath] ?? []), ...eagerV309, ...eagerV318, ...eagerV319, ...eagerV320, ...eagerV321, ...governmentEagerV321];
+  const eagerFields = [...(eagerV282.length ? eagerV282 : eagerV274.length ? eagerV274 : LOSSLESS_EAGER_FIELDS_V270[sourcePath] ?? []), ...eagerV309, ...eagerV318, ...eagerV319, ...eagerV320, ...eagerV321, ...eagerV322, ...governmentEagerV321, ...authoredEagerV322];
   if ((!DATA_JSON.test(normalizedId) && !eagerRetainedSource && !eagerFields.length) ||
       (!eagerRetainedSource && !eagerFields.length && source.length < thresholdBytes)) {
     return undefined;
@@ -476,6 +483,9 @@ export function transformLosslessJsonData(
   // strings, not huge numeric arrays. Wrapping them in JSON.parse would retain
   // both the encoded JSON text and another copy of every base64 string after
   // the first read. Direct literals share the original string constants.
+  // Four separately source/field-pinned V322 native mesh fields instead use
+  // eager gzip/Base64 below. Their complete string values and strong ownership
+  // stay exact; every other packed packet keeps the direct literal rule.
   const packedPacket = PACKED_PACKET_JSON.test(normalizedId);
   // Require the direct data directory as well as the complete audited filename.
   const sourceName = normalizedId.match(/\/src\/app\/src\/data\/([^/]+)$/)?.[1] ?? "";
@@ -513,7 +523,7 @@ export function transformLosslessJsonData(
     // ordinary object and navigation identity remains eager and unchanged.
     const constructionObject = weakFields.includes(key) && value !== null && typeof value === "object";
     const packedString = typeof value === "string" && packedStrings.includes(key);
-    if (DATA_JSON.test(normalizedId) && !packedPacket && !eagerV274.includes(key) && !eagerV282.includes(key) && !eagerV309.includes(key) && !eagerV318.includes(key) && !eagerV319.includes(key) && !eagerV320.includes(key) && !eagerV321.includes(key) && !governmentEagerV321.includes(key) && (!packedFields.includes(key) || packedString) && (Array.isArray(value) || constructionObject || packedString) && json.length >= thresholdBytes) {
+    if (DATA_JSON.test(normalizedId) && !packedPacket && !eagerV274.includes(key) && !eagerV282.includes(key) && !eagerV309.includes(key) && !eagerV318.includes(key) && !eagerV319.includes(key) && !eagerV320.includes(key) && !eagerV321.includes(key) && !eagerV322.includes(key) && !governmentEagerV321.includes(key) && !authoredEagerV322.includes(key) && (!packedFields.includes(key) || packedString) && (Array.isArray(value) || constructionObject || packedString) && json.length >= thresholdBytes) {
       lazyFields += 1;
       const cache = `__cache${index}`;
       const loaded = `__loaded${index}`;
@@ -579,6 +589,7 @@ export function transformLosslessJsonData(
         if (eagerV319.includes(key)) assertEagerFieldV319(sourcePath, key, json);
         if (eagerV320.includes(key)) assertEagerFieldV320(sourcePath, key, json);
         if (eagerV321.includes(key)) assertEagerFieldV321(sourcePath, key, json);
+        if (eagerV322.includes(key)) assertEagerFieldV322(sourcePath, key, json);
         const { encoded: packed, admissionLength } = pack(json);
         if (admissionLength < json.length * .8) {
           literal = `/* @__PURE__ */ __decodeLosslessGzip(${JSON.stringify(packed)})`;

@@ -255,6 +255,10 @@ export const LOSSLESS_BASE85_BEFORE_V309: ReadonlySet<string> = new Set([
   "data/zooPalastV260.json",
 ]);
 export const LOSSLESS_BASE85_SOURCES_V263: ReadonlySet<string> = new Set([
+  "data/universitiesArchitectureV322.json", "data/universitiesPreviousV322.json",
+  "data/universitiesV322Packets.json", "data/youthTheatresV322.json",
+  "data/memorialPreviousV322.json",
+  "data/youthTheatreFrontsV322Packets.json",
   ...LOSSLESS_BASE85_BEFORE_V309, ...LOSSLESS_NORTHERN_SOURCES_V309,
   "data/berlinSenateV321.json", "data/federalMinistriesV321.json",
   "data/federalMinistriesV321Previous.json", "data/federalMinistriesV321Packets.json",

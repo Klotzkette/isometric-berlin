@@ -2600,3 +2600,138 @@ or Senate roots. Distinguish only the synchronous private material-retirement
 scope of the existing real cache pass from authored resource disposal; ordinary
 disposal must still revoke provenance and exact-owner receipts. Preserve actual
 GPU program release, all material properties, source words and cache ceilings.
+
+### Step 10 — v322 universities, youth theatres and public memorials
+
+The owner requests source-supported refinement of the important HU and FU
+buildings, Rost-/Silberlaube and Adlershof, the major applied-sciences campuses
+including HWR, Alice Salomon and the former Beuth/current BHT; the named GRIPS,
+Podewil and ATZE theatres with other important children's/youth venues; and the
+Archenhold observatory in Treptower Park. Resolve the spoken Grünau location
+against an actual institution before assigning a new campus. Verify current
+addresses and completed architecture; preserve the complete earlier HU/FU,
+Adlershof, GRIPS and Podewil models and all unrelated source sheets and detail.
+
+The same request includes the three major Soviet memorials at Treptow,
+Schönholzer Heide (provisional identification of the northern spoken name) and
+Straße des 17. Juni, publicly evidenced American/French/British remembrance
+sites, Institut français/Maison de France and the actual Kurfürstendamm/
+Tauentzien sculpture ensemble. Identify the intertwined tube sculpture from
+primary public art records and distinguish extant works from removed historic
+installations. Do not invent equivalent national memorials, inscriptions or
+burial inventories. Earlier complete memorial architecture stays authoritative.
+
+Only actual, exactly identified erroneous owners may yield to complete
+source-bound replacements with strict private admission, retained originals,
+full outside complements and matching granular walking geometry. All other
+recognition additions must fit their real measured wall/roof/site anchors and
+must not duplicate existing facade grids or obstruct source openings. Any
+necessary new geographic complement is limited to an expressly requested,
+verified named campus/site footprint minus every previous approved scope,
+documented separately; no adjoining district regeneration is authorised.
+
+Keep full drawn touch detail, independent orthogonal native construction,
+93 tour stops, six modes and every startup/Worker/residency/decode/prefetch and
+archive limit. Small unmeasured architectural or sculpture dimensions remain
+explicit display estimates. No reference pixels, new media fetch or scene timer.
+Use one internal full-city browser and one heavy build at a time. Reuse raw
+archives, preserve the preceding complete package by rename, and leave older
+published source-history fixtures and Git/release history untouched. Root owns
+shared integration, new immutable-history capture, build and publication.
+
+#### Step10 finite lossless source offsets
+The following 80 exact published v1.0.201 ordinary eager fields are approved only for lossless source encoding through the existing gzip/Base64 or already-selected Base85 codec and admission rule. Their full raw source and field SHA-256 pins are recorded in losslessEagerFieldsV322.ts. Preserve eager strong data descriptors, named/default alias identity, mutations, property order and negative zero. Do not reclassify any source cache, weak lifetime, packed AltMitte strings, or public payload. External before/after production mini-builds verified every selected value; the final byte saving is recorded in the build evidence. These fields are finite, with no filename patterns:
+
+- data/mitteHeritageV166Source.json.paths
+- data/southFidelityV294Packets.json.packets
+- data/moabitMitteV300Profile.json.fronts
+- data/mitteHeritageV166Navigation.json.roofTriangles
+- data/spanishEmbassyV164Source.json.parts
+- data/mitteEmbassiesV288Profile.json.chinaPackets
+- data/zooAnimalsV282.json.habitats
+- data/concertHallsNavigation.json.roofTriangles
+- data/southFidelityV294.json.huxleys
+- data/cafeNeuerSeeV164Source.json.gardenSurfaces
+- data/zooGroundsV165Source.json.paths
+- data/grosserSternGatehousesV164Source.json.parts
+- data/zooWestV276.json.surfaces
+- data/huthmacherSource.json.surfaces
+- data/europacityRailV313.json.track
+- data/districtStreets.json.source
+- data/concertHallsSource.json.goldJoints
+- data/districtStreets.json.scope_rings_m
+- data/wuhlheideTerrainV201.json.profiles
+- data/rkiMoabitV277Ownership.json.neighbours
+- data/railBridgeApproachV307Profile.json.pavedDomain
+- data/zooAnimalsV282.json.retainedRoutes
+- data/technikmuseumV272.json.columns
+- data/theatresV272Navigation.json.roofTriangles
+- data/lehrterV277.json.ribSegments
+- data/neukoellnLandmarksV305Profile.json.towerNavigation
+- data/zooAnimalsV282.json.animals
+- data/hbfNorthApproachSources.json.tracks
+- data/eastCinemasV260Minecraft.json.meshes
+- data/tierparkAnimalTransferV282.json.families
+- data/concertHallsSource.json.roofEdges
+- data/lehrterV277Navigation.json.parts
+- data/breitscheidTowersSource.json.parts
+- data/zooWestV276.json.fittings
+- data/moabitMitteV300Owners.json.nativeColumns
+- data/westSquaresV188Detail.json.roofCollar
+- data/steppengartenShelterV283.json.nativeBoxes
+- data/zooWestV276Ownership.json.neighbours
+- data/tiergartenWerkhofV275.json.detailRoles
+- data/cafeNeuerSeeV164Source.json.gardenNativeRuns
+- data/westSquaresV188Detail.json.facadeBands
+- data/southFidelityV294.json.plans
+- data/verkehrskanzelV276.json.nativeCabinBoxes
+- data/coreTerrainActualV310.json.variants
+- data/districtStreets.json.elevated_path_ids
+- data/hbfStreetDetailsV252.json.curbCaps
+- data/parliamentaryDiningV296.json.nativeColumns
+- data/berlinHistoricCoreV288Ownership.json.nativeNearbyColumns
+- data/southFidelityV294.json.metropolParts
+- data/zooGroundsV165Source.json.barriers
+- data/pressQuarterV272Navigation.json.nativeRoofCells
+- data/theatresV272Navigation.json.nativeRoofCells
+- data/zooHippoV256Source.json.edges
+- data/chancelleryPhotoV287Owners.json.drawn
+- data/zooStationV165Source.json.osmEvidence
+- data/westKiezV302CoreOwners.json.nativeColumns
+- data/potsdamerCorridorV288Profile.json.navigation
+- data/berlinHistoricCoreV288Ownership.json.nativeColumns
+- data/verkehrskanzelV276.json.nativeFittingReceipts
+- data/technikmuseumV272.json.sites
+- data/kulturforumPiazzettaV246.json.triangles
+- data/steglitzWindowsV273.json.nativeColors
+- data/bayerCampusV277.json.nativeFootprints
+- data/mitteHeritageV166Source.json.barriers
+- data/moabitJusticeV166Source.json.parts
+- data/eastStadtbahnV288.json.packets
+- data/northTerrainPropsV309.json.rows
+- data/southFidelityV294.json.nkzOwners
+- data/bayerCampusV277.json.parts
+- data/kulturforumPiazzettaV246.json.positions
+- data/railBridgeApproachV307Profile.json.domain
+- data/concertHallsNavigation.json.parts
+- data/concertHallsSource.json.parts
+- data/mitteHeritageV166Navigation.json.parts
+- data/mitteHeritageV166Source.json.parts
+
+New v322 constructor-only models may use the existing audited weak construction codec; new university sites/navigation/oldBodies/sourcePrisms retain ordinary eager ownership. New university streamed recipes use the unchanged per-packet weak plan codec. Do not change any older cache lifetime or raise archive, Worker, prefetch, decode, startup or scene budgets.
+
+New exact authored record fields memorialPreviousV322.families and universitiesPreviousV322.plans retain ordinary eager, strong ownership while using the existing lossless source codec. Native-only Berlin sculpture is a new additive model authorized by its complete literal-pinned compiled POI/ground-source record; it performs no old-owner transfer and fetches no drawn payload. Drawn Berlin still requires the actual original street/ground inputs.
+
+Step10 explicitly requested named theatre coverage may add only the complete verified official building-family footprints of Theater an der Parkaue (Parkaue 29), Theater Strahl Ostkreuz hall (Marktstraße 11), and the officially verified Strahl venue at Kyffhäuserstraße 23. Their lack of older body coverage is not a reason to invent surrounding districts, rectangular fills or streets; bind source geometry and granular navigation to these named sites only.
+
+The additional already ordinary eager object data/federalMinistriesV321.json.nativeColumns (116735 decoded bytes) is explicitly included in the same v322 pin registry after a separate real before/after production audit: identical full values/descriptors/aliases; 94510 bytes saved. It is an original eager object rather than a lazy construction field; no cache lifetime or native column is changed.
+
+The new youthTheatresV322.navigation record retains its ordinary eager, strongly owned object identity while using the existing lossless source codec. New youthTheatreFrontsV322Packets recipes use the unchanged per-packet weak plan codec and share admission with the complete combined required university/theatre model; original Kyffhäuser building/roof/door sources remain untouched.
+
+Four additional exact published201 native-only ordinary eager fields are approved after a separate complete before/after production audit: data/altMitteV169Native/packet-042.json.meshes, packet-041.json.meshes, packet-043.json.meshes and packet-071.json.meshes. Only these full raw-source/field-SHA-pinned fields may override the usual packed-packet literal exception. Use the existing gzip/Base64 codec, eager ordinary strong data properties, exact named/default aliases and unchanged full packed strings. Do not use uncompressed JSON.parse wrapping or Base85 for these four fields; metadata-only imports must eliminate all new decode work. No old native mesh word, string, packet split or ownership lifetime may change. Maximum single decoded JSON field is below 840 KiB; module evaluation is sequential in the existing native-only preload, never the geometry Worker or initial bootstrap. Every decoded value and actual binary source string must remain exact. Existing startup/Worker/archive/residency caps stay fixed.
+
+Step10 full native RLE intervals: actual BHT cells contain several original vertical intervals. Binding and composition use the full exact five-word original tuple (X/Z/low/high/class), never XY-only deduplication. A selected XY cell must include every actual original interval, without duplicates, missing/extra rows or inconsistent contributors/retirement metadata. Matrix retirement requires every interval of that cell to belong exclusively to proven obsolete owners; mixed foreign cells remain complete. Multi-interval source row-list topology is pinned for live revocation. Original matrix, colour, outside complement, controls and existing tolerances remain unchanged. This is complete-source support, not an RLE admission waiver.
+
+Step10 Allied additions are finite: mapped Max Bill monument node/9671927947, British Cross of Sacrifice node/7503268449 and Stone of Remembrance footprint way/802156616 within cemetery way/5077552. Preserve existing Luftbrücke monument. Maison de France has only new source-bound fittings on the seven original blank rounded facets; no old body, roof or door retirement. Berlin and Pyramide share one exact Drawn authored-host transaction; Cadillac, French and British works have no invented old-owner plans. Native-first compiled author sources stay distinct from unchanged strict Drawn old-input proofs.
+
+V322 admission performance must preserve full positive gates: one atomic office/university readiness read per relevant checkpoint, no timed admission cache; no duplicate full proof for the two flags. Only residents with a relevant source-quarter recipe require readiness polling. Negative navigation broad-phase bounds derive from completed actual render bounds, conservatively expanded for Float32 edge rounding; they never authorize positive admission or alter exact owner-word comparisons. All positive queries and hook/await checkpoints retain fresh complete validation.

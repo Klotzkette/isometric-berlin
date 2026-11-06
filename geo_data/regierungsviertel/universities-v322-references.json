@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "checked": "2026-11-06",
+  "sites": {
+    "hu-main": {
+      "name": "Humboldt-Universität main building",
+      "address": "Unter den Linden 6",
+      "status": "retain-complete-v168-main",
+      "refs": [
+        "https://www.hu-berlin.de/",
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09095954,T"
+      ]
+    },
+    "hu-grimm-hegel": {
+      "name": "HU Grimm-Zentrum and Hegelplatz",
+      "address": "Geschwister-Scholl-Straße 1/3; Dorotheenstraße 24",
+      "refs": [
+        "https://www.ub.hu-berlin.de/de/assets/dokumente/standorte/jacob-und-wilhelm-grimm-zentrum/architektur_grimm-zentrum.pdf",
+        "https://agnes.hu-berlin.de/lupo/rds?k_gebaeude.gebid=56&moduleCall=webInfo&publishConfFile=webInfoGeb&publishSubDir=gebaeude&state=verpublish&status=init",
+        "https://idw-online.de/de/news183824"
+      ],
+      "status": "Preserve existing resident Grimm body; correct four Hegelplatz source families only"
+    },
+    "hu-nord": {
+      "name": "HU Campus Nord",
+      "address": "Philippstraße 13; Hannoversche Straße 7",
+      "status": "retain-complete-v266-mensa-rhoda-theatre",
+      "refs": [
+        "https://www.hu-berlin.de/de/ueberblick/campus/campus-nord",
+        "https://www.peb-plus.de/mensa-nord"
+      ]
+    },
+    "hu-adlershof": {
+      "name": "HU science campus Adlershof",
+      "address": "Rudower Chaussee 25/26; Newtonstraße 14/15; Brook-Taylor-Straße 2",
+      "refs": [
+        "https://www.adlershof.de/wirtschaft-wissenschaft/universitaeten-hochschulen/humboldt-universitaet",
+        "https://www.physik.hu-berlin.de/de/institut/ueber/lise-meitner-haus/das-institutsgebaeude",
+        "https://www.adlershof.de/news/deutscher-landschaftsarchitekturpreis-2025-fuer-das-lise-meitner-haus-der-hu"
+      ]
+    },
+    "fu-mat": {
+      "name": "FU Rost-/Silberlaube and Philological Library",
+      "address": "Habelschwerdter Allee 45",
+      "status": "retain-complete-v187-mat-and-library",
+      "refs": [
+        "https://www.fu-berlin.de/sites/rosila/Gebaeude/index.html",
+        "https://www.fu-berlin.de/sites/philbib/05Ueber-uns/veranstaltungen/eroeffnung2/presse.html"
+      ]
+    },
+    "fu-holzlaube": {
+      "name": "FU Holzlaube and Campusbibliothek",
+      "address": "Fabeckstraße 23–25",
+      "refs": [
+        "https://www.fu-berlin.de/sites/75seiten/71-holzlaube/index.html",
+        "https://www.fu-berlin.de/presse/publikationen/tsp/2015/tsp-mai-2015/neubau-fabeckstrasse/holzlaube-architektur/index.html"
+      ]
+    },
+    "fu-henry-ford": {
+      "name": "FU Henry-Ford-Bau",
+      "address": "Garystraße 35/37",
+      "refs": [
+        "https://www.fu-berlin.de/sites/hfb/index.html",
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09075334"
+      ]
+    },
+    "tu-main": {
+      "name": "TU main building and UT2",
+      "address": "Straße des 17. Juni 135; Müller-Breslau-Straße 15",
+      "status": "retain-complete-v168-main-and-ut2",
+      "refs": [
+        "https://www.tu.berlin/studieren/uni-leben/campusplan",
+        "https://www.tu.berlin/kontakt"
+      ]
+    },
+    "tu-mathematik": {
+      "name": "TU Mathematics",
+      "address": "Straße des 17. Juni 136",
+      "refs": [
+        "https://www.tu.berlin/studieren/uni-leben/campusplan"
+      ]
+    },
+    "tu-architektur": {
+      "name": "TU Architecture high/low buildings",
+      "address": "Straße des 17. Juni 152; Marchstraße",
+      "refs": [
+        "https://www.tu.berlin/studieren/uni-leben/campusplan"
+      ]
+    },
+    "tu-udk-bibliothek": {
+      "name": "TU/UdK university library in Volkswagen-Haus",
+      "address": "Fasanenstraße 88",
+      "refs": [
+        "https://www.tu.berlin/studieren/uni-leben/campusplan"
+      ]
+    },
+    "hwr-schoeneberg": {
+      "name": "HWR Campus Schöneberg",
+      "address": "Badensche Straße 50–52",
+      "refs": [
+        "https://www.hwr-berlin.de/hwr-berlin/ueber-uns/portraet/standorte"
+      ]
+    },
+    "hwr-lichtenberg": {
+      "name": "HWR Campus Lichtenberg",
+      "address": "Alt-Friedrichsfelde 60",
+      "refs": [
+        "https://www.hwr-berlin.de/hwr-berlin/ueber-uns/portraet/standorte",
+        "https://www.hwr-berlin.de/studium/studieren-an-der-hwr-berlin/ins-studium-starten"
+      ]
+    },
+    "bht-wedding": {
+      "name": "Berliner Hochschule für Technik, former Beuth Hochschule",
+      "address": "Luxemburger Straße 10/9; Lütticher Straße 38; Limburger Straße 20",
+      "refs": [
+        "https://www.bht-berlin.de/121/page/1",
+        "https://www.bht-berlin.de/2051",
+        "https://projekt.bht-berlin.de/fileadmin/projekt/sprachen/BHT_Campus_Lageplan.pdf",
+        "https://www.bht-berlin.de/2689"
+      ]
+    },
+    "htw-treskowallee": {
+      "name": "HTW Campus Treskowallee",
+      "address": "Treskowallee 8",
+      "refs": [
+        "https://www.htw-berlin.de/campus"
+      ]
+    },
+    "htw-wilhelminenhof": {
+      "name": "HTW Campus Wilhelminenhof",
+      "address": "Wilhelminenhofstraße 75A",
+      "refs": [
+        "https://www.htw-berlin.de/campus/campus-wilhelminenhof/campus-wilhelminenhof",
+        "https://www.htw-berlin.de/files/Presse/Lageplaene/Lageplan_WH_DE.pdf"
+      ]
+    },
+    "ash-main": {
+      "name": "Alice Salomon Hochschule main building",
+      "address": "Alice-Salomon-Platz 5",
+      "refs": [
+        "https://www.ash-berlin.eu/kontakt/kontakt-und-anfahrt/",
+        "https://www.berlin.de/sen/bauen/_assets/wettbewerbe/2024/alice-salomon-platz/auslobung.pdf?ts=1752674593"
+      ]
+    },
+    "ash-extension": {
+      "name": "ASH extension and Alice Salomon Archiv",
+      "address": "Kokoschkaplatz 8a (contact page also uses Kokoschkastraße 8a)",
+      "refs": [
+        "https://www.ash-berlin.eu/kontakt/kontakt-und-anfahrt/",
+        "https://www.alice-salomon-archiv.de/ueber-uns/kontakt/",
+        "https://www.ash-berlin.eu/hochschule/presse-und-newsroom/presse/pressemitteilungen/alice-salomon-hochschule-berlin-eroeffnet-ergaenzungsneubau/",
+        "https://www.bhbvt.de/forschung-und-lehre/ash"
+      ],
+      "limits": "Opened 21 January 2026. Published tower height 39 m; absent from retained LoD2 edition. Lower roof plane and internal vertical zoning are explicitly estimated on the complete current mapped footprint."
+    },
+    "ehb": {
+      "name": "Evangelische Hochschule Berlin",
+      "address": "Teltower Damm 118–122",
+      "refs": [
+        "https://www.eh-berlin.de/kontakt"
+      ]
+    },
+    "khsb": {
+      "name": "Katholische Hochschule für Sozialwesen Berlin",
+      "address": "Köpenicker Allee 39–57",
+      "refs": [
+        "https://www.khsb-berlin.de/hochschule/service/kontakt-und-anfahrt.html"
+      ]
+    },
+    "gruenau": {
+      "name": "Spoken Grünau location unresolved",
+      "status": "no invented campus",
+      "refs": [],
+      "limits": "User clarification pending; neither Griebnitzsee nor Alt-Schmöckwitz substituted.",
+      "address": ""
+    },
+    "udk-hardenberg": {
+      "name": "Universität der Künste main academy and concert hall",
+      "address": "Hardenbergstraße 33",
+      "refs": [
+        "https://www.udk-berlin.de/service/standorte-der-udk-berlin/hardenbergstrasse-33/"
+      ],
+      "photoCredit": "Bjoern Wilck, 2014, official UdK site; inspected exterior only, no pixels shipped"
+    },
+    "weissensee": {
+      "name": "weißensee kunsthochschule berlin",
+      "address": "Bühringstraße 20",
+      "refs": [
+        "https://kh-berlin.de/hochschule/standorte/hauptstandort-kunsthochschule-berlin",
+        "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030613",
+        "https://wuestenrot-stiftung.de/kunsthochschule-weissensee-selman-selmanagic-berlin/"
+      ]
+    },
+    "hfm-preserved": {
+      "name": "Hochschule für Musik Hanns Eisler Berlin",
+      "address": "Charlottenstraße 55; Schloßplatz 7",
+      "status": "retain existing complete authored HfM and Marstall architecture",
+      "refs": [
+        "https://www.hfm-berlin.de/hochschule/standorte/"
+      ]
+    },
+    "hfs-preserved": {
+      "name": "Hochschule für Schauspielkunst Ernst Busch",
+      "address": "Zinnowitzer Straße",
+      "status": "retain existing complete V266 theatre campus",
+      "refs": [
+        "https://www.hfs-berlin.de/"
+      ]
+    }
+  },
+  "policy": "Primary public exterior references only. No image pixels, plans or tenant/person details are bundled. Contact addresses establish identity, not geometric dimensions.",
+  "institutionDirectory": "https://www.berlin.de/sen/wissenschaft/einrichtungen/hochschulen/"
+}

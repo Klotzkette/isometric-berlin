@@ -2947,3 +2947,30 @@ Photographers and individual operator/architect references are credited in the
 linked detail notes. No reference photograph, plan page, photo pixel or new
 photographic texture is included in the viewer or download. No private office
 layout or security installation is inferred.
+
+## Universities, youth theatres and public memorials (v322)
+
+The university campus review uses current official institution directories,
+public university and architect building references, retained OpenStreetMap
+records and complete Land Berlin / Geoportal Berlin LoD2 building families
+(dl-de/zero-2-0). It preserves existing individually authored HU, FU, TU, music,
+medical and theatre architecture. Finite missing or coarse campus families are
+refined only at their verified sites; facade subdivisions and unsurveyed details
+remain architectural display estimates. Individual source roles and references
+are documented in [universities](docs/universities-v322.md).
+
+[Youth theatres and Archenhold Observatory](docs/youth-theatres-v322.md) use
+operator, heritage and observatory references alongside the complete measured
+building families. The giant refractor, its open protective structure and
+small fittings are interpreted geometry, with dimensions and estimates
+distinguished in the detail notes. Source roofs, open courts and unaffected
+neighboring buildings are retained.
+
+[Public memorials and City West](docs/memorial-accuracy-v322.md) identify the
+actual Soviet ensembles, Allied remembrance sites, Maison de France and
+Tauentzien sculpture locations from official public records. The intertwined
+steel sculpture **Berlin** is by Brigitte and Martin Matschinsky-Denninghoff.
+Sculptural forms and reliefs are geometric interpretations of publicly visible
+works; the individual artists and reference roles are credited in the linked
+notes. No reference photograph, image pixel, plan page or new photographic
+texture is included in the viewer or download.

@@ -31,13 +31,17 @@ export function* createOuterThinOutlinesSteps(
   ownership: OutlineLandmarkOwnershipOptions = {},
 ): Generator<void, Group> {
   const root = new Group();
+  if(ownership.publicSitesV322){root.updateMatrix();root.matrixAutoUpdate=false;}
   let activeMode = mode;
   let completed = false;
+  let landmarks:Group|undefined;
+  const retiredArchenholdV322=(owner:string)=>root.visible&&!!landmarks&&landmarks.parent===root&&landmarks!.visible&&landmarks!.userData.previousArchenholdOwnerV322?.(owner)===true;
   try {
     root.name = "Connected outer Berlin hairline outlines v180";
     root.userData = { outlineOnly: true, textureFree: true, features: data.features, navigationTiles: regionalV200NavigationTiles };
     // Keep detailed navigation in this lazy supplement, out of the startup bundle.
     root.userData.solidAt = (x: number, y: number, z: number, radius = 0) =>
+      root.visible&&!!landmarks&&landmarks.parent===root&&landmarks!.visible&&landmarks!.userData.publicSitesSolidAtV322?.(x,y,z,radius)===true ||
       eurefV262SolidAt(x, y, z, radius, activeMode === "minecraft") ||
       tempelhofV261SolidAt(x, y, z, radius, activeMode === "minecraft") ||
       danzigerTramSolidAtV249(x, y, z, radius, activeMode === "minecraft") ||
@@ -47,7 +51,7 @@ export function* createOuterThinOutlinesSteps(
       northParksV198SolidAt(x, y, z, radius, activeMode === "minecraft") ||
       iccV199SolidAt(x, y, z, radius) ||
       cemeteryGrunewaldV199SolidAt(x, y, z, radius, activeMode === "minecraft") ||
-      eastParksV198SolidAt(x, y, z, radius, activeMode === "minecraft") ||
+      eastParksV198SolidAt(x, y, z, radius, activeMode === "minecraft",retiredArchenholdV322) ||
       charlottenburgerTorV201SolidAt(x, y, z, radius, activeMode === "minecraft") ||
       wuhlheideSolidAt(x, y, z, radius, activeMode === "minecraft") ||
       waldbuehneSolidAt(x, y, z, radius, activeMode === "minecraft") ||
@@ -58,6 +62,8 @@ export function* createOuterThinOutlinesSteps(
       eastParksV198WaterAt(x, z, activeMode === "minecraft") !== null ||
       westLakesV194WaterAt(x, z, activeMode === "minecraft") !== null ||
       regionalV200WaterAt(x, z);
+    root.userData.interiorGroundAtV322=(x:number,z:number,currentY?:number)=>
+      root.visible&&landmarks?.parent===root&&landmarks.visible?landmarks.userData.publicSitesInteriorGroundAtV322?.(x,z,currentY)??null:null;
     root.userData.groundAt = (x: number, z: number) =>
       eurefV262GroundAt(x, z, activeMode === "minecraft") ??
       windkanalV261GroundAt(x, z, activeMode === "minecraft") ??
@@ -130,16 +136,17 @@ export function* createOuterThinOutlinesSteps(
     rail.renderOrder = 100;
     root.add(rail);
     yield; // End the source-position decode task before preparing landmark families.
-    const landmarks = yield* createOutlineLandmarksV182Steps(mode, beforeLandmarkRelease, ownership);
+    landmarks = yield* createOutlineLandmarksV182Steps(mode, beforeLandmarkRelease, ownership);
     root.add(landmarks);
+    landmarks.userData.activatePublicSitesV322?.(root);
     root.userData.hasKlosterruineV288 = (next: VisualMode) =>
-      root.visible && landmarks.parent === root && landmarks.visible && landmarks.userData.hasKlosterruineV288(next) === true;
+      root.visible && landmarks!.parent === root && landmarks!.visible && landmarks!.userData.hasKlosterruineV288(next) === true;
     root.userData.update = (timestamp: number, camera: import("three").Camera, reducedMotion = false, floodLevel?: number) =>
-      root.visible && landmarks.userData.update(timestamp, camera, reducedMotion, floodLevel);
+      root.visible && landmarks!.userData.update(timestamp, camera, reducedMotion, floodLevel);
     root.userData.updateTrafficSignals = (timestamp: number, camera: import("three").Camera, reducedMotion = false, lightsOn = true) =>
-      root.visible && landmarks.userData.updateTrafficSignals(timestamp, camera, reducedMotion, lightsOn);
+      root.visible && landmarks!.userData.updateTrafficSignals(timestamp, camera, reducedMotion, lightsOn);
     root.userData.setMode = (next: VisualMode) => {
-      landmarks.userData.setMode(next);
+      landmarks!.userData.setMode(next);
       activeMode = next;
       paperGeometry.setDrawRange(0, next === "minecraft" ? paper.length / 3 : drawnPaperVertices);
       ink.color.setHex(next === "night" ? 0xa6bbce : next === "snowstorm" ? 0x647782 : 0x64716b);

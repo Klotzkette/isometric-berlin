@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.0.202 — 2026-11-06
+
+- Refine eighteen university site groups across HU, FU, TU, BHT, HWR, HTW, ASH, UdK, Weißensee and the confessional universities, preserving existing detailed main buildings. Retain complete measured building families, roof steps and courts; distinguish the current ASH extension's published height from estimated subdivisions.
+- Add complete ATZE, Parkaue and Strahl Ostkreuz envelopes, the Kyffhäuserstraße theatre front and Archenhold's giant refractor with its open protective structure. Preserve the existing GRIPS and Podewil architecture and match the new visible bodies with navigation.
+- Refine the actual Schönholz figure group and Treptow reliefs; model the Tauentzien steel sculpture Berlin, Pyramide, Beton-Cadillacs, Max Bill's French memorial and the British cemetery's mapped cross and remembrance stone. Add the missing rounded Maison de France facade fittings. Retain the existing Tiergarten Soviet and Tempelhof Airlift memorials.
+- Keep shared original host transfers atomic and reversible, including real multiple-interval native voxel cells. Losslessly encode eighty exact previously eager fields with unchanged full values, aliases and ownership; preserve all six views, full drawn touch detail, 93 stops and fixed package/runtime budgets.
+
+## v1.0.201 — 2026-11-06
+
+- Review the Berlin service seats of all sixteen federal ministries, Berlin's ten Senate departments and all sixteen Länder representations against current official directories and public exterior references.
+- Refine finite measured building families and distinct facades while preserving original roofs, courts, shared houses and granular navigation; keep Bonn primary seats distinct from Berlin offices.
+- Use complete source-bound reversible transfers, retain full drawn touch detail and independent native architecture, and losslessly reduce source storage within existing package and runtime limits.
+
 ## v1.0.200 — 2026-11-06
 
 - Refine 200 selected ordinary street fronts in 50 nonempty groups: 28 inside and 22 outside the S-Bahn Ring. Distinguish local window proportions, frames, recessed glazing, sill returns, plinths and eaves using attributed architectural context.

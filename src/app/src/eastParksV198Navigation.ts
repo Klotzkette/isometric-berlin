@@ -25,12 +25,13 @@ const rows = solids.map(row => {
 });
 
 /** Source-owned bodies in both styles; holes and open entrance arches remain open. */
-export function eastParksV198SolidAt(x: number, y: number, z: number, radius = 0, _native = false): boolean {
+export function eastParksV198SolidAt(x: number, y: number, z: number, radius = 0, _native = false, retiredOwnerV322?:(owner:string)=>boolean): boolean {
   if (![x, y, z, radius].every(Number.isFinite)) return false;
   radius = Math.max(0, radius);
   for (const row of rows) {
     const b = row.bounds;
     if (y < row.groundY || y > row.topY || x < b[0] - radius || x > b[2] + radius || z < b[1] - radius || z > b[3] + radius) continue;
+    if(retiredOwnerV322?.(row.owner)===true)continue;
     let px = x, pz = z, r = radius;
     if (row.tapered) {
       const scale = 1 - Math.min(13, Math.floor(y - row.groundY)) / 25;

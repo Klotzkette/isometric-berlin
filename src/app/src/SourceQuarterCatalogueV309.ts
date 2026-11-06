@@ -5,17 +5,21 @@ import type {SurroundingOwnershipOptions} from "./SurroundingCityGeometry";
 import type {SourceQuarterSourceV303} from "./SourceQuarterPacketV303";
 import northernIndex from "./data/northernFidelityV309Index.json";
 import federalIndexV321 from "./data/federalMinistriesV321PacketIndex.json";
+import universitiesIndexV322 from "./data/universitiesV322PacketIndex.json";
+import theatresIndexV322 from "./data/youthTheatreFrontsV322PacketIndex.json";
 
 export type SourceQuarterRecipesV309=NonNullable<SurroundingOwnershipOptions["sourceQuarterSourcesV303"]>;
 export type SourceQuarterCatalogueEntryV309={
   keys:readonly string[];
   kind:string;
   requiredReplacement?:boolean;
-  admission?:"north-v309"|"treptow-v317"|"government-v321";
+  admission?:"north-v309"|"treptow-v317"|"government-v321"|"universities-v322";
   load:()=>Promise<{default:unknown}>;
 };
 const families=(ids:readonly string[])=>ids.flatMap(id=>[`drawn:${id}`,`minecraft:${id}`]);
 export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV309[]=[
+  {keys:universitiesIndexV322.keys,kind:"universities-v322",requiredReplacement:true,admission:"universities-v322",load:()=>import("./data/universitiesV322Packets.json")},
+  {keys:theatresIndexV322.keys,kind:"youth-theatres-v322",requiredReplacement:true,admission:"universities-v322",load:()=>import("./data/youthTheatreFrontsV322Packets.json")},
   {keys:federalIndexV321.keys,kind:"federal-ministries-v321",requiredReplacement:true,admission:"government-v321",load:()=>import("./data/federalMinistriesV321Packets.json")},
   {keys:families(["district188-11_1","district188-11_2","district188-ring182-11_0","district188-ring182-11_1","district188-ring182-12_0","district188-ring182-12_1","ring182-11_1","ring182-12_0","ring182-12_1","ring182-12_2"]),kind:"friedrichshain-v303",load:()=>import("./data/friedrichshainV303.json")},
   {keys:families(["ring182-9_9","ring182-9_10","ring182-10_9","ring182-10_10"]),kind:"rixdorf-v304",load:()=>import("./data/rixdorfV304.json")},

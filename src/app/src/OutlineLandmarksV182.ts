@@ -87,11 +87,18 @@ import { createArenaStationV225 } from "./ArenaStationV225";
 import { createAltMitteSidewalksV226 } from "./AltMitteSidewalksV226";
 import { createSteglitzMotorwayV226 } from "./SteglitzMotorwayV226";
 import { createCivicPartyDetailsV246 } from "./CivicPartyDetailsV246";
+import eastParkSourceV322 from "./data/eastParksV198.json";
+import {createYouthTheatresRuntimeV322Steps,type YouthTheatresRuntimeV322} from "./YouthTheatresRuntimeV322";
+import {createMemorialRuntimeV322Steps,type MemorialRuntimeV322} from "./MemorialRuntimeV322";
+import type {ExactOwnersHooksV321} from "./ExactOwnersV321";
 
 export type OutlineLandmarkOwnershipOptions = {
   /** Complete library architecture already belongs to the required world. */
   architectureV241?: boolean;
   bayerCampusV277?: boolean;
+  publicSitesV322?: boolean;
+  mobileLikeV322?: boolean;
+  publicSitesHooksV322?:(family:Group)=>ExactOwnersHooksV321;
 };
 
 /** One representation at a time, including when the surrounding mode changes. */
@@ -102,7 +109,24 @@ export function* createOutlineLandmarksV182Steps(
 ): Generator<void, Group> {
   const root = new Group();
   root.name = "Berlin outline landmark additions v182";
+  if(ownership.publicSitesV322){root.updateMatrix();root.matrixAutoUpdate=false;}
   let native: boolean | undefined;
+  let eastSitesV322:YouthTheatresRuntimeV322|null=null;
+  const memorialsV322:MemorialRuntimeV322[]=[];
+  const releasePublicSitesV322=()=>{
+    if(!eastSitesV322&&!memorialsV322.length)return;
+    beforeRelease?.(root);
+    eastSitesV322?.release();eastSitesV322=null;
+    for(const b of memorialsV322)b.release();memorialsV322.length=0;
+    // Restore hooks can enqueue original owners; unregister them before the
+    // surrounding family's legitimate mode retirement disposes those owners.
+    beforeRelease?.(root);
+  };
+  root.userData.releasePublicSitesV322=releasePublicSitesV322;
+  root.userData.activatePublicSitesV322=(parent:Group)=>{let ready=true;for(const bundle of memorialsV322)ready=bundle.activate(bundle.keys[0]==="berlin"?parent:root)&&ready;return ready;};
+  root.userData.previousArchenholdOwnerV322=(owner:string)=>eastSitesV322?.previousOwnerRetired(owner)===true;
+  root.userData.publicSitesSolidAtV322=(x:number,y:number,z:number,radius=0)=>root.visible&&(eastSitesV322?.solidAt(x,y,z,radius)===true||memorialsV322.some(b=>b.solidAt(x,y,z,radius)));
+  root.userData.publicSitesInteriorGroundAtV322=(x:number,z:number,currentY?:number)=>root.visible?eastSitesV322?.groundAt(x,z,currentY)??null:null;
   let justice: Group | undefined;
   root.userData.hasKlosterruineV288 = (mode: VisualMode) =>
     root.visible && justice?.parent === root && justice.visible && justice.userData.klosterruineV288 === true &&
@@ -120,6 +144,7 @@ export function* createOutlineLandmarksV182Steps(
   function* setModeSteps(mode: VisualMode): Generator<void> {
     const nextNative = mode === "minecraft";
     if (native !== nextNative) {
+      releasePublicSitesV322();
       // Disposal releases GPU handles, but the viewer's residency/warmup maps
       // intentionally retain CPU owners for re-upload. Unregister the old
       // family while all its children are still reachable, before rebuilding.
@@ -213,10 +238,23 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createTegelSpandauV198(nextNative));
       yield;
-      root.add(createEastParksV198(nextNative));
+      const eastParks=createEastParksV198(nextNative);
+      root.add(eastParks);
       yield;
-      root.add(createNorthParksV198(nextNative));
+      if(ownership.publicSitesV322){
+        const hooks=ownership.publicSitesHooksV322?.(eastParks);
+        eastSitesV322=yield*createYouthTheatresRuntimeV322Steps(eastParks,nextNative,eastParkSourceV322.buildings,{mobileLike:ownership.mobileLikeV322,includeTreptow:true,beforeSwap:(object,kind)=>hooks?.beforeSwap?.(object,kind)!==false,afterSwap:hooks?.afterSwap});
+        yield;
+      }
+      const northParks=createNorthParksV198(nextNative);
+      root.add(northParks);
       yield;
+      if(ownership.publicSitesV322){
+        const memorial=yield*createMemorialRuntimeV322Steps(northParks,nextNative,{keys:["schoenholz"],mobileLike:ownership.mobileLikeV322,hooks:ownership.publicSitesHooksV322?.(northParks)});
+        if(memorial?.activate(root))memorialsV322.push(memorial);
+        yield;
+        if(nextNative){const berlin=yield*createMemorialRuntimeV322Steps(root,true,{keys:["berlin","pyramide","cadillacs","french","british"],mobileLike:ownership.mobileLikeV322,hooks:ownership.publicSitesHooksV322?.(root)});if(berlin)memorialsV322.push(berlin);yield;}
+      }
       root.add(createIccV199(nextNative));
       yield;
       root.add(createFunkturmV199(nextNative));
@@ -316,6 +354,9 @@ export function* createOutlineLandmarksV182Steps(
 
 /** Release unpublished partial work as well as completed mode families. */
 export function disposeOutlineConstruction(root: Group): void {
+  const release: (()=>void)[]=[];
+  root.traverse(object=>{if(typeof object.userData.releasePublicSitesV322==="function")release.push(object.userData.releasePublicSitesV322);});
+  for(const close of release)close();
   const geometries = new Set<BufferGeometry>(), materials = new Set<Material>();
   root.traverse(object => {
     const mesh = object as Mesh;

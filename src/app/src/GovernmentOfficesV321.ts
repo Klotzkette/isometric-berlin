@@ -18,12 +18,24 @@ import {
   type ExactOwnersHooksV321,type ExactOwnersTransactionV321,type ExactOwnersSourceV321,
 } from "./ExactOwnersV321";
 import {federalMinistryPressQuarterPlanV321} from "./FederalMinistryPressQuarterV321";
+import {
+  createUniversitiesArchitectureV322Steps,hasCompleteUniversitiesArchitectureV322,
+  universitiesPreviousPrismV322,universitiesNavigationV322,uniExactPlansV322,
+} from "./UniversitiesArchitectureV322";
+export {universitiesPreviousPrismV322} from "./UniversitiesArchitectureV322";
+import {createYouthTheatresV322Steps,hasCompleteYouthTheatresV322} from "./YouthTheatresV322";
+import {requiredYouthTheatresNavigationV322} from "./youthTheatresV322Navigation";
+import {createMaisonDeFranceV322Steps,hasCompleteMaisonDeFranceV322} from "./MaisonDeFranceV322";
 import type {PrismBuilding} from "./IsometricCityWorld";
 import type {DeutschesTheaterVoxelPayload} from "./DeutschesTheater";
 
 export type GovernmentOfficesV321={
   root:Group;
   complete:()=>boolean;
+  /** True only while the optional real university model and its transfers admit. */
+  universitiesReadyV322?:()=>boolean;
+  admissionV322?:()=>{government:boolean;universities:boolean};
+  navigationCandidateV322?:(x:number,z:number,radius?:number)=>boolean;
   stagePreviousSteps:(family:Object3D,hooks?:ExactOwnersHooksV321)=>Generator<void,boolean>;
   stagePreviewSteps:(family:Object3D,hooks?:ExactOwnersHooksV321)=>Generator<void,boolean>;
   /** Only the complete existing PressQuarter group, independently from Core. */
@@ -40,7 +52,8 @@ export function governmentPreviousPrismV321(prism:PrismBuilding):boolean{
   return federalMinistryPreviousPrismV321(prism)||berlinSenatePreviousPrismV321(prism);
 }
 export type GovernmentOfficesOptionsV321={sourcePrisms:readonly PrismBuilding[];
-  voxels?:DeutschesTheaterVoxelPayload;native:boolean;mobileLike:boolean};
+  voxels?:DeutschesTheaterVoxelPayload;native:boolean;mobileLike:boolean;
+  includeUniversitiesV322?:boolean};
 function disposeUnpublished(root:Group):void{
   const geometries=new Set<Mesh["geometry"]>(),materials=new Set<Material>();
   root.traverse(object=>{if(object instanceof Mesh||object instanceof Line||object instanceof Points){
@@ -53,6 +66,7 @@ function disposeUnpublished(root:Group):void{
 /** Sources are bound once per family before either full regional model builds. */
 export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptionsV321,onCreate?:(root:Group)=>void):Generator<void,GovernmentOfficesV321|null>{
   const {sourcePrisms,voxels,native,mobileLike}=options;
+  const includeUniversities=options.includeUniversitiesV322===true;
   const root=new Group();root.name=`Government offices V321${native?" native":" drawn"}`;
   let delivered=false;
   try{
@@ -60,12 +74,14 @@ export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptio
   const source=yield*composeExactOwnersSourcesV321Steps([
     federalMinistryPreviousPlanV321(native,mobileLike),
     berlinSenatePreviousPlanV321(native,mobileLike),
+    ...(includeUniversities?[uniExactPlansV322(native,mobileLike,false)]:[]),
   ],sourcePrisms,voxels);
   if(!source)return null;
   // The coverage preview has a different actual constructor/host from full
   // Core bodies. Never combine the two into one partially present family.
   const previewSource=native?null:yield*composeExactOwnersSourcesV321Steps([
     federalMinistryPreviewPlanV321(),berlinSenatePreviewPlanV321(),
+    ...(includeUniversities?[uniExactPlansV322(false,mobileLike,true)]:[]),
   ],sourcePrisms);
   if(!native&&!previewSource)return null;
   // Its old street fittings share a Core owner but have a distinct actual
@@ -80,6 +96,28 @@ export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptio
   if(!federal)return null;if(federal.parent!==root)root.add(federal);
   const senate=yield*createBerlinSenateBuildingsV321Steps(native,regionalOptions,group=>root.add(group));
   if(!senate)return null;if(senate.parent!==root)root.add(senate);
+  const universities=includeUniversities?yield*createUniversitiesArchitectureV322Steps(native,regionalOptions,group=>root.add(group)):null;
+  if(includeUniversities&&!universities)return null;
+  if(universities&&universities.parent!==root)root.add(universities);
+  const theatres=includeUniversities?yield*createYouthTheatresV322Steps(native,regionalOptions,group=>root.add(group)):null;
+  if(includeUniversities&&!theatres)return null;
+  if(theatres&&theatres.parent!==root)root.add(theatres);
+  const maison=includeUniversities?yield*createMaisonDeFranceV322Steps(native,regionalOptions,group=>root.add(group)):null;
+  if(includeUniversities&&!maison)return null;
+  if(maison&&maison.parent!==root)root.add(maison);
+  const expectedChildren=[federal,senate,...(universities?[universities]:[]),...(theatres?[theatres]:[]),...(maison?[maison]:[])];
+  // A negative broad phase borrows only actual completed render bounds. It
+  // never grants admission; every positive query still runs the full receipt.
+  const navigationBoundsV322:number[][]=[];
+  if(includeUniversities){root.updateMatrixWorld(true);root.traverse(object=>{if(!(object instanceof Mesh))return;
+    let bounds=object instanceof InstancedMesh?object.boundingBox:object.geometry.boundingBox;
+    if(!bounds){if(object instanceof InstancedMesh){object.computeBoundingBox();bounds=object.boundingBox;}else{object.geometry.computeBoundingBox();bounds=object.geometry.boundingBox;}}
+    if(bounds&&!bounds.isEmpty()){const box=bounds.clone().applyMatrix4(object.matrixWorld);
+      // Conservative only: cover Float32 display rounding at a source edge.
+      // This padding never participates in positive source/owner admission.
+      box.expandByScalar(Math.max(.01,Math.max(Math.abs(box.min.x),Math.abs(box.min.z),Math.abs(box.max.x),Math.abs(box.max.z))*2**-20));
+      navigationBoundsV322.push([box.min.x,box.min.z,box.max.x,box.max.z]);}
+  });}
   root.updateMatrix();root.matrixAutoUpdate=false;
   const pose=[...root.matrix.elements,...root.position.toArray(),...root.quaternion.toArray(),...root.scale.toArray()];
   const autoUpdate=root.matrixAutoUpdate,worldAutoUpdate=root.matrixWorldAutoUpdate;
@@ -94,9 +132,12 @@ export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptio
   const staging=new Set<Object3D>();
   let expectedWorld:Object3D|null=null;
   let closed=false;
-  const contentsReady=()=>rootPoseReady()&&root.visible&&root.children.length===2&&root.children[0]===federal&&root.children[1]===senate&&federal.parent===root&&senate.parent===root&&
+  const contentsReady=()=>rootPoseReady()&&root.visible&&root.children.length===expectedChildren.length&&expectedChildren.every((child,i)=>root.children[i]===child&&child.parent===root&&child.visible)&&
     federal.visible&&senate.visible&&hasCompleteFederalMinistriesV321(federal,native)&&
-    hasCompleteBerlinSenateBuildingsV321(senate,native);
+    hasCompleteBerlinSenateBuildingsV321(senate,native)&&
+    (!universities||hasCompleteUniversitiesArchitectureV322(universities,native))&&
+    (!theatres||hasCompleteYouthTheatresV322(theatres,native))&&
+    (!maison||hasCompleteMaisonDeFranceV322(maison,native));
   const modelsReady=()=>!closed&&expectedWorld!==null&&root.parent===expectedWorld&&contentsReady();
   const values=(object:Object3D)=>[...object.matrix.elements,...object.position.toArray(),...object.quaternion.toArray(),
     ...object.scale.toArray(),+object.matrixAutoUpdate,+object.matrixWorldAutoUpdate];
@@ -113,6 +154,8 @@ export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptio
   };
   const federalNav=federalMinistryNavigationV321(federal,native);
   const senateNav=berlinSenateNavigationV321(senate,native);
+  const universityNav=universities?universitiesNavigationV322(universities,native):null;
+  const theatreNav=theatres?requiredYouthTheatresNavigationV322(theatres,native):null;
   const rollback=()=>{if(closed)return;closed=true;root.visible=false;
     const current=[...families.values()].reverse();families.clear();
     for(const family of current){family.phase="released";family.tx.rollback();}};
@@ -158,6 +201,9 @@ export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptio
     }}
   }
   const result:GovernmentOfficesV321={root,complete,
+    universitiesReadyV322:()=>!!universities&&complete(),
+    admissionV322:()=>{const government=complete();return {government,universities:government&&!!universities};},
+    navigationCandidateV322:(x,z,radius=0)=>!includeUniversities||navigationBoundsV322.some(b=>x+radius>=b[0]&&x-radius<=b[2]&&z+radius>=b[1]&&z-radius<=b[3]),
     *stagePreviousSteps(family,hooks={}){return yield*stage(family,"core",source,hooks);},
     *stagePreviewSteps(family,hooks={}){return yield*stage(family,"preview",previewSource,hooks);},
     *stagePressQuarterSteps(family,hooks={}){
@@ -182,10 +228,12 @@ export function* createGovernmentOfficesV321Steps(options:GovernmentOfficesOptio
       families.delete(family);state.phase="released";state.tx.rollback();
     },
     solidAt(x,y,z,radius=0){return modelsReady()&&
-      (federalNav?.solidAt(x,y,z,radius)===true||senateNav?.solidAt(x,y,z,radius)===true);},
+      (federalNav?.solidAt(x,y,z,radius)===true||senateNav?.solidAt(x,y,z,radius)===true||universityNav?.solidAt(x,y,z,radius)===true||theatreNav?.solidAt(x,y,z,radius)===true);},
     groundAt(x,z,currentY){if(!modelsReady())return null;
       const a=federalNav?.groundAt(x,z,currentY)??null,b=senateNav?.groundAt(x,z,currentY)??null;
-      return a===null?b:b===null?a:Math.max(a,b);},
+      const floor=a===null?b:b===null?a:Math.max(a,b),c=universityNav?.groundAt(x,z,currentY)??null;
+      const combined=c===null?floor:floor===null?c:Math.max(floor,c),d=theatreNav?.groundAt(x,z,currentY)??null;
+      return d===null?combined:combined===null?d:Math.max(combined,d);},
     rollback,
   };
   delivered=true;return result;

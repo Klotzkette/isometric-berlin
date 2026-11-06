@@ -5,6 +5,8 @@ export const NEIGHBOURHOOD_PLAN_SOURCES_V300: ReadonlySet<string> = new Set([
   "data/clusterFacadesV320.json",
   "data/berlinSenateV321.json",
   "data/federalMinistriesV321Packets.json",
+  "data/universitiesV322Packets.json",
+  "data/youthTheatreFrontsV322Packets.json",
   "data/moabitMitteV300.json", "data/ostHousingV301.json", "data/westKiezV302.json",
   "data/friedrichshainV303.json", "data/rixdorfV304.json", "data/neukoellnLandmarksV305Packets.json",
   "data/northernFidelityV309Packets.json",

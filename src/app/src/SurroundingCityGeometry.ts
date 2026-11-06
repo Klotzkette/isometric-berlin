@@ -301,8 +301,9 @@ export type SurroundingOwnershipOptions = {
   clusterFacadesV320?: NeighbourhoodSourceV300;
   berlinSenateV321?: NeighbourhoodSourceV300;
   governmentOfficesV321?:boolean;
+  universitiesV322?:boolean;
   sourceQuartersV303?: boolean;
-  sourceQuarterSourcesV303?: readonly {source:SourceQuarterSourceV303;kind:string;requiredReplacement?:boolean;admission?:"north-v309"|"treptow-v317"|"government-v321"}[];
+  sourceQuarterSourcesV303?: readonly {source:SourceQuarterSourceV303;kind:string;requiredReplacement?:boolean;admission?:"north-v309"|"treptow-v317"|"government-v321"|"universities-v322"}[];
   neukoellnLandmarksV305?: boolean;
   northFidelityV309?: boolean;
   treptowWaterfrontV317?: boolean;
@@ -384,6 +385,7 @@ export function* buildSurroundingCityChunk(
     if(entry.admission==="north-v309"?ownership.northFidelityV309!==true:
       entry.admission==="treptow-v317"?ownership.treptowWaterfrontV317!==true:
       entry.admission==="government-v321"?ownership.governmentOfficesV321!==true:
+      entry.admission==="universities-v322"?ownership.universitiesV322!==true:
       entry.requiredReplacement&&ownership.neukoellnLandmarksV305!==true)continue;
     if(!neighbourhoodPacketCandidateV300(entry.source as unknown as NeighbourhoodSourceV300,id,minecraft))continue;
     const plan=entry.source.packets[`${minecraft?"minecraft":"drawn"}:${id}`];

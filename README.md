@@ -67,6 +67,10 @@ in [50 Häusergruppen](docs/cluster-facades-v320.md) erhalten örtlich passende
 Fensterproportionen, Rahmen, Laibungen, Sockel und Gesimse.
 [Ministerien und Landesvertretungen](docs/government-offices-v321.md) werden anhand
 amtlicher Standorte und öffentlicher Architekturquellen zugeordnet und ausgearbeitet.
+[Hochschulstandorte](docs/universities-v322.md),
+[Kindertheater und Archenhold-Sternwarte](docs/youth-theatres-v322.md) sowie
+[öffentliche Denkmäler](docs/memorial-accuracy-v322.md) verbinden vermessene
+Gebäudeformen mit ortsspezifischen Fassaden und charakteristischen Details.
 Abdeckung und
 Genauigkeit sind in den [Datennotizen](docs/data.md) und den
 [Angaben zur metrischen Präzision](docs/metric-precision.md) dokumentiert.
@@ -122,6 +126,10 @@ and represented tunnels; **Close section** restores the exterior. Room layouts
 and interior dimensions are [architectural display estimates](docs/reichstag-section-v319.md).
 [50 selected building groups](docs/cluster-facades-v320.md) include local facade
 proportions, window frames and reveals, sills, plinths and eave details.
+[University campuses](docs/universities-v322.md),
+[youth theatres and Archenhold Observatory](docs/youth-theatres-v322.md), and
+[public monuments](docs/memorial-accuracy-v322.md) combine measured building forms
+with individual facades and recognizable architectural features.
 
 - **Move freely:** orbit, zoom, walk through the streets or fly above the
   rooftops, using a mouse, keyboard or touch controls.
@@ -227,8 +235,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.201** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.201/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.202** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.202/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits
