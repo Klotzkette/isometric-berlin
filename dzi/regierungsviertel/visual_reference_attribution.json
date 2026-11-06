@@ -3697,6 +3697,28 @@
       "role": "Complete481official source sheets, current venue identity and procedural pool/deck. Historical Allianz image does not assert current branding. Small fittings/datum alignment are estimates.",
       "checked": "2026-11-05",
       "pixels_bundled": false
+    },
+    {
+      "id": "reichstag-rooms-v319",
+      "landmark_id": "reichstagsgebaeude",
+      "title": "Reichstag furnished section rooms",
+      "page_url": "https://www.bundestag.de/besuche/architektur/reichstag/architektur/",
+      "credit": "Deutscher Bundestag; architectural photographs credited on the source page to DBT/Erfurt, DBT/Huthmacher, DBT/Simone M. Neumann and DBT/Jörg F. Müller.",
+      "license": "Reference only, copyright retained by the publisher and photographers; no redistribution licence asserted",
+      "role": "Room functions, floor colour coding and reference-only material cues. Individual room bays and furnishings are illustrative architectural estimates. See docs/reichstag-rooms-v319.md.",
+      "checked": "2026-11-06",
+      "pixels_bundled": false
+    },
+    {
+      "id": "reichstag-underground-v319",
+      "landmark_id": "reichstagsgebaeude",
+      "title": "Reichstag basement and public underground architecture",
+      "page_url": "https://www.bundestag.de/besuche/kunst/kuenstler/boltanski/",
+      "credit": "Christian Boltanski: Archiv der Deutschen Abgeordneten (1999). Reference photographs: DBT/Julia Nowak-Katz, DBT/Simone M. Neumann, DBT/Werner Schüring and DBT/Jörg F. Müller. Deutscher Bundestag UES and architectural booklets; © OpenStreetMap contributors for mapped routes.",
+      "license": "Artwork and photographs reference-only, rights retained by respective owners. OSM routes: ODbL1.0. No image pixels or plan pages redistributed.",
+      "role": "Publicly documented east basement archive, pedestrian links and separate mapped goods/vehicle network. Unsurveyed interior dimensions, pedestrian route bends and all depths are display estimates; see docs/reichstag-underground-v319.md.",
+      "checked": "2026-11-06",
+      "pixels_bundled": false
     }
   ]
 }
