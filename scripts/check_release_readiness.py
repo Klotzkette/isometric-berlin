@@ -143,7 +143,11 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v291 adds the complete requested connected Hbf interior and moving fixtures.
 # The measured v190 package is ~893.15 MiB; 894 MiB is an offline-only ceiling.
 # Live startup, worker, decode, prefetch, GPU and residency limits stay fixed.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 894 * 1024 * 1024
+# v326 adds the explicitly requested finite Berlin public-site/entrance inventory
+# and source-owned transport recipes. Complete v1.0.207 package: 1,142,305,282 bytes
+# (1089.387 MiB); 1090 MiB leaves 642,558 bytes of offline-only headroom.
+# Existing bytes/coverage and every live startup/Worker/decode/residency cap stay.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 1090 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

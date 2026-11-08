@@ -139,6 +139,7 @@ export function* createOuterThinOutlinesSteps(
     landmarks = yield* createOutlineLandmarksV182Steps(mode, beforeLandmarkRelease, ownership);
     root.add(landmarks);
     landmarks.userData.activatePublicSitesV322?.(root);
+    root.userData.hasSouthWestSitesV326=(native:boolean)=>landmarks?.parent===root&&landmarks.userData.hasSouthWestSitesV326?.(native)===true;
     root.userData.hasKlosterruineV288 = (next: VisualMode) =>
       root.visible && landmarks!.parent === root && landmarks!.visible && landmarks!.userData.hasKlosterruineV288(next) === true;
     root.userData.update = (timestamp: number, camera: import("three").Camera, reducedMotion = false, floodLevel?: number) =>

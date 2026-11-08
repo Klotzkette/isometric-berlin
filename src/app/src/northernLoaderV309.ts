@@ -22,6 +22,8 @@ export function createNorthernLoaderV309<M, B extends NorthernBundleV309>(option
   yieldTask: () => Promise<void>;
   signal?: AbortSignal;
   now?: () => number;
+  /** Starts only for a genuine construction/rollback and settles after cleanup. */
+  beginTransition?: (world:Group,native:boolean)=>(bundle?:B)=>void;
 }): NorthernLoaderV309<B> {
   type State = { pending?: Promise<B | undefined>; bundle?: B; failedAt?: number };
   const worlds = new WeakMap<Group, State>();
@@ -38,8 +40,9 @@ export function createNorthernLoaderV309<M, B extends NorthernBundleV309>(option
     // Restore the complete predecessor before consumers can observe a false
     // admission. Do this once, then retain the ordinary bounded retry policy.
     state!.bundle = undefined; state!.failedAt = now();
+    const finish=options.beginTransition?.(world,native);
     try { options.rollback(bundle, world, native); }
-    finally { if (bundle.root.parent === world) { bundle.root.removeFromParent(); options.release(bundle.root); } }
+    finally { try{if (bundle.root.parent === world) { bundle.root.removeFromParent(); options.release(bundle.root); }}finally{finish?.();} }
     return undefined;
   };
   const dispose = () => { disposed = true; for (const task of pending) task.abort(); pending.clear(); };
@@ -56,10 +59,11 @@ export function createNorthernLoaderV309<M, B extends NorthernBundleV309>(option
       if (state.failedAt !== undefined && now() - state.failedAt < 30_000) return Promise.resolve(undefined);
       const task = new AbortController(); pending.add(task);
       state.pending = (async () => {
-        let root: Group | undefined, bundle: B | undefined, rolledBack = false;
+        let root: Group | undefined, bundle: B | undefined, rolledBack = false, finish:((bundle?:B)=>void)|undefined;
         try {
           const module = await options.load();
           if (!alive(world, native, task.signal)) return undefined;
+          finish=options.beginTransition?.(world,native);
           const constructed = await completeCooperatively(options.build(module, native, value => { root = value; }), {
             yieldTask: options.yieldTask, now, isCancelled: () => !alive(world, native, task.signal),
             onComplete: value => {
@@ -81,11 +85,17 @@ export function createNorthernLoaderV309<M, B extends NorthernBundleV309>(option
           if (!(error instanceof DOMException && error.name === "AbortError")) { state.failedAt = now(); throw error; }
           return undefined;
         } finally {
-          if (root) {
-            if (bundle && !rolledBack) options.rollback(bundle, world, native);
-            root.removeFromParent(); options.release(root);
+          try{
+            if (root) {
+              if (bundle && !rolledBack) options.rollback(bundle, world, native);
+              root.removeFromParent(); options.release(root);
+            }
+          }finally{
+            pending.delete(task); state.pending = undefined;
+            // state.bundle is assigned only after the complete publication.
+            // Consumers still check that private bundle afresh before reuse.
+            finish?.(bundle&&state.bundle===bundle?bundle:undefined);
           }
-          pending.delete(task); state.pending = undefined;
         }
       })();
       return state.pending;

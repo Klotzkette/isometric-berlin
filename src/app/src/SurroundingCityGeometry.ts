@@ -306,7 +306,8 @@ export type SurroundingOwnershipOptions = {
   wilhelmHousingV324?:boolean;
   wilhelmStreetFrontsV325?:boolean;
   sourceQuartersV303?: boolean;
-  sourceQuarterSourcesV303?: readonly {source:SourceQuarterSourceV303;kind:string;requiredReplacement?:boolean;admission?:"north-v309"|"treptow-v317"|"government-v321"|"universities-v322"|"wilhelm-v324"|"wilhelm-street-v325"}[];
+  southWestSitesV326?:boolean;
+  sourceQuarterSourcesV303?: readonly {source:SourceQuarterSourceV303;kind:string;requiredReplacement?:boolean;admission?:"north-v309"|"treptow-v317"|"government-v321"|"universities-v322"|"wilhelm-v324"|"wilhelm-street-v325"|"southwest-sites-v326"}[];
   neukoellnLandmarksV305?: boolean;
   northFidelityV309?: boolean;
   treptowWaterfrontV317?: boolean;
@@ -385,7 +386,8 @@ export function* buildSurroundingCityChunk(
     : undefined;
   const quarterTicketsV303:SourceQuarterTicketV303[]=[];
   if(ownership.sourceQuartersV303===true)for(const entry of ownership.sourceQuarterSourcesV303??[]){
-    if(entry.admission==="north-v309"?ownership.northFidelityV309!==true:
+    if(entry.admission==="southwest-sites-v326"?ownership.southWestSitesV326!==true:
+      entry.admission==="north-v309"?ownership.northFidelityV309!==true:
       entry.admission==="treptow-v317"?ownership.treptowWaterfrontV317!==true:
       entry.admission==="government-v321"?ownership.governmentOfficesV321!==true:
       entry.admission==="universities-v322"?ownership.universitiesV322!==true:

@@ -4545,6 +4545,18 @@
       ],
       "checked": "2026-11-06",
       "pixels_bundled": false
+    },
+    {
+      "landmark_id": "oberschoeneweide_memorial_v326",
+      "title": "oberschoeneweide_memorial_v326",
+      "page_url": "https://bildhauerei-in-berlin.de/bildwerk/gedenkmal-widerstandskaempfer-oberschoeneweide-8515/",
+      "artist": "Susanne Kähler",
+      "year": "2020",
+      "license": "CC BY4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Susanne Kähler, 2020 / CC BY4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }

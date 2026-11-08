@@ -3,6 +3,9 @@
  * Failed imports are forgotten; the controller owns its bounded retry cadence. */
 import type {SurroundingOwnershipOptions} from "./SurroundingCityGeometry";
 import type {SourceQuarterSourceV303} from "./SourceQuarterPacketV303";
+import networkIndexV326 from "./data/networkFidelityV326Index.json";
+import southwestIndexV326 from "./data/southWestSitesV326PacketIndex.json";
+import northeastIndexV326 from "./data/northEastPublicSitesV326PacketIndex.json";
 import northernIndex from "./data/northernFidelityV309Index.json";
 import federalIndexV321 from "./data/federalMinistriesV321PacketIndex.json";
 import universitiesIndexV322 from "./data/universitiesV322PacketIndex.json";
@@ -13,11 +16,21 @@ export type SourceQuarterCatalogueEntryV309={
   keys:readonly string[];
   kind:string;
   requiredReplacement?:boolean;
-  admission?:"north-v309"|"treptow-v317"|"government-v321"|"universities-v322"|"wilhelm-v324"|"wilhelm-street-v325";
+  admission?:"north-v309"|"treptow-v317"|"government-v321"|"universities-v322"|"wilhelm-v324"|"wilhelm-street-v325"|"southwest-sites-v326";
   load:()=>Promise<{default:unknown}>;
 };
 const families=(ids:readonly string[])=>ids.flatMap(id=>[`drawn:${id}`,`minecraft:${id}`]);
+// Vite expands only these finite lazy JSON modules. Keeping the import path
+// computed for non-Vite tools avoids type-inferencing 447 MB of recipe words.
+let networkLoadersV326:Record<string,()=>Promise<unknown>>={};
+try{networkLoadersV326=import.meta.glob("./data/networkFidelityV326Packets*.json");}catch{/* Bun fixture runner uses the same original JSON below. */}
+const loadNetworkV326=(file:string):Promise<{default:unknown}>=>{
+ const path="./data/"+file,load=networkLoadersV326[path];
+ return (load?load():import(/* @vite-ignore */ path)) as Promise<{default:unknown}>;
+};
 export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV309[]=[
+  {keys:southwestIndexV326.keys,kind:"southwest-sites-v326",requiredReplacement:true,admission:"southwest-sites-v326",load:()=>import("./data/southWestSitesV326Packets.json")},
+  {keys:northeastIndexV326.keys,kind:"north-east-public-sites-v326",load:()=>import("./data/northEastPublicSitesV326Packets.json")},
   {keys:["drawn:1_0","drawn:1_1"],kind:"wilhelm-street-v325",requiredReplacement:true,admission:"wilhelm-street-v325",load:()=>import("./data/wilhelmStreetFrontsV325Packets.json")},
   {keys:["drawn:1_0","drawn:1_1"],kind:"wilhelm-housing-v324",requiredReplacement:true,admission:"wilhelm-v324",load:()=>import("./data/wilhelmHousingV324Packets.json")},
   {keys:universitiesIndexV322.keys,kind:"universities-v322",requiredReplacement:true,admission:"universities-v322",load:()=>import("./data/universitiesV322Packets.json")},
@@ -28,6 +41,7 @@ export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV
   {keys:families(["ring182-7_8","ring182-8_8"]),kind:"neukoelln-landmarks-v305",requiredReplacement:true,load:()=>import("./data/neukoellnLandmarksV305Packets.json")},
   {keys:northernIndex.keys,kind:"northern-fidelity-v309",requiredReplacement:true,admission:"north-v309",load:()=>import("./data/northernFidelityV309Packets.json")},
   {keys:families(["10_4","10_5","ring182-11_5"]),kind:"treptow-waterfront-v317",requiredReplacement:true,admission:"treptow-v317",load:()=>import("./data/treptowWaterfrontV317Packets.json")},
+  ...networkIndexV326.sources.map(source=>({keys:source.keys,kind:"network-fidelity-v326",load:()=>loadNetworkV326(source.file)})),
 ];
 
 /** Separate factory permits deterministic transport/retry tests without mocks

@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { sourceAtPublished206V326 } from "./helpers/sourceHistoryV326";
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { execFileSync, spawn } from "node:child_process";
@@ -198,7 +199,7 @@ test("the frozen actual206 default layer proves all2019 current paths and compos
   expect(sha(JSON.stringify(sorted))).toBe("4c6298d9d68f34ae032cdb10a05f2eb4140108e260310ee22d1cadacf30dfbd2");
   const root = new URL("../../..", import.meta.url);
   for (const path of Object.keys(layer.currentGraph)) {
-    const current = readFileSync(new URL(path, root)); expect(sha(current)).toBe(layer.currentGraph[path]);
+    const current = readFileSync(new URL(path, root)); expect(sha(sourceAtPublished206V326(path, current))).toBe(layer.currentGraph[path]);
     if (Object.hasOwn(layer.receipt.additions, path)) {
       expect(() => sourceAtPublished205V325(path, current)).toThrow("Unknown exact");
       expect(() => sourceAtPublished204V324(path, current)).toThrow("Unknown exact"); continue;
@@ -242,7 +243,8 @@ test("only V324 adapter entrypoints change and the complete history import graph
   };
   for (const name of graph.keys()) visit(name);
   expect(visited.size).toBe(graph.size);
-  expect(graph.get("sourceHistoryV325.ts")).toEqual([]);
+  expect(graph.get("sourceHistoryV326.ts")).toEqual([]);
+  expect(graph.get("sourceHistoryV325.ts")).toEqual(["sourceHistoryV326.ts"]);
   expect(graph.get("sourceHistoryV324.ts")).toEqual(["sourceHistoryV325.ts"]);
   expect(graph.get("sourceHistoryV323.ts")).toEqual(["sourceHistoryV324.ts"]);
 });

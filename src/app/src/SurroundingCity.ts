@@ -1,3 +1,7 @@
+import {hasUbahnGroundApproachSourceV326,ubahnGroundApproachAtV326} from "./UbahnGroundApproachesV326";
+import {attachPacketUbahnAccessV326Steps,ubahnGroundMaskBytesV326,type UbahnGroundRuntimeV326} from "./UbahnGroundRuntimeV326";
+import {createPublicMonumentsPacketV326Steps,type PublicMonumentsPacketV326} from "./PublicMonumentsPacketV326";
+import {northEastPublicSiteGroundAtV326,northEastPublicSiteWaterAtV326,northEastPublicSiteSolidAtV326} from "./NorthEastPublicSitesV326";
 import { disposeSurroundingCityRoot } from "./disposeSurroundingCityRootV323";
 import { westKiezPacketCandidateV302 } from "./NeighbourhoodFidelityV300";
 import { fetchSurroundingTransport, SURROUNDING_TRANSPORT_IDLE_MS } from "./surroundingTransport";
@@ -29,10 +33,11 @@ export const SURROUNDING_CITY_SCAN_MS = 180;
 export const SURROUNDING_CITY_RETIRE_MS = 1_800;
 export const SURROUNDING_CITY_RESIDENT_BUDGET_BYTES = 24 * 1024 * 1024;
 export const SURROUNDING_CITY_MAX_CHUNK_BYTES = 12 * 1024 * 1024;
-// Finite catalogue allowance including the 39 selected-playground tiles.
-// Resident geometry, transfer and prefetch budgets stay fixed.
-export const SURROUNDING_CITY_MAX_DESCRIPTORS = 2_208;
-export const SURROUNDING_CITY_MAX_MANIFEST_BYTES = 2176 * 1024;
+// Published206 plus the finite NE13/institutions579/U-approach48 catalogue.
+// Only static metadata grows; resident geometry/transfer/prefetch stay fixed.
+export const SURROUNDING_CITY_MAX_DESCRIPTORS = 2_843;
+export const SURROUNDING_CITY_MAX_FOOTPRINTS = 2_885;
+export const SURROUNDING_CITY_MAX_MANIFEST_BYTES = 3764 * 1024;
 export const SURROUNDING_CITY_MANIFEST_RETRY_MS = [500, 1_500] as const;
 // At most two upcoming packets overlap the one foreground fetch/decode. Reserve
 // the decoded size too: HTTP Content-Encoding may already inflate a response.
@@ -55,7 +60,7 @@ export type SurroundingCityManifest = {
   footprint: SurroundingPolygon[];
   groundY: number;
 };
-type Resident = SurroundingChunkGeometry & { descriptor: SurroundingChunkDescriptor; lastWanted: number; southOwnersReadyV294: boolean; littenReadyV297:boolean; wallReadyV298:boolean;westReadyV302:boolean;neukoellnReadyV305:boolean;northCandidateV309:boolean;northReadyV309:boolean;treptowCandidateV317:boolean;treptowReadyV317:boolean;governmentCandidateV321:boolean;governmentReadyV321:boolean;universitiesCandidateV322:boolean;universitiesReadyV322:boolean;wilhelmCandidateV324:boolean;wilhelmReadyV324:boolean;wilhelmStreetCandidateV325:boolean;wilhelmStreetReadyV325:boolean };
+type Resident = SurroundingChunkGeometry & { descriptor: SurroundingChunkDescriptor; lastWanted: number; southOwnersReadyV294: boolean; littenReadyV297:boolean; wallReadyV298:boolean;westReadyV302:boolean;neukoellnReadyV305:boolean;northCandidateV309:boolean;northReadyV309:boolean;treptowCandidateV317:boolean;treptowReadyV317:boolean;governmentCandidateV321:boolean;governmentReadyV321:boolean;universitiesCandidateV322:boolean;universitiesReadyV322:boolean;wilhelmCandidateV324:boolean;wilhelmReadyV324:boolean;wilhelmStreetCandidateV325:boolean;wilhelmStreetReadyV325:boolean;southwestCandidateV326:boolean;southwestReadyV326:boolean };
 export type SurroundingNavigationTile = {
   origin: readonly [number, number, number];
   bounds: readonly [number, number, number, number];
@@ -84,6 +89,7 @@ export type SurroundingCityOptions = {
   governmentOfficesV321?:(native:boolean)=>boolean;
   universitiesV322?:(native:boolean)=>boolean;
   wilhelmHousingV324?:(native:boolean)=>boolean;
+  southWestSitesV326?:(native:boolean)=>boolean;
   wilhelmStreetFrontsV325?:(native:boolean)=>boolean;
   publicOfficesAdmissionV322?:(native:boolean)=>{government:boolean;universities:boolean};
   sourceQuartersV303?:boolean;
@@ -106,6 +112,10 @@ export type SurroundingCityOptions = {
   onAttach?: (root: Group, mode: VisualMode) => void;
   /** Unregister residency and dispose geometry/materials; controller removes it first. */
   onRelease?: (root: Group) => void;
+  /** Unregister attached children before their private owners detach them. */
+  onBeforeRelease?:(root:Group)=>void;
+  /** Optional V326 actual public-site adapters; original callers stay exact. */
+  publicSitesV326?:boolean;
   onChange?: () => void;
   onError?: (message: string) => void;
   fetch?: typeof fetch;
@@ -121,11 +131,13 @@ export type SurroundingCity = {
   refresh: (now?: number, focus?: { x: number; z: number }) => void;
   /** Changes native/drawn family only; caller applies its normal lighting pass. */
   setMode: (mode: VisualMode) => void;
+  interiorGroundAt:(x:number,z:number,currentY?:number)=>number|null;
   groundAt: (x: number, z: number) => number | null;
   solidAt: (x: number, y: number, z: number, radius?: number) => boolean;
   waterAt: (x: number, z: number) => boolean;
   dispose: () => void;
   readonly residentGeometryBytes: number;
+  readonly residentMaskBytesV326:number;
   readonly residentBufferCount: number;
   readonly residentChunkCount: number;
   readonly pending: boolean;
@@ -148,7 +160,7 @@ export function validateSurroundingManifest(value: unknown): SurroundingCityMani
   const manifest = value as SurroundingCityManifest;
   if (manifest?.schemaVersion !== 1 || !Array.isArray(manifest.chunks) ||
       manifest.chunks.length > SURROUNDING_CITY_MAX_DESCRIPTORS || !Array.isArray(manifest.footprint) ||
-      !Number.isFinite(manifest.groundY) || manifest.footprint.length > 1_000 ||
+      !Number.isFinite(manifest.groundY) || manifest.footprint.length > SURROUNDING_CITY_MAX_FOOTPRINTS ||
       !manifest.footprint.every(validSurroundingPolygon)) throw new Error("Invalid surrounding-city manifest");
   const ids = new Set<string>();
   for (const chunk of manifest.chunks) {
@@ -428,7 +440,10 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const retireMs = options.retireMs ?? SURROUNDING_CITY_RETIRE_MS;
   const transportIdleMs = options.transportIdleMs ?? SURROUNDING_TRANSPORT_IDLE_MS;
   const budget = options.residentBudgetBytes ?? SURROUNDING_CITY_RESIDENT_BUDGET_BYTES;
-  const release = options.onRelease ?? disposeSurroundingCityRoot;
+  const publicAccessV326=new WeakMap<Group,UbahnGroundRuntimeV326>(),monumentsV326=new WeakMap<Group,PublicMonumentsPacketV326>();
+  const baseRelease=options.onRelease??disposeSurroundingCityRoot;
+  const release=(group:Group)=>{options.onBeforeRelease?.(group);baseRelease(group);publicAccessV326.get(group)?.dispose();publicAccessV326.delete(group);monumentsV326.get(group)?.dispose();monumentsV326.delete(group);};
+  const finishV326=async<T>(steps:Generator<void,T>,signal:AbortSignal):Promise<T>=>{try{for(;;){if(signal.aborted)throw new DOMException("Aborted","AbortError");const next=steps.next();if(next.done)return next.value;await new Promise<void>(resolve=>setTimeout(resolve,0));}}finally{steps.return(undefined as never);}};
   const controller = new AbortController();
   const residents = new Map<string, Resident>();
   const failedAt = new Map<string, number>();
@@ -541,6 +556,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           const wilhelmCandidateV324=sourceQuarterSourcesV303?.some(entry=>entry.admission==="wilhelm-v324")===true;
           const wilhelmReadyV324=wilhelmCandidateV324&&options.wilhelmHousingV324?.(minecraft)===true;
           const wilhelmChangedV324=()=>wilhelmCandidateV324&&wilhelmReadyV324!==(options.wilhelmHousingV324?.(minecraft)===true);
+          const southwestCandidateV326=sourceQuarterSourcesV303?.some(e=>e.admission==="southwest-sites-v326")===true;
+          const southwestReadyV326=southwestCandidateV326&&options.southWestSitesV326?.(minecraft)===true;
+          const southwestChangedV326=()=>southwestCandidateV326&&southwestReadyV326!==(options.southWestSitesV326?.(minecraft)===true);
           const wilhelmStreetCandidateV325=sourceQuarterSourcesV303?.some(entry=>entry.admission==="wilhelm-street-v325")===true;
           const wilhelmStreetReadyV325=wilhelmStreetCandidateV325&&options.wilhelmStreetFrontsV325?.(minecraft)===true;
           const wilhelmStreetChangedV325=()=>wilhelmStreetCandidateV325&&wilhelmStreetReadyV325!==(options.wilhelmStreetFrontsV325?.(minecraft)===true);
@@ -566,17 +584,29 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           const southAdmissionChanged = (): boolean => southReceiptTile && southOwnersReady !== (options.southFidelityV294?.(minecraft) === true);
           const entry = await createStreamedSurroundingCityChunkV255(
             data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
-            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,clusterFacadesV320:options.clusterFacadesV320,berlinSenateV321:options.berlinSenateV321,governmentOfficesV321:governmentReadyV321,universitiesV322:universitiesReadyV322,wilhelmHousingV324:wilhelmReadyV324,wilhelmStreetFrontsV325:wilhelmStreetReadyV325,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317 },
+            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,clusterFacadesV320:options.clusterFacadesV320,berlinSenateV321:options.berlinSenateV321,governmentOfficesV321:governmentReadyV321,universitiesV322:universitiesReadyV322,wilhelmHousingV324:wilhelmReadyV324,wilhelmStreetFrontsV325:wilhelmStreetReadyV325,southWestSitesV326:southwestReadyV326,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317 },
           );
           unpublished = entry.root;
+          if(options.publicSitesV326===true&&!descriptor.detailCompanionOf){
+            const originalHostsV326=entry.root.children.filter((o):o is Mesh=>o instanceof Mesh);
+            const access=await finishV326(attachPacketUbahnAccessV326Steps(entry,minecraft,hasUbahnGroundApproachSourceV326(descriptor.id,minecraft,descriptor[minecraft?"minecraft":"drawn"])?(x,z)=>ubahnGroundApproachAtV326(x,z,minecraft):undefined,hasUbahnGroundApproachSourceV326(descriptor.id,minecraft,descriptor[minecraft?"minecraft":"drawn"])),task.signal);
+            if(access){publicAccessV326.set(entry.root,access);entry.geometryBytes+=access.geometryBytes;entry.bufferCount+=access.bufferCount;}
+            const stones=await finishV326(createPublicMonumentsPacketV326Steps(entry.root,descriptor.id,minecraft,entry.nav,entry.origin,{hosts:originalHostsV326,openings:access?.openings??[]}),task.signal);
+            if(stones.root){entry.nav=stones.navigation??entry.nav;monumentsV326.set(entry.root,stones);entry.geometryBytes+=stones.geometryBytes;entry.bufferCount+=stones.bufferCount;}
+          }
+          if(options.publicSitesV326===true&&entry.geometryBytes>budget){release(entry.root);unpublished=null;throw Error("Complete public detail packet exceeds resident budget");}
+          // New resources use the existing measured resident counter. Only
+          // no-longer-visible packets retire; visible source detail is retained.
+          const retirees=[...residents].filter(([id])=>!desired.has(id));
+          for(const [id]of retirees){if(geometryBytes+entry.geometryBytes<=budget)break;evict(id);}
           // onAttach can synchronously dispose this controller during error recovery.
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id) ||
-              (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305()||northChangedV309()||treptowChangedV317()||officesChangedV322()||wilhelmChangedV324()||wilhelmStreetChangedV325())) {
+              (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305()||northChangedV309()||treptowChangedV317()||officesChangedV322()||wilhelmChangedV324()||wilhelmStreetChangedV325()||southwestChangedV326())) {
             release(entry.root); unpublished = null; continue;
           }
           options.onAttach?.(entry.root, mode);
-          if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id) || (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305()||northChangedV309()||treptowChangedV317()||officesChangedV322()||wilhelmChangedV324()||wilhelmStreetChangedV325())) { release(entry.root); unpublished = null; continue; }
-          residents.set(descriptor.id, { ...entry, descriptor, lastWanted: now(), southOwnersReadyV294:southOwnersReady,littenReadyV297,wallReadyV298,westReadyV302,neukoellnReadyV305,northCandidateV309,northReadyV309,treptowCandidateV317,treptowReadyV317,governmentCandidateV321,governmentReadyV321,universitiesCandidateV322,universitiesReadyV322,wilhelmCandidateV324,wilhelmReadyV324,wilhelmStreetCandidateV325,wilhelmStreetReadyV325 });
+          if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id) || (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305()||northChangedV309()||treptowChangedV317()||officesChangedV322()||wilhelmChangedV324()||wilhelmStreetChangedV325()||southwestChangedV326())) { release(entry.root); unpublished = null; continue; }
+          residents.set(descriptor.id, { ...entry, descriptor, lastWanted: now(), southOwnersReadyV294:southOwnersReady,littenReadyV297,wallReadyV298,westReadyV302,neukoellnReadyV305,northCandidateV309,northReadyV309,treptowCandidateV317,treptowReadyV317,governmentCandidateV321,governmentReadyV321,universitiesCandidateV322,universitiesReadyV322,wilhelmCandidateV324,wilhelmReadyV324,wilhelmStreetCandidateV325,wilhelmStreetReadyV325,southwestCandidateV326,southwestReadyV326 });
           geometryBytes += entry.geometryBytes;
           bufferCount += entry.bufferCount;
           root.add(entry.root);
@@ -644,6 +674,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     for(const[id,entry]of residents)if(entry.northCandidateV309&&entry.northReadyV309!==northNowV309){evict(id);failedAt.delete(id);lastScan=-Infinity;}
     const treptowNowV317=options.treptowWaterfrontV317?.(mode==="minecraft")===true;
     for(const[id,entry]of residents)if(entry.treptowCandidateV317&&entry.treptowReadyV317!==treptowNowV317){evict(id);failedAt.delete(id);lastScan=-Infinity;}
+    for(const[id,e]of residents)if(e.southwestCandidateV326&&e.southwestReadyV326!==(options.southWestSitesV326?.(mode==="minecraft")===true)){evict(id);failedAt.delete(id);lastScan=-Infinity;}
     // Recheck both relevant Wilhelm families after each real release. A
     // release hook can change either source gate during this synchronous pass.
     const housingCandidateV325=[...residents.values()].some(e=>e.wilhelmCandidateV324);
@@ -785,7 +816,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       // Additive scopes can share a tile rectangle while owning disjoint land.
       // A retained partial tile must not mask the new tile's ground or water.
       const lx = x - entry.origin[0], lz = z - entry.origin[2];
-      if (entry.nav.ground.some(p => surroundingPolygonContains(p, lx, lz))) return entry;
+      if (entry.nav.ground.some(p => surroundingPolygonContains(p, lx, lz)) || entry.nav.water.some(p=>surroundingPolygonContains(p,lx,lz))) return entry;
     }
     return undefined;
   };
@@ -805,6 +836,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       refresh();
       options.onChange?.();
     },
+    interiorGroundAt(x,z,currentY){const entry=at(x,z);return entry?publicAccessV326.get(entry.root)?.groundAt(x,z,currentY)??null:null;},
     groundAt(x, z) {
       const entry = at(x, z);
       // A resident tile already verified exact source-ground membership. Avoid
@@ -820,6 +852,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       const bridgeFloor = spreeBridgeFloorAtV242(entry.nav, lx, lz);
       if (bridgeFloor !== null) return bridgeFloor;
       const road = entry.nav.roads?.some(p => surroundingPolygonContains(p, lx, lz));
+      if(entry.descriptor.id.startsWith("northEast326-")){const top=northEastPublicSiteGroundAtV326(x,z,mode==="minecraft",road===true);if(top!==null)return top;}
+      if(hasUbahnGroundApproachSourceV326(entry.descriptor.id,mode==="minecraft",entry.descriptor[mode==="minecraft"?"minecraft":"drawn"])){const top=ubahnGroundApproachAtV326(x,z,mode==="minecraft");if(top!==null)return top;}
       // A failed or changed source receipt retains its old ground and floor.
       if(wallGalleryHillContainsV298(x,z)&&entry.root.userData.mauerparkTerrainV298!==true)return entry.nav.groundY+(road?.09:0);
       return terrainGroundAt(x, z, entry.nav.groundY, mode === "minecraft") + (road ? 0.09 : 0);
@@ -828,6 +862,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       for (const entry of residents.values()) {
         const b = entry.descriptor.bounds;
         if (x + radius < b[0] || z + radius < b[1] || x - radius > b[2] || z - radius > b[3]) continue;
+        if(publicAccessV326.get(entry.root)?.solidAt(x,y,z,radius))return true;
+        if(entry.descriptor.id.startsWith("northEast326-")&&entry.nav.ground.some(p=>surroundingPolygonContains(p,x-entry.origin[0],z-entry.origin[2]))&&northEastPublicSiteSolidAtV326(x,y,z,radius,mode==="minecraft"))return true;
         if (entry.root.userData.brehmTropicalHallSolidAt?.(x, y, z, radius)) return true;
         if (spreeBridgeSolidAtV242(entry.nav, x - entry.origin[0], y, z - entry.origin[2], radius)) return true;
         if (surroundingBuildingSolidAt(entry.nav, x - entry.origin[0], y, z - entry.origin[2], radius)) return true;
@@ -838,11 +874,13 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       const entry = at(x, z);
       if (!entry) return false;
       const lx = x - entry.origin[0], lz = z - entry.origin[2];
+      if(entry.descriptor.id.startsWith("northEast326-")&&northEastPublicSiteWaterAtV326(x,z)!==null)return true;
       return spreeBridgeFloorAtV242(entry.nav, lx, lz) === null &&
         !entry.nav.bridges?.some(p => surroundingPolygonContains(p, lx, lz)) &&
         entry.nav.water.some(p => surroundingPolygonContains(p, lx, lz));
     },
     get residentGeometryBytes() { return geometryBytes; },
+    get residentMaskBytesV326(){let bytes=0;for(const entry of residents.values()){const access=publicAccessV326.get(entry.root);if(access)bytes+=ubahnGroundMaskBytesV326(access);}return bytes;},
     get residentBufferCount() { return bufferCount; },
     get residentChunkCount() { return residents.size; },
     get pending() { return processing || queue.length > 0; },

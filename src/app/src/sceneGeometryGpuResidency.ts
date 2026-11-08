@@ -87,6 +87,8 @@ export function createSceneGeometryGpuResidency(
   options: {
     budgetBuffers?: number;
     budgetBytes?: number;
+    /** Actual live procedural texture storage shares the unchanged byte target. */
+    reservedBytes?: () => number;
     emergencyHeadroomBytes?: number;
     graceMs?: number;
     scanLimit?: number;
@@ -124,6 +126,7 @@ export function createSceneGeometryGpuResidency(
   let observedAt = 0;
   let residentBuffers = 0;
   let residentBytes = 0;
+  const measuredBytes=():number=>{const reserved=options.reservedBytes?.()??0;return residentBytes+(Number.isSafeInteger(reserved)&&reserved>=0?reserved:byteBudget);};
   let lastFullSweepBytes = byteBudget;
   let lastFullSweepBuffers = budget;
   let disposed = false;
@@ -316,13 +319,13 @@ export function createSceneGeometryGpuResidency(
     // the entire protected scene again each frame: only fresh handle growth
     // earns another pressure-only full sweep. Falling residency rearms it.
     lastFullSweepBuffers = Math.min(lastFullSweepBuffers, Math.max(budget, residentBuffers));
-    lastFullSweepBytes = Math.min(lastFullSweepBytes, Math.max(byteBudget, residentBytes));
-    const bytePressure = residentBytes > byteBudget;
-    const byteGrowth = residentBytes >= lastFullSweepBytes + Math.max(1, byteHeadroom);
+    lastFullSweepBytes = Math.min(lastFullSweepBytes, Math.max(byteBudget, measuredBytes()));
+    const bytePressure = measuredBytes() > byteBudget;
+    const byteGrowth = measuredBytes() >= lastFullSweepBytes + Math.max(1, byteHeadroom);
     const pressureGrowth = residentBuffers >= lastFullSweepBuffers + Math.max(1, emergencyHeadroom);
     const urgent = immediate || jumped ||
       (residentBuffers > budget + emergencyHeadroom && pressureGrowth) ||
-      (residentBytes > byteBudget + byteHeadroom && byteGrowth);
+      (measuredBytes() > byteBudget + byteHeadroom && byteGrowth);
     const shouldScan = scan.length > 0 &&
       (urgent || ((residentBuffers > budget || bytePressure) && now - lastScan >= scanInterval));
     if (!initializedView || shouldScan) {
@@ -357,7 +360,7 @@ export function createSceneGeometryGpuResidency(
     candidates.sort((left, right) => left.lastUse - right.lastUse);
     let evicted = 0;
     for (const entry of candidates) {
-      if (!immediate && !jumped && residentBuffers <= budget && residentBytes <= byteBudget) break;
+      if (!immediate && !jumped && residentBuffers <= budget && measuredBytes() <= byteBudget) break;
       retainedGpuGeometryRetirementsV309.add(entry.geometry);
       try { entry.geometry.dispose(); }
       finally { retainedGpuGeometryRetirementsV309.delete(entry.geometry); }
@@ -365,7 +368,7 @@ export function createSceneGeometryGpuResidency(
       evicted++;
     }
     candidates.length = 0;
-    if (urgent) { lastFullSweepBuffers = residentBuffers; lastFullSweepBytes = residentBytes; }
+    if (urgent) { lastFullSweepBuffers = residentBuffers; lastFullSweepBytes = measuredBytes(); }
     return evicted;
   };
   const contextLost = (): void => {
@@ -378,7 +381,7 @@ export function createSceneGeometryGpuResidency(
   return {
     enqueue, release, refresh, retireForRebind,
     get residentBuffers() { return residentBuffers; },
-    get residentBytes() { return residentBytes; },
+    get residentBytes() { return measuredBytes(); },
     dispose: () => {
       if (disposed) return;
       disposed = true;

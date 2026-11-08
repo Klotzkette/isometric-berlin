@@ -35,16 +35,18 @@ describe("exact lazy source-quarter recipes v309",()=>{
   await expect(load("exact")).rejects.toThrow("offline");await expect(load("exact")).rejects.toThrow("Incomplete exact");expect((await load("exact"))[0].source).toBe(source);expect(calls).toBe(3);
  });
  test("all exact catalogue keys and full immutable recipes equal the existing static path",async()=>{
-  expect(SOURCE_QUARTER_CATALOGUE_V309.filter(entry=>entry.admission===undefined)).toHaveLength(3);
-  expect(await loadSourceQuarterRecipesV309("0_0")).toEqual([]);
-  for(const old of SOURCE_QUARTERS_V303){const catalogue=SOURCE_QUARTER_CATALOGUE_V309.find(e=>e.kind===old.kind)!;expect([...catalogue.keys].sort()).toEqual([...old.source.keys].sort());for(const key of old.source.keys){const [mode,id]=key.split(":"),loaded=await loadSourceQuarterRecipesV309(id,mode==="minecraft");const entry=loaded.find(e=>e.kind===old.kind)!;expect(entry.source).toEqual(old.source);expect(entry.requiredReplacement).toBe(old.requiredReplacement);}}
+  expect(SOURCE_QUARTER_CATALOGUE_V309.filter(entry=>entry.admission===undefined)).toHaveLength(47);
+  expect(await loadSourceQuarterRecipesV309("unmapped-source-id")).toEqual([]);
+  const legacyLoader=createSourceQuarterRecipeLoaderV309(SOURCE_QUARTER_CATALOGUE_V309.filter(e=>SOURCE_QUARTERS_V303.some(old=>old.kind===e.kind)));
+  for(const old of SOURCE_QUARTERS_V303){const catalogue=SOURCE_QUARTER_CATALOGUE_V309.find(e=>e.kind===old.kind)!;expect([...catalogue.keys].sort()).toEqual([...old.source.keys].sort());for(const key of old.source.keys){const [mode,id]=key.split(":"),loaded=await legacyLoader(id,mode==="minecraft");const entry=loaded.find(e=>e.kind===old.kind)!;expect(entry.source).toEqual(old.source);expect(entry.requiredReplacement).toBe(old.requiredReplacement);}}
  });
  test("actual full predecessor admission is identical with lazy and static recipe sources",async()=>{
+  const legacyLoader=createSourceQuarterRecipeLoaderV309(SOURCE_QUARTER_CATALOGUE_V309.filter(e=>SOURCE_QUARTERS_V303.some(old=>old.kind===e.kind)));
   const ownership={neighbourhoodV300:true,westKiezV302:true,southFidelityV294:true,littenStadthausV297:true,wallGalleryV298:true,stralauSisyphosV299:true,tachelesFrontsV270:true};
   for(const old of SOURCE_QUARTERS_V303)for(const native of [false,true]){
    const mode=native?"minecraft":"drawn",key=old.source.keys.find(k=>k.startsWith(mode+":")&&old.source.packets[k]?.preparedRecords)!;expect(key).toBeDefined();const id=key.split(":")[1];
    const raw=JSON.parse(gunzipSync(readFileSync(resolve(import.meta.dir,`../public/mesh/surrounding-berlin-v159/${id}.${mode}.json.gz`))).toString()) as SurroundingCityChunk;
-   const lazy=(await loadSourceQuarterRecipesV309(id,native)).find(e=>e.kind===old.kind)!;
+   const lazy=(await legacyLoader(id,native)).find(e=>e.kind===old.kind)!;
    const a=done(captureSourceQuarterPacketV303(raw,id,native,true,old.source,old.kind,old.requiredReplacement));const b=done(captureSourceQuarterPacketV303(raw,id,native,true,lazy.source,lazy.kind,lazy.requiredReplacement));expect(!!b).toBe(!!a);expect(b).toBeDefined();const prior=done(prepareSurroundingQuarterPredecessorV303(raw,id,native,ownership));expect(done(prepareSourceQuarterPacketV303(prior,b))).toEqual(done(prepareSourceQuarterPacketV303(prior,a)));
   }
  });

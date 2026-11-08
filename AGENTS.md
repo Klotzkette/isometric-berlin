@@ -2908,3 +2908,63 @@ rollback. Preparation, commit hooks, parking, navigation, other families and
 all asynchronous boundaries retain independent fresh gates. This is no timed
 cache or persistent model-valid flag. Native previous callbacks capture the
 stable actual world, never the provisional variable cleared by publication.
+
+## V326 — Berlin public sites and transport fidelity (v1.0.207)
+
+The owner's 8 November request explicitly covers Berlin's schools, court
+buildings, museums and public monuments; major streets, motorways, bridges and
+railways; all U-Bahn stations' actual named signs and mapped stair accesses.
+Use complete current public inventories and retain a per-site accounting of
+existing correct models, source-supported changes and unresolved evidence.
+Do not present illustrative subdivisions or an untouched site as photographically
+verified. Co-located institutions and building parts remain distinct from counts
+of institution records. Current official school-year/BVG names take precedence
+over stale labels, with source identities and explicit crosswalks retained.
+
+The named priority sites are the full former Stasi headquarters including side
+buildings, Hohenschönhausen memorial/prison, Plötzensee lake and the distinct JVA
+and execution memorial, Volkspark Rehberge with official relief/woodland and
+Walther Rathenau fountain, Brücke-Museum with adjacent Kunsthaus Dahlem/studio,
+and Pfaueninsel with its castle and several ordinary and white roaming peacocks.
+The unspecified gymnasium and its Aldi/Lidl surroundings await identification;
+no guessed school or shop branch becomes an asserted current location.
+
+These expressly requested objects permit finite source-bound supplements outside
+previous coverage: only their actual campus/site/entrance envelopes and mapped
+transport corridors, subtracting all retained scopes. Preserve previous bounds,
+complete source sheets, water/woods/courts, earlier correct detail, 93 tour stops
+and all six views. Never fill surrounding districts or manufacture a station
+entrance. Terrain corrections retain source XZ courses and complete outside
+complements, and share represented heights/openings with walking in both
+families. Independently cardinal Native geometry and full Drawn touch detail
+remain required. Exact old-owner retirement stays private, source-pinned,
+complete, reversible and closed by default.
+
+Reuse bounded serial packet construction/residency. Keep distant additions out
+of the geometry Worker and initial import graph. Existing live decode, prefetch,
+GPU, startup and Worker limits remain fixed. New peacocks use the existing
+shared frame loop, bounded buffers, real contained island routes, offscreen/
+hidden/reduced-motion guards and disposal; no new animation timer or shadow
+atlas rebuild. Photographs remain external evidence, never rendered pixels.
+Root owns shared integration, new immutable-history bridge, build and release;
+agents use isolated files. Preserve older immutable fixtures and the preceding
+complete package. Verify the actual live viewer and both exact archives before
+promoting latest, and do not repeatedly run already-passing unrelated checks.
+
+The explicitly requested new Berlin-wide inventories and exact named coverage
+may increase only the finite offline-package and static-descriptor allowances,
+by the measured complete new source-owned addition recorded before release.
+Prefer the established lossless construction formats; do not add a new runtime
+decoder or repeatedly recompress old sources merely to fit the old, nearly full
+archive ceiling. This is no permission to increase live packet/vertex/index,
+decode, prefetch, residency, startup or Worker limits or reduce any old detail.
+
+U-Bahn ground openings may use a bounded procedural numeric GPU mask for the
+actual privately admitted source rings/cells where changing a shared Core
+buffer would invalidate earlier owners. This contains no photographs, artwork,
+network image or terrain substitute. Preserve every original terrain buffer,
+outside pixel, material property and prior shader behavior; bind complete
+compatible ground hosts, keep shadow and walking apertures identical and restore
+the exact prior hooks on release. Count mask storage within existing residency
+limits, disable immediately when its private model/source gate closes and avoid
+an all-stations per-fragment scan. Distant openings use their packet lifetime.

@@ -421,3 +421,13 @@ describe("v232 large-buffer pressure", () => {
     h.residency.dispose();
   });
 });
+
+
+test('actual procedural texture reservation shares the original byte budget and never evicts visible detail',()=>{
+ let numericMaskBytes=0;const h=host({budgetBuffers:6000,budgetBytes:4096,reservedBytes:()=>numericMaskBytes,graceMs:0});
+ const visible=h.box(0),previous=h.box(8);h.residency.enqueue(h.scene);h.draw(visible);h.draw(previous);const original=h.residency.residentBytes;
+ expect(h.residency.refresh(100)).toBe(0);numericMaskBytes=4096;expect(h.residency.residentBytes).toBe(original+4096);
+ expect(h.residency.refresh(200)).toBe(1);expect(h.released).toEqual([previous.geometry]);expect(visible.parent).toBe(h.scene);
+ expect(h.residency.residentBytes).toBeGreaterThan(4096);numericMaskBytes=0;expect(h.residency.residentBytes).toBeLessThan(original);
+ h.residency.dispose();visible.geometry.dispose();previous.geometry.dispose();
+});

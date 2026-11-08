@@ -1,3 +1,5 @@
+import {createSouthWestSitesV326Steps,hasSouthWestSitesRuntimeV326,disposeSouthWestSitesV326} from "./SouthWestSitesV326";
+import {createPfaueninselPeacockClockV326,createPfaueninselPeacocksV326} from "./PfaueninselPeacocksV326";
 import { createEurefCampusV262 } from "./EurefCampusV262";
 import { createTempelhofV261 } from "./TempelhofV261";
 import { createWindkanalV261 } from "./WindkanalV261";
@@ -111,6 +113,10 @@ export function* createOutlineLandmarksV182Steps(
   root.name = "Berlin outline landmark additions v182";
   if(ownership.publicSitesV322){root.updateMatrix();root.matrixAutoUpdate=false;}
   let native: boolean | undefined;
+  let southwestV326:Group|null=null,peacocksV326:Group|null=null;
+  const peacockClockV326=createPfaueninselPeacockClockV326();
+  root.userData.hasSouthWestSitesV326=(family:boolean)=>hasSouthWestSitesRuntimeV326(root,southwestV326,family);
+  root.userData.releaseSouthWestSitesV326=()=>{peacocksV326?.userData.dispose?.();peacocksV326=null;if(southwestV326)disposeSouthWestSitesV326(southwestV326);southwestV326=null;};
   let eastSitesV322:YouthTheatresRuntimeV322|null=null;
   const memorialsV322:MemorialRuntimeV322[]=[];
   const releasePublicSitesV322=()=>{
@@ -137,7 +143,8 @@ export function* createOutlineLandmarksV182Steps(
   root.userData.update = (timestamp: number, camera: import("three").Camera, reducedMotion = false, floodLevel?: number) => {
     const kiteChanged = kites?.userData.update(timestamp, camera, reducedMotion) ?? false;
     const helicopterChanged = helicopter?.userData.update(timestamp, camera, reducedMotion, floodLevel) ?? false;
-    return kiteChanged || helicopterChanged;
+    const peacockChanged=peacocksV326?.userData.update(timestamp,camera,reducedMotion)??false;
+    return kiteChanged || helicopterChanged || peacockChanged;
   };
   root.userData.updateTrafficSignals = (timestamp: number, camera: import("three").Camera, reducedMotion = false, lightsOn = true) =>
     nativeSignals ? updateVisibleTrafficSignals(nativeSignals, camera, timestamp, reducedMotion, lightsOn) : false;
@@ -149,6 +156,7 @@ export function* createOutlineLandmarksV182Steps(
       // intentionally retain CPU owners for re-upload. Unregister the old
       // family while all its children are still reachable, before rebuilding.
       if (root.children.length) beforeRelease?.(root);
+      root.userData.releaseSouthWestSitesV326();
       justice = undefined;
       disposeOutlineConstruction(root);
       root.add(nextNative ? createMinecraftSteglitzV182() : createSteglitzV182());
@@ -229,6 +237,11 @@ export function* createOutlineLandmarksV182Steps(
       root.add(createEurefCampusV262(nextNative));
       yield;
       root.add(createWestLakesV194(nextNative));
+      yield;
+      southwestV326=yield*createSouthWestSitesV326Steps(nextNative);
+      if(southwestV326)root.add(southwestV326);
+      peacocksV326=createPfaueninselPeacocksV326(nextNative,peacockClockV326);
+      if(peacocksV326)root.add(peacocksV326);
       yield;
       root.add(createTeufelsbergStationV195(nextNative));
       yield;
@@ -355,7 +368,7 @@ export function* createOutlineLandmarksV182Steps(
 /** Release unpublished partial work as well as completed mode families. */
 export function disposeOutlineConstruction(root: Group): void {
   const release: (()=>void)[]=[];
-  root.traverse(object=>{if(typeof object.userData.releasePublicSitesV322==="function")release.push(object.userData.releasePublicSitesV322);});
+  root.traverse(object=>{if(typeof object.userData.releaseSouthWestSitesV326==="function")release.push(object.userData.releaseSouthWestSitesV326);if(typeof object.userData.releasePublicSitesV322==="function")release.push(object.userData.releasePublicSitesV322);});
   for(const close of release)close();
   const geometries = new Set<BufferGeometry>(), materials = new Set<Material>();
   root.traverse(object => {

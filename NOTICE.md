@@ -2974,3 +2974,43 @@ Sculptural forms and reliefs are geometric interpretations of publicly visible
 works; the individual artists and reference roles are credited in the linked
 notes. No reference photograph, image pixel, plan page or new photographic
 texture is included in the viewer or download.
+
+
+## Berlin public sites, landscape and station access (v326)
+
+[Schools, museums and court buildings](docs/public-institutions-v326.md) use
+current public institution directories, Berlin's official school locations,
+complete Geoportal Berlin LoD2 building families and retained OpenStreetMap
+identities. Geoportal data remain under dl-de/zero-2-0; OpenStreetMap data remain
+© OpenStreetMap contributors, ODbL-1.0. Individually unresolved associations are
+kept separate from verified buildings.
+
+[Rehberge, Plötzensee and the former Stasi/prison sites](docs/north-east-public-sites-v326.md)
+retain complete measured buildings, original mapped landscape courses and
+Geoportal Berlin DGM1 relief. [Pfaueninsel, Brücke-Museum and Kunsthaus Dahlem](docs/southwest-sites-v326.md)
+use the credited official heritage/operator references and external photographs
+listed individually in that ledger. The six moving blue/white peacocks are an
+illustrative population; their routes stay within the mapped island.
+
+[U-Bahn station access](docs/ubahn-access-v326.md) combines current official BVG
+names with the retained Geofabrik/OpenStreetMap geometry of29September2026.
+Mapped step counts and widths remain distinct from documented display estimates.
+Existing precise access models and their sources remain retained.
+
+[Public monuments and artworks](docs/public-monuments-v326.md) preserve the
+individually authored works, separately account for historic memorials and
+public artworks, and add individually mapped brass pavement stones only where
+actual ground supports their complete footprint. The Oberschöneweide clinker
+memorial uses the district museum and Bildhauerei in Berlin references: text
+by Jörg Kuhn; photographs © Susanne Kähler2020 (CC BY4.0) and © OTFW, Berlin2010
+(CC BY-SA3.0, selected from the author's multi-license). The named stele's
+orientation and interpreted relief remain documented display estimates.
+
+Photographs remain external references. No photograph, source image pixel or
+new photographic texture is bundled or rendered. All earlier credits remain.
+
+The finite [mapped transport fittings](docs/network-fidelity-v326.md) and
+[U-Bahn ground approaches](docs/ubahn-ground-approaches-v326.md) retain original
+OSM source identities (© OpenStreetMap contributors, ODbL 1.0). Approach heights
+use the retained Geoportal Berlin DGM1 source and its existing attribution.
+No external photographs, fonts or map tiles become runtime pixels.

@@ -1,3 +1,5 @@
+import {ubahnGroundMaskBytesV326,type UbahnGroundRuntimeV326} from "./UbahnGroundRuntimeV326";
+import {createCoreUbahnLifecycleV326} from "./CoreUbahnLifecycleV326";
 import {governmentPreviousPrismV321,universitiesPreviousPrismV322} from "./GovernmentOfficeOwnershipV323";
 import type {GovernmentOfficesV321,GovernmentOfficesOptionsV321,GovernmentCentralV321} from "./GovernmentOfficesV321";
 import {prepareFederalMinistryPressQuarterSourceV321} from "./FederalMinistryPressQuarterV321";
@@ -852,6 +854,8 @@ type Runtime = {
   gpuResidency?: SceneGpuResidency;
   geometryResidency?: SceneGeometryGpuResidency;
   surroundingCity?: SurroundingCity;
+  coreUbahnV326?:Map<Group,UbahnGroundRuntimeV326>;
+  coreUbahnLifecycleV326?:ReturnType<typeof createCoreUbahnLifecycleV326<Group,NorthernFidelityBundleV309>>;
   surroundingCityPendingV323?: Promise<void>;
   firstUploadParkingV323?: FirstUploadScheduleV323;
   zooAnimalsV282?: ReturnType<typeof createZooAnimalRuntimeV282>;
@@ -1732,10 +1736,13 @@ function installNorthernNavigationV309(runtime: Runtime, environment: Pedestrian
   const ground = environment.groundAt, floor = environment.interiorGroundAt, solid = environment.interiorSolidAt;
   environment.groundAt = (x,z) => currentNorthernV309(runtime)?.terrainAt(x,z) ?? ground(x,z);
   environment.interiorGroundAt = (x,z,current) => {
+    const world=voxelModeActive(runtime)?runtime.voxelWorld:runtime.isoWorld;
+    const access=world?runtime.coreUbahnV326?.get(world):undefined;
+    const uFloor=access?.groundAt(x,z,current)??runtime.surroundingCity?.interiorGroundAt(x,z,current)??null;if(uFloor!==null)return uFloor;
     const bundle = currentNorthernV309(runtime), hint = current ?? environment.groundAt(x,z) ?? 0;
     return bundle?.floorAt(x,z,hint) ?? bundle?.terrainAt(x,z) ?? floor?.(x,z,current) ?? null;
   };
-  environment.interiorSolidAt = (x,y,z,radius=0) => currentNorthernV309(runtime)?.solidAt(x,y,z,radius) || solid?.(x,y,z,radius) || false;
+  environment.interiorSolidAt = (x,y,z,radius=0) => {const world=voxelModeActive(runtime)?runtime.voxelWorld:runtime.isoWorld;return !!world&&runtime.coreUbahnV326?.get(world)?.solidAt(x,y,z,radius)===true||currentNorthernV309(runtime)?.solidAt(x,y,z,radius)||solid?.(x,y,z,radius)||false;};
 }
 
 function currentGovernmentOfficesV321(runtime:Runtime,native=voxelModeActive(runtime)):GovernmentOfficesV321|undefined{
@@ -1898,6 +1905,15 @@ async function ensureGovernmentCentralV321(runtime:Runtime,sourcePrisms?:readonl
 }
 
 const northernReadyMarksV310 = new WeakSet<Group>();
+const pedestrianWaterReadyV326=new WeakSet<PedestrianEnvironment>();
+function coreUbahnLifecycleV326(runtime:Runtime){
+ return runtime.coreUbahnLifecycleV326??=createCoreUbahnLifecycleV326<Group,NorthernFidelityBundleV309>(world=>{
+  const access=runtime.coreUbahnV326?.get(world);if(!access)return;
+  runtime.coreUbahnV326!.delete(world);
+  // Traversal must see every instance/material before private teardown unlinks it.
+  try{disposeObject3D(runtime,access.root);}finally{access.dispose();}
+ });
+}
 
 function ensureNorthernV309(runtime: Runtime, native: boolean): Promise<NorthernFidelityBundleV309 | undefined> {
   // The required measured Core transfer includes the settled worker surface,
@@ -1905,6 +1921,7 @@ function ensureNorthernV309(runtime: Runtime, native: boolean): Promise<Northern
   // complete predecessor until its ordinary base construction has finished.
   if (!native && !hasNorthernCoreSourceBatchesV319(runtime.isoWorld)) return Promise.resolve(undefined);
   runtime.northernV309 ??= createNorthernLoaderV309({
+    beginTransition:world=>coreUbahnLifecycleV326(runtime).begin(world),
     load: async () => {
       // The small old rail and hospital owners may live in the independent
       // outline root. Its real constructor must finish before late transfer.
@@ -1969,8 +1986,38 @@ function ensureNorthernV309(runtime: Runtime, native: boolean): Promise<Northern
   });
 }
 
+/** The existing frame cadence starts one bounded late Core supplement. */
+function ensureCoreUbahnV326(runtime:Runtime):void{
+  const native=voxelModeActive(runtime),world=native?runtime.voxelWorld:runtime.isoWorld;
+  if(runtime.disposed||!runtime.presentationReady||runtime.firstUploadParkingV323?.pending||!world||world.parent!==runtime.scene)return;
+  const environment=runtime.pedestrian.environment;
+  if(!environment||!pedestrianWaterReadyV326.has(environment)){runtime.ensurePedestrianWater();return;}
+  const original=runtime.northernOriginalGroundV309?.[native?"native":"drawn"];if(!original)return;
+  const lifecycle=coreUbahnLifecycleV326(runtime),ticket=lifecycle.start(world);if(!ticket)return;
+  const alive=()=>!runtime.disposed&&!runtime.loadSignal.aborted&&world.parent===runtime.scene&&lifecycle.current(world,ticket)&&(!ticket.north||ticket.north.complete());
+  const ground=(x:number,z:number)=>ticket.north?.terrainAt(x,z)??original(x,z);
+  void import("./CoreUbahnAccessV326").then(async module=>{
+    if(!alive())return;
+    const clearance=module.createCoreUbahnClearanceV326(environment);
+    if(!clearance)return;
+    const steps=module.createCoreUbahnAccessV326Steps(world,native,ground,clearance);let model:UbahnGroundRuntimeV326|null=null,published=false;
+    try{for(;;){if(!alive())throw new DOMException("Aborted","AbortError");const next=steps.next();if(next.done){model=next.value;break;}await yieldStartupWork();if(!alive())throw new DOMException("Aborted","AbortError");}
+      if(!model)return;
+      if(!alive()||!model.complete())return;
+      setIsoNightPresentation(model.root,runtime.lightingMode==="night",runtime.nightLightsOn,runtime.lightingMode);
+      if(native)setMinecraftMaterialPresentation(model.root,runtime.minecraftMaterialState,runtime.lightingMode==="minecraft");
+      if(!alive()||!model.complete())return;
+      (runtime.coreUbahnV326??=new Map()).set(world,model);
+      performance.mark(native?"isometric-ubahn-core-native-ready":"isometric-ubahn-core-drawn-ready");
+      runtime.gpuResidency?.enqueue(model.root);runtime.geometryResidency?.enqueue(model.root);runtime.gpuWarmup?.enqueue(model.root);runtime.scheduleGpuWarmup?.();
+      void parkCompletedGeometry(runtime,model.root,true);invalidateScenePresentation(runtime);published=true;
+    }finally{steps.return(null);if(model&&!published){if(runtime.coreUbahnV326?.get(world)===model)runtime.coreUbahnV326.delete(world);try{disposeObject3D(runtime,model.root);}finally{model.dispose();}}}
+  }).catch(error=>{if(!runtime.disposed&&!(error instanceof DOMException&&error.name==="AbortError"))console.warn("U-Bahn accesses:",error);}).finally(()=>lifecycle.finish(world,ticket));
+}
+
 /** Existing frame cadence, no new timer or cold-start model work. */
 function refreshNorthernV309(runtime: Runtime, timestamp: number): void {
+  ensureCoreUbahnV326(runtime);
   if (!runtime.surroundingCity || !runtime.presentationReady || runtime.disposed || timestamp - (runtime.northernLastScanV309 ?? -Infinity) < 250) return;
   runtime.northernLastScanV309 = timestamp;
   const bundle = currentNorthernV309(runtime);
@@ -2004,6 +2051,7 @@ function startSurroundingCity(runtime: Runtime): void {
       return !runtime.disposed&&!!world&&world.parent===runtime.scene&&
         wilhelmStreetModuleV325?.hasWilhelmStreetFrontsRuntimeV325(world,native)===true;
     },
+    southWestSitesV326:native=>!runtime.disposed&&runtime.outerThinOutlines?.parent===runtime.scene&&runtime.outerThinOutlines.userData.hasSouthWestSitesV326?.(native)===true,
     publicOfficesAdmissionV322:native=>publicOfficesAdmissionV322(runtime,native),
     sourceQuartersV303:true,loadSourceQuarterSourcesV309:createNorthernQuarterLoadingV309({
       loadRecipes:loadSourceQuarterRecipesV309,
@@ -2035,6 +2083,8 @@ function startSurroundingCity(runtime: Runtime): void {
       runtime.gpuWarmup?.enqueue(root);
       runtime.scheduleGpuWarmup?.();
     },
+    publicSitesV326:true,
+    onBeforeRelease:root=>{runtime.gpuWarmup?.release(root);runtime.geometryResidency?.release(root);runtime.gpuResidency?.release(root);releaseMinecraftMaterialBindings(root,runtime.minecraftMaterialState);},
     onRelease: root => disposeObject3D(runtime, root),
     onChange: () => {
       runtime.renderInvalidated = true;
@@ -4166,6 +4216,7 @@ function prepareIsoNavigation(
     surroundingPedestrianExtension(runtime),
     { universitiesPreviousV322: universitiesPreviousPrismV322, universitiesReadyV322: () => publicOfficesAdmissionV322(runtime).universities, governmentPreviousV321: governmentPreviousPrismV321, governmentReadyV321: () => !!currentGovernmentOfficesV321(runtime), treptowWaterfrontV317: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasTreptowWaterfrontV317?.()===true, neukoellnLandmarksV305: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.hasNeukoellnLandmarksV305?.()===true, moabitMitteV300: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.moabitMitteV300 === true, westKiezV302: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.westKiezV302 === true, chancelleryCanopySourceV289: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.chancelleryCanopySourceV289 === true, klosterruineV288: () => runtime.outerThinOutlines?.userData.hasKlosterruineV288?.(publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime))) === true, historicDomV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.historicDomV288 === true, potsdamerCorridorV288: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerCorridorV288 === true, requiredSitesV281: true, potsdamerStationPhoto: () => (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.potsdamerStationPhoto === true, northCultureV274: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, includeAuguststrasseMuralV270: true, golgathaV270: true, includeSchlesischesTorV267: true, replaceCampusCanopy: true, replaceTachelesFrontPrisms: true, replaceTechnikmuseumPrisms: true, replaceMoabitLandmarkPrisms: true, replaceAnhalterPrism: true, replaceChariteBridges: true, replaceAEGCampusPrisms: true, replaceTownhallPrisms: true, replaceDistrictCourtPrisms: true, replaceColonnadesPrisms: true, replaceSchlossplatzPrisms: true },
   );
+  pedestrianWaterReadyV326.add(pedestrianEnvironment);
   // Compile the future owners now, but keep their authored solids/floors
   // inactive until the required models finish in the same unpublished transaction.
   pedestrianEnvironment.requiredSitesV281 = false;
@@ -5449,6 +5500,7 @@ function createDeferredPedestrianWater(runtime: Runtime, environment: Pedestrian
           runtime.pedestrian.environment === environment
         ) {
           environment.water = compilePedestrianWater(surfaces);
+          pedestrianWaterReadyV326.add(environment);
         }
       })
       // Building, portal and terrain collision are already live; only
@@ -7617,7 +7669,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       // budget-capped. Install observers before desktop speculative warmup.
       if (coarsePointer) interleaveStaticGeometry(scene);
       runtime.gpuResidency = createSceneGpuResidency(renderer, camera);
-      runtime.geometryResidency = createSceneGeometryGpuResidency(renderer, camera);
+      runtime.geometryResidency = createSceneGeometryGpuResidency(renderer, camera,{reservedBytes:()=>{let bytes=runtime.surroundingCity?.residentMaskBytesV326??0;for(const access of runtime.coreUbahnV326?.values()??[])bytes+=ubahnGroundMaskBytesV326(access);return bytes;}});
       runtime.gpuResidency.enqueue(scene);
       runtime.geometryResidency.enqueue(scene);
       if (!coarsePointer) {
@@ -10462,6 +10514,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
         resetPendingFrameNavigation();
         disposeObject3D(runtime, scene);
+        for(const access of runtime.coreUbahnV326?.values()??[])access.dispose();
+        runtime.coreUbahnV326?.clear();
         smaaPass.dispose();
         composer.dispose();
         disposeMinecraftMaterialState(runtime.minecraftMaterialState);

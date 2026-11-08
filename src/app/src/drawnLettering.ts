@@ -61,6 +61,9 @@ const GLYPHS: Record<string, { advance: number; strokes: Polyline[] }> = {
       ],
     ],
   },
+  "(": { advance: 0.44, strokes: [[[0.38, 1], [0.17, 0.82], [0.06, 0.5], [0.17, 0.18], [0.38, 0]]] },
+  ")": { advance: 0.44, strokes: [[[0.06, 1], [0.27, 0.82], [0.38, 0.5], [0.27, 0.18], [0.06, 0]]] },
+  "/": { advance: 0.66, strokes: [[[0.04, 0], [0.62, 1]]] },
   "-": {
     advance: 0.62,
     strokes: [

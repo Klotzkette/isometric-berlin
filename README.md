@@ -71,6 +71,12 @@ amtlicher Standorte und öffentlicher Architekturquellen zugeordnet und ausgearb
 [Kindertheater und Archenhold-Sternwarte](docs/youth-theatres-v322.md) sowie
 [öffentliche Denkmäler](docs/memorial-accuracy-v322.md) verbinden vermessene
 Gebäudeformen mit ortsspezifischen Fassaden und charakteristischen Details.
+[Schulen, Museen und Gerichte](docs/public-institutions-v326.md),
+[benannte U-Bahn-Zugänge](docs/ubahn-access-v326.md), [Straßen- und Bahnverläufe](docs/network-fidelity-v326.md) und die
+[Landschaft um Rehberge und Plötzensee](docs/north-east-public-sites-v326.md)
+folgen eigenen Standort- und Geometrienachweisen. Auf der
+[Pfaueninsel](docs/southwest-sites-v326.md) gehören Schloss, Wege und frei
+umherlaufende blaue und weiße Pfauen zur Landschaft.
 Abdeckung und
 Genauigkeit sind in den [Datennotizen](docs/data.md) und den
 [Angaben zur metrischen Präzision](docs/metric-precision.md) dokumentiert.
@@ -235,8 +241,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.206** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.206/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.207** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.207/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits
