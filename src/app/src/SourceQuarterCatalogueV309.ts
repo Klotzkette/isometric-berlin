@@ -47,6 +47,26 @@ export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV
     kind: "schlossstrasse-v327",
     load: () => import("./data/schlossstrasseV327Packets.json"),
   },
+  {
+    keys: families(["ring182--7_13"]),
+    kind: "steglitz-post-v328",
+    load: () => import("./data/steglitzPostV328Packets.json"),
+  },
+  {
+    keys: families(["ring182--7_13"]),
+    kind: "heesestrasse-v328",
+    load: () => import("./data/heesestrasseV328Packets.json"),
+  },
+  {
+    keys: families(["ring182--7_13"]),
+    kind: "albrechtstrasse-v328",
+    load: () => import("./data/albrechtstrasseV328Packets.json"),
+  },
+  {
+    keys: families(["ring182--7_13"]),
+    kind: "steglitz-streets-v328",
+    load: () => import("./data/steglitzStreetsV328Packets.json"),
+  },
 ];
 
 /** Separate factory permits deterministic transport/retry tests without mocks

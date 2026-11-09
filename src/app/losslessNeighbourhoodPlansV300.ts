@@ -3,6 +3,10 @@
  * when the existing serial district decoder reads one key. */
 export const NEIGHBOURHOOD_PLAN_SOURCES_V300: ReadonlySet<string> = new Set([
   "data/schlossstrasseV327Packets.json",
+  "data/steglitzPostV328Packets.json",
+  "data/heesestrasseV328Packets.json",
+  "data/albrechtstrasseV328Packets.json",
+  "data/steglitzStreetsV328Packets.json",
   "data/networkFidelityV326Packets0.json",
   "data/networkFidelityV326Packets1.json",
   "data/networkFidelityV326Packets2.json",

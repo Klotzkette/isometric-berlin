@@ -1,7 +1,8 @@
 /** Verify the finite Steglitz delta before older source-history layers read it. */
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { assertSourceLayerV328, projectSourceBeforeV328, sourceAtPublished208V328 } from "./sourceHistoryV328";
 
 export const SOURCE_HISTORY_PROOF_SHA_V327 = "72df433ac35d95f9374b95878a11f748c598f9f8ffbc55229877b73ee3530c62";
 const previousProof = "5fe4411de0ae9d51eaa9af6b5a4be6a4bc5b4df0c221229204fb3ee4cc9148a6";
@@ -59,20 +60,17 @@ export function assertSourceLayerV327(published206: Readonly<Record<string, stri
       throw Error(`Invalid v327 source inverse: ${path}`);
     current[path] = inverse.currentSha256;
   }
-  const files = readdirSync(resolve(root, "src/app/src"), { recursive: true }).map(path => `src/app/src/${path}`)
-    .filter(path => /\.(?:ts|tsx|json)$/.test(path) && statSync(resolve(root, path)).isFile());
-  const inventory = new Set([...Object.keys(published), ...files]);
-  if (inventory.size !== Object.keys(current).length || [...inventory].some(path => !Object.hasOwn(current, path)))
-    throw Error("Changed or unaccounted v327 source inventory");
-  for (const path of inventory) {
-    const raw = readFileSync(resolve(root, path));
+  assertSourceLayerV328(current);
+  for (const path of Object.keys(current)) {
+    const raw = sourceAtPublished208V328(path, readFileSync(resolve(root, path)));
     if (sha(raw) !== current[path]) throw Error(`Changed complete v327 source graph: ${path}`);
-    if (Object.hasOwn(receipt.changes, path)) project(raw.toString("utf8"), receipt.changes[path]);
+    if (Object.hasOwn(receipt.changes, path)) project(Buffer.from(raw).toString("utf8"), receipt.changes[path]);
   }
   checked = { published: Object.freeze(published), current: Object.freeze(current), changes: receipt.changes };
 }
 
 export function sourceAtPublished207V327(path: string, raw: Uint8Array): Uint8Array {
+  raw = sourceAtPublished208V328(path, raw);
   if (!checked || !Object.hasOwn(checked.published, path) || sha(raw) !== checked.current[path])
     throw Error(`Unknown exact v327 source bytes: ${path}`);
   const inverse = checked.changes[path];
@@ -81,6 +79,7 @@ export function sourceAtPublished207V327(path: string, raw: Uint8Array): Uint8Ar
 
 export function projectSourceBeforeV327(source: string): string {
   if (!checked) throw Error("Unverified v327 source layer");
+  source = projectSourceBeforeV328(source);
   const digest = sha(source), records = Object.values(checked.changes).filter(inverse => inverse.currentSha256 === digest);
   if (!records.length) return source;
   if (Object.values(checked.current).filter(value => value === digest).length !== 1)

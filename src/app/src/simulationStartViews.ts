@@ -65,6 +65,26 @@ export const SIMULATION_START_VIEWS: Record<string, {
     target: [-3251, 12, 6825],
     fov: 34,
   },
+  "Heesestraße": {
+    position: [-3130, 120, 6610],
+    target: [-3215, 12, 6843],
+    fov: 31,
+  },
+  "Albrechtstraße Steglitz": {
+    position: [-3465, 126, 6856],
+    target: [-3305, 11, 6965],
+    fov: 30,
+  },
+  "Alte Post Steglitz": {
+    position: [-3157, 36, 6686],
+    target: [-3195, 20, 6727],
+    fov: 43,
+  },
+  "F. W. Bernstein": {
+    position: [-3303, 25, 6836],
+    target: [-3299, 13, 6869],
+    fov: 36,
+  },
   "Bergstraße": {
     position: [-3062, 105, 6985],
     target: [-3062, 9, 6654],

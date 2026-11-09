@@ -147,7 +147,9 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # and source-owned transport recipes. Complete v1.0.207 package: 1,142,305,282 bytes
 # (1089.387 MiB); 1090 MiB leaves 642,558 bytes of offline-only headroom.
 # Existing bytes/coverage and every live startup/Worker/decode/residency cap stay.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 1090 * 1024 * 1024
+# v328 adds four Steglitz packet recipes and the Bernstein facade. Measured
+# v1.0.209 package: 1,143,552,783 bytes. This ceiling applies to offline archives.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 1091 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

@@ -2985,3 +2985,21 @@ against the independently verified post-V326 quarter state, with the retained
 complement and navigation in the same transaction. Preserve older source and
 proof bytes, 93 tour stops, six modes and existing live budgets. Keep the
 preceding complete release and verify new archive and Pages inventories.
+
+## V328 — Heesestraße, Albrechtstraße and the old Steglitz post office
+
+The owner explicitly requested the nearby residential streets and their historic
+houses, the old Postamt with Notenkind and F. W. Bernstein's confirmed house.
+Distinguish photographed elevations from supported building levels and
+interpretive fittings. Use surveyed pavement areas with current street axes
+and leave unrelated street sections and older modeled surfaces intact.
+
+The exact Postamt owner may replace its old maximum-height proxy only as a
+complete measured Drawn and cardinal Native source-quarter transaction. Keep
+the rest of the original packet and its prior owners. The new Heesestraße and
+Albrechtstraße fittings and ground surfaces use that same existing tile
+lifetime. For the measured paving, replace only the four exact generic flat
+ground triangles under the new surfaces with their full outside complement
+at the same height and colour. Keep every other terrain index and walking floor. Retain the earlier V320 frontages and V326 road transaction, and
+verify their real runtime composition in both modes. Preserve the prior
+complete package and immutable source proofs. No live limits change.

@@ -1,3 +1,4 @@
+import { createSteglitzBernsteinV328 } from "./SteglitzBernsteinV328";
 import {
   createSteglitzSchoolStoresV327,
   steglitzLidlV327GroundAt,
@@ -183,6 +184,9 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       const steglitzPublicSpace = createSteglitzPublicSpaceV327(nextNative);
       if (steglitzPublicSpace) root.add(steglitzPublicSpace);
+      yield;
+      const bernstein = createSteglitzBernsteinV328(nextNative);
+      if (bernstein) root.add(bernstein);
       yield;
       root.add(createCivicPartyDetailsV246(nextNative));
       yield;
