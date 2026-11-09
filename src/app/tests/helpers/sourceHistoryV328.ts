@@ -1,7 +1,8 @@
 /** Verify the finite Steglitz street and post-office delta before older source-history layers read it. */
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { assertSourceLayerV329, projectSourceBeforeV329, sourceAtPublished209V329 } from "./sourceHistoryV329";
 
 export const SOURCE_HISTORY_PROOF_SHA_V328 = "e2edbf63d5d3f5e9ec4de0f0d20680e39b29143936fc5f4ae8004cef4fa71293";
 const previousProof = "72df433ac35d95f9374b95878a11f748c598f9f8ffbc55229877b73ee3530c62";
@@ -54,20 +55,17 @@ export function assertSourceLayerV328(published208: Readonly<Record<string, stri
       throw Error(`Invalid v328 source inverse: ${path}`);
     current[path] = inverse.currentSha256;
   }
-  const files = readdirSync(resolve(root, "src/app/src"), { recursive: true }).map(path => `src/app/src/${path}`)
-    .filter(path => /\.(?:ts|tsx|json)$/.test(path) && statSync(resolve(root, path)).isFile());
-  const inventory = new Set([...Object.keys(published), ...files]);
-  if (inventory.size !== Object.keys(current).length || [...inventory].some(path => !Object.hasOwn(current, path)))
-    throw Error("Changed or unaccounted v328 source inventory");
-  for (const path of inventory) {
-    const raw = readFileSync(resolve(root, path));
+  assertSourceLayerV329(current);
+  for (const path of Object.keys(current)) {
+    const raw = sourceAtPublished209V329(path, readFileSync(resolve(root, path)));
     if (sha(raw) !== current[path]) throw Error(`Changed complete v328 source graph: ${path}`);
-    if (Object.hasOwn(receipt.changes, path)) project(raw.toString("utf8"), receipt.changes[path]);
+    if (Object.hasOwn(receipt.changes, path)) project(Buffer.from(raw).toString("utf8"), receipt.changes[path]);
   }
   checked = { published: Object.freeze(published), current: Object.freeze(current), changes: receipt.changes };
 }
 
 export function sourceAtPublished208V328(path: string, raw: Uint8Array): Uint8Array {
+  raw = sourceAtPublished209V329(path, raw);
   if (!checked || !Object.hasOwn(checked.published, path) || sha(raw) !== checked.current[path])
     throw Error(`Unknown exact v328 source bytes: ${path}`);
   const inverse = checked.changes[path];
@@ -76,6 +74,7 @@ export function sourceAtPublished208V328(path: string, raw: Uint8Array): Uint8Ar
 
 export function projectSourceBeforeV328(source: string): string {
   if (!checked) throw Error("Unverified v328 source layer");
+  source = projectSourceBeforeV329(source);
   const digest = sha(source), records = Object.values(checked.changes).filter(inverse => inverse.currentSha256 === digest);
   if (!records.length) return source;
   if (Object.values(checked.current).filter(value => value === digest).length !== 1)

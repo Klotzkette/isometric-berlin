@@ -592,6 +592,7 @@ import {
   setSchwellenraumPraesentation,
 } from "./visual-modes/schwellenraum/presentation";
 import {
+  groundOverlayPresentationV329,
   schwellenraumMaterialFor,
   setSchwellenraumStandardMaterialTone,
 } from "./visual-modes/schwellenraum/materialGrade";
@@ -2807,12 +2808,12 @@ export function applyLightingToRoot(
     const nightMaterial = object.userData.nightMaterial as
       MeshBasicMaterial | MeshStandardMaterial | undefined;
     if (dayMaterial && nightMaterial) {
-      object.material =
-        objectMode === "night"
-          ? nightMaterial
-          : objectMode === "schwellenraum"
-            ? schwellenraumMaterialFor(object, dayMaterial)
-            : dayMaterial;
+      const baseMaterial = objectMode === "night"
+        ? nightMaterial
+        : objectMode === "schwellenraum"
+          ? schwellenraumMaterialFor(object, dayMaterial)
+          : dayMaterial;
+      object.material = groundOverlayPresentationV329(object, baseMaterial, objectMode);
     }
     // Swap flattened building geometry between its flat day colours and the
     // original per-vertex photogrammetry colours: day = piecewise-constant flat

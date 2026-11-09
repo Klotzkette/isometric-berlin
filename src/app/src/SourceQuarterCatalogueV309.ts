@@ -10,6 +10,9 @@ import northernIndex from "./data/northernFidelityV309Index.json";
 import federalIndexV321 from "./data/federalMinistriesV321PacketIndex.json";
 import universitiesIndexV322 from "./data/universitiesV322PacketIndex.json";
 import theatresIndexV322 from "./data/youthTheatreFrontsV322PacketIndex.json";
+import publicGreenIndexV329 from "./data/publicGreenV329Index.json";
+import parkPathsIndexV329 from "./data/parkPathsV329Index.json";
+import zebraCrossingsIndexV329 from "./data/zebraCrossingsV329Index.json";
 
 export type SourceQuarterRecipesV309=NonNullable<SurroundingOwnershipOptions["sourceQuarterSourcesV303"]>;
 export type SourceQuarterCatalogueEntryV309={
@@ -28,6 +31,24 @@ const loadNetworkV326=(file:string):Promise<{default:unknown}>=>{
  const path="./data/"+file,load=networkLoadersV326[path];
  return (load?load():import(/* @vite-ignore */ path)) as Promise<{default:unknown}>;
 };
+let groundLoadersV329: Record<string, () => Promise<unknown>> = {};
+try {
+  groundLoadersV329 = import.meta.glob([
+    "./data/publicGreenV329Packets*.json",
+    "./data/parkPathsV329Packets.json",
+    "./data/zebraCrossingsV329Packets*.json",
+  ]);
+} catch { /* Bun tests load the same immutable JSON. */ }
+const groundEntriesV329 = (
+  kind: string, sources: readonly { file: string; keys: readonly string[] }[],
+): SourceQuarterCatalogueEntryV309[] => sources.map(({ file, keys }) => ({
+  kind, keys,
+  load: () => {
+    const path = "./data/" + file;
+    const load = groundLoadersV329[path];
+    return (load ? load() : import(/* @vite-ignore */ path)) as Promise<{ default: unknown }>;
+  },
+}));
 export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV309[]=[
   {keys:southwestIndexV326.keys,kind:"southwest-sites-v326",requiredReplacement:true,admission:"southwest-sites-v326",load:()=>import("./data/southWestSitesV326Packets.json")},
   {keys:northeastIndexV326.keys,kind:"north-east-public-sites-v326",load:()=>import("./data/northEastPublicSitesV326Packets.json")},
@@ -67,6 +88,9 @@ export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV
     kind: "steglitz-streets-v328",
     load: () => import("./data/steglitzStreetsV328Packets.json"),
   },
+  ...groundEntriesV329("public-green-v329", publicGreenIndexV329.sources),
+  ...groundEntriesV329("park-paths-v329", parkPathsIndexV329.sources),
+  ...groundEntriesV329("zebra-crossings-v329", zebraCrossingsIndexV329.sources),
 ];
 
 /** Separate factory permits deterministic transport/retry tests without mocks

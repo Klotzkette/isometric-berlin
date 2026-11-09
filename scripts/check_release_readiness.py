@@ -149,7 +149,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # Existing bytes/coverage and every live startup/Worker/decode/residency cap stay.
 # v328 adds four Steglitz packet recipes and the Bernstein facade. Measured
 # v1.0.209 package: 1,143,552,783 bytes. This ceiling applies to offline archives.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 1091 * 1024 * 1024
+# v329 adds lazy green-space, park-path and zebra-crossing recipes.
+# The verified 1,150,308,283-byte package adds 6,755,500 bytes to v1.0.209.
+# 1098 MiB is the next whole-MiB ceiling for the offline package.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 1098 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

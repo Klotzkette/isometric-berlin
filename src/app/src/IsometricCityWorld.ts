@@ -355,7 +355,7 @@ import {
   type Builder,
 } from "./drawnKit";
 import { schwellenraumObjektmodus } from "./visual-modes/schwellenraum/presentation";
-import { schwellenraumMaterialFor } from "./visual-modes/schwellenraum/materialGrade";
+import { groundOverlayPresentationV329, schwellenraumMaterialFor } from "./visual-modes/schwellenraum/materialGrade";
 import {
   createTunnelPortalApproachTester,
   type TunnelPortalCourseInput,
@@ -2117,12 +2117,13 @@ export function setIsoNightPresentation(
     }
     const objectMode = schwellenraumObjektmodus(mode, object);
     const moonlitMaterial = object.userData.moonlitMaterial;
-    object.material =
+    const baseMaterial =
       objectMode === "night"
         ? !lightsOn && moonlitMaterial instanceof Material
           ? moonlitMaterial
           : nightMaterial
         : isometricDayMaterialForMode(object, dayMaterial, objectMode);
+    object.material = groundOverlayPresentationV329(object, baseMaterial, objectMode);
   });
   // Three.js Object3D.clone() JSON-clones userData, so these two authored
   // facade layers can carry material JSON in legacy clones instead of live

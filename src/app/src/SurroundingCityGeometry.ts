@@ -278,6 +278,7 @@ function disposeUnpublishedChunk(root: Group): void {
  * interleaved ink buffer. Nothing is triangulated or voxelised on the phone.
  */
 export type SurroundingOwnershipOptions = {
+  groundOverlaysV329?: boolean;
   /** Caller guarantees complete v239 bodies in the same publication transaction. */
   schlossplatzV239?: boolean;
   /** Caller guarantees the v240 opera recognition and native restoration. */
@@ -363,6 +364,12 @@ export function* prepareSurroundingQuarterPredecessorV303(
   return chunk;
 }
 
+export const groundOverlayKindsV329: ReadonlySet<string> = new Set([
+  "public-green-v329",
+  "park-paths-v329",
+  "zebra-crossings-v329",
+]);
+
 export function* buildSurroundingCityChunk(
   chunk: SurroundingCityChunk,
   id: string,
@@ -385,6 +392,7 @@ export function* buildSurroundingCityChunk(
     ? yield* captureNeighbourhoodPacketV300(chunk, id, minecraft, true, ownership.clusterFacadesV320, "cluster-facades-v320")
     : undefined;
   const quarterTicketsV303:SourceQuarterTicketV303[]=[];
+  const groundOverlayTicketsV329: SourceQuarterTicketV303[] = [];
   if(ownership.sourceQuartersV303===true)for(const entry of ownership.sourceQuarterSourcesV303??[]){
     if(entry.admission==="southwest-sites-v326"?ownership.southWestSitesV326!==true:
       entry.admission==="north-v309"?ownership.northFidelityV309!==true:
@@ -396,15 +404,23 @@ export function* buildSurroundingCityChunk(
       entry.requiredReplacement&&ownership.neukoellnLandmarksV305!==true)continue;
     if(!neighbourhoodPacketCandidateV300(entry.source as unknown as NeighbourhoodSourceV300,id,minecraft))continue;
     const plan=entry.source.packets[`${minecraft?"minecraft":"drawn"}:${id}`];
+    const overlay = groundOverlayKindsV329.has(entry.kind);
+    // The older Rosenthaler aperture validates the complete decoded lengths.
+    // Admit only ordinary additive ground recipes, after the older owners.
+    if (overlay && (ownership.groundOverlaysV329 === false || id === "3_-3" || id === "4_-3" ||
+        !plan || plan.preparedRecords || plan.retire?.length !== 0)) continue;
     const ticket=plan?.preparedRecords
       ?yield*captureSourceQuarterPacketV303(chunk,id,minecraft,true,entry.source,entry.kind,entry.requiredReplacement)
       :yield*captureNeighbourhoodPacketV300(chunk,id,minecraft,true,entry.source as unknown as NeighbourhoodSourceV300,entry.kind);
-    if(ticket)quarterTicketsV303.push(ticket);
+    if (ticket) (overlay ? groundOverlayTicketsV329 : quarterTicketsV303).push(ticket);
   }
   chunk = yield* prepareSurroundingQuarterPredecessorV303(chunk,id,minecraft,ownership);
   for(const ticket of quarterTicketsV303)chunk=yield*prepareSourceQuarterPacketV303(chunk,ticket);
   chunk = yield* prepareNeighbourhoodPacketV300(chunk, clusterTicketV320);
   chunk = yield* prepareNeighbourhoodPacketV300(chunk, senateTicketV321);
+  const firstGroundOverlayPart = chunk.meshes.length;
+  for (const ticket of groundOverlayTicketsV329) chunk = yield* prepareNeighbourhoodPacketV300(chunk, ticket);
+
   if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
@@ -448,7 +464,9 @@ export function* buildSurroundingCityChunk(
     const colourOwners = chunk.meshes.some(part => part.kind === "city" && part.colorType !== "u16linear")
       ? yield* surroundingColourOwners(chunk.nav.buildings, chunk.nav.groundY, chunk.origin[1], chunk.origin[0], chunk.origin[2], undefined, refineOuterRoofsV230(id), refineOuterHousePaletteV262(id), refineOuterHousePaletteV262(id) ? primaryHousePaletteV273 : undefined) : undefined;
     let vertexOffset = 0, indexOffset = 0;
+    let groundOverlayStart: number | undefined;
     for (const [meshIndex, part] of chunk.meshes.entries()) {
+      if (meshIndex === firstGroundOverlayPart) groundOverlayStart = indexOffset;
       const count = encodedBytes(part.positions, 6) / 6;
       yield* interleavedPositions(part.positions, vertices, vertexOffset, 6);
       yield* interleavedColors(part.colors, vertices, vertexOffset, part.kind === "city" ? colourOwners : undefined, !minecraft, part.colorType === "u16linear");
@@ -576,11 +594,27 @@ export function* buildSurroundingCityChunk(
         vertexColors: true, flatShading: true, roughness: 1, metalness: 0, side: DoubleSide,
       });
       const dayMaterial = minecraft ? nightMaterial : new MeshBasicMaterial({ vertexColors: true, side: DoubleSide });
-      const body = new Mesh(geometry, dayMaterial);
+      const body = new Mesh<BufferGeometry, Material | Material[]>(geometry, dayMaterial);
       body.name = `${root.name} mapped surfaces and massing`;
       body.scale.setScalar(0.01);
       body.userData.dayMaterial = dayMaterial;
       body.userData.nightMaterial = nightMaterial;
+      if (groundOverlayStart !== undefined) {
+        const offsetMaterial = (source: MeshBasicMaterial | MeshStandardMaterial) => {
+          const material = source.clone();
+          material.polygonOffset = true;
+          material.polygonOffsetFactor = -1;
+          material.polygonOffsetUnits = -2;
+          return material;
+        };
+        const overlayDay = offsetMaterial(dayMaterial);
+        const overlayNight = minecraft ? overlayDay : offsetMaterial(nightMaterial);
+        geometry.addGroup(0, groundOverlayStart, 0);
+        geometry.addGroup(groundOverlayStart, indexCount - groundOverlayStart, 1);
+        body.userData.groundOverlayDayV329 = overlayDay;
+        body.userData.groundOverlayNightV329 = overlayNight;
+        body.material = [dayMaterial, overlayDay];
+      }
       body.userData.surroundingCity = true;
       root.add(body);
       yield* geometryBounds(geometry);

@@ -3014,3 +3014,13 @@ The finite [mapped transport fittings](docs/network-fidelity-v326.md) and
 OSM source identities (© OpenStreetMap contributors, ODbL 1.0). Approach heights
 use the retained Geoportal Berlin DGM1 source and its existing attribution.
 No external photographs, fonts or map tiles become runtime pixels.
+
+## Public green spaces, park paths and zebra crossings (v329)
+
+Land Berlin / Geoportal Berlin supplies the dedicated GRIS green spaces and
+playgrounds, ALKIS vegetation polygons, Straßenbefahrung road marking areas and
+the crossing register under the [Datenlizenz Deutschland Zero 2.0](https://www.govdata.de/dl-de/zero-2-0).
+Mapped vegetation, paths, path materials and zebra-crossing tags are ©
+[OpenStreetMap contributors](https://www.openstreetmap.org/copyright), ODbL 1.0.
+See the [green-space source notes](docs/public-green-v329.md) and
+[zebra-crossing source notes](docs/zebra-crossings-v329.md).

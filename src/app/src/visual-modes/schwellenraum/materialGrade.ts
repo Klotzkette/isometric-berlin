@@ -47,6 +47,25 @@ function gradeFragmentShader(source: string): string {
   );
 }
 
+/** The material factory is also used for the independently depth-biased ground groups. */
+function createSchwellenraumMaterialGrade(dayMaterial: Material): Material {
+  const material = dayMaterial.clone();
+  restoreInheritedReichstagSectionV318(dayMaterial, material);
+  material.name = `${dayMaterial.name || dayMaterial.type} Schwellenraum grade`;
+  material.userData.schwellenraumMaterialGrade = true;
+  const previousOnBeforeCompile = material.onBeforeCompile.bind(material);
+  const previousProgramCacheKey = material.customProgramCacheKey();
+  material.onBeforeCompile = (shader, renderer) => {
+    previousOnBeforeCompile(shader, renderer as WebGLRenderer);
+    const patchable = shader as unknown as PatchableShader;
+    patchable.fragmentShader = gradeFragmentShader(patchable.fragmentShader);
+  };
+  material.customProgramCacheKey = () =>
+    `${previousProgramCacheKey}|schwellenraum-material-grade-v3`;
+  material.needsUpdate = true;
+  return material;
+}
+
 /**
  * Build one lazily cached material variant for the atmospheric mode.
  *
@@ -62,20 +81,7 @@ export function schwellenraumMaterialFor(
   const cached = object.userData.schwellenraumMaterial;
   if (cached instanceof Material) return cached;
 
-  const material = dayMaterial.clone();
-  restoreInheritedReichstagSectionV318(dayMaterial, material);
-  material.name = `${dayMaterial.name || dayMaterial.type} Schwellenraum grade`;
-  material.userData.schwellenraumMaterialGrade = true;
-  const previousOnBeforeCompile = material.onBeforeCompile.bind(material);
-  const previousProgramCacheKey = material.customProgramCacheKey();
-  material.onBeforeCompile = (shader, renderer) => {
-    previousOnBeforeCompile(shader, renderer as WebGLRenderer);
-    const patchable = shader as unknown as PatchableShader;
-    patchable.fragmentShader = gradeFragmentShader(patchable.fragmentShader);
-  };
-  material.customProgramCacheKey = () =>
-    `${previousProgramCacheKey}|schwellenraum-material-grade-v3`;
-  material.needsUpdate = true;
+  const material = createSchwellenraumMaterialGrade(dayMaterial);
   const receipt = { day: dayMaterial, grade: material, disposed: false };
   dayMaterial.addEventListener("dispose", () => {
     if (!isSceneMaterialProgramRetirementV321(dayMaterial)) receipt.disposed = true;
@@ -86,6 +92,20 @@ export function schwellenraumMaterialFor(
   materialProvenance.set(object, receipt);
   object.userData.schwellenraumMaterial = material;
   return material;
+}
+
+/** Preserve the overlay group when a streamed ground mesh switches mode. */
+export function groundOverlayPresentationV329(
+  object: Object3D, baseMaterial: Material, mode: VisualMode,
+): Material | Material[] {
+  const day = object.userData.groundOverlayDayV329;
+  if (!(day instanceof Material)) return baseMaterial;
+  const overlay = mode === "night"
+    ? object.userData.groundOverlayNightV329
+    : mode === "schwellenraum"
+      ? (object.userData.groundOverlaySchwellenraumV329 ??= createSchwellenraumMaterialGrade(day))
+      : day;
+  return [baseMaterial, overlay];
 }
 
 /** A matching no-recompile tint for ordinary lit authored materials. */

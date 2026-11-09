@@ -1,5 +1,5 @@
 import {hasUbahnGroundApproachSourceV326,ubahnGroundApproachAtV326} from "./UbahnGroundApproachesV326";
-import {attachPacketUbahnAccessV326Steps,ubahnGroundMaskBytesV326,type UbahnGroundRuntimeV326} from "./UbahnGroundRuntimeV326";
+import {attachPacketUbahnAccessV326Steps,ubahnCandidatesV326,ubahnGroundMaskBytesV326,type UbahnGroundRuntimeV326} from "./UbahnGroundRuntimeV326";
 import {createPublicMonumentsPacketV326Steps,type PublicMonumentsPacketV326} from "./PublicMonumentsPacketV326";
 import {northEastPublicSiteGroundAtV326,northEastPublicSiteWaterAtV326,northEastPublicSiteSolidAtV326} from "./NorthEastPublicSitesV326";
 import { disposeSurroundingCityRoot } from "./disposeSurroundingCityRootV323";
@@ -12,7 +12,7 @@ import { createTierparkHouseV282 } from './ZooHousesV282';
 import { mierendorffFloorAtV269 } from "./MierendorffV269";
 import { Box3, Frustum, Group, InstancedMesh, Matrix4, Vector3, type BufferGeometry, type Camera, Mesh } from "three";
 import {
-  createSurroundingCityChunkCooperatively, surroundingBuildingSolidAt, surroundingPolygonContains, validSurroundingPolygon,
+  createSurroundingCityChunkCooperatively, groundOverlayKindsV329, surroundingBuildingSolidAt, surroundingPolygonContains, validSurroundingPolygon,
   type SurroundingCityChunk, type SurroundingChunkGeometry, type SurroundingNavigation, type SurroundingPolygon,
   type SurroundingChunkSchedule, type SurroundingOwnershipOptions,
 } from "./SurroundingCityGeometry";
@@ -582,9 +582,13 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           const southOwnersReady = options.southFidelityV294?.(minecraft) === true;
           const southReceiptTile = SOUTH_RECEIPT_TILES_V294.has(`${minecraft ? "minecraft" : "drawn"}:${descriptor.id}`);
           const southAdmissionChanged = (): boolean => southReceiptTile && southOwnersReady !== (options.southFidelityV294?.(minecraft) === true);
+          // Aperture hosts require one authenticated material for their full lifetime.
+          const groundOverlaysV329 = options.publicSitesV326 !== true || !!descriptor.detailCompanionOf ||
+            !sourceQuarterSourcesV303?.some(({kind}) => groundOverlayKindsV329.has(kind)) ||
+            ubahnCandidatesV326(descriptor.bounds).length === 0;
           const entry = await createStreamedSurroundingCityChunkV255(
             data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
-            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,clusterFacadesV320:options.clusterFacadesV320,berlinSenateV321:options.berlinSenateV321,governmentOfficesV321:governmentReadyV321,universitiesV322:universitiesReadyV322,wilhelmHousingV324:wilhelmReadyV324,wilhelmStreetFrontsV325:wilhelmStreetReadyV325,southWestSitesV326:southwestReadyV326,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317 },
+            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,clusterFacadesV320:options.clusterFacadesV320,berlinSenateV321:options.berlinSenateV321,governmentOfficesV321:governmentReadyV321,universitiesV322:universitiesReadyV322,wilhelmHousingV324:wilhelmReadyV324,wilhelmStreetFrontsV325:wilhelmStreetReadyV325,southWestSitesV326:southwestReadyV326,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,groundOverlaysV329,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317 },
           );
           unpublished = entry.root;
           if(options.publicSitesV326===true&&!descriptor.detailCompanionOf){

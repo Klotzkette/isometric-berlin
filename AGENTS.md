@@ -3003,3 +3003,15 @@ ground triangles under the new surfaces with their full outside complement
 at the same height and colour. Keep every other terrain index and walking floor. Retain the earlier V320 frontages and V326 road transaction, and
 verify their real runtime composition in both modes. Preserve the prior
 complete package and immutable source proofs. No live limits change.
+
+## V329 — Public green spaces, park paths and marked crossings
+
+The owner requested a Berlin-wide accuracy pass within represented city
+surfaces. Use dedicated public green inventory boundaries only with distinct
+land-cover evidence, current mapped park paths with material tags, and recorded
+zebra markings. Intersect each addition with its actual source-owned surface in
+the appropriate Drawn or cardinal Native packet. Retain earlier terrain,
+streets, navigation and opening owners, including V326 U-Bahn and Rosenthaler.
+Document missing source or host coverage. Use existing lazy lifetimes and live
+limits. Only the measured offline-package allowance may grow. Keep the
+preceding complete release, immutable source proofs, tour and all six modes.
