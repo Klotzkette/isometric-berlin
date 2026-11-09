@@ -2968,3 +2968,20 @@ compatible ground hosts, keep shadow and walking apertures identical and restore
 the exact prior hooks on release. Count mask storage within existing residency
 limits, disable immediately when its private model/source gate closes and avoid
 an all-stations per-fragment scan. Distant openings use their packet lifetime.
+
+## V327 — Steglitz corrections (v1.0.208)
+
+The owner identified Gymnasium Steglitz and the nearby Aldi and Lidl and
+requested further detail at Steglitzer Kreisel, Hermann-Ehlers-Platz and along
+Schloßstraße. Limit new geometry to the identified school, Bergstraße stores,
+Kreisel podium, plaza and source-supported street landmarks. Keep earlier school
+and plaza details. Model the documented actual construction state and open
+levels. Keep planned rebuilds and unverified interiors out of represented
+geometry and walking. New visual and walking details share the same admitted
+owner and the existing two-family lazy lifetimes.
+
+For the Bierpinsel and Titania-Palast only, allow finite full-source replacements
+against the independently verified post-V326 quarter state, with the retained
+complement and navigation in the same transaction. Preserve older source and
+proof bytes, 93 tour stops, six modes and existing live budgets. Keep the
+preceding complete release and verify new archive and Pages inventories.

@@ -7,6 +7,8 @@ import ts from'typescript';
 import {assertSourceLayerV326,SOURCE_HISTORY_PROOF_SHA_V326,verifySourceLayerV326,published206SourceGraphV326,sourceAtPublished206V326,projectSourceBeforeV326,SOURCE_HISTORY_PUBLISHED_V206_V326,SOURCE_HISTORY_PROOF_V325_SHA_V326,SOURCE_HISTORY_CAPTURE_SHA_V326,type SourceReceiptV326}from'./helpers/sourceHistoryV326';
 import {verifySourceLayerV325,sourceAtPublished205V325,SOURCE_HISTORY_PUBLISHED_V205_V325,SOURCE_HISTORY_PROOF_V324_SHA_V325,SOURCE_HISTORY_CAPTURE_SHA_V325,type SourceReceiptV325}from'./helpers/sourceHistoryV325';
 
+import { sourceAtPublished207V327 } from "./helpers/sourceHistoryV327";
+
 const sha=(raw:string|Uint8Array)=>createHash('sha256').update(raw).digest('hex');
 const inverse=(before:string,current:string)=>({beforeSha256:sha(before),currentSha256:sha(current),replacements:[{before,current}]});
 const tool='/Users/klotzkette/Documents/Codex/2026-10-29/find-isometric-berlin/release-plan-v207/capture_source_bridge_v326.py';
@@ -47,7 +49,7 @@ test.skipIf(!existsSync(tool))('external strict-delta tool verifies all independ
 },30000);
 
 test('new history helper imports no earlier helper and the complete existing helper graph stays acyclic',()=>{
- const directory=new URL('./helpers/',import.meta.url),graph=new Map<string,string[]>();for(const name of readdirSync(directory).filter(n=>/^sourceHistoryV\d+\.ts$/.test(n))){const ast=ts.createSourceFile(name,readFileSync(new URL(name,directory),'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);graph.set(name,ast.statements.flatMap(n=>ts.isImportDeclaration(n)&&ts.isStringLiteral(n.moduleSpecifier)&&/^\.\/sourceHistoryV\d+$/.test(n.moduleSpecifier.text)?[n.moduleSpecifier.text.slice(2)+'.ts']:[]));}expect(graph.get('sourceHistoryV326.ts')).toEqual([]);const active=new Set<string>(),done=new Set<string>();const visit=(p:string)=>{expect(active.has(p)).toBe(false);if(done.has(p))return;active.add(p);for(const next of graph.get(p)??[])visit(next);active.delete(p);done.add(p);};for(const p of graph.keys())visit(p);
+ const directory=new URL('./helpers/',import.meta.url),graph=new Map<string,string[]>();for(const name of readdirSync(directory).filter(n=>/^sourceHistoryV\d+\.ts$/.test(n))){const ast=ts.createSourceFile(name,readFileSync(new URL(name,directory),'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);graph.set(name,ast.statements.flatMap(n=>ts.isImportDeclaration(n)&&ts.isStringLiteral(n.moduleSpecifier)&&/^\.\/sourceHistoryV\d+$/.test(n.moduleSpecifier.text)?[n.moduleSpecifier.text.slice(2)+'.ts']:[]));}expect(graph.get('sourceHistoryV326.ts')).toEqual(['sourceHistoryV327.ts']);expect(graph.get('sourceHistoryV327.ts')).toEqual([]);const active=new Set<string>(),done=new Set<string>();const visit=(p:string)=>{expect(active.has(p)).toBe(false);if(done.has(p))return;active.add(p);for(const next of graph.get(p)??[])visit(next);active.delete(p);done.add(p);};for(const p of graph.keys())visit(p);
 });
 
 test("the complete reconstructed 206 inventory and every original blob match independent Git206 bytes", async () => {
@@ -111,7 +113,7 @@ test("the frozen actual207 default layer proves every2093 path and complete2019 
   expect(Object.keys(layer.receipt.changes)).toHaveLength(9);
   for(const path of Object.keys(layer.currentGraph)){
     const current=readFileSync(new URL(path,root));
-    expect(sha(current)).toBe(layer.currentGraph[path]);
+    expect(sha(sourceAtPublished207V327(path,current))).toBe(layer.currentGraph[path]);
     if(Object.hasOwn(layer.receipt.additions,path)){
       expect(()=>sourceAtPublished206V326(path,current)).toThrow("Unknown exact");
       expect(()=>sourceAtPublished205V325(path,current)).toThrow("Unknown exact");

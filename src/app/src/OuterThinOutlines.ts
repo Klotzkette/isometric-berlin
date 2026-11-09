@@ -36,12 +36,14 @@ export function* createOuterThinOutlinesSteps(
   let completed = false;
   let landmarks:Group|undefined;
   const retiredArchenholdV322=(owner:string)=>root.visible&&!!landmarks&&landmarks.parent===root&&landmarks!.visible&&landmarks!.userData.previousArchenholdOwnerV322?.(owner)===true;
+  const activeLandmarks = () => root.visible && landmarks?.parent === root && landmarks.visible ? landmarks : undefined;
   try {
     root.name = "Connected outer Berlin hairline outlines v180";
     root.userData = { outlineOnly: true, textureFree: true, features: data.features, navigationTiles: regionalV200NavigationTiles };
     // Keep detailed navigation in this lazy supplement, out of the startup bundle.
     root.userData.solidAt = (x: number, y: number, z: number, radius = 0) =>
       root.visible&&!!landmarks&&landmarks.parent===root&&landmarks!.visible&&landmarks!.userData.publicSitesSolidAtV322?.(x,y,z,radius)===true ||
+      activeLandmarks()?.userData.steglitzStoresSolid(x, y, z, radius) === true ||
       eurefV262SolidAt(x, y, z, radius, activeMode === "minecraft") ||
       tempelhofV261SolidAt(x, y, z, radius, activeMode === "minecraft") ||
       danzigerTramSolidAtV249(x, y, z, radius, activeMode === "minecraft") ||
@@ -64,6 +66,8 @@ export function* createOuterThinOutlinesSteps(
       regionalV200WaterAt(x, z);
     root.userData.interiorGroundAtV322=(x:number,z:number,currentY?:number)=>
       root.visible&&landmarks?.parent===root&&landmarks.visible?landmarks.userData.publicSitesInteriorGroundAtV322?.(x,z,currentY)??null:null;
+    root.userData.steglitzStoresFloor = (x: number, z: number, currentY?: number) =>
+      activeLandmarks()?.userData.steglitzStoresFloor(x, z, currentY) ?? null;
     root.userData.groundAt = (x: number, z: number) =>
       eurefV262GroundAt(x, z, activeMode === "minecraft") ??
       windkanalV261GroundAt(x, z, activeMode === "minecraft") ??

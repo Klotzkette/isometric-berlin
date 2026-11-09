@@ -42,6 +42,11 @@ export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV
   {keys:northernIndex.keys,kind:"northern-fidelity-v309",requiredReplacement:true,admission:"north-v309",load:()=>import("./data/northernFidelityV309Packets.json")},
   {keys:families(["10_4","10_5","ring182-11_5"]),kind:"treptow-waterfront-v317",requiredReplacement:true,admission:"treptow-v317",load:()=>import("./data/treptowWaterfrontV317Packets.json")},
   ...networkIndexV326.sources.map(source=>({keys:source.keys,kind:"network-fidelity-v326",load:()=>loadNetworkV326(source.file)})),
+  {
+    keys: families(["ring182--7_11", "ring182--7_12"]),
+    kind: "schlossstrasse-v327",
+    load: () => import("./data/schlossstrasseV327Packets.json"),
+  },
 ];
 
 /** Separate factory permits deterministic transport/retry tests without mocks

@@ -23,10 +23,17 @@ export const GALLERY_FLIGHT_START_V223: Pick<NavigationSnapshot, "pose" | "fov">
   fov: 16,
 };
 
-// Metadata only for the existing selection card and place links. These two
-// represented buildings do not become extra entries in the 93-stop catalogue.
-export const STARTUP_ONLY_SIGHTS = ["Kaiser-Wilhelm-Gedächtniskirche", "Rotes Rathaus"].map(name =>
-  ({ name, role: "owner_added" }));
+// Extra place links use the same focus control without adding tour stops.
+export const STARTUP_ONLY_SIGHTS = [
+  "Kaiser-Wilhelm-Gedächtniskirche",
+  "Rotes Rathaus",
+  "Gymnasium Steglitz",
+  "Bergstraße",
+  "Steglitzer Kreisel",
+  "Hermann-Ehlers-Platz",
+  "Schloßstraße",
+  "Titania-Palast",
+].map(name => ({ name, role: "owner_added" }));
 
 export function startupOnlySight(name: string) {
   return STARTUP_ONLY_SIGHTS.find(sight => sight.name === name) ?? null;

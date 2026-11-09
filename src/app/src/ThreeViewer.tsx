@@ -1860,7 +1860,10 @@ async function ensureWilhelmHousingLegacyV324(runtime:Runtime):Promise<void>{
 function installGovernmentNavigationV321(runtime:Runtime,environment:PedestrianEnvironment):void{
   const floor=environment.interiorGroundAt,solid=environment.interiorSolidAt;
   environment.interiorGroundAt=(x,z,current)=>(governmentNavigationCandidateV322(runtime,x,z)?currentGovernmentOfficesV321(runtime)?.groundAt(x,z,current):null)??
-    (runtime.outerThinOutlines?.parent===runtime.scene&&runtime.outerThinOutlines.visible?runtime.outerThinOutlines.userData.interiorGroundAtV322?.(x,z,current):null)??floor?.(x,z,current)??null;
+    (runtime.outerThinOutlines?.parent === runtime.scene && runtime.outerThinOutlines.visible
+      ? runtime.outerThinOutlines.userData.interiorGroundAtV322?.(x,z,current) ??
+        runtime.outerThinOutlines.userData.steglitzStoresFloor?.(x,z,current)
+      : null) ?? floor?.(x,z,current) ?? null;
   environment.interiorSolidAt=(x,y,z,radius=0)=>governmentNavigationCandidateV322(runtime,x,z,radius)&&currentGovernmentOfficesV321(runtime)?.solidAt(x,y,z,radius)===true||solid?.(x,y,z,radius)===true;
 }
 function applyGovernmentLightingV321(runtime:Runtime,mode:LightingMode,lightsOn:boolean):void{

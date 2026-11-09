@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "33c40da005e5838195195ddcdfee7c00c68025e70402c9126fc8dcffd9da1c3d",
+  "retained": {
+    "src/app/src/data/steglitzV182Navigation.json": "239a094447ae6f63e4afbfe20a53d91e02c2a7e1c0c22941e7ff692bc98c125d",
+    "src/app/src/data/steglitzV182Native.json": "3dc6f2b943375f38dc4f5fac0d24648e485d560c4474cc4bb3706607e24e2bbb",
+    "src/app/src/data/steglitzGroundV247.json": "393d8dbc10d1e32e5f2ec80c451b6cb1142ca45e4cdde7e6fed4c85fd8f2002e",
+    "src/app/src/data/steglitzV182Source.json": "e99229bea15cd0a3e904b7ee31d18bf0f47056c2ac8679432ccd67e7a5d939f6",
+    "src/app/src/data/steglitzV246Details.json": "78aed9044e4e7ace465bfe10206461fc040ec58694af5e6ce295db99db28ef75",
+    "src/app/src/data/hermannEhlersFountainV248.json": "4e5a842e4ee3c35cd90397e572c12606f5ab56b6ddb4852de7f63fd49b18e84d"
+  },
+  "upperPodium": {
+    "parent": "DEBE06YYB0000Xmt",
+    "parts": [
+      "DEBE3DAMKi1nrn2K",
+      "DEBE3DBZPfWxqQVV",
+      "DEBE3DCffUswQxtf",
+      "DEBE3DDvRKm035d6",
+      "DEBE3DHbu4Udxgth",
+      "DEBE3DIRHruDvOrt",
+      "DEBE3DLnK0XtofMT",
+      "DEBE3DMxkX0jdPYF",
+      "DEBE3DNQ1sGIlxY0",
+      "DEBE3DQ6WjIpAPTe",
+      "DEBE3DSXgbbOhdQi",
+      "DEBE3DUKitGVcpF7",
+      "DEBE3DUbUuWPdfXx",
+      "DEBE3DVFZRiU6Ui6",
+      "DEBE3DWAGPgrPDmn",
+      "DEBE3DYFUYtxfrX3",
+      "DEBE3Da6tTWEplVz",
+      "DEBE3DbItT6DQ8Za",
+      "DEBE3DdbYw10ReCV",
+      "DEBE3Df9I7mIBylD",
+      "DEBE3DfTWGKooDT1",
+      "DEBE3DjImkVCFFZY",
+      "DEBE3DkE9xpDlHsI",
+      "DEBE3DlP5BKcPkFQ",
+      "DEBE3DmwjW09ABUv",
+      "DEBE3DvXj8YXTEKJ"
+    ],
+    "archiveSha256": "449c578e18e5848d082c5bf7fad8a87caee74d613bc91b913301e53667d28c99",
+    "rigidYOffsetM": -8.242,
+    "nativeWholeRoofCells": 11946,
+    "oldRoofY": 10.05,
+    "nativeRows": 954,
+    "areaM2": 12421.77627,
+    "existingNativePacketCellsRetained": 0,
+    "packetSourcePins": {
+      "src/app/public/mesh/surrounding-berlin-v159/ring182--8_13.minecraft.json.gz": "b0aa2830269581ab7f1b814c065cd266ca36a86412114807cc9ecb83e6451428",
+      "src/app/public/mesh/surrounding-berlin-v159/ring182--7_13.minecraft.json.gz": "e2ca22348a6a74e1d9212ae6375420ef4c2eb43d8ab7faf380c6ab29ba5d5792"
+    }
+  },
+  "plaza": {
+    "marketSource": "node/3980482215",
+    "marketStands": [
+      [
+        -3540.128024586069,
+        6809.403369643038
+      ],
+      [
+        -3539.5901959683288,
+        6813.8430476018475
+      ],
+      [
+        -3535.015542482593,
+        6806.982104118226
+      ],
+      [
+        -3533.2670811024473,
+        6813.978023128773
+      ],
+      [
+        -3545.9133108342107,
+        6813.708072074922
+      ],
+      [
+        -3539.993049059143,
+        6803.080254777156
+      ]
+    ],
+    "reservedWalkWidthM": 3.1,
+    "memorialSource": "node/6874973858",
+    "plazaSource": "relation/10741017",
+    "retainedSourceHoles": 2
+  },
+  "transit": {
+    "platformCanopies": [
+      "way/392427434",
+      "way/392427437"
+    ],
+    "stairRailSource": "way/346265207",
+    "stairSides": 2,
+    "busPortalMarkers": [
+      "way/70168262"
+    ],
+    "retainedBlockedV182Passage": true
+  },
+  "counts": {
+    "drawn:measured-podium-wall": 371,
+    "drawn:measured-podium-roof": 443,
+    "native:measured-podium-skin": 954,
+    "drawn:secondary-scaffold": 312,
+    "drawn:parking-panel-bands": 30,
+    "drawn:parking-vents": 60,
+    "drawn:parking-blue-fascia": 3,
+    "native:secondary-scaffold": 20,
+    "native:parking-vents": 9,
+    "drawn:market-frame": 24,
+    "drawn:market-counter": 6,
+    "drawn:market-crate": 30,
+    "drawn:market-produce": 30,
+    "drawn:market-awning": 168,
+    "drawn:red-memorial-stele": 8,
+    "native:market-frame": 24,
+    "native:market-counter": 6,
+    "native:market-crate": 30,
+    "native:market-produce": 30,
+    "native:market-awning": 126,
+    "native:red-memorial-stele": 8,
+    "drawn:bus-shelter-roof": 2,
+    "drawn:bus-shelter-fascia": 2,
+    "drawn:bus-shelter-post": 4,
+    "drawn:bus-shelter-bench": 6,
+    "drawn:bus-information": 4,
+    "native:bus-shelter-roof": 2,
+    "native:bus-shelter-fascia": 2,
+    "native:bus-shelter-post": 4,
+    "native:bus-shelter-bench": 6,
+    "native:bus-information": 4,
+    "drawn:stair-mouth-rail": 2,
+    "drawn:stair-mouth-post": 14,
+    "native:stair-mouth-post": 14,
+    "native:stair-mouth-rail": 44,
+    "drawn:bus-portal-blue-jamb": 2,
+    "drawn:bus-portal-metal-lintel": 1,
+    "native:bus-portal-blue-jamb": 2
+  },
+  "bufferBytes": {
+    "drawn": 77064,
+    "native": 98308
+  },
+  "dataSha256": "03b3986103dce30c24acd36c1365e85563ff45dc4643d4d002c14d45f5a87b24"
+}

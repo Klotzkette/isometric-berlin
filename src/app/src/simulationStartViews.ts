@@ -60,6 +60,36 @@ export const SIMULATION_START_VIEWS: Record<string, {
     target: [2495.891, 25, 99.061],
     fov: 39,
   },
+  "Gymnasium Steglitz": {
+    position: [-3390, 52, 6910],
+    target: [-3251, 12, 6825],
+    fov: 34,
+  },
+  "Bergstraße": {
+    position: [-3062, 105, 6985],
+    target: [-3062, 9, 6654],
+    fov: 44,
+  },
+  "Steglitzer Kreisel": {
+    position: [-3180, 168, 6660],
+    target: [-3555, 42, 6900],
+    fov: 16,
+  },
+  "Hermann-Ehlers-Platz": {
+    position: [-3210, 150, 7080],
+    target: [-3473, 7, 6832],
+    fov: 16,
+  },
+  "Schloßstraße": {
+    position: [-3485, 92, 6465],
+    target: [-3319, 23, 6314],
+    fov: 16,
+  },
+  "Titania-Palast": {
+    position: [-3075, 48, 5966],
+    target: [-3173, 15, 6040],
+    fov: 22,
+  },
   "Neue Nationalgalerie": {
     position: galleryTarget.map((value, i) => value +
       DEFAULT_THREE_CAMERA_OFFSET[i] / Math.hypot(...DEFAULT_THREE_CAMERA_OFFSET) * 190) as [number, number, number],

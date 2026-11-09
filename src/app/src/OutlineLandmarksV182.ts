@@ -1,3 +1,9 @@
+import {
+  createSteglitzSchoolStoresV327,
+  steglitzLidlV327GroundAt,
+  steglitzLidlV327SolidAt,
+} from "./SteglitzSchoolStoresV327";
+import { createSteglitzPublicSpaceV327 } from "./SteglitzPublicSpaceV327";
 import {createSouthWestSitesV326Steps,hasSouthWestSitesRuntimeV326,disposeSouthWestSitesV326} from "./SouthWestSitesV326";
 import {createPfaueninselPeacockClockV326,createPfaueninselPeacocksV326} from "./PfaueninselPeacocksV326";
 import { createEurefCampusV262 } from "./EurefCampusV262";
@@ -113,6 +119,17 @@ export function* createOutlineLandmarksV182Steps(
   root.name = "Berlin outline landmark additions v182";
   if(ownership.publicSitesV322){root.updateMatrix();root.matrixAutoUpdate=false;}
   let native: boolean | undefined;
+  let steglitzSchoolStores: Group | null = null;
+  const activeSteglitzSchoolStores = () => root.visible && steglitzSchoolStores?.parent === root
+    ? steglitzSchoolStores : null;
+  root.userData.steglitzStoresFloor = (x: number, z: number, currentY?: number) => {
+    const model = activeSteglitzSchoolStores();
+    return model ? steglitzLidlV327GroundAt(model, x, z, currentY) : null;
+  };
+  root.userData.steglitzStoresSolid = (x: number, y: number, z: number, radius: number) => {
+    const model = activeSteglitzSchoolStores();
+    return model ? steglitzLidlV327SolidAt(model, x, y, z, radius) : false;
+  };
   let southwestV326:Group|null=null,peacocksV326:Group|null=null;
   const peacockClockV326=createPfaueninselPeacockClockV326();
   root.userData.hasSouthWestSitesV326=(family:boolean)=>hasSouthWestSitesRuntimeV326(root,southwestV326,family);
@@ -160,6 +177,12 @@ export function* createOutlineLandmarksV182Steps(
       justice = undefined;
       disposeOutlineConstruction(root);
       root.add(nextNative ? createMinecraftSteglitzV182() : createSteglitzV182());
+      yield;
+      steglitzSchoolStores = createSteglitzSchoolStoresV327(nextNative);
+      if (steglitzSchoolStores) root.add(steglitzSchoolStores);
+      yield;
+      const steglitzPublicSpace = createSteglitzPublicSpaceV327(nextNative);
+      if (steglitzPublicSpace) root.add(steglitzPublicSpace);
       yield;
       root.add(createCivicPartyDetailsV246(nextNative));
       yield;

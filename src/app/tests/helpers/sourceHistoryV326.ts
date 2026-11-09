@@ -1,8 +1,9 @@
 /** Test-only finite current207 -> published206 delta, before immutable v325.
  * This module deliberately imports no older history helper: V325 calls it. */
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { assertSourceLayerV327, projectSourceBeforeV327, sourceAtPublished207V327 } from "./sourceHistoryV327";
 
 export const SOURCE_HISTORY_PUBLISHED_V206_V326 = "d9f43e1672dd1aad332ed59549035cf33e6aa91c";
 export const SOURCE_HISTORY_PROOF_V325_SHA_V326 = "b3aadd61ba9e0e1cca54c9a874a203b4774e08654e738734182fb4dfc530faec";
@@ -137,12 +138,13 @@ export function assertSourceLayerV326(): SourceLayerV326 {
   const raw = readFileSync(new URL("../fixtures/source-history-v326.json", import.meta.url));
   if (sha(raw) !== SOURCE_HISTORY_PROOF_SHA_V326) throw Error("Changed immutable v326 source proof");
   const receipt = JSON.parse(raw.toString("utf8")) as SourceReceiptV326;
-  const files = readdirSync(resolve(repoRoot, "src/app/src"), { recursive: true }).map(path => `src/app/src/${path}`)
-    .filter(path => /\.(?:ts|tsx|json)$/.test(path) && statSync(resolve(repoRoot, path)).isFile());
-  checked = verifySourceLayerV326(receipt, graph, [...new Set([...Object.keys(graph), ...files])], path => readFileSync(resolve(repoRoot, path)));
+  assertSourceLayerV327(graph);
+  const inventory = [...Object.keys(graph), ...Object.keys(receipt.additions)];
+  checked = verifySourceLayerV326(receipt, graph, inventory, path => sourceAtPublished207V327(path, readFileSync(resolve(repoRoot, path))));
   return checked;
 }
 export function sourceAtPublished206V326(path: string, raw: Uint8Array, layer = assertSourceLayerV326()): Uint8Array {
+  if (layer === checked) raw = sourceAtPublished207V327(path, raw);
   if (!admitted.has(layer) || !Object.hasOwn(layer.currentGraph, path) || sha(raw) !== layer.currentGraph[path]
       || !Object.hasOwn(layer.publishedGraph, path)) throw Error(`Unknown exact v326 source bytes: ${path}`);
   const receipt = layer.receipt.changes[path];
@@ -150,6 +152,7 @@ export function sourceAtPublished206V326(path: string, raw: Uint8Array, layer = 
 }
 export function projectSourceBeforeV326(source: string, layer = assertSourceLayerV326()): string {
   if (!admitted.has(layer)) throw Error("Unverified v326 source layer");
+  if (layer === checked) source = projectSourceBeforeV327(source);
   const digest = sha(source), records = Object.values(layer.receipt.changes).filter(r => r.currentSha256 === digest);
   if (records.length && Object.values(layer.currentGraph).filter(value => value === digest).length !== 1) throw Error("Ambiguous full v326 source fingerprint");
   return records.length ? inverse(source, records[0]) : source;
