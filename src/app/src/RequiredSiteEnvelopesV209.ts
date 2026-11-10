@@ -77,6 +77,7 @@ import { createFritzRodelbahnV229 } from "./FritzRodelbahnV229";
 import { createWeddingMoabitV229 } from "./WeddingMoabitV229";
 import { createDistrictCourtEnvelopesV229 } from "./DistrictCourtEnvelopesV229";
 import { createDistrictCourtsV229 } from "./DistrictCourtsV229";
+import { courtPaneMasksV333, createCourtsParkV293 } from "./CourtsParkV293";
 
 /** Attach each complete owner before yielding, so the city's transaction owns
  * and disposes every allocated model even when loading is interrupted. */
@@ -210,7 +211,16 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   yield;
   root.add(createDistrictCourtEnvelopesV229(native));
   yield;
-  root.add(createDistrictCourtsV229(native));
+  if (root.userData.districtCourtDetailsV333 === true) {
+    const candidates = courtPaneMasksV333();
+    const recognition = createDistrictCourtsV229(native, candidates);
+    root.add(recognition);
+    const admitted = new Map([...candidates].filter(([key]) =>
+      recognition.children.some(site => site.userData.siteKey === key && site.userData.courtFacadeV333 === true)));
+    root.add(createCourtsParkV293(native, admitted));
+  } else {
+    root.add(createDistrictCourtsV229(native));
+  }
   yield;
   root.add(createWestIndustrialV230(native));
   yield;

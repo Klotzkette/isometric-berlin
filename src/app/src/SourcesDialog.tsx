@@ -150,6 +150,9 @@ export function SourcesDialog({ language, onClose }: {
             ? "Stadtorte · Standortdaten von Geoportal Berlin, den Berliner Bäder-Betrieben, den Berliner Wasserbetrieben und der Polizei Berlin. Briefkästen, Spätis, Kioske und kartierte Bauteile nach OpenStreetMap (ODbL 1.0). Modellmaße kleiner Ausstattung sind geschätzt."
             : "Public places · Location data from Geoportal Berlin, Berliner Bäder-Betriebe, Berliner Wasserbetriebe and Polizei Berlin. Mailboxes, Spätis, kiosks and mapped fittings use OpenStreetMap (ODbL 1.0). Small fitting dimensions are estimates."}{" "}
             <a href="https://github.com/Klotzkette/isometric-berlin/blob/main/docs/public-amenities-v332.md" target="_blank" rel="noreferrer">{language === "de" ? "Einzelnachweise" : "Source details"}</a></li>
+          <li>{language === "de"
+            ? "Amtsgerichte Wedding und Charlottenburg · Lage und Gebäudehülle nach Berliner LoD2. Das Landesdenkmalamt und Fassadenaufnahmen dienen als Referenz für die modellierten Portal-, Fenster- und Steindetails. Maße und Farben der Zierelemente sind geschätzt."
+            : "Wedding and Charlottenburg district courts · Location and building envelope use Berlin LoD2. The Berlin heritage office and photographs inform the modeled portals, windows and stonework. Ornamental dimensions and colors are estimates."}</li>
           <li><a href="https://github.com/Klotzkette/isometric-berlin/blob/main/NOTICE.md" target="_blank" rel="noreferrer">{language === "de" ? "Alle Quellen- und Lizenzhinweise" : "All source and license notices"}</a></li>
         </ul>
       </div>

@@ -43,7 +43,7 @@ export function constructUnpublishedFidelityV288(factories: readonly FactoryV288
 
 /** Construct complete owners before any old prism/column can yield. This
  * module belongs only to the main-thread city transaction, never the worker. */
-export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payload: unknown, native=false, canopyLegacyAdmitted=false, mobileLike=false, neighbourhoodV300=false) {
+export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payload: unknown, native=false, canopyLegacyAdmitted=false, mobileLike=false, neighbourhoodV300=false, districtCourtDetailsV333=false) {
   const moabitMitte=neighbourhoodV300&&admitsMoabitMitteV300Core(prisms)&&(!native||admitsMoabitMitteV300Native(payload));
   const westKiez=neighbourhoodV300&&admitsWestKiezV302Core(prisms)&&(!native||admitsWestKiezV302Native(payload));
   const historicDom=matchesBerlinHistoricDomOwnersV288(prisms.buildings)&&(!native||matchesBerlinHistoricDomNativeV288(payload));
@@ -59,7 +59,7 @@ export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payl
     ()=>westKiez?{group:createWestKiezV302Core(native,{mobileLike}),complete:group=>hasCompleteWestKiezV302Core(group,native)}:null,
     ()=>({group:createLittenStadthausV297(native,{mobileLike}),complete:hasCompleteLittenStadthausV297}),
     ()=>({group:createWallGalleryV298(native,{mobileLike}),complete:group=>hasCompleteWallGalleryV298(group,native)}),
-    ()=>({group:createCourtsParkV293(native)}),
+    ()=>districtCourtDetailsV333?null:{group:createCourtsParkV293(native)},
     ()=>({group:createSouthFidelityV294(native,{mobileLike}),complete:hasCompleteSouthFidelityV294}),
     ()=>({group:createParliamentaryDiningV296(native)}),
     ()=>({group:createWaterfrontFidelityV296(native)}),

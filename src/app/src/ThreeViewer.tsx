@@ -4626,7 +4626,7 @@ function ensureIsoWorld(
       runtime.reportStartupWork?.({ phase: "owners", completed: 0 });
       await yieldStartupPaintV309(runtime.loadSignal);
       if (runtime.disposed || runtime.loadSignal.aborted || !isoWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
-      const fidelityV288 = prepareRequiredFidelityV288(prisms, ground, false, admitsChancelleryCanopyLegacyV289(runtime.signatures),runtime.coarsePointer,true);
+      const fidelityV288 = prepareRequiredFidelityV288(prisms, ground, false, admitsChancelleryCanopyLegacyV289(runtime.signatures),runtime.coarsePointer,true,true);
       provisionalIsoWorld = fidelityV288.root;
       const stationPhotoAdmitted = canReplacePotsdamerSouthStationPhoto(prisms.buildings);
       const hbfCirculationV291 = runtime.signatures.children.some(model => model.userData.hbfMotionFrameV291?.native === false);
@@ -4794,6 +4794,7 @@ function ensureIsoWorld(
         // optional facade imports must never leave a source-building hole.
         isoWorld.add(northCorridorV208.createHungarianEnvelopeV208());
         yield;
+        isoWorld.userData.districtCourtDetailsV333=true;
         yield* sitesV209.addRequiredSiteEnvelopesV209Steps(isoWorld);
         // All exact v227 batches exist before the first index/mode pass.
         neukoellnAdmissionV305=applyNeukoellnLegacyV227V305(isoWorld,false,true,fidelityV288.neukoellnModel);
@@ -5624,6 +5625,7 @@ function ensureVoxelWorld(
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             sourcePrisms: prisms?.buildings,
             neighbourhoodV300: true,
+            districtCourtDetailsV333: true,
             wilhelmHousingV324: true,
             wilhelmStreetFrontsV325: true,
             currentSitesV311: true,

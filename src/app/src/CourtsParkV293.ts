@@ -1,5 +1,17 @@
 import {BoxGeometry,BufferAttribute,BufferGeometry,Color,DoubleSide,Group,InstancedBufferAttribute,InstancedMesh,Matrix4,Mesh,MeshBasicMaterial,MeshStandardMaterial,ShapeUtils,Vector2,Vector3} from 'three';
 import data from './data/courtsParkV293.json';
+import type { CourtPaneMasksV333 } from './DistrictCourtsV229';
+import { weddingCourtV333PreviousPanes } from './WeddingCourtV333';
+import { charlottenburgCourtV333PreviousPanes } from './CharlottenburgCourtV333';
+
+export function courtPaneMasksV333(): CourtPaneMasksV333 {
+ const masks=new Map<string,ReadonlySet<number>>();
+ for(const site of data.sites){
+  const panes=site.key==='wedding'?weddingCourtV333PreviousPanes(site):charlottenburgCourtV333PreviousPanes(site);
+  if(panes)masks.set(site.key,panes);
+ }
+ return masks;
+}
 import {letteringStrokePaths} from './drawnLettering';
 import {freezeStaticSceneTransforms} from './staticSceneTransforms';
 import {COURTS_PARK_V293_PROFILE as P,ROLLERACHT_V293 as R,ROLLERACHT_V293_APPROACHES} from './courtsParkV293Profile';
@@ -25,12 +37,14 @@ function batch(plan:Plan):InstancedMesh{
  plan.rows.forEach((r,i)=>{m.makeRotationY(r[6]);m.scale(v.set(r[3],r[4],r[5]));m.setPosition(r[0],r[1],r[2]);m.toArray(matrices,i*16);c.setHex(r[7]).toArray(colours,i*3);});
  mesh.count=plan.rows.length;mesh.instanceMatrix=new InstancedBufferAttribute(matrices,16);mesh.instanceColor=new InstancedBufferAttribute(colours,3);mesh.computeBoundingBox();mesh.computeBoundingSphere();mesh.userData={dayMaterial:day,nightMaterial:night,textureFree:true,roles:plan.roles};return mesh;
 }
-function courtFittings(p:Plan):void{
+function courtFittings(p:Plan,previousPanes?:CourtPaneMasksV333):void{
  for(const site of data.sites){
-  for(const r of site.panes){const [x,y,z,w,h,yaw,nx,nz]=r,ux=Math.cos(yaw),uz=-Math.sin(yaw);for(const u of [-w/4,w/4])p.box(x+nx*.17+ux*u,y,z+nz*.17+uz*u,.045,h,.07,yaw,TRIM,`${site.key}:four-leaf-window`);
+  const replaced=previousPanes?.get(site.key);
+  for(const [index,r] of site.panes.entries()){if(replaced?.has(index))continue;const [x,y,z,w,h,yaw,nx,nz]=r,ux=Math.cos(yaw),uz=-Math.sin(yaw);for(const u of [-w/4,w/4])p.box(x+nx*.17+ux*u,y,z+nz*.17+uz*u,.045,h,.07,yaw,TRIM,`${site.key}:four-leaf-window`);
    for(const yy of [-h/3,h/3])p.box(x+nx*.17,y+yy,z+nz*.17,w,.045,.07,yaw,TRIM,`${site.key}:window-light-subdivision`);
    if(y<8){p.box(x+nx*.12,y-h/2-.15,z+nz*.12,w+.28,.12,.32,yaw,STONE,`${site.key}:projecting-stone-sill`);}
   }
+  if(replaced)continue;
   const l=site.label,normal=l.normal,d=l.direction,c=l.center;
   // Small verified service identity plaques beside the existing public entrance.
   const text=site.key==='charlottenburg'?'INSOLVENZGERICHT':'BRUNNENPLATZ 1';
@@ -102,8 +116,8 @@ function sourceUpperMesh():Mesh {
  const g=new BufferGeometry();g.setAttribute('position',new BufferAttribute(new Float32Array(pos),3));g.setAttribute('color',new BufferAttribute(new Float32Array(colors),3));g.computeVertexNormals();g.computeBoundingBox();g.computeBoundingSphere();const day=new MeshBasicMaterial({vertexColors:true,side:DoubleSide}),night=new MeshStandardMaterial({vertexColors:true,side:DoubleSide,roughness:.9});const mesh=new Mesh(g,day);mesh.name='St Johannis complete retained measured upper wall and roof companion';mesh.userData={dayMaterial:day,nightMaterial:night,sourceSheetsRetained:true,textureFree:true};return mesh;
 }
 /** Bounded additive models, equal drawn mobile detail and independent cardinal native construction. */
-export function createCourtsParkV293(native=false):Group {
- const root=new Group();root.name=`Courts and Kleiner Tiergarten v293${native?' independent native':''}`;const p=new Plan(native);courtFittings(p);neighbourBases(p);rolleracht(p);church(p);
+export function createCourtsParkV293(native=false,previousPanes?:CourtPaneMasksV333):Group {
+ const root=new Group();root.name=`Courts and Kleiner Tiergarten v293${native?' independent native':''}`;const p=new Plan(native);courtFittings(p,previousPanes);neighbourBases(p);rolleracht(p);church(p);
  const mesh=batch(p);mesh.name='Court stonework, public fronts, church recognition and open Rolleracht bridge';root.add(mesh);if(!native)root.add(sourceUpperMesh());
  root.userData={courtsParkV293:true,requiredBeforeNavigation:true,textureFree:true,sourceGeometryRetained:true,sourceSheetsRetained:true,fullStaticDetailOnTouch:true,blockNative:native,nativeMinecraft:native,keepInMinecraft:native,instanceCount:p.rows.length,roles:p.roles,estimateStatus:P.verticalStatus};
  return freezeStaticSceneTransforms(root);

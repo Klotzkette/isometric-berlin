@@ -3,9 +3,13 @@ import source from "./data/districtCourtsV229.json";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { createWeddingCourtV333 } from "./WeddingCourtV333";
+import { createCharlottenburgCourtV333 } from "./CharlottenburgCourtV333";
 
-/** Current district-court recognition accents; no earlier envelope or pane is removed. */
-export function createDistrictCourtsV229(native = false): Group {
+export type CourtPaneMasksV333 = ReadonlyMap<string, ReadonlySet<number>>;
+
+/** V333 can replace individual fronts when both predecessor layers are present. */
+export function createDistrictCourtsV229(native = false, previousPanes?: CourtPaneMasksV333): Group {
   const root = new Group();
   root.name = native ? "District courts v229 independent native recognition" : "District courts v229 source-bound recognition";
   root.userData = {districtCourtsV229:true,requiredBeforeNavigation:true,textureFree:true,additiveOnly:true,sourceGeometryRetained:true,fullStaticDetailOnTouch:true,blockNative:native,nativeMinecraft:native,keepInMinecraft:native,noHiddenSolidInfill:true};
@@ -13,9 +17,12 @@ export function createDistrictCourtsV229(native = false): Group {
     const group = new Group();
     group.name = `${site.key}: ${site.name}`;
     group.userData = {...root.userData,siteKey:site.key,sourceOwner:site.owner};
-    const rows = (native ? site.nativeRows : site.boxes).map(r=>[...r]);
-    const rods = native ? [] : site.rods.map(r=>[...r]);
-    for (const label of site.labels) {
+    const replacement = previousPanes?.has(site.key)
+      ? (site.key === "wedding" ? createWeddingCourtV333(site, native) : createCharlottenburgCourtV333(site, native))
+      : null;
+    const rows = replacement?.rows ?? (native ? site.nativeRows : site.boxes).map(r=>[...r]);
+    const rods = replacement?.rods ?? (native ? [] : site.rods.map(r=>[...r]));
+    for (const label of replacement?.labels ?? site.labels) {
       const {center:c,direction:d,normal:n}=label;
       for (const path of letteringStrokePaths(label.text,label.height)) for(let i=1;i<path.length;i++) {
         const a=[c[0]+d[0]*path[i-1][0],c[1]+path[i-1][1],c[2]+d[2]*path[i-1][0]];
@@ -47,6 +54,10 @@ export function createDistrictCourtsV229(native = false): Group {
     mesh.name=`${site.key}: exact-count recognition members`;
     mesh.userData={...mesh.userData,...group.userData};
     group.add(mesh);
+    if (replacement) {
+      group.userData.courtFacadeV333 = true;
+      group.add(replacement.root);
+    }
     root.add(group);
   }
   return freezeStaticSceneTransforms(root);

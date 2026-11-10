@@ -373,6 +373,7 @@ export type MinecraftVoxelWorldOptions = {
   currentSitesV311?: boolean;
   onBuildProgress?: (completed: number, total: number) => void;
   neighbourhoodV300?: boolean;
+  districtCourtDetailsV333?: boolean;
   parliamentInteriorsV295?: boolean;
   golgathaV270?: boolean;
   tachelesFrontsV270?: boolean;
@@ -2422,7 +2423,7 @@ export function* buildMinecraftVoxelWorldSteps(
   reportBuildStep(0);
   const mobileDetail = options.detailProfile === "mobile";
   // Complete owners precede the resident native Podewil correction as well.
-  const fidelityV288 = prepareRequiredFidelityV288({buildings:options.sourcePrisms ?? []}, payload, true, false, mobileDetail, options.neighbourhoodV300===true);
+  const fidelityV288 = prepareRequiredFidelityV288({buildings:options.sourcePrisms ?? []}, payload, true, false, mobileDetail, options.neighbourhoodV300===true, options.districtCourtDetailsV333===true);
   group.add(fidelityV288.root);
   if(options.wilhelmHousingV324)yield*createWilhelmHousingRuntimeV324Steps(group,options.sourcePrisms??[],payload,true,mobileDetail,preparedWilhelmHousingNativeSourceV324());
   if(options.wilhelmStreetFrontsV325){
@@ -2748,6 +2749,7 @@ export function* buildMinecraftVoxelWorldSteps(
   // Publish the complete independent south hall before only its immutable
   // coarse tuples yield. A changed/ambiguous source retains the old world.
   group.userData.courtsParkV293=fidelityV288.courtsPark;
+  group.userData.districtCourtDetailsV333=options.districtCourtDetailsV333===true;
   group.userData.southFidelityV294=fidelityV288.southFidelity;
   let neukoellnAdmissionV305=applyNeukoellnLegacyV227V305(group,true,options.neighbourhoodV300===true,fidelityV288.neukoellnModel);
   group.userData.prepareNeukoellnLegacyV305=()=>{

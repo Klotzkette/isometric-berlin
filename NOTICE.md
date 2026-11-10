@@ -17,6 +17,11 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **District court facades:** Berlin LoD2 and the Berlin heritage office guide
+  the facade relief at [Wedding](docs/wedding-court-v333.md) and
+  [Charlottenburg](docs/charlottenburg-court-v333.md). External photographs
+  are referenced in those notes. Ornament dimensions and colors are estimates.
+
 - **Public amenities:** Berlin Geoportal, Polizei Berlin, Berliner Wasserbetriebe
   and Berliner Bäder-Betriebe supply public location records. OpenStreetMap
   (ODbL-1.0) supplies mapped shop, mailbox, basin and equipment identities.

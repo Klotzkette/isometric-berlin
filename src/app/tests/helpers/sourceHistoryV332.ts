@@ -1,7 +1,8 @@
 /** Verify the finite public amenities delta before older source-history layers read it. */
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { assertSourceLayerV333, projectSourceBeforeV333, sourceAtPublished214V333 } from "./sourceHistoryV333";
 
 export const SOURCE_HISTORY_PROOF_SHA_V332 = "518fc5d386daf6c167527169ec3420adf0d8ee3a8652003faaaafe31fe907df3";
 const previousProof = "7cb7e6075a455fb882464ca1d8bb5c1bc87ec95e26bead1b5a05880a8f2cc7e3";
@@ -58,13 +59,9 @@ export function assertSourceLayerV332(published213: Readonly<Record<string, stri
       throw Error(`Invalid v332 source inverse: ${path}`);
     current[path] = inverse.currentSha256;
   }
-  const files = readdirSync(resolve(root, "src/app/src"), { recursive: true }).map(path => `src/app/src/${path}`)
-    .filter(path => /\.(?:ts|tsx|json)$/.test(path) && statSync(resolve(root, path)).isFile());
-  const inventory = new Set([...Object.keys(published), ...files]);
-  if (inventory.size !== Object.keys(current).length || [...inventory].some(path => !Object.hasOwn(current, path)))
-    throw Error("Changed or unaccounted v332 source inventory");
-  for (const path of inventory) {
-    const raw = readFileSync(resolve(root, path));
+  assertSourceLayerV333(current);
+  for (const path of Object.keys(current)) {
+    const raw = sourceAtPublished214V333(path, readFileSync(resolve(root, path)));
     if (sha(raw) !== current[path]) throw Error(`Changed complete v332 source graph: ${path}`);
     if (Object.hasOwn(receipt.changes, path)) project(raw.toString("utf8"), receipt.changes[path]);
   }
@@ -72,6 +69,7 @@ export function assertSourceLayerV332(published213: Readonly<Record<string, stri
 }
 
 export function sourceAtPublished213V332(path: string, raw: Uint8Array): Uint8Array {
+  raw = sourceAtPublished214V333(path, raw);
   if (!checked || !Object.hasOwn(checked.published, path) || sha(raw) !== checked.current[path])
     throw Error(`Unknown exact v332 source bytes: ${path}`);
   const inverse = checked.changes[path];
@@ -80,6 +78,7 @@ export function sourceAtPublished213V332(path: string, raw: Uint8Array): Uint8Ar
 
 export function projectSourceBeforeV332(source: string): string {
   if (!checked) throw Error("Unverified v332 source layer");
+  source = projectSourceBeforeV333(source);
   const digest = sha(source), records = Object.values(checked.changes).filter(inverse => inverse.currentSha256 === digest);
   if (!records.length) return source;
   if (Object.values(checked.current).filter(value => value === digest).length !== 1)
