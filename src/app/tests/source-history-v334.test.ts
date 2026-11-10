@@ -48,7 +48,7 @@ test("the finite v334 chain preserves the published v215 complements and rejects
     expect(Buffer.from(sourceAtPublished215V334(path, current)).equals(original)).toBeTrue();
     expect(projectSourceBeforeV334(current.toString("utf8"))).toBe(original.toString("utf8"));
     expect(() => sourceAtPublished215V334(path, Buffer.concat([current, Buffer.from(" ")])))
-      .toThrow("Unknown exact v334 source bytes");
+      .toThrow("Unknown exact v335 source bytes");
   }
   for (const path of Object.keys(receipt.additions)) {
     const current = readFileSync(new URL(path, root));

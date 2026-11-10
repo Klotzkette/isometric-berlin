@@ -154,6 +154,20 @@ behavior remains available while switching among live 3D modes. Disposing the
 viewer releases WebGL. These are source, production-profile and automated-browser release contracts, not a claim of
 physical iOS-device validation.
 
-If a future deployment separates heavy assets, the world JSON
-can be placed on an object store such as Cloudflare R2. Attribution and
-relative-path requirements from `AGENTS.md` and `NOTICE.md` remain mandatory.
+## GitHub Pages packet mirror
+
+The public site can set `packetMirrorCommit` in its surrounding-city manifest.
+Use the full commit ID of the published source release. In both visual
+families, gzip tiles whose bounds are centered at least 10 km from the scene
+origin then load from the same repository at that exact revision. The viewer
+keeps the manifest, nearer tiles and other assets on Pages. The ZIP and TAR
+ship the full offline dataset and omit the mirror setting.
+
+Before deploying, match every mirrored path against the offline package
+and the Git blob at that commit. Check that no local tile references a
+mirrored path. Preserve nested filenames and the packet SHA-256 query
+parameter. Verify the complete Pages tree against its staging inventory,
+including the hosted manifest checksum, and keep it below the
+[GitHub Pages size limit](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits).
+Check near and distant views on the public URL and confirm successful packet
+loading in both visual families before promoting the release.

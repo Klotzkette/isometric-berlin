@@ -1,7 +1,8 @@
 /** Verify the finite public transport delta before older source-history layers read it. */
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { assertSourceLayerV335, projectSourceBeforeV335, sourceAtPublished216V335 } from "./sourceHistoryV335";
 
 export const SOURCE_HISTORY_PROOF_SHA_V334 = "c1c4dde8c03a55b54e83e50d406559e5badbf3f53b5412514fdb61bbe9a2369b";
 const previousProof = "7e89d36d18c35d59a43acc237a09a22da832b1abc7b526160a63d00a8e4fef98";
@@ -58,22 +59,20 @@ export function assertSourceLayerV334(published215: Readonly<Record<string, stri
       throw Error(`Invalid v334 source inverse: ${path}`);
     current[path] = inverse.currentSha256;
   }
-  const files = readdirSync(resolve(root, "src/app/src"), { recursive: true }).map(path => `src/app/src/${path}`)
-    .filter(path => /\.(?:ts|tsx|json)$/.test(path) && statSync(resolve(root, path)).isFile());
-  const addedPublic = Object.keys(receipt.additions).filter(path => path.startsWith("src/app/public/"));
-  const inventory = new Set([...Object.keys(published), ...files, ...addedPublic]);
-  if (inventory.size !== Object.keys(current).length || [...inventory].some(path => !Object.hasOwn(current, path)))
-    throw Error("Changed or unaccounted v334 source inventory");
-  for (const path of inventory) {
-    const raw = readFileSync(resolve(root, path));
+  assertSourceLayerV335(current);
+  for (const path of Object.keys(current)) {
+    const raw = sourceAtPublished216V335(path, readFileSync(resolve(root, path)));
     if (sha(raw) !== current[path]) throw Error(`Changed complete v334 source graph: ${path}`);
-    if (Object.hasOwn(receipt.changes, path)) project(raw.toString("utf8"), receipt.changes[path]);
+    if (Object.hasOwn(receipt.changes, path)) project(Buffer.from(raw).toString("utf8"), receipt.changes[path]);
   }
   checked = { published: Object.freeze(published), current: Object.freeze(current), changes: receipt.changes };
 }
 
 export function sourceAtPublished215V334(path: string, raw: Uint8Array): Uint8Array {
-  if (!checked || !Object.hasOwn(checked.published, path) || sha(raw) !== checked.current[path])
+  if (!checked || !Object.hasOwn(checked.published, path))
+    throw Error(`Unknown exact v334 source bytes: ${path}`);
+  raw = sourceAtPublished216V335(path, raw);
+  if (sha(raw) !== checked.current[path])
     throw Error(`Unknown exact v334 source bytes: ${path}`);
   const inverse = checked.changes[path];
   return inverse ? Buffer.from(project(Buffer.from(raw).toString("utf8"), inverse)) : raw;
@@ -81,6 +80,7 @@ export function sourceAtPublished215V334(path: string, raw: Uint8Array): Uint8Ar
 
 export function projectSourceBeforeV334(source: string): string {
   if (!checked) throw Error("Unverified v334 source layer");
+  source = projectSourceBeforeV335(source);
   const digest = sha(source), records = Object.values(checked.changes).filter(inverse => inverse.currentSha256 === digest);
   if (!records.length) return source;
   if (Object.values(checked.current).filter(value => value === digest).length !== 1)
