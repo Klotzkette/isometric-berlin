@@ -418,9 +418,10 @@ def source_grid(terrain, ix, iz, native):
 
 def packet(
   terrain,
-  scope,
+  display_scope,
+  navigation_scope,
   materials,
-  water,
+  navigation_water,
   roads,
   triangles,
   solids,
@@ -434,11 +435,11 @@ def packet(
   ix, iz = index
   x, z = ix * TILE, iz * TILE
   tile = box(x, z, x + TILE, z + TILE)
-  local = polygonal(scope.intersection(tile))
+  local = polygonal(display_scope.intersection(tile))
   mesh = PackedMesh(x, z)
   details = PackedMesh(x, z)
   grid = source_grid(terrain, ix, iz, native)
-  terrain_geometry(mesh, tile, local, scope, materials, grid, native, height_at)
+  terrain_geometry(mesh, tile, local, display_scope, materials, grid, native, height_at)
   for points, color in triangles:
     details.triangle(points, color)
   nav_buildings = []
@@ -462,8 +463,13 @@ def packet(
       }
       for ring in navigation_polygons(selected, x, z)
     )
-  wet = polygonal(water.intersection(local))
-  land = polygonal(local.difference(wet))
+  navigation_local = (
+    local
+    if navigation_scope is display_scope
+    else polygonal(navigation_scope.intersection(tile))
+  )
+  wet = polygonal(navigation_water.intersection(navigation_local))
+  land = polygonal(navigation_local.difference(wet))
   decks = [
     (polygonal(g.intersection(tile)), h) for g, h in bridge_floors if g.intersects(tile)
   ]
@@ -559,6 +565,7 @@ def build(terrain_path, garden_path, kienberg_path, output):
   from scripts.marzahn_garden_terrain_v330 import (
     ground_at,
     load_terrain,
+    native_domain,
     terrain_height,
   )
 
@@ -586,23 +593,24 @@ def build(terrain_path, garden_path, kienberg_path, output):
     kienberg_triangles, kienberg_solids = build_kienberg_landmarks(
       kienberg, height_at, native
     )
-    display_scope = (
+    navigation_scope = (
       unary_union([shape(terrain["nativeLand"]), shape(terrain["nativeWater"])])
       if native
       else scope
     )
+    # Render complete cells across internal shorelines without admitting them to navigation.
+    display_scope = native_domain(scope) if native else scope
     water = (
-      polygonal(
-        native_polygon(layers["water"])
-        .union(shape(terrain["nativeWater"]))
-        .intersection(display_scope)
-      )
+      native_polygon(layers["water"]).union(shape(terrain["nativeWater"]))
       if native
       else layers["water"]
     )
+    navigation_water = (
+      polygonal(water.intersection(navigation_scope)) if native else water
+    )
     materials = disjoint_materials({**layers, "water": water}, display_scope, native)
     buildings, official_triangles = ordinary_buildings(
-      context, display_scope, own, [], ground, native
+      context, navigation_scope, own, [], ground, native
     )
     no_trees = unary_union(
       [g for _, g, *_ in [*buildings, *garden_solids, *kienberg_solids]]
@@ -634,8 +642,9 @@ def build(terrain_path, garden_path, kienberg_path, output):
         item = packet(
           terrain,
           display_scope,
+          navigation_scope,
           materials,
-          water,
+          navigation_water,
           roads,
           by_tile.get((ix, iz), []),
           [*garden_solids, *kienberg_solids, *tree_solids],

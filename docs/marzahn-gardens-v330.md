@@ -34,11 +34,13 @@ vereinfacht.
 [Tälchenbrücke](https://www.kienbergpark.de/entdecken-erleben/taelchenbruecke/)
 
 Dreizehn Grundkacheln mit fünf separaten Geometriepaketen verwenden den
-bestehenden Kartenlader. Die größte komprimierte Datei misst 642.409 Byte,
-die größte entpackte Datei 2.391.237 Byte. Die frühere Kartenabdeckung
+bestehenden Kartenlader. Die größte komprimierte Datei misst 642.443 Byte,
+die größte entpackte Datei 2.378.740 Byte. Die frühere Kartenabdeckung
 wurde über ihren vollständigen Manifest-Präfix geprüft. Die Höhenabfrage
 verwendet dieselben Rasterwerte wie das Geländemodell. In Minecraft werden
 Gelände und Bauwerke separat auf rechtwinkligen Rastern dargestellt.
+Das Uferraster ist auch zwischen den Wasser- und Landzellen geschlossen.
+Die begehbare Fläche folgt weiterhin der belegten Landgrenze.
 
 Die kompakte Nachweisdatei für den Parkkontext bindet die genaue
 OpenStreetMap-Quelle und die verwendeten Berliner LoD2-Dateien. Die
