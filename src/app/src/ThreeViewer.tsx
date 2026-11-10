@@ -539,6 +539,7 @@ import {
   stableViewportSize,
 } from "./renderQuality";
 import { browserUsesMobileViewerProfile } from "./viewerResidency";
+import { configureSmaaEdgeTarget } from "./smaaEdgeTarget";
 import { fetchJsonWithRetry } from "./resilientFetch";
 import {
   type CivicWindFlagTarget,
@@ -2169,17 +2170,18 @@ function parkCompletedGeometry(runtime: Runtime, root: Object3D, instances = fal
       await yieldStartupWork();
       while (queue.roots.length && !runtime.disposed && !runtime.loadSignal.aborted) {
         const task = queue.roots.shift()!;
+        const isCancelled = () => !task.root.parent || runtime.disposed || runtime.loadSignal.aborted;
         try {
           // A camera turn may have already retired this complete chunk.
-          if (task.root.parent) await completeCooperatively(parkStaticGeometrySteps(task.root,
+          if (!isCancelled()) await completeCooperatively(parkStaticGeometrySteps(task.root,
             task.root.userData.progressiveWorldBatch === true), {
-            budgetMs: 4, yieldTask: yieldStartupWork,
-            isCancelled: () => runtime.disposed || runtime.loadSignal.aborted,
+            budgetMs: 4, yieldTask: yieldStartupWork, isCancelled,
           });
-          if (task.instances && task.root.parent) await completeCooperatively(parkStaticInstancesSteps(task.root), {
-            budgetMs: 4, yieldTask: yieldStartupWork,
-            isCancelled: () => runtime.disposed || runtime.loadSignal.aborted,
+          if (task.instances && !isCancelled()) await completeCooperatively(parkStaticInstancesSteps(task.root), {
+            budgetMs: 4, yieldTask: yieldStartupWork, isCancelled,
           });
+        } catch (error) {
+          if (!(isCancelled() && error instanceof DOMException && error.name === "AbortError")) throw error;
         } finally { task.resolve(); }
       }
     } catch (error) {
@@ -7369,6 +7371,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       // Keep one identical edge-smoothing pass during movement and at rest.
       // Navigation must not trade authored detail for a faster blurry frame.
       const smaaPass = new SMAAPass();
+      configureSmaaEdgeTarget(smaaPass, renderer);
       smaaPass.enabled = true;
       // This is the final pass and writes directly to the canvas. Swapping
       // afterward made RenderPass alternate between two full-size city
@@ -8855,7 +8858,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         },
       });
       const onContextLost = (event: Event) => contextRecovery?.lost(event);
-      const onContextRestored = () => contextRecovery?.restored();
+      const onContextRestored = () => {
+        configureSmaaEdgeTarget(smaaPass, renderer);
+        contextRecovery?.restored();
+      };
       renderer.domElement.addEventListener("webglcontextlost", onContextLost);
       renderer.domElement.addEventListener("webglcontextrestored", onContextRestored);
 

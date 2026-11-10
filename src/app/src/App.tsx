@@ -3,6 +3,7 @@ import { simulationStartLabel } from "./simulationStartViews";
 import { StartupPresentation } from "./StartupPresentation";
 import { StartupModeSelection } from "./StartupModeSelection";
 import { directStartupMode } from "./modeLinks";
+import { readViewerVisit, saveViewerVisit, watchViewerVisit, type ViewerVisit } from "./viewerSessionRecovery";
 import { SourcesDialog } from "./SourcesDialog";
 import {
   ArrowDown,
@@ -190,8 +191,15 @@ type LandmarkPayload = {
   landmarks: Landmark[];
 };
 
+const RECOVERED_VISIT = typeof window === "undefined" ? null : readViewerVisit(window);
+
 function initialSimulationStart(): { name: string; automatic: boolean } {
   const landmarks = (bundledLandmarkPayload as LandmarkPayload).landmarks;
+  const restored = RECOVERED_VISIT?.selected;
+  if (RECOVERED_VISIT?.navigation && restored &&
+    (landmarks.some(landmark => landmark.name === restored) || startupOnlySight(restored))) {
+    return { name: restored, automatic: false };
+  }
   return startupViewSelection(
     landmarks,
     typeof window === "undefined" ? "" : window.location.hash,
@@ -772,7 +780,7 @@ function HoldControlButton({
 
 export function App() {
   const [initialMode, setInitialMode] = useState<VisualMode | null>(() =>
-    typeof window === "undefined" ? null : directStartupMode(window.location.search),
+    typeof window === "undefined" ? null : RECOVERED_VISIT?.mode ?? directStartupMode(window.location.search),
   );
   const [language, setLanguage] = useState<Language>(initialLanguage);
 
@@ -780,26 +788,31 @@ export function App() {
     document.documentElement.lang = language;
   }, [language]);
 
-  // A plain visit waits for Start; a deliberate theme link already selects the
-  // viewer. Audio still waits for the existing user-gesture activation handlers.
+  // A fresh visit waits for Start unless its link already selects a theme.
+  // A re-created tab entry can resume its prior selection and navigation.
   if (initialMode === null) {
     return (
       <StartupModeSelection
         initialMode={initialLightingMode()}
         language={language}
         onLanguageChange={setLanguage}
-        onStart={setInitialMode}
+        onStart={mode => {
+          saveViewerVisit(window, { mode, navigation: null, selected: null });
+          setInitialMode(mode);
+        }}
         backdropUrl={resolveCssAssetUrl(assetPath("dzi/regierungsviertel/startup-map.jpg"))}
       />
     );
   }
-  return <ViewerApp initialMode={initialMode} initialViewerLanguage={language} />;
+  return <ViewerApp initialMode={initialMode} initialViewerLanguage={language} recoveredVisit={RECOVERED_VISIT} />;
 }
 
-function ViewerApp({ initialMode, initialViewerLanguage }: {
+function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
   initialMode: VisualMode;
   initialViewerLanguage: Language;
+  recoveredVisit: ViewerVisit | null;
 }) {
+  const restoredNavigation = recoveredVisit?.navigation ?? null;
   const appShellRef = useRef<HTMLElement | null>(null);
   const [pergamonRevealed, setPergamonRevealed] = useState(false);
   const [reichstagSectionOpen, setReichstagSectionOpen] = useState(false);
@@ -846,20 +859,23 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   const pedestrianSprintLockedRef = useRef(false);
   const pedestrianFastRunLockedRef = useRef(false);
   // One selected flight view survives mode changes and clean runtime recovery.
-  const initialFocusAppliedRef = useRef(INITIAL_FLIGHT_VIEW !== null);
+  const initialFocusAppliedRef = useRef(restoredNavigation !== null || INITIAL_FLIGHT_VIEW !== null);
 
   const landmarkButtonsRef = useRef<Map<string, HTMLButtonElement>>(new Map());
   const brandRevealTimerRef = useRef<number | null>(null);
   const minecraftSparkTimerRef = useRef<number | null>(null);
   const activeThreeViewerKeyRef = useRef("");
-  const retainedNavigationRef = useRef<NavigationSnapshot | null>(null);
+  const retainedNavigationRef = useRef<NavigationSnapshot | null>(restoredNavigation);
+  const restoredHashRef = useRef(restoredNavigation ? window.location.hash : null);
   const latestPedestrianPoseRef = useRef<PedestrianPose | null>(null);
   const pedestrianMiniMapRef = useRef<PedestrianMiniMapHandle | null>(null);
   const threeViewerAutoRecoveryUsedRef = useRef(false);
   const threeViewerGenerationRef = useRef(0);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
-  const openingLandmarkRef = useRef<string | null>(INITIAL_OPENING_NAME);
+  const openingLandmarkRef = useRef<string | null>(restoredNavigation ? null : INITIAL_OPENING_NAME);
   const [selected, setSelected] = useState<string>(INITIAL_SIMULATION_START.name);
+  const selectedForSessionRef = useRef(selected);
+  selectedForSessionRef.current = selected;
   const [language, setLanguage] = useState<Language>(initialViewerLanguage);
   const copy = UI_COPY[language];
   const [status, setStatus] = useState(copy.loadingCity);
@@ -867,6 +883,18 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   const [lightingMode, setLightingMode] =
     useState<VisualMode>(initialMode);
   const lightingModeRef = useRef<VisualMode>(lightingMode);
+  const saveCurrentVisit = useCallback(() => {
+    saveViewerVisit(window, {
+      mode: lightingModeRef.current,
+      navigation: threeViewerRef.current?.captureNavigation() ?? retainedNavigationRef.current,
+      selected: selectedForSessionRef.current,
+    });
+  }, []);
+
+  useEffect(() => {
+    saveCurrentVisit();
+    return watchViewerVisit(window, document, saveCurrentVisit);
+  }, [saveCurrentVisit]);
   const [floodDepth, setFloodDepth] = useState<FloodDepth>(DEFAULT_FLOOD_DEPTH);
   // Night startup always lights the city; later toggles remain persisted.
   // "Licht an/aus": persisted like mute (nightLighting.ts), independent of
@@ -890,8 +918,8 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
     null,
   );
   const [threeViewerGeneration, setThreeViewerGeneration] = useState(0);
-  const [isThreeUnderside, setIsThreeUnderside] = useState(false);
-  const [isPedestrianMode, setIsPedestrianMode] = useState(false);
+  const [isThreeUnderside, setIsThreeUnderside] = useState(restoredNavigation?.underside ?? false);
+  const [isPedestrianMode, setIsPedestrianMode] = useState(restoredNavigation?.pedestrian.requested ?? false);
   const [isPedestrianSprinting, setIsPedestrianSprinting] = useState(false);
   const [isPedestrianFastRunning, setIsPedestrianFastRunning] = useState(false);
   const [threePolarDegrees, setThreePolarDegrees] = useState(58);
@@ -1993,6 +2021,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
         resumeStandardAudio();
       }
       setLightingMode(next);
+      saveCurrentVisit();
       if (isPedestrianMode) {
         threeViewerRef.current?.focusNavigation();
       }
@@ -2015,6 +2044,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
       isPedestrianMode,
       persistentThreeWorld,
       resumeStandardAudio,
+      saveCurrentVisit,
       startSchwellenraumAudio,
     ],
   );
@@ -2125,8 +2155,9 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
   ]);
 
   const reloadAfterThreeViewerFailure = useCallback(() => {
+    saveCurrentVisit();
     window.location.reload();
-  }, []);
+  }, [saveCurrentVisit]);
 
   const handleThreeViewerRuntimeError = useCallback(
     (message: string, failedInstanceKey: string) => {
@@ -2405,12 +2436,16 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
         focusLandmark(hashLandmark, true);
       }
     };
-    applyHash();
-    window.addEventListener("hashchange", applyHash);
-    window.addEventListener("popstate", applyHash);
+    if (restoredHashRef.current !== window.location.hash) applyHash();
+    const applyChangedHash = () => {
+      restoredHashRef.current = null;
+      applyHash();
+    };
+    window.addEventListener("hashchange", applyChangedHash);
+    window.addEventListener("popstate", applyChangedHash);
     return () => {
-      window.removeEventListener("hashchange", applyHash);
-      window.removeEventListener("popstate", applyHash);
+      window.removeEventListener("hashchange", applyChangedHash);
+      window.removeEventListener("popstate", applyChangedHash);
     };
   }, [applyRotation, focusLandmark, landmarks]);
 
@@ -3013,6 +3048,7 @@ function ViewerApp({ initialMode, initialViewerLanguage }: {
                   // The mounted viewer owns its restored copy now. A later
                   // reset or error remount must not reuse it.
                   retainedNavigationRef.current = null;
+                  saveCurrentVisit();
                   threeViewerRef.current?.setPedestrianFastRun(pedestrianFastRunLockedRef.current);
                   threeViewerRef.current?.setPedestrianSprint(pedestrianSprintLockedRef.current);
                   setThreeRuntimeError(null);

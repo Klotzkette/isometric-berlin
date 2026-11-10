@@ -319,20 +319,56 @@ async function consumePrefetch(job: Prefetch, signal: AbortSignal, asset: Asset)
   return readJsonBounded(source, headers, signal, asset.bytes + 64, asset);
 }
 
-async function awaitPacketAndRecipesV309(
-  loading:Promise<unknown>,
-  recipes:Promise<SurroundingOwnershipOptions["sourceQuarterSourcesV303"]>,
-  signal:AbortSignal,
-):Promise<[unknown,SurroundingOwnershipOptions["sourceQuarterSourcesV303"]]> {
-  // Native/drawn changes must release the foreground immediately even when a
-  // module import itself cannot be cancelled. Late imports have no admission.
-  let onAbort:()=>void=()=>undefined;
-  const aborted=new Promise<never>((_,reject)=>{
-    onAbort=()=>reject(new DOMException("Aborted","AbortError"));
-    if(signal.aborted)onAbort();else signal.addEventListener("abort",onAbort,{once:true});
+function awaitPacketAndRecipesV309(
+  loading: Promise<unknown>,
+  recipes: Promise<SurroundingOwnershipOptions["sourceQuarterSourcesV303"]>,
+  signal: AbortSignal,
+): Promise<[unknown, SurroundingOwnershipOptions["sourceQuarterSourcesV303"]]> {
+  let acceptPacket!: (value: unknown) => void;
+  let acceptSources!: (value: SurroundingOwnershipOptions["sourceQuarterSourcesV303"]) => void;
+  let fail!: (error: unknown) => void;
+  const result = new Promise<[unknown, SurroundingOwnershipOptions["sourceQuarterSourcesV303"]]>((resolve, reject) => {
+    let packet: unknown;
+    let sources: SurroundingOwnershipOptions["sourceQuarterSourcesV303"];
+    let remaining = 2;
+    const clear = (): void => {
+      remaining = 0;
+      packet = undefined;
+      sources = undefined;
+      signal.removeEventListener("abort", onAbort);
+    };
+    fail = (error: unknown): void => {
+      if (!remaining) return;
+      clear();
+      reject(error);
+    };
+    const onAbort = (): void => fail(new DOMException("Aborted", "AbortError"));
+    const ready = (): void => {
+      if (--remaining) return;
+      const result: [unknown, SurroundingOwnershipOptions["sourceQuarterSourcesV303"]] = [packet, sources];
+      clear();
+      resolve(result);
+    };
+    // A canceled view releases its parsed tile immediately, even while the
+    // module import continues. Both inputs still observe late rejections.
+    if (signal.aborted) onAbort();
+    else signal.addEventListener("abort", onAbort, { once: true });
+    acceptPacket = value => {
+      if (!remaining) return;
+      packet = value;
+      ready();
+    };
+    acceptSources = value => {
+      if (!remaining) return;
+      sources = value;
+      ready();
+    };
   });
-  try{return await Promise.race([Promise.all([loading,recipes]),aborted]);}
-  finally{signal.removeEventListener("abort",onAbort);}
+  // Keep input promises outside the completion closures. A fulfilled promise
+  // can itself own the parsed value after the explicit packet slot is cleared.
+  void loading.then(acceptPacket, fail);
+  void recipes.then(acceptSources, fail);
+  return result;
 }
 
 /** Default for unit/standalone use; the viewer supplies its residency-aware disposer. */
