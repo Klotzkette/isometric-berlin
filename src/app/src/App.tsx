@@ -33,6 +33,7 @@ import {
   List,
   LocateFixed,
   Map as MapIcon,
+  MapPin,
   Maximize2,
   Minus,
   Minimize2,
@@ -872,11 +873,13 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
   const threeViewerAutoRecoveryUsedRef = useRef(false);
   const threeViewerGenerationRef = useRef(0);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
+  const [publicAmenitiesOn, setPublicAmenitiesOn] = useState(false);
   const openingLandmarkRef = useRef<string | null>(restoredNavigation ? null : INITIAL_OPENING_NAME);
   const [selected, setSelected] = useState<string>(INITIAL_SIMULATION_START.name);
   const selectedForSessionRef = useRef(selected);
   selectedForSessionRef.current = selected;
   const [language, setLanguage] = useState<Language>(initialViewerLanguage);
+  const publicAmenitiesLabel = language === "de" ? "Stadtorte in der Nähe" : "Nearby public places";
   const copy = UI_COPY[language];
   const [status, setStatus] = useState(copy.loadingCity);
 
@@ -3024,6 +3027,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
                 precipitationEnabled={precipitationEnabled}
                 progressLabel={copy.loadingCity}
                 startupLanguage={language}
+                publicAmenitiesOn={publicAmenitiesOn}
                 sceneUrl={sceneUrl}
                 selectedLandmark={selected}
                 openingLandmark={openingLandmarkRef.current}
@@ -3365,6 +3369,15 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
             onClick={() => setIsLandmarkRailOpen((open) => !open)}
           >
             <List size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label={publicAmenitiesLabel}
+            aria-pressed={publicAmenitiesOn}
+            title={publicAmenitiesLabel}
+            onClick={() => setPublicAmenitiesOn(on => !on)}
+          >
+            <MapPin size={18} aria-hidden="true" />
           </button>
           <button
             type="button"
@@ -4243,6 +4256,17 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
             >
               <List size={20} aria-hidden="true" />
               <span>{copy.attractions}</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={publicAmenitiesOn}
+              onClick={() => {
+                setPublicAmenitiesOn(on => !on);
+                setMobileSheet(null);
+              }}
+            >
+              <MapPin size={20} aria-hidden="true" />
+              <span>{publicAmenitiesLabel}</span>
             </button>
             <button
               type="button"

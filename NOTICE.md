@@ -17,6 +17,12 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Public amenities:** Berlin Geoportal, Polizei Berlin, Berliner Wasserbetriebe
+  and Berliner Bäder-Betriebe supply public location records. OpenStreetMap
+  (ODbL-1.0) supplies mapped shop, mailbox, basin and equipment identities.
+  Individual source links, admission rules and estimated display details are
+  recorded in [the public amenities notes](docs/public-amenities-v332.md).
+
 - **Regierungsviertel material study (v1.0.197):** The Bundestag building
   history and the owner's v285 Reichstag photograph guide the sandstone.
   Federal Government architecture photographs (Stefan Müller and

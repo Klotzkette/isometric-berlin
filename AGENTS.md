@@ -3029,3 +3029,15 @@ surveyed positions from dimensions estimated from external photographs. Never
 ship imagery. The 93-stop tour is unchanged. Only measured finite offline and
 static manifest allowances may increase. Respect existing transfer, residency,
 startup and Worker limits.
+
+## V332 — Public amenities in retained coverage
+
+Use the owner's requested categories and the existing city terrain envelope.
+Record public location evidence independently from evidence for an exterior
+model. Preserve existing building owners, modeled playground equipment,
+basins, navigation, the 93-place tour and every startup and residency limit.
+Do not infer a freestanding structure from a point inside a building. Reuse
+existing infrastructure for source-bound terrain admission. Keep facility
+labels optional, local and bounded, and street furniture on demand in both
+Drawn and Native. No source imagery, site interiors or additional geographic
+coverage are part of this pass.

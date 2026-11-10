@@ -540,6 +540,7 @@ import {
 } from "./renderQuality";
 import { browserUsesMobileViewerProfile } from "./viewerResidency";
 import { configureSmaaEdgeTarget } from "./smaaEdgeTarget";
+import type { PublicAmenitiesV332 } from "./PublicAmenitiesV332";
 import { fetchJsonWithRetry } from "./resilientFetch";
 import {
   type CivicWindFlagTarget,
@@ -699,6 +700,7 @@ type ThreeViewerProps = {
   pedestrianMode: boolean;
   precipitationEnabled: boolean;
   progressLabel: string;
+  publicAmenitiesOn?: boolean;
   startupLanguage?: "de" | "en";
   sceneUrl: string;
   selectedLandmark: string;
@@ -914,6 +916,7 @@ type Runtime = {
   northernLastScanV309?: number;
   outerOutlineTaskV309?: Promise<void>;
   northernOriginalGroundV309?: { drawn?: (x:number,z:number)=>number|null; native?: (x:number,z:number)=>number|null };
+  amenityGroundRevisionV332?: number;
   startDeferredDetails: () => void;
   trafficSignals?: Group | null;
   potsdamerTrafficTower: Group;
@@ -2092,6 +2095,7 @@ function startSurroundingCity(runtime: Runtime): void {
     onBeforeRelease:root=>{runtime.gpuWarmup?.release(root);runtime.geometryResidency?.release(root);runtime.gpuResidency?.release(root);releaseMinecraftMaterialBindings(root,runtime.minecraftMaterialState);},
     onRelease: root => disposeObject3D(runtime, root),
     onChange: () => {
+      runtime.amenityGroundRevisionV332 = (runtime.amenityGroundRevisionV332 ?? 0) + 1;
       runtime.renderInvalidated = true;
     },
     onError: message => console.warn("Berlin surroundings:", message),
@@ -6548,6 +6552,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       pedestrianMode,
       precipitationEnabled,
       progressLabel,
+      publicAmenitiesOn = false,
       startupLanguage = "de",
       sceneUrl,
       selectedLandmark,
@@ -6581,6 +6586,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const initialFlightStartRef = useRef(initialFlightStart);
     const initialFlightViewRef = useRef(initialFlightView ?? GALLERY_FLIGHT_START_V223);
     const activeRef = useRef(active);
+    const publicAmenitiesOnRef = useRef(publicAmenitiesOn);
+    publicAmenitiesOnRef.current = publicAmenitiesOn;
+    const amenityLanguageRef = useRef(startupLanguage);
+    amenityLanguageRef.current = startupLanguage;
     // Continuous flight input (x = strafe, y = vertical, z = forward),
     // integrated per frame in the animate loop with velocity smoothing.
     const flightInputRef = useRef(new Vector3());
@@ -9081,6 +9090,54 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         }
         for (const update of pressehausUpdatesV272) if (update(timestamp, camera, reducedMotion, hidden || runtime.underside)) runtime.renderInvalidated = true;
       };
+      let publicAmenities: PublicAmenitiesV332 | null = null;
+      let amenitiesRequested = false;
+      let lastAmenityRefresh = -Infinity;
+      function updatePublicAmenities(timestamp: number): void {
+        const environment = runtime.pedestrian.environment;
+        const nearby = runtime.presentationReady && !runtime.firstUploadParkingV323?.pending &&
+          !runtime.underside && camera.position.y < 380 && environment !== null;
+        if (!nearby) {
+          if (publicAmenities?.root.visible) {
+            publicAmenities.root.visible = false;
+            runtime.renderInvalidated = true;
+          }
+          return;
+        }
+        if (!publicAmenities) {
+          if (!amenitiesRequested) {
+            amenitiesRequested = true;
+            void import("./PublicAmenitiesV332").then(({ createPublicAmenitiesV332 }) => {
+              if (disposed) return;
+              publicAmenities = createPublicAmenitiesV332();
+              scene.add(publicAmenities.root);
+              runtime.renderInvalidated = true;
+            }).catch(error => { if (!disposed) console.warn("Public amenities:", error); });
+          }
+          return;
+        }
+        const wasVisible = publicAmenities.root.visible;
+        publicAmenities.root.visible = true;
+        if (!wasVisible) runtime.renderInvalidated = true;
+        if (timestamp - lastAmenityRefresh < 260) return;
+        lastAmenityRefresh = timestamp;
+        const native = voxelModeActive(runtime);
+        const focus = runtime.pedestrian.enabled || camera.position.distanceTo(controls.target) > 490
+          ? camera.position : controls.target;
+        const ground = runtime.northernOriginalGroundV309?.[native ? "native" : "drawn"];
+        const updated = publicAmenities.refresh(
+          timestamp, camera, focus.x, focus.z, native, publicAmenitiesOnRef.current,
+          amenityLanguageRef.current, runtime.amenityGroundRevisionV332 ?? 0, {
+            ground: (x, z) => ground?.(x, z) != null || runtime.surroundingCity?.hasResidentSurfaceAt(x, z)
+              ? environment.groundAt(x, z) : null,
+            water: (x, z) => pedestrianPointIsWater(x, z, environment.water) ||
+              environment.extension?.waterAt(x, z) === true,
+            blocked: (x, y, z) => pedestrianPointIsBlocked(x, z, y, environment.obstacles, environment),
+            hasHost: (id, sha256) => runtime.surroundingCity?.hasResidentChunk(id, sha256) === true,
+          },
+        );
+        if (updated) runtime.renderInvalidated = true;
+      }
       const animate = (timestamp = 0) => {
         if (disposed) {
           return;
@@ -9278,6 +9335,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.geometryResidency?.refresh(timestamp);
           refreshNorthernV309(runtime, timestamp);
           runtime.surroundingCity?.refresh(timestamp, runtime.controls.target);
+          updatePublicAmenities(timestamp);
           return;
         }
         lastEvaluationAt = timestamp;
@@ -9360,6 +9418,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.geometryResidency?.refresh(timestamp);
         refreshNorthernV309(runtime, timestamp);
         runtime.surroundingCity?.refresh(timestamp, runtime.controls.target);
+        updatePublicAmenities(timestamp);
         if (runtime.zooAnimalsV282?.update(timestamp, camera, runtime.lightingMode === 'minecraft',
           reducedMotion || runtime.underside)) runtime.renderInvalidated = true;
         runtime.gpuWarmup?.refreshView();
@@ -10428,6 +10487,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         startupWorkFrameV309 = null;
         pendingStartupWorkV309 = null;
         runtime.disposed = true;
+        publicAmenities?.dispose();
+        publicAmenities = null;
         runtime.firstUploadParkingV323?.release();
         runtime.firstUploadParkingV323=undefined;
         runtime.northernV309?.dispose();

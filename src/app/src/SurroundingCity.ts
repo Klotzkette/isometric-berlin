@@ -135,6 +135,8 @@ export type SurroundingCity = {
   setMode: (mode: VisualMode) => void;
   interiorGroundAt:(x:number,z:number,currentY?:number)=>number|null;
   groundAt: (x: number, z: number) => number | null;
+  hasResidentSurfaceAt: (x: number, z: number) => boolean;
+  hasResidentChunk: (id: string, sha256: string) => boolean;
   gardenGroundAtV330: (x: number, z: number) => number | null;
   solidAt: (x: number, y: number, z: number, radius?: number) => boolean;
   waterAt: (x: number, z: number) => boolean;
@@ -868,6 +870,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   };
   return {
     root, ready, refresh, dispose,
+    hasResidentSurfaceAt: (x, z) => at(x, z) !== undefined,
+    hasResidentChunk: (id, sha256) =>
+      residents.get(id)?.descriptor[mode === "minecraft" ? "minecraft" : "drawn"].sha256 === sha256,
     setMode(nextMode) {
       if (disposed || nextMode === mode) return;
       const changedFamily = (nextMode === "minecraft") !== (mode === "minecraft");
