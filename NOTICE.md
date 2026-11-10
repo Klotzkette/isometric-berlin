@@ -17,6 +17,14 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Berlin transit:** [VBB Verkehrsverbund Berlin-Brandenburg GmbH](https://unternehmen.vbb.de/digitale-services/datensaetze/)
+  provides timetable, stop and access records under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+  [Berlin's BVG WFS](https://gdi.berlin.de/services/wfs/oepnv_ungestoert) provides the bus-network cross-check
+  under dl-de-zero-2.0. OpenStreetMap contributors (ODbL-1.0) supply supplemental routes and stairs.
+  Model scope and sources are recorded for [bus berths](docs/bus-stops-v334.md),
+  [rail access](docs/rail-access-v334.md), [elevated stations](docs/named-elevated-stations-v334.md)
+  and [Katzengrabensteg](docs/katzengrabensteg-v334.md).
+
 - **District court facades:** Berlin LoD2 and the Berlin heritage office guide
   the facade relief at [Wedding](docs/wedding-court-v333.md) and
   [Charlottenburg](docs/charlottenburg-court-v333.md). External photographs

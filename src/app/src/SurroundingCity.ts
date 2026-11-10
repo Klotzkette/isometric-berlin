@@ -11,6 +11,7 @@ import { createZooAnimalsV282, type ZooAnimalHandleV282 } from './ZooAnimalsV282
 import { transferTierparkAnimalsV282 } from './tierparkAnimalTransferV282';
 import { createTierparkHouseV282 } from './ZooHousesV282';
 import { mierendorffFloorAtV269 } from "./MierendorffV269";
+import { namedElevatedFloorAtV334 } from "./namedSiteReplacementsV238";
 import { Box3, Frustum, Group, InstancedMesh, Matrix4, Vector3, type BufferGeometry, type Camera, Mesh } from "three";
 import {
   createSurroundingCityChunkCooperatively, groundOverlayKindsV329, surroundingBuildingSolidAt, surroundingPolygonContains, validSurroundingPolygon,
@@ -29,6 +30,8 @@ import southFidelityReceiptsV294 from "./data/southFidelityV294Packets.json";
 const SOUTH_RECEIPT_TILES_V294:ReadonlySet<string> = new Set(southFidelityReceiptsV294.keys);
 const MAUERPARK_TILES_V298:ReadonlySet<string>=new Set(["3_-6","3_-5","4_-6","4_-5"]);
 const mauerparkTileV298=(id:string)=>MAUERPARK_TILES_V298.has(id);
+const ELEVATED_TILES_V334: ReadonlySet<string> = new Set(["5_-7", "6_-7", "9_4", "-2_4"]);
+const KATZENGRABEN_TILES_V334: ReadonlySet<string> = new Set(["outer187-27_15", "outer187-27_16"]);
 
 export const SURROUNDING_CITY_SCAN_MS = 180;
 export const SURROUNDING_CITY_RETIRE_MS = 1_800;
@@ -118,6 +121,7 @@ export type SurroundingCityOptions = {
   onBeforeRelease?:(root:Group)=>void;
   /** Optional V326 actual public-site adapters; original callers stay exact. */
   publicSitesV326?:boolean;
+  transportDetailsV334?: boolean;
   onChange?: () => void;
   onError?: (message: string) => void;
   fetch?: typeof fetch;
@@ -429,6 +433,15 @@ export async function createStreamedSurroundingCityChunkV255(
   checkAbort();
   const animals = transferTierparkAnimalsV282(chunk, id, minecraft);
   chunk = animals.chunk;
+  if (ownership.transportDetailsV334) {
+    const load = ELEVATED_TILES_V334.has(id) ? import("./data/namedElevatedStationsV334.json")
+      : KATZENGRABEN_TILES_V334.has(id) ? import("./data/katzengrabenV334.json") : null;
+    if (load) {
+      const data = await load.catch(() => null);
+      checkAbort();
+      if (data) ownership = { ...ownership, namedTransportSourceV334: data.default as NonNullable<SurroundingOwnershipOptions["namedTransportSourceV334"]> };
+    }
+  }
   const entry = await createSurroundingCityChunkCooperatively(chunk, id, minecraft, schedule, ownership);
   try {
     checkAbort();
@@ -632,7 +645,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
             ubahnCandidatesV326(descriptor.bounds).length === 0;
           const entry = await createStreamedSurroundingCityChunkV255(
             data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
-            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,clusterFacadesV320:options.clusterFacadesV320,berlinSenateV321:options.berlinSenateV321,governmentOfficesV321:governmentReadyV321,universitiesV322:universitiesReadyV322,wilhelmHousingV324:wilhelmReadyV324,wilhelmStreetFrontsV325:wilhelmStreetReadyV325,southWestSitesV326:southwestReadyV326,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,groundOverlaysV329,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317 },
+            { operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,clusterFacadesV320:options.clusterFacadesV320,berlinSenateV321:options.berlinSenateV321,governmentOfficesV321:governmentReadyV321,universitiesV322:universitiesReadyV322,wilhelmHousingV324:wilhelmReadyV324,wilhelmStreetFrontsV325:wilhelmStreetReadyV325,southWestSitesV326:southwestReadyV326,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,groundOverlaysV329,transportDetailsV334:options.transportDetailsV334,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317 },
           );
           unpublished = entry.root;
           if(options.publicSitesV326===true&&!descriptor.detailCompanionOf&&!entry.gardenTerrainV330){
@@ -887,7 +900,15 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       refresh();
       options.onChange?.();
     },
-    interiorGroundAt(x,z,currentY){const entry=at(x,z);return entry?publicAccessV326.get(entry.root)?.groundAt(x,z,currentY)??null:null;},
+    interiorGroundAt(x, z, currentY) {
+      const entry = at(x, z);
+      if (!entry) return null;
+      const underground = publicAccessV326.get(entry.root)?.groundAt(x, z, currentY);
+      if (underground != null) return underground;
+      return entry.descriptor.id === "5_-7"
+        ? namedElevatedFloorAtV334(entry.nav, x - entry.origin[0], z - entry.origin[2], currentY)
+        : null;
+    },
     gardenGroundAtV330(x, z) {
       const entry = at(x, z);
       if (!entry?.gardenTerrainV330) return null;

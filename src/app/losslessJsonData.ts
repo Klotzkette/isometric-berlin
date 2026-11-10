@@ -215,6 +215,8 @@ export const READONLY_CONSTRUCTION_JSON_FIELDS: Readonly<Record<string, readonly
   "northElevatedV238Replacement.json": ["packets"],
   "southElevatedV238Replacement.json": ["packets", "core"],
   "venuesV238Replacement.json": ["packets"],
+  "namedElevatedStationsV334.json": ["packets"],
+  "katzengrabenV334.json": ["packets"],
   "houseDoorsV233.json": ["chunks"],
   "roofHouseV233.json": ["packets"],
   "houseCurbsV233.json": ["packets"],

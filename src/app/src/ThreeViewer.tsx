@@ -541,6 +541,8 @@ import {
 import { browserUsesMobileViewerProfile } from "./viewerResidency";
 import { configureSmaaEdgeTarget } from "./smaaEdgeTarget";
 import type { PublicAmenitiesV332 } from "./PublicAmenitiesV332";
+import type { BusStopsV334 } from "./BusStopsV334";
+import type { RailAccessV334 } from "./RailAccessV334";
 import { fetchJsonWithRetry } from "./resilientFetch";
 import {
   type CivicWindFlagTarget,
@@ -2092,6 +2094,7 @@ function startSurroundingCity(runtime: Runtime): void {
       runtime.scheduleGpuWarmup?.();
     },
     publicSitesV326:true,
+    transportDetailsV334:true,
     onBeforeRelease:root=>{runtime.gpuWarmup?.release(root);runtime.geometryResidency?.release(root);runtime.gpuResidency?.release(root);releaseMinecraftMaterialBindings(root,runtime.minecraftMaterialState);},
     onRelease: root => disposeObject3D(runtime, root),
     onChange: () => {
@@ -9094,14 +9097,19 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       let publicAmenities: PublicAmenitiesV332 | null = null;
       let amenitiesRequested = false;
+      let busStops: BusStopsV334 | null = null;
+      let busStopsRequested = false;
+      let railAccess: RailAccessV334 | null = null;
+      let railAccessRequested = false;
       let lastAmenityRefresh = -Infinity;
       function updatePublicAmenities(timestamp: number): void {
         const environment = runtime.pedestrian.environment;
         const nearby = runtime.presentationReady && !runtime.firstUploadParkingV323?.pending &&
           !runtime.underside && camera.position.y < 380 && environment !== null;
         if (!nearby) {
-          if (publicAmenities?.root.visible) {
-            publicAmenities.root.visible = false;
+          for (const layer of [publicAmenities, busStops, railAccess]) {
+            if (!layer?.root.visible) continue;
+            layer.root.visible = false;
             runtime.renderInvalidated = true;
           }
           return;
@@ -9116,29 +9124,52 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               runtime.renderInvalidated = true;
             }).catch(error => { if (!disposed) console.warn("Public amenities:", error); });
           }
-          return;
         }
-        const wasVisible = publicAmenities.root.visible;
-        publicAmenities.root.visible = true;
-        if (!wasVisible) runtime.renderInvalidated = true;
+        if (!busStopsRequested) {
+          busStopsRequested = true;
+          void import("./BusStopsV334").then(({ loadBusStopsV334 }) => loadBusStopsV334(runtime.loadSignal)).then(layer => {
+            if (disposed) { layer.dispose(); return; }
+            busStops = layer;
+            scene.add(layer.root);
+            runtime.renderInvalidated = true;
+          }).catch(error => { if (!disposed && !runtime.loadSignal.aborted) console.warn("Bus stops:", error); });
+        }
+        if (!railAccessRequested) {
+          railAccessRequested = true;
+          void import("./RailAccessV334").then(({ createRailAccessV334 }) => {
+            if (disposed) return;
+            railAccess = createRailAccessV334();
+            scene.add(railAccess.root);
+            runtime.renderInvalidated = true;
+          }).catch(error => { if (!disposed) console.warn("Rail access:", error); });
+        }
+        for (const layer of [publicAmenities, busStops, railAccess]) {
+          if (!layer || layer.root.visible) continue;
+          layer.root.visible = true;
+          runtime.renderInvalidated = true;
+        }
         if (timestamp - lastAmenityRefresh < 260) return;
         lastAmenityRefresh = timestamp;
         const native = voxelModeActive(runtime);
         const focus = runtime.pedestrian.enabled || camera.position.distanceTo(controls.target) > 490
           ? camera.position : controls.target;
         const ground = runtime.northernOriginalGroundV309?.[native ? "native" : "drawn"];
-        const updated = publicAmenities.refresh(
-          timestamp, camera, focus.x, focus.z, native, publicAmenitiesOnRef.current,
-          amenityLanguageRef.current, runtime.amenityGroundRevisionV332 ?? 0, {
-            ground: (x, z) => ground?.(x, z) != null || runtime.surroundingCity?.hasResidentSurfaceAt(x, z)
-              ? environment.groundAt(x, z) : null,
-            water: (x, z) => pedestrianPointIsWater(x, z, environment.water) ||
-              environment.extension?.waterAt(x, z) === true,
-            blocked: (x, y, z) => pedestrianPointIsBlocked(x, z, y, environment.obstacles, environment),
-            hasHost: (id, sha256) => runtime.surroundingCity?.hasResidentChunk(id, sha256) === true,
-          },
-        );
-        if (updated) runtime.renderInvalidated = true;
+        const support = {
+          ground: (x: number, z: number) => ground?.(x, z) != null || runtime.surroundingCity?.hasResidentSurfaceAt(x, z)
+            ? environment.groundAt(x, z) : null,
+          water: (x: number, z: number) => pedestrianPointIsWater(x, z, environment.water) ||
+            environment.extension?.waterAt(x, z) === true,
+          blocked: (x: number, y: number, z: number) => pedestrianPointIsBlocked(x, z, y, environment.obstacles, environment),
+          hasHost: (id: string, sha256: string) => runtime.surroundingCity?.hasResidentChunk(id, sha256) === true,
+          landing: (x: number, z: number, hint: number) => environment.interiorGroundAt?.(x, z, hint) ?? null,
+        };
+        const revision = runtime.amenityGroundRevisionV332 ?? 0;
+        const amenitiesChanged = publicAmenities?.refresh(timestamp, camera, focus.x, focus.z, native,
+          publicAmenitiesOnRef.current, amenityLanguageRef.current, revision, support);
+        const busStopsChanged = busStops?.refresh(timestamp, camera, focus.x, focus.z, native,
+          publicAmenitiesOnRef.current, amenityLanguageRef.current, revision, support);
+        const railAccessChanged = railAccess?.refresh(focus.x, focus.z, native, revision, support);
+        if (amenitiesChanged || busStopsChanged || railAccessChanged) runtime.renderInvalidated = true;
       }
       const animate = (timestamp = 0) => {
         if (disposed) {
@@ -10491,6 +10522,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.disposed = true;
         publicAmenities?.dispose();
         publicAmenities = null;
+        busStops?.dispose();
+        busStops = null;
+        railAccess?.dispose();
+        railAccess = null;
         runtime.firstUploadParkingV323?.release();
         runtime.firstUploadParkingV323=undefined;
         runtime.northernV309?.dispose();

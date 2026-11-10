@@ -12,9 +12,14 @@ type Receipt = {
   replacement: SurroundingPackedMesh;
   navigationRecords: { owner: string; original: SurroundingNavigation["buildings"][number]; groundY: number }[];
   navigationSolids: Solid[];
+  navigationFloorIndices?: number[];
 };
 export type NamedSiteSourceV238 = { schema: number; keys?: readonly string[]; packets: Record<string, Receipt> };
 type PreparedChunk = SurroundingCityChunk & { namedSiteV238?: Receipt };
+const elevatedFloorsV334 = Symbol("published elevated platform and stair surfaces");
+type NavigationWithElevatedFloorsV334 = SurroundingNavigation & {
+  [elevatedFloorsV334]?: readonly Solid[];
+};
 // Keep only tiny eager keys and their lazy source accessors. Spreading .packets
 // here would hydrate both geometry families at startup and retain them forever.
 const packetSources = new Map<string, NamedSiteSourceV238>();
@@ -56,6 +61,8 @@ export function* prepareNamedSiteV238(chunk: SurroundingCityChunk, id: string, n
   if (!Object.hasOwn(packets, key)) return chunk;
   let receipt = packets[key];
   if (!receipt.replacement || !equal(receipt.origin, chunk.origin)) return chunk;
+  if (receipt.navigationFloorIndices?.some(i =>
+    !Number.isSafeInteger(i) || i < 0 || i >= receipt.navigationSolids.length)) return chunk;
   for (const record of receipt.records) {
     const part = chunk.meshes[record.mesh];
     if (!part || (yield* fingerprint([part.positions, part.colors, part.indices])) !== record.fingerprint) return chunk;
@@ -102,8 +109,47 @@ export function namedSiteNavigationV238(chunk: SurroundingCityChunk, nav: Surrou
   const r = (chunk as PreparedChunk).namedSiteV238;
   if (!r || !chunk.meshes.includes(r.replacement)) return nav;
   const buildings = nav.buildings.filter(b => !r.navigationRecords.some(n => n.groundY === nav.groundY && n.owner === b.sourceId && equal(n.original, b)));
-  return { ...nav, buildings: [...buildings, ...r.navigationSolids.map((s, i) => ({
-    ring: s.ring, holes: s.holes, minHeight: s.minY - nav.groundY, height: s.maxY - nav.groundY,
-    sourceId: `required-v238-${chunk.origin[0]}-${chunk.origin[2]}-${i}`,
-  }))] };
+  const floors: Solid[] = [];
+  const floorIndices = new Set(r.navigationFloorIndices);
+  r.navigationSolids.forEach((s, i) => {
+    // Stair treads provide a standing floor. A capsule pushing against its
+    // next riser must be able to move up rather than hit a wall obstacle.
+    if (floorIndices.has(i)) floors.push(s);
+    else buildings.push({
+      ring: s.ring, holes: s.holes, minHeight: s.minY - nav.groundY, height: s.maxY - nav.groundY,
+      sourceId: `required-v238-${chunk.origin[0]}-${chunk.origin[2]}-${i}`,
+    });
+  });
+  const published: NavigationWithElevatedFloorsV334 = { ...nav, buildings };
+  if (floors.length) published[elevatedFloorsV334] = floors;
+  return published;
+}
+
+function floorRingContains(ring: readonly number[][], x: number, z: number): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const a = ring[i], b = ring[j];
+    if ((a[1] > z) !== (b[1] > z) && x < a[0] + (b[0] - a[0]) * (z - a[1]) / (b[1] - a[1])) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+/** Reach only a nearby represented tread or platform. Street traffic below an
+ * elevated platform keeps its lower level, even with the tile fully loaded. */
+export function namedElevatedFloorAtV334(
+  nav: SurroundingNavigation, localX: number, localZ: number, currentY = nav.groundY,
+): number | null {
+  const floors = (nav as NavigationWithElevatedFloorsV334)[elevatedFloorsV334];
+  if (!floors || !Number.isFinite(currentY)) return null;
+  let top: number | null = null, nearest = .46;
+  for (const floor of floors) {
+    const difference = Math.abs(floor.maxY - currentY);
+    if (difference > nearest || !floorRingContains(floor.ring, localX, localZ) ||
+      floor.holes.some(hole => floorRingContains(hole, localX, localZ))) continue;
+    nearest = difference;
+    top = floor.maxY;
+  }
+  return top;
 }

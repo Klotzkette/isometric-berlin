@@ -148,6 +148,8 @@ export const LOSSLESS_BASE85_BEFORE_V309: ReadonlySet<string> = new Set([
   "data/neukoellnPlacesV210Navigation.json",
   "data/neukoellnPlacesV210Ownership.json",
   "data/northElevatedV238Replacement.json",
+  "data/namedElevatedStationsV334.json",
+  "data/katzengrabenV334.json",
   "data/northParksV198Drawn0.json",
   "data/northParksV198Drawn1.json",
   "data/northParksV198Native0.json",

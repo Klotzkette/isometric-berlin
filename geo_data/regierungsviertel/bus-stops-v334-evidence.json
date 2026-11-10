@@ -1,0 +1,31 @@
+{
+  "version": "v334",
+  "busSource": "VBB Verkehrsverbund Berlin-Brandenburg GmbH (CC BY 4.0)",
+  "inputs": {
+    "vbb-gtfs-current.zip": "d962592456cd7e39c9162ba22aff8f44f87d90b5d54303fee6a6506a758c4df7",
+    "alkis-state.geojson": "e3d85b37b72ab983c04cddb0a55c27b9625baf66db393ef336babf89150b7450",
+    "bvg-bus-stops.geojson": "0fff66e3a53ab90e9c4862d0aa57fc4d5c5b123c3697d81e1873bc9a7d8b50ca",
+    "manifest.json": "a77f9875361a94518d24fbb253a15fef2c43d77f715c6807be7f4e45f2b8db43",
+    "bounds.geojson": "cc93f63bb8ff0bc2bc2f036bf7c4e939bac4bf65e9e6c751761b7fcbd5e27e2c"
+  },
+  "bvgServiceTimestamp": "2026-11-10T08:48:43.440Z",
+  "bvgUndisturbedNetworkPoints": 6456,
+  "bvgUndisturbedBerlinPoints": 6109,
+  "bvgUndisturbedBerlinExactCoordinateLocations": 6102,
+  "alkisTimestamp": "2026-11-10T08:49:54.886Z",
+  "gtfs": {
+    "berths": 6327,
+    "replacement": 32,
+    "retainedFootprint": 2783,
+    "retainedFootprintReplacement": 13
+  },
+  "names": 2802,
+  "cells": 3511,
+  "product": {
+    "file": "bus-stops-v334.json.gz",
+    "sha256": "32d4f3599f93d1cf969900dd97c5a82a603520776838961f62b4b2aaf87f294a",
+    "rawBytes": 451802,
+    "packedBytes": 117936,
+    "berths": 6327
+  }
+}

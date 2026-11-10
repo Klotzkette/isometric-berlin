@@ -153,6 +153,10 @@ export function SourcesDialog({ language, onClose }: {
           <li>{language === "de"
             ? "Amtsgerichte Wedding und Charlottenburg · Lage und Gebäudehülle nach Berliner LoD2. Das Landesdenkmalamt und Fassadenaufnahmen dienen als Referenz für die modellierten Portal-, Fenster- und Steindetails. Maße und Farben der Zierelemente sind geschätzt."
             : "Wedding and Charlottenburg district courts · Location and building envelope use Berlin LoD2. The Berlin heritage office and photographs inform the modeled portals, windows and stonework. Ornamental dimensions and colors are estimates."}</li>
+          <li>{language === "de"
+            ? "Berliner Nahverkehr · Bussteige und Bahnhofszugänge nach VBB Verkehrsverbund Berlin-Brandenburg GmbH (CC BY 4.0, Fahrplandaten vom 5. November 2026). OpenStreetMap (ODbL 1.0) ergänzt kartierte Treppen und Trassen. Kleine Ausstattung ist schematisch."
+            : "Berlin transit · Bus berths and station entrances from VBB Verkehrsverbund Berlin-Brandenburg GmbH (CC BY 4.0, schedule data dated 5 November 2026). OpenStreetMap (ODbL 1.0) supplies mapped stairways and alignments. Small fittings are illustrative."}{" "}
+            <a href="https://unternehmen.vbb.de/digitale-services/datensaetze/" target="_blank" rel="noreferrer">VBB</a></li>
           <li><a href="https://github.com/Klotzkette/isometric-berlin/blob/main/NOTICE.md" target="_blank" rel="noreferrer">{language === "de" ? "Alle Quellen- und Lizenzhinweise" : "All source and license notices"}</a></li>
         </ul>
       </div>

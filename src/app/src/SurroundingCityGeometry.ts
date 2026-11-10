@@ -37,7 +37,7 @@ import { prepareEurefTransfersV262, applyEurefTransfersV262Triangles, applyEuref
 import { prepareOuterFacadesV262 } from "./outerFacadesV262";
 import { prepareGreyFacadesV263 } from "./greyFacadesV263";
 import { prepareOuterRoofsV262, applyOuterRoofsV262Triangles, applyOuterRoofsV262Lines } from "./outerRoofsV262";
-import { prepareNamedSiteV238, applyNamedSiteTrianglesV238, applyNamedSiteLinesV238, namedSiteNavigationV238 } from "./namedSiteReplacementsV238";
+import { prepareNamedSiteV238, applyNamedSiteTrianglesV238, applyNamedSiteLinesV238, namedSiteNavigationV238, type NamedSiteSourceV238 } from "./namedSiteReplacementsV238";
 import { prepareSouthFidelityV294, applySouthFidelityTrianglesV294, applySouthFidelityLinesV294, southFidelityNavigationV294 } from "./SouthFidelityV294Packets";
 import { applyOuterMaterialsV232 } from "./outerMaterialsV232";
 import { applyOuterMaterialsV254 } from "./outerMaterialsV254";
@@ -282,6 +282,8 @@ function disposeUnpublishedChunk(root: Group): void {
  */
 export type SurroundingOwnershipOptions = {
   groundOverlaysV329?: boolean;
+  transportDetailsV334?: boolean;
+  namedTransportSourceV334?: NamedSiteSourceV238;
   /** Caller guarantees complete v239 bodies in the same publication transaction. */
   schlossplatzV239?: boolean;
   /** Caller guarantees the v240 opera recognition and native restoration. */
@@ -426,6 +428,9 @@ export function* buildSurroundingCityChunk(
   for(const ticket of quarterTicketsV303)chunk=yield*prepareSourceQuarterPacketV303(chunk,ticket);
   chunk = yield* prepareNeighbourhoodPacketV300(chunk, clusterTicketV320);
   chunk = yield* prepareNeighbourhoodPacketV300(chunk, senateTicketV321);
+  if (ownership.namedTransportSourceV334) {
+    chunk = yield* prepareNamedSiteV238(chunk, id, minecraft, ownership.namedTransportSourceV334);
+  }
   const firstGroundOverlayPart = chunk.meshes.length;
   for (const ticket of groundOverlayTicketsV329) chunk = yield* prepareNeighbourhoodPacketV300(chunk, ticket);
 
