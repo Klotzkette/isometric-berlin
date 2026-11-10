@@ -3024,3 +3024,13 @@ Mapped vegetation, paths, path materials and zebra-crossing tags are ©
 [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), ODbL 1.0.
 See the [green-space source notes](docs/public-green-v329.md) and
 [zebra-crossing source notes](docs/zebra-crossings-v329.md).
+
+## Gärten der Welt and Kienbergpark (v330)
+
+Terrain, park boundaries and measured building surfaces use Berlin DGM1,
+GRIS and LoD2 under [Datenlizenz Deutschland Zero 2.0](https://www.govdata.de/dl-de/zero-2-0).
+Paths, vegetation positions and other mapped features are ©
+[OpenStreetMap contributors](https://www.openstreetmap.org/copyright), ODbL 1.0.
+The official park plans, Grün Berlin, KRP Architektur and LEITNER provide
+external visual and technical references.
+[Marzahn site and source notes](docs/marzahn-gardens-v330.md).

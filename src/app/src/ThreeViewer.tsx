@@ -2216,7 +2216,9 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       const addedGround = runtime.outerThinOutlines?.userData.groundAt?.(x, z) ?? null;
       if (addedGround !== null) return addedGround;
       const knownGround = surroundingScopeGroundAt(x, z, runtime.lightingMode === "minecraft");
-      return knownGround === null ? null : runtime.surroundingCity?.groundAt(x, z) ?? knownGround;
+      return knownGround === null
+        ? runtime.surroundingCity?.gardenGroundAtV330(x, z) ?? null
+        : runtime.surroundingCity?.groundAt(x, z) ?? knownGround;
     },
     solidAt: (x: number, y: number, z: number, radius?: number) =>
       museumColonnadesV231SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||

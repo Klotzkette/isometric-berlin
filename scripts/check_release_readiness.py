@@ -152,7 +152,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v329 adds lazy green-space, park-path and zebra-crossing recipes.
 # The verified 1,150,308,283-byte package adds 6,755,500 bytes to v1.0.209.
 # 1098 MiB is the next whole-MiB ceiling for the offline package.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 1098 * 1024 * 1024
+# v330 adds 36 bounded Marzahn terrain and detail assets and its viewer links.
+# The verified package adds 7,554,629 bytes to v1.0.210 (1,157,862,912 total).
+# 1105 MiB is the next whole-MiB offline-only ceiling.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 1105 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

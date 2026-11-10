@@ -3015,3 +3015,17 @@ streets, navigation and opening owners, including V326 U-Bahn and Rosenthaler.
 Document missing source or host coverage. Use existing lazy lifetimes and live
 limits. Only the measured offline-package allowance may grow. Keep the
 preceding complete release, immutable source proofs, tour and all six modes.
+
+## V330 — Gärten der Welt, Kienbergpark and IGA ropeway
+
+The owner explicitly requested the named gardens in Marzahn, the former IGA
+grounds and the adjacent ropeway. Extend the model only within the actual named
+park boundaries, positively mapped adjoining park connections and the three
+station areas. Subtract every actual previous ground owner and preserve previous
+buildings, stairs, paths, public models and view limits. Measure the hill against
+Berlin DGM1 and use the same height field for visible surfaces and walking.
+Native uses its own cardinal terrain and structures. Distinguish plans and
+surveyed positions from dimensions estimated from external photographs. Never
+ship imagery. The 93-stop tour is unchanged. Only measured finite offline and
+static manifest allowances may increase. Respect existing transfer, residency,
+startup and Worker limits.

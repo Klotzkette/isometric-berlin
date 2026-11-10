@@ -1,3 +1,4 @@
+import { decodeGardenTerrainV330 } from "./GardenTerrainV330";
 import { applySourceQuarterTrianglesV303, applySourceQuarterLinesV303, sourceQuarterExtraLineVerticesV303, sourceQuarterNavigationV303, sourceQuarterOwnersV303, captureSourceQuarterPacketV303, prepareSourceQuarterPacketV303, type SourceQuarterSourceV303, type SourceQuarterTicketV303 } from "./SourceQuarterPacketV303";
 import { captureNeighbourhoodFidelityV300, prepareNeighbourhoodFidelityV300 } from "./NeighbourhoodFidelityV300";
 import { applyNeighbourhoodTrianglesV300, neighbourhoodPacketAdmittedV300, captureNeighbourhoodPacketV300, prepareNeighbourhoodPacketV300, neighbourhoodPacketCandidateV300, type NeighbourhoodSourceV300 } from "./NeighbourhoodPacketV300";
@@ -115,6 +116,7 @@ export type SurroundingCityChunk = {
   origin: [number, number, number];
   meshes: SurroundingPackedMesh[];
   lines?: SurroundingPackedLines;
+  gardenTerrainV330?: string;
   nav: SurroundingNavigation;
 };
 export type SurroundingChunkGeometry = {
@@ -122,6 +124,7 @@ export type SurroundingChunkGeometry = {
   geometryBytes: number;
   bufferCount: number;
   nav: SurroundingNavigation;
+  gardenTerrainV330?: DataView;
   origin: [number, number, number];
 };
 
@@ -382,6 +385,11 @@ export function* buildSurroundingCityChunk(
       !Array.isArray(chunk.meshes) || chunk.meshes.length > 16 ||
       !validNavigation(chunk.nav)) {
     throw new Error("Invalid surrounding-city chunk");
+  }
+  let gardenTerrainV330: DataView | undefined;
+  if (chunk.gardenTerrainV330 !== undefined) {
+    if (!/^gardens330-\d+_-?\d+$/.test(id)) throw Error("Unexpected Kienberg terrain owner");
+    gardenTerrainV330 = decodeGardenTerrainV330(chunk.gardenTerrainV330, minecraft);
   }
   // The main viewer supplies its finite weak catalogue. Core workers that do
   // not render these fronts retain no copy of that catalogue.
@@ -662,7 +670,8 @@ export function* buildSurroundingCityChunk(
     if (parkBacking) yield* parkStaticGeometrySteps(root, true);
     root.userData.sourceQuarterOwnersV303=sourceQuarterOwnersV303(chunk);
     root.userData.sourceQuarterNativeV303=minecraft;
-    const result = { root: freezeStaticSceneTransforms(root), geometryBytes, bufferCount,
+    const result = { root: freezeStaticSceneTransforms(root), geometryBytes: geometryBytes + (gardenTerrainV330?.byteLength ?? 0), bufferCount,
+      ...(gardenTerrainV330 ? { gardenTerrainV330 } : {}),
       nav: sourceQuarterNavigationV303(chunk,southFidelityNavigationV294(chunk, cityWestTransportNavigationV281(chunk, mierendorffNavigationV269(chunk, kraftwerkBerlinNavigationV268(chunk, koepenickerLandmarksNavigationV268(chunk, feuerwacheKreuzbergNavigationV267(chunk, eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, operaTheatreNavigationV274(ownership.operaTheatresV274 === true, id, minecraft, chunk.nav, root.userData.operaTheatreTrianglesV274 ?? 0), ownership.prenzlbergV264 === true)))))))))), origin: chunk.origin };
     completed = true;
     return result;
