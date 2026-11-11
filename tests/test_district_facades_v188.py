@@ -11,7 +11,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from packet_additions_v200 import audited_v200_pre_v242_additions
-from packet_additions_v230 import predecessor_manifest_v230
+from packet_additions_v230 import baseline_v229, predecessor_manifest_v230
 from packet_receipts_v190 import (
   assert_retained_descriptor,
   audited_v190_changes,
@@ -25,7 +25,7 @@ from shapely.ops import nearest_points
 from shapely.strtree import STRtree
 
 from scripts.historical_asset_reader_v194 import historical_asset_bytes_v194
-from scripts.integrate_lossless_v196 import predecessor_manifest_v196
+from scripts.integrate_lossless_v196 import original_manifest_v196
 
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
@@ -39,9 +39,7 @@ def read(path: Path) -> dict:
 
 EVIDENCE = read(GEO / "district-facades-v188-evidence.json.gz")
 CONTEXT = read(GEO / "district-facades-v188-context.json.gz")
-MANIFEST = predecessor_manifest_v196(
-  read(OUT / "manifest.json"), lambda path: path.read_bytes()
-)
+MANIFEST = original_manifest_v196()
 
 
 def test_every_previous_packet_descriptor_and_payload_is_retained() -> None:
@@ -96,11 +94,19 @@ def test_every_previous_packet_descriptor_and_payload_is_retained() -> None:
   ]
 
 
+def test_v209_normalization_accepts_its_published_checkpoint() -> None:
+  checkpoint = baseline_v229()
+  before, additions = normalize_v209_additions(checkpoint, Path.read_bytes)
+  assert len(additions) == 14
+  assert before["chunks"] + list(additions.values()) == checkpoint["chunks"]
+
+
 @pytest.mark.parametrize(
   "change", ["old_asset", "footprint", "metadata", "missing", "extra", "renamed"]
 )
 def test_v209_normalization_cannot_hide_prior_city_or_unreceipted_changes(change):
-  forged = copy.deepcopy(MANIFEST)
+  # Exercise the v209 append against its complete checkpoint before v230.
+  forged = copy.deepcopy(baseline_v229())
   if change == "old_asset":
     forged["chunks"][0]["drawn"]["sha256"] = "0" * 64
   elif change == "footprint":
@@ -221,7 +227,9 @@ def test_new_packets_have_no_navigation_ownership_and_bounded_native_geometry() 
     for family in ["drawn", "minecraft"]:
       asset = desc[family]
       raw = historical_asset_bytes_v194(
-        OUT / asset["url"], asset["sha256"], asset["bytes"],
+        OUT / asset["url"],
+        asset["sha256"],
+        asset["bytes"],
         lambda path: path.read_bytes(),
       )
       assert hashlib.sha256(raw).hexdigest() == asset["sha256"]
