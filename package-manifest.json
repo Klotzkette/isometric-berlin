@@ -149,8 +149,8 @@
     },
     "surrounding_city": {
       "path": "mesh/surrounding-berlin-v159/manifest.json",
-      "bytes": 3960194,
-      "sha256": "9009caadcbced603436133927ee1a871217cc3682c0c00056c93dda89b06afd1"
+      "bytes": 3960184,
+      "sha256": "3f868502ac39b5dd3b17de92e7ac8a009b806207d07c625b0c909284805a8813"
     },
     "start_page": {
       "path": "START-HERE.html",
