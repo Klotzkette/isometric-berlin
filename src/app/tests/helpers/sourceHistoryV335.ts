@@ -1,7 +1,8 @@
 /** Verify the finite public viewer routing delta before older source-history layers read it. */
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { assertSourceLayerV336, projectSourceBeforeV336, sourceAtBeforeV336 } from "./sourceHistoryV336";
 
 export const SOURCE_HISTORY_PROOF_SHA_V335 = "fe8566a0f606cc69623bae57f3785f31c5ccb75806363973dcaf5227571cafc1";
 const previousProof = "c1c4dde8c03a55b54e83e50d406559e5badbf3f53b5412514fdb61bbe9a2369b";
@@ -53,28 +54,30 @@ export function assertSourceLayerV335(published216: Readonly<Record<string, stri
   if (published[path] !== inverse.beforeSha256 || inverse.currentSha256 === inverse.beforeSha256 || !inverse.replacements.length)
     throw Error(`Invalid v335 source inverse: ${path}`);
   const current = { ...published, [path]: inverse.currentSha256 };
-  const files = readdirSync(resolve(root, "src/app/src"), { recursive: true }).map(path => `src/app/src/${path}`)
-    .filter(path => /\.(?:ts|tsx|json)$/.test(path) && statSync(resolve(root, path)).isFile());
-  const inventory = new Set([...Object.keys(published), ...files]);
-  if (inventory.size !== Object.keys(current).length || [...inventory].some(path => !Object.hasOwn(current, path)))
-    throw Error("Changed or unaccounted v335 source inventory");
-  for (const path of inventory) {
-    const raw = readFileSync(resolve(root, path));
-    if (sha(raw) !== current[path]) throw Error(`Changed complete v335 source graph: ${path}`);
-    if (Object.hasOwn(receipt.changes, path)) project(raw.toString("utf8"), receipt.changes[path]);
-  }
+  assertSourceLayerV336(current);
+  const raw = sourceAtBeforeV336(path, readFileSync(resolve(root, path)));
+  project(Buffer.from(raw).toString("utf8"), inverse);
   checked = { published: Object.freeze(published), current: Object.freeze(current), changes: receipt.changes };
 }
 
 export function sourceAtPublished216V335(path: string, raw: Uint8Array): Uint8Array {
-  if (!checked || !Object.hasOwn(checked.published, path) || sha(raw) !== checked.current[path])
+  if (!checked || !Object.hasOwn(checked.published, path))
     throw Error(`Unknown exact v335 source bytes: ${path}`);
+  if (Object.hasOwn(checked.changes, path)) {
+    try {
+      raw = sourceAtBeforeV336(path, raw);
+    } catch (cause) {
+      throw Error(`Unknown exact v335 source bytes: ${path}`, { cause });
+    }
+  }
+  if (sha(raw) !== checked.current[path]) throw Error(`Unknown exact v335 source bytes: ${path}`);
   const inverse = checked.changes[path];
   return inverse ? Buffer.from(project(Buffer.from(raw).toString("utf8"), inverse)) : raw;
 }
 
 export function projectSourceBeforeV335(source: string): string {
   if (!checked) throw Error("Unverified v335 source layer");
+  source = projectSourceBeforeV336(source);
   const digest = sha(source), records = Object.values(checked.changes).filter(inverse => inverse.currentSha256 === digest);
   if (!records.length) return source;
   if (Object.values(checked.current).filter(value => value === digest).length !== 1)

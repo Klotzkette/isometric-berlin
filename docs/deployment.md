@@ -154,20 +154,24 @@ behavior remains available while switching among live 3D modes. Disposing the
 viewer releases WebGL. These are source, production-profile and automated-browser release contracts, not a claim of
 physical iOS-device validation.
 
-## GitHub Pages packet mirror
+## Complete GitHub Pages build
 
-The public site can set `packetMirrorCommit` in its surrounding-city manifest.
-Use the full commit ID of the published source release. In both visual
-families, gzip tiles whose bounds are centered at least 10 km from the scene
-origin then load from the same repository at that exact revision. The viewer
-keeps the manifest, nearer tiles and other assets on Pages. The ZIP and TAR
-ship the full offline dataset and omit the mirror setting.
+The full v1.0.216 Pages tree serves both visual families and every tile from
+the viewer's own path. The Pages build stores selected surrounding tiles
+outside the central 3 km in a smaller lossless gzip representation. The ZIP
+and TAR retain the original packet representation.
 
-Before deploying, match every mirrored path against the offline package
-and the Git blob at that commit. Check that no local tile references a
-mirrored path. Preserve nested filenames and the packet SHA-256 query
-parameter. Verify the complete Pages tree against its staging inventory,
-including the hosted manifest checksum, and keep it below the
+A delta packet's descriptor retains its relative URL and carries the packed
+gzip size, decompressed JSON size and gzip SHA-256 for that representation.
+`deltaDecodedBytes` records the original decompressed JSON size. Only the
+positions and indices of selected meshes are rewritten. The viewer restores
+their exact original Base64 strings before ownership, navigation and geometry
+validation. The same decoded tile and prefetch limits apply. The startup area
+and packets pinned by a source admission check keep their original gzip bytes.
+
+Before deploying, verify the inverse for each transformed packet against the
+original JSON bytes. Audit the full manifest and Pages tree, including every
+local tile path and the hosted manifest checksum, against the release
+inventory. Keep the site below the
 [GitHub Pages size limit](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits).
-Check near and distant views on the public URL and confirm successful packet
-loading in both visual families before promoting the release.
+Check a previously mirrored view in Day and Minecraft on the public URL.

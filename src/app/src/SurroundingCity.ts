@@ -6,6 +6,7 @@ import {northEastPublicSiteGroundAtV326,northEastPublicSiteWaterAtV326,northEast
 import { disposeSurroundingCityRoot } from "./disposeSurroundingCityRootV323";
 import { westKiezPacketCandidateV302 } from "./NeighbourhoodFidelityV300";
 import { fetchSurroundingTransport, SURROUNDING_TRANSPORT_IDLE_MS } from "./surroundingTransport";
+import { restoreSurroundingPacketDelta } from "./SurroundingPacketDelta";
 import { prepareTierparkV276 } from "./TierparkV276";
 import { createZooAnimalsV282, type ZooAnimalHandleV282 } from './ZooAnimalsV282';
 import { transferTierparkAnimalsV282 } from './tierparkAnimalTransferV282';
@@ -42,13 +43,15 @@ export const SURROUNDING_CITY_MAX_CHUNK_BYTES = 12 * 1024 * 1024;
 export const SURROUNDING_CITY_MAX_DESCRIPTORS = 2_861;
 export const SURROUNDING_CITY_MAX_FOOTPRINTS = 2_890;
 export const SURROUNDING_CITY_MAX_MANIFEST_BYTES = 3816 * 1024;
+// Hosted delta packets add one bounded length to each changed descriptor.
+const SURROUNDING_CITY_MAX_HOSTED_MANIFEST_BYTES = SURROUNDING_CITY_MAX_MANIFEST_BYTES + 64 * 1024;
 export const SURROUNDING_CITY_MANIFEST_RETRY_MS = [500, 1_500] as const;
 // At most two upcoming packets overlap the one foreground fetch/decode. Reserve
 // the decoded size too: HTTP Content-Encoding may already inflate a response.
 export const SURROUNDING_CITY_PREFETCH_BYTES = 4 * 1024 * 1024;
 export const SURROUNDING_CITY_PREFETCH_COUNT = 2;
 
-type Asset = { url: string; bytes: number; encoding?: "gzip"; decodedBytes?: number; sha256?: string };
+type Asset = { url: string; bytes: number; encoding?: "gzip"; decodedBytes?: number; deltaDecodedBytes?: number; sha256?: string };
 export type SurroundingChunkDescriptor = {
   id: string;
   /** Lossless geometry-only transfer split; navigation belongs to this primary. */
@@ -163,7 +166,10 @@ function assetValid(asset: Asset): boolean {
     (asset.sha256 === undefined || /^[0-9a-f]{64}$/.test(asset.sha256)) &&
     (asset.encoding === undefined || (asset.encoding === "gzip" &&
       Number.isSafeInteger(asset.decodedBytes) && asset.decodedBytes! > 0 &&
-      asset.decodedBytes! <= SURROUNDING_CITY_MAX_CHUNK_BYTES));
+      asset.decodedBytes! <= SURROUNDING_CITY_MAX_CHUNK_BYTES)) &&
+    (asset.deltaDecodedBytes === undefined || (asset.encoding === "gzip" && !!asset.sha256 &&
+      Number.isSafeInteger(asset.deltaDecodedBytes) && asset.deltaDecodedBytes > asset.decodedBytes! &&
+      asset.deltaDecodedBytes <= SURROUNDING_CITY_MAX_CHUNK_BYTES));
 }
 
 export function validateSurroundingManifest(value: unknown): SurroundingCityManifest {
@@ -215,6 +221,11 @@ async function readJsonBounded(
 ): Promise<unknown> {
   let source = input;
   const decodedLimit = asset?.encoding === "gzip" ? asset.decodedBytes! : limit;
+  const parsePacket = (text: string): unknown | Promise<unknown> => {
+    const packet: unknown = JSON.parse(text);
+    return asset?.deltaDecodedBytes === undefined ? packet
+      : restoreSurroundingPacketDelta(packet, asset.deltaDecodedBytes - decodedLimit, signal);
+  };
   // Fetch already removes an HTTP Content-Encoding. Static hosts normally
   // serve .json.gz as an opaque file, but must not be decompressed twice.
   const transportDecoded = headers.get("content-encoding")?.toLowerCase()
@@ -254,7 +265,7 @@ async function readJsonBounded(
       if (signal.aborted) throw new DOMException("Aborted", "AbortError");
       const decoded = gunzipSync(packed, { out: new Uint8Array(decodedLimit) });
       if (decoded.byteLength !== decodedLimit) throw new Error("Surrounding-city gzip output is incomplete");
-      return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(decoded)) as unknown;
+      return parsePacket(new TextDecoder("utf-8", { fatal: true }).decode(decoded));
     }
   }
   const reader = source.getReader();
@@ -272,7 +283,7 @@ async function readJsonBounded(
     text += decoder.decode();
     if (signal.aborted) throw new DOMException("Aborted", "AbortError");
     if (asset?.encoding === "gzip" && length !== decodedLimit) throw new Error("Surrounding-city decoded response is incomplete");
-    return JSON.parse(text) as unknown;
+    return parsePacket(text);
   } finally {
     await reader.cancel().catch(() => undefined);
     reader.releaseLock();
@@ -301,7 +312,7 @@ export function surroundingPacketUrl(
   return url;
 }
 const prefetchReservation = (asset: Asset): number => Math.max(asset.bytes + 64,
-  asset.encoding === "gzip" ? asset.decodedBytes! : 0);
+  asset.encoding === "gzip" ? asset.deltaDecodedBytes ?? asset.decodedBytes! : 0);
 
 /** Retain only bounded transport bytes. JSON and geometry are still decoded
  * one at a time, and no visited-city cache survives publication/eviction. */
@@ -870,7 +881,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       const task = new AbortController();
       manifestAttempt = task;
       try {
-        const value = await fetchJsonBounded(fetcher, options.manifestUrl, task.signal, SURROUNDING_CITY_MAX_MANIFEST_BYTES, undefined, transportIdleMs);
+        const value = await fetchJsonBounded(fetcher, options.manifestUrl, task.signal, SURROUNDING_CITY_MAX_HOSTED_MANIFEST_BYTES, undefined, transportIdleMs);
         if (!disposed) { manifest = validateSurroundingManifest(value); refresh(); }
         return;
       } catch (error) {
