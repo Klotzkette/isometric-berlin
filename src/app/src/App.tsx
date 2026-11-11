@@ -780,9 +780,11 @@ function HoldControlButton({
 }
 
 export function App() {
-  const [initialMode, setInitialMode] = useState<VisualMode | null>(() =>
-    typeof window === "undefined" ? null : RECOVERED_VISIT?.mode ?? directStartupMode(window.location.search),
-  );
+  const [initialMode, setInitialMode] = useState<VisualMode | null>(() => {
+    if (typeof window === "undefined") return null;
+    const mode = RECOVERED_VISIT?.mode ?? directStartupMode(window.location.search, import.meta.env.DEV);
+    return !import.meta.env.DEV && mode === "flood" ? "day" : mode;
+  });
   const [language, setLanguage] = useState<Language>(initialLanguage);
 
   useEffect(() => {
@@ -2037,7 +2039,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
               ? copy.snowstorm
               : next === "schwellenraum"
                 ? copy.schwellenraum
-                : next === "flood"
+                : import.meta.env.DEV && next === "flood"
                   ? copy.flood
                   : copy.day,
       );
@@ -3018,7 +3020,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
                   isPedestrianMode ? copy.pedestrianCanvas : copy.threeD
                 }
                 lightingMode={lightingMode}
-                floodDepth={floodDepth}
+                floodDepth={import.meta.env.DEV ? floodDepth : undefined}
                 nightLightsOn={resolveNightLightsOn(
                   lightingMode,
                   nightLightsOn,
@@ -3136,7 +3138,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
               {lightingMode === "minecraft" ? " · Voxel" : ""}
               {lightingMode === "snowstorm" ? " · Snow" : ""}
               {lightingMode === "schwellenraum" ? " · Schwellenraum" : ""}
-              {lightingMode === "flood" ? ` · ${copy.flood}` : ""}
+              {import.meta.env.DEV && lightingMode === "flood" ? ` · ${copy.flood}` : ""}
             </small>
           </span>
         </button>
@@ -3240,17 +3242,19 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
             >
               <Sparkles size={18} aria-hidden="true" />
             </button>
-            <button
-              type="button"
-              aria-label={copy.flood}
-              aria-pressed={lightingMode === "flood"}
-              title={copy.flood}
-              onClick={() => selectVisualMode("flood")}
-            >
-              <Waves size={18} aria-hidden="true" />
-            </button>
+            {import.meta.env.DEV ? (
+              <button
+                type="button"
+                aria-label={copy.flood}
+                aria-pressed={lightingMode === "flood"}
+                title={copy.flood}
+                onClick={() => selectVisualMode("flood")}
+              >
+                <Waves size={18} aria-hidden="true" />
+              </button>
+            ) : null}
           </div>
-          {lightingMode === "flood" ? (
+          {import.meta.env.DEV && lightingMode === "flood" ? (
             <div
               className="flood-depth-control flood-depth-control--desktop"
               role="group"
@@ -4128,16 +4132,18 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
               <Sparkles size={20} aria-hidden="true" />
               <span>Schwellen<wbr />raum</span>
             </button>
-            <button
-              type="button"
-              aria-pressed={lightingMode === "flood"}
-              onClick={() => selectVisualMode("flood")}
-            >
-              <Waves size={20} aria-hidden="true" />
-              <span>{copy.flood}</span>
-            </button>
+            {import.meta.env.DEV ? (
+              <button
+                type="button"
+                aria-pressed={lightingMode === "flood"}
+                onClick={() => selectVisualMode("flood")}
+              >
+                <Waves size={20} aria-hidden="true" />
+                <span>{copy.flood}</span>
+              </button>
+            ) : null}
           </div>
-          {lightingMode === "flood" ? (
+          {import.meta.env.DEV && lightingMode === "flood" ? (
             <div
               className="flood-depth-control mobile-flood-depth-control"
               role="group"

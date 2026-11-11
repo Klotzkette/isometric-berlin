@@ -70,14 +70,10 @@ uv run --with playwright python scripts/smoke_mobile_menu.py http://127.0.0.1:87
 ```
 
 It passes the startup selection with real taps on first visit and after reload,
-then exercises the bottom-left mode opener and all six modes, including
-Versunken / Flooded Berlin, across narrow,
-portrait, landscape and tablet viewports. Its real-tap transition cycle also
-checks Minecraft → Versunken → Tag and the selected state after each change.
-Versunken intentionally keeps the sheet open for its 3, 6 and 21 m depth
-controls. The gate checks their visible, unobstructed touch targets and exclusive
-pressed state, taps 6 m → 21 m → 3 m, then closes the sheet explicitly. The other
-five modes must still close the sheet themselves.
+then exercises the bottom-left mode opener and all five public modes across
+narrow, portrait, landscape and tablet viewports. Its real-tap transition
+cycle checks the selected state after each change. Each mode closes the
+sheet when selected.
 The streaming regressions additionally
 exercise changing routes, bounded district residency, transfer acknowledgements,
 pause/resume and restoring source envelopes before eviction. Browser travel
@@ -155,6 +151,10 @@ viewer releases WebGL. These are source, production-profile and automated-browse
 physical iOS-device validation.
 
 ## Complete GitHub Pages build
+
+Production builds omit Flooded Berlin, including its binary and lazy module.
+Old flood links open Day at the linked location. Vite's development server
+can still run the flood simulation.
 
 The full v1.0.216 Pages tree serves both visual families and every tile from
 the viewer's own path. The Pages build stores selected surrounding tiles

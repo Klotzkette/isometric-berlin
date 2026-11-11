@@ -1,7 +1,7 @@
 """Verify the explicit startup chooser in fresh Chrome and iPhone WebKit contexts.
 
 uv run --with playwright python scripts/smoke_startup_mode_selection.py URL
-Checks the five drawn starts, Minecraft's retained option, language, refresh,
+Checks the four drawn starts, Minecraft's retained option, language, refresh,
 mode defaults, and the absence of world/audio work before Start. Small portrait
 and landscape checks exercise accessible controls and the chooser's own scroll.
 Browser device profiles do not certify physical phone memory or performance.
@@ -18,7 +18,7 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from smoke_mode_continuity import PROBE, emit, wait_ready
 
-MODES = ("day", "night", "snowstorm", "schwellenraum", "flood")
+MODES = ("day", "night", "snowstorm", "schwellenraum")
 CHOICES = (*MODES, "minecraft")
 STARTUP_PROBE = """(() => {
   window.__startupSelection = {audioContexts: 0, modes: [], firstReady: null,
@@ -52,7 +52,7 @@ STARTUP_PROBE = """(() => {
     if (!r) return null;
     return {mode: r.lightingMode, ready: r.presentationReady,
       nightLightsOn: r.nightLightsOn,
-      precipitationEnabled: r.precipitationEnabled, floodDepth: r.floodDepth,
+      precipitationEnabled: r.precipitationEnabled,
       contextLost: r.renderer.getContext().isContextLost()};
   };
   setInterval(() => {
@@ -155,8 +155,6 @@ def assert_defaults(state: dict[str, Any], mode: str) -> None:
     assert state["nightLightsOn"] is True, state
   if mode == "snowstorm":
     assert state["precipitationEnabled"] is True, state
-  if mode == "flood":
-    assert state["floodDepth"] == 3, state
 
 
 def run_case(

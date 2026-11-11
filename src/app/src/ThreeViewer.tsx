@@ -1552,7 +1552,7 @@ function setEnvironmentalPresentation(runtime: Runtime): void {
     runtime.underwater ||
     runtime.pedestrian.state?.insideTunnel === true ||
     runtime.cameraInsideTunnel;
-  const floodVisible = runtime.lightingMode === "flood" && !runtime.underside;
+  const floodVisible = import.meta.env.DEV && runtime.lightingMode === "flood" && !runtime.underside;
   if (floodVisible && !runtime.floodWater) {
     runtime.floodWater = createFloodWater(runtime.floodDepth);
     runtime.scene.add(runtime.floodWater);
@@ -6772,7 +6772,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       const runtime = runtimeRef.current;
       if (!runtime) return;
       runtime.floodDepth = floodDepth;
-      if (runtime.floodWater) setFloodWaterDepth(runtime.floodWater, floodDepth);
+      if (import.meta.env.DEV && runtime.floodWater) setFloodWaterDepth(runtime.floodWater, floodDepth);
       invalidateScenePresentation(runtime);
     }, [floodDepth]);
 
@@ -9219,7 +9219,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const outlineMotion = runtime.outerThinOutlines?.visible &&
           (runtime.outerThinOutlines.userData.update?.(timestamp, camera,
             reducedMotion || documentHidden || runtime.underside,
-            runtime.lightingMode === "flood" ? floodWaterLevel(runtime.floodDepth) : undefined) ?? false);
+            import.meta.env.DEV && runtime.lightingMode === "flood" ? floodWaterLevel(runtime.floodDepth) : undefined) ?? false);
         if (!runtime.underside && !documentHidden &&
             runtime.outerThinOutlines?.userData.updateTrafficSignals?.(timestamp, camera,
               reducedMotion, runtime.lightingMode !== "night" || runtime.nightLightsOn)) {
@@ -9274,7 +9274,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (!towerSteamOnScreen) {
           runtime.schwellenraumLastTowerSteamFrameAt = timestamp;
         }
-        const floodAnimating = runtime.floodWater?.visible === true && !reducedMotion;
+        const floodAnimating = import.meta.env.DEV && runtime.floodWater?.visible === true && !reducedMotion;
         if (!floodAnimating) runtime.floodLastFrameAt = timestamp;
         const floodFrameDue = floodAnimating &&
           timestamp - runtime.floodLastFrameAt >= FLOOD_FRAME_INTERVAL_MS;
@@ -9643,7 +9643,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           setModelMaterialState(runtime, underside);
           notifyView(runtime, onViewChangeRef.current);
         }
-        underwaterPresentationOptions.waterLevelY = runtime.lightingMode === "flood"
+        underwaterPresentationOptions.waterLevelY = import.meta.env.DEV && runtime.lightingMode === "flood"
           ? floodWaterLevel(runtime.floodDepth) : WATER_LEVEL_Y;
         underwaterPresentationOptions.cameraY = camera.position.y;
         underwaterPresentationOptions.insideTunnel =

@@ -20,6 +20,12 @@ describe("shareable mode entry points", () => {
     }
   });
 
+  test("a build without flood mode still opens shared flood links in Day", () => {
+    expect(directStartupMode("?theme=flood&lang=de", false)).toBe("day");
+    expect(directStartupMode("?theme=night", false)).toBe("night");
+    expect(directStartupMode("?lang=de", false)).toBeNull();
+  });
+
   test("local-download links stay on the local viewer", () => {
     const link = modeLinkFor("http://127.0.0.1:8765/folder/index.html?utm_source=test", "flood", "en");
     expect(link).toBe("http://127.0.0.1:8765/folder/index.html?theme=flood&lang=en");

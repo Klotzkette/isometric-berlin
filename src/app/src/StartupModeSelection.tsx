@@ -11,7 +11,9 @@ const choices = [
   { mode: "night", icon: Moon, de: ["Nacht", "Mit eingeschalteten Lichtern"], en: ["Night", "City lights switched on"] },
   { mode: "snowstorm", icon: CloudSnow, de: ["Schnee", "Mit dichtem Schneetreiben"], en: ["Snow", "With a swirling snowstorm"] },
   { mode: "schwellenraum", icon: Sparkles, de: ["Schwellenraum", "Eine andere Wirklichkeit"], en: ["Schwellenraum", "Another reality"] },
-  { mode: "flood", icon: Waves, de: ["Unterwasser", "Berlin unter 3 Metern Wasser"], en: ["Underwater", "Berlin under 3 metres of water"] },
+  ...(import.meta.env.DEV
+    ? [{ mode: "flood", icon: Waves, de: ["Unterwasser", "Berlin unter 3 Metern Wasser"], en: ["Underwater", "Berlin under 3 metres of water"] } as const]
+    : []),
   { mode: "minecraft", icon: MinecraftCubeIcon, de: ["Minecraft", "Berlin aus Blöcken"], en: ["Minecraft", "Berlin built from blocks"] },
 ] as const;
 

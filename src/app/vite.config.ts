@@ -1,5 +1,7 @@
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
+import { rm } from "node:fs/promises";
+import { resolve } from "node:path";
 import { losslessJsonData } from "./losslessJsonData";
 
 export const STARTUP_JS_BUDGET_BYTES = 400 * 1024;
@@ -106,9 +108,27 @@ function startupBudget(): Plugin {
   };
 }
 
+function omitFloodFromProduction(): Plugin {
+  return {
+    name: "isometric-berlin-omit-flood-from-production",
+    apply: "build",
+    generateBundle(_options, bundle) {
+      for (const item of Object.values(bundle)) {
+        if (item.type === "chunk" && item.moduleIds.some(id => id.endsWith("/FloodExtensionV205.ts"))) {
+          this.error("The flood extension must not be part of the production viewer");
+        }
+      }
+    },
+    async writeBundle({ dir }) {
+      // Vite copies public files independently of the JavaScript import graph.
+      if (dir) await rm(resolve(dir, "mesh/regierungsviertel/flood-extension-v205.bin.gz"), { force: true });
+    },
+  };
+}
+
 export default defineConfig({
   base: "./",
-  plugins: [losslessJsonData(), react(), startupBudget()],
+  plugins: [losslessJsonData(), react(), startupBudget(), omitFloodFromProduction()],
   worker: { plugins: () => [losslessJsonData(), progressiveWorkerBudget()] },
   build: {
     sourcemap: false,
