@@ -3,7 +3,7 @@ Isometric Berlin - Regierungsviertel 1.0.216
 DEUTSCH
 
 Dieses Paket enthält die vollständige isometrische 3D-Stadt mit Tag, Nacht,
-Schnee, Minecraft, Schwellenraum und Versunken. Standort, Blickrichtung und Geh-/Flugzustand
+Schnee, Minecraft und Schwellenraum. Standort, Blickrichtung und Geh-/Flugzustand
 bleiben beim Wechsel der Darstellung erhalten. Alle benötigten Daten sind lokal
 enthalten; kein AI-Modell, Google-Schlüssel oder kostenpflichtiger Dienst nötig.
 
@@ -23,7 +23,7 @@ Port ohne automatischen Browserstart wählen: python3 serve-local.py --no-open -
 
 Bedienung: Im Hilfemenü stehen die aktuellen Maus-, Tastatur- und Touch-Gesten.
 „Zu Fuß“ erlaubt Gehen und Springen; „Freikommen“ hilft an engen Stellen.
-Der deutsche/englische Sprachschalter und die sechs Darstellungen bleiben im Viewer.
+Der deutsche/englische Sprachschalter und die fünf Darstellungen bleiben im Viewer.
 Bei Ladeproblemen zuerst die gesamte ZIP neu entpacken, den lokalen Server
 neu starten und die angezeigte HTTP-Adresse öffnen. Der Browser benötigt WebGL.
 „Neu laden“ erlaubt bei einem Fehler einen sauberen Neustart der 3D-Szene.
@@ -31,7 +31,7 @@ neu starten und die angezeigte HTTP-Adresse öffnen. Der Browser benötigt WebGL
 ENGLISH
 
 This package contains the complete isometric 3D city in Day, Night, Snowstorm,
-Minecraft, Schwellenraum and Flooded Berlin. Visual changes preserve location, view and walking
+Minecraft and Schwellenraum. Visual changes preserve location, view and walking
 or flight state. Every required asset is included locally. No AI model, Google
 key or paid service is required.
 
