@@ -154,8 +154,8 @@
     },
     "start_page": {
       "path": "START-HERE.html",
-      "bytes": 3932,
-      "sha256": "a56a95ca5ccf7447f0b2c58acb7302c510425fc09f62bddb20467e0c66af3145"
+      "bytes": 3931,
+      "sha256": "f16d005dbc2f33ec51ecf0121d72759785256415356b09f40f82e0afe42bc1d3"
     }
   }
 }
