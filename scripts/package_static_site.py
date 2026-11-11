@@ -217,8 +217,8 @@ footer { margin-top: 36px; color: #c2c8b9; font-size: 12px; }
 <body><main>
 <p>BERLIN · REGIERUNGSVIERTEL</p>
 <h1>Isometric Berlin</h1>
-<p>Der Download enthält die vollständige isometrische Stadt mit ihren Gebäuden, Wegen und fünf Darstellungen.</p>
-<p lang="en">The download includes the complete isometric city with its buildings, paths and five visual styles.</p>
+<p>Die vollständige isometrische Stadt. Alle sechs Darstellungen, Gebäude und Wege sind im Download enthalten.</p>
+<p lang="en">The complete isometric city. All six visual styles, buildings and paths are included in this download.</p>
 <p id="http-launch" hidden><a class="launch" id="open-viewer" href="index.html">3D öffnen / Open 3D</a></p>
 <section id="local-help">
 <h2>Deutsch · Lokal starten</h2>
@@ -491,7 +491,7 @@ def write_readme(package_dir: Path) -> None:
 DEUTSCH
 
 Dieses Paket enthält die vollständige isometrische 3D-Stadt mit Tag, Nacht,
-Schnee, Minecraft und Schwellenraum. Standort, Blickrichtung und Geh-/Flugzustand
+Schnee, Minecraft, Schwellenraum und Versunken. Standort, Blickrichtung und Geh-/Flugzustand
 bleiben beim Wechsel der Darstellung erhalten. Alle benötigten Daten sind lokal
 enthalten; kein AI-Modell, Google-Schlüssel oder kostenpflichtiger Dienst nötig.
 
@@ -511,7 +511,7 @@ Port ohne automatischen Browserstart wählen: python3 serve-local.py --no-open -
 
 Bedienung: Im Hilfemenü stehen die aktuellen Maus-, Tastatur- und Touch-Gesten.
 „Zu Fuß“ erlaubt Gehen und Springen; „Freikommen“ hilft an engen Stellen.
-Der Viewer bietet einen Sprachschalter für Deutsch und Englisch.
+Der deutsche/englische Sprachschalter und die sechs Darstellungen bleiben im Viewer.
 Bei Ladeproblemen zuerst die gesamte ZIP neu entpacken, den lokalen Server
 neu starten und die angezeigte HTTP-Adresse öffnen. Der Browser benötigt WebGL.
 „Neu laden“ erlaubt bei einem Fehler einen sauberen Neustart der 3D-Szene.
@@ -519,7 +519,7 @@ neu starten und die angezeigte HTTP-Adresse öffnen. Der Browser benötigt WebGL
 ENGLISH
 
 This package contains the complete isometric 3D city in Day, Night, Snowstorm,
-Minecraft and Schwellenraum. Visual changes preserve location, view and walking
+Minecraft, Schwellenraum and Flooded Berlin. Visual changes preserve location, view and walking
 or flight state. Every required asset is included locally. No AI model, Google
 key or paid service is required.
 

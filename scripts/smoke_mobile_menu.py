@@ -19,14 +19,16 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from playwright.sync_api import Page, sync_playwright
 from smoke_mode_continuity import launch_startup_mode
 
-MODES = ("Tag", "Nacht", "Minecraft", "Schneesturm", "Schwellenraum")
+MODES = ("Tag", "Nacht", "Minecraft", "Schneesturm", "Schwellenraum", "Versunken")
 MODE_TRANSITIONS = (
   "Nacht",
   "Schneesturm",
   "Schwellenraum",
   "Minecraft",
+  "Versunken",
   "Tag",
 )
+FLOOD_DEPTHS = (3, 6, 21)
 VIEWPORTS = ((390, 664), (320, 568), (844, 390), (568, 320), (1024, 768))
 BUTTON_STATE = """element => {
   const rect = element.getBoundingClientRect();
@@ -67,6 +69,44 @@ def check_modes(page: Page, selected: str = "Tag") -> list[dict]:
     assert state["width"] >= 44 and state["height"] >= 44, state
   assert group.locator('[aria-pressed="true"]').all_text_contents() == [selected]
   return states
+
+
+def check_flood_depths(page: Page, selected: int) -> None:
+  """Keep every depth reachable and require exactly the selected pressed state."""
+  group = page.locator(".mobile-flood-depth-control")
+  states = group.locator("button").evaluate_all(
+    f"elements => elements.map({BUTTON_STATE})"
+  )
+  assert [state["text"] for state in states] == [f"{d} m" for d in FLOOD_DEPTHS], states
+  for state in states:
+    assert state["inside"] and state["hittable"], state
+    assert state["width"] >= 44 and state["height"] >= 44, state
+  assert group.locator('[aria-pressed="true"]').all_text_contents() == [f"{selected} m"]
+
+
+def finish_mode_selection(page: Page, mode: str) -> None:
+  """Flood keeps its controls open; every other mode must close the sheet itself."""
+  sheet = page.locator(".mobile-overflow-sheet")
+  if mode == "Versunken":
+    sheet.wait_for(state="visible")
+    check_modes(page, mode)
+    check_flood_depths(page, 3)
+    buttons = page.locator(".mobile-flood-depth-control").locator("button")
+    for depth in (6, 21, 3):
+      buttons.nth(FLOOD_DEPTHS.index(depth)).tap()
+      # Chrome can return from tap during the 80 ms pressed-scale feedback.
+      # Measure the settled target without relaxing its 44 px requirement.
+      page.wait_for_function(
+        """() => [...document.querySelectorAll('.mobile-flood-depth-control button')]
+          .every(button => !button.matches(':active') &&
+            !button.getAnimations().some(animation => animation.playState === 'running'))""",
+        timeout=5000,
+      )
+      check_flood_depths(page, depth)
+      check_modes(page, mode)
+      assert sheet.is_visible(), "Depth taps must keep the Flood controls open"
+    page.locator(".mobile-sheet-title button").tap()
+  sheet.wait_for(state="hidden")
 
 
 def check_scroll(page: Page, chromium: bool) -> None:
@@ -227,12 +267,14 @@ def run(url: str, engine: str, screenshots: Path | None) -> None:
       page.locator(".mobile-visual-mode-grid").get_by_role(
         "button", name=mode, exact=True
       ).tap()
-      page.locator(".mobile-overflow-sheet").wait_for(state="hidden")
+      finish_mode_selection(page, mode)
       page.locator(".three-viewer.is-active.is-presentation-ready").wait_for(
         timeout=120000
       )
       opener.tap()
       check_modes(page, mode)
+      if mode == "Versunken":
+        check_flood_depths(page, 3)
       lights = page.locator(".mobile-light-toggle")
       if lights.count():
         state = lights.evaluate(BUTTON_STATE)

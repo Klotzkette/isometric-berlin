@@ -463,12 +463,6 @@ texture-free water surface and exact camera/walking continuity. Keep source-area
 and visual checks at Invalidenpark, Otto-Weidt-Platz and Spree/Hauptbahnhof;
 never restore coarse raster substitutes as the finished drawn presentation.
 
-The owner has paused Flooded Berlin for public deployment. Production builds
-omit the mode controls and the flood extension binary and loader. Legacy
-flood links and saved visits use Day while preserving the view location.
-Retain the source data and development mode for a later reactivation. Day
-and the other public modes keep their complete city geometry and water.
-
 Must be inside the polygon and visible in the final map:
 
 - Brandenburger Tor and Pariser Platz

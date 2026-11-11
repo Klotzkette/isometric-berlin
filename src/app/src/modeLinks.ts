@@ -2,9 +2,8 @@ import { isVisualMode, type VisualMode } from "./visualMode";
 import type { Language } from "./localization";
 
 /** An explicit valid link is already a choice; ordinary visits keep the chooser. */
-export function directStartupMode(search: string, includeFlood = true): VisualMode | null {
+export function directStartupMode(search: string): VisualMode | null {
   const requested = new URLSearchParams(search).get("theme");
-  if (requested === "flood" && !includeFlood) return "day";
   return isVisualMode(requested) ? requested : null;
 }
 

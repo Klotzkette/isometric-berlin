@@ -41,8 +41,8 @@ Raumaufteilungen und Innenmaße sind [architektonische Modellnäherungen](docs/r
   oder über die Dächer schweben. Maus, Tastatur und Touch werden unterstützt.
 - **93 Tourstationen:** bekannte Wahrzeichen und kleinere Entdeckungen direkt
   ansteuern oder die Stadt auf eigene Faust erkunden.
-- **Fünf Ansichten im Browser:** Tag, Nacht, Schneesturm, Minecraft und
-  Schwellenraum. Beim Wechsel bleiben Standort und Blickrichtung erhalten.
+- **Sechs Ansichten:** Tag, Nacht, Schneesturm, Minecraft, Schwellenraum und
+  Versunken. Beim Wechsel bleiben Standort und Blickrichtung erhalten.
 - **Direkt im Browser:** auf Desktop, Tablet und Smartphone, mit deutscher
   und englischer Oberfläche. Konto, API-Schlüssel und KI-Modell sind für
   den Viewer nicht erforderlich.
@@ -141,8 +141,8 @@ with individual facades and recognizable architectural features.
   rooftops, using a mouse, keyboard or touch controls.
 - **Follow 93 tour stops:** jump to major landmarks and smaller discoveries,
   then venture beyond the curated route.
-- **Choose five views in the browser:** Day, Night, Snowstorm, Minecraft and
-  Schwellenraum. Switching views preserves your location and direction.
+- **Choose six views:** Day, Night, Snowstorm, Minecraft, Schwellenraum and
+  Flooded Berlin. Switching views preserves your location and direction.
 - **Open it in a browser:** desktop, tablet and phone are supported, with
   German and English controls. The viewer needs no account, API key or AI model.
 

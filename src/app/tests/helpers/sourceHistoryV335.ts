@@ -2,7 +2,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { assertSourceLayerV336, projectSourceBeforeV336, sourceAtBeforeV336, sourceChangedSinceV335 } from "./sourceHistoryV336";
+import { assertSourceLayerV336, projectSourceBeforeV336, sourceAtBeforeV336 } from "./sourceHistoryV336";
 
 export const SOURCE_HISTORY_PROOF_SHA_V335 = "fe8566a0f606cc69623bae57f3785f31c5ccb75806363973dcaf5227571cafc1";
 const previousProof = "c1c4dde8c03a55b54e83e50d406559e5badbf3f53b5412514fdb61bbe9a2369b";
@@ -63,7 +63,7 @@ export function assertSourceLayerV335(published216: Readonly<Record<string, stri
 export function sourceAtPublished216V335(path: string, raw: Uint8Array): Uint8Array {
   if (!checked || !Object.hasOwn(checked.published, path))
     throw Error(`Unknown exact v335 source bytes: ${path}`);
-  if (sourceChangedSinceV335(path)) {
+  if (Object.hasOwn(checked.changes, path)) {
     try {
       raw = sourceAtBeforeV336(path, raw);
     } catch (cause) {

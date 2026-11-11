@@ -128,9 +128,8 @@ const DE = {
   trueUnderside: "Untergrundübersicht mit Bahn- und Tiergartentunneln",
   underside: "Untersicht",
   viewTransform: "Ansicht drehen und neigen",
-  visualModes: import.meta.env.DEV
-    ? "Darstellung: Tag, Nacht, Minecraft, Schneesturm, Schwellenraum oder Versunken"
-    : "Darstellung: Tag, Nacht, Minecraft, Schneesturm oder Schwellenraum",
+  visualModes:
+    "Darstellung: Tag, Nacht, Minecraft, Schneesturm, Schwellenraum oder Versunken",
   westUp: "West oben",
   zoomIn: "Vergrößern",
   zoomOut: "Verkleinern",
@@ -264,9 +263,8 @@ const EN: Record<CopyKey, string> = {
   trueUnderside: "Underground overview with rail and Tiergarten tunnels",
   underside: "Underside",
   viewTransform: "Rotate and tilt view",
-  visualModes: import.meta.env.DEV
-    ? "Appearance: day, night, Minecraft, snowstorm, Schwellenraum, or Flooded Berlin"
-    : "Appearance: day, night, Minecraft, snowstorm, or Schwellenraum",
+  visualModes:
+    "Appearance: day, night, Minecraft, snowstorm, Schwellenraum, or Flooded Berlin",
   westUp: "West up",
   zoomIn: "Zoom in",
   zoomOut: "Zoom out",
