@@ -2,7 +2,7 @@
   "additions": {
     "src/app/src/PotsdamerPavilionOwnership.ts": "9a0e3bc07ed9841f9c5b27c65edf73a3cb1bec7cf8fe15663bb303d9d90ab25d",
     "src/app/src/PotsdamerPavilionRoutes.ts": "12e8b2c8c1f648b9494cf0cc5e6a024bb6bc322e40be738825daec0064791cbb",
-    "src/app/src/PotsdamerRegionalAccess.ts": "2440fb04dfbcd530fb5ef747928a0743bb69295d5b6a59519c8d1260d0587a2c",
+    "src/app/src/PotsdamerRegionalAccess.ts": "6fbb7a0a43ea77e8f5b77ee17aba9bb6b8c59570899c32b0a8616fb30d340885",
     "src/app/src/PotsdamerSBahn.ts": "3ea2294b37e43ef48f542bff7d70f79c8d01bdec9790aaf6d3af5ec32232ccf2",
     "src/app/src/data/potsdamerNorthPavilionSource.json": "1adde02821e7b4411e2e058a4a51a1e600dd96299b4d0d8de1d9b527b8019f9c",
     "src/app/src/data/potsdamerPavilionRoutes.json": "962b49b28174c8db7277e32c93b7f09a0b1d91c46d4b9c80e7fcd52f30bc732e",

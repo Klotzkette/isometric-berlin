@@ -77,6 +77,12 @@ for (const native of [false, true]) {
         .intersectObject(model)[0]?.point.y;
       expect(y).toBeCloseTo(POTSDAMER_REGIONAL_PLATFORM_Y, 4);
     }
+    for (const route of routes) {
+      const [x, z] = route[1];
+      const y = new Raycaster(new Vector3(x, POTSDAMER_REGIONAL_UPPER_Y + 1.5, z),
+        new Vector3(0, 1, 0), 0, 2).intersectObject(model)[0]?.point.y;
+      expect(y).toBeCloseTo(POTSDAMER_REGIONAL_UPPER_Y + 2.42, 4);
+    }
     expect(potsdamerRegionalFloorAt(267, 1080, native, 5.4)).toBeNull();
     disposeStaticAudit(model);
   });

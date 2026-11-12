@@ -23,6 +23,7 @@ const upper = POTSDAMER_REGIONAL_UPPER_Y;
 const platformY = POTSDAMER_REGIONAL_PLATFORM_Y;
 const railY = platformY - .76;
 const ceilingY = upper - 1.6;
+const landingCeilingY = upper + 2.42;
 const flightGrid = .125;
 const platformGrid = .25;
 const bounds = { minX: 239.5, maxX: 305, minZ: 989, maxZ: 1238 };
@@ -93,6 +94,14 @@ const banks = geometry.banks.map(bank => {
 const flights = banks.flatMap(bank => [...bank.fixed, ...bank.moving]);
 const approaches = banks.flatMap(bank => bank.approach);
 const openings = banks.map(bank => bank.opening);
+const stairEnclosures = banks.map(({ opening, approach }) => ({
+  ceiling: span([[opening.minX, opening.minZ], [opening.maxX, opening.maxZ],
+    ...approach.flatMap(a => [at(a, -.48, -a.width / 2), at(a, -.48, a.width / 2)])], .12),
+  sides: [
+    { ...opening, minX: opening.minX - .16, maxX: opening.minX },
+    { ...opening, minX: opening.maxX, maxX: opening.maxX + .16 },
+  ],
+}));
 
 function railX(track: readonly XZ[], z: number): number {
   const from = track.findIndex(p => p[1] >= z);
@@ -164,7 +173,11 @@ export function potsdamerRegionalFlightAt(x: number, y: number, z: number, nativ
 }
 
 function solidAt(x: number, y: number, z: number, radius: number, native: boolean): boolean {
-  if (!contained(bounds, x, z, radius) || y < railY - .55 || y > upper + 1.1 + radius) return false;
+  if (!contained(bounds, x, z, radius) || y < railY - .55 || y > landingCeilingY + .16 + radius) return false;
+  if (stairEnclosures.some(section =>
+    (y + radius >= landingCeilingY && contained(section.ceiling, x, z, radius)) ||
+    (y + radius >= ceilingY && y - radius <= landingCeilingY &&
+      section.sides.some(side => contained(side, x, z, radius))))) return true;
   if (insideHall(x, z) && Math.abs(y - ceilingY) < .24 + radius &&
     !openings.some(o => contained(o, x, z, -radius))) return true;
   const hit = flightAt(x, z, native);
@@ -310,6 +323,14 @@ export function createPotsdamerRegionalAccess(native: boolean): Group {
     }
   };
   buildLines(sides, .38, railY - .14, ceilingY + .04, concrete, [0], .25);
+  for (const section of stairEnclosures) {
+    box(builder, section.ceiling, landingCeilingY, landingCeilingY + .16, 0xc6c2b8);
+    for (const side of section.sides) box(builder, side, ceilingY, landingCeilingY, concrete);
+    for (let z = section.ceiling.minZ + 2; z < section.ceiling.maxZ - 1; z += 4.2) {
+      const x = (section.ceiling.minX + section.ceiling.maxX) / 2;
+      builder.box([x, landingCeilingY - .04, z], [2.4, .08, .16], 0xf8e8c8);
+    }
+  }
   buildLines(tracks, .13, railY - .12, railY + .02, silver, [-.7175, .7175], .125);
   const edges = geometry.edges.map(([, path]) => path as unknown as XZ[]);
   buildLines(edges, .16, railY - .04, platformY, white, [0], .125);
