@@ -6951,6 +6951,30 @@
       "credit": "OTFW, Berlin, 2010-09-03 / CC BY-SA3.0 (selected from author multi-license)",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "stadtbad_oderberger",
+      "title": "Oderberger Str, Stadtbad, Aussenansicht.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Oderberger_Str,_Stadtbad,_Aussenansicht.jpg",
+      "artist": "Spreetunnel",
+      "year": "2012",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "Spreetunnel, 2012 / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "feuerwache_oderberger",
+      "title": "Feuerwache Oderberger Straße, Berlin, 150215, ako.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Feuerwache_Oderberger_Stra%C3%9Fe,_Berlin,_150215,_ako.jpg",
+      "artist": "Ansgar Koreng",
+      "year": "2015",
+      "license": "CC BY-SA 3.0 DE",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/",
+      "credit": "Ansgar Koreng, 2015 / CC BY-SA 3.0 DE",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
