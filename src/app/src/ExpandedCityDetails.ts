@@ -120,6 +120,7 @@ export type ExpandedCityDetailsOptions = {
   includeLegacyAnhalter?: boolean;
   /** False only after the complete required south station has been built. */
   includePotsdamerSouthHall?: boolean;
+  includePotsdamerNorthHall?: boolean;
 };
 
 export { CHARLOTTENBURGER_TOR_PROFILE } from "./charlottenburgerTorV201Profile";
@@ -4939,8 +4940,10 @@ export function createExpandedCityDetails(
     group.add(createAlterDessauerMonument());
   }
 
-  if (byName.has("Mall of Berlin")) {
-    const halls = createPotsdamerStationDrawn(options.includePotsdamerSouthHall === false ? "north" : "all");
+  if (byName.has("Mall of Berlin") && (options.includePotsdamerNorthHall !== false || options.includePotsdamerSouthHall !== false)) {
+    const selection = options.includePotsdamerNorthHall === false ? "south" :
+      options.includePotsdamerSouthHall === false ? "north" : "all";
+    const halls = createPotsdamerStationDrawn(selection);
     for (const child of [...halls.children]) group.add(child);
   }
 

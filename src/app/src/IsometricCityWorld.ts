@@ -1,3 +1,4 @@
+import { isPotsdamerNorthPavilionSource } from "./PotsdamerPavilionOwnership";
 import type { NordbahnhofDrawnCuts } from "./NordbahnhofPublicAccess";
 import { prepareMoabitMitteV300CoreFittingRetirement } from "./MoabitMitteV300CoreFittings";
 import { diningSourceOpeningsV296 } from "./parliamentaryDiningV296Profile";
@@ -427,6 +428,7 @@ export type IsometricCityBuildOptions = {
   parliamentInteriorsV295?: boolean;
   /** Published only with the complete required photo-guided south station. */
   potsdamerStationPhoto?: boolean;
+  potsdamerNorthPavilion?: boolean;
   moabitMitteV300?: boolean; westKiezV302?: boolean; historicDomV288?: boolean; potsdamerCorridorV288?: boolean; chancelleryCanopySourceV289?: boolean;
   /** The shared bridge root may already have been installed by cold Minecraft. */
   bridgeStructures?: boolean;
@@ -1844,7 +1846,7 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "moabitMitteV300" | "westKiezV302" | "hbfCirculationV291" | "parliamentInteriorsV295" | "parliamentaryDiningV296" | "nordbahnhofCuts" | "waterfrontV296" | "chancelleryCanopySourceV289" | "historicDomV288" | "potsdamerCorridorV288" | "potsdamerStationPhoto" | "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "steppengartenShelterV283" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "moabitMitteV300" | "westKiezV302" | "hbfCirculationV291" | "parliamentInteriorsV295" | "parliamentaryDiningV296" | "nordbahnhofCuts" | "waterfrontV296" | "chancelleryCanopySourceV289" | "historicDomV288" | "potsdamerCorridorV288" | "potsdamerStationPhoto" | "potsdamerNorthPavilion" | "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "steppengartenShelterV283" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
@@ -1854,7 +1856,8 @@ export function createDistantBuildingShells(
     .filter(building => !options.westKiezV302 || !isWestKiezV302OldCore(building))
     .filter(building => !options.historicDomV288 || !isBerlinHistoricDomOldCoreV288(building))
     .filter(building => !options.potsdamerCorridorV288 || !isPotsdamerCorridorOldCoreV288(building))
-    .filter(building => !options.potsdamerStationPhoto || !isPotsdamerStationPhotoSource(building))
+    .filter(building => (!options.potsdamerStationPhoto || !isPotsdamerStationPhotoSource(building)) &&
+      (!options.potsdamerNorthPavilion || !isPotsdamerNorthPavilionSource(building)))
     .filter(building => !options.architectureV241 || !isAEGCampusCorePrismV241(building))
     .filter(building => !options.zooWestV276 || !isZooWestSourceV276(building))
     .filter(building => !options.zooHousesV282 || !isZooHouseSourceV282(building))
@@ -12122,7 +12125,8 @@ export function* createIsometricCityCoreStepsV309(
     if (options.westKiezV302 && isWestKiezV302OldCore(sourceBuilding)) continue;
     if (options.historicDomV288 && isBerlinHistoricDomOldCoreV288(sourceBuilding)) continue;
     if (options.potsdamerCorridorV288 && isPotsdamerCorridorOldCoreV288(sourceBuilding)) continue;
-    if (options.potsdamerStationPhoto && isPotsdamerStationPhotoSource(sourceBuilding)) continue;
+    if (options.potsdamerStationPhoto && isPotsdamerStationPhotoSource(sourceBuilding) ||
+        options.potsdamerNorthPavilion && isPotsdamerNorthPavilionSource(sourceBuilding)) continue;
     if (isWeltkugelSourceV281(sourceBuilding)) continue;
     if (options.zooWestV276 && isZooWestSourceV276(sourceBuilding)) continue;
     if (options.zooHousesV282 && isZooHouseSourceV282(sourceBuilding)) continue;

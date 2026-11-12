@@ -34,7 +34,7 @@ import { createZooWestColumnTesterV276 } from "./zooWestV276Ownership";
 import { createZooHouseColumnTesterV282 } from "./zooHousesV282Ownership";
 import { createVerkehrskanzelColumnTesterV276 } from "./verkehrskanzelV276Ownership";
 import { createSteppengartenShelterColumnTesterV283 } from "./steppengartenShelterV283Ownership";
-import { preparePotsdamerSouthStationPhotoTransfer } from "./PotsdamerStationPhotoDetails";
+import { preparePotsdamerNorthPavilionNative, preparePotsdamerSouthStationPhotoTransfer } from "./PotsdamerStationPhotoDetails";
 import { createTiergartenWerkhofColumnTesterV275 } from "./tiergartenWerkhofV275Ownership";
 import { createOperaTheatresColumnTesterV274 } from "./operaTheatresV274Ownership";
 import { createTechnikmuseumColumnTesterV272 } from "./TechnikmuseumV272Profile";
@@ -370,6 +370,7 @@ import {
 } from "./TunnelPortals";
 
 export type MinecraftVoxelWorldOptions = {
+  potsdamerPavilions?: boolean;
   nordbahnhofCuts?: NordbahnhofNativeCuts;
   wilhelmStreetFrontsV325?:boolean;
   wilhelmHousingV324?: boolean;
@@ -2776,8 +2777,22 @@ export function* buildMinecraftVoxelWorldSteps(
   group.userData.chancelleryCanopySourceV289 = fidelityV288.chancelleryCanopy;
   group.userData.historicDomV288 = fidelityV288.historicDom;
   group.userData.potsdamerCorridorV288 = fidelityV288.potsdamerCorridor;
-  const potsdamerStationPhoto = preparePotsdamerSouthStationPhotoTransfer(options.sourcePrisms, payload);
+  const northPavilion = options.potsdamerPavilions === true
+    ? preparePotsdamerNorthPavilionNative(options.sourcePrisms, payload) : null;
+  let potsdamerStationPhoto = preparePotsdamerSouthStationPhotoTransfer(options.sourcePrisms, payload, northPavilion !== null);
+  if (northPavilion && !potsdamerStationPhoto) {
+    northPavilion.group.traverse(object => {
+      if (object instanceof Mesh) {
+        object.geometry.dispose();
+        for (const material of new Set([object.material, object.userData.dayMaterial, object.userData.nightMaterial])) material?.dispose();
+      }
+    });
+    potsdamerStationPhoto = preparePotsdamerSouthStationPhotoTransfer(options.sourcePrisms, payload);
+  }
+  const connectedPavilions = northPavilion !== null && potsdamerStationPhoto !== null;
   if (potsdamerStationPhoto) group.add(potsdamerStationPhoto.group);
+  if (connectedPavilions) group.add(northPavilion!.group);
+  group.userData.potsdamerPavilionShells = connectedPavilions;
   // Navigation may opt into the measured cap only after this complete native
   // family has actually been attached to the unpublished world.
   group.userData.potsdamerStationPhoto = Boolean(potsdamerStationPhoto);
@@ -2844,7 +2859,9 @@ export function* buildMinecraftVoxelWorldSteps(
     if (fidelityV288.chancelleryCanopy && isChancelleryCanopyOldColumnV289([xIdx,zIdx,y0dm,y1dm,classId])) continue;
     if (fidelityV288.historicDom && isBerlinHistoricDomColumnV288(xIdx,zIdx,y0dm,y1dm,classId)) continue;
     if (fidelityV288.potsdamerCorridor && isPotsdamerCorridorOldNativeColumnV288([xIdx,zIdx,y0dm,y1dm,classId])) continue;
-    if (potsdamerStationPhoto?.replacesColumn(xIdx, zIdx, y0dm, y1dm, classId)) continue;
+    if (potsdamerStationPhoto?.replacesColumn(xIdx, zIdx, y0dm, y1dm, classId) ||
+        connectedPavilions && xIdx >= 67 && xIdx <= 73 && zIdx >= 250 && zIdx <= 256 &&
+        northPavilion!.replacesColumn(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (tachelesFrontColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (zooWestColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (zooHouseColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;

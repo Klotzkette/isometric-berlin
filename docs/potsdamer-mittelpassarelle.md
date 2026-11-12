@@ -39,10 +39,42 @@ Geländer und die Materialien sind geschätzte Darstellungswerte. Die
 Verteilerebene `−1` verwendet `−0,518 m` als Darstellungsniveau. Diese
 Höhe entspricht dem Bezug der [vorhandenen Südpavillon-Modellierung](potsdamer-south-access.md)
 und steht hier für eine angenäherte Niveauhöhe. Die obere Treppe
-schließt bei `5,4 m` an. Die westliche Begrenzung liegt am Ende des
-modellierten Galerieteils. Die weiteren Zugänge zu den S-Bahnsteigen,
-zum Regionalbahnhof und zu den getrennten Glaspavillons sind aus den
-hier dargestellten Wegen noch nicht erreichbar.
+schließt bei `5,4 m` an.
+
+## S-Bahnsteige 11/12 und 13/14
+
+Die Mittelpassarelle führt auf beide Mittelbahnsteige. Jede feste
+Treppenanlage hat zwei obere Läufe mit je elf und zwei untere mit je
+vierzehn Stufen. Die Läufe treffen sich auf den kartierten Zwischenpodesten.
+Dazu kommen vier bewegte Rolltreppen. Das Modell verwendet die
+dokumentierte Auf- und Abwärtsverteilung. Die Zuordnung des abwärts
+laufenden Geräts zu einer der beiden kartierten Achsen der Gleise 13/14
+ist eine Darstellungsentscheidung. [S-Bahn Berlin](https://sbahn.berlin/fahren/bahnhofsuebersicht/potsdamer-platz/?jumpTo=equipment)
+
+Die weißen Verkleidungen der Bahnsteigwände und -stützen folgen dem
+Denkmaleintrag. Die Gleisoberkante liegt nach Betreiberangabe 0,96 m unter
+der Bahnsteigkante. Die Stufenhöhe von 0,18 m ergibt im Modell die
+Zwischenpodeste bei `−2,498 m` und die Bahnsteige bei `−5,018 m`.
+Treppenbreiten, Wanddicken und Deckenhöhen sind Darstellungswerte.
+[Landesdenkmalamt](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09020315) ·
+[DB InfraGO](https://www.dbinfrago.com/web/bahnhoefe/leistungen/stationsnutzung/stationshalt/stationsausstattung/Berlin-Potsdamer-Platz-12668070)
+
+| Abschnitt | OSM-Beleg |
+| --- | --- |
+| Bahnsteig 11/12 mit 26 innenliegenden Bauteilen | [Relation 3200537](https://www.openstreetmap.org/relation/3200537) |
+| Bahnsteig 13/14 mit 26 innenliegenden Bauteilen | [Relation 3198309](https://www.openstreetmap.org/relation/3198309) |
+| Zwischenpodest 11/12 | [464904398](https://www.openstreetmap.org/way/464904398) |
+| Zwischenpodest 13/14 | [464904399](https://www.openstreetmap.org/way/464904399) |
+| Feste Läufe 11/12 | 237526544, 237526526, 237526553, 237526536 |
+| Feste Läufe 13/14 | 237526549, 237526543, 237526524, 237526539 |
+| Bewegte Läufe 11/12 | 237751555, 237526547 |
+| Bewegte Läufe 13/14 | 237526519, 237526533 |
+
+Die Decks übernehmen die vollständigen Bahnsteigumrisse. Die 52
+Innenkonturen verorten Stützen und geschlossene Einbauten. Das Modell
+setzt dort rechteckige Hüllen. Beide Bahnsteige behalten die kartierten
+Gleisachsen und Begrenzungskanten. In Minecraft sind die Deckkanten
+unabhängig aus rechtwinkligen Abschnitten aufgebaut.
 
 Die bestehenden Bodenplatten behalten ihre Oberfläche über der Galerie.
 Nur an den Treppenmündungen öffnen sich die Platten und die betroffenen
@@ -52,7 +84,7 @@ sichtbarkeitsabhängige Animation.
 
 Die gezielten Tests verwenden die tatsächlich gelieferten Bodenraster
 und LoD2-Hindernisse. Sie durchlaufen beide Straßentreppen in beiden
-Richtungen und prüfen die Flugfreiheit in der Halle, die Decke sowie
-die erhaltenen Pflasterflächen. Ein weiterer Test überträgt das
+Richtungen und prüfen die Flugfreiheit durch beide Bahnsteigtreppen, die
+Decke sowie die erhaltenen Pflasterflächen. Ein weiterer Test überträgt das
 verzögert eintreffende Pflasterpaket mit demselben Verfahren wie der
 Viewer und prüft die ausgeschnittene südliche Treppenöffnung.

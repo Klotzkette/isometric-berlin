@@ -42,8 +42,9 @@ export function cutPotsdamerPassarelleGround(root: Group, native: boolean): bool
     "Potsdamer Platz retained pavement above Mittelpassarelle");
 }
 
-export function addPotsdamerPassarelle(root: Group, native: boolean): void {
+export function addPotsdamerPassarelle(root: Group, native: boolean, westDock = false): void {
   if (root.userData.potsdamerPassarellePublicAccess || !cutPotsdamerPassarelleGround(root, native)) return;
-  root.add(createPotsdamerPassarelle(native));
+  root.add(createPotsdamerPassarelle(native, westDock));
+  root.userData.potsdamerPassarelleWestDock = westDock;
   root.userData.potsdamerPassarellePublicAccess = true;
 }

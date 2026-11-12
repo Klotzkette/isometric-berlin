@@ -1,3 +1,4 @@
+import { canReplacePotsdamerNorthPavilion } from "./PotsdamerPavilionOwnership";
 import { admitsChancelleryCanopySourceV289 } from "./ChancelleryCanopySourceV289Ownership";
 import { matchesBerlinHistoricDomOwnersV288 } from "./BerlinHistoricCoreV288Ownership";
 import { admitsPotsdamerCorridorCoreV288 } from "./PotsdamerCorridorV288Ownership";
@@ -242,6 +243,8 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
   const potsdamerCorridorV288 = input.potsdamerCorridorV288 === true && admitsPotsdamerCorridorCoreV288(prisms);
   const stationPhotoAdmitted = input.potsdamerStationPhoto === true &&
     canReplacePotsdamerSouthStationPhoto(prisms.buildings);
+  const northPavilionAdmitted = input.potsdamerNorthPavilion === true &&
+    canReplacePotsdamerNorthPavilion(prisms.buildings);
   const profile = buildingDetailProfile(input.detailProfile);
   const partition = splitProgressiveBuildings(
     prisms.buildings, input.initialBuildingCount, profile.batchSize, Number.POSITIVE_INFINITY,
@@ -277,6 +280,7 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
         parliamentaryDiningV296: input.parliamentaryDiningV296,
         waterfrontV296: input.waterfrontV296,
         nordbahnhofCuts: input.nordbahnhofCuts,
+        potsdamerNorthPavilion: northPavilionAdmitted,
         moabitMitteV300, westKiezV302, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288, potsdamerCorridorV288, chancelleryCanopySourceV289,
         architectureV241: true, northernSitesV266: true, chariteBridgesV265: true, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true,
         includeLegacyChariteFacade: false,

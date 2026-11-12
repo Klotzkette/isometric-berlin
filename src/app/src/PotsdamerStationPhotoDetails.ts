@@ -1,3 +1,4 @@
+import { exactNorthPavilionColumns } from "./PotsdamerPavilionOwnership";
 import { createPotsdamerSouthAccess } from "./PotsdamerSouthAccess";
 import { POTSDAMER_SOUTH_STATION_PHOTO_RECEIPT, isPotsdamerSouthStationPhotoSource } from "./potsdamerStationPhotoOwnership";
 import { POTSDAMER_STATION_PHOTO_STRIP_RECEIPT, canReplacePotsdamerSouthStationPhoto,
@@ -21,10 +22,10 @@ const profile = POTSDAMER_DETAIL_PROFILE.stationEntranceHalls;
 const hall = profile.halls[1];
 const steel = profile.ownerPhotoRecognition.steelTone;
 
-function point(x: number, y: number, z: number): [number, number, number] {
-  const c = Math.cos(hall.rotationY), s = Math.sin(hall.rotationY);
-  return [hall.centerWorldM[0] + x * c + z * s, y,
-    hall.centerWorldM[1] - x * s + z * c];
+function pointAt(site: typeof profile.halls[number], x: number, y: number, z: number): [number, number, number] {
+  const c = Math.cos(site.rotationY), s = Math.sin(site.rotationY);
+  return [site.centerWorldM[0] + x * c + z * s, y,
+    site.centerWorldM[1] - x * s + z * c];
 }
 
 function inRing(x: number, z: number, ring: readonly (readonly number[])[] = hall.footprintRingWorldM): boolean {
@@ -41,10 +42,16 @@ function inRing(x: number, z: number, ring: readonly (readonly number[])[] = hal
  * smooth meshes. Bay counts, glass, roof height and the open north approach
  * follow the retained hall; small courses/fittings remain display estimates. */
 export function potsdamerSouthStationPhotoBlocks(): StationPhotoBlock[] {
+  return stationPhotoBlocks("south");
+}
+
+function stationPhotoBlocks(key: "north" | "south"): StationPhotoBlock[] {
+  const hall = profile.halls[key === "north" ? 0 : 1];
+  const point = (x: number, y: number, z: number) => pointAt(hall, x, y, z);
   const rows: StationPhotoBlock[] = [];
   const [width, depth] = hall.footprintSizeM;
   const halfWidth = width / 2, halfDepth = depth / 2;
-  const top = hall.sourceRoofYM;
+  const top = "sourceRoofYM" in hall ? hall.sourceRoofYM : hall.groundY + hall.officialHeightM;
   const height = top - hall.groundY;
   const rear = -hall.frontSide;
   const glazedHeight = height - .82 - .34;
@@ -82,7 +89,7 @@ export function potsdamerSouthStationPhotoBlocks(): StationPhotoBlock[] {
   const maxZ = Math.max(...hall.footprintRingWorldM.map(p => p[1]));
   for (let x = Math.ceil(minX / grid) * grid; x < maxX; x += grid) {
     for (let z = Math.ceil(minZ / grid) * grid; z < maxZ; z += grid) {
-      if (![-1, 1].every(sx => [-1, 1].every(sz => inRing(x + sx * grid / 2, z + sz * grid / 2)))) continue;
+      if (![-1, 1].every(sx => [-1, 1].every(sz => inRing(x + sx * grid / 2, z + sz * grid / 2, hall.footprintRingWorldM)))) continue;
       put("glass-roof", [x, top - .06, z], [grid, .12, grid], 0x94b5b3, true);
     }
   }
@@ -155,7 +162,7 @@ export function potsdamerSouthStationPhotoBlocks(): StationPhotoBlock[] {
     }
   };
   letters(false); letters(true);
-  rows.push(...potsdamerStationStripPhotoNativeBlocks());
+  if (key === "south") rows.push(...potsdamerStationStripPhotoNativeBlocks());
   return rows;
 }
 
@@ -165,7 +172,7 @@ export function potsdamerSouthStationPhotoBlocks(): StationPhotoBlock[] {
  * rather than treating a neighbouring cell-edge intersection as ownership.
  * Both original source prisms and every unlisted native tuple remain preserved. */
 export function preparePotsdamerSouthStationPhotoTransfer(
-  prisms: readonly unknown[] | undefined, payload: VoxelPayload,
+  prisms: readonly unknown[] | undefined, payload: VoxelPayload, connectedPavilions = false,
 ): { group: Group; replacesColumn: (...row: VoxelBuildingColumn) => boolean } | null {
   if (!prisms || payload.cell_m !== 4 || !canReplacePotsdamerSouthStationPhoto(prisms)) return null;
   const matched = prisms.filter(p => (p as Prism)?.id === "K0000BRX");
@@ -201,6 +208,12 @@ export function preparePotsdamerSouthStationPhotoTransfer(
     const p = raw as Prism;
     if (!Array.isArray(p.ring) || p.ring.length < 3) continue;
     const ring = p.ring as number[][];
+    let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+    for (const [x, z] of ring) {
+      minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+      minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z);
+    }
+    if (maxX < 2820 || minX > 3100 || maxZ < 11260 || minZ > 11500) continue;
     const holes = Array.isArray(p.holes) ? p.holes as number[][][] : [];
     if (receipt.some(([x, z]) => inRing((x + .5) * 40, (z + .5) * 40, ring) &&
       !holes.some(h => inRing((x + .5) * 40, (z + .5) * 40, h)))) return null;
@@ -215,6 +228,14 @@ export function preparePotsdamerSouthStationPhotoTransfer(
     transferredColumns: receipt.length, originalSourcePrismRetained: true,
     sourceBuildingIds: [hall.sourceBuildingId, "OSM-way-464904393"],
     stripHeightStatus: POTSDAMER_STATION_PHOTO_STRIP_RECEIPT.heightStatus };
+  addNativePavilionGlazing(group, rows, "South", hall.sourceBuildingId);
+  if (!connectedPavilions) group.add(createPotsdamerSouthAccess(true));
+  return { group: freezeStaticSceneTransforms(group),
+    replacesColumn: (...row) => expected.has(row.join("/")) };
+}
+
+
+function addNativePavilionGlazing(group: Group, rows: StationPhotoBlock[], side: "North" | "South", sourceBuildingId: string): void {
   for (const glass of [false, true]) {
     const selected = rows.filter(r => Boolean(r.glass) === glass);
     const geometry = new BoxGeometry(1, 1, 1); geometry.deleteAttribute("uv");
@@ -228,14 +249,23 @@ export function preparePotsdamerSouthStationPhotoTransfer(
       matrix.makeScale(...r.size).setPosition(...r.position);
       mesh.setMatrixAt(i, matrix); mesh.setColorAt(i, color.setHex(r.color));
     });
-    mesh.name = glass ? "South station native transparent glass" : "South station native steel, lettering and stairs";
+    mesh.name = glass ? `${side} station native transparent glass` : `${side} station native steel, lettering and stairs`;
     mesh.userData = { dayMaterial: day, nightMaterial: night, blockNative: true,
-      keepInMinecraft: true, textureFree: true, sourceBuildingId: hall.sourceBuildingId };
+      keepInMinecraft: true, textureFree: true, sourceBuildingId };
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
     mesh.computeBoundingBox(); mesh.computeBoundingSphere(); group.add(mesh);
   }
-  group.add(createPotsdamerSouthAccess(true));
-  return { group: freezeStaticSceneTransforms(group),
-    replacesColumn: (...row) => expected.has(row.join("/")) };
+}
+
+export function preparePotsdamerNorthPavilionNative(prisms: readonly unknown[] | undefined, payload: VoxelPayload) {
+  const replacesColumn = exactNorthPavilionColumns(prisms, payload);
+  if (!replacesColumn) return null;
+  const rows = stationPhotoBlocks("north").filter(row => row.role !== "stair-step" && row.role !== "stair-handrail");
+  const root = new Group();
+  root.name = "Potsdamer Platz north station — native glass and steel";
+  const sourceBuildingId = profile.halls[0].sourceBuildingId;
+  root.userData = { blockNative: true, keepInMinecraft: true, nativeMinecraft: true, sourceBuildingId, sourceGeometryRetained: true };
+  addNativePavilionGlazing(root, rows, "North", sourceBuildingId);
+  return { group: freezeStaticSceneTransforms(root), replacesColumn };
 }

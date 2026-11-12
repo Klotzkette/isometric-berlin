@@ -4,6 +4,8 @@ import { letteringStrokePaths } from "./drawnLettering";
 import type { HbfBoxV291, HbfOpeningV291, HbfPlaneV291 } from "./HbfGeometryOpeningsV291";
 import { markHbfMotionFrameV291, markHbfMovingMeshV291 } from "./HbfStationMotionV291";
 import type { PedestrianEnvironment } from "./pedestrianNavigation";
+import { createPotsdamerSBahn, installPotsdamerSBahnNavigation, potsdamerSBahnFlightAt,
+  potsdamerSBahnOpenings, POTSDAMER_MEZZANINE_Y } from "./PotsdamerSBahn";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 type XZ = readonly [number, number];
@@ -15,7 +17,7 @@ type Segment = {
 type Part = { area: Rect; bottom: number; top: number; color: number };
 
 export const POTSDAMER_PASSARELLE_NAME = "Potsdamer Platz — Mittelpassarelle Leipziger Platz";
-export const POTSDAMER_PASSARELLE_Y = -.518;
+export const POTSDAMER_PASSARELLE_Y = POTSDAMER_MEZZANINE_Y;
 
 const streetY = 5.4;
 const lowerY = POTSDAMER_PASSARELLE_Y;
@@ -72,7 +74,9 @@ const columns = [
   part(351.73, 352.40, 1027.76, 1028.44, lowerY, roofY, 0xc4beb0),
 ];
 const walls: Part[] = [
-  part(gallery.minX - .22, gallery.minX, gallery.minZ, gallery.maxZ, lowerY, roofY),
+  part(gallery.minX - .22, gallery.minX, gallery.minZ, 1030, lowerY, roofY),
+  part(gallery.minX - .22, gallery.minX, 1032.2, 1040.8, lowerY, roofY),
+  part(gallery.minX - .22, gallery.minX, 1058.6, gallery.maxZ, lowerY, roofY),
   part(gallery.minX - .22, gallery.maxX, gallery.minZ - .22, gallery.minZ, lowerY, roofY),
   part(gallery.minX - .22, gallery.maxX, gallery.maxZ, gallery.maxZ + .22, lowerY, roofY),
   part(gallery.maxX, gallery.maxX + .22, gallery.minZ, northGate.minZ, lowerY, roofY),
@@ -142,7 +146,7 @@ function smoothStairCut(f: Flight, half: number): HbfOpeningV291 {
 const cutWidth = (f: Flight) => f.width / 2 + .12;
 function groundOpenings(native: boolean): readonly HbfOpeningV291[] {
   const hall = rooms.map((r, i) => flatCut(`passarelle-hall-${i}`, r, lowerY, roofY, native));
-  return [...hall, ...segments.flatMap(f => native
+  return [...hall, ...potsdamerSBahnOpenings(native), ...segments.flatMap(f => native
     ? cardinalFlight(f, 0, f.length, cutWidth(f)).map(r => flatCut(String(f.source), r, lowerY, streetY + 1, true))
     : [smoothStairCut(f, cutWidth(f))])];
 }
@@ -218,30 +222,37 @@ function movingEscalator(f: Flight, native: boolean): Group {
   return root;
 }
 
-export function createPotsdamerPassarelle(native: boolean): Group {
+export function createPotsdamerPassarelle(native: boolean, westDock = false): Group {
   const root = new Group();
   root.name = POTSDAMER_PASSARELLE_NAME;
   root.userData = { blockNative: native, keepInMinecraft: native, fullStaticDetailOnTouch: true,
     sourceWays: [...segments.map(s => s.source), 464904220, 464904221, 464904400, 464904510,
       464904512, 237751557, 237751573, 464904448, 464904452, 464904453] };
   const builder = new GendarmenmarktFacadeBuilder(native);
-  for (const r of rooms) {
+  // The eastern branch of the documented 13/14 stair reaches this existing
+  // gallery. Remove only its bounded floor aperture from the old east slab.
+  const eastStairHole = { minX: gallery.minX, maxX: 347.14, minZ: 1030, maxZ: 1032.2 };
+  for (const r of [northGate, southGate, { ...gallery, maxZ: eastStairHole.minZ },
+      { ...gallery, minZ: eastStairHole.maxZ },
+      { ...eastStairHole, minX: eastStairHole.maxX, maxX: gallery.maxX }]) {
     paintRect(builder, r, lowerY - .26, lowerY, terrazzo);
   }
   for (const row of walls) paintRect(builder, row.area, row.bottom, row.top, row.color);
   for (let z = gallery.minZ + 3; z < gallery.maxZ - 1; z += 5.4) {
     builder.box([351.7, roofY - .09, z], [3.7, .18, .30], 0xf4ebd7);
     builder.box([351.7, roofY - .035, z], [3.95, .07, .45], darkSteel);
-    builder.box([345.02, lowerY + .11, z], [.22, .22, 5.4], 0x898780);
-    builder.box([344.93, lowerY + 1.07, z], [.055, .035, 5.39], 0xa39c8f);
-    builder.box([344.93, lowerY + 1.95, z], [.055, 1.72, .035], 0xa39c8f);
+    if (z > 1034.9 && z < 1038.0) {
+      builder.box([345.02, lowerY + .11, z], [.22, .22, 5.4], 0x898780);
+      builder.box([344.93, lowerY + 1.07, z], [.055, .035, 5.39], 0xa39c8f);
+      builder.box([344.93, lowerY + 1.95, z], [.055, 1.72, .035], 0xa39c8f);
+    }
   }
-  const architrave = { startXZ: [345, 1037.5], endXZ: [345, 1046], outwardSide: -1,
+  const architrave = { startXZ: [345, 1032.5], endXZ: [345, 1041], outwardSide: -1,
     wallBaseY: lowerY, wallTopY: roofY, street: "Leipziger Platz", prismId: "Mittelpassarelle" };
   if (!native) builder.sign(architrave, "MITTELPASSARELLE", 4.25, lowerY + 2.2, .27, 4.7,
     0xf1eee5, 0x273f50, .05);
   else {
-    builder.box([345.05, lowerY + 2.33, 1041.75], [.10, .62, 4.7], 0x273f50);
+    builder.box([345.05, lowerY + 2.33, 1036.75], [.10, .62, 4.7], 0x273f50);
     for (const path of letteringStrokePaths("MITTELPASSARELLE", .27)) {
       for (let i = 1; i < path.length; i++) {
         const a = path[i - 1], b = path[i];
@@ -249,7 +260,7 @@ export function createPotsdamerPassarelle(native: boolean): Group {
         for (let j = 0; j <= count; j++) {
           const t = j / Math.max(1, count);
           builder.box([345.12, lowerY + 2.2 + a[1] + (b[1] - a[1]) * t,
-            1041.75 - a[0] - (b[0] - a[0]) * t], [.035, .034, .034], 0xf1eee5);
+            1036.75 - a[0] - (b[0] - a[0]) * t], [.035, .034, .034], 0xf1eee5);
         }
       }
     }
@@ -259,7 +270,7 @@ export function createPotsdamerPassarelle(native: boolean): Group {
     drawFlight(builder, f, moving);
     if (moving) root.add(movingEscalator(f, native));
   }
-  root.add(builder.finish("Passage floor, lining, stair flights, steel guards and luminaires"));
+  root.add(builder.finish("Passage floor, lining, stair flights, steel guards and luminaires"), createPotsdamerSBahn(native, westDock));
   return freezeStaticSceneTransforms(root);
 }
 
@@ -302,12 +313,12 @@ function solidAt(x: number, y: number, z: number, radius: number, native: boolea
 }
 
 export function potsdamerPassarelleFlightAt(x: number, y: number, z: number): boolean {
-  return near(x, z) && y >= lowerY && (Boolean(supportedFlight(x, z, false)) ||
+  return potsdamerSBahnFlightAt(x, y, z) || near(x, z) && y >= lowerY && (Boolean(supportedFlight(x, z, false)) ||
     (y < roofY && roomsContain(x, z))) && y < streetY + 2;
 }
 
 export function installPotsdamerPassarelleNavigation(environment: PedestrianEnvironment,
-  active: () => boolean, native: () => boolean): void {
+  active: () => boolean, native: () => boolean, westDock: () => boolean = () => false): void {
   const originalGround = environment.groundAt;
   const originalFloor = environment.interiorGroundAt;
   const originalSolid = environment.interiorSolidAt;
@@ -317,4 +328,5 @@ export function installPotsdamerPassarelleNavigation(environment: PedestrianEnvi
     ? potsdamerPassarelleFloorAt(x, z, native(), hint) : null) ?? originalFloor?.(x, z, hint) ?? null;
   environment.interiorSolidAt = (x, y, z, radius = 0) =>
     (near(x, z) && active() && solidAt(x, y, z, radius, native())) || originalSolid?.(x, y, z, radius) || false;
+  installPotsdamerSBahnNavigation(environment, active, westDock);
 }

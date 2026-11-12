@@ -34,6 +34,9 @@ import { currentNordbahnhofPlan, installNordbahnhofNavigation, NORDBAHNHOF_PUBLI
 import { addPotsdamerPassarelle, cutPotsdamerPassarelleGround, cutPotsdamerSouthGround } from "./PotsdamerSouthGround";
 import { installPotsdamerPassarelleNavigation, potsdamerPassarelleFlightAt } from "./PotsdamerPassarelle";
 import { installPotsdamerSouthNavigation, potsdamerSouthFlightAt } from "./PotsdamerSouthAccess";
+import { canReplacePotsdamerNorthPavilion } from "./PotsdamerPavilionOwnership";
+import { createPotsdamerPavilionRoutes, installPotsdamerPavilionNavigation, potsdamerPavilionTerrainAdmitted, type PotsdamerPavilionRoutes } from "./PotsdamerPavilionRoutes";
+import { createPotsdamerRegionalAccess, installPotsdamerRegionalNavigation, potsdamerRegionalFlightAt } from "./PotsdamerRegionalAccess";
 import { cutUbahnPresentationV281 } from "./UbahnSurfaceAperturesV281";
 import { prenzlbergV264GroundAt, prenzlbergV264SolidAt, prenzlbergV264TerrainAt } from "./prenzlbergV264Navigation";
 import { ubahnV261FloorAt, ubahnV261SolidAt } from "./ubahnEntrancesV261Profile";
@@ -1104,14 +1107,47 @@ function potsdamerSouthAccessActive(runtime: Runtime): boolean {
   return world?.userData.potsdamerSouthPublicAccess === true;
 }
 
+const potsdamerRoutesByWorld = new WeakMap<Group, PotsdamerPavilionRoutes>();
+
+function activePotsdamerRoutes(runtime: Runtime): PotsdamerPavilionRoutes | null {
+  const world = voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld;
+  return world ? potsdamerRoutesByWorld.get(world) ?? null : null;
+}
+
+function attachPotsdamerPavilions(world: Group, native: boolean): void {
+  const routes = createPotsdamerPavilionRoutes(native);
+  // Own both groups before cutting so the caller's rollback disposes them.
+  world.add(routes.root, createPotsdamerRegionalAccess(native));
+  if (!routes.cutGround(world)) throw Error("Potsdamer Platz pavilion ground openings are missing");
+  potsdamerRoutesByWorld.set(world, routes);
+}
+
+function installConnectedPotsdamerNavigation(runtime: Runtime, environment: PedestrianEnvironment): void {
+  const getRoutes = () => activePotsdamerRoutes(runtime);
+  const connected = () => getRoutes() !== null;
+  const native = () => voxelModeActive(runtime);
+  installPotsdamerSouthNavigation(environment, () => potsdamerSouthAccessActive(runtime), native);
+  installPotsdamerPassarelleNavigation(environment, () => potsdamerPassarelleAccessActive(runtime), native, connected);
+  installPotsdamerPavilionNavigation(environment, getRoutes);
+  installPotsdamerRegionalNavigation(environment, connected, native);
+}
+
+function syncPotsdamerLegacyNorth(runtime: Runtime): void {
+  const legacy = runtime.culturalDetails.getObjectByName("Potsdamer Platz station entrance halls");
+  if (legacy) legacy.visible = !runtime.isoWorld || !potsdamerRoutesByWorld.has(runtime.isoWorld);
+}
+
 /** Portal approaches and station interiors retain free traversal. */
 function surfaceCameraTunnelExemption(runtime: Runtime): boolean {
   const p = runtime.camera.position;
+  const station = activePotsdamerRoutes(runtime);
   return runtime.tunnelPortalInteriorVisible ||
     hauptbahnhofCirculationBoundsAt(p.x, p.y, p.z) ||
     nordbahnhofPlan(runtime)?.inAir(p.x, p.y, p.z) === true ||
     (potsdamerSouthAccessActive(runtime) && potsdamerSouthFlightAt(p.x, p.y, p.z)) ||
     (potsdamerPassarelleAccessActive(runtime) && potsdamerPassarelleFlightAt(p.x, p.y, p.z)) ||
+    (station !== null && (station.flightAt(p.x, p.y, p.z) ||
+      potsdamerRegionalFlightAt(p.x, p.y, p.z, voxelModeActive(runtime)))) ||
     runtime.tunnelInteriorAt?.(p.x, p.y, p.z) === true;
 }
 
@@ -3915,6 +3951,7 @@ async function attachProgressiveWorldMessage(
     cutUbahnPresentationV281(object, false);
     if (runtime.isoWorld.userData.potsdamerSouthPublicAccess) cutPotsdamerSouthGround(object, false, false);
     if (runtime.isoWorld.userData.potsdamerPassarellePublicAccess) cutPotsdamerPassarelleGround(object, false);
+    potsdamerRoutesByWorld.get(runtime.isoWorld)?.cutGround(object);
     const nordbahnhof = currentNordbahnhofPlan(runtime.isoWorld);
     if (nordbahnhof) nordbahnhof.cutGround(object);
   }
@@ -4517,8 +4554,7 @@ function prepareIsoNavigation(
   installFidelityNavigationV296(pedestrianEnvironment,()=>fidelityAdmissionV296(runtime));
   installNorthernNavigationV309(runtime,pedestrianEnvironment);
   installGovernmentNavigationV321(runtime,pedestrianEnvironment);
-  installPotsdamerSouthNavigation(pedestrianEnvironment, () => potsdamerSouthAccessActive(runtime), () => voxelModeActive(runtime));
-  installPotsdamerPassarelleNavigation(pedestrianEnvironment, () => potsdamerPassarelleAccessActive(runtime), () => voxelModeActive(runtime));
+  installConnectedPotsdamerNavigation(runtime, pedestrianEnvironment);
   installNordbahnhofNavigation(pedestrianEnvironment, () => nordbahnhofPlan(runtime));
   return { environment: pedestrianEnvironment, installWorldDetails };
 }
@@ -4691,6 +4727,8 @@ function ensureIsoWorld(
       const fidelityV288 = prepareRequiredFidelityV288(prisms, ground, false, admitsChancelleryCanopyLegacyV289(runtime.signatures),runtime.coarsePointer,true,true);
       provisionalIsoWorld = fidelityV288.root;
       const stationPhotoAdmitted = canReplacePotsdamerSouthStationPhoto(prisms.buildings);
+      const potsdamerNorthPavilion = stationPhotoAdmitted && Boolean(surfaces) &&
+        canReplacePotsdamerNorthPavilion(prisms.buildings) && potsdamerPavilionTerrainAdmitted(ground);
       const nordbahnhofModule = ground && surfaces ? await import("./NordbahnhofPublicAccess") : null;
       if (runtime.disposed || runtime.loadSignal.aborted || !isoWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
       const nordbahnhof = nordbahnhofModule?.prepareNordbahnhofDrawn(prisms.buildings, ground) ?? null;
@@ -4744,6 +4782,7 @@ function ensureIsoWorld(
             ? {
                 detailProfile: "mobile",
                 nordbahnhofCuts: nordbahnhof?.cuts,
+                potsdamerNorthPavilion,
                 moabitMitteV300:fidelityV288.moabitMitte, westKiezV302:fidelityV288.westKiez, hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
                 groundUrl: new URL(GROUND_CONTEXT_FILE, runtime.sceneRootUrl).toString(),
                 surfacesUrl: new URL(SURFACE_WORLD_FILE, runtime.sceneRootUrl).toString(),
@@ -4761,6 +4800,7 @@ function ensureIsoWorld(
             ? {
                 detailProfile: "full",
                 nordbahnhofCuts: nordbahnhof?.cuts,
+                potsdamerNorthPavilion,
                 moabitMitteV300:fidelityV288.moabitMitte, westKiezV302:fidelityV288.westKiez, hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
                 groundUrl: new URL(
                   GROUND_CONTEXT_FILE,
@@ -4794,6 +4834,7 @@ function ensureIsoWorld(
           {
             buildings: initialBuildings,
             nordbahnhofCuts: nordbahnhof?.cuts,
+            potsdamerNorthPavilion,
             federalStateFittingsV321: (site, style) => createStateRepresentationFittingsV321(site, prisms.buildings, style),
             moabitMitteV300:fidelityV288.moabitMitte, westKiezV302:fidelityV288.westKiez, hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
             includeLegacyChariteFacade: false,
@@ -4851,10 +4892,15 @@ function ensureIsoWorld(
         // transaction. Construct and attach its complete replacement before
         // yielding; cancellation disposes it with the provisional city.
         if (stationPhotoAdmitted) {
-          const southHall = stationPhoto.createPotsdamerSouthStationPhotoDrawn(prisms.buildings);
+          const southHall = stationPhoto.createPotsdamerSouthStationPhotoDrawn(prisms.buildings, potsdamerNorthPavilion);
           if (!southHall) throw new Error("Required Potsdamer south-hall source changed during construction");
           isoWorld.add(southHall);
           isoWorld.userData.potsdamerStationPhoto = true;
+        }
+        if (potsdamerNorthPavilion) {
+          const northHall = stationPhoto.createPotsdamerNorthPavilionDrawn(prisms.buildings);
+          if (!northHall) throw Error("Required Potsdamer north pavilion source changed during construction");
+          isoWorld.add(northHall);
         }
         yield;
         // A complete measured Hungarian envelope replaces six exact proxies.
@@ -4998,8 +5044,9 @@ function ensureIsoWorld(
           isoWorld.add(createDistrictStreets(ground, new Set(altMitteTransportCorrectionsV206.suppressedMarkingIndices)));
           cutUbahnPresentationV261(isoWorld, false);
           cutUbahnPresentationV281(isoWorld, false);
-          if (stationPhotoAdmitted) cutPotsdamerSouthGround(isoWorld, false, true);
-          addPotsdamerPassarelle(isoWorld, false);
+          if (potsdamerNorthPavilion) attachPotsdamerPavilions(isoWorld, false);
+          else if (stationPhotoAdmitted) cutPotsdamerSouthGround(isoWorld, false, true);
+          addPotsdamerPassarelle(isoWorld, false, potsdamerNorthPavilion);
           if (nordbahnhof && nordbahnhofModule) {
             const model = nordbahnhofModule.buildNordbahnhofPublicAccess(nordbahnhof.plan);
             if (!nordbahnhof.plan.cutGround(isoWorld)) {
@@ -5020,7 +5067,7 @@ function ensureIsoWorld(
           yield;
           pendingPathTerrainAt = prepareDistrictPathTerrain(ground, runtime.tunnelPortalCourse);
         }
-        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { nordbahnhofCuts: nordbahnhof?.cuts, moabitMitteV300:fidelityV288.moabitMitte, westKiezV302:fidelityV288.westKiez, hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
+        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { nordbahnhofCuts: nordbahnhof?.cuts, potsdamerNorthPavilion, moabitMitteV300:fidelityV288.moabitMitte, westKiezV302:fidelityV288.westKiez, hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
         yield;
         isoWorld.add(komischeOper.createKomischeOperSourceGeometry());
         yield;
@@ -5285,6 +5332,7 @@ function ensureIsoWorld(
       // is deliberately started only after this pointer and scene attachment
       // exist; any later failure rolls both it and its batches back below.
       runtime.isoWorld = isoWorld;
+      syncPotsdamerLegacyNorth(runtime);
       (runtime.governmentOfficesV321??={}).drawn=provisionalGovernmentV321??undefined;
       setDiningLegacyVisibilityV296(runtime);
       if (fidelityV288.chancelleryCanopy && !setChancelleryCanopyLegacyV289(runtime.signatures, true)) throw new Error("Incomplete Chancellery canopy predecessor transaction");
@@ -5377,6 +5425,7 @@ function ensureIsoWorld(
       }
       if (provisionalIsoWorld && runtime.isoWorld === provisionalIsoWorld) {
         runtime.isoWorld = originalIsoWorld;
+        syncPotsdamerLegacyNorth(runtime);
         setChancelleryCanopyLegacyV289(runtime.signatures, originalIsoWorld?.userData.chancelleryCanopySourceV289 === true);
         runtime.schwellenraumTowerSteam = originalTowerSteam;
       }
@@ -5569,8 +5618,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
   installFidelityNavigationV296(environment,()=>fidelityAdmissionV296(runtime));
   installNorthernNavigationV309(runtime,environment);
   installGovernmentNavigationV321(runtime,environment);
-  installPotsdamerSouthNavigation(environment, () => potsdamerSouthAccessActive(runtime), () => voxelModeActive(runtime));
-  installPotsdamerPassarelleNavigation(environment, () => potsdamerPassarelleAccessActive(runtime), () => voxelModeActive(runtime));
+  installConnectedPotsdamerNavigation(runtime, environment);
   installNordbahnhofNavigation(environment, () => nordbahnhofPlan(runtime));
   return environment;
 }
@@ -5709,6 +5757,7 @@ function ensureVoxelWorld(
           {
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             nordbahnhofCuts: nordbahnhof?.cuts,
+            potsdamerPavilions: potsdamerPavilionTerrainAdmitted(payload),
             sourcePrisms: prisms?.buildings,
             neighbourhoodV300: true,
             districtCourtDetailsV333: true,
@@ -5728,8 +5777,10 @@ function ensureVoxelWorld(
           isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
         },
       );
-      if (provisionalVoxelWorld.userData.potsdamerStationPhoto) cutPotsdamerSouthGround(provisionalVoxelWorld, true, true);
-      addPotsdamerPassarelle(provisionalVoxelWorld, true);
+      const connectedPavilions = provisionalVoxelWorld.userData.potsdamerPavilionShells === true;
+      if (connectedPavilions) attachPotsdamerPavilions(provisionalVoxelWorld, true);
+      else if (provisionalVoxelWorld.userData.potsdamerStationPhoto) cutPotsdamerSouthGround(provisionalVoxelWorld, true, true);
+      addPotsdamerPassarelle(provisionalVoxelWorld, true, connectedPavilions);
       if (nordbahnhof && nordbahnhofModule) {
         const model = nordbahnhofModule.buildNordbahnhofPublicAccess(nordbahnhof.plan);
         if (provisionalVoxelWorld.userData.nordbahnhofOpenedColumns !== nordbahnhof.expectedColumns ||
@@ -10382,6 +10433,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             }
           }
           runtime.culturalDetails.add(expandedDetails);
+          syncPotsdamerLegacyNorth(runtime);
           freezeStaticSceneTransform(runtime.culturalDetails);
           scene.add(runtime.culturalDetails);
           setStarbucksPariserPlatzSnow(

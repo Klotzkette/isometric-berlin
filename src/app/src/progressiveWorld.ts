@@ -117,6 +117,7 @@ type ProgressiveWorldWorkerInputBase = {
   nordbahnhofCuts?: NordbahnhofDrawnCuts;
   waterfrontV296?: boolean;
   potsdamerStationPhoto?: boolean;
+  potsdamerNorthPavilion?: boolean;
   moabitMitteV300?: boolean; westKiezV302?: boolean; historicDomV288?: boolean; potsdamerCorridorV288?: boolean; chancelleryCanopySourceV289?: boolean;
   /** Attached scene batches survive suspension and must not be rebuilt. */
   completedBatchIds?: readonly string[];

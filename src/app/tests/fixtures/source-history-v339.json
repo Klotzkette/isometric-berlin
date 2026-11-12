@@ -1,0 +1,66 @@
+{
+  "additions": {
+    "src/app/src/PotsdamerPavilionOwnership.ts": "9a0e3bc07ed9841f9c5b27c65edf73a3cb1bec7cf8fe15663bb303d9d90ab25d",
+    "src/app/src/PotsdamerPavilionRoutes.ts": "12e8b2c8c1f648b9494cf0cc5e6a024bb6bc322e40be738825daec0064791cbb",
+    "src/app/src/PotsdamerRegionalAccess.ts": "2440fb04dfbcd530fb5ef747928a0743bb69295d5b6a59519c8d1260d0587a2c",
+    "src/app/src/PotsdamerSBahn.ts": "3ea2294b37e43ef48f542bff7d70f79c8d01bdec9790aaf6d3af5ec32232ccf2",
+    "src/app/src/data/potsdamerNorthPavilionSource.json": "1adde02821e7b4411e2e058a4a51a1e600dd96299b4d0d8de1d9b527b8019f9c",
+    "src/app/src/data/potsdamerPavilionRoutes.json": "962b49b28174c8db7277e32c93b7f09a0b1d91c46d4b9c80e7fcd52f30bc732e",
+    "src/app/src/data/potsdamerRegionalAccess.json": "498b86dbd3fb239f477b3735cdef31b6c215295a05ad65780b4227ffcf36ef96",
+    "src/app/src/potsdamerSBahnSource.ts": "e6feadbac199ad28fde42d939dd6ede4b2de54e38eaf2ce6305d741eb1641d3c"
+  },
+  "changes": {
+    "src/app/losslessJsonData.ts": {
+      "before": "e2718f9a41cc9c836161d67197d039d8e4ca99b94bfebe2e12143288b77ef4d2",
+      "after": "f39c3d7544b97fc62d826997c245beb5899584467346fd8adc8ded3f8188dd53"
+    },
+    "src/app/package.json": {
+      "before": "4921caf4d2e497ffc06794be3beab2346096c42315ec40146ae79c73c85dc925",
+      "after": "ee51040b9c1b53069e26635001a31bbcd967a2f74b858a528dc36e2935c0d2a1"
+    },
+    "src/app/src/ExpandedCityDetails.ts": {
+      "before": "180db0493c5e7b59f1d3522c578b1b6c05089e11b45706abbaf2650f4326a0f8",
+      "after": "06a4cd84186ffb204ba9e257866981f40aa1231a88dd6ce642290d61879f1c39"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "a0774ed39a2c25d46cfb4077f8a3e6149f2a71ce31b621c8c8aaee6ce9dafebd",
+      "after": "d9cc78d8f7b6bacb00571d9090a016c41b495b9c18d7a7ee441d6f314c25ce61"
+    },
+    "src/app/src/MinecraftVoxelWorld.ts": {
+      "before": "6daed75e0243d031e7cb170b61c7c8d79518ed56d43efc37bf12f9ef4d05081d",
+      "after": "b721eefe2b534b18101b23627207f20f5378fdcaa0b2f3a236566a42bf2a3f47"
+    },
+    "src/app/src/PotsdamerPassarelle.ts": {
+      "before": "09bfd28c75ac6f315c6dcc184b18e404d862af7dd963ca539d20659c05880a46",
+      "after": "4f068bbd769083292999522a0210b775a683f62d572cd748f6e2368fa23df0bc"
+    },
+    "src/app/src/PotsdamerSouthGround.ts": {
+      "before": "b5105fa2812afdae55e333ecf25af662056bbecec9979dbc12a6e589df0346c2",
+      "after": "94265942eb46301cba6894c4412bcb3780f0a91637c8c2bb0a00de8be345f782"
+    },
+    "src/app/src/PotsdamerStationDrawn.ts": {
+      "before": "900a1dc39fc4b4aa57c7d6849cb697e1bfc1ddb18692b3ab5e7890cf85206ec5",
+      "after": "b8788fca645c476ab41391da25d3c5ec4b74a1ea688f7220a9000431b7d3fb51"
+    },
+    "src/app/src/PotsdamerStationPhotoDetails.ts": {
+      "before": "86a437fec4c13c9c8ebdb4417d1a96b4522accec8fdc6f2f2aadd5d1a8312f7b",
+      "after": "16f0b655728755e13af42008866f9cac2ff1aabb3f1042592e6da75b2ec8c99b"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "a7cac40d2d535952b200417977f3d889788fa91c7a20bcb044f46795086a6a09",
+      "after": "1d13bc08baa47e24643a203599972515f794aebeed3ab3982ca4e6318acc6520"
+    },
+    "src/app/src/progressiveBuildingCoverage.ts": {
+      "before": "5a44e3670f775ea81e6269b8a7a84d607eec09c32d328934114cba2117ed0ebc",
+      "after": "e10c5589b17f9324d96c3f30f91825ab9090a045fb696ad9c21a9fc2fed64a72"
+    },
+    "src/app/src/progressiveWorld.ts": {
+      "before": "492dce6c7adc9ded6cd2138bea44a485ceac893b7ec0372a5a7b11387e1c7952",
+      "after": "447ce797dd89d3e0068d5fc66bddab5c7dac0304a9913489997dc5de50605a8f"
+    },
+    "src/app/src/progressiveWorld.worker.ts": {
+      "before": "2287604fe0f686408222f9894fa8e84db4524a7d018aa31dd2ef7093b88733db",
+      "after": "0f2be4b3aeb81b1e6a837e3d37689a11b7f35e718c5955a757da330160af42a0"
+    }
+  }
+}

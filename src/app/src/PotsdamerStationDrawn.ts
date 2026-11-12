@@ -10,6 +10,7 @@ import { POTSDAMER_DETAIL_PROFILE } from "./expandedCityProfiles";
 import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import { addBox, createBuilder, finishDrawnGroup, paintGeometry, type Builder } from "./drawnKit";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { canReplacePotsdamerNorthPavilion } from "./PotsdamerPavilionOwnership";
 import { canReplacePotsdamerSouthStationPhoto } from "./potsdamerStationPhotoOwnership";
 import { POTSDAMER_STATION_PHOTO_STRIP_RECEIPT as strip } from "./potsdamerStationPhotoOwnership";
 import { potsdamerStationStripPhotoMembers } from "./potsdamerStationPhotoStrip";
@@ -17,7 +18,7 @@ import { potsdamerStationStripPhotoMembers } from "./potsdamerStationPhotoStrip"
 type WorldRing = readonly (readonly [number, number])[];
 const GLASS = 0xa7d1d8;
 const DARK_FRAME = 0x29373a;
-type StationBuilder = Builder & { glass?: BufferGeometry[]; connectedSouth?: boolean };
+type StationBuilder = Builder & { glass?: BufferGeometry[]; connectedSouth?: boolean; connectedNorth?: boolean };
 
 function addCustomGeometry(
   builder: Builder,
@@ -471,7 +472,7 @@ function addPotsdamerEntranceHalls(
       }
     }
 
-    if (hall.key === "south" && (builder as StationBuilder).connectedSouth) continue;
+    if (hall.key === "south" ? (builder as StationBuilder).connectedSouth : (builder as StationBuilder).connectedNorth) continue;
     // Two stair/escalator banks descend from each hall's mapped entrance
     // edge. The below-grade run is diagrammatic and does not change the LoD2
     // footprint or claim an as-built underground survey.
@@ -590,10 +591,10 @@ function addPotsdamerEntranceHallLettering(
 
 /** The south-only form is constructed by the required-site transaction
  * before its exact old generic glass envelope is allowed to yield. */
-export function createPotsdamerStationDrawn(selection: "all" | "north" | "south" = "all", connectedSouth = false): Group {
+export function createPotsdamerStationDrawn(selection: "all" | "north" | "south" = "all", connectedSouth = false, connectedNorth = false): Group {
   const root = new Group(); root.name = "Potsdamer Platz station entrance details";
   const byName = new Map<string, unknown>([["Mall of Berlin", {}]]);
-  const builder: StationBuilder = { ...createBuilder(), glass: [], connectedSouth };
+  const builder: StationBuilder = { ...createBuilder(), glass: [], connectedSouth, connectedNorth };
   addPotsdamerEntranceHalls(builder, byName, selection);
   const panels = builder.glass!;
   const indexedPanels = panels.map(panel => {
@@ -649,14 +650,22 @@ export function createPotsdamerStationDrawn(selection: "all" | "north" | "south"
   return root;
 }
 
-export function createPotsdamerSouthStationPhotoDrawn(prisms: readonly unknown[] | undefined): Group | null {
+export function createPotsdamerSouthStationPhotoDrawn(prisms: readonly unknown[] | undefined, connectedPavilions = false): Group | null {
   if (!canReplacePotsdamerSouthStationPhoto(prisms)) return null;
   const root = createPotsdamerStationDrawn("south", true);
-  root.add(createPotsdamerSouthAccess(false));
+  if (!connectedPavilions) root.add(createPotsdamerSouthAccess(false));
   root.name = "Potsdamer Platz south station photo recognition";
   root.userData = { potsdamerStationPhoto: true, keepInMinecraft: false,
     fullStaticDetailOnTouch: true, sourceGeometryRetained: true,
     sourceBuildingId: "DEBE01YYK0000BRX", sourceBuildingIds: ["DEBE01YYK0000BRX", "OSM-way-464904393"],
     absoluteSourceRoofYM: 14.178, stripHeightStatus: strip.heightStatus };
   return freezeStaticSceneTransforms(root);
+}
+
+
+export function createPotsdamerNorthPavilionDrawn(prisms: readonly unknown[] | undefined): Group | null {
+  if (!canReplacePotsdamerNorthPavilion(prisms)) return null;
+  const model = createPotsdamerStationDrawn("north", false, true);
+  model.name = "Potsdamer Platz north station — drawn glass and steel";
+  return model;
 }
