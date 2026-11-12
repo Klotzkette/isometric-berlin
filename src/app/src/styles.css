@@ -2685,3 +2685,27 @@ button:active:not(:disabled) {
 
 @media (max-width: 820px) { .reichstag-section-panel { left: 50%; right: auto; bottom: calc(272px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); max-width: calc(100% - 28px); } }
 @media (max-width: 820px) and (max-height: 620px) { .reichstag-section-panel { left: auto; right: 14px; bottom: calc(128px + env(safe-area-inset-bottom, 0px)); transform: none; max-width: calc(100% - 156px); } }
+
+.hbf-lift-panel {
+  position: absolute;
+  left: 50%;
+  bottom: 108px;
+  transform: translateX(-50%);
+  z-index: 12;
+  width: max-content;
+  max-width: calc(100% - 28px);
+  padding: 8px;
+  border: 1px solid #c9d0ca;
+  border-radius: 16px;
+  background: #fffffff5;
+  color: #283a32;
+  text-align: center;
+  pointer-events: auto;
+}
+.hbf-lift-panel p { margin: 4px 8px 8px; font-size: 13px; font-weight: 600; }
+.hbf-lift-floors { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.hbf-lift-panel button { min-height: 44px; min-width: 44px; padding: 0 7px; border: 1px solid #c9d0ca; border-radius: 10px; background: white; color: inherit; font: inherit; font-size: 13px; cursor: pointer; }
+.hbf-lift-panel button:disabled { background: #345747; color: white; opacity: 1; cursor: default; }
+.hbf-lift-panel button:focus-visible { outline: 2px solid #345747; outline-offset: 2px; }
+@media (max-width: 820px) { .hbf-lift-panel { bottom: calc(272px + env(safe-area-inset-bottom, 0px)); } }
+@media (max-width: 820px) and (max-height: 620px) { .hbf-lift-panel { bottom: calc(128px + env(safe-area-inset-bottom, 0px)); } }

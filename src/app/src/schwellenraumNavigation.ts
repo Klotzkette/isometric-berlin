@@ -222,7 +222,7 @@ export function schwellenraumFlightPointIsBlocked(
   if (environment.interiorSolidAt?.(point.x, point.y, point.z, radius)) {
     return true;
   }
-  const groundY = environment.groundAt(point.x, point.z);
+  const groundY = environment.flightGroundAt?.(point.x, point.y, point.z) ?? environment.groundAt(point.x, point.z);
   if (groundY === null || point.y - radius < groundY) {
     return true;
   }

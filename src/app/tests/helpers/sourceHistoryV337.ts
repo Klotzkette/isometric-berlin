@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
+import { assertSourceLayerV338, isSourceAdditionV338, projectSourceBeforeV338, sourceAtBeforeV338 } from "./sourceHistoryV338";
 
 const root = resolve(import.meta.dir, "../../../..");
 const previousBytes = new Map<string, Buffer>();
@@ -29,7 +30,7 @@ export function assertSourceLayerV337(before: Readonly<Record<string, string>>):
   const proof = readFileSync(new URL("../fixtures/source-history-v337.json", import.meta.url));
   if (digest(proof) !== proofDigest) throw Error("Changed immutable v337 source proof");
   const candidate = JSON.parse(proof.toString("utf8")) as Receipt;
-  const files = readdirSync(resolve(root, "src/app/src"), { recursive: true })
+  const currentFiles = readdirSync(resolve(root, "src/app/src"), { recursive: true })
     .map(path => `src/app/src/${path}`)
     .filter(path => /\.(?:ts|tsx|json)$/.test(path) && statSync(resolve(root, path)).isFile());
   const expected = { ...before, ...candidate.additions };
@@ -39,17 +40,21 @@ export function assertSourceLayerV337(before: Readonly<Record<string, string>>):
     }
     expected[path] = record.after;
   }
+  assertSourceLayerV338(expected, currentFiles);
+  const files = currentFiles.filter(path => !isSourceAdditionV338(path));
   if (Object.keys(candidate.additions).some(path => Object.hasOwn(before, path)) ||
       new Set([...files, ...Object.keys(before)]).size !== Object.keys(expected).length ||
       files.some(path => !Object.hasOwn(expected, path))) throw Error("Changed v337 source inventory");
   for (const [path, hash] of Object.entries(expected)) {
-    if (digest(readFileSync(resolve(root, path))) !== hash) throw Error(`Changed complete v337 source graph: ${path}`);
+    const raw = sourceAtBeforeV338(path, readFileSync(resolve(root, path)));
+    if (digest(raw) !== hash) throw Error(`Changed complete v337 source graph: ${path}`);
   }
   receipt = candidate;
 }
 
 export function sourceAtBeforeV337(path: string, raw: Uint8Array): Uint8Array {
   if (!receipt || Object.hasOwn(receipt.additions, path)) throw Error(`Unknown exact v337 source bytes: ${path}`);
+  raw = sourceAtBeforeV338(path, raw);
   const changed = receipt.changes[path];
   if (!changed) return raw;
   if (digest(raw) === changed.before) return raw;
@@ -59,6 +64,7 @@ export function sourceAtBeforeV337(path: string, raw: Uint8Array): Uint8Array {
 
 export function projectSourceBeforeV337(source: string): string {
   if (!receipt) throw Error("Unverified v337 source layer");
+  source = projectSourceBeforeV338(source);
   const hash = digest(source);
   const rows = Object.entries(receipt.changes).filter(([, record]) => record.after === hash);
   if (!rows.length) return source;

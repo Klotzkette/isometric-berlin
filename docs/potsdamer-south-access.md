@@ -25,8 +25,9 @@ The operator separately lists four escalators at Pavillon Nord and connections
 from the Mittelpassarelle to Leipziger Straße and the S-Bahn platforms.
 The architect describes a separate rectangular void in the Passarelle and
 four regional station levels. Those sources establish the circulation topology.
-The north native pavilion still needs exact replacement ownership, and the
-passage and platforms need source-aligned footprints, levels and routes.
+The [east gallery of the Mittelpassarelle](potsdamer-mittelpassarelle.md) connects
+the two Leipziger Platz street stairs. The north native pavilion and the
+remaining links to the passage and platforms are outside that local route.
 [Operator's equipment register](https://sbahn.berlin/fahren/bahnhofsuebersicht/potsdamer-platz/?jumpTo=equipment) ·
 [Regional station architect](https://www.hoe-architects.com/projekte/regionalbahnhof-potsdamer-platz-berlin/)
 

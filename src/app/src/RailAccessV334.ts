@@ -25,6 +25,7 @@ export type RailAccessTerrainV334 = {
   ground(x: number, z: number): number | null;
   water(x: number, z: number): boolean;
   blocked(x: number, y: number, z: number): boolean;
+  ownsStair?(source: string): boolean;
   landing?(x: number, z: number, feetHint: number): number | null;
 };
 
@@ -197,7 +198,7 @@ export function createRailAccessV334() {
           lettering,
         });
       }
-      if (stair && !builtStairs.has(stair)) {
+      if (stair && !terrain.ownsStair?.(stair) && !builtStairs.has(stair)) {
         const details = stairs[stair];
         const rows = treadRows(sourceTreads(details, terrain), native);
         if (members.length + rows.length <= MAX_BOXES && rows.length) {

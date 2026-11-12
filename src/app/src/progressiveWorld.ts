@@ -1,3 +1,4 @@
+import type { NordbahnhofDrawnCuts } from "./NordbahnhofPublicAccess";
 import {
   PLAZA_FACADE_DETAIL_ZONES,
   type PlazaFacadeDetailZone,
@@ -113,6 +114,7 @@ type ProgressiveWorldWorkerInputBase = {
   hbfCirculationV291?: boolean;
   parliamentInteriorsV295?: boolean;
   parliamentaryDiningV296?: boolean;
+  nordbahnhofCuts?: NordbahnhofDrawnCuts;
   waterfrontV296?: boolean;
   potsdamerStationPhoto?: boolean;
   moabitMitteV300?: boolean; westKiezV302?: boolean; historicDomV288?: boolean; potsdamerCorridorV288?: boolean; chancelleryCanopySourceV289?: boolean;

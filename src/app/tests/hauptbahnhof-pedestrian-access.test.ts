@@ -13,6 +13,7 @@ import { visualModeWalkableInteriorAt } from "../src/visualModePedestrianAccess"
 import { createPedestrianRecoveryHistory, recoverPedestrian, rememberPedestrianRecoveryState } from "../src/pedestrianNavigation";
 import { HBF_CIRCULATION_V291 } from "../src/HbfCirculationV291";
 import { createHbfStationRuntimeV291 } from "../src/HbfStationMotionV291";
+import { hbfLiftLandings } from "../src/HbfLiftAccess";
 
 const MODES: readonly VisualMode[] = ["day", "night", "snowstorm", "minecraft", "schwellenraum", "flood"];
 const station = MINECRAFT_ARCHITECTURAL_PROFILES.hauptbahnhof;
@@ -52,6 +53,15 @@ function walkTo(state: PedestrianState, localX: number, localZ: number, environm
 }
 
 describe("Hauptbahnhof public entry in every visual mode", () => {
+  test("the unfiltered city terrain and LoD2 collision permit every lift exit in all six styles", () => {
+    for (const mode of MODES) {
+      const environment = environmentFor(mode);
+      for (const { point: [x, y, z] } of hbfLiftLandings) {
+        expect(environment.interiorGroundAt?.(x, z, y)).toBeCloseTo(y, 6);
+        expect(pedestrianPointIsBlocked(x, z, y, environment.obstacles, environment)).toBeFalse();
+      }
+    }
+  });
   test("local recovery stays on the actual source-bound gallery in all six modes", () => {
     for (const mode of MODES) {
       const environment = environmentFor(mode);

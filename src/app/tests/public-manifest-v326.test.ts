@@ -34,9 +34,9 @@ test("all206 parsed values and hash references remain exact; only finite named d
 });
 
 test("only measured static allowances grow; all transfer/residency/vertex/index live limits stay fixed",()=>{
- expect(SURROUNDING_CITY_MAX_DESCRIPTORS).toBe(2869);expect(SURROUNDING_CITY_MAX_FOOTPRINTS).toBe(2892);
- expect(SURROUNDING_CITY_MAX_MANIFEST_BYTES).toBe(3830*1024);
- expect(legacyBytes.byteLength).toBe(3853868);expect(body.byteLength).toBe(3920142);expect(SURROUNDING_CITY_MAX_MANIFEST_BYTES-body.byteLength).toBeLessThan(2048);
+ expect(SURROUNDING_CITY_MAX_DESCRIPTORS).toBe(2875);expect(SURROUNDING_CITY_MAX_FOOTPRINTS).toBe(2893);
+ expect(SURROUNDING_CITY_MAX_MANIFEST_BYTES).toBe(3836*1024);
+ expect(legacyBytes.byteLength).toBe(3853868);expect(body.byteLength).toBe(3927649);expect(SURROUNDING_CITY_MAX_MANIFEST_BYTES-body.byteLength).toBeLessThan(2048);
  expect(SURROUNDING_CITY_RESIDENT_BUDGET_BYTES).toBe(24*1024*1024);expect(SURROUNDING_CITY_MAX_CHUNK_BYTES).toBe(12*1024*1024);
  expect(SURROUNDING_CITY_PREFETCH_BYTES).toBe(4*1024*1024);expect(SURROUNDING_CITY_PREFETCH_COUNT).toBe(2);
  expect(SURROUNDING_CITY_SCAN_MS).toBe(180);expect(SURROUNDING_CITY_RETIRE_MS).toBe(1800);
@@ -52,6 +52,6 @@ test("actual bounded HTTP manifest loader admits the complete expanded metadata 
  const calls:string[]=[];
  const city=createSurroundingCity({manifestUrl:new URL("https://example.test/manifest.json"),camera,
   fetch:(async (input: URL | RequestInfo)=>{calls.push(String(input));if(!String(input).endsWith("manifest.json"))throw new Error("Unexpected geometry request");return new Response(body.toString(),{headers:{"Content-Type":"application/json"}});}) as typeof fetch});
- try{await city.ready;expect(city.manifest?.chunks).toHaveLength(2869);expect(city.residentChunkCount).toBe(0);expect(calls).toEqual(["https://example.test/manifest.json"]);expect(city.groundAt(100000000,100000000)).toBeNull();expect(city.solidAt(100000000,3,100000000,.4)).toBeFalse();}
+ try{await city.ready;expect(city.manifest?.chunks).toHaveLength(2875);expect(city.residentChunkCount).toBe(0);expect(calls).toEqual(["https://example.test/manifest.json"]);expect(city.groundAt(100000000,100000000)).toBeNull();expect(city.solidAt(100000000,3,100000000,.4)).toBeFalse();}
  finally{city.dispose();}
 },10000);

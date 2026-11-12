@@ -16,6 +16,16 @@ export function clipFidelityGroundSurfaceV296(source:BufferGeometry,admission:Gr
   return clipGroundSurfaceThroughOpenings(source, fidelityGroundOpeningsV296(admission));
 }
 
+function combinedOpeningBounds(cuts: readonly HbfOpeningV291[]): HbfBoxV291 {
+  const min: [number, number, number] = [Infinity, Infinity, Infinity];
+  const max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
+  for (const cut of cuts) for (let axis = 0; axis < 3; axis++) {
+    min[axis] = Math.min(min[axis], cut.bounds.min[axis]);
+    max[axis] = Math.max(max[axis], cut.bounds.max[axis]);
+  }
+  return { min, max };
+}
+
 export function clipGroundSurfaceThroughOpenings(source:BufferGeometry,cuts:readonly HbfOpeningV291[]):BufferGeometry{
   if(!cuts.length)return source;
   const pos=source.getAttribute("position"),index=source.getIndex(),count=index?.count??pos.count;
@@ -24,10 +34,13 @@ export function clipGroundSurfaceThroughOpenings(source:BufferGeometry,cuts:read
   if(attrs.some(a=>(a as BufferAttribute & {isFloat16BufferAttribute?:boolean}).isFloat16BufferAttribute)||source.groups.some(g=>g.start%3!==0||g.count%3!==0)||source.drawRange.start%3!==0||(Number.isFinite(source.drawRange.count)&&source.drawRange.count%3!==0))return source;
   let width=0;for(const a of attrs){offsets.push(width);width+=a.itemSize;}
   const changes=new Map<number,number[][]>();let added=0;
+  const bounds=combinedOpeningBounds(cuts);
   for(let i=0;i<count;i+=3){
     const ix=[0,1,2].map(j=>index?index.getX(i+j):i+j);
     const x=ix.map(k=>pos.getX(k)),y=ix.map(k=>pos.getY(k)),z=ix.map(k=>pos.getZ(k));
-    const local=cuts.filter(c=>Math.max(...x)>=c.bounds.min[0]&&Math.min(...x)<=c.bounds.max[0]&&Math.max(...y)>=c.bounds.min[1]&&Math.min(...y)<=c.bounds.max[1]&&Math.max(...z)>=c.bounds.min[2]&&Math.min(...z)<=c.bounds.max[2]);
+    const minX=Math.min(...x), maxX=Math.max(...x), minY=Math.min(...y), maxY=Math.max(...y), minZ=Math.min(...z), maxZ=Math.max(...z);
+    if(maxX<bounds.min[0]||minX>bounds.max[0]||maxY<bounds.min[1]||minY>bounds.max[1]||maxZ<bounds.min[2]||minZ>bounds.max[2])continue;
+    const local=cuts.filter(c=>maxX>=c.bounds.min[0]&&minX<=c.bounds.max[0]&&maxY>=c.bounds.min[1]&&minY<=c.bounds.max[1]&&maxZ>=c.bounds.min[2]&&minZ<=c.bounds.max[2]);
     if(!local.length)continue;
     const tri=ix.map(k=>attrs.flatMap(a=>Array.from({length:a.itemSize},(_,j)=>a.getComponent(k,j))));
     const pieces=hbfPolygonComplementV291(tri,local);if(!pieces)continue;
@@ -75,9 +88,11 @@ export function clipGroundSlabsThroughOpenings(
 ): boolean {
   if(!cuts.length)return false;
   const old=slabs.instanceMatrix.array,oldColors=slabs.instanceColor?.array;
+  const bounds=combinedOpeningBounds(cuts);
   const changed=new Map<number,HbfBoxV291[]|BufferGeometry>();let total=0;
   for(let i=0;i<slabs.count;i++){
     const at=i*16,x=old[at+12],y=old[at+13],z=old[at+14],hx=old[at]/2,hy=old[at+5]/2,hz=old[at+10]/2;
+    if(x+hx<=bounds.min[0]||x-hx>=bounds.max[0]||y+hy<=bounds.min[1]||y-hy>=bounds.max[1]||z+hz<=bounds.min[2]||z-hz>=bounds.max[2])continue;
     const local=cuts.filter(c=>x+hx>c.bounds.min[0]&&x-hx<c.bounds.max[0]&&y+hy>c.bounds.min[1]&&y-hy<c.bounds.max[1]&&z+hz>c.bounds.min[2]&&z-hz<c.bounds.max[2]);
     if(!local.length)continue;
     if(native){

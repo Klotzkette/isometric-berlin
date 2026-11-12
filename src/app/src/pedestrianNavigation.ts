@@ -377,6 +377,8 @@ export type PedestrianEnvironment = {
     radius?: number,
   ) => boolean;
   /** Optional mode-authored stairs, ramps and interior floor elevations. */
+  /** Site-specific terrain below a verified public camera opening. */
+  flightGroundAt?: (x: number, y: number, z: number) => number | null;
   interiorGroundAt?: (
     x: number,
     z: number,

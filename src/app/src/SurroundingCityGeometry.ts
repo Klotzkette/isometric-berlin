@@ -390,7 +390,9 @@ export function* buildSurroundingCityChunk(
   }
   let gardenTerrainV330: DataView | undefined;
   if (chunk.gardenTerrainV330 !== undefined) {
-    if (!/^gardens330-\d+_-?\d+$/.test(id)) throw Error("Unexpected Kienberg terrain owner");
+    if (!/^gardens330-\d+_-?\d+$/.test(id) && !/^tegeler-forst--1[45]_-1[678]$/.test(id)) {
+      throw Error("Unexpected measured terrain owner");
+    }
     gardenTerrainV330 = decodeGardenTerrainV330(chunk.gardenTerrainV330, minecraft);
   }
   // The main viewer supplies its finite weak catalogue. Core workers that do

@@ -1,0 +1,72 @@
+{
+  "additions": {
+    "src/app/src/HbfLiftAccess.ts": "3c580459aaeb5a9cde46623bd2bbebbfc704a4a3139f9c2c36f9a1c33955d968",
+    "src/app/src/NordbahnhofNavigation.ts": "dfe7a66e247c104e5863cdda7c3d8119ee5d86e49c41e3f2465ffc34e4ca416d",
+    "src/app/src/NordbahnhofPublicAccess.ts": "9742c073def2ca3ddfb65504a645db1674867a234f4845ef8f08009dcf381881",
+    "src/app/src/NordbahnhofPublicGround.ts": "de43718c4e8d876321bba0069ed3368a08adc90a5dc99e712f777b3f8b41b5e8",
+    "src/app/src/PotsdamerPassarelle.ts": "09bfd28c75ac6f315c6dcc184b18e404d862af7dd963ca539d20659c05880a46",
+    "src/app/src/data/nordbahnhofPublicAccess.json": "1e66b743dd31e4473974e1588c5d8c64a47b5fbf9c9d381672ec9ad7f3ef92f2"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "a1bad6bdffe10780823b51ceb2ce1c3e89ae0da5fc078b9ce69f3c1d43681bc1",
+      "after": "4921caf4d2e497ffc06794be3beab2346096c42315ec40146ae79c73c85dc925"
+    },
+    "src/app/src/FidelityGroundOpeningsV296.ts": {
+      "before": "4632ec999c60d910afdf7873356c30108f19227e6ffb45ba2d98dd7ff4d609e7",
+      "after": "a7bbe8d67c9c5321d9d84c82c4e54af4c78d81c95d952b4e8b1fffcdffc76538"
+    },
+    "src/app/src/HbfStationMotionV291.ts": {
+      "before": "1d2403e02e0771b1ad1741aebaf77c10436aeff549f0a1843f3d7debde425f44",
+      "after": "58aa78e1ff3b65a90c960bff1f6119197909247c699169ab6c53694ef36f2aa1"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "a7e84f217b64267812f97e3c7a2dd0b4b45b3d28444c1e080e5b18f009a06748",
+      "after": "a0774ed39a2c25d46cfb4077f8a3e6149f2a71ce31b621c8c8aaee6ce9dafebd"
+    },
+    "src/app/src/MinecraftVoxelWorld.ts": {
+      "before": "6e44e1a355b25333711dd6f60183df62505310301de52aa2e588b074426f2f69",
+      "after": "6daed75e0243d031e7cb170b61c7c8d79518ed56d43efc37bf12f9ef4d05081d"
+    },
+    "src/app/src/PotsdamerSouthGround.ts": {
+      "before": "3bf327fb0889d8ae9f9e782923631efc79982b993fd16e4cfb78ba0a35f04d79",
+      "after": "b5105fa2812afdae55e333ecf25af662056bbecec9979dbc12a6e589df0346c2"
+    },
+    "src/app/src/RailAccessV334.ts": {
+      "before": "8b09890578c42efbe781fe7d6dd486004835fad9442ce097ebc4691c2474b7b5",
+      "after": "a41d7e2d61f2486ed887c9da5492f1ef12156ff854129451cfd5cc0f724ed2c3"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "before": "75ab94e485b53461d2638ff51d0b3400bb9e26873438609b6cd51c66c97ebaa9",
+      "after": "71f3c1b9bff86cb36ec8fc1c9bd8a657dc05f6d8ac8124a5a8fca135678df066"
+    },
+    "src/app/src/SurroundingCityGeometry.ts": {
+      "before": "f6e432c9d61e42478bb5977969c02503f56da821737f1fb98fc0dea6ddafda10",
+      "after": "4cfa57a0a103504c7b9a8e6e74e99d30dab1e4ad253cf9d18f22cfc4f4a5973e"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "b34578d5b26fb5ceb382a2a8d81e5ec38f3218bb16b7dd94aef1fdd574395768",
+      "after": "a7cac40d2d535952b200417977f3d889788fa91c7a20bcb044f46795086a6a09"
+    },
+    "src/app/src/pedestrianNavigation.ts": {
+      "before": "329cd899b2c1d34b738f687d75ee4919780ab23cd9919842d65e3181fa28f055",
+      "after": "9761e5d09070e43a85364c9f5515968b24cce5e717457895221650ddc89a79d6"
+    },
+    "src/app/src/progressiveBuildingCoverage.ts": {
+      "before": "74d54ae15eb4533c69422f6c3c08277977b24db74e381a15f98dff450952eb00",
+      "after": "5a44e3670f775ea81e6269b8a7a84d607eec09c32d328934114cba2117ed0ebc"
+    },
+    "src/app/src/progressiveWorld.ts": {
+      "before": "79ab3c89372d28f528e2df1214296ee89afd27a08f4a9d35c92b607b7b3f5fb5",
+      "after": "492dce6c7adc9ded6cd2138bea44a485ceac893b7ec0372a5a7b11387e1c7952"
+    },
+    "src/app/src/progressiveWorld.worker.ts": {
+      "before": "e2c3466270ec48bba1f233d16bf291cb3dc72447621a12a278e2a974a9a4e176",
+      "after": "2287604fe0f686408222f9894fa8e84db4524a7d018aa31dd2ef7093b88733db"
+    },
+    "src/app/src/schwellenraumNavigation.ts": {
+      "before": "4052e56524d215c82478eb89d5582371300a48909eb2d42d8e74788a6573dab2",
+      "after": "95db327ba26cf3579744b57a5bf3570d29017cb89b83ab058867eb9201ae7541"
+    }
+  }
+}

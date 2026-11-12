@@ -1,3 +1,4 @@
+import type { NordbahnhofNativeCuts } from "./NordbahnhofPublicAccess";
 import {createNativeStateRepresentationsV321} from "./StateRepresentationsV321";
 import {hasCompleteNeukoellnLandmarksV305} from "./NeukoellnLandmarksV305";
 import {applyNeukoellnLegacyV227V305} from "./NeukoellnLandmarksV305Previous";
@@ -369,6 +370,7 @@ import {
 } from "./TunnelPortals";
 
 export type MinecraftVoxelWorldOptions = {
+  nordbahnhofCuts?: NordbahnhofNativeCuts;
   wilhelmStreetFrontsV325?:boolean;
   wilhelmHousingV324?: boolean;
   currentSitesV311?: boolean;
@@ -2821,6 +2823,8 @@ export function* buildMinecraftVoxelWorldSteps(
   reportBuildStep(3);
   const visibleBuildingColumns: VoxelBuildingColumn[] = [];
   const parliamentOriginalColumnsV295 = new Map<string,VoxelBuildingColumn>();
+  const nordbahnhofColumnCuts = new Map<number, readonly import("./HbfGeometryOpeningsV291").HbfOpeningV291[]>();
+  const nordbahnhofColumnKey = (x: number, z: number) => x * 65536 + z;
   const diningColumnCutsV296=createDiningColumnOpeningsV296((options.sourcePrisms??[]) as readonly DiningPrismV296[],cell,fidelityV288.parliamentaryDining);
   const diningOriginalColumnsV296=new Map<string,VoxelBuildingColumn>();
   const waterfrontColumnCutsV296=createWaterfrontColumnOpeningsV296((options.sourcePrisms??[]) as readonly WaterfrontPrismV296[],cell,fidelityV288.waterfront);
@@ -2830,6 +2834,8 @@ export function* buildMinecraftVoxelWorldSteps(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
+    const stationCuts = options.nordbahnhofCuts?.(xIdx, zIdx, y0dm, y1dm, classId);
+    if (stationCuts?.length) nordbahnhofColumnCuts.set(nordbahnhofColumnKey(xIdx, zIdx), stationCuts);
     if(waterfrontColumnCutsV296(xIdx,zIdx,y0dm,y1dm,classId).length)waterfrontOriginalColumnsV296.set(`${xIdx},${zIdx}`,[xIdx,zIdx,y0dm,y1dm,classId]);
     if(diningColumnCutsV296(xIdx,zIdx,y0dm,y1dm,classId).length)diningOriginalColumnsV296.set(`${xIdx},${zIdx}`,[xIdx,zIdx,y0dm,y1dm,classId]);
     if (parliamentInteriorsV295 && parliamentNativeColumnAdmittedV295(xIdx,zIdx,y0dm,y1dm,classId)) parliamentOriginalColumnsV295.set(`${xIdx},${zIdx}`,[xIdx,zIdx,y0dm,y1dm,classId]);
@@ -2960,6 +2966,7 @@ export function* buildMinecraftVoxelWorldSteps(
   type ParliamentLayerV295 = { box:HbfBoxV291; paint:"facade"|"plinth"|"cap" };
   const parliamentLayersV295 = new Map<number,ParliamentLayerV295[]>();
   let buildingLayerCount = 0;
+  let nordbahnhofOpenedColumns = 0;
   for (let i = 0; i < visibleBuildingColumns.length; i += 1) {
     if (i % 2048 === 0) yield;
     const [xIdx, zIdx, y0dm, y1dm] = visibleBuildingColumns[i];
@@ -2972,36 +2979,50 @@ export function* buildMinecraftVoxelWorldSteps(
         : y1dm / 10;
     const height = Math.max(cell, roofTopY - y0dm / 10);
     const heroSource = isMinecraftHeroSourceCourseArea(recognitionArea) || parliamentOriginalColumnsV295.has(`${xIdx},${zIdx}`) || diningOriginalColumnsV296.has(`${xIdx},${zIdx}`) || waterfrontOriginalColumnsV296.has(`${xIdx},${zIdx}`);
-    if (mobileDetail && !heroSource) {
-      const mappedRoof = toneLookup?.roofToneAt ? toneLookup.roofToneAt(worldX, worldZ) : mappedRoofTone(toneLookup?.attributesAt?.(worldX, worldZ));
-      buildingLayerCount += mappedRoof !== undefined && height > 5 ? 2 : 1;
-      continue;
-    }
-    const capHeight = height > 5 ? 1 : 0;
-    const plinthHeight = height > 8 ? 1 : 0;
+    const stationCuts = nordbahnhofColumnCuts.get(nordbahnhofColumnKey(xIdx, zIdx));
+    const original = parliamentOriginalColumnsV295.get(`${xIdx},${zIdx}`);
+    const diningOriginal = diningOriginalColumnsV296.get(`${xIdx},${zIdx}`);
+    const waterfrontOriginal = waterfrontOriginalColumnsV296.get(`${xIdx},${zIdx}`);
+    const mobileColumn = mobileDetail && !heroSource;
+    const mappedRoof = mobileColumn
+      ? (toneLookup?.roofToneAt ? toneLookup.roofToneAt(worldX, worldZ) : mappedRoofTone(toneLookup?.attributesAt?.(worldX, worldZ)))
+      : undefined;
+    const capHeight = mobileColumn ? (mappedRoof !== undefined && height > 5 ? .4 : 0) : height > 5 ? 1 : 0;
+    const plinthHeight = !mobileColumn && height > 8 ? 1 : 0;
     const bodyHeight = height - capHeight - plinthHeight;
     const bodyCourseCount = heroSource
       ? Math.max(1, Math.ceil(bodyHeight / MINECRAFT_HERO_SOURCE_COURSE_MAX_M))
       : 1;
-    const original = parliamentOriginalColumnsV295.get(`${xIdx},${zIdx}`),diningOriginal=diningOriginalColumnsV296.get(`${xIdx},${zIdx}`),waterfrontOriginal=waterfrontOriginalColumnsV296.get(`${xIdx},${zIdx}`);
-    if (original || diningOriginal || waterfrontOriginal) {
-      const layers:ParliamentLayerV295[]=[]; let changed=false;
-      const add=(bottom:number,top:number,paint:ParliamentLayerV295["paint"])=>{
-        const box:HbfBoxV291={min:[worldX-cell/2,bottom,worldZ-cell/2],max:[worldX+cell/2,top,worldZ+cell/2]};
-        const parliamentParts=original?parliamentNativeColumnComplementV295(box,...original,true):[box];
-        const diningParts=diningOriginal?parliamentParts.flatMap(part=>diningNativeBoxFragmentsV296(part,diningColumnCutsV296(...diningOriginal))):parliamentParts;
-        const fragments=waterfrontOriginal?diningParts.flatMap(part=>hbfBoxFragmentsV291(part,waterfrontColumnCutsV296(...waterfrontOriginal))):diningParts;
-        if(fragments.length!==1||fragments[0]!==box)changed=true;
-        for(const fragment of fragments)layers.push({box:fragment,paint});
+    if (original || diningOriginal || waterfrontOriginal || stationCuts) {
+      const layers: ParliamentLayerV295[] = [];
+      let changed = false, stationChanged = false;
+      const add = (bottom: number, top: number, paint: ParliamentLayerV295["paint"]) => {
+        const box: HbfBoxV291 = { min: [worldX - cell / 2, bottom, worldZ - cell / 2], max: [worldX + cell / 2, top, worldZ + cell / 2] };
+        const parliamentParts = original ? parliamentNativeColumnComplementV295(box, ...original, true) : [box];
+        const diningParts = diningOriginal ? parliamentParts.flatMap(part => diningNativeBoxFragmentsV296(part, diningColumnCutsV296(...diningOriginal))) : parliamentParts;
+        const waterfrontParts = waterfrontOriginal ? diningParts.flatMap(part => hbfBoxFragmentsV291(part, waterfrontColumnCutsV296(...waterfrontOriginal))) : diningParts;
+        const fragments = stationCuts ? waterfrontParts.flatMap(part => {
+          const complement = hbfBoxFragmentsV291(part, stationCuts);
+          if (complement.length !== 1 || complement[0] !== part) stationChanged = true;
+          return complement;
+        }) : waterfrontParts;
+        if (fragments.length !== 1 || fragments[0] !== box) changed = true;
+        for (const fragment of fragments) layers.push({ box: fragment, paint });
       };
-      const y0=y0dm/10,dy=bodyHeight/bodyCourseCount;
-      if(plinthHeight>0)add(y0,y0+plinthHeight,"plinth");
-      for(let course=0;course<bodyCourseCount;course++){
-        const centre=y0+plinthHeight+(course+.5)*dy,h=bodyCourseCount>1?Math.max(.08,dy-.08):dy;
-        add(centre-h/2,centre+h/2,"facade");
+      const y0 = y0dm / 10, dy = bodyHeight / bodyCourseCount;
+      if (plinthHeight > 0) add(y0, y0 + plinthHeight, "plinth");
+      for (let course = 0; course < bodyCourseCount; course++) {
+        const centre = y0 + plinthHeight + (course + .5) * dy;
+        const h = bodyCourseCount > 1 ? Math.max(.08, dy - .08) : dy;
+        add(centre - h / 2, centre + h / 2, "facade");
       }
-      if(capHeight>0)add(y0+height-capHeight,y0+height,"cap");
-      if(changed){parliamentLayersV295.set(i,layers);buildingLayerCount+=layers.length;continue;}
+      if (capHeight > 0) add(y0 + height - capHeight, y0 + height, "cap");
+      if (stationChanged) nordbahnhofOpenedColumns++;
+      if (changed) {
+        parliamentLayersV295.set(i, layers);
+        buildingLayerCount += layers.length;
+        continue;
+      }
     }
     buildingLayerCount +=
       bodyCourseCount + (plinthHeight > 0 ? 1 : 0) + (capHeight > 0 ? 1 : 0);
@@ -3020,6 +3041,7 @@ export function* buildMinecraftVoxelWorldSteps(
   );
   group.add(buildings.mesh);
   applyMinecraftColumnDetail(buildings.mesh.material as MeshStandardMaterial, cell);
+  group.userData.nordbahnhofOpenedColumns = nordbahnhofOpenedColumns;
   buildings.mesh.userData.parliamentOpenColumnCountV295 = parliamentLayersV295.size;
   buildings.mesh.userData.buildingDetail = {
     sourceEnvelope: "unchanged retained LoD2 voxel columns",
@@ -3058,7 +3080,7 @@ export function* buildMinecraftVoxelWorldSteps(
       tone !== null
         ? facadePaint.setHex(tone)
         : shadeFor(shades, xIdx, zIdx, Math.round(height / cell), facadePaint);
-    if (mobileDetail && !heroSource) {
+    if (mobileDetail && !heroSource && !parliamentLayersV295.has(i)) {
       const mappedCap = sourceRoofTone !== undefined && height > 5 ? 0.4 : 0;
       center.set(worldX, y0 + (height - mappedCap) / 2, worldZ);
       size.set(cell, height - mappedCap, cell);

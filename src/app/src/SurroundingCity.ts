@@ -38,11 +38,11 @@ export const SURROUNDING_CITY_SCAN_MS = 180;
 export const SURROUNDING_CITY_RETIRE_MS = 1_800;
 export const SURROUNDING_CITY_RESIDENT_BUDGET_BYTES = 24 * 1024 * 1024;
 export const SURROUNDING_CITY_MAX_CHUNK_BYTES = 12 * 1024 * 1024;
-// The Gärten der Welt, Kienberg, Jungfernheide and Tegeler Fließ descriptors extend static
+// The added landscape descriptors extend static
 // metadata only. The resident geometry, transfer and prefetch limits are fixed.
-export const SURROUNDING_CITY_MAX_DESCRIPTORS = 2_869;
-export const SURROUNDING_CITY_MAX_FOOTPRINTS = 2_892;
-export const SURROUNDING_CITY_MAX_MANIFEST_BYTES = 3830 * 1024;
+export const SURROUNDING_CITY_MAX_DESCRIPTORS = 2_875;
+export const SURROUNDING_CITY_MAX_FOOTPRINTS = 2_893;
+export const SURROUNDING_CITY_MAX_MANIFEST_BYTES = 3836 * 1024;
 // Hosted delta packets add one bounded length to each changed descriptor.
 const SURROUNDING_CITY_MAX_HOSTED_MANIFEST_BYTES = SURROUNDING_CITY_MAX_MANIFEST_BYTES + 64 * 1024;
 export const SURROUNDING_CITY_MANIFEST_RETRY_MS = [500, 1_500] as const;

@@ -30,7 +30,9 @@ import { admitsChancelleryCanopyLegacyV289, setChancelleryCanopyLegacyV289 } fro
 import { prepareRequiredFidelityV288 } from "./RequiredFidelityV288";
 import { ubahnV281FloorAt, ubahnV281SolidAt } from "./ubahnEntrancesV281Profile";
 import { canReplacePotsdamerSouthStationPhoto } from "./potsdamerStationPhotoOwnership";
-import { cutPotsdamerSouthGround } from "./PotsdamerSouthGround";
+import { currentNordbahnhofPlan, installNordbahnhofNavigation, NORDBAHNHOF_PUBLIC_STAIR, registerNordbahnhofPublicAccess } from "./NordbahnhofNavigation";
+import { addPotsdamerPassarelle, cutPotsdamerPassarelleGround, cutPotsdamerSouthGround } from "./PotsdamerSouthGround";
+import { installPotsdamerPassarelleNavigation, potsdamerPassarelleFlightAt } from "./PotsdamerPassarelle";
 import { installPotsdamerSouthNavigation, potsdamerSouthFlightAt } from "./PotsdamerSouthAccess";
 import { cutUbahnPresentationV281 } from "./UbahnSurfaceAperturesV281";
 import { prenzlbergV264GroundAt, prenzlbergV264SolidAt, prenzlbergV264TerrainAt } from "./prenzlbergV264Navigation";
@@ -471,7 +473,8 @@ import {
 } from "./terrainPayload";
 import { setMinecraftArchitecturePresentation } from "./MinecraftArchitecturalLandmarks";
 import { hauptbahnhofGroundAt, hauptbahnhofSolidAt, hauptbahnhofCirculationBoundsAt } from "./HauptbahnhofNavigation";
-import { createHbfStationRuntimeV291 } from "./HbfStationMotionV291";
+import { createHbfStationRuntimeV291, type HbfLiftRide } from "./HbfStationMotionV291";
+import { hbfLiftCabinPosition, hbfLiftLanding, hbfLiftLandingNear, type HbfLiftLanding } from "./HbfLiftAccess";
 import {
   applyMinecraftVisibility,
   minecraftOwnsVisibility,
@@ -764,6 +767,16 @@ type PedestrianRuntime = {
   savedPose: CameraPose | null;
   savedUnderside: boolean;
   state: PedestrianState | null;
+};
+
+type HbfLiftPanel = HbfLiftLanding & { ride?: "waiting" | "riding"; destination?: number };
+const HBF_LIFT_LEVEL_LABELS = {
+  de: ["2. OG · Gleise 11–16", "1. OG · Läden", "EG · Ausgänge", "1. UG · Läden", "2. UG · Gleise 1–8"],
+  en: ["Level 2 · Tracks 11–16", "Level 1 · Shops", "Ground floor · Exits", "Level −1 · Shops", "Level −2 · Tracks 1–8"],
+};
+const HBF_LIFT_LEVEL_SHORT = {
+  de: ["2. OG", "1. OG", "EG", "1. UG", "2. UG"],
+  en: ["L2", "L1", "G", "L−1", "L−2"],
 };
 
 type ProgressiveWorldAttachMessage = Exclude<
@@ -1077,6 +1090,15 @@ function schwellenraumMovingRoots(runtime: Runtime): Object3D[] {
   return roots;
 }
 
+function nordbahnhofPlan(runtime: Runtime) {
+  return currentNordbahnhofPlan(voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld);
+}
+
+function potsdamerPassarelleAccessActive(runtime: Runtime): boolean {
+  const world = voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld;
+  return world?.userData.potsdamerPassarellePublicAccess === true;
+}
+
 function potsdamerSouthAccessActive(runtime: Runtime): boolean {
   const world = voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld;
   return world?.userData.potsdamerSouthPublicAccess === true;
@@ -1087,7 +1109,9 @@ function surfaceCameraTunnelExemption(runtime: Runtime): boolean {
   const p = runtime.camera.position;
   return runtime.tunnelPortalInteriorVisible ||
     hauptbahnhofCirculationBoundsAt(p.x, p.y, p.z) ||
+    nordbahnhofPlan(runtime)?.inAir(p.x, p.y, p.z) === true ||
     (potsdamerSouthAccessActive(runtime) && potsdamerSouthFlightAt(p.x, p.y, p.z)) ||
+    (potsdamerPassarelleAccessActive(runtime) && potsdamerPassarelleFlightAt(p.x, p.y, p.z)) ||
     runtime.tunnelInteriorAt?.(p.x, p.y, p.z) === true;
 }
 
@@ -1368,11 +1392,14 @@ function applyPedestrianCamera(runtime: Runtime): boolean {
   const directionX = Math.sin(state.yaw) * horizontal;
   const directionY = Math.sin(state.pitch);
   const directionZ = -Math.cos(state.yaw) * horizontal;
-  runtime.camera.position.set(
-    state.x,
-    state.groundY + PEDESTRIAN_EYE_HEIGHT_M + state.jumpOffset,
-    state.z,
-  );
+  const motion = runtime.hbfStationV291;
+  const ride = motion?.liftRide;
+  if (motion && ride?.phase === "riding") {
+    const [x, y, z] = hbfLiftCabinPosition(ride.shaftIndex, motion.liftCabinFloor(ride.shaftIndex));
+    runtime.camera.position.set(x, y + PEDESTRIAN_EYE_HEIGHT_M, z);
+  } else {
+    runtime.camera.position.set(state.x, state.groundY + PEDESTRIAN_EYE_HEIGHT_M + state.jumpOffset, state.z);
+  }
   runtime.controls.target.set(
     runtime.camera.position.x + directionX * PEDESTRIAN_VIEW_DISTANCE_M,
     runtime.camera.position.y + directionY * PEDESTRIAN_VIEW_DISTANCE_M,
@@ -1383,6 +1410,19 @@ function applyPedestrianCamera(runtime: Runtime): boolean {
   runtime.renderInvalidated = true;
   runtime.pedestrian.cameraDirty = false;
   return true;
+}
+
+function stationLiftExit(runtime: Runtime, shaftIndex: number, levelIndex: number): PedestrianState | null {
+  const { environment, state } = runtime.pedestrian;
+  if (!environment || !state) return null;
+  const [x, y, z] = hbfLiftLanding(shaftIndex, levelIndex);
+  const ground = environment.interiorGroundAt?.(x, z, y);
+  if (ground == null || Math.abs(ground - y) > .12 ||
+    pedestrianPointIsBlocked(x, z, ground, environment.obstacles, environment)) return null;
+  return {
+    x, z, groundY: ground, groundLayer: "surface", insideTunnel: false, grounded: true,
+    jumpOffset: 0, verticalVelocity: 0, yaw: state.yaw, pitch: state.pitch,
+  };
 }
 
 function activatePedestrianMode(runtime: Runtime): boolean {
@@ -1460,6 +1500,7 @@ function syncPedestrianTunnelPresentation(
 }
 
 function deactivatePedestrianMode(runtime: Runtime): boolean {
+  runtime.hbfStationV291?.cancelLiftRide();
   runtime.pedestrian.requested = false;
   if (!runtime.pedestrian.enabled) {
     return false;
@@ -1492,7 +1533,7 @@ function nudgePedestrian(
 ): boolean {
   const environment = runtime.pedestrian.environment;
   let state = runtime.pedestrian.state;
-  if (!runtime.pedestrian.enabled || !environment || !state) {
+  if (!runtime.pedestrian.enabled || !environment || !state || runtime.hbfStationV291?.liftRide) {
     return false;
   }
   const wasInsideTunnel = state.insideTunnel;
@@ -1524,7 +1565,7 @@ function nudgePedestrian(
 
 function triggerPedestrianJump(runtime: Runtime, higher = false): boolean {
   const state = runtime.pedestrian.state;
-  if (!runtime.pedestrian.enabled || !state) {
+  if (!runtime.pedestrian.enabled || !state || runtime.hbfStationV291?.liftRide) {
     return false;
   }
   const next = jumpPedestrian(state, higher);
@@ -3873,6 +3914,9 @@ async function attachProgressiveWorldMessage(
     cutUbahnPresentationV261(object, false);
     cutUbahnPresentationV281(object, false);
     if (runtime.isoWorld.userData.potsdamerSouthPublicAccess) cutPotsdamerSouthGround(object, false, false);
+    if (runtime.isoWorld.userData.potsdamerPassarellePublicAccess) cutPotsdamerPassarelleGround(object, false);
+    const nordbahnhof = currentNordbahnhofPlan(runtime.isoWorld);
+    if (nordbahnhof) nordbahnhof.cutGround(object);
   }
   setIsoNightPresentation(
     object,
@@ -4474,6 +4518,8 @@ function prepareIsoNavigation(
   installNorthernNavigationV309(runtime,pedestrianEnvironment);
   installGovernmentNavigationV321(runtime,pedestrianEnvironment);
   installPotsdamerSouthNavigation(pedestrianEnvironment, () => potsdamerSouthAccessActive(runtime), () => voxelModeActive(runtime));
+  installPotsdamerPassarelleNavigation(pedestrianEnvironment, () => potsdamerPassarelleAccessActive(runtime), () => voxelModeActive(runtime));
+  installNordbahnhofNavigation(pedestrianEnvironment, () => nordbahnhofPlan(runtime));
   return { environment: pedestrianEnvironment, installWorldDetails };
 }
 
@@ -4645,6 +4691,9 @@ function ensureIsoWorld(
       const fidelityV288 = prepareRequiredFidelityV288(prisms, ground, false, admitsChancelleryCanopyLegacyV289(runtime.signatures),runtime.coarsePointer,true,true);
       provisionalIsoWorld = fidelityV288.root;
       const stationPhotoAdmitted = canReplacePotsdamerSouthStationPhoto(prisms.buildings);
+      const nordbahnhofModule = ground && surfaces ? await import("./NordbahnhofPublicAccess") : null;
+      if (runtime.disposed || runtime.loadSignal.aborted || !isoWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
+      const nordbahnhof = nordbahnhofModule?.prepareNordbahnhofDrawn(prisms.buildings, ground) ?? null;
       const hbfCirculationV291 = runtime.signatures.children.some(model => model.userData.hbfMotionFrameV291?.native === false);
       const parliamentInteriorsV295 = runtime.signatures.children.some(model=>model.userData.parliamentInteriorsV295 === true && model.userData.native === false) && parliamentSourceOwnersAdmittedV295(prisms.buildings);
       let berlinMonumentsV322:Group|null=null;
@@ -4694,6 +4743,7 @@ function ensureIsoWorld(
             buildingPartition.omitted.length > 0
             ? {
                 detailProfile: "mobile",
+                nordbahnhofCuts: nordbahnhof?.cuts,
                 moabitMitteV300:fidelityV288.moabitMitte, westKiezV302:fidelityV288.westKiez, hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
                 groundUrl: new URL(GROUND_CONTEXT_FILE, runtime.sceneRootUrl).toString(),
                 surfacesUrl: new URL(SURFACE_WORLD_FILE, runtime.sceneRootUrl).toString(),
@@ -4710,6 +4760,7 @@ function ensureIsoWorld(
           : ground && surfaces
             ? {
                 detailProfile: "full",
+                nordbahnhofCuts: nordbahnhof?.cuts,
                 moabitMitteV300:fidelityV288.moabitMitte, westKiezV302:fidelityV288.westKiez, hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
                 groundUrl: new URL(
                   GROUND_CONTEXT_FILE,
@@ -4742,6 +4793,7 @@ function ensureIsoWorld(
           surfaces,
           {
             buildings: initialBuildings,
+            nordbahnhofCuts: nordbahnhof?.cuts,
             federalStateFittingsV321: (site, style) => createStateRepresentationFittingsV321(site, prisms.buildings, style),
             moabitMitteV300:fidelityV288.moabitMitte, westKiezV302:fidelityV288.westKiez, hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy,
             includeLegacyChariteFacade: false,
@@ -4947,6 +4999,15 @@ function ensureIsoWorld(
           cutUbahnPresentationV261(isoWorld, false);
           cutUbahnPresentationV281(isoWorld, false);
           if (stationPhotoAdmitted) cutPotsdamerSouthGround(isoWorld, false, true);
+          addPotsdamerPassarelle(isoWorld, false);
+          if (nordbahnhof && nordbahnhofModule) {
+            const model = nordbahnhofModule.buildNordbahnhofPublicAccess(nordbahnhof.plan);
+            if (!nordbahnhof.plan.cutGround(isoWorld)) {
+              disposeObject3D(runtime, model);
+              throw new Error("Nordbahnhof source ground aperture was not created");
+            }
+            registerNordbahnhofPublicAccess(isoWorld, model, nordbahnhof.plan);
+          }
           yield;
           isoWorld.add(createSpreeRailings(ground));
           yield;
@@ -4959,7 +5020,7 @@ function ensureIsoWorld(
           yield;
           pendingPathTerrainAt = prepareDistrictPathTerrain(ground, runtime.tunnelPortalCourse);
         }
-        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { moabitMitteV300:fidelityV288.moabitMitte, westKiezV302:fidelityV288.westKiez, hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
+        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { nordbahnhofCuts: nordbahnhof?.cuts, moabitMitteV300:fidelityV288.moabitMitte, westKiezV302:fidelityV288.westKiez, hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
         yield;
         isoWorld.add(komischeOper.createKomischeOperSourceGeometry());
         yield;
@@ -5509,6 +5570,8 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
   installNorthernNavigationV309(runtime,environment);
   installGovernmentNavigationV321(runtime,environment);
   installPotsdamerSouthNavigation(environment, () => potsdamerSouthAccessActive(runtime), () => voxelModeActive(runtime));
+  installPotsdamerPassarelleNavigation(environment, () => potsdamerPassarelleAccessActive(runtime), () => voxelModeActive(runtime));
+  installNordbahnhofNavigation(environment, () => nordbahnhofPlan(runtime));
   return environment;
 }
 
@@ -5632,6 +5695,10 @@ function ensureVoxelWorld(
         runtime.voxelWorldState = "idle";
         return;
       }
+
+      const nordbahnhofModule = prisms ? await import("./NordbahnhofPublicAccess") : null;
+      if (runtime.disposed || runtime.loadSignal.aborted || !voxelWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
+      const nordbahnhof = nordbahnhofModule?.prepareNordbahnhofNative(prisms?.buildings, payload) ?? null;
       provisionalVoxelWorld = new Group();
       await completeCooperatively(
         buildMinecraftVoxelWorldSteps(
@@ -5641,6 +5708,7 @@ function ensureVoxelWorld(
           runtime.tunnelPortalCourse,
           {
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
+            nordbahnhofCuts: nordbahnhof?.cuts,
             sourcePrisms: prisms?.buildings,
             neighbourhoodV300: true,
             districtCourtDetailsV333: true,
@@ -5661,6 +5729,16 @@ function ensureVoxelWorld(
         },
       );
       if (provisionalVoxelWorld.userData.potsdamerStationPhoto) cutPotsdamerSouthGround(provisionalVoxelWorld, true, true);
+      addPotsdamerPassarelle(provisionalVoxelWorld, true);
+      if (nordbahnhof && nordbahnhofModule) {
+        const model = nordbahnhofModule.buildNordbahnhofPublicAccess(nordbahnhof.plan);
+        if (provisionalVoxelWorld.userData.nordbahnhofOpenedColumns !== nordbahnhof.expectedColumns ||
+            !nordbahnhof.plan.cutGround(provisionalVoxelWorld)) {
+          disposeObject3D(runtime, model);
+          throw new Error("Nordbahnhof native source openings were incomplete");
+        }
+        registerNordbahnhofPublicAccess(provisionalVoxelWorld, model, nordbahnhof.plan);
+      }
       // Finish source-bound matrix corrections, then retire the complete
       // immutable backing before navigation and companion fields allocate.
       await completeCooperatively(sitesV209.addRequiredSiteEnvelopesV209Steps(provisionalVoxelWorld, true), {
@@ -6639,6 +6717,30 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
     const [sectionViewV319, setSectionViewV319] = useState<ReichstagSectionViewV319>(reichstagSectionView);
     const [startupWork, setStartupWork] = useState<StartupWorkV309 | null>(null);
     const [presentationReady, setPresentationReady] = useState(false);
+    const [liftPanel, setLiftPanel] = useState<HbfLiftPanel | null>(null);
+    const liftPanelRef = useRef<HbfLiftPanel | null>(null);
+    const lastLiftCabinY = useRef<number | null>(null);
+
+    const showLiftPanel = (next: HbfLiftPanel | null): void => {
+      const current = liftPanelRef.current;
+      if (current?.shaftIndex === next?.shaftIndex && current?.levelIndex === next?.levelIndex &&
+        current?.ride === next?.ride && current?.destination === next?.destination) return;
+      liftPanelRef.current = next;
+      setLiftPanel(next);
+    };
+
+    const chooseLiftFloor = (levelIndex: number): void => {
+      const runtime = runtimeRef.current;
+      const motion = runtime?.hbfStationV291;
+      const state = runtime?.pedestrian.state;
+      if (!runtime?.pedestrian.enabled || !state?.grounded || !motion || motion.liftRide ||
+        !motion.hasLiftCabins(voxelModeActive(runtime))) return;
+      const landing = hbfLiftLandingNear(state.x, state.groundY, state.z);
+      if (!landing || !stationLiftExit(runtime, landing.shaftIndex, levelIndex) ||
+        !motion.requestLiftRide(landing.shaftIndex, landing.levelIndex, levelIndex)) return;
+      pedestrianInputRef.current = { ...PEDESTRIAN_IDLE_INPUT };
+      showLiftPanel({ ...landing, ride: "waiting", destination: levelIndex });
+    };
     const pedestrianPoseEmissionRef = useRef({
       active: false,
       heading: 0,
@@ -6831,6 +6933,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (!landmark) {
         return;
       }
+      runtime.hbfStationV291?.cancelLiftRide();
       markSurfaceInteraction(runtime);
       // A leftover glide would drift the camera off the fresh focus.
       runtime.cancelPanGlide?.();
@@ -6933,6 +7036,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           const runtime = runtimeRef.current;
           const environment = runtime?.pedestrian.environment;
           if (!runtime || !environment || !runtime.presentationReady) return "unavailable";
+          runtime.hbfStationV291?.cancelLiftRide();
           runtime.cancelPanGlide?.();
           flightInputRef.current.set(0, 0, 0);
           panInputRef.current.set(0, 0);
@@ -7017,6 +7121,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           if (!runtime) {
             return;
           }
+          runtime.hbfStationV291?.cancelLiftRide();
           if (runtime.pedestrian.enabled && runtime.pedestrian.environment) {
             runtime.pedestrian.state = createPedestrianState(
               runtime.pedestrian.environment,
@@ -7978,7 +8083,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       }): boolean => {
         const environment = runtime.pedestrian.environment;
         const currentState = runtime.pedestrian.state;
-        if (!runtime.pedestrian.enabled || !environment || !currentState) {
+        if (!runtime.pedestrian.enabled || !environment || !currentState || runtime.hbfStationV291?.liftRide) {
           return false;
         }
         const rect = renderer.domElement.getBoundingClientRect();
@@ -8907,6 +9012,40 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let wasWalking = false;
       const flightSpeedScratch = { horizontal: 0, vertical: 0 };
       const stabilizationScratch = createCameraRigStabilizationScratch();
+      const updateStationLift = (ride: HbfLiftRide | null): void => {
+        const { state, environment } = runtime.pedestrian;
+        const motion = runtime.hbfStationV291;
+        if (!runtime.pedestrian.enabled || !runtime.presentationReady || !state || !environment || !motion) {
+          showLiftPanel(null);
+          return;
+        }
+        if (ride?.phase === "arrived") {
+          motion.cancelLiftRide();
+          const exit = stationLiftExit(runtime, ride.shaftIndex, ride.to);
+          if (exit) {
+            runtime.pedestrian.state = exit;
+            rememberPedestrianRecoveryState(runtime.pedestrian.recoveryHistory, exit, environment);
+          }
+          applyPedestrianCamera(runtime);
+          emitPedestrianPose(runtime, true);
+          notifyView(runtime, onViewChangeRef.current);
+        } else if (ride) {
+          showLiftPanel({ shaftIndex: ride.shaftIndex, levelIndex: ride.from, ride: ride.phase, destination: ride.to });
+          if (ride.phase === "riding") {
+            const floor = motion.liftCabinFloor(ride.shaftIndex);
+            if (floor !== lastLiftCabinY.current) {
+              lastLiftCabinY.current = floor;
+              applyPedestrianCamera(runtime);
+            }
+          }
+          return;
+        }
+        lastLiftCabinY.current = null;
+        const current = runtime.pedestrian.state;
+        const landing = current?.grounded && motion.liftAvailable
+          ? hbfLiftLandingNear(current.x, current.groundY, current.z) : null;
+        showLiftPanel(landing && motion.hasLiftCabins(voxelModeActive(runtime)) ? landing : null);
+      };
       const applyContinuousPedestrian = (dtSeconds: number): boolean => {
         // A resumed jump waits while the replacement mobile world is hidden.
         if (!runtime.presentationReady) return false;
@@ -8919,6 +9058,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             notifyView(runtime, onViewChangeRef.current);
           }
           return false;
+        }
+        if (runtime.hbfStationV291?.liftRide) {
+          return pedestrian.cameraDirty && applyPedestrianCamera(runtime);
         }
         const input = pedestrianInputRef.current;
         const inputActive =
@@ -9179,6 +9321,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             environment.extension?.waterAt(x, z) === true,
           blocked: (x: number, y: number, z: number) => pedestrianPointIsBlocked(x, z, y, environment.obstacles, environment),
           hasHost: (id: string, sha256: string) => runtime.surroundingCity?.hasResidentChunk(id, sha256) === true,
+          ownsStair: (id: string) => id === NORDBAHNHOF_PUBLIC_STAIR && nordbahnhofPlan(runtime) !== null,
           landing: (x: number, z: number, hint: number) => environment.interiorGroundAt?.(x, z, hint) ?? null,
         };
         const revision = runtime.amenityGroundRevisionV332 ?? 0;
@@ -9216,6 +9359,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (runtime.pergamonReveal?.update(timestamp)) runtime.renderInvalidated = true;
         updatePressehausV272(timestamp, false);
         if (runtime.hbfStationV291?.update(timestamp, camera, runtime.lightingMode === "minecraft", reducedMotion, runtime.underside)) runtime.renderInvalidated = true;
+        updateStationLift(runtime.hbfStationV291?.liftRide ?? null);
         runtime.scheduleGpuWarmup?.();
         if (timestamp >= wheelEndNotifyAt) {
           wheelEndNotifyAt = Number.POSITIVE_INFINITY;
@@ -9664,8 +9808,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         underwaterPresentationOptions.waterLevelY = runtime.lightingMode === "flood"
           ? floodWaterLevel(runtime.floodDepth) : WATER_LEVEL_Y;
         underwaterPresentationOptions.cameraY = camera.position.y;
+        const belowWaterInDryInterior = runtime.lightingMode !== "flood" &&
+          camera.position.y < WATER_LEVEL_Y - .2 && surfaceCameraTunnelExemption(runtime);
         underwaterPresentationOptions.insideTunnel =
-          physicallyInsideTunnel || framedPortal;
+          physicallyInsideTunnel || framedPortal || belowWaterInDryInterior;
         underwaterPresentationOptions.underside = underside;
         setUnderwaterPresentation(
           runtime,
@@ -10576,6 +10722,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.zooAnimalsV282 = undefined;
         runtime.hbfStationV291?.dispose();
         runtime.hbfStationV291 = undefined;
+        liftPanelRef.current = null;
+        lastLiftCabinY.current = null;
+        setLiftPanel(null);
         if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
         runtime.gpuWarmup?.dispose();
         runtime.gpuWarmup = undefined;
@@ -10669,6 +10818,37 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         className={`${active ? "three-viewer is-active" : "three-viewer"}${presentationReady ? " is-presentation-ready" : ""}`}
         aria-hidden={!active}
       >
+        {active && presentationReady && liftPanel && (
+          <div className="hbf-lift-panel" role="group" aria-label={startupLanguage === "de" ? "Panoramaaufzug" : "Panoramic lift"}>
+            {liftPanel.ride ? (
+              <>
+                <p role="status">
+                  {liftPanel.ride === "waiting"
+                    ? startupLanguage === "de" ? "Aufzug kommt" : "Lift arriving"
+                    : HBF_LIFT_LEVEL_LABELS[startupLanguage][liftPanel.destination!]}
+                </p>
+                {liftPanel.ride === "waiting" && (
+                  <button type="button" onClick={() => runtimeRef.current?.hbfStationV291?.cancelLiftRide()}>
+                    {startupLanguage === "de" ? "Abbrechen" : "Cancel"}
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                <p>{startupLanguage === "de" ? "Panoramaaufzug" : "Panoramic lift"}</p>
+                <div className="hbf-lift-floors">
+                  {HBF_LIFT_LEVEL_SHORT[startupLanguage].map((label, levelIndex) => (
+                    <button key={label} type="button" aria-label={HBF_LIFT_LEVEL_LABELS[startupLanguage][levelIndex]}
+                      aria-current={levelIndex === liftPanel.levelIndex ? "location" : undefined}
+                      disabled={levelIndex === liftPanel.levelIndex} onClick={() => chooseLiftFloor(levelIndex)}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
         {presentationReady && sectionOpenV318 && (
           <div className="reichstag-section-panel" role="group" aria-label={startupLanguage === "de" ? "Reichstag Schnittansichten" : "Reichstag section views"}>
             <div className="reichstag-section-views">

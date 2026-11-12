@@ -59,6 +59,18 @@ def predecessor_packet_bytes_v337(path: Path, raw: bytes) -> bytes:
 
 def predecessor_manifest_v337(current: dict, reader=Path.read_bytes) -> dict:
   """Change only metadata associated with an independently verified packet."""
+  forst = json.loads((GEO / "tegeler-forst-manifest-addition.json").read_bytes())
+  forst_tiles = len(forst["chunks"])
+  forst_polygons = len(forst["footprint"])
+  if current["chunks"][-forst_tiles:] == forst["chunks"]:
+    assert current["footprint"][-forst_polygons:] == forst["footprint"]
+    assert (
+      len(current["footprint"]) - forst_polygons > current["gardenFootprintStartV330"]
+    )
+    verify_addition(forst["chunks"], reader)
+    current = copy.deepcopy(current)
+    del current["chunks"][-forst_tiles:]
+    del current["footprint"][-forst_polygons:]
   result = None
   rows = records()
   for index, chunk in enumerate(current["chunks"]):
@@ -87,11 +99,15 @@ def predecessor_manifest_v337(current: dict, reader=Path.read_bytes) -> dict:
     end = result["gardenFootprintStartV330"]
     start = end - len(addition["footprint"])
     assert result["footprint"][start:end] == addition["footprint"]
-    for descriptor in descriptors:
-      for family in ("drawn", "minecraft"):
-        asset = descriptor[family]
-        wire = reader(PUBLIC / asset["url"])
-        assert len(wire) == asset["bytes"] and sha(wire) == asset["sha256"]
+    verify_addition(descriptors, reader)
     del result["footprint"][start:end]
     result["gardenFootprintStartV330"] = start
   return result
+
+
+def verify_addition(descriptors: list[dict], reader) -> None:
+  for descriptor in descriptors:
+    for family in ("drawn", "minecraft"):
+      asset = descriptor[family]
+      wire = reader(PUBLIC / asset["url"])
+      assert len(wire) == asset["bytes"] and sha(wire) == asset["sha256"]

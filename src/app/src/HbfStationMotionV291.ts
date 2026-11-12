@@ -22,14 +22,35 @@ export const HBF_LIFT_SPEED_MPS_V291 = 1.8;
 export const HBF_ESCALATOR_SPEED_MPS_V291 = 0.5;
 const LIFT_STOPS_V291 = [4, 3, 2, 1, 0, 1, 2, 3, 4] as const;
 const DOOR_SIDES_V291 = [-1, 1] as const;
+const liftLevels = HBF_CIRCULATION_V291.levels;
+const liftStopTimes = LIFT_STOPS_V291.reduce<number[]>((times, stop, index) => {
+  if (index === 0) return [0];
+  const previousStop = LIFT_STOPS_V291[index - 1];
+  times.push(times[index - 1] + HBF_LIFT_DWELL_SECONDS_V291 +
+    Math.abs(liftLevels[stop].topLocalY - liftLevels[previousStop].topLocalY) / HBF_LIFT_SPEED_MPS_V291);
+  return times;
+}, []);
+
+type LiftTrip = {
+  shaftIndex: number;
+  from: number;
+  to: number;
+  floor: number;
+  phase: "waiting" | "riding";
+};
+
+export type HbfLiftRide = LiftTrip | (Omit<LiftTrip, "phase"> & { phase: "arrived" });
 
 /** All five real stops, with a finite dwell at each end and intermediate floor. */
 export function hbfLiftFloorAtV291(seconds: number, shaftIndex: number): number {
-  const levels = HBF_CIRCULATION_V291.levels;
+  return liftFloorAtPhase(Math.max(0, Number.isFinite(seconds) ? seconds : 0) + shaftIndex * 7.1);
+}
+
+function liftFloorAtPhase(phase: number): number {
+  const levels = liftLevels;
   const stops = LIFT_STOPS_V291;
-  const travel = 2 * (levels[0].topLocalY - levels[4].topLocalY) / HBF_LIFT_SPEED_MPS_V291;
-  const period = travel + (stops.length - 1) * HBF_LIFT_DWELL_SECONDS_V291;
-  let time = ((Math.max(0, Number.isFinite(seconds) ? seconds : 0) + shaftIndex * 7.1) % period + period) % period;
+  const period = liftStopTimes[stops.length - 1];
+  let time = (phase % period + period) % period;
   for (let index = 0; index < stops.length - 1; index++) {
     const from = levels[stops[index]].topLocalY;
     const to = levels[stops[index + 1]].topLocalY;
@@ -71,9 +92,15 @@ export function createHbfStationRuntimeV291() {
   const frameRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), HBF_CIRCULATION_V291.frame.rotationDegrees * Math.PI / 180);
   const bakedFrame = new Matrix4().compose(new Vector3(...HBF_CIRCULATION_V291.frame.anchorWorld), frameRotation, scale);
   const doorOpen = [0, 0];
+  const liftOffsets = Array<number>(HBF_CIRCULATION_V291.shafts.length).fill(0);
+  const posedLiftFloors = liftOffsets.map((_, index) => hbfLiftFloorAtV291(0, index));
+  let liftTrip: LiftTrip | null = null;
+  let liftPassenger: HbfLiftRide | null = null;
   let seconds = 0, lastTimestamp: number | null = null, lastPaint: number | null = null;
   let previousNative: boolean | null = null;
   let disposed = false;
+  const liftFloor = (index: number) => liftTrip?.shaftIndex === index
+    ? liftTrip.floor : liftFloorAtPhase(seconds + index * 7.1 + liftOffsets[index]);
   const pose = (owner: Owner, selection: "all" | "doors" | "mechanical" = "all"): void => {
     for (const target of owner.targets) {
       const { mesh, descriptor, baseline } = target;
@@ -90,7 +117,9 @@ export function createHbfStationRuntimeV291() {
             array[offset + 13] = baseline[offset + 13] + delta[1] * fraction;
             array[offset + 14] = baseline[offset + 14] + delta[2] * fraction;
           } else if (descriptor.kind === "lift") {
-            array[offset + 13] = baseline[offset + 13] + hbfLiftFloorAtV291(seconds, descriptor.shaftIndexes[row]) - descriptor.initialFloors[row];
+            const index = descriptor.shaftIndexes[row];
+            posedLiftFloors[index] = liftFloor(index);
+            array[offset + 13] = baseline[offset + 13] + posedLiftFloors[index] - descriptor.initialFloors[row];
           } else {
             const from = descriptor.from, to = descriptor.to;
             const run = Math.hypot(to[0] - from[0], to[1] - from[1], to[2] - from[2]);
@@ -103,13 +132,36 @@ export function createHbfStationRuntimeV291() {
         }
         mesh.instanceMatrix.needsUpdate = true;
       } else if (descriptor.kind === "lift") {
-        mesh.position.y = target.initialY + hbfLiftFloorAtV291(seconds, descriptor.shaftIndexes[0]) - descriptor.initialFloors[0];
+        const index = descriptor.shaftIndexes[0];
+        posedLiftFloors[index] = liftFloor(index);
+        mesh.position.y = target.initialY + posedLiftFloors[index] - descriptor.initialFloors[0];
         mesh.updateMatrix();
       }
     }
     if (selection !== "doors") owner.lastSeconds = seconds;
   };
   return {
+    hasLiftCabins(native: boolean): boolean {
+      for (const owner of owners.values()) {
+        if (owner.eligible && owner.frame.native === native &&
+          owner.targets.some(target => target.descriptor.kind === "lift")) return true;
+      }
+      return false;
+    },
+    requestLiftRide(shaftIndex: number, from: number, to: number): boolean {
+      if (disposed || liftTrip || from === to || !HBF_CIRCULATION_V291.shafts[shaftIndex] ||
+        !liftLevels[from] || !liftLevels[to]) return false;
+      liftTrip = { shaftIndex, from, to, floor: posedLiftFloors[shaftIndex], phase: "waiting" };
+      liftPassenger = liftTrip;
+      return true;
+    },
+    cancelLiftRide(): void {
+      // The cabin completes its movement even if the visitor changes modes.
+      liftPassenger = null;
+    },
+    get liftRide(): HbfLiftRide | null { return liftPassenger; },
+    get liftAvailable(): boolean { return !liftTrip; },
+    liftCabinFloor(index: number): number { return posedLiftFloors[index]; },
     register(root: Object3D): void {
       if (disposed) return;
       root.traverse(object => {
@@ -171,12 +223,31 @@ export function createHbfStationRuntimeV291() {
       lastTimestamp = timestamp;
       const due = lastPaint === null || timestamp - lastPaint >= HBF_MOTION_FRAME_MS_V291;
       const animate = !reducedMotion && due;
+      const trip = liftTrip;
+      let reachedStop = false;
+      if (trip) {
+        const stop = liftLevels[trip.phase === "waiting" ? trip.from : trip.to].topLocalY;
+        const remaining = stop - trip.floor;
+        const step = HBF_LIFT_SPEED_MPS_V291 * dt;
+        if (reducedMotion || Math.abs(remaining) <= step) {
+          reachedStop = true;
+          trip.floor = stop;
+          if (trip.phase === "waiting") trip.phase = "riding";
+          else {
+            const stopIndex = LIFT_STOPS_V291.indexOf(trip.to as typeof LIFT_STOPS_V291[number]);
+            const phase = liftStopTimes[stopIndex] ?? 0;
+            liftOffsets[trip.shaftIndex] = phase - seconds - trip.shaftIndex * 7.1;
+            liftTrip = null;
+            if (liftPassenger) liftPassenger = { ...trip, phase: "arrived" };
+          }
+        } else trip.floor += Math.sign(remaining) * step;
+      }
       let changed = false;
       for (const owner of owners.values()) {
         if (!owner.eligible) continue;
         if (familyChanged || (reducedMotion && owner.lastSeconds !== seconds)) { pose(owner); changed = true; }
         else {
-          if (animate) { pose(owner, "mechanical"); changed = true; }
+          if (animate || reachedStop) { pose(owner, "mechanical"); changed = true; }
           if (doorChanged) { pose(owner, "doors"); changed = true; }
         }
       }
@@ -197,15 +268,17 @@ export function createHbfNativeMovingFixturesV291(): Group {
   const geometry = new BoxGeometry(1, 1, 1);
   const day = new MeshBasicMaterial({ color: 0xffffff });
   const night = new MeshStandardMaterial({ color: 0xffffff, roughness: .5 });
+  const glassDay = new MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .42, depthWrite: false });
+  const glassNight = new MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: .32, depthWrite: false, roughness: .26 });
   const matrix = new Matrix4(), color = new Color();
-  const batch = (name: string, rows: { point: Point; size: Point; color: number }[]): InstancedMesh => {
-    const mesh = new InstancedMesh(geometry, day, rows.length);
+  const batch = (name: string, rows: { point: Point; size: Point; color: number }[], glass = false): InstancedMesh => {
+    const mesh = new InstancedMesh(geometry, glass ? glassDay : day, rows.length);
     mesh.name = name;
     rows.forEach((row, index) => {
       matrix.makeScale(...row.size); matrix.setPosition(...row.point);
       mesh.setMatrixAt(index, matrix); mesh.setColorAt(index, color.setHex(row.color));
     });
-    mesh.userData.dayMaterial = day; mesh.userData.nightMaterial = night;
+    mesh.userData.dayMaterial = glass ? glassDay : day; mesh.userData.nightMaterial = glass ? glassNight : night;
     mesh.instanceMatrix.needsUpdate = true;
     mesh.computeBoundingBox(); mesh.computeBoundingSphere();
     // A fixed bound covers every stop/step phase, including the deep floor.
@@ -223,20 +296,29 @@ export function createHbfNativeMovingFixturesV291(): Group {
     }
     markHbfMovingMeshV291(batch("Minecraft Hauptbahnhof telescopic sliding entrance doors", rows), { kind: "doors", side, translations });
   }
-  const cabinRows: { point: Point; size: Point; color: number }[] = [], shaftIndexes: number[] = [], initialFloors: number[] = [];
-  HBF_CIRCULATION_V291.shafts.forEach((shaft, shaftIndex) => {
-    const floor = hbfLiftFloorAtV291(0, shaftIndex);
-    const centre = hbfLocalToWorldV291([shaft.x, 0, shaft.z]);
-    for (const [dx, dy, dz, w, h, d, c] of [
+  const cabinParts = [
+    { glass: false, name: "Minecraft Hauptbahnhof six moving lift cabins", parts: [
       [0,.08,0,2.4,.16,2.4,0x98a6aa], [0,3.13,0,2.4,.16,2.4,0x98a6aa],
+    ] },
+    { glass: true, name: "Minecraft Hauptbahnhof moving lift cabin glass", parts: [
       [-1.05,1.6,0,.22,2.9,2.1,0x6c8f9a], [1.05,1.6,0,.22,2.9,2.1,0x6c8f9a],
       [0,1.6,-1.05,1.9,2.9,.2,0xa0bdc4], [0,1.6,1.05,1.9,2.9,.2,0xa0bdc4],
-    ]) {
-      cabinRows.push({ point: [centre[0]+dx, centre[1]+floor+dy, centre[2]+dz], size: [w,h,d], color: c });
-      shaftIndexes.push(shaftIndex); initialFloors.push(floor);
-    }
-  });
-  markHbfMovingMeshV291(batch("Minecraft Hauptbahnhof six moving lift cabins", cabinRows), { kind: "lift", shaftIndexes, initialFloors });
+    ] },
+  ];
+  for (const { glass, name, parts } of cabinParts) {
+    const rows: { point: Point; size: Point; color: number }[] = [];
+    const shaftIndexes: number[] = [], initialFloors: number[] = [];
+    HBF_CIRCULATION_V291.shafts.forEach((shaft, shaftIndex) => {
+      const floor = hbfLiftFloorAtV291(0, shaftIndex);
+      const centre = hbfLocalToWorldV291([shaft.x, 0, shaft.z]);
+      for (const [dx, dy, dz, w, h, d, color] of parts) {
+        rows.push({ point: [centre[0] + dx, centre[1] + floor + dy, centre[2] + dz], size: [w, h, d], color });
+        shaftIndexes.push(shaftIndex);
+        initialFloors.push(floor);
+      }
+    });
+    markHbfMovingMeshV291(batch(name, rows, glass), { kind: "lift", shaftIndexes, initialFloors });
+  }
   for (const flight of HBF_CIRCULATION_V291.flights) {
     if (flight.kind !== "escalator") continue;
     const from = hbfLocalToWorldV291(flight.from), to = hbfLocalToWorldV291(flight.to);
