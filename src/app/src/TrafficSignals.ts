@@ -24,7 +24,7 @@ import { type VoxelPayload, worldGroundSampler } from "./terrainPayload";
  * lamps are unlit (MeshBasic), so the active one reads emissive at
  * night exactly like the street fixtures.
  */
-export const STREET_DETAILS_FILE = "street-details.json?schema=7";
+export { STREET_DETAILS_FILE } from "./startupWorldRequests";
 
 export type TrafficSignalPlacement = {
   offset_dm: number;

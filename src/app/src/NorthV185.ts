@@ -6,6 +6,7 @@ import { buildingTerrainOffset, terrainGroundAt } from "./weinbergTerrainV176";
 import { appendDanzigerTramV249, finishDanzigerTramV249 } from "./DanzigerTramV249";
 import { appendChorinerV250, replacesChorinerV250Face } from "./ChorinerV250";
 import { appendKulturbrauereiV252 } from "./KulturbrauereiV252";
+import { appendOderbergerFacades } from "./OderbergerFacades";
 import { appendNorthShopfrontsV254 } from "./NorthShopfrontsV254";
 
 export const NORTH_V185_GROUP = "Northern neighbourhoods: bounded source-bound accents v185";
@@ -125,7 +126,10 @@ export function createNorthV185(minecraft = false): Group {
     const rows: Rows = [], arches: Rows = [];
     source.faces.filter(f => f.kind === kind && !replacesChorinerV250Face(f)).forEach(f => facade(rows, arches, f, minecraft));
     if (kind === "choriner") appendChorinerV250(rows, minecraft);
-    if (kind === "kulturbrauerei") appendKulturbrauereiV252(rows, minecraft);
+    if (kind === "kulturbrauerei") {
+      appendKulturbrauereiV252(rows, minecraft);
+      appendOderbergerFacades(rows, arches, minecraft);
+    }
     if (kind === "weinbergspark") garden(rows, minecraft);
     if (kind === "hagenauer") {
       roadEdges(rows, minecraft);

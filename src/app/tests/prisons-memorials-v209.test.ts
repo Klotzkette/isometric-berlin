@@ -1,8 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { InstancedMesh, Matrix4, Mesh } from "three";
+import { InstancedMesh, Matrix4, Mesh, Raycaster, Vector3 } from "three";
 import { createPrisonsMemorialsEnvelopesV209, createPrisonsMemorialsV209, PRISONS_MEMORIALS_V209_SOURCE_IDS } from "../src/PrisonsMemorialsV209";
 import { prisonsMemorialsV209GroundAt, prisonsMemorialsV209SolidAt } from "../src/prisonsMemorialsV209Navigation";
 import data from "../src/data/prisonsMemorialsV209Envelopes.json";
+import { refineStasiEntranceScreen } from "../src/StasiSiteEntrances";
 
 function bytes(root: ReturnType<typeof createPrisonsMemorialsV209>): number {
   let n = 0;
@@ -22,8 +23,8 @@ describe("v209 Tegel and distinct Lichtenberg/Hohenschoenhausen sites", () => {
       const shells = createPrisonsMemorialsEnvelopesV209(native), details = createPrisonsMemorialsV209(native);
       expect(shells.children).toHaveLength(native ? 5 : 3);
       expect(details.children).toHaveLength(3);
-      expect(bytes(shells)).toBe(native ? 1166768 : 850284);
-      expect(bytes(details)).toBe(native ? 3421136 : 2560360);
+      expect(bytes(shells)).toBe(native ? 1166768 : 1026108);
+      expect(bytes(details)).toBe(native ? 3463696 : 2560360);
       for (const root of [shells, details]) {
         expect(root.userData.sourceGeometryRetained).toBe(true);
         expect(root.userData.fullStaticDetailOnTouch).toBe(true);
@@ -50,11 +51,56 @@ describe("v209 Tegel and distinct Lichtenberg/Hohenschoenhausen sites", () => {
       }
   });
 
-  test("all full source triangles are submitted; source shells never live in optional detail", () => {
+  test("one closed Haus 1 sheet yields and every other source triangle is retained", () => {
     const root = createPrisonsMemorialsEnvelopesV209();
-    const count = root.children.reduce((n, o) => n + (o as Mesh).geometry.getAttribute("position").count, 0);
-    expect(count).toBe([...data.surfaces, ...data.ground].reduce((n, s) => n + s.triangles.length * 3, 0));
+    const siteFor = ([x, , z]: number[]) => x < 0 ? "tegel" : z < 0 ? "hsh" : "hq";
+    let replacements = 0;
+    for (const [index, site] of data.sites.entries()) {
+      const mesh = root.children[index] as Mesh;
+      const positions = mesh.geometry.getAttribute("position");
+      const rows = data.surfaces.filter(row => siteFor(row.triangles[0][0]) === site.key);
+      let cursor = 0;
+      for (const row of rows) {
+        const refined = refineStasiEntranceScreen(row);
+        if (refined[0] !== row) {
+          expect(row.part).toBe("DEBE11YYI0002Eyq");
+          expect(row.sheet).toBe(4);
+          replacements++;
+          cursor += refined.reduce((n, s) => n + s.triangles.length * 3, 0);
+          continue;
+        }
+        for (const triangle of row.triangles) for (const point of triangle) {
+          expect([positions.getX(cursor), positions.getY(cursor), positions.getZ(cursor)])
+            .toEqual(point.map(Math.fround));
+          cursor++;
+        }
+      }
+    }
+    expect(replacements).toBe(1);
     expect(createPrisonsMemorialsV209().children.every(c => c instanceof InstancedMesh)).toBe(true);
+  });
+
+  test("Haus 1 concrete apertures are physically cut through, with intact surrounding webs", () => {
+    const original = data.surfaces.find(row => row.part === "DEBE11YYI0002Eyq" && row.sheet === 4)!;
+    const altered = { ...original, triangles: original.triangles.map(t => t.map(p => [...p])) };
+    altered.triangles[0][0][1] += .01;
+    expect(refineStasiEntranceScreen(altered)[0]).toBe(altered);
+    const root = createPrisonsMemorialsEnvelopesV209();
+    root.updateMatrixWorld(true);
+    const start = new Vector3(7841.803, 0, 663.764);
+    const axis = new Vector3(7844.468, 0, 649.241).sub(start);
+    const length = axis.length();
+    axis.normalize();
+    const outward = new Vector3(axis.z, 0, -axis.x);
+    const probe = (u: number, y: number) => {
+      const origin = start.clone().addScaledVector(axis, u).addScaledVector(outward, .25);
+      origin.y = y;
+      return new Raycaster(origin, outward.clone().negate(), 0, .55).intersectObject(root, true).length;
+    };
+    // Centre of the bottom-left opening, adjacent solid web, then top fascia.
+    expect(probe(.16 + (length - .32) / 40, 3.3321)).toBe(0);
+    expect(probe(.16 + (length - .32) / 20, 3.3321)).toBeGreaterThan(0);
+    expect(probe(length / 2, 7.5)).toBeGreaterThan(0);
   });
 
   test("new ground stays finite, building navigation keeps open memorial court", () => {

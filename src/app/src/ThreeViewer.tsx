@@ -30,6 +30,8 @@ import { admitsChancelleryCanopyLegacyV289, setChancelleryCanopyLegacyV289 } fro
 import { prepareRequiredFidelityV288 } from "./RequiredFidelityV288";
 import { ubahnV281FloorAt, ubahnV281SolidAt } from "./ubahnEntrancesV281Profile";
 import { canReplacePotsdamerSouthStationPhoto } from "./potsdamerStationPhotoOwnership";
+import { cutPotsdamerSouthGround } from "./PotsdamerSouthGround";
+import { installPotsdamerSouthNavigation, potsdamerSouthFlightAt } from "./PotsdamerSouthAccess";
 import { cutUbahnPresentationV281 } from "./UbahnSurfaceAperturesV281";
 import { prenzlbergV264GroundAt, prenzlbergV264SolidAt, prenzlbergV264TerrainAt } from "./prenzlbergV264Navigation";
 import { ubahnV261FloorAt, ubahnV261SolidAt } from "./ubahnEntrancesV261Profile";
@@ -543,7 +545,8 @@ import { configureSmaaEdgeTarget } from "./smaaEdgeTarget";
 import type { PublicAmenitiesV332 } from "./PublicAmenitiesV332";
 import type { BusStopsV334 } from "./BusStopsV334";
 import type { RailAccessV334 } from "./RailAccessV334";
-import { fetchJsonWithRetry } from "./resilientFetch";
+import { fetchJsonWithRetry, type FetchLike } from "./resilientFetch";
+import type { createStartupWorldRequests } from "./startupWorldRequests";
 import {
   type CivicWindFlagTarget,
   civicFlagFrameIntervalMs,
@@ -705,6 +708,7 @@ type ThreeViewerProps = {
   publicAmenitiesOn?: boolean;
   startupLanguage?: "de" | "en";
   sceneUrl: string;
+  startupSources?: ReturnType<typeof createStartupWorldRequests>;
   selectedLandmark: string;
   openingLandmark?: string | null;
   initialNavigation?: NavigationSnapshot | null;
@@ -1073,11 +1077,17 @@ function schwellenraumMovingRoots(runtime: Runtime): Object3D[] {
   return roots;
 }
 
-/** Portal approaches and the surveyed tunnel interior retain free traversal. */
+function potsdamerSouthAccessActive(runtime: Runtime): boolean {
+  const world = voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld;
+  return world?.userData.potsdamerSouthPublicAccess === true;
+}
+
+/** Portal approaches and station interiors retain free traversal. */
 function surfaceCameraTunnelExemption(runtime: Runtime): boolean {
   const p = runtime.camera.position;
   return runtime.tunnelPortalInteriorVisible ||
     hauptbahnhofCirculationBoundsAt(p.x, p.y, p.z) ||
+    (potsdamerSouthAccessActive(runtime) && potsdamerSouthFlightAt(p.x, p.y, p.z)) ||
     runtime.tunnelInteriorAt?.(p.x, p.y, p.z) === true;
 }
 
@@ -3477,10 +3487,10 @@ function isoModeActive(runtime: Runtime): boolean {
  */
 // Payloads are fetched and parsed exactly once per session. Drawn modes use a
 // compact ground-only sibling; Minecraft's building/tree instances stay lazy.
-function fetchPrismPayload(runtime: Runtime): Promise<PrismPayload> {
+function fetchPrismPayload(runtime: Runtime, fetcher?: FetchLike): Promise<PrismPayload> {
   runtime.prismPayloadPromise ??= fetchJsonWithRetry<PrismPayload>(
     new URL(PRISM_WORLD_FILE, runtime.sceneRootUrl),
-    { signal: runtime.loadSignal },
+    { signal: runtime.loadSignal, fetcher },
   ).catch((error: unknown) => {
     runtime.prismPayloadPromise = undefined;
     throw error;
@@ -3488,10 +3498,10 @@ function fetchPrismPayload(runtime: Runtime): Promise<PrismPayload> {
   return runtime.prismPayloadPromise;
 }
 
-function fetchGroundPayload(runtime: Runtime): Promise<VoxelPayload> {
+function fetchGroundPayload(runtime: Runtime, fetcher?: FetchLike): Promise<VoxelPayload> {
   runtime.groundPayloadPromise ??= fetchJsonWithRetry<VoxelPayload>(
     new URL(GROUND_CONTEXT_FILE, runtime.sceneRootUrl),
-    { signal: runtime.loadSignal },
+    { signal: runtime.loadSignal, fetcher },
   ).catch((error: unknown) => {
     runtime.groundPayloadPromise = undefined;
     throw error;
@@ -3499,10 +3509,10 @@ function fetchGroundPayload(runtime: Runtime): Promise<VoxelPayload> {
   return runtime.groundPayloadPromise;
 }
 
-function fetchStreetPayload(runtime: Runtime): Promise<StreetDetailsPayload> {
+function fetchStreetPayload(runtime: Runtime, fetcher?: FetchLike): Promise<StreetDetailsPayload> {
   runtime.streetPayloadPromise ??= fetchJsonWithRetry<StreetDetailsPayload>(
     new URL(STREET_DETAILS_FILE, runtime.sceneRootUrl),
-    { signal: runtime.loadSignal },
+    { signal: runtime.loadSignal, fetcher },
   ).catch((error: unknown) => {
     runtime.streetPayloadPromise = undefined;
     throw error;
@@ -3510,10 +3520,10 @@ function fetchStreetPayload(runtime: Runtime): Promise<StreetDetailsPayload> {
   return runtime.streetPayloadPromise;
 }
 
-function fetchSurfacePayload(runtime: Runtime): Promise<SurfacePayload> {
+function fetchSurfacePayload(runtime: Runtime, fetcher?: FetchLike): Promise<SurfacePayload> {
   runtime.surfacePayloadPromise ??= fetchJsonWithRetry<SurfacePayload>(
     new URL(SURFACE_WORLD_FILE, runtime.sceneRootUrl),
-    { signal: runtime.loadSignal },
+    { signal: runtime.loadSignal, fetcher },
   ).catch((error: unknown) => {
     runtime.surfacePayloadPromise = undefined;
     throw error;
@@ -3521,10 +3531,10 @@ function fetchSurfacePayload(runtime: Runtime): Promise<SurfacePayload> {
   return runtime.surfacePayloadPromise;
 }
 
-function fetchRailPayload(runtime: Runtime): Promise<RailPayload> {
+function fetchRailPayload(runtime: Runtime, fetcher?: FetchLike): Promise<RailPayload> {
   runtime.railPayloadPromise ??= fetchJsonWithRetry<RailPayload>(
     new URL(RAIL_LINES_FILE, runtime.sceneRootUrl),
-    { signal: runtime.loadSignal },
+    { signal: runtime.loadSignal, fetcher },
   ).catch((error: unknown) => {
     runtime.railPayloadPromise = undefined;
     throw error;
@@ -3532,10 +3542,10 @@ function fetchRailPayload(runtime: Runtime): Promise<RailPayload> {
   return runtime.railPayloadPromise;
 }
 
-function fetchVoxelPayload(runtime: Runtime): Promise<VoxelPayload> {
+function fetchVoxelPayload(runtime: Runtime, fetcher?: FetchLike): Promise<VoxelPayload> {
   runtime.voxelPayloadPromise ??= fetchJsonWithRetry<VoxelPayload>(
     new URL(VOXEL_WORLD_FILE, runtime.sceneRootUrl),
-    { signal: runtime.loadSignal },
+    { signal: runtime.loadSignal, fetcher },
   ).catch((error: unknown) => {
     runtime.voxelPayloadPromise = undefined;
     throw error;
@@ -3621,16 +3631,17 @@ export function releaseCompiledSurfacePayload(
 function primeRequestedWorldPayloads(
   runtime: Runtime,
   mode: LightingMode,
+  fetcher?: FetchLike,
 ): void {
   const requests =
     mode === "minecraft"
-      ? [fetchVoxelPayload(runtime), fetchPrismPayload(runtime)]
+      ? [fetchVoxelPayload(runtime, fetcher), fetchPrismPayload(runtime, fetcher)]
       : [
-          fetchPrismPayload(runtime),
-          fetchGroundPayload(runtime),
-          fetchStreetPayload(runtime),
-          fetchSurfacePayload(runtime),
-          fetchRailPayload(runtime),
+          fetchPrismPayload(runtime, fetcher),
+          fetchGroundPayload(runtime, fetcher),
+          fetchStreetPayload(runtime, fetcher),
+          fetchSurfacePayload(runtime, fetcher),
+          fetchRailPayload(runtime, fetcher),
         ];
   for (const request of requests) {
     void request.catch(() => undefined);
@@ -3861,6 +3872,7 @@ async function attachProgressiveWorldMessage(
     cutRosenthalerPresentationV228(object, false);
     cutUbahnPresentationV261(object, false);
     cutUbahnPresentationV281(object, false);
+    if (runtime.isoWorld.userData.potsdamerSouthPublicAccess) cutPotsdamerSouthGround(object, false, false);
   }
   setIsoNightPresentation(
     object,
@@ -4461,6 +4473,7 @@ function prepareIsoNavigation(
   installFidelityNavigationV296(pedestrianEnvironment,()=>fidelityAdmissionV296(runtime));
   installNorthernNavigationV309(runtime,pedestrianEnvironment);
   installGovernmentNavigationV321(runtime,pedestrianEnvironment);
+  installPotsdamerSouthNavigation(pedestrianEnvironment, () => potsdamerSouthAccessActive(runtime), () => voxelModeActive(runtime));
   return { environment: pedestrianEnvironment, installWorldDetails };
 }
 
@@ -4933,6 +4946,7 @@ function ensureIsoWorld(
           isoWorld.add(createDistrictStreets(ground, new Set(altMitteTransportCorrectionsV206.suppressedMarkingIndices)));
           cutUbahnPresentationV261(isoWorld, false);
           cutUbahnPresentationV281(isoWorld, false);
+          if (stationPhotoAdmitted) cutPotsdamerSouthGround(isoWorld, false, true);
           yield;
           isoWorld.add(createSpreeRailings(ground));
           yield;
@@ -5494,6 +5508,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
   installFidelityNavigationV296(environment,()=>fidelityAdmissionV296(runtime));
   installNorthernNavigationV309(runtime,environment);
   installGovernmentNavigationV321(runtime,environment);
+  installPotsdamerSouthNavigation(environment, () => potsdamerSouthAccessActive(runtime), () => voxelModeActive(runtime));
   return environment;
 }
 
@@ -5645,6 +5660,7 @@ function ensureVoxelWorld(
           isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
         },
       );
+      if (provisionalVoxelWorld.userData.potsdamerStationPhoto) cutPotsdamerSouthGround(provisionalVoxelWorld, true, true);
       // Finish source-bound matrix corrections, then retire the complete
       // immutable backing before navigation and companion fields allocate.
       await completeCooperatively(sitesV209.addRequiredSiteEnvelopesV209Steps(provisionalVoxelWorld, true), {
@@ -6560,6 +6576,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       publicAmenitiesOn = false,
       startupLanguage = "de",
       sceneUrl,
+      startupSources,
       selectedLandmark,
       openingLandmark = null,
       initialNavigation = null,
@@ -7318,6 +7335,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         });
       } catch (error: unknown) {
         loadController.abort();
+        startupSources?.discard();
         onErrorRef.current(
           error instanceof Error
             ? `WebGL 2 konnte nicht gestartet werden: ${error.message}`
@@ -9763,10 +9781,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       animate();
 
-      const sceneManifestPromise = fetchJsonWithRetry<SceneManifest>(sceneUrl, {
+      const startupFetcher = startupSources?.adopt();
+      const sceneManifestPromise = fetchJsonWithRetry<SceneManifest>(new URL(sceneUrl, window.location.href), {
         signal: loadController.signal,
+        fetcher: startupFetcher,
       });
-      primeRequestedWorldPayloads(runtime, lightingModeRef.current);
+      primeRequestedWorldPayloads(runtime, lightingModeRef.current, startupFetcher);
+      startupSources?.discard();
       void sceneManifestPromise
         .then(async (manifest) => {
           if (disposed) {
@@ -10637,7 +10658,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         renderer.domElement.remove();
         runtimeRef.current = null;
       };
-    }, [sceneUrl]);
+    }, [sceneUrl, startupSources]);
 
     const workPresentation = startupWork && Boolean(startupWork.native) === (lightingMode === "minecraft")
       ? startupWorkPresentationV309(startupWork, startupLanguage)

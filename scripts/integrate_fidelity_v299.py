@@ -146,7 +146,9 @@ def predecessor_packet_bytes_v299(
   path: Path, reader: Reader = Path.read_bytes
 ) -> bytes:
   """Normalize only registered Public gzip files; every other input is exact."""
-  supplied = reader(path)
+  from scripts.surface_packet_lineage_v337 import predecessor_packet_bytes_v337
+
+  supplied = predecessor_packet_bytes_v337(path, reader(path))
   if path.resolve().parent == PUBLIC and path.name.endswith(".json.gz"):
     receipt = lossless_rows(reader).get(path.name)
     if receipt is not None and sha(supplied) == receipt["gzipSha256"]:
@@ -232,6 +234,9 @@ def verify_supplement(reader: Reader) -> dict:
 
 def predecessor_manifest_v299(current: dict, reader: Reader = Path.read_bytes) -> dict:
   """Recover all of 0f only after an exact whole-manifest reconstruction proof."""
+  from scripts.surface_packet_lineage_v337 import predecessor_manifest_v337
+
+  current = predecessor_manifest_v337(current, reader)
   if MARKER not in current:
     assert not any(c["id"].startswith("stralau299-") for c in current["chunks"]), (
       "Unreceipted v299 descriptor without marker"

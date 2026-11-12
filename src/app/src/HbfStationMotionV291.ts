@@ -158,7 +158,7 @@ export function createHbfStationRuntimeV291() {
         const onScreen = nearby && frustum.intersectsSphere(sphere);
         owner.eligible = !suspended && visible && (onScreen || cameraLocal.lengthSq() < 120 * 120);
         if (owner.eligible) active = true;
-        if (!suspended && visible) for (const side of DOOR_SIDES_V291) {
+        if (!suspended && visible && owner.targets.some(target => target.descriptor.kind === "doors")) for (const side of DOOR_SIDES_V291) {
           const index = side < 0 ? 0 : 1;
           const wantsOpen = hauptbahnhofDoorApproachAt(cameraLocal.x, cameraLocal.y, cameraLocal.z, side);
           const immediate = reducedMotion || (wantsOpen && Math.abs(cameraLocal.z - side * 90) <= 4);

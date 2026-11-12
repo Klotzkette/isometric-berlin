@@ -38,11 +38,11 @@ export const SURROUNDING_CITY_SCAN_MS = 180;
 export const SURROUNDING_CITY_RETIRE_MS = 1_800;
 export const SURROUNDING_CITY_RESIDENT_BUDGET_BYTES = 24 * 1024 * 1024;
 export const SURROUNDING_CITY_MAX_CHUNK_BYTES = 12 * 1024 * 1024;
-// Published210 plus the 18 exact Gärten der Welt and Kienberg descriptors.
-// Only static metadata grows; resident geometry/transfer/prefetch stay fixed.
-export const SURROUNDING_CITY_MAX_DESCRIPTORS = 2_861;
-export const SURROUNDING_CITY_MAX_FOOTPRINTS = 2_890;
-export const SURROUNDING_CITY_MAX_MANIFEST_BYTES = 3816 * 1024;
+// The Gärten der Welt, Kienberg, Jungfernheide and Tegeler Fließ descriptors extend static
+// metadata only. The resident geometry, transfer and prefetch limits are fixed.
+export const SURROUNDING_CITY_MAX_DESCRIPTORS = 2_869;
+export const SURROUNDING_CITY_MAX_FOOTPRINTS = 2_892;
+export const SURROUNDING_CITY_MAX_MANIFEST_BYTES = 3830 * 1024;
 // Hosted delta packets add one bounded length to each changed descriptor.
 const SURROUNDING_CITY_MAX_HOSTED_MANIFEST_BYTES = SURROUNDING_CITY_MAX_MANIFEST_BYTES + 64 * 1024;
 export const SURROUNDING_CITY_MANIFEST_RETRY_MS = [500, 1_500] as const;
@@ -67,7 +67,6 @@ export type SurroundingCityManifest = {
   footprint: SurroundingPolygon[];
   groundY: number;
   gardenFootprintStartV330?: number;
-  packetMirrorCommit?: string;
 };
 type Resident = SurroundingChunkGeometry & { descriptor: SurroundingChunkDescriptor; lastWanted: number; southOwnersReadyV294: boolean; littenReadyV297:boolean; wallReadyV298:boolean;westReadyV302:boolean;neukoellnReadyV305:boolean;northCandidateV309:boolean;northReadyV309:boolean;treptowCandidateV317:boolean;treptowReadyV317:boolean;governmentCandidateV321:boolean;governmentReadyV321:boolean;universitiesCandidateV322:boolean;universitiesReadyV322:boolean;wilhelmCandidateV324:boolean;wilhelmReadyV324:boolean;wilhelmStreetCandidateV325:boolean;wilhelmStreetReadyV325:boolean;southwestCandidateV326:boolean;southwestReadyV326:boolean };
 export type SurroundingNavigationTile = {
@@ -159,9 +158,14 @@ export type SurroundingCity = {
   readonly navigationTiles: readonly SurroundingNavigationTile[];
 };
 
+function isRelativePacketPath(path: unknown): path is string {
+  return typeof path === "string" && path.length < 256 &&
+    /^[a-z0-9_.-]+(?:\/[a-z0-9_.-]+)*$/i.test(path) &&
+    !path.split("/").some(part => part === "." || part === "..");
+}
+
 function assetValid(asset: Asset): boolean {
-  return !!asset && typeof asset.url === "string" && asset.url.length < 256 &&
-    !/^(?:[a-z]+:|\/|\\)|(?:^|\/)\.\.(?:\/|$)/i.test(asset.url) &&
+  return !!asset && isRelativePacketPath(asset.url) &&
     Number.isSafeInteger(asset.bytes) && asset.bytes > 0 && asset.bytes <= SURROUNDING_CITY_MAX_CHUNK_BYTES &&
     (asset.sha256 === undefined || /^[0-9a-f]{64}$/.test(asset.sha256)) &&
     (asset.encoding === undefined || (asset.encoding === "gzip" &&
@@ -177,8 +181,7 @@ export function validateSurroundingManifest(value: unknown): SurroundingCityMani
   if (manifest?.schemaVersion !== 1 || !Array.isArray(manifest.chunks) ||
       manifest.chunks.length > SURROUNDING_CITY_MAX_DESCRIPTORS || !Array.isArray(manifest.footprint) ||
       !Number.isFinite(manifest.groundY) || manifest.footprint.length > SURROUNDING_CITY_MAX_FOOTPRINTS ||
-      (manifest.packetMirrorCommit !== undefined &&
-        (typeof manifest.packetMirrorCommit !== "string" || !/^[0-9a-f]{40}$/.test(manifest.packetMirrorCommit))) ||
+      Object.hasOwn(manifest, "packetMirrorCommit") ||
       (manifest.gardenFootprintStartV330 !== undefined && (
         !Number.isSafeInteger(manifest.gardenFootprintStartV330) || manifest.gardenFootprintStartV330 < 1 ||
         manifest.gardenFootprintStartV330 >= manifest.footprint.length)) ||
@@ -293,21 +296,13 @@ async function readJsonBounded(
 type BufferedPacket = { bytes: Uint8Array; headers: Headers };
 type PrefetchResult = { packet: BufferedPacket; error?: never } | { packet?: never; error: unknown };
 type Prefetch = { controller: AbortController; reservedBytes: number; result: Promise<PrefetchResult> | null };
-/** Pages may mirror distant gzip packets at the exact published source revision.
- * The manifest, core, nearby packets and offline package keep their local URLs. */
+/** Every packet is delivered beside the manifest, in hosted and offline builds. */
 export function surroundingPacketUrl(
-  descriptor: SurroundingChunkDescriptor, native: boolean, manifestUrl: URL, mirrorCommit?: string,
+  descriptor: SurroundingChunkDescriptor, native: boolean, manifestUrl: URL,
 ): URL {
   const asset = native ? descriptor.minecraft : descriptor.drawn;
-  const [x0, z0, x1, z1] = descriptor.bounds;
-  const useMirror = mirrorCommit && /^[0-9a-f]{40}$/.test(mirrorCommit) && asset.encoding === "gzip" &&
-    asset.sha256 && Math.hypot((x0 + x1) / 2, (z0 + z1) / 2) >= 10_000 &&
-    /^[a-z0-9_.-]+(?:\/[a-z0-9_.-]+)*\.json\.gz$/i.test(asset.url) &&
-    !asset.url.split("/").some(part => part === "." || part === "..");
-  const base = useMirror
-    ? `https://raw.githubusercontent.com/Klotzkette/isometric-berlin/${mirrorCommit}/src/app/public/mesh/surrounding-berlin-v159/`
-    : manifestUrl;
-  const url = new URL(asset.url, base);
+  if (!isRelativePacketPath(asset.url)) throw new Error("Invalid surrounding-city packet path");
+  const url = new URL(asset.url, manifestUrl);
   if (asset.sha256) url.searchParams.set("v", asset.sha256);
   return url;
 }
@@ -608,7 +603,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       const job: Prefetch = { controller: task, reservedBytes, result: null };
       // Handle rejection immediately, even if a camera turn discards this job
       // before it is promoted to the foreground. Aborted bytes are never cached.
-      job.result = bufferPacket(fetcher, surroundingPacketUrl(descriptor, minecraft, options.manifestUrl, manifest?.packetMirrorCommit), task.signal, asset, transportIdleMs)
+      job.result = bufferPacket(fetcher, surroundingPacketUrl(descriptor, minecraft, options.manifestUrl), task.signal, asset, transportIdleMs)
         .then(packet => ({ packet }), error => ({ error }));
       prefetches.set(descriptor.id, job); prefetchedBytes += reservedBytes;
     }
@@ -630,7 +625,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
         let unpublished: Group | null = null;
         try {
           const loading = prefetched ? consumePrefetch(prefetched, task.signal, asset)
-            : fetchJsonBounded(fetcher, surroundingPacketUrl(descriptor, minecraft, options.manifestUrl, manifest?.packetMirrorCommit), task.signal, asset.bytes + 64, asset, transportIdleMs);
+            : fetchJsonBounded(fetcher, surroundingPacketUrl(descriptor, minecraft, options.manifestUrl), task.signal, asset.bytes + 64, asset, transportIdleMs);
           const recipes=options.sourceQuartersV303===true&&options.loadSourceQuarterSourcesV309
             ?Promise.resolve().then(()=>options.loadSourceQuarterSourcesV309!(descriptor.id,minecraft))
             :Promise.resolve(options.sourceQuarterSourcesV303);

@@ -94,7 +94,7 @@ test("front and return inscriptions are on their fascia faces and drawn detail i
   disposeStaticAudit(full); disposeStaticAudit(mobile);
 });
 
-test("the existing south steel bays are in front of painted glass in actual merged geometry", () => {
+test("the existing south steel bays sit outside actual transparent glazing", () => {
   const root = createPotsdamerSouthStationPhotoDrawn(prisms.buildings)!;
   root.updateMatrixWorld(true);
   const body = root.getObjectByName("Potsdamer Platz station entrance halls bodies") as Mesh;
@@ -124,9 +124,13 @@ test("the existing south steel bays are in front of painted glass in actual merg
   }
   // A pane between the existing posts is still present at the same height.
   const paneX = -width / 2 + width * 2.5 / profile.roofBayCountAcross;
-  expect(firstColour(point(paneX, depth / 2 + 1), point(paneX, depth / 2 - 1)))
-    .toEqual(paint(0xa7d1d8));
-  expect(staticGeometryAudit(root).budget.draws).toBe(6);
+  const glass = root.getObjectByName("Potsdamer Platz pavilion roofs and transparent glazing") as Mesh;
+  const origin = point(paneX, depth / 2 + 1);
+  const direction = point(paneX, depth / 2 - 1).sub(origin).normalize();
+  expect(new Raycaster(origin, direction, 0, 3).intersectObject(glass)).not.toHaveLength(0);
+  expect((glass.material as any).transparent).toBeTrue();
+  expect((glass.material as any).depthWrite).toBeFalse();
+  expect(staticGeometryAudit(root).budget.draws).toBe(12);
   disposeStaticAudit(root);
 });
 
@@ -202,8 +206,8 @@ test("native model remains hollow with open stair approaches, orthogonal boxes a
     }
   });
   const audit = staticGeometryAudit(transfer.group);
-  expect(audit.budget.draws).toBe(2);
-  expect(audit.budget.bytes).toBeLessThan(580_000);
+  expect(audit.budget.draws).toBe(7);
+  expect(audit.budget.bytes).toBeLessThan(700_000);
   expect(audit.budget.instances).toBeLessThan(12_000);
   disposeStaticAudit(transfer.group);
 });

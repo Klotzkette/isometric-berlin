@@ -404,6 +404,23 @@ function appendWayfinding(plan: Plan): void {
     const text=level.id==="upper-gallery"?"GLEIS 11 - 16":"GLEIS 1 - 8";
     for(const face of[-1,1])plan.text(text,[0,level.topLocalY+1.79,arm*level.bridgeLocalZ+face*.075],4.35,.32,0xf3f1dc,"gallery-platform-wayfinding","x",face);
   }
+  // The station equipment register links each panoramic lift to one
+  // deep and one elevated platform. The panel offsets fit the model's
+  // retained shaft, with clear walking space below the sign.
+  const upperPairs = ["15 - 16", "13 - 14", "11 - 12"];
+  for (const [index, shaft] of HBF_CIRCULATION_V291.shafts.entries()) {
+    const upper = upperPairs[index % upperPairs.length];
+    const lower = shaft.x < 0 ? "3 - 4" : "5 - 6";
+    for (const level of HBF_CIRCULATION_V291.levels) {
+      if (level.id !== "ground-concourse" && level.id !== "lower-gallery") continue;
+      const y = level.topLocalY + 2.82;
+      const z = shaft.z - 1.88;
+      plan.box([shaft.x, y, z], [2.62, .74, .12], 0x194783, "lift-wayfinding-field");
+      const face = z - (plan.native ? .38 : .085);
+      plan.text(`OG2  ${upper}`, [shaft.x, y + .07, face], 2.39, .23, 0xf2f3e6, "lift-upper-platform", "x", -1);
+      plan.text(`UG2  ${lower}`, [shaft.x, y - .28, face], 2.39, .23, 0xf2f3e6, "lift-deep-platform", "x", -1);
+    }
+  }
   for(const arm of[-1,1]) {
     plan.box([0,3.43,arm*85],[10.7,.84,.16],0x164d8d,"exit-wayfinding-field");
     plan.text(arm<0?"EUROPAPLATZ":"WASHINGTONPLATZ",[0,3.17,arm*85-arm*.10],9.9,.48,0xf1f2e7,"exit-wayfinding-lettering","x",-arm);

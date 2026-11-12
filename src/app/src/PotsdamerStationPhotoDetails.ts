@@ -1,3 +1,4 @@
+import { createPotsdamerSouthAccess } from "./PotsdamerSouthAccess";
 import { POTSDAMER_SOUTH_STATION_PHOTO_RECEIPT, isPotsdamerSouthStationPhotoSource } from "./potsdamerStationPhotoOwnership";
 import { POTSDAMER_STATION_PHOTO_STRIP_RECEIPT, canReplacePotsdamerSouthStationPhoto,
   isPotsdamerStationPhotoStripSource } from "./potsdamerStationPhotoOwnership";
@@ -204,7 +205,8 @@ export function preparePotsdamerSouthStationPhotoTransfer(
     if (receipt.some(([x, z]) => inRing((x + .5) * 40, (z + .5) * 40, ring) &&
       !holes.some(h => inRing((x + .5) * 40, (z + .5) * 40, h)))) return null;
   }
-  const rows = potsdamerSouthStationPhotoBlocks();
+  const rows = potsdamerSouthStationPhotoBlocks().filter(row =>
+    row.role !== "stair-step" && row.role !== "stair-handrail");
   const group = new Group();
   group.name = "Potsdamer Platz south station — independent native photo recognition";
   group.userData = { potsdamerStationPhoto: true, blockNative: true, keepInMinecraft: true,
@@ -233,6 +235,7 @@ export function preparePotsdamerSouthStationPhotoTransfer(
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
     mesh.computeBoundingBox(); mesh.computeBoundingSphere(); group.add(mesh);
   }
+  group.add(createPotsdamerSouthAccess(true));
   return { group: freezeStaticSceneTransforms(group),
     replacesColumn: (...row) => expected.has(row.join("/")) };
 }

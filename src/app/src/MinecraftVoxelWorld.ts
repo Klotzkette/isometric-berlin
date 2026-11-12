@@ -192,6 +192,7 @@ import { createMinecraftSchlossNaturkundeFacades } from "./SchlossNaturkundeFaca
 import { isSchlossNaturkundeReplacementColumn } from "./schlossNaturkundeProfile";
 import { urbanFacadeScope, urbanMappedFacadeTone, urbanMappedRoofTone } from "./urbanFacadePresentation";
 import { coreHousePaintV273 } from "./CoreHouseColoursV273";
+import { coreResidentialNativeTone } from "./ordinaryFacadeTones";
 import { GroundRunBuffer, type GroundRun } from "./groundRunBuffer";
 import { parkReliefGroundSlices } from "./parkReliefGroundRunsV182";
 import { rosengartenPergolaVoxelReplacementAt } from "./rosengartenProfile";
@@ -1043,7 +1044,7 @@ export function buildColumnToneLookup(prisms: {
           ? KOLLHOFF_TOWER_PROFILE.minecraftClinkerTone
           : mappedTone !== undefined
             ? snap([(mappedTone >> 16) & 255, (mappedTone >> 8) & 255, mappedTone & 255])
-            : ordinaryPaint ? ordinaryPaint[4] : building.tone ? snap(building.tone) : null
+            : ordinaryPaint ? coreResidentialNativeTone(ordinaryPaint[2], ordinaryPaint[4]) : building.tone ? snap(building.tone) : null
       ),
       maxX: Math.max(...xs),
       maxZ: Math.max(...zs),

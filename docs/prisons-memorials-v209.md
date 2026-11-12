@@ -187,3 +187,28 @@ Review cameras (world metres) are exported as `PRISONS_MEMORIALS_V209_CAMERAS`:
 | JVA Tegel | `[-4680,340,-5870]` | `[-5165,8,-6112]` | 730 m |
 | Former Stasi HQ | `[7460,220,930]` | `[7810,8,690]` | 460 m |
 | Hohenschönhausen | `[8620,160,-2180]` | `[8867,7,-2350]` | 310 m |
+
+## Present-day entrance details
+
+Haus 1 at the Stasimuseum has a perforated concrete screen in front of the
+entrance. The [present-day photograph by Placek for the Bundesarchiv](https://www.bundesarchiv.de/themen-entdecken/online-entdecken/themenbeitraege/die-stasi-zentrale-gestern-und-heute/)
+shows the concrete openings and steel surround. The
+[Bundesarchiv aerial view by Dronebrothers.de](https://www.bundesarchiv.de/stasi-unterlagen-archiv/stasi-zentrale-campus-fuer-demokratie/)
+identifies its position on the exposed west edge of the entrance canopy.
+The drawn model replaces exactly sheet 4 of LoD2 part `DEBE11YYI0002Eyq`
+with a perforated surface along the original 14.77 m alignment. Every other
+source sheet remains in place. The 180 openings, relief depth and colour are
+photo-based display estimates. Minecraft keeps the source skin and adds
+independent cardinal recess detail. Both use their existing render batches.
+
+At the separate Hohenschönhausen memorial, the
+[operator's entrance photograph by Dirk Vogel](https://www.stiftung-hsh.de/stiftung/presse/pressebilder)
+supports the visible concrete jambs and lintel. OpenStreetMap node
+`492400221` and adjacent fence way `40560203` supply the location, alignment
+and 4 m opening width. The 3.3 m displayed clearance follows the photographed
+sign. The concrete member thickness and finish are display estimates.
+Walking collision follows the rendered members and leaves the centre open.
+
+Fourteen focused tests cover the preserved source triangles, visible openings,
+texture-free native construction, and agreement between gate geometry and
+collision. The photographs are reference material.

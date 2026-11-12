@@ -13,7 +13,11 @@ export function fidelityGroundOpeningsV296(admission:GroundAdmissionV296={}):rea
 /** Keep every outside indexed vertex/triangle byte. Only locally intersecting
  * triangles gain interpolated boundary vertices; never expand a city plate. */
 export function clipFidelityGroundSurfaceV296(source:BufferGeometry,admission:GroundAdmissionV296={}):BufferGeometry{
-  const cuts=fidelityGroundOpeningsV296(admission);if(!cuts.length)return source;
+  return clipGroundSurfaceThroughOpenings(source, fidelityGroundOpeningsV296(admission));
+}
+
+export function clipGroundSurfaceThroughOpenings(source:BufferGeometry,cuts:readonly HbfOpeningV291[]):BufferGeometry{
+  if(!cuts.length)return source;
   const pos=source.getAttribute("position"),index=source.getIndex(),count=index?.count??pos.count;
   const names=["position",...Object.keys(source.attributes).filter(n=>n!=="position")],attrs=names.map(n=>source.getAttribute(n)),offsets:number[]=[];
   // Unknown packed formats fail closed rather than changing source values.
@@ -59,14 +63,24 @@ export function clipFidelityGroundSurfaceV296(source:BufferGeometry,admission:Gr
  * original matrices/paint and all pre-existing children retain their bytes.
  * The replacement is independent cardinal boxes in both terrain families. */
 export function restoreFidelityGroundSlabsV296(slabs:InstancedMesh,admission:GroundAdmissionV296={}):void{
-  const cuts=fidelityGroundOpeningsV296(admission);if(!cuts.length)return;
+  if (clipGroundSlabsThroughOpenings(slabs, fidelityGroundOpeningsV296(admission), admission.native === true,
+    "Complete original ground fragments outside admitted public rooms and waterfront routes v296")) slabs.userData.fidelityGroundV296 = true;
+}
+
+export function clipGroundSlabsThroughOpenings(
+  slabs: InstancedMesh,
+  cuts: readonly HbfOpeningV291[],
+  native: boolean,
+  name: string,
+): boolean {
+  if(!cuts.length)return false;
   const old=slabs.instanceMatrix.array,oldColors=slabs.instanceColor?.array;
   const changed=new Map<number,HbfBoxV291[]|BufferGeometry>();let total=0;
   for(let i=0;i<slabs.count;i++){
     const at=i*16,x=old[at+12],y=old[at+13],z=old[at+14],hx=old[at]/2,hy=old[at+5]/2,hz=old[at+10]/2;
     const local=cuts.filter(c=>x+hx>c.bounds.min[0]&&x-hx<c.bounds.max[0]&&y+hy>c.bounds.min[1]&&y-hy<c.bounds.max[1]&&z+hz>c.bounds.min[2]&&z-hz<c.bounds.max[2]);
     if(!local.length)continue;
-    if(admission.native){
+    if(native){
       const box:HbfBoxV291={min:[x-hx,y-hy,z-hz],max:[x+hx,y+hy,z+hz]},pieces=hbfBoxFragmentsV291(box,local);
       if(pieces.length===1&&pieces[0]===box)continue;
       changed.set(i,pieces);total+=pieces.length;
@@ -77,11 +91,11 @@ export function restoreFidelityGroundSlabsV296(slabs:InstancedMesh,admission:Gro
       for(let v=0;v<paint.length;v+=3)paint.set(color,v);opened.setAttribute("color",new BufferAttribute(paint,3));opened.deleteAttribute("uv");changed.set(i,opened);
     }
   }
-  if(!changed.size)return;
+  if(!changed.size)return false;
   const kept=new Float32Array((slabs.count-changed.size)*16),paints=oldColors?new Float32Array((slabs.count-changed.size)*3):null;
   const day=((slabs.userData.dayMaterial??slabs.material) as MeshBasicMaterial).clone(),night=((slabs.userData.nightMaterial??slabs.material) as MeshStandardMaterial).clone();
   let mesh:Mesh;
-  if(admission.native){
+  if(native){
     const native=new InstancedMesh(slabs.geometry,day,0),matrices=new Float32Array(total*16),colors=new Float32Array(total*3),m=new Matrix4(),white=new Color(0xffffff);let n=0;
     for(const[i,pieces]of changed)for(const b of pieces as HbfBoxV291[]){m.makeScale(b.max[0]-b.min[0],b.max[1]-b.min[1],b.max[2]-b.min[2]);m.setPosition((b.min[0]+b.max[0])/2,(b.min[1]+b.max[1])/2,(b.min[2]+b.max[2])/2);m.toArray(matrices,n*16);if(oldColors)colors.set(oldColors.subarray(i*3,i*3+3),n*3);else white.toArray(colors,n*3);n++;}
     native.instanceMatrix=new InstancedBufferAttribute(matrices,16);native.instanceColor=new InstancedBufferAttribute(colors,3);native.count=n;native.computeBoundingBox();native.computeBoundingSphere();mesh=native;
@@ -90,9 +104,9 @@ export function restoreFidelityGroundSlabsV296(slabs:InstancedMesh,admission:Gro
   }
   let k=0;for(let i=0;i<slabs.count;i++)if(!changed.has(i)){kept.set(old.subarray(i*16,i*16+16),k*16);if(paints&&oldColors)paints.set(oldColors.subarray(i*3,i*3+3),k*3);k++;}
   slabs.instanceMatrix=new InstancedBufferAttribute(kept,16);if(paints)slabs.instanceColor=new InstancedBufferAttribute(paints,3);slabs.count=k;slabs.boundingBox=null;slabs.boundingSphere=null;
-  mesh.name="Complete original ground fragments outside admitted public rooms and waterfront routes v296";
-  mesh.userData={dayMaterial:day,nightMaterial:night,textureFree:true,sourceOutsideFragmentsRetained:true,nativeMinecraft:admission.native===true,affectedRuns:changed.size};
+  mesh.name=name;
+  mesh.userData={dayMaterial:day,nightMaterial:night,textureFree:true,sourceOutsideFragmentsRetained:true,nativeMinecraft:native,affectedRuns:changed.size};
   if(mesh instanceof InstancedMesh?mesh.count>0:mesh.geometry.getAttribute("position").count>0)slabs.add(freezeStaticSceneTransforms(mesh));
   else{day.dispose();night.dispose();if(!(mesh instanceof InstancedMesh))mesh.geometry.dispose();}
-  slabs.userData.fidelityGroundV296=true;
+  return true;
 }

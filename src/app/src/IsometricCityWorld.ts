@@ -52,6 +52,7 @@ import { CENTRAL_SITES_V200_FALSE_PRISM_IDS } from "./centralSitesV200Profile";
 import { NATIONALGALERIE_V183_IDS } from "./neueNationalgalerieV183Profile";
 import { GENERIC_FACADE_SWATCHES, genericFacadeTone } from "./cityColourV184";
 import { coreHousePaintV273 } from "./CoreHouseColoursV273";
+import { coreResidentialFacadeTone } from "./coreFacadeAppearance";
 import { refineCoreParkReliefSurface } from "./parkReliefSurfaceV182";
 import { BERLIN_WALL_MEMORIAL_V174_PRISM_IDS } from "./berlinWallMemorialV174Profile";
 import { createAltMitteCoreV169 } from "./AltMitteDrawnCoreV169";
@@ -546,8 +547,7 @@ class Uint16Accumulator {
   }
 }
 
-export const PRISM_WORLD_FILE = "lod2-prisms.json";
-export const SURFACE_WORLD_FILE = "surface-polygons.json";
+export { PRISM_WORLD_FILE, SURFACE_WORLD_FILE } from "./startupWorldRequests";
 
 /**
  * True OSM water and parkland polygons (decimetre rings). The voxel
@@ -1763,8 +1763,8 @@ function facadeColorFor(
   if (recordedTone !== undefined) {
     return target.setHex(recordedTone).lerp(IVORY, urban ? 0.04 : 0.12);
   }
-  const ordinaryPaint = coreHousePaintV273(building);
-  if (ordinaryPaint) return target.setHex(ordinaryPaint[2]);
+  const ordinaryPaint = coreResidentialFacadeTone(building);
+  if (ordinaryPaint !== undefined) return target.setHex(ordinaryPaint);
   // Retain the per-part Step-8 illustration sample where no stronger source
   // attribute exists; this colour is not a surveyed facade observation.
   if (building.tone) {

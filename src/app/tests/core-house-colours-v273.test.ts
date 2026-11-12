@@ -3,6 +3,10 @@ import { readFileSync } from "node:fs";
 import before from "./fixtures/core-house-colours-v273-before.json";
 import paint from "../src/data/coreHouseColoursV273.json";
 import { coreHousePaintV273 } from "../src/CoreHouseColoursV273";
+import { coreResidentialFacadeTone } from "../src/coreFacadeAppearance";
+import { coreResidentialNativeTone, ORDINARY_FACADE_TONES } from "../src/ordinaryFacadeTones";
+import { buildingAttributes, mappedFacadeTone } from "../src/buildingAttributes";
+import { MINECRAFT_BUILDING_PALETTE } from "../src/visual-modes/minecraft/palette";
 import { buildColumnToneLookup } from "../src/MinecraftVoxelWorld";
 import { HERO_PRISM_TONES, HERO_PRISM_ROOF_TONES, PRISM_SUPPRESSED_IDS, PRISM_GLASSED_IDS } from "../src/IsometricCityWorld";
 import { coreSourceV211, drawnV211, snapshotV211, disposeV211, wallColoursV211 } from "./helpers/coreMaterialV211";
@@ -38,6 +42,29 @@ test("every positive residential receipt matches its complete unchanged source a
   expect(selected).toBe(7173);
   expect(Object.hasOwn(paint.owners, "K0002RLM")).toBe(false);
   expect(coreHousePaintV273({ id: Object.keys(paint.owners)[0], ring: [[0,0],[1,0],[1,1]] })).toBeUndefined();
+});
+
+test("exact residential facade tones cover previously unpainted parts and preserve known material precedence", () => {
+  const retainedTones = new Set<number>(ORDINARY_FACADE_TONES);
+  const nativeTones = new Set<number>(MINECRAFT_BUILDING_PALETTE);
+  let missingSamples = 0, oldSamples = 0;
+  for (const part of coreSourceV211.buildings) {
+    const tone = coreResidentialFacadeTone(part);
+    if (tone === undefined) continue;
+    expect(retainedTones.has(tone)).toBeTrue();
+    expect(mappedFacadeTone(buildingAttributes(part.id))).toBeUndefined();
+    if (part.tone) {
+      const paint = coreHousePaintV273(part)!;
+      expect(nativeTones.has(coreResidentialNativeTone(paint[2], paint[4]))).toBeTrue();
+      oldSamples++;
+      continue;
+    }
+    expect(coreResidentialFacadeTone({ ...part, tone: [170, 170, 170] })).toBeUndefined();
+    expect(coreResidentialFacadeTone({ ...part, h_dm: part.h_dm + 1 })).toBeUndefined();
+    missingSamples++;
+  }
+  expect(oldSamples).toBe(7173);
+  expect(missingSamples).toBe(1969);
 });
 
 test("actual early and detailed factories change only existing paint; mapped and authored controls are byte-identical", () => {
@@ -76,7 +103,7 @@ test("all 29,818 native sample queries keep mapped caps and exact source ownersh
       expect(lookup.illustrationRoofToneAt!(x,z)).toBeUndefined();
       unchanged++;
     } else if (current !== oldPaint) {
-      expect(owners[oldOwner].some(row => row[4] === current)).toBeTrue();
+      expect(owners[oldOwner].some(row => coreResidentialNativeTone(row[2], row[4]) === current)).toBeTrue();
       changed++;
     }
   }

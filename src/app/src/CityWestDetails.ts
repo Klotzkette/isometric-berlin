@@ -11,6 +11,7 @@ import {
   Object3D,
   StaticDrawUsage,
   BufferGeometry,
+  PlaneGeometry,
   CylinderGeometry,
   Float32BufferAttribute,
   EdgesGeometry,
@@ -1439,6 +1440,19 @@ function addAllianzHaus(
         profile.rotationY,
         false,
       );
+    }
+    // The continuous stone ribs cross the glazing at all fourteen
+    // levels, as described in the landmark inventory.
+    const [x, z] = localPoint(
+      profile.centerWorldM, profile.rotationY, 0, side * (depthM / 2 + 0.31),
+    );
+    const storeyHeight = (heightM - 7) / profile.floorCount;
+    for (let level = 1; level < profile.floorCount; level += 1) {
+      const band = new PlaneGeometry(lengthM - 0.24, 0.32);
+      band.rotateY(profile.rotationY + (side < 0 ? Math.PI : 0));
+      band.translate(x, GROUND_Y + 3.5 + level * storeyHeight, z);
+      paintGeometry(band, TRAVERTINE);
+      builder.parts.push(band);
     }
   }
   addAllianzRoofWordmark(builder);

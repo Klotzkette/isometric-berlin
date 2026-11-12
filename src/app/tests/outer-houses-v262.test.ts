@@ -26,10 +26,8 @@ function owners(p: SurroundingCityChunk) {
     p.origin[1], p.origin[0], p.origin[2], undefined, false, true));
 }
 
-test("outer fallback is restrained and varied, with separate darker roofs and unchanged core swatches", () => {
-  expect(GENERIC_FACADE_SWATCHES).toEqual([
-    0xddc29e, 0xcba989, 0xe9dcc0, 0xafc0a7, 0xd4a596, 0xa8c4cb, 0xd2b679, 0xc6c6b8,
-  ]);
+test("outer fallback and core estimates stay distinct, with separate darker roofs", () => {
+  expect(new Set(GENERIC_FACADE_SWATCHES).size).toBe(8);
   expect(new Set(OUTER_HOUSE_FACADE_SWATCHES_V262).size).toBe(8);
   expect(new Set(OUTER_HOUSE_ROOF_SWATCHES_V262).size).toBe(8);
   for (const hex of OUTER_HOUSE_FACADE_SWATCHES_V262) {

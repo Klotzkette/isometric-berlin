@@ -35,6 +35,7 @@ export function ThreeViewerLoadErrorFallback({
 
 type ThreeViewerErrorBoundaryProps = ThreeViewerLoadErrorFallbackProps & {
   children: ReactNode;
+  onError?: () => void;
 };
 
 type ThreeViewerErrorBoundaryState = {
@@ -52,6 +53,7 @@ export class ThreeViewerErrorBoundary extends Component<
   }
 
   componentDidCatch(error: unknown, info: ErrorInfo): void {
+    this.props.onError?.();
     console.error("Isometric Berlin 3D module failed to render", error, info);
   }
 

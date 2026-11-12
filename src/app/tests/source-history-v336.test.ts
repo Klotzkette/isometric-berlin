@@ -44,7 +44,7 @@ test("the public packet transport delta recovers the exact previous source", () 
   expect(Buffer.from(sourceAtBeforeV336(path, current)).equals(original)).toBeTrue();
   expect(projectSourceBeforeV336(current.toString("utf8"))).toBe(original.toString("utf8"));
   expect(() => sourceAtBeforeV336(path, Buffer.concat([current, Buffer.from(" ")])))
-    .toThrow("Unknown exact v336 source bytes");
+    .toThrow(/Unknown exact v33[67] source bytes/);
   expect(() => sourceAtBeforeV336(added, readFileSync(new URL(added, root))))
     .toThrow("Unknown exact v336 source bytes");
 }, 30_000);

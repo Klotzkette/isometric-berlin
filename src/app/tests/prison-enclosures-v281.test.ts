@@ -1,7 +1,8 @@
 import { expect, test } from 'bun:test';
-import { InstancedMesh, Matrix4, Mesh } from 'three';
+import { InstancedMesh, Matrix4, Mesh, Raycaster, Vector3 } from 'three';
 import { createPrisonEnclosuresV281, PRISON_ENCLOSURES_V281_PROFILE as profile,
   prisonEnclosuresV281SolidAt as solid } from '../src/PrisonEnclosuresV281';
+import { HSH_GATE_CENTER } from '../src/StasiSiteEntrances';
 
 function snapshot(native: boolean, mobileLike = false) {
   const root = createPrisonEnclosuresV281(native, { mobileLike });
@@ -36,8 +37,8 @@ test('two separately culled sites retain full mobile detail and bounded independ
     expect(full.root.userData.historicalParkUnchanged).toBe(true);
     expect(full.root.userData.noSourceReplacement).toBe(true);
     expect(full.arrays).toEqual(mobile.arrays);
-    expect(full.bytes).toBeLessThan(native ? 58_000 : 35_000);
-    expect(full.instances).toBe(native ? 740 : 333);
+    expect(full.bytes).toBe(native ? 60500 : 35116);
+    expect(full.instances).toBe(native ? 779 : 337);
   }
 });
 
@@ -77,4 +78,21 @@ test('native wall collision agrees with every packed visible one-metre cell', ()
   const tower = profile.towers[2], [a, b] = tower.ring;
   expect(solid((a[0] + b[0]) / 2, 8, (a[1] + b[1]) / 2)).toBe(true);
   expect(solid((a[0] + b[0]) / 2, 5, (a[1] + b[1]) / 2)).toBe(false);
+});
+
+test('the mapped Hohenschönhausen gate has open walking headroom and a visible solid lintel', () => {
+  const [x, z] = HSH_GATE_CENTER;
+  for (const native of [false, true]) {
+    const root = createPrisonEnclosuresV281(native, {}, 'hsh');
+    root.updateMatrixWorld(true);
+    const direction = new Vector3(.97, 0, .246).normalize();
+    const hit = (y: number) => {
+      const origin = new Vector3(x, y, z).addScaledVector(direction, -1.3);
+      return new Raycaster(origin, direction, 0, 2.6).intersectObject(root, true).length;
+    };
+    expect(hit(4.7)).toBe(0);
+    expect(solid(x, 4.7, z, .30, native)).toBe(false);
+    expect(hit(6.7)).toBeGreaterThan(0);
+    expect(solid(x, 6.7, z, .30, native)).toBe(true);
+  }
 });

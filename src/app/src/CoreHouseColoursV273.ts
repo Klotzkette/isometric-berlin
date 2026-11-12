@@ -13,12 +13,10 @@ export type CoreHousePartV273 = {
 export type CoreHousePaintV273 = readonly [number, number, number, number, number, number];
 type Receipts = Readonly<Record<string, readonly CoreHousePaintV273[]>>;
 
-/** Exact existing source identity and complete geometry/sample guards. Never
- * classify a facade merely because it looks grey; the offline receipt requires
- * positive residential use and excludes mapped/authored material families. */
-export function coreHousePaintV273(part: CoreHousePartV273): CoreHousePaintV273 | undefined {
-  const rows = part.id ? (data.owners as unknown as Receipts)[part.id] : undefined;
-  if (!rows || part.y0_dm === undefined || part.h_dm === undefined || part.class === undefined) return;
+export function exactCoreHouseRow<T extends readonly number[]>(
+  part: CoreHousePartV273, first: T | undefined, alternatives?: readonly T[],
+): T | undefined {
+  if (!first || part.y0_dm === undefined || part.h_dm === undefined || part.class === undefined) return;
   let a = 2166136261, b = 2246822519;
   const feed = (text: string) => {
     for (let i = 0; i < text.length; i++) {
@@ -33,5 +31,13 @@ export function coreHousePaintV273(part: CoreHousePartV273): CoreHousePaintV273 
     feed("]");
   }
   feed(`;${part.tone?.join(",") ?? ""}`);
-  return rows.find(row => row[0] === a && row[1] === b);
+  return first[0] === a && first[1] === b ? first : alternatives?.find(row => row[0] === a && row[1] === b);
+}
+
+/** Exact existing source identity and complete geometry/sample guards. Never
+ * classify a facade merely because it looks grey; the offline receipt requires
+ * positive residential use and excludes mapped/authored material families. */
+export function coreHousePaintV273(part: CoreHousePartV273): CoreHousePaintV273 | undefined {
+  const rows = part.id ? (data.owners as unknown as Receipts)[part.id] : undefined;
+  return exactCoreHouseRow(part, rows?.[0], rows);
 }

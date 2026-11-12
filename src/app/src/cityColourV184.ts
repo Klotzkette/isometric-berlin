@@ -1,13 +1,11 @@
 import { Color } from "three";
+import { ORDINARY_FACADE_TONES } from "./ordinaryFacadeTones";
 
-// Restrained plaster/stone display families, not surveyed facade colours.
-// Explicit material/colour sources and individually authored buildings win.
-// v217 keeps all eight existing family assignments. A little less white in
-// these illustration swatches makes ordinary streets legible alongside the
-// individually researched buildings; it is not new per-house colour evidence.
+// Keep the eight stable fallback assignments. Source and authored paint take
+// precedence over these estimates.
 export const GENERIC_FACADE_SWATCHES = [
-  0xddc29e, 0xcba989, 0xe9dcc0, 0xafc0a7,
-  0xd4a596, 0xa8c4cb, 0xd2b679, 0xc6c6b8,
+  ORDINARY_FACADE_TONES[0], ORDINARY_FACADE_TONES[1], ORDINARY_FACADE_TONES[2], ORDINARY_FACADE_TONES[3],
+  ORDINARY_FACADE_TONES[4], ORDINARY_FACADE_TONES[5], ORDINARY_FACADE_TONES[6], ORDINARY_FACADE_TONES[7],
 ] as const;
 const tones = GENERIC_FACADE_SWATCHES.map(value => new Color(value));
 

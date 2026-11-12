@@ -63,7 +63,7 @@ export function assertSourceLayerV335(published216: Readonly<Record<string, stri
 export function sourceAtPublished216V335(path: string, raw: Uint8Array): Uint8Array {
   if (!checked || !Object.hasOwn(checked.published, path))
     throw Error(`Unknown exact v335 source bytes: ${path}`);
-  if (Object.hasOwn(checked.changes, path)) {
+  if (Object.hasOwn(checked.published, path)) {
     try {
       raw = sourceAtBeforeV336(path, raw);
     } catch (cause) {

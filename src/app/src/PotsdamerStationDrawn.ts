@@ -3,6 +3,8 @@ import {
   Group, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry,
   Quaternion, Shape, Vector3,
 } from "three";
+import { createPotsdamerSouthAccess } from "./PotsdamerSouthAccess";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { createLetteringTexture } from "./drawnLettering";
 import { POTSDAMER_DETAIL_PROFILE } from "./expandedCityProfiles";
 import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
@@ -15,6 +17,7 @@ import { potsdamerStationStripPhotoMembers } from "./potsdamerStationPhotoStrip"
 type WorldRing = readonly (readonly [number, number])[];
 const GLASS = 0xa7d1d8;
 const DARK_FRAME = 0x29373a;
+type StationBuilder = Builder & { glass?: BufferGeometry[]; connectedSouth?: boolean };
 
 function addCustomGeometry(
   builder: Builder,
@@ -26,6 +29,11 @@ function addCustomGeometry(
   if (!geometry.index) {
     const count = geometry.getAttribute("position").count;
     geometry.setIndex(Array.from({ length: count }, (_, index) => index));
+  }
+  const glass = (builder as StationBuilder).glass;
+  if (glass && color === GLASS) {
+    glass.push(geometry);
+    return;
   }
   paintGeometry(geometry, color);
   (lamp ? builder.lamps : builder.parts).push(geometry);
@@ -60,6 +68,14 @@ function addLocalBox(
   inked = true,
 ): void {
   const [offsetX, offsetZ] = rotatedLocalOffset(localX, localZ, rotationY);
+  const glass = (builder as StationBuilder).glass;
+  if (glass && color === GLASS) {
+    const panel = new BoxGeometry(width, height, depth);
+    panel.rotateY(rotationY);
+    panel.translate(origin.x + offsetX, centerY, origin.z + offsetZ);
+    glass.push(panel);
+    return;
+  }
   addBox(
     builder,
     color,
@@ -209,9 +225,7 @@ function addPotsdamerEntranceHalls(
     const recognition = profile.ownerPhotoRecognition;
     const photoGuided = hall.sourceBuildingId === recognition.sourceBuildingId;
     const steelTone = photoGuided ? recognition.steelTone : DARK_FRAME;
-    // The drawn glass is opaque flat paint. Keep its outer face behind the
-    // existing steel grid, so the source-bounded members remain visible.
-    // The original north hall recipe stays byte-identical.
+    // Keep the glazed skin inside the exterior steel grid.
     const glassInset = photoGuided ? 0.21 : 0.09;
 
     // The source's south height includes its below-street wall section.
@@ -457,6 +471,7 @@ function addPotsdamerEntranceHalls(
       }
     }
 
+    if (hall.key === "south" && (builder as StationBuilder).connectedSouth) continue;
     // Two stair/escalator banks descend from each hall's mapped entrance
     // edge. The below-grade run is diagrammatic and does not change the LoD2
     // footprint or claim an as-built underground survey.
@@ -573,14 +588,29 @@ function addPotsdamerEntranceHallLettering(
   }
 }
 
-/** Common factory keeps the complete existing north recipe byte-identical.
- * The south-only form is constructed by the required-site transaction before
- * its exact old generic glass envelope is allowed to yield. */
-export function createPotsdamerStationDrawn(selection: "all" | "north" | "south" = "all"): Group {
+/** The south-only form is constructed by the required-site transaction
+ * before its exact old generic glass envelope is allowed to yield. */
+export function createPotsdamerStationDrawn(selection: "all" | "north" | "south" = "all", connectedSouth = false): Group {
   const root = new Group(); root.name = "Potsdamer Platz station entrance details";
   const byName = new Map<string, unknown>([["Mall of Berlin", {}]]);
-  const builder = createBuilder();
+  const builder: StationBuilder = { ...createBuilder(), glass: [], connectedSouth };
   addPotsdamerEntranceHalls(builder, byName, selection);
+  const panels = builder.glass!;
+  const indexedPanels = panels.map(panel => {
+    if (!panel.index) panel.setIndex(Array.from({ length: panel.getAttribute("position").count }, (_, i) => i));
+    panel.deleteAttribute("color");
+    panel.deleteAttribute("uv");
+    return panel;
+  });
+  const glazing = mergeGeometries(indexedPanels);
+  for (const panel of panels) panel.dispose();
+  if (!glazing) throw new Error("Incompatible Potsdamer Platz glazing geometry");
+  const glassDay = new MeshBasicMaterial({ color: GLASS, transparent: true, opacity: .25, depthWrite: false });
+  const glassNight = new MeshStandardMaterial({ color: GLASS, transparent: true, opacity: .24, depthWrite: false, roughness: .3 });
+  const glass = new Mesh(glazing, glassDay);
+  glass.name = "Potsdamer Platz pavilion roofs and transparent glazing";
+  glass.userData = { dayMaterial: glassDay, nightMaterial: glassNight, keepInMinecraft: false };
+  root.add(glass);
   if (selection !== "north") {
     for (const member of potsdamerStationStripPhotoMembers()) {
       const color = POTSDAMER_DETAIL_PROFILE.stationEntranceHalls.ownerPhotoRecognition.steelTone;
@@ -621,7 +651,8 @@ export function createPotsdamerStationDrawn(selection: "all" | "north" | "south"
 
 export function createPotsdamerSouthStationPhotoDrawn(prisms: readonly unknown[] | undefined): Group | null {
   if (!canReplacePotsdamerSouthStationPhoto(prisms)) return null;
-  const root = createPotsdamerStationDrawn("south");
+  const root = createPotsdamerStationDrawn("south", true);
+  root.add(createPotsdamerSouthAccess(false));
   root.name = "Potsdamer Platz south station photo recognition";
   root.userData = { potsdamerStationPhoto: true, keepInMinecraft: false,
     fullStaticDetailOnTouch: true, sourceGeometryRetained: true,

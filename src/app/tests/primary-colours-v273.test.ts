@@ -71,10 +71,11 @@ test("known source materials retain precedence over both corner and unique-owner
 });
 test("shared source IDs have stable separate wall/roof choices without allocating per-owner palettes",()=>{
  const walls=new Set<string>(),roofs=new Set<string>();
+ const luminance = ([r, g, b]: readonly number[]) => r * .2126 + g * .7152 + b * .0722;
  for(let i=0;i<2000;i++){
   const a=primaryHousePaletteV273(`DEBE00${i}`);expect(primaryHousePaletteV273(`DEBE00${i}`)).toBe(a);
   walls.add(a.wall.join());roofs.add(a.roof.join());
-  expect(Math.max(...a.roof)).toBeLessThan(Math.min(...a.wall));
+  expect(luminance(a.roof) * 1.6).toBeLessThan(luminance(a.wall));
  }
  expect(walls.size).toBe(PRIMARY_WALL_SWATCHES_V273.length);expect(roofs.size).toBe(8);
 });

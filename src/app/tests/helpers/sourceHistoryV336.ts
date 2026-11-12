@@ -1,7 +1,8 @@
 /** Verify the public packet transport change before replaying earlier source layers. */
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { assertSourceLayerV337, projectSourceBeforeV337, sourceAtBeforeV337 } from "./sourceHistoryV337";
 
 export const SOURCE_HISTORY_PROOF_SHA_V336 = "c6c9a3c7a4cb32839f0b98170177d2ef5d46ae7980eb0ea9718c154eae9cea1d";
 const previousProof = "fe8566a0f606cc69623bae57f3785f31c5ccb75806363973dcaf5227571cafc1";
@@ -60,20 +61,13 @@ export function assertSourceLayerV336(previous: Readonly<Record<string, string>>
   const current = { ...previous, [changedPath]: inverse.currentSha256, [addedPath]: receipt.additions[addedPath] };
   if (Object.values(current).filter(digest => digest === inverse.currentSha256).length !== 1)
     throw Error("Ambiguous full v336 source fingerprint");
-  const files = readdirSync(resolve(root, "src/app/src"), { recursive: true }).map(path => `src/app/src/${path}`)
-    .filter(path => /\.(?:ts|tsx|json)$/.test(path) && statSync(resolve(root, path)).isFile());
-  const inventory = new Set([...paths, ...files]);
-  if (inventory.size !== Object.keys(current).length || [...inventory].some(path => !Object.hasOwn(current, path)))
-    throw Error("Changed or unaccounted v336 source inventory");
-  for (const path of inventory) {
-    const source = readFileSync(resolve(root, path));
-    if (sha(source) !== current[path]) throw Error(`Changed complete v336 source graph: ${path}`);
-    if (path === changedPath) project(source.toString("utf8"), inverse);
-  }
+  assertSourceLayerV337(current);
+  project(Buffer.from(sourceAtBeforeV337(changedPath, readFileSync(resolve(root, changedPath)))).toString("utf8"), inverse);
   checked = { previous: Object.freeze({ ...previous }), inverse };
 }
 
 export function sourceAtBeforeV336(path: string, raw: Uint8Array): Uint8Array {
+  if (checked && Object.hasOwn(checked.previous, path)) raw = sourceAtBeforeV337(path, raw);
   if (!checked || !Object.hasOwn(checked.previous, path)
       || sha(raw) !== (path === changedPath ? checked.inverse.currentSha256 : checked.previous[path]))
     throw Error(`Unknown exact v336 source bytes: ${path}`);
@@ -82,5 +76,6 @@ export function sourceAtBeforeV336(path: string, raw: Uint8Array): Uint8Array {
 
 export function projectSourceBeforeV336(source: string): string {
   if (!checked) throw Error("Unverified v336 source layer");
+  source = projectSourceBeforeV337(source);
   return sha(source) === checked.inverse.currentSha256 ? project(source, checked.inverse) : source;
 }

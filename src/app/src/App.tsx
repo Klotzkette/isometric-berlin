@@ -3,6 +3,7 @@ import { simulationStartLabel } from "./simulationStartViews";
 import { StartupPresentation } from "./StartupPresentation";
 import { StartupModeSelection } from "./StartupModeSelection";
 import { directStartupMode } from "./modeLinks";
+import { createStartupWorldRequests } from "./startupWorldRequests";
 import { readViewerVisit, saveViewerVisit, watchViewerVisit, type ViewerVisit } from "./viewerSessionRecovery";
 import { SourcesDialog } from "./SourcesDialog";
 import {
@@ -970,6 +971,12 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
     () => assetPath("mesh/regierungsviertel/scene.json"),
     [],
   );
+  const [startupSources] = useState(createStartupWorldRequests);
+  useEffect(() => {
+    // Only the chosen world starts transferring, while the lazy engine loads.
+    startupSources.prime(new URL(sceneUrl, window.location.href), initialMode);
+    return startupSources.discard;
+  }, [initialMode, sceneUrl, startupSources]);
 
   const pedestrianMapUrl = useMemo(
     () => assetPath("dzi/regierungsviertel/pedestrian_map.png"),
@@ -2992,6 +2999,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
           ) : (
           <ThreeViewerErrorBoundary
             key={threeViewerInstanceKey}
+            onError={startupSources.discard}
             detail={copy.threeLoadErrorDetail}
             message={copy.threeLoadError}
             reloadLabel={copy.reloadPage}
@@ -3029,6 +3037,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
                 startupLanguage={language}
                 publicAmenitiesOn={publicAmenitiesOn}
                 sceneUrl={sceneUrl}
+                startupSources={startupSources}
                 selectedLandmark={selected}
                 openingLandmark={openingLandmarkRef.current}
                 initialFlightStart={INITIAL_FLIGHT_VIEW !== null}

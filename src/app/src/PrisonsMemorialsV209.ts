@@ -6,6 +6,7 @@ import {
 import data from "./data/prisonsMemorialsV209.json";
 import envelopes from "./data/prisonsMemorialsV209Envelopes.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { nativeStasiEntranceScreen, refineStasiEntranceScreen } from "./StasiSiteEntrances";
 
 export const PRISONS_MEMORIALS_V209_GROUP = "Tegel and two distinct Stasi memorial sites v209";
 export const PRISONS_MEMORIALS_V209_SOURCE_IDS = envelopes.sourceIds;
@@ -97,7 +98,8 @@ export function createPrisonsMemorialsEnvelopesV209(native = false): Group {
       if (ground.length) root.add(surfaces(ground, site.name + " new-only source-bound ground"));
     } else {
       const sheets = envelopes.surfaces.filter(r => siteForPosition(r.triangles[0]?.[0]?.[0] ?? 0, r.triangles[0]?.[0]?.[2] ?? 0) === site.key);
-      root.add(surfaces([...sheets, ...ground], site.name + " complete measured wall and roof sheets"));
+      const refined = site.key === "hq" ? sheets.flatMap(refineStasiEntranceScreen) : sheets;
+      root.add(surfaces([...refined, ...ground], site.name + " complete measured wall and roof sheets"));
     }
   }
   return freezeStaticSceneTransforms(root);
@@ -109,6 +111,11 @@ export function createPrisonsMemorialsV209(native = false): Group {
   const rows = native ? data.blocks : data.boxes;
   for (const site of data.sites) {
     const selected = rows.filter(r => r[native ? 7 : 8] === site.key);
+    if (native && site.key === "hq") {
+      for (const [x, y, z, width, height, depth, , color] of nativeStasiEntranceScreen()) {
+        selected.push([x, y, z, width, height, depth, color, "hq"]);
+      }
+    }
     root.add(instances(selected, native, site.name + " mapped perimeter and facade fittings"));
   }
   return freezeStaticSceneTransforms(root);

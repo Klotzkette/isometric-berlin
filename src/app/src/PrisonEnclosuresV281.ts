@@ -5,9 +5,10 @@ import {
 } from 'three';
 import source from './data/prisonEnclosuresV281.json';
 import { freezeStaticSceneTransforms } from './staticSceneTransforms';
+import { hohenschoenhausenEntranceGate, hohenschoenhausenEntranceSolidAt, type StasiEntranceBox } from './StasiSiteEntrances';
 
 type Point = readonly number[];
-type Box = [number, number, number, number, number, number, number, number];
+type Box = StasiEntranceBox;
 type Site = 'moabit' | 'hsh';
 const BRICK = 0x79574b, COPING = 0xafa99b, CREAM = 0xb4aa91;
 const GLASS = 0x374d50, FRAME = 0xc6c4b8, ROOF = 0x626b64;
@@ -132,7 +133,8 @@ export function createPrisonEnclosuresV281(native = false,
       createPrisonEnclosuresV281(native, _options, 'hsh'));
     return freezeStaticSceneTransforms(root);
   }
-  if (!site || site === 'moabit') rows.push(...wallRows(native));
+  if (site === 'moabit') rows.push(...wallRows(native));
+  if (site === 'hsh') rows.push(...hohenschoenhausenEntranceGate(native));
   for (const tower of source.towers) {
     if (site && tower.site !== site) continue;
     const ring = tower.ring;
@@ -166,7 +168,8 @@ export function createPrisonEnclosuresV281(native = false,
       } else segment(rows, a, b, tower.top + .08, .16, .25, ROOF, true);
     }
   }
-  root.add(batch(rows, native, 'Mapped outer Moabit walls and five public tower exteriors'));
+  root.add(batch(rows, native, site === 'hsh' ? 'Hohenschönhausen entrance gate and public tower exteriors'
+    : 'Mapped outer Moabit walls and public tower exteriors'));
   if (roofPositions.length) {
     const g = new BufferGeometry(), c = new Color(ROOF), colors = new Float32Array(roofPositions.length);
     for (let i = 0; i < colors.length; i += 3) c.toArray(colors, i);
@@ -182,6 +185,7 @@ export function createPrisonEnclosuresV281(native = false,
 /** Matching new wall collision only; no blanket prison or memorial closure. */
 export function prisonEnclosuresV281SolidAt(x: number, y: number, z: number,
   radius = 0, native = false): boolean {
+  if (hohenschoenhausenEntranceSolidAt(x, y, z, radius, native)) return true;
   if (x > 8793 && x < 8803 && z > -2415 && z < -2404) {
     const tower = source.towers[2];
     if (y >= tower.bottom && y <= tower.top) {

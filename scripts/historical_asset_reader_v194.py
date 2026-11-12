@@ -37,6 +37,12 @@ def historical_asset_bytes_v194(
 
   if matches(raw):
     return raw
+
+  from scripts.surface_packet_lineage_v337 import predecessor_packet_bytes_v337
+
+  raw = predecessor_packet_bytes_v337(path, raw)
+  if matches(raw):
+    return raw
   assert path.resolve().is_relative_to(PUBLIC), "Nonpublic historical source changed"
 
   def retained(source: Path) -> bytes:

@@ -156,7 +156,8 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # The verified package adds 7,554,629 bytes to v1.0.210 (1,157,862,912 total).
 # 1105 MiB is the next whole-MiB offline-only ceiling.
 # V334 offline package: 1,159,797,522 bytes, 1,453,584 above v1.0.215.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 1107 * 1024 * 1024
+# The v1.0.217 complete package is 1,166,589,807 bytes (1112.55 MiB).
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 1113 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000
