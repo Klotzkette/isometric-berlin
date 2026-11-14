@@ -68,6 +68,7 @@ export const NEIGHBOURHOOD_PLAN_SOURCES_V300: ReadonlySet<string> = new Set([
   "data/moabitMitteV300.json", "data/ostHousingV301.json", "data/westKiezV302.json",
   "data/friedrichshainV303.json", "data/rixdorfV304.json", "data/neukoellnLandmarksV305Packets.json",
   "data/northernFidelityV309Packets.json",
+  "data/weddingGesundbrunnenFrontsV340.json",
 ]);
 type Transform = { code: string; map: null; moduleType: "js" };
 

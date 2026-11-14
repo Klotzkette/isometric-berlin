@@ -158,7 +158,8 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # V334 offline package: 1,159,797,522 bytes, 1,453,584 above v1.0.215.
 # The v1.0.217 complete package is 1,166,589,807 bytes (1112.55 MiB).
 # v1.0.218 adds twelve measured Tegeler Forst packets and station fixtures.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 1115 * 1024 * 1024
+# v1.0.220 includes 1,169,585,375 extracted bytes with the Mitte detail packets.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 1116 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

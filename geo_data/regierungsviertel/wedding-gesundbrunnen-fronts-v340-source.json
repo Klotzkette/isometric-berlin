@@ -1,0 +1,1357 @@
+{
+  "schemaVersion": 1,
+  "scope": "Wedding and Gesundbrunnen: finite retained street fronts only",
+  "sourceBaseline": "4f62439888017004188570f6e815041a6cc146df",
+  "clusters": [
+    {
+      "id": "wedding-liebenwalder",
+      "label": "Liebenwalder Straße, Wedding",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://www.berlin.de/ba-mitte/politik-und-verwaltung/service-und-organisationseinheiten/sozialraumorientierte-planungskoordination/bezirksregionen/artikel.1621663.php",
+          "title": "Official district context: intact Gründerzeit stock and later housing",
+          "role": "Local context, no individual facade survey"
+        }
+      ],
+      "style": {
+        "floorPitchM": 3.9,
+        "bayPitchM": 3.35,
+        "windowWidthRatio": 0.46,
+        "windowHeightRatio": 0.65,
+        "frameWidthM": 0.11,
+        "revealDepthM": 0.075,
+        "sillProjectionM": 0.075,
+        "transomRatio": 0.68,
+        "plinthHeightM": 0.55,
+        "eaveBands": 1,
+        "frameRgb": [
+          223,
+          213,
+          197
+        ],
+        "glassRgb": [
+          85,
+          103,
+          111
+        ],
+        "glassTopRgb": [
+          133,
+          152,
+          155
+        ],
+        "plinthRgb": [
+          161,
+          149,
+          134
+        ],
+        "revealRgb": [
+          113,
+          108,
+          99
+        ]
+      },
+      "faces": [
+        {
+          "family": "v188",
+          "owner": "DEBE01YYK0003uW3",
+          "chunk": "-1_-8"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE01YYK0003ygv",
+          "chunk": "-1_-8"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE01YYK00041mg",
+          "chunk": "-1_-8"
+        },
+        {
+          "family": "v188",
+          "owner": "DEBE01YYK00047Bf",
+          "chunk": "-1_-8"
+        }
+      ]
+    },
+    {
+      "id": "gesundbrunnen-bad-buttmann",
+      "label": "Badstraße und Buttmannstraße, Gesundbrunnen",
+      "ring": "outer",
+      "references": [
+        {
+          "url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09030159",
+          "title": "Landesdenkmalamt Berlin: Historic Gesundbrunnen and Buttmannstraße streetscape",
+          "role": "Local context for varying frontage rhythm; individual decoration remains unknown"
+        }
+      ],
+      "style": {
+        "floorPitchM": 4.1,
+        "bayPitchM": 3.25,
+        "windowWidthRatio": 0.43,
+        "windowHeightRatio": 0.66,
+        "frameWidthM": 0.095,
+        "revealDepthM": 0.09,
+        "sillProjectionM": 0.08,
+        "transomRatio": 0.72,
+        "plinthHeightM": 0.64,
+        "eaveBands": 2,
+        "frameRgb": [
+          223,
+          217,
+          206
+        ],
+        "glassRgb": [
+          76,
+          105,
+          113
+        ],
+        "glassTopRgb": [
+          121,
+          146,
+          148
+        ],
+        "plinthRgb": [
+          154,
+          145,
+          132
+        ],
+        "revealRgb": [
+          102,
+          99,
+          91
+        ]
+      },
+      "faces": [
+        {
+          "family": "primary",
+          "owner": "DEBE01YYK000439H",
+          "chunk": "1_-8",
+          "a": [
+            571.64,
+            -3768.17
+          ],
+          "b": [
+            560.68,
+            -3771.34
+          ],
+          "normal": [
+            0.27784524945703204,
+            -0.9606258467031582
+          ],
+          "low": 3.0,
+          "high": 26.27,
+          "streetId": "24700640",
+          "streetName": "Badstraße",
+          "nativeSpans": [
+            {
+              "family": "primary",
+              "owner": "DEBE01YYK000439H",
+              "chunk": "1_-8",
+              "a": [
+                571.5908302919707,
+                -3768.0
+              ],
+              "b": [
+                568.0,
+                -3768.0
+              ],
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "low": 3.0,
+              "high": 27.0,
+              "streetId": "24700640",
+              "streetName": "Badstraße"
+            },
+            {
+              "family": "primary",
+              "owner": "DEBE01YYK000439H",
+              "chunk": "1_-8",
+              "a": [
+                568.0,
+                -3770.0
+              ],
+              "b": [
+                562.0,
+                -3770.0
+              ],
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "low": 3.0,
+              "high": 27.0,
+              "streetId": "24700640",
+              "streetName": "Badstraße"
+            }
+          ],
+          "ordinaryWallAudit": {
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "building": "apartments",
+            "footprintIoU": 0.9992162902694133,
+            "osmWayId": "419027358",
+            "osmRelationId": null,
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "DEBE01YYK00044Qz",
+          "chunk": "1_-8",
+          "a": [
+            609.03,
+            -3757.36
+          ],
+          "b": [
+            591.53,
+            -3762.42
+          ],
+          "normal": [
+            0.27776482665122393,
+            -0.9606491040309232
+          ],
+          "low": 3.0,
+          "high": 25.99,
+          "streetId": "1413818741",
+          "streetName": "Badstraße",
+          "nativeSpans": [
+            {
+              "family": "primary",
+              "owner": "DEBE01YYK00044Qz",
+              "chunk": "1_-8",
+              "a": [
+                609.2150514285713,
+                -3758.0
+              ],
+              "b": [
+                604.0,
+                -3758.0
+              ],
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "low": 3.0,
+              "high": 25.0,
+              "streetId": "1413818741",
+              "streetName": "Badstraße"
+            },
+            {
+              "family": "primary",
+              "owner": "DEBE01YYK00044Qz",
+              "chunk": "1_-8",
+              "a": [
+                604.0,
+                -3760.0
+              ],
+              "b": [
+                596.0,
+                -3760.0
+              ],
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "low": 3.0,
+              "high": 25.0,
+              "streetId": "1413818741",
+              "streetName": "Badstraße"
+            },
+            {
+              "family": "primary",
+              "owner": "DEBE01YYK00044Qz",
+              "chunk": "1_-8",
+              "a": [
+                596.0,
+                -3762.0
+              ],
+              "b": [
+                591.40856,
+                -3762.0
+              ],
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "low": 3.0,
+              "high": 25.0,
+              "streetId": "1413818741",
+              "streetName": "Badstraße"
+            }
+          ],
+          "ordinaryWallAudit": {
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "building": "apartments",
+            "footprintIoU": 0.9994457511507997,
+            "osmWayId": "32983710",
+            "osmRelationId": null,
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "DEBE01YYK00047Ri",
+          "chunk": "1_-8",
+          "a": [
+            673.31,
+            -3739.09
+          ],
+          "b": [
+            644.31,
+            -3747.54
+          ],
+          "normal": [
+            0.2797457360669865,
+            -0.9600741237802111
+          ],
+          "low": 3.0,
+          "high": 26.15,
+          "streetId": "1413818742",
+          "streetName": "Badstraße",
+          "nativeSpans": [
+            {
+              "family": "primary",
+              "owner": "DEBE01YYK00047Ri",
+              "chunk": "1_-8",
+              "a": [
+                673.5751551724137,
+                -3740.0
+              ],
+              "b": [
+                666.0,
+                -3740.0
+              ],
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "low": 3.0,
+              "high": 27.0,
+              "streetId": "1413818742",
+              "streetName": "Badstraße"
+            },
+            {
+              "family": "primary",
+              "owner": "DEBE01YYK00047Ri",
+              "chunk": "1_-8",
+              "a": [
+                666.0,
+                -3742.0
+              ],
+              "b": [
+                660.0,
+                -3742.0
+              ],
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "low": 3.0,
+              "high": 27.0,
+              "streetId": "1413818742",
+              "streetName": "Badstraße"
+            },
+            {
+              "family": "primary",
+              "owner": "DEBE01YYK00047Ri",
+              "chunk": "1_-8",
+              "a": [
+                660.0,
+                -3744.0
+              ],
+              "b": [
+                654.0,
+                -3744.0
+              ],
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "low": 3.0,
+              "high": 27.0,
+              "streetId": "1413818742",
+              "streetName": "Badstraße"
+            },
+            {
+              "family": "primary",
+              "owner": "DEBE01YYK00047Ri",
+              "chunk": "1_-8",
+              "a": [
+                654.0,
+                -3746.0
+              ],
+              "b": [
+                646.0,
+                -3746.0
+              ],
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "low": 3.0,
+              "high": 27.0,
+              "streetId": "1413818742",
+              "streetName": "Badstraße"
+            }
+          ],
+          "ordinaryWallAudit": {
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "building": "apartments",
+            "footprintIoU": 0.9865959084210969,
+            "osmWayId": "109232218",
+            "osmRelationId": null,
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        },
+        {
+          "family": "primary",
+          "owner": "DEBE01YYK0003ya6",
+          "chunk": "1_-8",
+          "a": [
+            548.66,
+            -3655.09
+          ],
+          "b": [
+            541.11,
+            -3647.68
+          ],
+          "normal": [
+            -0.7004588001691305,
+            -0.7136928395784997
+          ],
+          "low": 3.0,
+          "high": 24.12,
+          "streetId": "57969065",
+          "streetName": "Buttmannstraße",
+          "nativeSpans": [
+            {
+              "family": "primary",
+              "owner": "DEBE01YYK0003ya6",
+              "chunk": "1_-8",
+              "a": [
+                549.7297880794702,
+                -3654.0
+              ],
+              "b": [
+                546.0,
+                -3654.0
+              ],
+              "normal": [
+                -0.0,
+                -1.0
+              ],
+              "low": 3.0,
+              "high": 25.0,
+              "streetId": "57969065",
+              "streetName": "Buttmannstraße"
+            }
+          ],
+          "ordinaryWallAudit": {
+            "wallMaterialTagsAbsent": true,
+            "nonResidentialTagsAbsent": true,
+            "previousGenericFittingsAbsent": true,
+            "specializedOwnerExcluded": true,
+            "protectedMappedFootprintsClear": true,
+            "actualGenericDrawnWall": true,
+            "actualGenericNativeWall": true,
+            "building": "apartments",
+            "footprintIoU": 0.9841719404559134,
+            "osmWayId": "1030235771",
+            "osmRelationId": null,
+            "sourceFile": "geo_data/regierungsviertel/raw/outskirts-v187/candidate.gpkg",
+            "sourceFileSha256": "5879238d60cc515bcc3fdd0ec61a86191ca10f8dcf58ee42f0a1d8c734e0a620"
+          }
+        }
+      ]
+    }
+  ],
+  "ordinaryResidentialRecords": [
+    {
+      "sourceRecord": {
+        "properties": {
+          "osm_id": null,
+          "osm_way_id": "419027358",
+          "name": null,
+          "type": null,
+          "aeroway": null,
+          "amenity": null,
+          "admin_level": null,
+          "barrier": null,
+          "boundary": null,
+          "building": "apartments",
+          "craft": null,
+          "geological": null,
+          "historic": null,
+          "land_area": null,
+          "landuse": null,
+          "leisure": null,
+          "man_made": null,
+          "military": null,
+          "natural": null,
+          "office": null,
+          "place": null,
+          "shop": null,
+          "sport": null,
+          "tourism": null,
+          "other_tags": "\"building:levels\"=>\"6\""
+        },
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  554.3647279050201,
+                  -3773.1684937374666
+                ],
+                [
+                  544.5844360374613,
+                  -3761.125497820787
+                ],
+                [
+                  556.0601217052899,
+                  -3757.7629063595086
+                ],
+                [
+                  556.7137699536979,
+                  -3759.6844511376694
+                ],
+                [
+                  562.1575842539314,
+                  -3758.048721780069
+                ],
+                [
+                  560.70910430816,
+                  -3752.450612881221
+                ],
+                [
+                  559.8262421668041,
+                  -3752.7041386319324
+                ],
+                [
+                  558.3171987729147,
+                  -3752.560009714216
+                ],
+                [
+                  552.0869862505933,
+                  -3746.3683246038854
+                ],
+                [
+                  556.869255964295,
+                  -3741.553782660514
+                ],
+                [
+                  567.0098303217092,
+                  -3751.5189370056614
+                ],
+                [
+                  568.2640713692526,
+                  -3756.019761301577
+                ],
+                [
+                  571.6437573708245,
+                  -3768.1732530687004
+                ],
+                [
+                  563.004238466965,
+                  -3770.6708657154813
+                ],
+                [
+                  558.4689145956654,
+                  -3771.9857255984098
+                ],
+                [
+                  554.3647279050201,
+                  -3773.1684937374666
+                ]
+              ]
+            ]
+          ]
+        }
+      },
+      "footprintIoU": 0.9992162902694133,
+      "drawnRecord": {
+        "ring": [
+          [
+            46.32,
+            343.44
+          ],
+          [
+            40.09,
+            349.63
+          ],
+          [
+            44.87,
+            354.44
+          ],
+          [
+            48.52,
+            350.86
+          ],
+          [
+            55.01,
+            344.48
+          ],
+          [
+            56.26,
+            339.98
+          ],
+          [
+            59.64,
+            327.83
+          ],
+          [
+            48.68,
+            324.66
+          ],
+          [
+            47.99,
+            324.46
+          ],
+          [
+            45.63,
+            323.78
+          ],
+          [
+            42.36,
+            322.83
+          ],
+          [
+            32.59,
+            334.88
+          ],
+          [
+            41.12,
+            337.38
+          ],
+          [
+            43.2,
+            337.99
+          ],
+          [
+            44.06,
+            338.24
+          ],
+          [
+            44.72,
+            336.32
+          ],
+          [
+            50.16,
+            337.95
+          ],
+          [
+            50.14,
+            338.04
+          ],
+          [
+            49.58,
+            340.17
+          ],
+          [
+            48.71,
+            343.55
+          ],
+          [
+            47.83,
+            343.3
+          ],
+          [
+            46.32,
+            343.44
+          ]
+        ],
+        "holes": [],
+        "height": 23.27,
+        "minHeight": 0.0,
+        "sourceId": "DEBE01YYK000439H",
+        "heightSource": "Berlin LoD2 parent vertical envelope"
+      },
+      "street": {
+        "id": "24700640",
+        "name": "Badstraße",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              525.7811768501997,
+              -3810.2545554749668
+            ],
+            [
+              530.9758140299236,
+              -3806.2875539343804
+            ],
+            [
+              548.6651022738661,
+              -3792.391896479763
+            ],
+            [
+              557.5943616582081,
+              -3787.094668666832
+            ],
+            [
+              564.7944508710643,
+              -3783.6278935912997
+            ],
+            [
+              570.4284071879811,
+              -3781.097675902769
+            ]
+          ]
+        }
+      },
+      "owner": "DEBE01YYK000439H"
+    },
+    {
+      "sourceRecord": {
+        "properties": {
+          "osm_id": null,
+          "osm_way_id": "32983710",
+          "name": null,
+          "type": null,
+          "aeroway": null,
+          "amenity": null,
+          "admin_level": null,
+          "barrier": null,
+          "boundary": null,
+          "building": "apartments",
+          "craft": null,
+          "geological": null,
+          "historic": null,
+          "land_area": null,
+          "landuse": null,
+          "leisure": null,
+          "man_made": null,
+          "military": null,
+          "natural": null,
+          "office": null,
+          "place": null,
+          "shop": null,
+          "sport": null,
+          "tourism": null,
+          "other_tags": "\"building:levels\"=>\"5\""
+        },
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  571.6437573708245,
+                  -3768.1732530687004
+                ],
+                [
+                  568.2640713692526,
+                  -3756.019761301577
+                ],
+                [
+                  588.0024402692798,
+                  -3750.290517581627
+                ],
+                [
+                  588.4436958052102,
+                  -3751.816238000989
+                ],
+                [
+                  594.4966819466208,
+                  -3750.1223467150703
+                ],
+                [
+                  595.373808850185,
+                  -3747.1982867289335
+                ],
+                [
+                  591.1330847728532,
+                  -3742.9092181483284
+                ],
+                [
+                  590.0028126102407,
+                  -3743.9249869398773
+                ],
+                [
+                  575.6423300141469,
+                  -3729.9929684307426
+                ],
+                [
+                  584.5447497296846,
+                  -3721.0798668870702
+                ],
+                [
+                  592.6469003155362,
+                  -3729.0767467226833
+                ],
+                [
+                  601.8933786965208,
+                  -3738.1940925922245
+                ],
+                [
+                  611.6462184445118,
+                  -3747.8119580456987
+                ],
+                [
+                  610.1918096181471,
+                  -3753.1192019926384
+                ],
+                [
+                  609.0320529090241,
+                  -3757.3515595281497
+                ],
+                [
+                  594.2533882810967,
+                  -3761.6339473230764
+                ],
+                [
+                  583.6527706157067,
+                  -3764.6985910059884
+                ],
+                [
+                  579.7037501481827,
+                  -3765.8444674937055
+                ],
+                [
+                  571.6437573708245,
+                  -3768.1732530687004
+                ]
+              ]
+            ]
+          ]
+        }
+      },
+      "footprintIoU": 0.9994457511507997,
+      "drawnRecord": {
+        "ring": [
+          [
+            78.01,
+            352.07
+          ],
+          [
+            63.65,
+            366.0
+          ],
+          [
+            72.54,
+            374.92
+          ],
+          [
+            87.22,
+            360.44
+          ],
+          [
+            99.65,
+            348.18
+          ],
+          [
+            97.03,
+            338.64
+          ],
+          [
+            79.53,
+            333.58
+          ],
+          [
+            66.86,
+            329.92
+          ],
+          [
+            59.64,
+            327.83
+          ],
+          [
+            56.26,
+            339.98
+          ],
+          [
+            63.33,
+            342.03
+          ],
+          [
+            65.54,
+            342.67
+          ],
+          [
+            76.01,
+            345.7
+          ],
+          [
+            76.45,
+            344.18
+          ],
+          [
+            82.5,
+            345.88
+          ],
+          [
+            83.38,
+            348.8
+          ],
+          [
+            79.13,
+            353.09
+          ],
+          [
+            78.01,
+            352.07
+          ]
+        ],
+        "holes": [],
+        "height": 22.99,
+        "minHeight": 0.0,
+        "sourceId": "DEBE01YYK00044Qz",
+        "heightSource": "Berlin LoD2 parent vertical envelope"
+      },
+      "street": {
+        "id": "1413818741",
+        "name": "Badstraße",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              570.4284071879811,
+              -3781.097675902769
+            ],
+            [
+              583.6309458472533,
+              -3776.4055171543732
+            ],
+            [
+              607.9927819318837,
+              -3768.758634342812
+            ],
+            [
+              641.9855230762623,
+              -3758.9593393318355
+            ]
+          ]
+        }
+      },
+      "owner": "DEBE01YYK00044Qz"
+    },
+    {
+      "sourceRecord": {
+        "properties": {
+          "osm_id": null,
+          "osm_way_id": "109232218",
+          "name": null,
+          "type": null,
+          "aeroway": null,
+          "amenity": null,
+          "admin_level": null,
+          "barrier": null,
+          "boundary": null,
+          "building": "apartments",
+          "craft": null,
+          "geological": null,
+          "historic": null,
+          "land_area": null,
+          "landuse": null,
+          "leisure": null,
+          "man_made": null,
+          "military": null,
+          "natural": null,
+          "office": null,
+          "place": null,
+          "shop": null,
+          "sport": null,
+          "tourism": null,
+          "other_tags": "\"building:levels\"=>\"5\""
+        },
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  624.8508954767603,
+                  -3729.9223122699186
+                ],
+                [
+                  635.2290960650425,
+                  -3740.2049720026553
+                ],
+                [
+                  641.7918660096475,
+                  -3746.711996554397
+                ],
+                [
+                  644.3350649113418,
+                  -3747.6007436672226
+                ],
+                [
+                  673.2982335137785,
+                  -3739.149812105112
+                ],
+                [
+                  665.3791877838667,
+                  -3727.8214854765683
+                ],
+                [
+                  663.0142040896462,
+                  -3729.432476935908
+                ],
+                [
+                  646.6276357833412,
+                  -3734.006744368933
+                ],
+                [
+                  637.2865728380857,
+                  -3724.902568809688
+                ],
+                [
+                  638.576140861318,
+                  -3723.126544511877
+                ],
+                [
+                  634.7679366869852,
+                  -3719.973887096159
+                ],
+                [
+                  624.8508954767603,
+                  -3729.9223122699186
+                ]
+              ]
+            ]
+          ]
+        }
+      },
+      "footprintIoU": 0.9865959084210969,
+      "drawnRecord": {
+        "ring": [
+          [
+            122.79,
+            376.09
+          ],
+          [
+            126.28,
+            372.72
+          ],
+          [
+            124.96,
+            371.25
+          ],
+          [
+            129.68,
+            366.66
+          ],
+          [
+            131.36,
+            365.03
+          ],
+          [
+            134.66,
+            361.82
+          ],
+          [
+            151.0,
+            366.51
+          ],
+          [
+            153.23,
+            368.17
+          ],
+          [
+            161.31,
+            356.91
+          ],
+          [
+            132.31,
+            348.46
+          ],
+          [
+            129.91,
+            349.27
+          ],
+          [
+            129.0,
+            350.16
+          ],
+          [
+            122.67,
+            356.38
+          ],
+          [
+            121.12,
+            357.91
+          ],
+          [
+            112.84,
+            366.05
+          ],
+          [
+            121.41,
+            374.69
+          ],
+          [
+            122.37,
+            375.66
+          ],
+          [
+            122.79,
+            376.09
+          ]
+        ],
+        "holes": [],
+        "height": 23.15,
+        "minHeight": 0.0,
+        "sourceId": "DEBE01YYK00047Ri",
+        "heightSource": "Berlin LoD2 parent vertical envelope"
+      },
+      "street": {
+        "id": "1413818742",
+        "name": "Badstraße",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              641.9855230762623,
+              -3758.9593393318355
+            ],
+            [
+              662.674154119275,
+              -3752.652669086121
+            ],
+            [
+              678.3820260195644,
+              -3745.645578452386
+            ],
+            [
+              693.8480700990767,
+              -3737.230740075931
+            ],
+            [
+              712.3855106444098,
+              -3725.130490405485
+            ],
+            [
+              732.9918314414099,
+              -3709.1002956843004
+            ]
+          ]
+        }
+      },
+      "owner": "DEBE01YYK00047Ri"
+    },
+    {
+      "sourceRecord": {
+        "properties": {
+          "osm_id": null,
+          "osm_way_id": "1030235771",
+          "name": null,
+          "type": null,
+          "aeroway": null,
+          "amenity": null,
+          "admin_level": null,
+          "barrier": null,
+          "boundary": null,
+          "building": "apartments",
+          "craft": null,
+          "geological": null,
+          "historic": null,
+          "land_area": null,
+          "landuse": null,
+          "leisure": null,
+          "man_made": null,
+          "military": null,
+          "natural": null,
+          "office": null,
+          "place": null,
+          "shop": null,
+          "sport": null,
+          "tourism": null,
+          "other_tags": "\"addr:city\"=>\"Berlin\",\"addr:country\"=>\"DE\",\"addr:housenumber\"=>\"14\",\"addr:postcode\"=>\"13357\",\"addr:street\"=>\"Buttmannstraße\",\"addr:suburb\"=>\"Gesundbrunnen\",\"building:levels\"=>\"5\",\"roof:shape\"=>\"double_saltbox\""
+        },
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  560.0133354588761,
+                  -3643.625324622728
+                ],
+                [
+                  548.617671297281,
+                  -3655.0871299775317
+                ],
+                [
+                  538.3144383008475,
+                  -3644.836340642534
+                ],
+                [
+                  536.0387177884113,
+                  -3642.5729151116684
+                ],
+                [
+                  545.5685527208843,
+                  -3632.900081577711
+                ],
+                [
+                  554.0997429803247,
+                  -3641.265605280176
+                ],
+                [
+                  555.8239518764312,
+                  -3639.5131739052013
+                ],
+                [
+                  560.0133354588761,
+                  -3643.625324622728
+                ]
+              ]
+            ]
+          ]
+        }
+      },
+      "footprintIoU": 0.9841719404559134,
+      "drawnRecord": {
+        "ring": [
+          [
+            43.72,
+            456.26
+          ],
+          [
+            47.92,
+            452.47
+          ],
+          [
+            46.16,
+            450.66
+          ],
+          [
+            36.66,
+            440.91
+          ],
+          [
+            29.11,
+            448.32
+          ],
+          [
+            27.49,
+            449.92
+          ],
+          [
+            24.02,
+            453.33
+          ],
+          [
+            33.53,
+            463.0
+          ],
+          [
+            37.06,
+            459.55
+          ],
+          [
+            38.68,
+            457.97
+          ],
+          [
+            42.09,
+            454.64
+          ],
+          [
+            43.72,
+            456.26
+          ]
+        ],
+        "holes": [],
+        "height": 21.12,
+        "minHeight": 0.0,
+        "sourceId": "DEBE01YYK0003ya6",
+        "heightSource": "Berlin LoD2 parent vertical envelope"
+      },
+      "street": {
+        "id": "57969065",
+        "name": "Buttmannstraße",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              620.5931937433779,
+              -3738.163488101214
+            ],
+            [
+              607.7163331320044,
+              -3725.655793130398
+            ],
+            [
+              604.866237717797,
+              -3722.8822350213304
+            ],
+            [
+              584.6872570168925,
+              -3703.272201694548
+            ],
+            [
+              582.2920834280085,
+              -3700.822267790325
+            ],
+            [
+              578.5411237523658,
+              -3697.2009988781065
+            ],
+            [
+              564.0780346518732,
+              -3683.237931607291
+            ],
+            [
+              552.7055564857437,
+              -3672.1876878971234
+            ],
+            [
+              539.4120758349309,
+              -3659.2666693348438
+            ],
+            [
+              536.1667155536124,
+              -3656.112560951151
+            ],
+            [
+              501.41730040160473,
+              -3622.3308852566406
+            ],
+            [
+              497.27305540873203,
+              -3618.1176172541454
+            ],
+            [
+              491.0709445089451,
+              -3612.2814598949626
+            ],
+            [
+              470.8910616071662,
+              -3592.6718870727345
+            ],
+            [
+              467.1946763336309,
+              -3589.0717263575643
+            ]
+          ]
+        }
+      },
+      "owner": "DEBE01YYK0003ya6"
+    }
+  ]
+}

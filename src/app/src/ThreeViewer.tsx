@@ -4619,6 +4619,9 @@ function ensureIsoWorld(
   const northCorridorDetails = import("./NorthCorridorV208");
   const requiredSites = import("./RequiredSiteEnvelopesV209");
   const potsdamerStationPhoto = import("./PotsdamerStationDrawn");
+  const mitteStreetFrontsV340 = Promise.all([
+    import("./MitteHistoricFrontsV340"), import("./MoabitStreetFrontsV340"),
+  ]);
   const abgeordnetenhausDetails = import("./AbgeordnetenhausDetails");
   const gropiusBauDetails = import("./GropiusBauDetails");
   const perimeterDetails = import("./GendarmenmarktPerimeterShells");
@@ -4702,9 +4705,9 @@ function ensureIsoWorld(
     northRailDetails,
     northContextDetails, lindenContextV315Details, karlMarxV316Details, treptowV317Details, domEastHousingV318Details, europacityRailDetails,
     breitscheidDetails, westSquaresDetails, eastSquaresDetails, hackescherDetails,
-    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details, neueSynagogeV167Details, tachelesV167Details, monbijouBathV167Details, humboldtMainV168Details, teehausRuinV168Details, tuWaterV168Details, altMitteCoreV169Details, bndV174Details, weinbergV174Details, zionV174Details, wallV174Details, zionFrontagesV175Details, northCorridorDetails, requiredSites, potsdamerStationPhoto,
+    cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details, neueSynagogeV167Details, tachelesV167Details, monbijouBathV167Details, humboldtMainV168Details, teehausRuinV168Details, tuWaterV168Details, altMitteCoreV169Details, bndV174Details, weinbergV174Details, zionV174Details, wallV174Details, zionFrontagesV175Details, northCorridorDetails, requiredSites, potsdamerStationPhoto, mitteStreetFrontsV340,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, northContext, lindenContextV315, karlMarxV316, treptowV317, domEastHousingV318, europacityRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208, sitesV209, stationPhoto]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, northContext, lindenContextV315, karlMarxV316, treptowV317, domEastHousingV318, europacityRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208, sitesV209, stationPhoto, [mitteFrontsV340, moabitFrontsV340]]) => {
       if (runtime.disposed) {
         return;
       }
@@ -4910,6 +4913,9 @@ function ensureIsoWorld(
         yield;
         isoWorld.userData.districtCourtDetailsV333=true;
         yield* sitesV209.addRequiredSiteEnvelopesV209Steps(isoWorld);
+        isoWorld.add(mitteFrontsV340.createMitteHistoricFrontsV340(prisms.buildings));
+        const moabitFronts = moabitFrontsV340.createMoabitStreetFrontsV340(prisms.buildings, false);
+        if (moabitFronts) isoWorld.add(moabitFronts);
         // All exact v227 batches exist before the first index/mode pass.
         neukoellnAdmissionV305=applyNeukoellnLegacyV227V305(isoWorld,false,true,fidelityV288.neukoellnModel);
         if (provisionalPedestrianEnvironment) provisionalPedestrianEnvironment.requiredSitesV281 = true;
@@ -5745,6 +5751,9 @@ function ensureVoxelWorld(
       }
 
       const nordbahnhofModule = prisms ? await import("./NordbahnhofPublicAccess") : null;
+      const [mitteFrontsV340, moabitFrontsV340] = prisms ? await Promise.all([
+        import("./MitteHistoricFrontsV340"), import("./MoabitStreetFrontsV340"),
+      ]) : [null, null];
       if (runtime.disposed || runtime.loadSignal.aborted || !voxelWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
       const nordbahnhof = nordbahnhofModule?.prepareNordbahnhofNative(prisms?.buildings, payload) ?? null;
       provisionalVoxelWorld = new Group();
@@ -5800,6 +5809,11 @@ function ensureVoxelWorld(
         },
       });
       provisionalVoxelWorld.userData.prepareNeukoellnLegacyV305?.();
+      if (prisms && mitteFrontsV340 && moabitFrontsV340) {
+        provisionalVoxelWorld.add(mitteFrontsV340.createMitteHistoricFrontsV340(prisms.buildings, payload));
+        const moabitFronts = moabitFrontsV340.createMoabitStreetFrontsV340(prisms.buildings, true, payload);
+        if (moabitFronts) provisionalVoxelWorld.add(moabitFronts);
+      }
       provisionalVoxelWorld.add(createRosengartenMinecraft());
       const streetPreviousWorldV325=provisionalVoxelWorld;
       const streetPreviousV325=governmentV323.getWilhelmStreetFrontsPreviousInputV325(streetPreviousWorldV325,true);

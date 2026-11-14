@@ -4,6 +4,7 @@ import base64
 import gzip
 import hashlib
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -82,12 +83,27 @@ def test_packets_are_small_separate_native_and_have_no_new_navigation_or_coverag
   evidence = build.read(build.EVIDENCE)
   assert set(addition) == {"chunks"}
   assert len(addition["chunks"]) == 2
+  later = build.read(
+    ROOT / "geo_data/regierungsviertel/mitte-garden-details-receipt.json"
+  )
   totals = {"drawn": 0, "minecraft": 0}
   for descriptor in addition["chunks"]:
     assert descriptor["id"].startswith("moabit237-")
     for mode in totals:
       resource = descriptor[mode]
-      raw = (build.OUT / resource["url"]).read_bytes()
+      path = build.OUT / resource["url"]
+      raw = path.read_bytes()
+      update = later["packets"].get(f"{mode}:{descriptor['id']}")
+      if update is not None:
+        assert update["before"] == resource
+        assert hashlib.sha256(raw).hexdigest() == update["after"]["sha256"]
+        before = subprocess.check_output(
+          ["git", "show", f"{later['previous']}:{path.relative_to(ROOT)}"], cwd=ROOT
+        )
+        current = json.loads(gzip.decompress(raw))
+        assert current["meshes"].pop()["kind"] == "mitte-garden-details"
+        assert current == json.loads(gzip.decompress(before))
+        raw = before
       assert hashlib.sha256(raw).hexdigest() == resource["sha256"]
       assert len(raw) == resource["bytes"]
       decoded = gzip.decompress(raw)

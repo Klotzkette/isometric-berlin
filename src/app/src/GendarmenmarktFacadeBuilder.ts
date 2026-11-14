@@ -52,7 +52,8 @@ export class GendarmenmarktFacadeBuilder {
   private readonly size = new Vector3();
   private readonly rotation = new Quaternion();
 
-  constructor(readonly minecraft: boolean, private readonly sillUndercut = false) {}
+  constructor(readonly minecraft: boolean, private readonly sillUndercut = false,
+    private readonly wallClearance = minecraft ? 1.2 : 0) {}
 
   box(position: Point, size: Point, color: number, yaw = 0, kind: Kind = "stone"): void {
     this.add(position, size, color, this.rotation.setFromAxisAngle(UP, yaw), kind);
@@ -70,7 +71,7 @@ export class GendarmenmarktFacadeBuilder {
 
   point(edge: PerimeterFacadeEdge, u: number, y: number, out: number): Point {
     // Clear the existing coarse wall voxels without enlarging a building mass.
-    return perimeterFacadePoint(edge, u, y, out + (this.minecraft ? 1.2 : 0));
+    return perimeterFacadePoint(edge, u, y, out + this.wallClearance);
   }
 
   face(edge: PerimeterFacadeEdge, u: number, y: number, width: number, height: number,

@@ -1,0 +1,32 @@
+{
+  "additions": {
+    "src/app/src/MitteHistoricFrontsV340.ts": "372319f93fc7212674698a91f5c8d97b8bd314f296854773510888bdbb9d05ae",
+    "src/app/src/MoabitStreetFrontsV340.ts": "05ead7147c30b112343c27235a6ff609105977d7e51f68edaad526ca0ad01b5a",
+    "src/app/src/WeddingGesundbrunnenFrontsV340.ts": "8245e5f6dcac0ee2f36450340ede3f5b2ab47ae53e83019ce35f8d5fde48541f",
+    "src/app/src/data/mitteHistoricFrontsV340.json": "61710066926d038209a7321802b90c1dc326bb7ef35f50e646274a9207bd4aea",
+    "src/app/src/data/moabitStreetFrontsV340.json": "d71b4b76169d26336ac976db26017799b79905dd910792c2ae318296b9b438f1",
+    "src/app/src/data/weddingGesundbrunnenFrontsV340.json": "a529126b749ac83a941beb68d7a795d31df40f49eee96778c5ec37b4e45f42fc"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "ee51040b9c1b53069e26635001a31bbcd967a2f74b858a528dc36e2935c0d2a1",
+      "after": "95f6381e238ad4b40e15959f3b38cfe646ff9852c6a5c3a20a4164d9dbf7b74b"
+    },
+    "src/app/src/GendarmenmarktFacadeBuilder.ts": {
+      "before": "abcd46c48c7c73308b71f4f5b1b8edf14001050b9ffa7699b431620a39233410",
+      "after": "41af4d02a8b793b5bcc4b9c1aa861088fda2785201b668ae85c9c5c0f21c72d6"
+    },
+    "src/app/src/SourceQuarterCatalogueV309.ts": {
+      "before": "e6183a3f2a7274b39ceaa76e0b237d6d5a72e0403ba0e1862a0e5f2e17606daa",
+      "after": "065565bff8881ca8232c62e06ecf1674f50f14d9d56b7e0a8ef4406750681a3a"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "before": "71f3c1b9bff86cb36ec8fc1c9bd8a657dc05f6d8ac8124a5a8fca135678df066",
+      "after": "9c2d490feb4da35ae71dbd48ec291e2f9033de703eb9333e19d649e24065fc2b"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "1d13bc08baa47e24643a203599972515f794aebeed3ab3982ca4e6318acc6520",
+      "after": "527aa683781eebdb9f117563a6be2491c5f718155a6fa2acee82499793858d23"
+    }
+  }
+}

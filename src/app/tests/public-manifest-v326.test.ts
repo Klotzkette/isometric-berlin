@@ -1,5 +1,7 @@
 import {expect,test} from "bun:test";
 import {createHash} from "node:crypto";
+import {execFileSync} from "node:child_process";
+import {fileURLToPath} from "node:url";
 import {readFileSync} from "node:fs";
 import {gunzipSync} from "node:zlib";
 import {OrthographicCamera} from "three";
@@ -34,9 +36,9 @@ test("all206 parsed values and hash references remain exact; only finite named d
 });
 
 test("only measured static allowances grow; all transfer/residency/vertex/index live limits stay fixed",()=>{
- expect(SURROUNDING_CITY_MAX_DESCRIPTORS).toBe(2875);expect(SURROUNDING_CITY_MAX_FOOTPRINTS).toBe(2893);
- expect(SURROUNDING_CITY_MAX_MANIFEST_BYTES).toBe(3836*1024);
- expect(legacyBytes.byteLength).toBe(3853868);expect(body.byteLength).toBe(3927649);expect(SURROUNDING_CITY_MAX_MANIFEST_BYTES-body.byteLength).toBeLessThan(2048);
+ expect(SURROUNDING_CITY_MAX_DESCRIPTORS).toBe(2877);expect(SURROUNDING_CITY_MAX_FOOTPRINTS).toBe(2893);
+ expect(SURROUNDING_CITY_MAX_MANIFEST_BYTES).toBe(3837*1024);
+ expect(legacyBytes.byteLength).toBe(3853868);expect(body.byteLength).toBe(3928550);expect(SURROUNDING_CITY_MAX_MANIFEST_BYTES-body.byteLength).toBeLessThan(2048);
  expect(SURROUNDING_CITY_RESIDENT_BUDGET_BYTES).toBe(24*1024*1024);expect(SURROUNDING_CITY_MAX_CHUNK_BYTES).toBe(12*1024*1024);
  expect(SURROUNDING_CITY_PREFETCH_BYTES).toBe(4*1024*1024);expect(SURROUNDING_CITY_PREFETCH_COUNT).toBe(2);
  expect(SURROUNDING_CITY_SCAN_MS).toBe(180);expect(SURROUNDING_CITY_RETIRE_MS).toBe(1800);
@@ -52,6 +54,24 @@ test("actual bounded HTTP manifest loader admits the complete expanded metadata 
  const calls:string[]=[];
  const city=createSurroundingCity({manifestUrl:new URL("https://example.test/manifest.json"),camera,
   fetch:(async (input: URL | RequestInfo)=>{calls.push(String(input));if(!String(input).endsWith("manifest.json"))throw new Error("Unexpected geometry request");return new Response(body.toString(),{headers:{"Content-Type":"application/json"}});}) as typeof fetch});
- try{await city.ready;expect(city.manifest?.chunks).toHaveLength(2875);expect(city.residentChunkCount).toBe(0);expect(calls).toEqual(["https://example.test/manifest.json"]);expect(city.groundAt(100000000,100000000)).toBeNull();expect(city.solidAt(100000000,3,100000000,.4)).toBeFalse();}
+ try{await city.ready;expect(city.manifest?.chunks).toHaveLength(2877);expect(city.residentChunkCount).toBe(0);expect(calls).toEqual(["https://example.test/manifest.json"]);expect(city.groundAt(100000000,100000000)).toBeNull();expect(city.solidAt(100000000,3,100000000,.4)).toBeFalse();}
  finally{city.dispose();}
 },10000);
+
+test("Mitte garden details only update their exact packets and append two visual descriptors", () => {
+  const root = new URL("../../..", import.meta.url);
+  const receipt = JSON.parse(readFileSync(new URL("geo_data/regierungsviertel/mitte-garden-details-receipt.json", root), "utf8"));
+  const previous = JSON.parse(execFileSync("git", ["show", `${receipt.previous}:src/app/public/mesh/surrounding-berlin-v159/manifest.json`], {
+    cwd: fileURLToPath(root), maxBuffer: 5 * 1024 * 1024, encoding: "utf8",
+  }));
+  for (const descriptor of previous.chunks) {
+    for (const family of ["drawn", "minecraft"]) {
+      const packet = receipt.packets[`${family}:${descriptor.id}`];
+      if (!packet) continue;
+      expect(descriptor[family]).toEqual(packet.before);
+      descriptor[family] = packet.after;
+    }
+  }
+  previous.chunks.push(...receipt.additions);
+  expect(expanded).toEqual(previous);
+});
