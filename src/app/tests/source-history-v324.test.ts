@@ -244,9 +244,8 @@ test("only V323 adapter entrypoints change and the complete history import graph
   };
   for (const name of graph.keys()) visit(name);
   expect(visited.size).toBe(graph.size);
-  expect(graph.get("sourceHistoryV327.ts")).toEqual(["sourceHistoryV328.ts"]);expect(graph.get("sourceHistoryV328.ts")).toEqual(["sourceHistoryV329.ts"]);expect(graph.get("sourceHistoryV329.ts")).toEqual(["sourceHistoryV330.ts"]);expect(graph.get("sourceHistoryV330.ts")).toEqual(["sourceHistoryV331.ts"]);expect(graph.get("sourceHistoryV331.ts")).toEqual(["sourceHistoryV332.ts"]);expect(graph.get("sourceHistoryV332.ts")).toEqual(["sourceHistoryV333.ts"]);expect(graph.get("sourceHistoryV333.ts")).toEqual(["sourceHistoryV334.ts"]);expect(graph.get("sourceHistoryV334.ts")).toEqual(["sourceHistoryV335.ts"]);expect(graph.get("sourceHistoryV335.ts")).toEqual(["sourceHistoryV336.ts"]);expect(graph.get("sourceHistoryV336.ts")).toEqual([]);
-  expect(graph.get("sourceHistoryV326.ts")).toEqual(["sourceHistoryV327.ts"]);
-  expect(graph.get("sourceHistoryV325.ts")).toEqual(["sourceHistoryV326.ts"]);
-  expect(graph.get("sourceHistoryV324.ts")).toEqual(["sourceHistoryV325.ts"]);
-  expect(graph.get("sourceHistoryV323.ts")).toEqual(["sourceHistoryV324.ts"]);
+  for (let version = 323; version < 340; version++) {
+    expect(graph.get(`sourceHistoryV${version}.ts`)).toEqual([`sourceHistoryV${version + 1}.ts`]);
+  }
+  expect(graph.get("sourceHistoryV340.ts")).toEqual([]);
 });
