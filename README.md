@@ -89,6 +89,11 @@ Quellen- und Detailnachweise. Die [nördlichen Parks und Schulbauten](docs/north
 [Ringbahn und Europasportpark](docs/rail-sse-v307.md) sowie die
 [Klinikstandorte](docs/hospitals-v308.md) sind ebenfalls einzeln dokumentiert.
 
+Im [Britzer Garten, in Britz und Neukölln](docs/britz-neukoelln-v342.md) verbinden
+modellierte Seen, Hügel und Gartenwege die charakteristischen Parkbauten.
+Schloss und Gutshof Britz, Dorfkirche, Hufeisensiedlung, Stadtbad Neukölln und
+Körnerpark-Orangerie haben eigene, aus Gebäudedaten abgeleitete Formen.
+
 Beim Start zeigt ein durchgehender Balken die laufenden Aufbauschritte.
 Weitere Stadtbereiche werden passend zur Ansicht nachgeladen.
 Die vollständige gezeichnete Detailstufe steht auch auf Touchgeräten bereit.
@@ -173,6 +178,10 @@ and source notes.
 The [northern parks and school](docs/north-sites-v306.md),
 [Ringbahn and Europasportpark](docs/rail-sse-v307.md) and
 [hospital campuses](docs/hospitals-v308.md) have individual source notes.
+In [Britzer Garten, Britz and Neukölln](docs/britz-neukoelln-v342.md), mapped
+lakes, hills and garden paths accompany distinctive park architecture.
+Schloss and Gutshof Britz, the village church, Hufeisensiedlung, Stadtbad
+Neukölln and Körnerpark Orangerie use individual source-derived building forms.
 Startup shows actual file and construction work; further areas load for the
 current view. Touch devices retain the full drawn detail.
 
@@ -241,8 +250,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.221** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.221/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.222** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.222/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

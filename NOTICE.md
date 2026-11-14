@@ -3068,3 +3068,16 @@ and links, including Klemens Renner, Adrian Schulz, Linus Lintner and Drone Brot
 Retained metric and planting sources remain Berlin LoD2/DGM1/DOP (dl-de/zero-2-0)
 and © OpenStreetMap contributors (ODbL 1.0). Fine fitting dimensions, grass
 height and material impressions are estimates, not new survey measurements.
+
+## Britzer Garten, Britz and Neukölln (v342)
+
+Berlin GRIS, DGM1 and complete LoD2 building surfaces are used under
+[Datenlizenz Deutschland Zero 2.0](https://www.govdata.de/dl-de/zero-2-0).
+Mapped routes, water, plantings and site identities are ©
+[OpenStreetMap contributors](https://www.openstreetmap.org/copyright), ODbL 1.0.
+Primary operator, heritage and district photographs are external references;
+no photograph pixels or textures are redistributed. See the
+[site notes](docs/britz-neukoelln-v342.md), linked regional reports and the
+viewer’s complete visual-reference credits for individual sources and rights.
+Small architectural fittings, colours and plant forms are estimates. Mapped
+individual trees are distinguished from illustrative woodland canopy groups.

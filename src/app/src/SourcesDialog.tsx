@@ -147,6 +147,10 @@ export function SourcesDialog({ language, onClose }: {
             ? "Gärten der Welt und Kienbergpark · Gelände und Gebäude nach Geoportal Berlin DGM1, GRIS und LoD2, Wege und Baumstandorte nach OpenStreetMap. Grün Berlin, KRP und LEITNER liefern externe Referenzen für Gärten, Wolkenhain und Seilbahn."
             : "Gärten der Welt and Kienbergpark · Terrain and buildings use Berlin DGM1, GRIS and LoD2, with paths and tree locations from OpenStreetMap. Grün Berlin, KRP and LEITNER supply external references for the gardens, Wolkenhain and ropeway."}</li>
           <li>{language === "de"
+            ? "Britzer Garten, Britz und Neukölln · Parkgelände, Seen und Gebäudekörper nach Berlin DGM1, GRIS, LoD2 und OpenStreetMap. Grün Berlin, Denkmalamt und örtliche Betreiber liefern externe Bildreferenzen. Kleine Fassadendetails und Gehölzkronen sind geschätzt."
+            : "Britzer Garten, Britz and Neukölln · Park relief, lakes and building forms use Berlin DGM1, GRIS, LoD2 and OpenStreetMap. Grün Berlin, heritage records and local operators supply external visual references. Small facade details and woodland crowns are estimates."}{" "}
+            <a href="https://github.com/Klotzkette/isometric-berlin/blob/main/docs/britz-neukoelln-v342.md" target="_blank" rel="noreferrer">{language === "de" ? "Orte und Quellen" : "Places and sources"}</a></li>
+          <li>{language === "de"
             ? "Stadtorte · Standortdaten von Geoportal Berlin, den Berliner Bäder-Betrieben, den Berliner Wasserbetrieben und der Polizei Berlin. Briefkästen, Spätis, Kioske und kartierte Bauteile nach OpenStreetMap (ODbL 1.0). Modellmaße kleiner Ausstattung sind geschätzt."
             : "Public places · Location data from Geoportal Berlin, Berliner Bäder-Betriebe, Berliner Wasserbetriebe and Polizei Berlin. Mailboxes, Spätis, kiosks and mapped fittings use OpenStreetMap (ODbL 1.0). Small fitting dimensions are estimates."}{" "}
             <a href="https://github.com/Klotzkette/isometric-berlin/blob/main/docs/public-amenities-v332.md" target="_blank" rel="noreferrer">{language === "de" ? "Einzelnachweise" : "Source details"}</a></li>

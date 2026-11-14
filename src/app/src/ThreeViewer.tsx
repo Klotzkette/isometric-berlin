@@ -7888,7 +7888,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       runtime.gpuResidency.enqueue(scene);
       runtime.geometryResidency.enqueue(scene);
       if (!coarsePointer) {
-        runtime.gpuWarmup = createSceneGpuWarmup(renderer, scene, camera, { viewLocal: true });
+        runtime.gpuWarmup = createSceneGpuWarmup(renderer, scene, camera, {
+          viewLocal: true,
+          invalidateAfterPreparation: () => { runtime.renderInvalidated = true; },
+        });
       }
       let gpuWarmupTimer: number | null = null;
       let gpuWarmupInteractionUntil = 0;

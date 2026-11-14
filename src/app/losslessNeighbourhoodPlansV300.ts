@@ -6,6 +6,7 @@ import parkPathsIndexV329 from "./src/data/parkPathsV329Index.json";
 import zebraCrossingsIndexV329 from "./src/data/zebraCrossingsV329Index.json";
 
 export const NEIGHBOURHOOD_PLAN_SOURCES_V300: ReadonlySet<string> = new Set([
+  "data/neukoellnBuildingsV342Packets.json",
   ...[publicGreenIndexV329, parkPathsIndexV329, zebraCrossingsIndexV329]
     .flatMap(({ sources }) => sources.map(({ file }) => "data/" + file)),
   "data/schlossstrasseV327Packets.json",

@@ -59,6 +59,15 @@ const TRANSPORT_VIEWS_V334: typeof GARDEN_VIEWS_V330 = {
   "Löwenbrücke": { position: [-1806, 15, 642], target: [-1766.91, 3, 680.64] },
 };
 
+const BRITZ_NEUKOELLN_VIEWS_V342: typeof GARDEN_VIEWS_V330 = {
+  "Britzer Garten": { position: [5500, 3400, 13300], target: [3100, 18, 9500] },
+  "Kalenderplatz im Britzer Garten": { position: [3250, 115, 9405], target: [3143, 16, 9230] },
+  "Schloss Britz": { position: [4545, 165, 8260], target: [4335.13, 10, 8106.34] },
+  "Hufeisensiedlung Britz": { position: [6092, 1078.2, 9301], target: [5060, 9, 7975] },
+  "Stadtbad Neukölln": { position: [4425, 110, 4228], target: [4505, 11, 4518] },
+  "Körnerpark": { position: [4602, 98, 5350], target: [4307, 7, 5403] },
+};
+
 // Extra place links use the same focus control without adding tour stops.
 export const STARTUP_ONLY_SIGHTS = [
   "Kaiser-Wilhelm-Gedächtniskirche",
@@ -77,6 +86,7 @@ export const STARTUP_ONLY_SIGHTS = [
   ...Object.keys(AMENITY_VIEWS_V332),
   ...Object.keys(COURT_VIEWS_V333),
   ...Object.keys(TRANSPORT_VIEWS_V334),
+  ...Object.keys(BRITZ_NEUKOELLN_VIEWS_V342),
 ].map(name => ({ name, role: "owner_added" }));
 
 export function startupOnlySight(name: string) {
@@ -89,7 +99,7 @@ export type StartupFlightView = Pick<NavigationSnapshot, "pose" | "fov"> & { lan
  * flight lens. No pedestrian state is created or enabled. */
 export function startupFlightView(name: string): StartupFlightView {
   if (name === GALLERY_FLIGHT_START_V223.landmarkName) return GALLERY_FLIGHT_START_V223;
-  const extra = GARDEN_VIEWS_V330[name] ?? AMENITY_VIEWS_V332[name] ?? COURT_VIEWS_V333[name] ?? TRANSPORT_VIEWS_V334[name];
+  const extra = GARDEN_VIEWS_V330[name] ?? AMENITY_VIEWS_V332[name] ?? COURT_VIEWS_V333[name] ?? TRANSPORT_VIEWS_V334[name] ?? BRITZ_NEUKOELLN_VIEWS_V342[name];
   if (extra) return { landmarkName: name, fov: 16, pose: { target: [...extra.target], position: [...extra.position] } };
   const view = SIMULATION_START_VIEWS[name];
   if (!view) return GALLERY_FLIGHT_START_V223;

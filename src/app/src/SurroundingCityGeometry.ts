@@ -1,4 +1,6 @@
 import { decodeGardenTerrainV330 } from "./GardenTerrainV330";
+import { measuredTerrainOwnersV342 } from "./MeasuredTerrainOwnersV342";
+import { prepareNeukoellnBuildingsV342 } from "./NeukoellnBuildingsV342";
 import { applySourceQuarterTrianglesV303, applySourceQuarterLinesV303, sourceQuarterExtraLineVerticesV303, sourceQuarterNavigationV303, sourceQuarterOwnersV303, captureSourceQuarterPacketV303, prepareSourceQuarterPacketV303, type SourceQuarterSourceV303, type SourceQuarterTicketV303 } from "./SourceQuarterPacketV303";
 import { captureNeighbourhoodFidelityV300, prepareNeighbourhoodFidelityV300 } from "./NeighbourhoodFidelityV300";
 import { applyNeighbourhoodTrianglesV300, neighbourhoodPacketAdmittedV300, captureNeighbourhoodPacketV300, prepareNeighbourhoodPacketV300, neighbourhoodPacketCandidateV300, type NeighbourhoodSourceV300 } from "./NeighbourhoodPacketV300";
@@ -282,6 +284,7 @@ function disposeUnpublishedChunk(root: Group): void {
  * interleaved ink buffer. Nothing is triangulated or voxelised on the phone.
  */
 export type SurroundingOwnershipOptions = {
+  neukoellnBuildingsV342?: SourceQuarterSourceV303;
   groundOverlaysV329?: boolean;
   transportDetailsV334?: boolean;
   namedTransportSourceV334?: NamedSiteSourceV238;
@@ -392,7 +395,7 @@ export function* buildSurroundingCityChunk(
   }
   let gardenTerrainV330: DataView | undefined;
   if (chunk.gardenTerrainV330 !== undefined) {
-    if (!/^gardens330-\d+_-?\d+$/.test(id) && !/^tegeler-forst--1[45]_-1[678]$/.test(id)) {
+    if (!/^gardens330-\d+_-?\d+$/.test(id) && !/^tegeler-forst--1[45]_-1[678]$/.test(id) && !measuredTerrainOwnersV342.has(id)) {
       throw Error("Unexpected measured terrain owner");
     }
     gardenTerrainV330 = decodeGardenTerrainV330(chunk.gardenTerrainV330, minecraft);
@@ -435,6 +438,7 @@ export function* buildSurroundingCityChunk(
   if (ownership.namedTransportSourceV334) {
     chunk = yield* prepareNamedSiteV238(chunk, id, minecraft, ownership.namedTransportSourceV334);
   }
+  chunk = yield* prepareNeukoellnBuildingsV342(chunk, id, minecraft, ownership.neukoellnBuildingsV342);
   const firstGroundOverlayPart = chunk.meshes.length;
   for (const ticket of groundOverlayTicketsV329) chunk = yield* prepareNeighbourhoodPacketV300(chunk, ticket);
 

@@ -1,0 +1,48 @@
+[
+  {
+    "id": "britz342-schloss",
+    "url": "https://www.berlin.de/ba-neukoelln/ueber-den-bezirk/schloss-britz/artikel.256028.php",
+    "credit": "Kulturstiftung Schloss Britz / Bezirksamt Neukölln",
+    "imageURL": "https://www.berlin.de/ba-neukoelln/_assets/bilder/architektur/20140516-k26a7420.jpg",
+    "use": "Cream plaster, dark green shutters, slate roof, asymmetric tower and string courses.",
+    "checked": "2026-11-14",
+    "usage": "external reference only; no photographic pixels or textures bundled",
+    "imageSha256": "31915211103f180564bd8719094b5ad30e32702dd9c8694365b44811399cdd89"
+  },
+  {
+    "id": "britz342-gutshof",
+    "url": "https://schloss-gutshof-britz.de/schloss-britz/schloss-britz/gutshof",
+    "credit": "Kulturstiftung Schloss Britz",
+    "use": "Complete historic barn ensemble; red/yellow brick, fieldstone, terracotta cornices and Schweizer Haus.",
+    "checked": "2026-11-14",
+    "usage": "external reference only; no photographic pixels or textures bundled"
+  },
+  {
+    "id": "britz342-kirche",
+    "url": "https://www.britz-evangelisch.de/britz-dorf",
+    "credit": "Evangelische Dorfkirchengemeinde Britz",
+    "imageURL": "https://www.britz-evangelisch.de/uploads/eXkh8fTE/12.dorfkirche.britz.foto.q3.web_656_627__msi___jpg.jpg",
+    "use": "Stepped tiled roofs, heterogeneous fieldstone and brick-framed pointed windows.",
+    "checked": "2026-11-14",
+    "usage": "external reference only; no photographic pixels or textures bundled",
+    "imageSha256": "e3f5e896c75818d99c49c0e79b9a251cb06f7c0af98eab2072e96ba2889e8f1b"
+  },
+  {
+    "id": "britz342-hufeisen",
+    "url": "https://welterbe-siedlungen-berlin.de/hufeisensiedlung/",
+    "credit": "Welterbe-Siedlungen Berlin; garden facade photograph Ben Buschfeld, 2019",
+    "imageURL": "https://welterbe-siedlungen-berlin.de/wp-content/uploads/2020/01/WS-03_HS_Hufeisen_2019_FotoBenBuschfeld_1671.jpg",
+    "use": "White curved three-storey facade, multi-pane windows, projected blue open loggia frames; small fitting sizes illustrative.",
+    "checked": "2026-11-14",
+    "usage": "external reference only; no photographic pixels or textures bundled",
+    "imageSha256": "63a4b2633c119d259d5b29f48b3e17d6d48ac08914efe0670420e040e64699f8"
+  },
+  {
+    "id": "britz342-hufeisen-heritage",
+    "url": "https://www.berlin.de/landesdenkmalamt/welterbe/siedlungen-der-berliner-moderne/grosssiedlung-britz-654617.php",
+    "credit": "Landesdenkmalamt Berlin",
+    "use": "Historic estate identity and horseshoe/pond/facade composition.",
+    "checked": "2026-11-14",
+    "usage": "external reference only; no photographic pixels or textures bundled"
+  }
+]

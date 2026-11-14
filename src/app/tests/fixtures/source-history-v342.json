@@ -1,0 +1,37 @@
+{
+  "additions": {
+    "src/app/src/MeasuredTerrainOwnersV342.ts": "f3de3375b581f6814518e6b42286083e46d5e383949b3a3fe391c8c5e55e8d22",
+    "src/app/src/NeukoellnBuildingsV342.ts": "ed422a543aefea566eaaa6b92a030a4acce94d5fd497273129d1cba05bc4a453",
+    "src/app/src/data/neukoellnBuildingsV342Packets.json": "c8a1734e6b35e3a3848bb82effcf596d01280e91369da530d6c253da3aa36da3"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "40acbe0ef6dc4410d2cce9eae7997511515310965643e7a310748c33040a3bbb",
+      "after": "148b7c8a12e089ee0af064f2fb6c4af58874f3c3887f9b257ff1376669e331a5"
+    },
+    "src/app/src/SourcesDialog.tsx": {
+      "before": "49b38bb579752a6e9973ed5e310667866b5cac2cd8d79950a724aaf620bfb0f4",
+      "after": "bfcbe5f138fef5b1f3da4f861f10ad88675647ea23a3233623abf7e7e8fa48e3"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "before": "9c2d490feb4da35ae71dbd48ec291e2f9033de703eb9333e19d649e24065fc2b",
+      "after": "5e7d3e32c3ea47cbeb7c6d2dc63cb4000a435c07f509954f0ba846b05625e0fc"
+    },
+    "src/app/src/SurroundingCityGeometry.ts": {
+      "before": "6f4e385fcab3c6469d7fb2491222720ceb0e8e8f9aa1f327f411700e31b179ad",
+      "after": "9183f9fc4da392ff41122c81ac50639f063e4ed636a948464db7264175c6cd97"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "c28d6758f256e5807a76e45ff1e014f9b8047861b625b5802c303f7efe7014db",
+      "after": "72384c682f07b09b2101516876b9c129d758444532cc9316758ecafce9ffc6fb"
+    },
+    "src/app/src/sceneGpuWarmup.ts": {
+      "before": "f32c377d0bdfc9c043ac03f9b064e856b1fd62ab97da4ed3c4852f1bf48d1569",
+      "after": "5c47063ae86b04205b573f9e1a4311a3a211ac6cbccefd216e659aff08e5519d"
+    },
+    "src/app/src/startupView.ts": {
+      "before": "7b8465a95197080d8c76850ad9a27c5a02da6535c2890dc3f53795ead0374a43",
+      "after": "9bc83b46ef610c695a17ac6b499c62b2f89204f8d410e32ca318c51787ec1486"
+    }
+  }
+}

@@ -40,9 +40,9 @@ export const SURROUNDING_CITY_RESIDENT_BUDGET_BYTES = 24 * 1024 * 1024;
 export const SURROUNDING_CITY_MAX_CHUNK_BYTES = 12 * 1024 * 1024;
 // The added landscape descriptors extend static
 // metadata only. The resident geometry, transfer and prefetch limits are fixed.
-export const SURROUNDING_CITY_MAX_DESCRIPTORS = 2_877;
-export const SURROUNDING_CITY_MAX_FOOTPRINTS = 2_893;
-export const SURROUNDING_CITY_MAX_MANIFEST_BYTES = 3837 * 1024;
+export const SURROUNDING_CITY_MAX_DESCRIPTORS = 2_906;
+export const SURROUNDING_CITY_MAX_FOOTPRINTS = 2_907;
+export const SURROUNDING_CITY_MAX_MANIFEST_BYTES = 3922 * 1024;
 // Hosted delta packets add one bounded length to each changed descriptor.
 const SURROUNDING_CITY_MAX_HOSTED_MANIFEST_BYTES = SURROUNDING_CITY_MAX_MANIFEST_BYTES + 64 * 1024;
 export const SURROUNDING_CITY_MANIFEST_RETRY_MS = [500, 1_500] as const;
@@ -463,6 +463,11 @@ export async function createStreamedSurroundingCityChunkV255(
       checkAbort();
       if (data) ownership = { ...ownership, namedTransportSourceV334: data.default as NonNullable<SurroundingOwnershipOptions["namedTransportSourceV334"]> };
     }
+  }
+  if (ownership.sourceQuartersV303 === true && ["ring182-8_8", "ring182-8_10", "ring182-9_8"].includes(id)) {
+    const data = await import("./data/neukoellnBuildingsV342Packets.json").catch(() => null);
+    checkAbort();
+    if (data) ownership = { ...ownership, neukoellnBuildingsV342: data.default as NonNullable<SurroundingOwnershipOptions["neukoellnBuildingsV342"]> };
   }
   const entry = await createSurroundingCityChunkCooperatively(chunk, id, minecraft, schedule, ownership);
   try {

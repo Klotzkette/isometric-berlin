@@ -116,6 +116,37 @@ function fixture() {
 }
 
 describe("offscreen GPU residency without geometry changes", () => {
+  test("idle presentation is invalidated after restored preparation, including failed GL draws", () => {
+    const { scene, camera } = fixture();
+    const mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    scene.add(mesh);
+    let invalidations = 0;
+    let expectedState: ReturnType<ReturnType<typeof host>["state"]>;
+    const h = host(scene, camera, { invalidateAfterPreparation: () => {
+      // The next onscreen frame must see the original framebuffer, viewport,
+      // scene visibility and complete source draw range, never the 1px pass.
+      expect(h.state()).toEqual(expectedState);
+      expect(mesh.visible).toBeTrue();
+      expect(mesh.geometry.drawRange.count).toBe(Infinity);
+      invalidations++;
+    } });
+    expectedState = h.state();
+    expect(h.warmup.warmNext()).toBe(0);
+    expect(invalidations).toBe(0);
+    h.warmup.enqueue(scene);
+    expect(h.warmup.warmNext()).toBe(1);
+    expect(invalidations).toBe(1);
+    expect(h.calls[0].vertices).toBe(0);
+    expect(h.warmup.warmNext()).toBe(0);
+    expect(invalidations).toBe(1);
+    mesh.material.needsUpdate = true;
+    h.warmup.enqueue(mesh);
+    h.fail = true;
+    expect(() => h.warmup.warmNext()).toThrow("injected render failure");
+    expect(invalidations).toBe(2);
+    h.warmup.dispose();
+  });
+
   test("preparation waits for the complete scene's first shadow atlas without consuming its queue", () => {
     const { scene, camera } = fixture();
     const light = new DirectionalLight(); light.castShadow = true;

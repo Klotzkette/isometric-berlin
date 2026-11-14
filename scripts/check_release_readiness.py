@@ -159,7 +159,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # The v1.0.217 complete package is 1,166,589,807 bytes (1112.55 MiB).
 # v1.0.218 adds twelve measured Tegeler Forst packets and station fixtures.
 # v1.0.220 includes 1,169,585,375 extracted bytes with the Mitte detail packets.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 1116 * 1024 * 1024
+# v1.0.222 includes 1,185,633,991 extracted bytes: 15,676,299 above v1.0.221
+# for bounded Britzer Garten/Britz packets and the Neukölln building recipes.
+# 1131 MiB is the next whole-MiB offline ceiling; live residency caps stay fixed.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 1131 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

@@ -16,6 +16,8 @@ export const GPU_WARMUP_MAX_VIEW_CANDIDATES = 128;
 export type SceneGpuWarmupOptions = {
   /** Keep mobile speculative uploads inside a generous camera look-ahead. */
   viewLocal?: boolean;
+  /** Re-present the ordinary canvas after an offscreen preparation draw. */
+  invalidateAfterPreparation?: () => void;
 };
 
 type Renderable = Mesh | Line | Points;
@@ -440,6 +442,11 @@ export function createSceneGpuWarmup(
       renderer.setViewport(viewport);
       renderer.setScissor(scissor);
       renderer.setScissorTest(scissorTest);
+      // The viewer normally keeps its last idle frame. A later offscreen GL
+      // render must not be the last submission on a non-preserved canvas;
+      // request one ordinary frame only after all temporary state is restored.
+      // Also recover that frame when preparation throws after touching GL.
+      options.invalidateAfterPreparation?.();
     }
     const finalState = context();
     for (const object of selected) warmed.set(object, snapshot(object, finalState));
