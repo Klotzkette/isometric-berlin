@@ -54,6 +54,7 @@ import { createViewerContextRecovery } from "./viewerContextRecovery";
 import { createPergamonReveal, type PergamonReveal } from "./PergamonReveal";
 import { createReichstagSectionV319, createReichstagSectionRoomsV319, reichstagSectionCameraV319, type ReichstagSectionV319, type ReichstagSectionViewV319 } from "./ReichstagSectionV319";
 import { hasNorthernCoreSourceBatchesV319 } from "./northernCoreReadinessV319";
+import { createCivicGardenReliefV341 } from "./CivicGardenReliefV341";
 import { createReichstagLawnV318 } from "./ReichstagLawnV318";
 import { PergamonRevealGesture } from "./pergamonRevealGesture";
 import { createColumbiahalleV257, type ColumbiahalleV257 } from "./ColumbiahalleV257";
@@ -4975,7 +4976,10 @@ function ensureIsoWorld(
         isoWorld.add(tuWaterV168.createTuWaterV168());
         yield;
         isoWorld.add(bndV174.createBndHeadquartersV174(), createBndPublicArtV314());
-        if (ground) isoWorld.add(createReichstagLawnV318(worldGroundSampler(ground)));
+        if (ground) {
+          isoWorld.add(createReichstagLawnV318(worldGroundSampler(ground)));
+          isoWorld.add(createCivicGardenReliefV341(worldGroundSampler(ground)));
+        }
         yield;
         isoWorld.add(northContext.createNorthContextV312());
         isoWorld.userData.northContextSolidAtV312 = northContext.northContextSolidAtV312;

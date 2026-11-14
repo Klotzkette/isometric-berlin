@@ -3053,3 +3053,18 @@ Paths, vegetation positions and other mapped features are ©
 The official park plans, Grün Berlin, KRP Architektur and LEITNER provide
 external visual and technical references.
 [Marzahn site and source notes](docs/marzahn-gardens-v330.md).
+
+## Named-site fine details (v341)
+
+External primary photographs and architectural accounts inform finite details
+at Zoo Berlin, Tierpark, Gärten der Welt, the two named schools, Alexanderplatz,
+Karl-Marx-Allee, Neukölln and Europacity. Rights remain with each publisher
+and credited photographer; no photograph, crop or texture is distributed.
+See [named-site notes](docs/named-places-v341.md),
+[Zoo and gardens](docs/zoo-garden-details-v341.md),
+[schools and City West](docs/west-schools-v341.md) and
+[eastern sites and Europacity](docs/eastern-sites-v341.md) for specific credits
+and links, including Klemens Renner, Adrian Schulz, Linus Lintner and Drone Brothers.
+Retained metric and planting sources remain Berlin LoD2/DGM1/DOP (dl-de/zero-2-0)
+and © OpenStreetMap contributors (ODbL 1.0). Fine fitting dimensions, grass
+height and material impressions are estimates, not new survey measurements.

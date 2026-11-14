@@ -159,7 +159,47 @@ function moskau(b: EastCinemaPartsV260): void {
 /** Existing texture-free batches; every drawn fitting is identical on mobile. */
 export function appendEastCinemasV260(builder: EastCinemaPartsV260) {
   cinema(builder); moskau(builder);
+  const fineDetailV341 = appendEastCinemaFineDetailV341(builder);
   return { owners: [source.sites.international.parent, source.sites.moskau.parent],
     fullStaticDetailOnTouch: true, nativeOrthogonal: builder.minecraft,
-    requiredCantileverReplacement: true, descriptorCountAdded: 0, drawCallsAdded: 0 };
+    requiredCantileverReplacement: true, descriptorCountAdded: 0, drawCallsAdded: 0, fineDetailV341 };
+}
+
+/** Architectural relief ground and roof-lettering supports; reference-only
+ * images, with approximate small dimensions and no reproduction of figure art. */
+export function appendEastCinemaFineDetailV341(b: EastCinemaPartsV260) {
+  const p = source.sites.international;
+  const sides: [Face, number][] = [
+    [{ a: [3497.461, -144.495], b: p.frontA, normal: [-.8881, -.4595] }, 5],
+    [{ a: [3528.736, -128.301], b: [3497.461, -144.495], normal: [.4595, -.8881] }, 4],
+    [{ a: p.frontB, b: [3528.736, -128.301], normal: [.8881, .4595] }, 5],
+  ];
+  let foldedFields = 0;
+  for (const [face, panels] of sides) {
+    const pitch = length(face) / panels;
+    for (let panel = 0; panel < panels; panel++) {
+      // Small nonfigurative folded lozenges occupy the border of each existing
+      // relief panel. All earlier original figure impressions remain visible.
+      for (const row of [0, 1, 6, 7]) for (let column = 0; column < 4; column++) {
+        const u = (panel + (column + .5) / 4) * pitch, y = 10 + row * 1.13;
+        const w = Math.min(.72, pitch / 5.5);
+        stroke(b, face, [[-w,0],[0,.49],[w,0],[0,-.49],[-w,0]], u,y,1,.055,0xbabbb0,.25);
+        stroke(b, face, [[-w,0],[.13,.1],[0,.49]],u,y,1,.06,0xdeddd0,.28);
+        foldedFields++;
+      }
+    }
+  }
+  const m = source.sites.moskau;
+  const north = m.faces.find(f => f.part === "DEBE3DUQ9zttyhg5" && f.index === 11)!;
+  const west = m.faces.find(f => f.part === "DEBE3DPNUb0lyc6p" && f.index === 10)!;
+  let roofStanchions = 0;
+  for (const face of [north,west]) {
+    const len = length(face), roof = face.top;
+    for (const y of [roof+.12,roof+.6]) facade(b,face,len/2,y,len-.2,.045,C.dark,-.09,.055);
+    for (let u=.35;u<len-.2;u+=2.2) {
+      facade(b,face,u,roof+.36,.045,.58,C.dark,-.09,.055);
+      roofStanchions++;
+    }
+  }
+  return { foldedFields, roofStanchions };
 }

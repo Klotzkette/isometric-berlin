@@ -7,9 +7,11 @@ import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { canRefineLennonV250 } from "./LennonV250";
 import { canRefineChorinerV250 } from "./ChorinerV250";
+import { createTiergartenJoineryV341 } from "./schoolJoineryV341";
 
 export const SCHOOLS_COURTS_V274_BUDGET = Object.freeze({
-  ...data.counts, drawnBatches: 8, nativeBatches: 7,
+  ...data.counts, drawnBatches: 9, nativeBatches: 8,
+  joineryBoxesV341: 452, joineryNativeRowsV341: 332,
   fullStaticDetailOnTouch: true, textureFree: true,
 });
 
@@ -52,6 +54,10 @@ export function createSchoolsCourtsV274(native = false, _options: { mobileLike?:
       blockNative: native, nativeMinecraft: native, keepInMinecraft: native,
       noHiddenSolidInfill: true };
     root.add(mesh);
+    if (site.key === "tiergarten") {
+      const joinery = createTiergartenJoineryV341(rows, native);
+      if (joinery) root.add(joinery);
+    }
     if (site.key === "metropolitan" && !native) root.add(copperUpperEnvelope());
   }
   return freezeStaticSceneTransforms(root);

@@ -154,9 +154,42 @@ function televisionEntrance(b: Parts) {
   label(b, f, "BERLINER FERNSEHTURM", length(f) / 2, 16.39, .49, 0x475653, .49);
 }
 
+/** Fine facade joints from the external architect/WBM photographs, v341.
+ * Original wall, glazing, lettering and roof members remain byte-for-byte first.
+ * These are small reference-based dimensions, not surveyed panel measurements. */
+export function appendAlexanderFineDetailV341(b: Parts) {
+  let stoneJoints = 0, residentialTransoms = 0;
+  for (const f of source.sites.cubix.faces) {
+    const lo = Math.max(5.45, f.bottom + .03), hi = f.top - .05, len = length(f);
+    // Staggered vertical joints complement the existing horizontal stone joints.
+    // They remain behind the projecting glazed bays rather than crossing them.
+    for (let row = 0, low = lo; low + .1 < hi; row++, low += 1.45) {
+      const high = Math.min(low + 1.45, hi);
+      for (let u = row % 2 ? 1.45 : 2.9; u < len - .1; u += 2.9) {
+        facade(b, f, u, (low + high) / 2, .025, high - low - .04, C.joint, .38, .035);
+        stoneJoints++;
+      }
+    }
+  }
+  for (const f of source.sites.rathauspassagen.faces) {
+    const len = length(f);
+    if (f.part !== "DEBE3DVE8ksXnT9L" || len < 20) continue;
+    const n = Math.round(len / 3.22), pitch = (len - .8) / n;
+    for (let row = 0; row < 10; row++) for (let i = 0; i < n; i++) {
+      const y = 20.18 + row * 2.78, u = .4 + (i + .5) * pitch;
+      // WBM's close view shows the lower opening light and thin sill lip.
+      facade(b, f, u, y - .43, pitch - .54, .055, C.cream, .83, .055);
+      facade(b, f, u, y + .87, pitch - .32, .055, 0xe0d9c4, .83, .055);
+      residentialTransoms += 2;
+    }
+  }
+  return { stoneJoints, residentialTransoms };
+}
+
 /** One existing block batch; identical full drawn detail on touch and desktop. */
 export function appendAlexanderRecognitionV257(b: Parts) {
   cubix(b); rathauspassagen(b); televisionEntrance(b);
+  const fineDetailV341 = appendAlexanderFineDetailV341(b);
   return { ownerIds: Object.values(source.sites).map(s => s.parent), measuredEnvelopesRetained: true,
-    fullStaticDetailOnTouch: true, nativeOrthogonal: b.minecraft, descriptorCountAdded: 0, drawCallsAdded: 0 };
+    fullStaticDetailOnTouch: true, nativeOrthogonal: b.minecraft, descriptorCountAdded: 0, drawCallsAdded: 0, fineDetailV341 };
 }

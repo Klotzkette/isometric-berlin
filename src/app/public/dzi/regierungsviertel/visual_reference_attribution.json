@@ -4557,6 +4557,105 @@
       "credit": "Susanne Kähler, 2020 / CC BY4.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "named-sites-government-v341",
+      "title": "Government quarter lawn context",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09010204",
+      "credit": "Landesdenkmalamt Berlin; owner photographs and Berlin DOP2025 retained in prior source notes",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Retained source anchors; small fitting dimensions and colours are display estimates. See docs/named-places-v341.md and linked regional reports."
+    },
+    {
+      "landmark_id": "named-sites-schools-v341",
+      "title": "Gymnasium Tiergarten glazing profiles",
+      "page_url": "https://tgw-architekten.de/menzel-oberschule/",
+      "credit": "tgw architekten and credited photographers; Gymnasium Steglitz owner photographs",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Retained source anchors; small fitting dimensions and colours are display estimates. See docs/named-places-v341.md and linked regional reports."
+    },
+    {
+      "landmark_id": "named-sites-savigny-v341",
+      "title": "Savignyplatz garden composition",
+      "page_url": "https://www.berlin.de/ba-charlottenburg-wilmersdorf/ueber-den-bezirk/freiflaechen/plaetze/artikel.156595.php",
+      "credit": "Bezirksamt Charlottenburg-Wilmersdorf; OSM contributors",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Retained source anchors; small fitting dimensions and colours are display estimates. See docs/named-places-v341.md and linked regional reports."
+    },
+    {
+      "landmark_id": "named-sites-zoo-v341",
+      "title": "Antilopenhaus cornice",
+      "page_url": "https://www.zoo-berlin.de/de/aktuelles/news/artikel/180-jahre-berlin-antilopenhaus",
+      "credit": "Zoologischer Garten Berlin AG and credited photographers",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Retained source anchors; small fitting dimensions and colours are display estimates. See docs/named-places-v341.md and linked regional reports."
+    },
+    {
+      "landmark_id": "named-sites-tierpark-v341",
+      "title": "Schloss Friedrichsfelde window surrounds",
+      "page_url": "https://www.schloss-friedrichsfelde.de/",
+      "credit": "Freunde Hauptstadtzoos e.V. and credited photographers",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Retained source anchors; small fitting dimensions and colours are display estimates. See docs/named-places-v341.md and linked regional reports."
+    },
+    {
+      "landmark_id": "named-sites-gardens-v341",
+      "title": "Korean Garden roof courses",
+      "page_url": "https://www.gaertenderwelt.de/welt-entdecken/themengaerten/koreanischer-garten/",
+      "credit": "Grün Berlin and credited photographers including Drone Brothers",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Retained source anchors; small fitting dimensions and colours are display estimates. See docs/named-places-v341.md and linked regional reports."
+    },
+    {
+      "landmark_id": "named-sites-alexander-v341",
+      "title": "CUBIX stone-panel joints",
+      "page_url": "https://tchobanvoss.de/de/projects/cubix-am-alexanderplatz",
+      "credit": "Tchoban Voss; photograph © Klemens Renner",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Retained source anchors; small fitting dimensions and colours are display estimates. See docs/named-places-v341.md and linked regional reports."
+    },
+    {
+      "landmark_id": "named-sites-kma-v341",
+      "title": "Kino International relief background",
+      "page_url": "https://www.kma-mitte.de/projekte/sanierung-des-kinos-international",
+      "credit": "Bezirksamt Mitte; original relief by Waldemar Grzimek, Karl-Heinz Schamal and Hubert Schiefelbein",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Retained source anchors; small fitting dimensions and colours are display estimates. See docs/named-places-v341.md and linked regional reports."
+    },
+    {
+      "landmark_id": "named-sites-neukoelln-v341",
+      "title": "Rathaus Neukölln facade and tower",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09090494",
+      "credit": "Landesdenkmalamt Berlin and credited photographers",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Retained source anchors; small fitting dimensions and colours are display estimates. See docs/named-places-v341.md and linked regional reports."
+    },
+    {
+      "landmark_id": "named-sites-europacity-v341",
+      "title": "KPMG limestone facade relief",
+      "page_url": "https://www.ksp-engel.com/projekte/kpmg-headquarters-berlin",
+      "credit": "KSP Engel; photograph © Adrian Schulz",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Retained source anchors; small fitting dimensions and colours are display estimates. See docs/named-places-v341.md and linked regional reports."
+    },
+    {
+      "landmark_id": "named-sites-track-v341",
+      "title": "QH Track vertically fluted green spandrels",
+      "page_url": "https://www.hemmerlein-sichtbeton.de/referenzen/qh-track-berlin-01102023/",
+      "credit": "Hemmerlein; photograph © Linus Lintner; architecture EM2N",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Retained source anchors; small fitting dimensions and colours are display estimates. See docs/named-places-v341.md and linked regional reports."
     }
   ]
 }

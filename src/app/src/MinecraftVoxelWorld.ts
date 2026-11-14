@@ -13,6 +13,7 @@ import { createDomEastHousingV318 } from "./DomEastHousingV318";
 import { createTreptowWaterfrontV317, hasCompleteTreptowWaterfrontV317 } from "./TreptowWaterfrontV317";
 import { createLindenEastContextV315 } from "./LindenEastContextV315";
 import { createKarlMarxPlacesV316, karlMarxPlacesSolidAtV316 } from "./KarlMarxPlacesV316";
+import { createCivicGardenReliefV341 } from "./CivicGardenReliefV341";
 import { createReichstagLawnV318 } from "./ReichstagLawnV318";
 import { createParliamentInteriorsV295 } from "./ParliamentInteriorsV295";
 import { parliamentSourceOwnersAdmittedV295 } from "./ParliamentRetainedEnvelopeV295";
@@ -2579,6 +2580,7 @@ export function* buildMinecraftVoxelWorldSteps(
     group.userData.hasTreptowWaterfrontV317 = () => treptowModelV317.parent === group && hasCompleteTreptowWaterfrontV317(treptowModelV317, true);
     yield;
     group.add(createReichstagLawnV318(worldGroundSampler(payload), true));
+    group.add(createCivicGardenReliefV341(worldGroundSampler(payload), true));
     yield;
     group.add(createLindenEastContextV315(true));
     yield;
@@ -2721,7 +2723,7 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftBismarckMoltkeMonuments({ mobileLike: options.detailProfile === "mobile" }));
   group.add(createMinecraftBellevueArchitecture(undefined, { mobileLike: options.detailProfile === "mobile", voxels: payload }));
   group.add(createMinecraftFiftyHertzArchitecture({ mobileLike: options.detailProfile === "mobile" }));
-  group.add(createEuropacityArchitecture({ sourcePrisms: options.sourcePrisms, mobileLike: options.detailProfile === "mobile", minecraft: true, voxels: payload }));
+  group.add(createEuropacityArchitecture({ sourcePrisms: options.sourcePrisms, mobileLike: options.detailProfile === "mobile", minecraft: true, voxels: payload, fineReliefV341: true }));
   yield;
   group.add(createMinecraftFriedrichstrasseArchitecture({ sourcePrisms: options.sourcePrisms, mobileLike: options.detailProfile === "mobile", voxels: payload }));
   yield;

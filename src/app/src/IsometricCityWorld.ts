@@ -13638,7 +13638,7 @@ export function* createIsometricCityStepsV309(
     builders.push(() => group.add(createRohwedderHausArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" })));
     builders.push(() => group.add(createBellevueArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" })));
     builders.push(() => group.add(createFiftyHertzArchitecture({ mobileLike: options.detailProfile === "mobile" })));
-    builders.push(() => group.add(createEuropacityArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" })));
+    builders.push(() => group.add(createEuropacityArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile", fineReliefV341: true })));
     builders.push(() => group.add(createFriedrichstrasseArchitecture({ sourcePrisms: prisms.buildings, mobileLike: options.detailProfile === "mobile" })));
     builders.push(() => group.add(createMuseumTriadArchitecture({ mobileLike: options.detailProfile === "mobile" })));
     builders.push(() => group.add(createDomAltesMuseum({ mobileLike: options.detailProfile === "mobile" })));

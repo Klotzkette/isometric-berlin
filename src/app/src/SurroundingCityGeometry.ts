@@ -47,6 +47,7 @@ import { prepareRoofHouseV233, applyRoofHouseV233Triangles, applyRoofHouseV233Li
 import { prepareHouseDoorsV233 } from "./houseDoorsV233";
 import { prepareHouseCurbsV233 } from "./houseCurbsV233";
 import { prepareBoulevardArchitectureV235 } from "./boulevardArchitectureV235";
+import { prepareWestShopfrontsV341 } from "./westShopfrontsV341";
 import { prepareWestShopfrontsV254 } from "./westShopfrontsV254";
 import { prepareCitywestStreetsV235 } from "./CitywestStreetsV235";
 import { prepareCityStreetsV249 } from "./CityStreetsV249";
@@ -342,6 +343,7 @@ export function* prepareSurroundingQuarterPredecessorV303(
   chunk = yield* prepareHouseCurbsV233(chunk, id, minecraft);
   chunk = yield* prepareBoulevardArchitectureV235(chunk, id, minecraft);
   chunk = yield* prepareWestShopfrontsV254(chunk, id, minecraft);
+  chunk = yield* prepareWestShopfrontsV341(chunk, id, minecraft);
   chunk = yield* prepareCitywestStreetsV235(chunk, id, minecraft);
   chunk = yield* prepareCityStreetsV249(chunk, id, minecraft);
   chunk = yield* prepareMainStreetEdgesV254(chunk, id, minecraft);

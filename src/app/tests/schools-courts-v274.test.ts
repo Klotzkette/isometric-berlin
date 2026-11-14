@@ -12,8 +12,9 @@ describe("seven bounded school/courtyard sites v274",()=>{
   test("drawn model includes every detail and all measured upper roof triangles",()=>{
     const root=createSchoolsCourtsV274();
     const all=meshes(root), instances=all.filter(m=>m instanceof InstancedMesh) as InstancedMesh[];
-    expect(all.length).toBe(8); expect(instances.length).toBe(7);
-    expect(instances.reduce((n,m)=>n+m.count,0)).toBe(SCHOOLS_COURTS_V274_BUDGET.boxes);
+    expect(all.length).toBe(9); expect(instances.length).toBe(8);
+    expect(instances.filter(m=>!m.userData.westRefinementV341).reduce((n,m)=>n+m.count,0)).toBe(SCHOOLS_COURTS_V274_BUDGET.boxes);
+    expect(instances.find(m=>m.userData.westRefinementV341)?.count).toBe(SCHOOLS_COURTS_V274_BUDGET.joineryBoxesV341);
     const shell=all.find(m=>!(m instanceof InstancedMesh))!;
     expect(shell.geometry.getAttribute("position").count).toBe(SCHOOLS_COURTS_V274_BUDGET.bmsUpperTriangles*3);
     expect(shell.geometry.boundingBox!.min.y).toBeCloseTo(23.2,4);
@@ -23,9 +24,10 @@ describe("seven bounded school/courtyard sites v274",()=>{
   });
   test("native model has only independent orthogonal instances and all seven sites",()=>{
     const root=createSchoolsCourtsV274(true), all=meshes(root);
-    expect(all.length).toBe(7);
+    expect(all.length).toBe(8);
     expect(all.every(m=>m instanceof InstancedMesh)).toBe(true);
-    expect(all.reduce((n,m)=>n+(m as InstancedMesh).count,0)).toBe(SCHOOLS_COURTS_V274_BUDGET.nativeRows);
+    expect(all.filter(m=>!m.userData.westRefinementV341).reduce((n,m)=>n+(m as InstancedMesh).count,0)).toBe(SCHOOLS_COURTS_V274_BUDGET.nativeRows);
+    expect((all.find(m=>m.userData.westRefinementV341) as InstancedMesh).count).toBe(SCHOOLS_COURTS_V274_BUDGET.joineryNativeRowsV341);
     const matrix=new Matrix4();
     for(const m of all as InstancedMesh[]) for(let i=0;i<m.count;i++) {
       m.getMatrixAt(i,matrix);
@@ -60,7 +62,7 @@ describe("seven bounded school/courtyard sites v274",()=>{
       const additions: Group[]=[];
       root.traverse(o=>{ if(o!==root && o instanceof Group && o.userData.schoolsCourtsV274) additions.push(o); });
       expect(additions.length).toBe(1);
-      expect(meshes(additions[0]).length).toBe(native?7:8);
+      expect(meshes(additions[0]).length).toBe(native?8:9);
       expect(root.children.some(child=>child!==additions[0])).toBe(true);
       const count=meshes(root).length;
       appendSchoolsCourtsV274(root,native);

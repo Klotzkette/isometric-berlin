@@ -9,6 +9,8 @@ import {setIsoNightPresentation}from "../src/IsometricCityWorld";
 import {createMinecraftMaterialState,disposeMinecraftMaterialState,setMinecraftMaterialPresentation}from "../src/visual-modes/minecraft/materialMode";
 import data from "../src/data/neukoellnLandmarksV305Core.json";
 import profile from "../src/data/neukoellnLandmarksV305Profile.json";
+import * as mitteFrontsV340 from "../src/MitteHistoricFrontsV340";
+import * as moabitFrontsV340 from "../src/MoabitStreetFrontsV340";
 function dispose(root:Group){const seen=new Set<object>();root.traverse(o=>{if(o instanceof Mesh){if(!seen.has(o.geometry)){seen.add(o.geometry);o.geometry.dispose();}for(const m of[o.userData.dayMaterial,o.userData.nightMaterial,o.userData.schwellenraumMaterial])if(m&&!seen.has(m)){seen.add(m);m.dispose();}if(o instanceof InstancedMesh)o.dispose();}});root.clear();}
 function contains(r:number[][],x:number,z:number){let yes=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const a=r[i],b=r[j];if((a[1]>z)!==(b[1]>z)&&x<(b[0]-a[0])*(z-a[1])/(b[1]-a[1])+a[0])yes=!yes;}return yes;}
 describe("Complete Neukölln landmarks v305",()=>{
@@ -60,7 +62,7 @@ describe("Complete Neukölln landmarks v305",()=>{
     if(native)new Function("group","options","fidelityV288","applyNeukoellnLegacyV227V305","hasCompleteNeukoellnLandmarksV305",voxel.slice(closureAt,closureEnd))(root,{neighbourhoodV300:true},fidelity,applyNeukoellnLegacyV227V305,hasCompleteNeukoellnLandmarksV305);
     const legacy=createDistrictTownhallsV227(native);root.add(legacy);const own=legacy.children.filter(c=>c.userData.siteKey==="neukoelln");expect(own.length).toBe(native?1:2);expect(own.every(c=>c.visible)).toBe(true);
     if(native)new Function("provisionalVoxelWorld",viewer.slice(nativeHookAt,nativeHookAt+"provisionalVoxelWorld.userData.prepareNeukoellnLegacyV305?.();".length))(root);
-    else expect(new Function("isoWorld","fidelityV288","applyNeukoellnLegacyV227V305","provisionalPedestrianEnvironment","let neukoellnAdmissionV305=false;"+drawnHook+"return neukoellnAdmissionV305;")(root,fidelity,applyNeukoellnLegacyV227V305,null)).toBe(true);
+    else expect(new Function("isoWorld","fidelityV288","applyNeukoellnLegacyV227V305","provisionalPedestrianEnvironment","mitteFrontsV340","moabitFrontsV340","prisms","let neukoellnAdmissionV305=false;"+drawnHook+"return neukoellnAdmissionV305;")(root,fidelity,applyNeukoellnLegacyV227V305,null,mitteFrontsV340,moabitFrontsV340,{buildings:[]})).toBe(true);
     expect(own.every(c=>!c.visible)).toBe(true);setIsoNightPresentation(root,false,true,"schwellenraum");expect(own.every(c=>!c.visible)).toBe(true);expect(hasCompleteNeukoellnLandmarksV305(model,native)).toBe(true);
     root.remove(required);expect(applyNeukoellnLegacyV227V305(root,native,false,model)).toBe(false);expect(own.every(c=>c.visible)).toBe(true);root.add(required);expect(applyNeukoellnLegacyV227V305(root,native,true,model)).toBe(true);expect(own.every(c=>!c.visible)).toBe(true);
     setIsoNightPresentation(root,false,true,"minecraft");setMinecraftMaterialPresentation(root,state,true);expect(hasCompleteNeukoellnLandmarksV305(model,native)).toBe(true);setMinecraftMaterialPresentation(root,state,false);expect(hasCompleteNeukoellnLandmarksV305(model,native)).toBe(true);

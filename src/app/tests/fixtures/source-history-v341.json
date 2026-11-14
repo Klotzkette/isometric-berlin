@@ -1,0 +1,60 @@
+{
+  "additions": {
+    "src/app/src/CivicGardenReliefV341.ts": "e9a3f1174c232b368bf7aaaf35849ec4a3c26c2a9a7d87dd74412846ea552ec5",
+    "src/app/src/NeukoellnFineDetailV341.ts": "7a7548c2615dca6038ae090dd83799ac5b22e99e59398fca9493e48f21ff23e6",
+    "src/app/src/SavignyGardenV341.ts": "27fe6978a9c03747e0b66ad95e846c93ed6da9052baaaf60d59946407fd7559e",
+    "src/app/src/data/savignyGardenV341.json": "fbf3d0c6fa667578587fa7c4b5b85ca50f58d5f6fd556abab9f90e42aa0c4950",
+    "src/app/src/schoolJoineryV341.ts": "30bf034df159e376a9e8b2a21e8f368f4fee002c13f50168b52db38e8ee29b1b",
+    "src/app/src/westShopfrontsV341.ts": "97c1127c916455e6a9822894cc6b9d1189b3ace5e4a255fd855122e4ee418974"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "95f6381e238ad4b40e15959f3b38cfe646ff9852c6a5c3a20a4164d9dbf7b74b",
+      "after": "40acbe0ef6dc4410d2cce9eae7997511515310965643e7a310748c33040a3bbb"
+    },
+    "src/app/src/AlexanderRecognitionV257.ts": {
+      "before": "25757f680c2b1af0f5c3009d15f5b5d732142c46cf4f8c1f02b4d6b119ed966e",
+      "after": "2e2e0309818f3d40e8005ccc7c7a912695407ca6b32726515b0ae43f12923be9"
+    },
+    "src/app/src/CityWestCinemasV166.ts": {
+      "before": "0af425dfa2ff8ff8bb5895910537317e4003b3e9f993d3caa08b6774d6c2a587",
+      "after": "1333a29e17f742ce2c5f39b50baa1cc3572f339a304de193f5a76799aab6f06a"
+    },
+    "src/app/src/EastCinemasV260.ts": {
+      "before": "1fd5cb6fffe0255b8000b63dfcbc1ff80dbe626ab1998c166455c75b7410e055",
+      "after": "fbfc8d0563f488c5707456e6438553443eac748b4a75c88844748274fe29cd63"
+    },
+    "src/app/src/EuropacityArchitecture.ts": {
+      "before": "cea916663156c60eaa76fba255fb662480ff4bb95b8d484a1977cc09efbe030f",
+      "after": "d78f98a69774694d013d26413baf198ee45ad3c6d30410793695dbc2f42a831e"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "d9cc78d8f7b6bacb00571d9090a016c41b495b9c18d7a7ee441d6f314c25ce61",
+      "after": "6f49173200f61bd69b49aa5bacdf8f94430ac4dd7b33fe77dc3b67f382e50258"
+    },
+    "src/app/src/MinecraftVoxelWorld.ts": {
+      "before": "b721eefe2b534b18101b23627207f20f5378fdcaa0b2f3a236566a42bf2a3f47",
+      "after": "3cf7dd48a87547663cb43a643ca2b39fd072fa3582eab3dd421431a1c5f49142"
+    },
+    "src/app/src/NeukoellnLandmarksV305.ts": {
+      "before": "89999c2e7af4fe8184ead7829046583e6fa892bef393da5b04f83d8209c306fd",
+      "after": "9bc0a57a063d5fcdc8cd2eb9b22a2c4b6b3afbac0963da0d97a8c5d9607ebdc1"
+    },
+    "src/app/src/SchoolsCourtsV274.ts": {
+      "before": "34f46dd0786080d530dd072d5608787a8af42e2b884af93a6c1c832087d22503",
+      "after": "292977f440ce8392fb96df916fe05d5d26882624f5cf1d8bf24f2308ff47017b"
+    },
+    "src/app/src/SurroundingCityGeometry.ts": {
+      "before": "4cfa57a0a103504c7b9a8e6e74e99d30dab1e4ad253cf9d18f22cfc4f4a5973e",
+      "after": "6f4e385fcab3c6469d7fb2491222720ceb0e8e8f9aa1f327f411700e31b179ad"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "527aa683781eebdb9f117563a6be2491c5f718155a6fa2acee82499793858d23",
+      "after": "c28d6758f256e5807a76e45ff1e014f9b8047861b625b5802c303f7efe7014db"
+    },
+    "src/app/src/schoolsPlacesV205Batches.ts": {
+      "before": "28450bae4f56c4534f19f832a4b33bdf655301ace100394f1e0d5df747ec765c",
+      "after": "f16d10b523a5974609495eaccc89008762c127e601bee47e35185ecb31f814ce"
+    }
+  }
+}

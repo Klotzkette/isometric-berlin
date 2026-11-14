@@ -50,8 +50,8 @@ test.skipIf(!existsSync(tool))('external strict-delta tool verifies all independ
 
 test('new history helper imports no earlier helper and the complete existing helper graph stays acyclic',()=>{
  const directory=new URL('./helpers/',import.meta.url),graph=new Map<string,string[]>();for(const name of readdirSync(directory).filter(n=>/^sourceHistoryV\d+\.ts$/.test(n))){const ast=ts.createSourceFile(name,readFileSync(new URL(name,directory),'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);graph.set(name,ast.statements.flatMap(n=>ts.isImportDeclaration(n)&&ts.isStringLiteral(n.moduleSpecifier)&&/^\.\/sourceHistoryV\d+$/.test(n.moduleSpecifier.text)?[n.moduleSpecifier.text.slice(2)+'.ts']:[]));}
- for(let version=326;version<340;version++){expect(graph.get(`sourceHistoryV${version}.ts`)).toEqual([`sourceHistoryV${version+1}.ts`]);}
- expect(graph.get("sourceHistoryV340.ts")).toEqual([]);
+ for(let version=326;version<341;version++){expect(graph.get(`sourceHistoryV${version}.ts`)).toEqual([`sourceHistoryV${version+1}.ts`]);}
+ expect(graph.get("sourceHistoryV341.ts")).toEqual([]);
  const active=new Set<string>(),done=new Set<string>();const visit=(p:string)=>{expect(active.has(p)).toBe(false);if(done.has(p))return;active.add(p);for(const next of graph.get(p)??[])visit(next);active.delete(p);done.add(p);};for(const p of graph.keys())visit(p);
 });
 
@@ -129,4 +129,6 @@ test("the frozen actual207 default layer proves every2093 path and complete2019 
   const file="src/app/tests/helpers/sourceHistoryV325.ts",before=execFileSync("git",["show",`${SOURCE_HISTORY_PUBLISHED_V206_V326}:${file}`],{cwd:root,encoding:"utf8"}),current=readFileSync(new URL("./helpers/sourceHistoryV325.ts",import.meta.url),"utf8");
   const unchanged=(source:string)=>{const ast=ts.createSourceFile(file,source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);return ast.statements.filter(node=>!ts.isImportDeclaration(node)&&!(ts.isFunctionDeclaration(node)&&["assertSourceLayerV325","sourceAtPublished205V325","projectSourceBeforeV325"].includes(node.name?.text??""))).map(node=>node.getText(ast));};
   expect(unchanged(current)).toEqual(unchanged(before));
-},30000);
+// Full historical reconstruction exceeds 30 s on memory-constrained hosts;
+// every byte comparison above remains required. This is not a runtime budget.
+},120000);

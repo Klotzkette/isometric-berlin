@@ -6,13 +6,14 @@ import {
 import source from "./data/cityWestCinemasV166Source.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { letteringStrokePaths } from "./drawnLettering";
+import { createSavignyGardenV341 } from "./SavignyGardenV341";
 
 export const CITYWEST_CINEMAS_V166_GROUP = "City West cinemas Savignyplatz and surveyed FÜRST architecture";
 export const CITYWEST_CINEMAS_V166_NATIVE_GROUP = "City West cinemas Savignyplatz and FÜRST native blocks";
 export const CITYWEST_CINEMAS_V166_RENDER_BUDGET = /* @__PURE__ */ (() => Object.freeze({
   parents: source.parents.length, parts: source.parts.length,
   facadeInstances: source.facadeBoxes.length, get nativeSourceBlocks() { return source.nativeBlocks.length; },
-  drawnBatches: 3, nativeBatches: 1,
+  drawnBatches: 4, nativeBatches: 2,
 }))();
 
 type Surface = {color:number;triangles:number[][][]};
@@ -66,9 +67,13 @@ export function createCityWestCinemasV166(_options:{mobileLike?:boolean}={}):Gro
   const shell=surfacesMesh([...source.surfaces,...source.pavingSurfaces]);shell.name="Complete official City West roofs walls and mapped Savignyplatz paths";
   const detail=instances(source.facadeBoxes);detail.name="Source clipped City West facade and garden edge details";
   const signs=surfacesMesh(signSurfaces());signs.name="Zoo Palast curved lettering and Kant Kino entrance lettering";
-  root.add(shell,detail,signs);return freezeStaticSceneTransforms(root);
+  root.add(shell,detail,signs);
+  const garden=createSavignyGardenV341(source.publicRealm);if(garden)root.add(garden);
+  return freezeStaticSceneTransforms(root);
 }
 export function createMinecraftCityWestCinemasV166(_options:{mobileLike?:boolean}={}):Group{
   const root=new Group();root.name=CITYWEST_CINEMAS_V166_NATIVE_GROUP;root.userData={textureFree:true,sourcePartIds:source.parts.map(p=>p.id),nativeMinecraft:true,keepInMinecraft:true,blockNative:true,noHiddenSolidInfill:true};
-  const mesh=instances([...source.nativeBlocks,...nativeAccents()],true);mesh.name="Independent City West surface blocks and native cinema accents";root.add(mesh);return freezeStaticSceneTransforms(root);
+  const mesh=instances([...source.nativeBlocks,...nativeAccents()],true);mesh.name="Independent City West surface blocks and native cinema accents";root.add(mesh);
+  const garden=createSavignyGardenV341(source.publicRealm,true);if(garden)root.add(garden);
+  return freezeStaticSceneTransforms(root);
 }

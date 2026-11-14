@@ -1,4 +1,5 @@
 import { appendSteglitzWindowsV273, steglitzWindowsV273Enabled } from "./steglitzWindowsV273";
+import { createSteglitzJoineryV341 } from "./schoolJoineryV341";
 import { Color, Group, InstancedBufferAttribute, Matrix4, Quaternion, Vector3 } from "three";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { letteringStrokePaths } from "./drawnLettering";
@@ -62,6 +63,10 @@ export function appendSchoolPlaceV205(root: Group, kind: "schools" | "places", n
       steglitzCourtyardV251:entry.owner==="DEBE06YYB0000AUq"&&steglitzCourtyardV251Enabled(),
       steglitzCourtGroundV251:entry.owner==="DEBE06YYB0000AUq"&&steglitzCourtGroundV251Enabled()};
     root.add(mesh);
+    if (entry.owner === "DEBE06YYB0000AUq" && steglitzWindowsV273Enabled()) {
+      const joinery = createSteglitzJoineryV341(native ? entry.nativeRows : entry.boxes, native);
+      if (joinery) root.add(joinery);
+    }
   }
   freezeStaticSceneTransforms(root);
 }

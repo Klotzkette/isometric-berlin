@@ -243,10 +243,10 @@ test("only V324 adapter entrypoints change and the complete history import graph
   };
   for (const name of graph.keys()) visit(name);
   expect(visited.size).toBe(graph.size);
-  for (let version = 327; version < 340; version++) {
+  for (let version = 327; version < 341; version++) {
     expect(graph.get(`sourceHistoryV${version}.ts`)).toEqual([`sourceHistoryV${version + 1}.ts`]);
   }
-  expect(graph.get("sourceHistoryV340.ts")).toEqual([]);
+  expect(graph.get("sourceHistoryV341.ts")).toEqual([]);
   expect(graph.get("sourceHistoryV326.ts")).toEqual(["sourceHistoryV327.ts"]);
   expect(graph.get("sourceHistoryV325.ts")).toEqual(["sourceHistoryV326.ts"]);
   expect(graph.get("sourceHistoryV324.ts")).toEqual(["sourceHistoryV325.ts"]);

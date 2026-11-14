@@ -12,8 +12,8 @@ function rows(minecraft: boolean) {
 
 test("three bounded sites share old batches with finite independent native geometry", () => {
   const a = rows(false), n = rows(true);
-  expect(a.boxes.length).toBe(5203); expect(a.lines.length).toBe(296);
-  expect(n.boxes.length).toBe(24690); expect(n.lines).toEqual([]);
+  expect(a.boxes.length).toBe(8359); expect(a.lines.length).toBe(296);
+  expect(n.boxes.length).toBe(32406); expect(n.lines).toEqual([]);
   expect(n.boxes.every(r => r[7] === 0)).toBe(true);
   expect(a.stats.drawCallsAdded).toBe(0); expect(n.stats.descriptorCountAdded).toBe(0);
   expect(a.stats.measuredEnvelopesRetained).toBe(true);

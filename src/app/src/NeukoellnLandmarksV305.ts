@@ -9,6 +9,7 @@ import { decodeBase64Bytes } from "./decodeBase64Bytes";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { staticStorageInfo } from "./losslessStaticStorage";
 import { schwellenraumMaterialFor } from "./visual-modes/schwellenraum/materialGrade";
+import { neukoellnFineDetailV341 } from "./NeukoellnFineDetailV341";
 import type { Material } from "three";
 
 export { neukoellnLandmarksV305Solids } from "./NeukoellnLandmarksV305Navigation";
@@ -68,14 +69,16 @@ export function createNeukoellnLandmarksV305(native = false, _options: { mobileL
     for (let i = 0; i < normals.count; i++) { const shade = normals.getY(i) > .5 ? 255 : normals.getY(i) < -.5 ? 170 : normals.getX(i) > .5 ? 211 : normals.getX(i) < -.5 ? 187 : normals.getZ(i) > .5 ? 234 : 201; shades.fill(shade, i * 3, i * 3 + 3); }
     geometry.setAttribute("color", new BufferAttribute(shades, 3, true));
     const ordinary: number[][] = [], luminous: number[][] = [];
-    for (const row of native ? source.nativeBoxes : source.fittings) {
+    const originalRows = native ? source.nativeBoxes : source.fittings;
+    const fineDetailV341 = neukoellnFineDetailV341(native, originalRows);
+    for (const row of [...originalRows, ...fineDetailV341.rows]) {
       const hash = (Math.imul(Math.round(row[0] * 10), 73856093) ^ Math.imul(Math.round(row[1] * 10), 19349663) ^ Math.imul(Math.round(row[2] * 10), 83492791)) >>> 0;
       (row[7] === 0x526263 && hash % 100 < 38 ? luminous : ordinary).push(row);
     }
     add(geometry, native ? "Independent cardinal Neukölln landmarks source body roofs and full facade members" : "Measured-wall-clipped individual Neukölln landmarks facade members", ordinary);
     if (luminous.length) add(geometry, "Same complete window members with estimated warm night occupancy", luminous, true);
     if (root.children.length !== (native ? 1 : 2) + (luminous.length ? 1 : 0)) throw Error("A complete Neukölln landmarks child was not attached");
-    root.userData = { neukoellnLandmarksV305: true, requiredCompleteReplacement: true, fullStaticDetailOnTouch: true, sourceSheetsRetained: true, sourceXZPreserved: true, textureFree: true, nativeMinecraft: native, blockNative: native, keepInMinecraft: native, sourceReceipt: "neukoelln-landmarks-v305-source.json.gz", houseCount: profile.sites.length, referenceOnly: true, fittingDimensionsEstimated: true };
+    root.userData = { neukoellnLandmarksV305: true, requiredCompleteReplacement: true, fullStaticDetailOnTouch: true, sourceSheetsRetained: true, sourceXZPreserved: true, textureFree: true, nativeMinecraft: native, blockNative: native, keepInMinecraft: native, sourceReceipt: "neukoelln-landmarks-v305-source.json.gz", houseCount: profile.sites.length, referenceOnly: true, fittingDimensionsEstimated: true, fineDetailV341: fineDetailV341.counts };
     freezeStaticSceneTransforms(root);
     complete.set(root, { native, children: (root.children as Mesh[]).map(mesh => ({ mesh, geometry: mesh.geometry, attributes: new Map(Object.entries(mesh.geometry.attributes).map(([k, a]) => [k, attributeReceipt(a as BufferAttribute)])), index: attributeReceipt(mesh.geometry.index!), day: mesh.userData.dayMaterial, night: mesh.userData.nightMaterial, grade:mesh.userData.schwellenraumMaterial, instances: mesh instanceof InstancedMesh ? { count: mesh.count, matrix: attributeReceipt(mesh.instanceMatrix), color: attributeReceipt(mesh.instanceColor!) } : undefined })) });
     return root;

@@ -9,7 +9,7 @@ export type EuropacitySourcePrism = Pick<PrismBuilding, "id" | "ring" | "holes" 
 type Wall = { part: PrismBuilding; a: Point; dx: number; dz: number; nx: number; nz: number; length: number; street: boolean; front: boolean };
 export type EuropacityBlock = { position: Triple; size: Triple; yaw: number; color: number; role: string; sourceId: string; normal: Point; glass: boolean };
 type Voxels = { cell_m: number; grid: { min_x_idx: number; min_z_idx: number }; building_rows?: Array<Array<[number, number, number, number, number]>>; buildings?: Array<[number, number, number, number, number]> };
-export type EuropacityOptions = { mobileLike?: boolean; minecraft?: boolean; voxels?: Voxels; sourcePrisms?: readonly EuropacitySourcePrism[]; diagnostics?: boolean };
+export type EuropacityOptions = { mobileLike?: boolean; minecraft?: boolean; voxels?: Voxels; sourcePrisms?: readonly EuropacitySourcePrism[]; diagnostics?: boolean; fineReliefV341?: boolean };
 const GLASS = 0x41545b, FRAME = 0xdbd9ce, DARK = 0x454b48;
 function inRing(ring: number[][], x: number, z: number): boolean {
   let inside = false;
@@ -175,7 +175,95 @@ export function planEuropacityArchitecture(options: EuropacityOptions = {}): Eur
       emit(u, top - .16, step - .05, .28, .28, .18, style === "red-brick" ? 0x946650 : FRAME, "source roof parapet cap");
     }
   }
+  if (options.fineReliefV341) blocks.push(...europacityFineReliefV341(blocks, options));
   return blocks;
+}
+
+/** Thin, estimated surface fittings. The original complete plan stays first.
+ * Native additions are constructed on actual exposed cardinal voxel faces;
+ * existing native rows supply only building identity and storey elevation. */
+export function europacityFineReliefV341(plan: readonly EuropacityBlock[], options: EuropacityOptions): EuropacityBlock[] {
+  const profiles = new Map(S.profiles.flatMap(p=>p.ids.map(id=>[id,p] as const)));
+  const seeds = plan.filter(b=>{
+    const p=profiles.get(b.sourceId);
+    return p?.style==="limestone"&&b.glass || p?.style==="track"&&p.floors>=11&&b.role==="dark green ceramic spandrel";
+  });
+  const result: EuropacityBlock[]=[];
+  const native=!!options.minecraft, payload=options.voxels;
+  const columns=new Map<string,{x:number;z:number;low:number;high:number}>();
+  const cell=payload?.cell_m??4;
+  if(native) {
+    if(!payload)return result;
+    const add=(x:number,z:number,lo:number,hi:number)=>{
+      if(x*cell< -725||x*cell> -50||z*cell< -1960||z*cell> -880||hi<=lo)return;
+      columns.set(`${x},${z}`,{x,z,low:lo/10,high:hi/10});
+    };
+    payload.building_rows?.forEach((row,zi)=>{
+      const z=payload.grid.min_z_idx+zi;
+      if(z*cell< -1960||z*cell> -880)return;
+      for(const [x,count,lo,hi] of row)for(let j=0;j<count;j++)add(payload.grid.min_x_idx+x+j,z,lo,hi);
+    });
+    payload.buildings?.forEach(([x,z,lo,hi])=>add(x,z,lo,hi));
+  }
+  const emitted=new Set<string>();
+  const sourceParts=new Map((S.prisms as unknown as EuropacitySourcePrism[]).map(p=>[p.id,p]));
+  const ownerCells=new Map<string,Set<string>>();
+  const belongs=(id:string,key:string)=>{
+    let owned=ownerCells.get(id);
+    if(!owned) {
+      owned=new Set<string>();
+      const part=sourceParts.get(id)!;
+      const contains=preparePrismContainment(part);
+      for(const [k,c] of columns) {
+        const x=c.x*cell,z=c.z*cell;
+        if([[.01,.01],[.99,.01],[.01,.99],[.99,.99],[.5,.5]].some(([dx,dz])=>contains(x+dx*cell,z+dz*cell)) ||
+          part.ring.some(p=>p[0]/10>=x&&p[0]/10<=x+cell&&p[1]/10>=z&&p[1]/10<=z+cell))owned.add(k);
+      }
+      ownerCells.set(id,owned);
+    }
+    return owned.has(key);
+  };
+  for(const seed of seeds) {
+    const stone=profiles.get(seed.sourceId)!.style==="limestone";
+    const y=stone?seed.position[1]-seed.size[1]/2-.075:seed.position[1];
+    const h=stone?.10:seed.size[1]*.78;
+    if(!native) {
+      const count=stone?1:4, width=stone?seed.size[0]+.10:.075;
+      for(let i=0;i<count;i++) {
+        const along=stone?0:(i-1.5)*seed.size[0]/5;
+        result.push({...seed,position:[seed.position[0]+Math.cos(seed.yaw)*along+seed.normal[0]*.13,y,seed.position[2]-Math.sin(seed.yaw)*along+seed.normal[1]*.13],
+          size:[width,h,stone?.22:.10],glass:false,color:stone?0xded9c9:0x7b8b80,role:stone?"v341 limestone sill lip":"v341 glazed ceramic flute"});
+      }
+      continue;
+    }
+    // The native world uses 4 m source cells. Select the nearest exposed face
+    // near this storey; no smooth polygon, yaw or smooth bay width is copied.
+    const ix=Math.floor(seed.position[0]/cell),iz=Math.floor(seed.position[2]/cell);
+    let best:{x:number;z:number;nx:number;nz:number;score:number;key:string}|undefined;
+    for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++){
+      const c=columns.get(`${ix+dx},${iz+dz}`);
+      if(!c||c.low>y-h/2||c.high<y+h/2)continue;
+      if(!belongs(seed.sourceId,`${c.x},${c.z}`))continue;
+      for(const [nx,nz] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+        if(nx*seed.normal[0]+nz*seed.normal[1]<.45)continue;
+        const adjacent=columns.get(`${c.x+nx},${c.z+nz}`);
+        if(adjacent&&adjacent.low<y+h/2&&adjacent.high>y-h/2)continue;
+        const x=(c.x+.5+nx*.5)*cell,z=(c.z+.5+nz*.5)*cell;
+        const score=Math.hypot(x-seed.position[0],z-seed.position[2]);
+        if(score>cell*1.6||best&&score>=best.score)continue;
+        best={x,z,nx,nz,score,key:`${c.x},${c.z},${nx},${nz},${y.toFixed(3)},${stone}`};
+      }
+    }
+    if(!best||emitted.has(best.key))continue;
+    emitted.add(best.key);
+    const {x,z,nx,nz}=best,count=stone?1:3;
+    for(let i=0;i<count;i++) {
+      const along=stone?0:(i-1)*cell/4,width=stone?cell*.78:.10,depth=stone?.22:.10;
+      result.push({position:[x+nx*.26+nz*along,y,z+nz*.26-nx*along],size:[nx?depth:width,h,nx?width:depth],yaw:0,
+        color:stone?0xded9c9:0x7b8b80,role:stone?"v341 limestone sill lip":"v341 glazed ceramic flute",sourceId:seed.sourceId,normal:[nx,nz],glass:false});
+    }
+  }
+  return result;
 }
 export function createEuropacityArchitecture(options: EuropacityOptions = {}): Group {
   const root = new Group(), plan = planEuropacityArchitecture(options);
