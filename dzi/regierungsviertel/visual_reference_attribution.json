@@ -4656,6 +4656,93 @@
       "license": "External reference only; no image reuse licence asserted",
       "role": "architectural_reference_only_no_image_or_texture_distributed",
       "geometry_status": "Retained source anchors; small fitting dimensions and colours are display estimates. See docs/named-places-v341.md and linked regional reports."
+    },
+    {
+      "landmark_id": "britz342-schloss",
+      "title": "Cream plaster, dark green shutters, slate roof, asymmetric tower and string courses.",
+      "page_url": "https://www.berlin.de/ba-neukoelln/ueber-den-bezirk/schloss-britz/artikel.256028.php",
+      "credit": "Kulturstiftung Schloss Britz / Bezirksamt Neukölln",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Complete retained LoD2 families; small fitting dimensions and colours are display estimates. See docs/britz-sites-v342.md."
+    },
+    {
+      "landmark_id": "britz342-gutshof",
+      "title": "Complete historic barn ensemble; red/yellow brick, fieldstone, terracotta cornices and Schweizer Haus.",
+      "page_url": "https://schloss-gutshof-britz.de/schloss-britz/schloss-britz/gutshof",
+      "credit": "Kulturstiftung Schloss Britz",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Complete retained LoD2 families; small fitting dimensions and colours are display estimates. See docs/britz-sites-v342.md."
+    },
+    {
+      "landmark_id": "britz342-kirche",
+      "title": "Stepped tiled roofs, heterogeneous fieldstone and brick-framed pointed windows.",
+      "page_url": "https://www.britz-evangelisch.de/britz-dorf",
+      "credit": "Evangelische Dorfkirchengemeinde Britz",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Complete retained LoD2 families; small fitting dimensions and colours are display estimates. See docs/britz-sites-v342.md."
+    },
+    {
+      "landmark_id": "britz342-hufeisen",
+      "title": "White curved three-storey facade, multi-pane windows, projected blue open loggia frames; small fitting sizes illustrative.",
+      "page_url": "https://welterbe-siedlungen-berlin.de/hufeisensiedlung/",
+      "credit": "Welterbe-Siedlungen Berlin; garden facade photograph Ben Buschfeld, 2019",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Complete retained LoD2 families; small fitting dimensions and colours are display estimates. See docs/britz-sites-v342.md."
+    },
+    {
+      "landmark_id": "britz342-hufeisen-heritage",
+      "title": "Historic estate identity and horseshoe/pond/facade composition.",
+      "page_url": "https://www.berlin.de/landesdenkmalamt/welterbe/siedlungen-der-berliner-moderne/grosssiedlung-britz-654617.php",
+      "credit": "Landesdenkmalamt Berlin",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Complete retained LoD2 families; small fitting dimensions and colours are display estimates. See docs/britz-sites-v342.md."
+    },
+    {
+      "landmark_id": "britzer-garten-v342-0",
+      "title": "Geoportal Berlin — GRIS, DGM1 and LoD2",
+      "page_url": "https://gdi.berlin.de",
+      "credit": "Land Berlin / Geoportal Berlin, Datenlizenz Deutschland Zero 2.0; bounded source clips and surveyed geometry.",
+      "role": "source_and_external_visual_reference",
+      "geometry_status": "Measured source boundaries and relief; woodland canopy masses, planting morphology, glazing subdivisions, bridge fit and small sculptural details are documented display estimates. Current Parkbahn operating pause respected. See docs/britzer-garten-v342.md."
+    },
+    {
+      "landmark_id": "britzer-garten-v342-1",
+      "title": "OpenStreetMap",
+      "page_url": "https://www.openstreetmap.org/copyright",
+      "credit": "© OpenStreetMap contributors, ODbL 1.0; mapped shores, paths, buildings, tree points, planting and Parkbahn courses, Geofabrik Berlin 2026-09-29.",
+      "role": "source_and_external_visual_reference",
+      "geometry_status": "Measured source boundaries and relief; woodland canopy masses, planting morphology, glazing subdivisions, bridge fit and small sculptural details are documented display estimates. Current Parkbahn operating pause respected. See docs/britzer-garten-v342.md."
+    },
+    {
+      "landmark_id": "britzer-garten-v342-2",
+      "title": "Grün Berlin — Britzer Garten, official plan and architectural references",
+      "page_url": "https://www.britzergarten.de/besuch-planen/besucherinformationen/parkplan/",
+      "credit": "External references only; no photographs or plan artwork distributed. Gnomon photograph © Lutz Griesbach; Café am See photographs © Andy Rumball and © Dominik Butzmann; pavilion photographs © Konstantin Börner and © Grün Berlin; other architecture photographs © Grün Berlin. Architecture Engelbert Kremser and Christoph Langhof; calendar square Jürgen Zilling, Clod Zillich and Jasper Haffmann; spear artworks Susanne Mahlmeister.",
+      "role": "source_and_external_visual_reference",
+      "geometry_status": "Measured source boundaries and relief; woodland canopy masses, planting morphology, glazing subdivisions, bridge fit and small sculptural details are documented display estimates. Current Parkbahn operating pause respected. See docs/britzer-garten-v342.md."
+    },
+    {
+      "landmark_id": "neukoelln-buildings-v342-stadtbad",
+      "title": "Pale plaster, cream pilasters/cornices, tripartite windows and arched fanlights; measured complete roof/body, estimated small fittings.",
+      "page_url": "https://www.berlin.de/ba-neukoelln/politik-und-verwaltung/aemter/stadtentwicklungsamt/denkmalschutz/artikel.1515066.php",
+      "credit": "Bezirksamt Neukölln / Janina Gallert, 2024",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Complete retained LoD2 building families, including roofs. Display datum remains unchanged; small facade fittings are estimates."
+    },
+    {
+      "landmark_id": "neukoelln-buildings-v342-orangerie",
+      "title": "Measured long stepped Orangerie, white tall arched glazing, green climbing plants around openings, pale roof balustrade; estimated small fittings.",
+      "page_url": "https://www.berlin.de/kunst-und-kultur-neukoelln/kulturorte/galerie-im-koernerpark/",
+      "credit": "Bezirksamt Neukölln / Nihad Nino Pušija",
+      "license": "External reference only; no image reuse licence asserted",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "geometry_status": "Complete retained LoD2 building families, including roofs. Display datum remains unchanged; small facade fittings are estimates."
     }
   ]
 }
