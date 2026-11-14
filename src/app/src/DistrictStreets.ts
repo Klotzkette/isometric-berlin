@@ -6,6 +6,7 @@ import source from "./data/districtStreets.json";
 import { smoothGroundTopSampler, type VoxelPayload } from "./terrainPayload";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { streetKerbJoinOffsetV276 } from "./streetKerbJoinsV276";
+import { createMitteRoadDetailsV343, canonicalMitteRoadTransactionV343, type MitteRoadTransactionV343 } from "./mitteRoadsV343";
 
 type Point = [number, number];
 const SURFACE_STYLES = {
@@ -72,7 +73,7 @@ function decodeSurfacePositions(
   return result;
 }
 
-function decodeSurfaceIndices(base64: string): StreetIndexArray {
+function decodeSurfaceIndices(base64: string, removed?: ReadonlySet<number>): StreetIndexArray {
   const text = atob(base64);
   if (text.length % 4 !== 0) throw new Error("Invalid district street index payload");
   let wide = false;
@@ -80,9 +81,11 @@ function decodeSurfaceIndices(base64: string): StreetIndexArray {
     // Match BufferGeometry.setIndex, including WebGL's reserved restart index.
     if ((wordAt(text, offset) >>> 0) >= 65535) { wide = true; break; }
   }
-  const result = wide ? new Uint32Array(text.length / 4) : new Uint16Array(text.length / 4);
+  const count = text.length / 4 - (removed?.size ?? 0) * 3;
+  const result = wide ? new Uint32Array(count) : new Uint16Array(count);
+  let target = 0;
   for (let offset = 0; offset < text.length; offset += 4) {
-    result[offset / 4] = wordAt(text, offset) >>> 0;
+    if (!removed?.has(Math.floor(offset / 12))) result[target++] = wordAt(text, offset) >>> 0;
   }
   return result;
 }
@@ -102,10 +105,18 @@ function geometry(positions: number[] | Float32Array): BufferGeometry {
  * lower-detail replacement or camera-dependent disappearance is necessary.
  */
 export function createDistrictStreets(ground: VoxelPayload, excludedMarkings: ReadonlySet<number> = new Set()): Group {
-  return createSourceStreetSurfaces(ground, streets, "District streets and roadside paths", excludedMarkings);
+  const transaction = canonicalMitteRoadTransactionV343();
+  const group = createSourceStreetSurfaces(ground, streets, "District streets and roadside paths", excludedMarkings, transaction);
+  if (transaction) {
+    group.add(createSourceStreetSurfaces(ground, transaction.supplement,
+      "Complete retained street fragments and surveyed kerbs v343"));
+    group.add(createMitteRoadDetailsV343(districtStreetTerrainSampler(ground), transaction));
+    group.userData.mitteRoadsV343 = true;
+  }
+  return freezeStaticSceneTransforms(group);
 }
 
-export function createSourceStreetSurfaces(ground: VoxelPayload, streets: StreetSource, name: string, excludedMarkings: ReadonlySet<number> = new Set()): Group {
+export function createSourceStreetSurfaces(ground: VoxelPayload, streets: StreetSource, name: string, excludedMarkings: ReadonlySet<number> = new Set(), transaction: MitteRoadTransactionV343 | null = null): Group {
   const group = new Group();
   group.name = name;
   group.userData.sourceGeometry = streets.source;
@@ -126,15 +137,18 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
     const style = SURFACE_STYLES[surface.kind];
     addSurface(
       style.name, decodeSurfacePositions(surface.positions_cm_b64, terrainAt, style.lift),
-      style.day, style.night, decodeSurfaceIndices(surface.indices_b64),
+      style.day, style.night, decodeSurfaceIndices(surface.indices_b64, transaction?.surfaceRemovals.get(surface.kind)),
     );
   }
 
   // The complete offline path inventory gives exact capacities. Writing its
   // final attributes directly avoids millions of temporary boxed numbers and
   // oversized growing arrays during the mobile startup peak.
+  const curbLines = transaction
+    ? streets.curbs_m.flatMap((line, index) => transaction.curbReplacements.get(index) ?? [line])
+    : streets.curbs_m;
   let pointCount = 0, segmentCount = 0, maxCurbIndex = 0;
-  for (const line of streets.curbs_m) {
+  for (const line of curbLines) {
     pointCount += line.length;
     segmentCount += Math.max(0, line.length - 1);
     if (line.length >= 2) maxCurbIndex = pointCount * 4 - 1;
@@ -147,7 +161,7 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
   const kerbOffset: [number, number] = [0, 0];
   // Four shared vertices per boundary point, instead of eighteen duplicated
   // vertices per segment. Real 22cm kerb top and both upstand faces remain.
-  for (const line of streets.curbs_m) {
+  for (const line of curbLines) {
     const offset = curbCursor / 3;
     for (let i = 0; i < line.length; i += 1) {
       const [x, z] = line[i];

@@ -4646,6 +4646,9 @@ function ensureIsoWorld(
   const ulapQuarterDetails = import("./UlapQuarter");
   const moabitHouseDetails = import("./MoabitGuardHouses");
   const concertDetails = import("./ConcertHalls");
+  const kulturforumPavingDetailsV343 = import("./KulturforumPavingV343");
+  const kulturforumPlazaDetailsV343 = import("./KulturforumPlazaV343");
+  const roadGroundDetailsV343 = import("./RoadGroundV343");
   const kulturforumMuseumDetails = import("./KulturforumMuseums");
   const northRailDetails = import("./HbfNorthApproach");
   const northContextDetails = import("./NorthContextV312");
@@ -4702,13 +4705,16 @@ function ensureIsoWorld(
     towerDetails, alexanderCivicDetails, alexanderPublicDetails,
     leipzigerShells, potsdamerMinistryDetails, leipzigerPerimeterDetails, bikiniDetails, ulapDetails, ulapQuarterDetails, moabitHouseDetails,
     concertDetails,
+    kulturforumPavingDetailsV343,
+    kulturforumPlazaDetailsV343,
+    roadGroundDetailsV343,
     kulturforumMuseumDetails,
     northRailDetails,
     northContextDetails, lindenContextV315Details, karlMarxV316Details, treptowV317Details, domEastHousingV318Details, europacityRailDetails,
     breitscheidDetails, westSquaresDetails, eastSquaresDetails, hackescherDetails,
     cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details, neueSynagogeV167Details, tachelesV167Details, monbijouBathV167Details, humboldtMainV168Details, teehausRuinV168Details, tuWaterV168Details, altMitteCoreV169Details, bndV174Details, weinbergV174Details, zionV174Details, wallV174Details, zionFrontagesV175Details, northCorridorDetails, requiredSites, potsdamerStationPhoto, mitteStreetFrontsV340,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumMuseums, northRail, northContext, lindenContextV315, karlMarxV316, treptowV317, domEastHousingV318, europacityRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208, sitesV209, stationPhoto, [mitteFrontsV340, moabitFrontsV340]]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumPavingV343, kulturforumPlazaV343, roadGroundV343, kulturforumMuseums, northRail, northContext, lindenContextV315, karlMarxV316, treptowV317, domEastHousingV318, europacityRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208, sitesV209, stationPhoto, [mitteFrontsV340, moabitFrontsV340]]) => {
       if (runtime.disposed) {
         return;
       }
@@ -4856,6 +4862,10 @@ function ensureIsoWorld(
             bridgeStructures: !runtime.signatures.getObjectByName("drawn bridge structures"),
             coreSpreeBridgeFactoryV242: createCoreSpreeBridgesV242,
             retainRasterAsphalt: false,
+            restoreRoadGroundV343: (slabs, sourceGround) => {
+              const plaza = kulturforumPlazaV343.createKulturforumPlazaV343(sourceGround);
+              roadGroundV343.restoreRoadGroundV343(slabs, sourceGround, plaza);
+            },
             retainRasterWater: runtime.coarsePointer && !surfaces,
             smoothSurfaces:
               runtime.coarsePointer || progressiveInput ? null : undefined,
@@ -5029,6 +5039,9 @@ function ensureIsoWorld(
         isoWorld.add(kulturforumMuseums.createKulturforumMuseums());
         if (ground) {
           const sample = smoothGroundTopSampler(ground);
+          isoWorld.add(kulturforumPavingV343.createKulturforumPavingV343(
+            (x, z) => sample(x / ground.cell_m - ground.grid.min_x_idx, z / ground.cell_m - ground.grid.min_z_idx)));
+          yield;
           isoWorld.add(ulap.createUlapPark((x, z) => sample(x / ground.cell_m - ground.grid.min_x_idx, z / ground.cell_m - ground.grid.min_z_idx)));
           yield;
           isoWorld.add(northRail.createHbfNorthApproach((x, z) => sample(x / ground.cell_m - ground.grid.min_x_idx, z / ground.cell_m - ground.grid.min_z_idx)));
@@ -5755,6 +5768,7 @@ function ensureVoxelWorld(
       }
 
       const nordbahnhofModule = prisms ? await import("./NordbahnhofPublicAccess") : null;
+      const kulturforumPavingV343 = await import("./KulturforumPavingV343");
       const [mitteFrontsV340, moabitFrontsV340] = prisms ? await Promise.all([
         import("./MitteHistoricFrontsV340"), import("./MoabitStreetFrontsV340"),
       ]) : [null, null];
@@ -5790,6 +5804,11 @@ function ensureVoxelWorld(
           isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
         },
       );
+      const nativePavingGroundV343 = provisionalVoxelWorld.getObjectByName("Voxel ground runs");
+      if (nativePavingGroundV343 instanceof InstancedMesh) {
+        provisionalVoxelWorld.add(kulturforumPavingV343.createKulturforumPavingV343(
+          () => { throw new Error("Native paving must use actual source block tops"); }, true, nativePavingGroundV343));
+      }
       const connectedPavilions = provisionalVoxelWorld.userData.potsdamerPavilionShells === true;
       if (connectedPavilions) attachPotsdamerPavilions(provisionalVoxelWorld, true);
       else if (provisionalVoxelWorld.userData.potsdamerStationPhoto) cutPotsdamerSouthGround(provisionalVoxelWorld, true, true);

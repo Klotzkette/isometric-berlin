@@ -113,7 +113,7 @@ test("the real 99-degree duplicate corner has zero-area Float32 null-segment tri
 });
 
 test("the actual complete curb batch keeps every original course, height pair, index and byte capacity", () => {
-  const root = createDistrictStreets(ground as unknown as VoxelPayload);
+  const root = createSourceStreetSurfaces(ground as unknown as VoxelPayload, source as unknown as StreetSource, "Historical complete curb courses");
   try {
     const curb = root.getObjectByName("District raised kerbstones") as Mesh;
     const p = curb.geometry.getAttribute("position");

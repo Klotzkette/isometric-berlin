@@ -418,6 +418,8 @@ export type PrismPayload = {
  * remaining batches without copying or simplifying any source coordinate.
  */
 export type IsometricCityBuildOptions = {
+  /** Main-thread ground ownership only; its source table must never enter the building Worker. */
+  restoreRoadGroundV343?: (slabs: InstancedMesh, ground: VoxelPayload) => void;
   federalStateFittingsV321?: import("./FederalStateRepresentations").FederalStateRepresentationOptions["fittingsFactoryV321"];
   /** Only the completed required Hauptbahnhof model may open its retained source glazing. */
   hbfCirculationV291?: boolean;
@@ -13406,6 +13408,7 @@ export function* createIsometricCityCoreStepsV309(
     restoreAltMitteGroundSeamsV206(slabs, ground);
     cutUbahnGroundSlabsV281(slabs, false);
     restoreFidelityGroundSlabsV296(slabs,{dining:options.parliamentaryDiningV296,waterfront:options.waterfrontV296});
+    if (surfaces && !options.retainRasterAsphalt) options.restoreRoadGroundV343?.(slabs, ground);
     group.add(slabs);
     // Transparent rivers with a visible bed ("Flüsse müssen
     // durchsichtig sein mit Flussbett"): a pale glass-like surface

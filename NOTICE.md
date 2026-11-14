@@ -3081,3 +3081,24 @@ no photograph pixels or textures are redistributed. See the
 viewer’s complete visual-reference credits for individual sources and rights.
 Small architectural fittings, colours and plant forms are estimates. Mapped
 individual trees are distinguished from illustrative woodland canopy groups.
+
+
+## Street contours and Philharmonie-West paving (v343)
+
+Selected Chancellery road and pedestrian polygons: Geoportal Berlin,
+[Straßenbefahrung 2014](https://gdi.berlin.de/services/wfs/strassenbefahrung),
+checked against official [DOP 2025](https://gdi.berlin.de/services/wms/dop_2025_fruehjahr)
+and the owner's supplied photographs. Historical removed road geometry is not
+represented as present. OpenStreetMap contributor road/path geometry is retained
+under ODbL 1.0; municipal geodata under Datenlizenz Deutschland – Zero 2.0.
+
+Philharmonie-West paving format and visual finish: [GODELMANN project reference](https://www.godelmann.de/de/referenzen/kulturforum-am-scharounplatz).
+Its continuous pedestrian footprint retains OpenStreetMap relation 9976187,
+with the existing mapped islands, paths and object exclusions and Berlin's
+retained digital terrain model. The underlying source geometry remains credited
+to OpenStreetMap contributors (ODbL 1.0) and Geoportal Berlin (dl-de/zero-2-0).
+Completed works and chronology: [Grün Berlin](https://gruen-berlin.de/pressemitteilung/freianlagen-des-kulturforums-eroeffnet).
+Photographs are reference-only, with no image pixels or texture files included.
+Joint width, laying pattern and small material-colour differences are model
+approximations. See [street notes](docs/streets-v343.md) and
+[Philharmonie paving evidence](docs/kulturforum-paving-v343.md).

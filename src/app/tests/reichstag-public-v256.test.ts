@@ -13,7 +13,7 @@ describe("Source-bound Reichstag and Forum public realm v256", () => {
       const count = appendReichstagPublicRealmV256({
         native,
         box(position, size, tint, yaw = 0) { members.push([...position, ...size, yaw, tint]); },
-      }, terrain);
+      }, terrain, null); // Original v256 fallback remains complete.
       expect(count).toBe(native ? 2353 : 1202);
       expect(members).toHaveLength(rows.length);
       for (let i = 0; i < count; i++) {

@@ -133,6 +133,9 @@ export function SourcesDialog({ language, onClose }: {
         <p>{language === "de"
           ? "Pekinger Platz: OpenStreetMap, Geoportal Berlin DOP 2025, Bezirksamt Mitte und Bewohnerwerkstatt Sprengelkiez. Strauchflächen sind aus dem Luftbild interpretiert, kleine Maße und Farben angenähert."
           : "Pekinger Platz: OpenStreetMap, Geoportal Berlin DOP 2025, Bezirksamt Mitte and Sprengelkiez residents' workshop. Shrub areas are interpreted from the orthophoto; small dimensions and colours are approximate."}</p>
+        <p>{language === "de"
+          ? "Straßen am Kanzleramt: Geoportal Berlin, Straßenbefahrung 2014, mit Luftbild 2025 und bereitgestellten Fotos abgeglichen. Philharmonie-West: Pflasterformate und Oberflächenreferenz GODELMANN, Kulturforum am Scharounplatz. Fugenbreite, Verlegeverband und kleine Farbabstufungen sind Modellnäherungen; keine Fototexturen."
+          : "Chancellery streets: Geoportal Berlin 2014 street survey, checked against the 2025 orthophoto and supplied photographs. Philharmonie-West: paving formats and surface reference by GODELMANN, Kulturforum am Scharounplatz. Joint width, laying bond and small colour differences are model approximations; no photo textures."}</p>
         <ul>
           <li><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap · ODbL</a></li>
           <li><a href="https://www.govdata.de/dl-de/zero-2-0" target="_blank" rel="noreferrer">Geoportal Berlin · dl-de/zero-2-0</a></li>

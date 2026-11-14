@@ -1,0 +1,46 @@
+{
+  "additions": {
+    "src/app/src/KulturforumPavingV343.ts": "0faf66cf8bdea3f025a9fd5a3b6090e57b4010e9d67ee4e37c1bcc73bef92a33",
+    "src/app/src/KulturforumPlazaV343.ts": "3d12a536a9d742e74dd6b6dae63b02d80632c9854bb98ffa9a85892dd802ff41",
+    "src/app/src/RoadGroundV343.ts": "01e164e7d9cae82ff8def560a545c33814fc94eab802f1fa3cdc4f2deb96c460",
+    "src/app/src/data/kulturforumPavingV343.json": "3d2139e44430a5988c8440d86493cef96cab846f5aefc530f95477e651d93366",
+    "src/app/src/data/kulturforumPlazaV343.json": "f4dbca25c80c73f773eee80922de284357f92ce39860ccd5b5f8c80a8ade0255",
+    "src/app/src/data/mitteRoadsV343.json": "b1504950ddad0cb2cfe4d4b5b33be178a2fb34c8225c14e9172e8eabbd123d5d",
+    "src/app/src/data/roadGroundV343.json": "fc7ee50e82f09c8a0ae9cd7a907e1f6e82578e647f0f382fd82796605d982f1a",
+    "src/app/src/mitteRoadsV343.ts": "d47c38dea042d701307fec73ec9bf9cc8e7ac8b1bd5726e8571b1cde21594cfd"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "148b7c8a12e089ee0af064f2fb6c4af58874f3c3887f9b257ff1376669e331a5",
+      "after": "c06c40ebb18e7fd958dea1cb6c86ffcb5b7ef3221cc913839243f5c166a2c85a"
+    },
+    "src/app/src/DistrictStreets.ts": {
+      "before": "78f5a7825243e8a0d3e009647bb2627c923b8c3daf378507d009ce04159c19b0",
+      "after": "0060fa246e3801c5edf4151ee97c8c100665f708594a45a8177ab90feaab8180"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "6f49173200f61bd69b49aa5bacdf8f94430ac4dd7b33fe77dc3b67f382e50258",
+      "after": "17c5e652c9ea1748865c2dca4a27bd606b01fa0b82530456f6fd3bb23ada0c98"
+    },
+    "src/app/src/ReichstagPublicRealmV256.ts": {
+      "before": "a20fd0f452589c1e4add49d4d158926b1dc6644ef97b4c02c2a4c1a0491ae337",
+      "after": "4f4b62de468d27163bd1020ebf10127c886b5e44b9948d87b525cb89e6796664"
+    },
+    "src/app/src/SourcesDialog.tsx": {
+      "before": "bfcbe5f138fef5b1f3da4f861f10ad88675647ea23a3233623abf7e7e8fa48e3",
+      "after": "48f8de034ef987b9a074ef0932cc6b6b8a6b4c46335ca136afea33008308067e"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "72384c682f07b09b2101516876b9c129d758444532cc9316758ecafce9ffc6fb",
+      "after": "b4f1312439c945f535896362d1aa37f77d401c5b9ac348b0f18ff2281317ccfc"
+    },
+    "src/app/src/drawnWaterBoundary.ts": {
+      "before": "18e41f4b728da542e29c403bf454ea43fd68bf0ccb6572e1fa91f9d10bb0f0a0",
+      "after": "376e183d9967fc7a91b113d099547b8bd9cb28b612e736d98bb103ed5a9f4ea9"
+    },
+    "src/app/src/startupView.ts": {
+      "before": "9bc83b46ef610c695a17ac6b499c62b2f89204f8d410e32ca318c51787ec1486",
+      "after": "721794e16f7bed35bae926ec0e22149411e7982b5664fcd97c3b350a31fb175c"
+    }
+  }
+}

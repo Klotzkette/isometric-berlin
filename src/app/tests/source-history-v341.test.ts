@@ -21,9 +21,9 @@ test("v341 independently reconstructs each exact published v220 source and rejec
     const current=Buffer.from(sourceAtBeforeV342(path,readFileSync(new URL(path,root))));
     const before=execFileSync("git",["show",`${published}:${path}`],{cwd:root,maxBuffer:32*1024*1024});
     expect(digest(before)).toBe(row.before);expect(digest(current)).toBe(row.after);
-    expect(Buffer.from(sourceAtBeforeV341(path,current)).equals(before)).toBe(true);
+    expect(Buffer.from(sourceAtBeforeV341(path,readFileSync(new URL(path,root)))).equals(before)).toBe(true);
     expect(projectSourceBeforeV341(current.toString())).toBe(before.toString());
-    expect(()=>sourceAtBeforeV341(path,Buffer.concat([current,Buffer.from(" ")]))).toThrow(/Unknown exact v34[12] source bytes/);
+    expect(()=>sourceAtBeforeV341(path,Buffer.concat([current,Buffer.from(" ")]))).toThrow(/Unknown exact v34[123] source bytes/);
   }
   for(const [path,hash] of Object.entries(receipt.additions))expect(digest(sourceAtBeforeV342(path,readFileSync(new URL(path,root))))).toBe(hash);
 },60_000);

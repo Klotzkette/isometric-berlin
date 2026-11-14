@@ -94,6 +94,11 @@ modellierte Seen, Hügel und Gartenwege die charakteristischen Parkbauten.
 Schloss und Gutshof Britz, Dorfkirche, Hufeisensiedlung, Stadtbad Neukölln und
 Körnerpark-Orangerie haben eigene, aus Gebäudedaten abgeleitete Formen.
 
+Die [Straßen- und Gehwegdetails](docs/streets-v343.md) verbinden vermessene
+Straßenränder am Kanzleramt mit zusammenhängendem Pflaster und feinen
+Plattenfugen westlich der Philharmonie. Im Kerngebiet
+werden überdeckte Straßenkonturen vom angrenzenden Boden freigehalten.
+
 Beim Start zeigt ein durchgehender Balken die laufenden Aufbauschritte.
 Weitere Stadtbereiche werden passend zur Ansicht nachgeladen.
 Die vollständige gezeichnete Detailstufe steht auch auf Touchgeräten bereit.
@@ -250,8 +255,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.222** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.222/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.223** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.223/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

@@ -3041,3 +3041,33 @@ existing infrastructure for source-bound terrain admission. Keep facility
 labels optional, local and bounded, and street furniture on demand in both
 Drawn and Native. No source imagery, site interiors or additional geographic
 coverage are part of this pass.
+
+
+### Step 10 — v343 road contours, curbs and pavement
+
+The owner requests realistic street edges and pavements across the represented
+city, especially Mitte, the Chancellery and the Philharmonie/Serra surroundings.
+Audit actual retained Drawn ground transforms for coarse slabs protruding through
+existing source road faces. Correct only proved overlaps with complete outside
+land complements, preserving original paint, top/bottom heights and earlier
+exclusions. Do not move source roads or smooth real corners globally. Use the
+current-verified municipal survey around Paul-Löbe-Allee/Heinrich-von-Gagern-Straße
+as a finite admitted replacement with original outside fragments; exclude the
+historical removed street north of the Swiss embassy. Kulturforum paving formats
+follow the completed 2019 works and the supplier reference, not future masterplan
+geometry. Joint widths and laying phases remain stated model approximations.
+Keep Serra, T4, buildings, planted areas, crossing gaps and existing walking
+continuity. Native construction remains independently cardinal; finite new native
+details must rest on actual existing block tops. Preserve all six modes, full
+mobile detail, every existing city packet, the 93 stops and live memory limits.
+Use the internal browser for final visual checks and publish the complete viewer.
+
+The final visual check also identifies the retained paved pedestrian relation
+9976187 west of the Philharmonie as the source of coarse plaza-brick terraces.
+The same street/pavement request permits replacing only the complete verified
+ring and its holes with its smooth terrain-following paving interpretation,
+retaining the original outside complement, source receipt and all planted,
+sculptural, building and road owners. Preserve the independent cardinal Native
+interpretation. The two surveyed green verges on Heinrich-von-Gagern-Straße
+remain green; add their documented raised curb lines rather than inventing
+cycleways or widening the road.

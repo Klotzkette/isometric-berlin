@@ -100,7 +100,9 @@ function release(root: ReturnType<typeof createDistrictStreets>): void {
 
 describe("bounded exact street construction", () => {
   test("preserves published bytes except the source-centred v276 kerb cross-section correction", () => {
-    const root = createDistrictStreets(ground);
+    // Preserve the historical full-source constructor receipt. The public
+    // entry point now adds the separately tested finite v343 transaction.
+    const root = createSourceStreetSurfaces(ground, streetSource as StreetSource, "Historical full-source streets");
     try {
       const actual = root.children.map(object => {
         const mesh = object as Mesh;

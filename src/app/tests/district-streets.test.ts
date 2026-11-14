@@ -18,7 +18,7 @@ import {
 import corrections from "../src/data/altMitteTransportCorrectionsV206.json";
 import { geometryPreservationV206 } from "./helpers/geometryPreservationV206";
 import { disposeStaticAudit } from "./helpers/staticGeometryAudit";
-import { createDistrictStreets } from "../src/DistrictStreets";
+import { createDistrictStreets, createSourceStreetSurfaces, type StreetSource } from "../src/DistrictStreets";
 
 const ground = groundJson as unknown as VoxelPayload;
 const sample = smoothGroundTopSampler(ground);
@@ -129,10 +129,13 @@ describe("bounded District streets in the drawn city", () => {
   });
 
   test("keeps the street reading and bounded avenue infill in eight static, image-free batches", () => {
+    // Historical complete source contract remains independently checked;
+    // road-ground-v343 tests bound the finite public transaction separately.
+    const historical = createSourceStreetSurfaces(ground, streetSource as unknown as StreetSource,"Historical street batches");
     const geometries = new Set<BufferGeometry>();
     const materials = new Set<Material>();
     let drawables = 0;
-    streets.traverse((object) => {
+    historical.traverse((object) => {
       if (!(object instanceof Mesh || object instanceof LineSegments)) return;
       drawables += 1;
       geometries.add(object.geometry);
@@ -154,6 +157,7 @@ describe("bounded District streets in the drawn city", () => {
         expect(material.map).toBeNull();
       }
     }
+    disposeStaticAudit(historical);
   });
 });
 

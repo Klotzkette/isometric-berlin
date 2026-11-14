@@ -10,6 +10,8 @@ export type DrawnWaterBoundaryData = {
   cells_u32: string; triangles_f32: string; edges_f32: string;
   /** Optional exact source-run spans; legacy water/foundation records stay 1 cell. */
   spans_u32?: string; tops_f32?: string;
+  /** Optional audited depth; legacy water/foundation owners retain their own depths. */
+  depth_m?: number;
 };
 const RECORD_SIZE = 6;
 
@@ -73,9 +75,19 @@ export function restoreDrawnWaterBoundary(
   };
   const visit = (instance: number, plain: (x: number, span: number) => void, cut: (record: number) => void): void => {
     const offset = instance * 16;
-    const span = Math.round(originalMatrices[offset] / cell);
-    const xStart = Math.round((originalMatrices[offset + 12] - originalMatrices[offset] / 2) / cell) - min_x_idx;
-    const z = Math.round((originalMatrices[offset + 14] - originalMatrices[offset + 10] / 2) / cell) - min_z_idx;
+    const rawSpan = originalMatrices[offset] / cell;
+    const rawStart = (originalMatrices[offset + 12] - originalMatrices[offset] / 2) / cell - min_x_idx;
+    const span = Math.round(rawSpan);
+    const xStart = Math.round(rawStart);
+    const rawZ = (originalMatrices[offset + 14] - originalMatrices[offset + 10] / 2) / cell - min_z_idx;
+    const z = Math.round(rawZ);
+    // Earlier public-room cuts can leave a partial box. Such a fragment no
+    // longer owns an entire raster cell and must retain its exact transform.
+    if (Math.abs(rawSpan - span) > 1e-6 || Math.abs(rawStart - xStart) > 1e-6 ||
+        Math.abs(rawZ - z) > 1e-6 || Math.abs(originalMatrices[offset + 10] - cell) > 1e-6 ||
+        (data.depth_m !== undefined && originalMatrices[offset + 5] !== data.depth_m) ||
+        originalMatrices[offset + 15] !== 1 ||
+        [1,2,3,4,6,7,8,9,11].some(i => originalMatrices[offset+i] !== 0)) { plain(xStart, span); return; }
     const row = rows.get(z);
     if (!row) { plain(xStart, span); return; }
     let from = xStart;
@@ -100,8 +112,12 @@ export function restoreDrawnWaterBoundary(
   let out = 0;
   for (let instance = 0; instance < oldCount; instance++) visit(instance, (x, span) => {
     matrices.set(originalMatrices.subarray(instance * 16, instance * 16 + 16), out * 16);
-    matrices[out * 16] = span * cell;
-    matrices[out * 16 + 12] = (min_x_idx + x + span / 2) * cell;
+    const originalSpan = Math.round(originalMatrices[instance * 16] / cell);
+    const originalStart = Math.round((originalMatrices[instance * 16 + 12] - originalMatrices[instance * 16] / 2) / cell) - min_x_idx;
+    if (span !== originalSpan || x !== originalStart) {
+      matrices[out * 16] = span * cell;
+      matrices[out * 16 + 12] = (min_x_idx + x + span / 2) * cell;
+    }
     if (colors && originalColors) colors.set(originalColors.subarray(instance * 3, instance * 3 + 3), out * 3);
     out++;
   }, record => {

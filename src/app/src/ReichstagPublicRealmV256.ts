@@ -1,4 +1,5 @@
 import data from "./data/reichstagPublicRealmV256.json";
+import { canonicalMitteRoadTransactionV343, type MitteRoadTransactionV343 } from "./mitteRoadsV343";
 
 type Vec = [number, number, number];
 type Parts = {
@@ -30,9 +31,13 @@ export const REICHSTAG_PUBLIC_REALM_V256 = {
 export function appendReichstagPublicRealmV256(
   parts: Parts,
   terrainAt: (x: number, z: number) => number,
+  transaction: MitteRoadTransactionV343 | null = parts.native ? null : canonicalMitteRoadTransactionV343(),
 ): number {
   const rows = parts.native ? data.nativeRows : data.boxes;
-  for (const row of rows) {
+  const replacement = parts.native ? null : transaction;
+  let added = 0;
+  for (const [index, row] of rows.entries()) {
+    if (replacement?.jointRemovals.has(index)) continue;
     const [x, y, z, width, height, depth] = row;
     parts.box(
       [x, terrainAt(x, z) + y, z],
@@ -40,6 +45,7 @@ export function appendReichstagPublicRealmV256(
       row[parts.native ? 6 : 7],
       parts.native ? 0 : row[6],
     );
+    added++;
   }
-  return rows.length;
+  return added;
 }

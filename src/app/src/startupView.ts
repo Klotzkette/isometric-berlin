@@ -68,6 +68,11 @@ const BRITZ_NEUKOELLN_VIEWS_V342: typeof GARDEN_VIEWS_V330 = {
   "Körnerpark": { position: [4602, 98, 5350], target: [4307, 7, 5403] },
 };
 
+const STREET_VIEWS_V343: typeof GARDEN_VIEWS_V330 = {
+  "Philharmonie-West": { position: [-285, 42, 1055], target: [-225, 5, 981] },
+  "Straßen am Kanzleramt": { position: [65, 62, 20], target: [-40, 5, -62] },
+};
+
 // Extra place links use the same focus control without adding tour stops.
 export const STARTUP_ONLY_SIGHTS = [
   "Kaiser-Wilhelm-Gedächtniskirche",
@@ -87,6 +92,7 @@ export const STARTUP_ONLY_SIGHTS = [
   ...Object.keys(COURT_VIEWS_V333),
   ...Object.keys(TRANSPORT_VIEWS_V334),
   ...Object.keys(BRITZ_NEUKOELLN_VIEWS_V342),
+  ...Object.keys(STREET_VIEWS_V343),
 ].map(name => ({ name, role: "owner_added" }));
 
 export function startupOnlySight(name: string) {
@@ -99,7 +105,7 @@ export type StartupFlightView = Pick<NavigationSnapshot, "pose" | "fov"> & { lan
  * flight lens. No pedestrian state is created or enabled. */
 export function startupFlightView(name: string): StartupFlightView {
   if (name === GALLERY_FLIGHT_START_V223.landmarkName) return GALLERY_FLIGHT_START_V223;
-  const extra = GARDEN_VIEWS_V330[name] ?? AMENITY_VIEWS_V332[name] ?? COURT_VIEWS_V333[name] ?? TRANSPORT_VIEWS_V334[name] ?? BRITZ_NEUKOELLN_VIEWS_V342[name];
+  const extra = GARDEN_VIEWS_V330[name] ?? AMENITY_VIEWS_V332[name] ?? COURT_VIEWS_V333[name] ?? TRANSPORT_VIEWS_V334[name] ?? BRITZ_NEUKOELLN_VIEWS_V342[name] ?? STREET_VIEWS_V343[name];
   if (extra) return { landmarkName: name, fov: 16, pose: { target: [...extra.target], position: [...extra.position] } };
   const view = SIMULATION_START_VIEWS[name];
   if (!view) return GALLERY_FLIGHT_START_V223;

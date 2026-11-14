@@ -162,7 +162,9 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v1.0.222 includes 1,185,633,991 extracted bytes: 15,676,299 above v1.0.221
 # for bounded Britzer Garten/Britz packets and the Neukölln building recipes.
 # 1131 MiB is the next whole-MiB offline ceiling; live residency caps stay fixed.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 1131 * 1024 * 1024
+# v1.0.223 retains every city packet and adds exact street complements/paving.
+# Measured full package: 1,188,168,919 bytes (1133.13 MiB); offline ceiling only.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 1134 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000
