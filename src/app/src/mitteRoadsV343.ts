@@ -135,8 +135,12 @@ export function createMitteRoadDetailsV343(
   group.userData.sourceGeometry = { sourceSha256: transaction.payload.sourceSha256,
     surface: "Geoportal Berlin street survey; 2025 orthophoto / owner-photo comparison" };
   for (const surface of transaction.payload.surfaces) {
-    const day = new MeshBasicMaterial({ color: surface.color, side: DoubleSide });
-    const night = new MeshBasicMaterial({ color: surface.layer === "road" ? 0x171c22 : 0x252932, side: DoubleSide });
+    // The surveyed plate and exact retained land can be sub-millimetres apart
+    // at an edge. A one-unit depth bias avoids raster-depth shimmer without
+    // moving the measured street, curb or walking floor (v345).
+    const depthBias = { polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 };
+    const day = new MeshBasicMaterial({ color: surface.color, side: DoubleSide, ...depthBias });
+    const night = new MeshBasicMaterial({ color: surface.layer === "road" ? 0x171c22 : 0x252932, side: DoubleSide, ...depthBias });
     const mesh = new Mesh(surfaceGeometry(surface, terrainAt, surface.lift), day);
     mesh.name = `Mitte surveyed ${surface.layer} material ${surface.material}`;
     mesh.userData.dayMaterial = day; mesh.userData.nightMaterial = night;

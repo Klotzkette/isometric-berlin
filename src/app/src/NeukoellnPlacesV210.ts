@@ -5,6 +5,7 @@ import {
 } from "three";
 import data from "./data/neukoellnPlacesV210.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { neukoellnPlacesDetailV345 } from "./NeukoellnFacadeDetailV345";
 
 export const NEUKOELLN_V210_OWNER_IDS = data.owners.map(owner => owner.id);
 export const NEUKOELLN_V210_GROUP = "Richardplatz and Hermannplatz current architecture v210";
@@ -66,8 +67,14 @@ export function createNeukoellnEnvelopesV210(native = false): Group {
   }
   return freezeStaticSceneTransforms(root);
 }
-export function createNeukoellnPlacesV210(native = false): Group {
+export function createNeukoellnPlacesV210(native = false, options: { facadeDetailV345?: boolean } = {}): Group {
   const root = group(native, false); root.userData.additiveOnly = true;
   root.add(boxes(native ? data.blocks : data.boxes, native, "Source-exposed facades, church clocks and mapped public-place furniture"));
+  if(options.facadeDetailV345) {
+    const members=neukoellnPlacesDetailV345(native,native?data.blocks:data.boxes);
+    root.add(boxes(members.map(({row})=>native?[...row.slice(0,6),row[7]]:row),native,
+      "Hermannplatz stone reveals and Richardplatz shutter louvres v345"));
+    root.userData.facadeDetailV345={members:members.length,sites:["Karstadt Hermannplatz","Rixdorfer Schmiede"]};
+  }
   return freezeStaticSceneTransforms(root);
 }

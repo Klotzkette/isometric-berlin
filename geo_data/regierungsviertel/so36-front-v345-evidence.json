@@ -1,0 +1,186 @@
+{
+  "retrieved": "2026-11-14",
+  "owner": "DEBE02YY40000ARY",
+  "poi": "OSM-node-4034138645",
+  "building": "OSM-way-37739079",
+  "mapUrl": "https://api.openstreetmap.org/api/0.6/map?bbox=13.421,52.4998,13.423,52.5009",
+  "photograph": "https://www.visitberlin.de/de/so36",
+  "credit": "visitBerlin / Prokura Nepp",
+  "photoPixelsDistributed": false,
+  "photoSha256": "cbe65f49284f99d5102dfeaec05255ea6e60ecd48d3298b3a426293fe947bf77",
+  "estimated": [
+    "portal bay centre projected from mapped POI",
+    "door, poster and lightbox dimensions",
+    "material tones"
+  ],
+  "modes": [
+    {
+      "mode": "drawn",
+      "actualHostVertices": [
+        [
+          3394.09,
+          3,
+          2132.45
+        ],
+        [
+          3398.38,
+          3,
+          2134.46
+        ],
+        [
+          3394.09,
+          21.85,
+          2132.45
+        ],
+        [
+          3398.38,
+          21.85,
+          2134.46
+        ]
+      ],
+      "sourceRing": [
+        [
+          316.84,
+          95.49
+        ],
+        [
+          321.2,
+          97.59
+        ],
+        [
+          323.47,
+          98.68
+        ],
+        [
+          331.08,
+          102.33
+        ],
+        [
+          331.19,
+          102.09
+        ],
+        [
+          336.34,
+          91.12
+        ],
+        [
+          328.66,
+          87.53
+        ],
+        [
+          326.38,
+          86.46
+        ],
+        [
+          322.09,
+          84.45
+        ],
+        [
+          316.94,
+          95.3
+        ],
+        [
+          316.84,
+          95.49
+        ]
+      ],
+      "sourceMeshes": [
+        "city",
+        "oranien-corridors-v167",
+        "roof-house-v233",
+        "house-doors-v233",
+        "city-streets-v249",
+        "elevated-station-v238",
+        "kreuzberg-streets-v267",
+        "street-curves-v276",
+        "ost-housing-v301",
+        "network-fidelity-v326"
+      ],
+      "newVertices": 1560,
+      "newTriangles": 780
+    },
+    {
+      "mode": "minecraft",
+      "actualHostVertices": [
+        [
+          3394,
+          3,
+          2132
+        ],
+        [
+          3398,
+          3,
+          2132
+        ],
+        [
+          3394,
+          5,
+          2132
+        ],
+        [
+          3398,
+          5,
+          2132
+        ]
+      ],
+      "sourceRing": [
+        [
+          316.84,
+          95.49
+        ],
+        [
+          321.2,
+          97.59
+        ],
+        [
+          323.47,
+          98.68
+        ],
+        [
+          331.08,
+          102.33
+        ],
+        [
+          331.19,
+          102.09
+        ],
+        [
+          336.34,
+          91.12
+        ],
+        [
+          328.66,
+          87.53
+        ],
+        [
+          326.38,
+          86.46
+        ],
+        [
+          322.09,
+          84.45
+        ],
+        [
+          316.94,
+          95.3
+        ],
+        [
+          316.84,
+          95.49
+        ]
+      ],
+      "sourceMeshes": [
+        "city",
+        "oranien-corridors-v167",
+        "roof-house-v233",
+        "house-doors-v233",
+        "elevated-station-v238",
+        "kreuzberg-streets-v267",
+        "ost-housing-v301",
+        "network-fidelity-v326"
+      ],
+      "newVertices": 4968,
+      "newTriangles": 2484
+    }
+  ]
+}

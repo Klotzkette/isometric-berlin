@@ -81,6 +81,13 @@ const MITTE_EXTERIOR_VIEWS_V344: typeof GARDEN_VIEWS_V330 = {
   "PETRI Berlin": { position: [2245, 62, 781], target: [2178, 17, 688] },
 };
 
+const CITY_DETAIL_VIEWS_V345: typeof GARDEN_VIEWS_V330 = {
+  "Estrel Tower": { position: [6300, 360, 6200], target: [5810, 75, 5360] },
+  "Tempelhofer Feld – westliche Wiesen": { position: [1555, 165, 5270], target: [1280, 3, 4950] },
+  "Tiergartenwege": { position: [-1550, 230, 1000], target: [-1780, 5, 750] },
+  "Nordbahnhof – Gartenstraße": { position: [1345, 95, -1220], target: [1185, 14, -1455] },
+};
+
 // Extra place links use the same focus control without adding tour stops.
 export const STARTUP_ONLY_SIGHTS = [
   "Kaiser-Wilhelm-Gedächtniskirche",
@@ -102,6 +109,7 @@ export const STARTUP_ONLY_SIGHTS = [
   ...Object.keys(BRITZ_NEUKOELLN_VIEWS_V342),
   ...Object.keys(STREET_VIEWS_V343),
   ...Object.keys(MITTE_EXTERIOR_VIEWS_V344),
+  ...Object.keys(CITY_DETAIL_VIEWS_V345),
 ].map(name => ({ name, role: "owner_added" }));
 
 export function startupOnlySight(name: string) {
@@ -114,7 +122,7 @@ export type StartupFlightView = Pick<NavigationSnapshot, "pose" | "fov"> & { lan
  * flight lens. No pedestrian state is created or enabled. */
 export function startupFlightView(name: string): StartupFlightView {
   if (name === GALLERY_FLIGHT_START_V223.landmarkName) return GALLERY_FLIGHT_START_V223;
-  const extra = GARDEN_VIEWS_V330[name] ?? AMENITY_VIEWS_V332[name] ?? COURT_VIEWS_V333[name] ?? TRANSPORT_VIEWS_V334[name] ?? BRITZ_NEUKOELLN_VIEWS_V342[name] ?? STREET_VIEWS_V343[name] ?? MITTE_EXTERIOR_VIEWS_V344[name];
+  const extra = GARDEN_VIEWS_V330[name] ?? AMENITY_VIEWS_V332[name] ?? COURT_VIEWS_V333[name] ?? TRANSPORT_VIEWS_V334[name] ?? BRITZ_NEUKOELLN_VIEWS_V342[name] ?? STREET_VIEWS_V343[name] ?? MITTE_EXTERIOR_VIEWS_V344[name] ?? CITY_DETAIL_VIEWS_V345[name];
   if (extra) return { landmarkName: name, fov: 16, pose: { target: [...extra.target], position: [...extra.position] } };
   const view = SIMULATION_START_VIEWS[name];
   if (!view) return GALLERY_FLIGHT_START_V223;

@@ -13,6 +13,9 @@ import theatresIndexV322 from "./data/youthTheatreFrontsV322PacketIndex.json";
 import publicGreenIndexV329 from "./data/publicGreenV329Index.json";
 import parkPathsIndexV329 from "./data/parkPathsV329Index.json";
 import zebraCrossingsIndexV329 from "./data/zebraCrossingsV329Index.json";
+import { so36FrontV345 } from "./So36FrontV345";
+import { estrelTowerPacketV345 } from "./EstrelTowerPacketV345";
+import { weddingRingWestV345 } from "./WeddingRingWestV345";
 import { weddingGesundbrunnenFrontsV340 } from "./WeddingGesundbrunnenFrontsV340";
 
 export type SourceQuarterRecipesV309=NonNullable<SurroundingOwnershipOptions["sourceQuarterSourcesV303"]>;
@@ -90,6 +93,9 @@ export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV
     load: () => import("./data/steglitzStreetsV328Packets.json"),
   },
   weddingGesundbrunnenFrontsV340,
+  weddingRingWestV345,
+  so36FrontV345,
+  estrelTowerPacketV345,
   ...groundEntriesV329("public-green-v329", publicGreenIndexV329.sources),
   ...groundEntriesV329("park-paths-v329", parkPathsIndexV329.sources),
   ...groundEntriesV329("zebra-crossings-v329", zebraCrossingsIndexV329.sources),

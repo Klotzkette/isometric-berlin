@@ -3140,3 +3140,28 @@ Renate Schoele), and the Bundesstiftung's 2024 Eiche opening photograph. The
 current Musterecke and Roter Saal are distinguished from future reconstruction.
 Photographs remain external references, not redistributed textures.
 [Sources and exact preserved owners](docs/bauakademie-exterior-v344.md).
+
+
+## Station quarters, named venues, airports and paths (v345)
+
+Actual source forms and storeys: © OpenStreetMap contributors (ODbL 1.0) and
+Geoportal Berlin LoD2/DGM1 (dl-de/zero-2-0). Existing source and photo credits
+remain in force. New visual references are external only: Tegel, Landesdenkmalamt
+Berlin / Anne Herdin; Tempelhof Projekt GmbH; Neukölln Arcaden, TGA-Effizienz;
+Hermannplatz, GALERIA; original Estrel Hotel, imago images / Schöning via
+Deutschlandfunk Kultur. No reference image pixels are bundled or rendered.
+Facade member dimensions and colours remain display estimates. Full extent,
+individual links, missing source coverage and numerical terrain assumptions:
+[city detail v345](docs/city-detail-v345.md), [station/western fronts](docs/wedding-ring-west-v345.md),
+[Neukölln facades](docs/neukoelln-facade-v345.md), [airports and field](docs/airports-field-v345.md),
+[Tiergarten paths](docs/tiergarten-paths-v345.md).
+
+
+Estrel Tower exterior: © Nils Könning / Barkow Leibinger, 4 August 2026,
+[architect's project](https://barkowleibinger.com/en/architecture/estrel-tower).
+Actual current tower/podium footprints and tagged heights: OpenStreetMap
+building:part ways 1017413850, 1017413851, 1535787743, 1535834587, 1535834588,
+1390408048, 1535834586 and 1390408051
+(ODbL 1.0). SO36 entrance reference: visitBerlin / Prokura Nepp,
+[venue page](https://www.visitberlin.de/de/so36). Both are external geometric
+references only; no image pixels are included. See the v345 city detail notes.

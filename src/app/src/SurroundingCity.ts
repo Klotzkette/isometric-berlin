@@ -1,3 +1,4 @@
+import { tempelhoferFieldGroundAtV345 } from "./TempelhoferFieldV345";
 import { gardenTerrainGroundAtV330 } from "./GardenTerrainV330";
 import {hasUbahnGroundApproachSourceV326,ubahnGroundApproachAtV326} from "./UbahnGroundApproachesV326";
 import {attachPacketUbahnAccessV326Steps,ubahnCandidatesV326,ubahnGroundMaskBytesV326,type UbahnGroundRuntimeV326} from "./UbahnGroundRuntimeV326";
@@ -960,6 +961,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       const bridgeFloor = spreeBridgeFloorAtV242(entry.nav, lx, lz);
       if (bridgeFloor !== null) return bridgeFloor;
       if (entry.gardenTerrainV330) return gardenTerrainGroundAtV330(entry.gardenTerrainV330, lx, lz, mode === "minecraft");
+      const feldFloor = tempelhoferFieldGroundAtV345(entry.root,x,z);
+      if(feldFloor !== null)return feldFloor;
       const road = entry.nav.roads?.some(p => surroundingPolygonContains(p, lx, lz));
       if(entry.descriptor.id.startsWith("northEast326-")){const top=northEastPublicSiteGroundAtV326(x,z,mode==="minecraft",road===true);if(top!==null)return top;}
       if(hasUbahnGroundApproachSourceV326(entry.descriptor.id,mode==="minecraft",entry.descriptor[mode==="minecraft"?"minecraft":"drawn"])){const top=ubahnGroundApproachAtV326(x,z,mode==="minecraft");if(top!==null)return top;}

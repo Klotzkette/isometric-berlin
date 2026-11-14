@@ -1,3 +1,4 @@
+import { prepareTempelhoferFieldV345, applyTempelhoferFieldV345, bindTempelhoferFieldV345 } from "./TempelhoferFieldV345";
 import { decodeGardenTerrainV330 } from "./GardenTerrainV330";
 import { measuredTerrainOwnersV342 } from "./MeasuredTerrainOwnersV342";
 import { prepareNeukoellnBuildingsV342 } from "./NeukoellnBuildingsV342";
@@ -68,6 +69,7 @@ import {
 import { markArchitecturalAccentInk, markArchitecturalInk } from "./architecturalInk";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { surroundingColourOwners, surroundingGenericColour, type SurroundingColourOwners } from "./surroundingCityColourV184";
+import {validRoofUndersideV345,roofUndersideAtV345} from "./roofUndersideV345";
 import { shadeAltMitteFacadeV186 } from "./altMitteFacadeReliefV186";
 import { applyAltMitteAppearanceV213 } from "./altMitteAppearanceV213";
 import { shadeOuterHousePanesV230, refineOuterRoofsV230 } from "./outerHousePresentationV230";
@@ -81,6 +83,8 @@ export type SurroundingBuilding = SurroundingPolygon & {
   groundOffset?: number;
   /** Complete represented roof, local XZ and ground-relative Y. */
   roofTriangles?: number[][][];
+  /** Optional matching thin-roof underside; below this plane remains passable. */
+  bottomRoofTriangles?: number[][][];
   /** Independently built cardinal roof caps, local XZ and relative top Y. */
   nativeRoofCaps?: number[][];
 };
@@ -157,7 +161,7 @@ export function validNavigation(value: SurroundingNavigation): boolean {
       building.height >= building.minHeight && typeof building.sourceId === "string" &&
       (building.groundOffset === undefined || Number.isFinite(building.groundOffset)) &&
       (building.roofTriangles === undefined || Array.isArray(building.roofTriangles) && building.roofTriangles.length <= 100000 && building.roofTriangles.every(t => Array.isArray(t) && t.length === 3 && t.every(p => Array.isArray(p) && p.length === 3 && p.every(Number.isFinite)))) &&
-      (building.nativeRoofCaps === undefined || Array.isArray(building.nativeRoofCaps) && building.nativeRoofCaps.length <= 100000 && building.nativeRoofCaps.every(r => Array.isArray(r) && r.length === 5 && r.every(Number.isFinite) && r[2] > r[0] && r[3] > r[1])));
+      (building.nativeRoofCaps === undefined || Array.isArray(building.nativeRoofCaps) && building.nativeRoofCaps.length <= 100000 && building.nativeRoofCaps.every(r => Array.isArray(r) && r.length === 5 && r.every(Number.isFinite) && r[2] > r[0] && r[3] > r[1])) && validRoofUndersideV345(building));
 }
 
 function encodedBytes(encoded: string, multiple: number): number {
@@ -371,6 +375,7 @@ export function* prepareSurroundingQuarterPredecessorV303(
   chunk = yield* prepareMauerparkTerrainV298(chunk,id,minecraft,ownership.wallGalleryV298===true);
   chunk = yield* prepareStralauSisyphosV299(chunk,stralauTicketV299);
   chunk = yield* prepareNeighbourhoodFidelityV300(chunk,neighbourhoodTicketsV300);
+  chunk = yield* prepareTempelhoferFieldV345(chunk,id,minecraft);
   return chunk;
 }
 
@@ -452,6 +457,7 @@ export function* buildSurroundingCityChunk(
   root.userData.nativeMinecraft = minecraft;
   root.userData.neighbourhoodV300=neighbourhoodPacketAdmittedV300(chunk);
   root.userData.mauerparkTerrainV298=mauerparkTerrainAdmittedV298(chunk);
+  bindTempelhoferFieldV345(root,chunk,minecraft);
   root.userData.sourceKinds = [...new Set(chunk.meshes.map(part => part.kind))];
 
   let completed = false;
@@ -578,6 +584,7 @@ export function* buildSurroundingCityChunk(
       const neighbourhoodTransfer=yield* applyNeighbourhoodTrianglesV300(chunk,meshIndex,indices,indexOffset);
       root.userData.sourceQuarterTrianglesV303 = (root.userData.sourceQuarterTrianglesV303 ?? 0) + (yield* applySourceQuarterTrianglesV303(chunk, meshIndex, indices, indexOffset));
       if(neighbourhoodTransfer)root.userData.neighbourhoodTrianglesV300=(root.userData.neighbourhoodTrianglesV300??0)+neighbourhoodTransfer;
+      yield* applyTempelhoferFieldV345(chunk,meshIndex,indices,indexOffset);
       const hillTransfer=yield* applyMauerparkTerrainTrianglesV298(chunk,meshIndex,indices,indexOffset);
       if(hillTransfer)root.userData.mauerparkTerrainTrianglesV298=(root.userData.mauerparkTerrainTrianglesV298??0)+hillTransfer;
       vertexOffset += count;
@@ -792,6 +799,11 @@ export function surroundingBuildingSolidAt(
   return nav.buildings.some(building => {
     const ground = nav.groundY + (building.groundOffset ?? 0);
     if (y < ground + building.minHeight || y > ground + building.height) return false;
+    if(building.bottomRoofTriangles!==undefined){
+      if(!Number.isFinite(y)||!validRoofUndersideV345(building))return false;
+      const bottom=roofUndersideAtV345(building.bottomRoofTriangles,x,z,radius);
+      if(bottom===null||y<ground+bottom-radius)return false;
+    }
     if (building.nativeRoofCaps && !building.nativeRoofCaps.some(c => x >= c[0]-radius && x <= c[2]+radius && z >= c[1]-radius && z <= c[3]+radius && y <= ground+c[4])) return false;
     if (building.roofTriangles) {
       const [west,north,east,south]=boundsOf(building);

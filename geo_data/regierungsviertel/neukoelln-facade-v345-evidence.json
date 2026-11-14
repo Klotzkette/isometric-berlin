@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-14",
+  "step": 10,
+  "scope": "Four retained facade refinements plus source-bound SO36 portal and actual mapped Estrel Tower; no complete south-Berlin rebuild",
+  "runtimePixels": false,
+  "photoBasedSectionsEstimated": true,
+  "references": [
+    {
+      "site": "arcaden",
+      "page": "https://www.tga-effizienz.de/details-dienstleistungen/berlin-neuk%C3%B6lln-arcaden-mit-cineplex-kino.html",
+      "image": "https://www.tga-effizienz.de/files/tga/referenzen/2018/mfi-urw/Berlin-Neukoelln-Arcaden.JPG",
+      "credit": "TGA-Effizienz; photographer not credited on page",
+      "publishedDate": "2019-01-31",
+      "sha256": "d9d2c922cb020aace3405894b4b8812bda7dc3e3f4d955d8e9be59f1c749348c",
+      "pixelsInspected": true,
+      "pixelsDistributed": false
+    },
+    {
+      "site": "galeria",
+      "page": "https://www.galeria.de/filialen/l/berlin/hermannplatz-5-10/001101",
+      "image": "https://locator.uberall.com/uberall-userpics-prod-optimized/864903/medium_mtRQEhWICR.jpeg",
+      "credit": "GALERIA operator website; photographer not identified",
+      "publishedDate": "unknown; older Karstadt branding",
+      "sha256": "9467c095fe9dc9ed95739a9dfd71996d9f67d2fb82de4edab02ae0cd4951f8e9",
+      "pixelsInspected": true,
+      "pixelsDistributed": false
+    },
+    {
+      "site": "estrel-exterior",
+      "page": "https://www.deutschlandfunkkultur.de/hotel-estrel-berlin-energiesparen-100.html",
+      "image": "https://bilder.deutschlandfunk.de/a9/71/b7/18/a971b718-f709-4ecc-a01c-596abb065ef3/hotel-estrel-berlin-100-1920x1080.jpg",
+      "credit": "imago images / Schöning",
+      "publishedDate": "2022-11-08",
+      "sha256": "bfd179745c34dd0c870fdc3553ba860647073682cc94bc2ecaf37870472be058",
+      "pixelsInspected": true,
+      "pixelsDistributed": false
+    },
+    {
+      "site": "huxleys",
+      "page": "https://www.morgenpost.de/berlin/article404286900/huxleys-neue-welt-parken-anfahrt-garderobe-programm.html",
+      "image": "https://img.sparknews.funkemedien.de/401563994/401563994_1685383866_v16_9_1200.jpeg",
+      "credit": "Berliner Morgenpost / FUNKE; no verified photographer metadata",
+      "publishedDate": "not asserted",
+      "sha256": "36fd98b0afce74ac6b62908e6134eb50ce410598d57ca9fce7f1a872823ac05b",
+      "pixelsInspected": true,
+      "pixelsDistributed": false
+    }
+  ],
+  "additionalEvidence": [
+    "so36-front-v345-evidence.json",
+    "estrel-tower-v345-evidence.json"
+  ]
+}

@@ -54,7 +54,7 @@ export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payl
   const waterfront=Array.isArray(prisms.buildings)&&prisms.buildings.some(waterfrontOriginalPrismV296);
   let neukoellnModel:Group|undefined;
   const root=constructUnpublishedFidelityV288([
-    ()=>neighbourhoodV300?{group:neukoellnModel=createNeukoellnLandmarksV305(native,{mobileLike}),complete:group=>hasCompleteNeukoellnLandmarksV305(group,native)}:null,
+    ()=>neighbourhoodV300?{group:neukoellnModel=createNeukoellnLandmarksV305(native,{mobileLike,facadeDetailV345:true}),complete:group=>hasCompleteNeukoellnLandmarksV305(group,native)}:null,
     ()=>moabitMitte?{group:createMoabitMitteV300Core(native,{mobileLike}),complete:group=>hasCompleteMoabitMitteV300Core(group,native)}:null,
     ()=>westKiez?{group:createWestKiezV302Core(native,{mobileLike}),complete:group=>hasCompleteWestKiezV302Core(group,native)}:null,
     ()=>({group:createLittenStadthausV297(native,{mobileLike}),complete:hasCompleteLittenStadthausV297}),

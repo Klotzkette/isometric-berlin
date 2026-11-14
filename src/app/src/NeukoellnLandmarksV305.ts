@@ -10,6 +10,7 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { staticStorageInfo } from "./losslessStaticStorage";
 import { schwellenraumMaterialFor } from "./visual-modes/schwellenraum/materialGrade";
 import { neukoellnFineDetailV341 } from "./NeukoellnFineDetailV341";
+import { arcadenFacadeDetailV345 } from "./NeukoellnFacadeDetailV345";
 import type { Material } from "three";
 
 export { neukoellnLandmarksV305Solids } from "./NeukoellnLandmarksV305Navigation";
@@ -32,7 +33,7 @@ export function hasCompleteNeukoellnLandmarksV305(root: Group, native?: boolean)
 }
 /** Complete official source sheets and independently cardinal native buildings.
  * No partially constructed group is published; every allocation is owned here. */
-export function createNeukoellnLandmarksV305(native = false, _options: { mobileLike?: boolean } = {}): Group {
+export function createNeukoellnLandmarksV305(native = false, _options: { mobileLike?: boolean; facadeDetailV345?: boolean } = {}): Group {
   const root = new Group(), resources = new Set<{ dispose: () => void }>();
   root.name = `Neukölln Arcaden and Rathaus complete measured source v305${native ? " native" : ""}`;
   try {
@@ -71,7 +72,8 @@ export function createNeukoellnLandmarksV305(native = false, _options: { mobileL
     const ordinary: number[][] = [], luminous: number[][] = [];
     const originalRows = native ? source.nativeBoxes : source.fittings;
     const fineDetailV341 = neukoellnFineDetailV341(native, originalRows);
-    for (const row of [...originalRows, ...fineDetailV341.rows]) {
+    const fineDetailV345 = _options.facadeDetailV345 ? arcadenFacadeDetailV345(native, originalRows) : [];
+    for (const row of [...originalRows, ...fineDetailV341.rows, ...fineDetailV345.map(member=>member.row)]) {
       const hash = (Math.imul(Math.round(row[0] * 10), 73856093) ^ Math.imul(Math.round(row[1] * 10), 19349663) ^ Math.imul(Math.round(row[2] * 10), 83492791)) >>> 0;
       (row[7] === 0x526263 && hash % 100 < 38 ? luminous : ordinary).push(row);
     }
@@ -79,6 +81,7 @@ export function createNeukoellnLandmarksV305(native = false, _options: { mobileL
     if (luminous.length) add(geometry, "Same complete window members with estimated warm night occupancy", luminous, true);
     if (root.children.length !== (native ? 1 : 2) + (luminous.length ? 1 : 0)) throw Error("A complete Neukölln landmarks child was not attached");
     root.userData = { neukoellnLandmarksV305: true, requiredCompleteReplacement: true, fullStaticDetailOnTouch: true, sourceSheetsRetained: true, sourceXZPreserved: true, textureFree: true, nativeMinecraft: native, blockNative: native, keepInMinecraft: native, sourceReceipt: "neukoelln-landmarks-v305-source.json.gz", houseCount: profile.sites.length, referenceOnly: true, fittingDimensionsEstimated: true, fineDetailV341: fineDetailV341.counts };
+    if(_options.facadeDetailV345)root.userData.facadeDetailV345={site:"Neukölln Arcaden",members:fineDetailV345.length};
     freezeStaticSceneTransforms(root);
     complete.set(root, { native, children: (root.children as Mesh[]).map(mesh => ({ mesh, geometry: mesh.geometry, attributes: new Map(Object.entries(mesh.geometry.attributes).map(([k, a]) => [k, attributeReceipt(a as BufferAttribute)])), index: attributeReceipt(mesh.geometry.index!), day: mesh.userData.dayMaterial, night: mesh.userData.nightMaterial, grade:mesh.userData.schwellenraumMaterial, instances: mesh instanceof InstancedMesh ? { count: mesh.count, matrix: attributeReceipt(mesh.instanceMatrix), color: attributeReceipt(mesh.instanceColor!) } : undefined })) });
     return root;

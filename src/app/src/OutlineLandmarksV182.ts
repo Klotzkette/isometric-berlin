@@ -47,6 +47,7 @@ import { createArkonaplatzV193 } from "./ArkonaplatzV193";
 import { createTegelMotorwayV194 } from "./TegelMotorwayV194";
 import { createViktoriaparkV194 } from "./ViktoriaparkV194";
 import { createAirportsV194 } from "./AirportsV194";
+import { addAirportExteriorsV345 } from "./AirportExteriorsV345";
 import { createWestLakesV194 } from "./WestLakesV194";
 import { createDrachenbergKitesV195 } from "./DrachenbergKitesV195";
 import { createTeufelsbergStationV195 } from "./TeufelsbergStationV195";
@@ -190,7 +191,7 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createCivicPartyDetailsV246(nextNative));
       yield;
-      root.add(createCityRecognitionV182(nextNative, false, true, true, true, true));
+      root.add(createCityRecognitionV182(nextNative, false, true, true, true, true, true));
       yield;
       justice = nextNative ? createMinecraftJusticePalaceV183() : createJusticePalaceV183();
       root.add(justice);
@@ -255,7 +256,9 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createViktoriaparkV194(nextNative));
       yield;
-      root.add(createAirportsV194(nextNative));
+      const airports = createAirportsV194(nextNative);
+      addAirportExteriorsV345(airports, nextNative);
+      root.add(airports);
       yield;
       root.add(createTempelhofV261(nextNative));
       yield;
@@ -349,7 +352,7 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createWeddingSitesV210(nextNative, { bayerCampusV277: ownership.bayerCampusV277 }));
       yield;
-      root.add(createNeukoellnPlacesV210(nextNative));
+      root.add(createNeukoellnPlacesV210(nextNative, {facadeDetailV345:true}));
       yield;
       root.add(createBundeswehrHospitalV214(nextNative));
       yield;

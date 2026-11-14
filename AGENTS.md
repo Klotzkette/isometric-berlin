@@ -3094,3 +3094,34 @@ claim exact measured heights from an architecture-competition description.
 Preserve all six modes, full mobile detail, 93 tour stops, same-origin complete
 city packets and existing startup/Worker/memory/package limits. Verify the
 public complete viewer and both downloads before promoting the release.
+
+
+### Step 10 — v345 station quarters, venues, airports and park connections
+
+The owner explicitly requests finite detail around northern S1 stations and the
+Ring corridor, Moabit/Hellweg Ellen-Epstein-Straße, Charlottenburg, Wilmersdorf,
+Schöneberg, the named Neukölln venues, SO36, Tegel, Tempelhof, Tiergarten and
+Chancellery paths. Bind facade additions to actual retained source walls and
+preserve every prior body, courtyard, roof and navigation owner. Distinguish
+Wedding's Ring station from the northern S1 stations. Do not model a future
+Estrel/airport use as already open, or turn a construction-site envelope into
+a guessed tower footprint. Document unavailable or already correct sources.
+
+Tiergarten correction may remove only actual final post-v343 raster faces
+proved to cover existing paths, within the named source park polygons, with
+complete original outside complements, paint and heights. Keep Native ground
+and all path courses and walking levels. A minimal depth bias on the surveyed
+Chancellery street materials may resolve demonstrated near-coplanar edge
+flicker without moving measured geometry. Tempelhof relief requires a bounded
+source DGM correction with the same admitted visible and walking surface,
+complete outside ground, preserved airport datum and independent Native cells.
+All previous six modes, full mobile detail, 93 stops, complete source packets,
+startup, Worker, decode and live residency limits remain fixed. Only a measured
+finite offline allowance for explicitly requested new source detail may grow.
+
+The current Estrel Tower and all eight mapped building parts may atomically
+supersede only construction-envelope owners OSM-way-1535834585 and
+OSM-relation-21070307 in ring182-11_10, including their arbitrary fallback
+height, roof lines and collision data. Their complete old source and the
+current map evidence remain retained. Keep every unrelated packet triangle,
+road, water, ground and navigation entry; see docs/estrel-ownership-v345.md.

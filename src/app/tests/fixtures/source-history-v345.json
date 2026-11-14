@@ -1,0 +1,87 @@
+{
+  "additions": {
+    "src/app/src/AirportExteriorsV345.ts": "8cd1dc1117fbf633cb919efac7a1f18ab9689700b3b293f40d999b7dcc537332",
+    "src/app/src/EstrelTowerPacketV345.ts": "e3e41fb4f66c524e7b166ad3fedc3c94de7931028ede892f55e63cac465a0736",
+    "src/app/src/EstrelTowerV345.ts": "83eb801b6080f0084d8a29697ac6eb88dbc8edd4507cce482941d0decbb0aa46",
+    "src/app/src/EstrelTowerV345Navigation.ts": "9e187ce72c265d22159bc8aee982fbfe1131c48a0b9829e01cfe092d839c8ae9",
+    "src/app/src/NeukoellnFacadeDetailV345.ts": "cfc06933e8ef02caef3b1b29a13a99b953e0c35df4c8909fa22249fe7dc3630a",
+    "src/app/src/NordbahnhofFrontsV345.ts": "c3ebd31516ce3762df21a59eb2b43b3ca92f2746beaf824d6fb438820416574f",
+    "src/app/src/So36FrontV345.ts": "d86ed945b1336f494b3d846ae387ebb88a46d98c19047329b3ce7f9be387846d",
+    "src/app/src/TempelhoferFieldV345.ts": "e85ede1fca1bf72da7269e66a5a10a1804bc5c63ecc68ba44431778b54ed00c5",
+    "src/app/src/TiergartenPathsV345.ts": "1bc2355814ff68c175a3e2f9e4c8c73d5eacc1cc5c50dd2a6a13bedf593863c4",
+    "src/app/src/WeddingRingWestV345.ts": "7de879fd72d4f968e71bb958ac6e891e43ef0e00d1e35ef9b7b4b5337afbe5ac",
+    "src/app/src/data/airportExteriorsV345.json": "d488d1101cdea6bd986097dd7d7b01de911724c8ee46a6367e883f1a4bedd231",
+    "src/app/src/data/airportExteriorsV345Guards.json": "1c26adf113c1a79c592f2639cc0f987f0bcaf5bd52bd56545d6bbdc50034e610",
+    "src/app/src/data/estrelTowerV345.json": "be30243eee617651bd0e55a54d443daa56956feb0811e5e6686140bd5eb645e6",
+    "src/app/src/data/estrelTowerV345Packets.json": "091c17a73c04159a05431c4b6138b329665bcc8ff385cbb1a49a7003ccb994f9",
+    "src/app/src/data/nordbahnhofFrontsV345.json": "61f4e05e876198de1d8fc0cf62a07852d55eadf8ffb08d0c653d3296e7ba4676",
+    "src/app/src/data/so36FrontV345.json": "198170cc279152a2f015e4694924b68ad7815530a523714fc5f96dd7a5071834",
+    "src/app/src/data/tempelhoferFieldV345.json": "6d1c6dec0804d610953b741543cfac5032e4abff09e8a76a71941500bcc766a5",
+    "src/app/src/data/tiergartenPathsV345.json": "26b0c1c41cc50b459afa2879036f9019e6bed4b876310a8b250a7d4e6387f038",
+    "src/app/src/data/weddingRingWestV345.json": "cc8d2e412f173afe7b63bcff21b80ab1b04b756a04ee88081d36b36603bebc7a",
+    "src/app/src/roofUndersideV345.ts": "1aa51bdbc1f0df61ea86ebef429ec73b4ebd91f3facc4b71a1c0734fd3094f8f",
+    "src/app/src/tiergartenPathSourceGuardV345.ts": "b5fd5d4696d37b4ea65333bdef6acd03303b69f84305cdcd01604cfd5a17c895"
+  },
+  "changes": {
+    "src/app/losslessJsonData.ts": {
+      "before": "f39c3d7544b97fc62d826997c245beb5899584467346fd8adc8ded3f8188dd53",
+      "after": "1d5f2a8cebabea7d5fc3f803a726ef5ec86ab2303129e78d09c22d0252cc05cf"
+    },
+    "src/app/package.json": {
+      "before": "1062f089dc93fb968869e7af74c35094a3b4c9d922c34aa9db9905f012a8d463",
+      "after": "222fb9db7704446964677fc756d11e653c8066a964e4d1ff004fe8e0fac7fd73"
+    },
+    "src/app/src/CityRecognitionV182.ts": {
+      "before": "f6a15bdb824609d83d9338a62c11163cd696208f412f85075cbfeb8cfc03ac1a",
+      "after": "db0cf066f6723f800b75e8e7f7cee7ae00f6020152cae4c3911c4772df8e3148"
+    },
+    "src/app/src/NeukoellnLandmarksV305.ts": {
+      "before": "9bc0a57a063d5fcdc8cd2eb9b22a2c4b6b3afbac0963da0d97a8c5d9607ebdc1",
+      "after": "2b95dc02615786b52430c067e073aac2a569b6b5bd47510dcd383a626767189f"
+    },
+    "src/app/src/NeukoellnPlacesV210.ts": {
+      "before": "c89a4e66d666ac0130c4299e6afde528845c988dba2cad1a89408aed56c684a9",
+      "after": "d307f5d0a9f5e72c23b1de86042b56a501730ce0a7d1abda67d5c82301604b7c"
+    },
+    "src/app/src/OutlineLandmarksV182.ts": {
+      "before": "2a4e353c717949676ba80b449bbd944369f2a93a8931da0d2fc5b484894da74d",
+      "after": "d08bb6052954418106d407e2b4d8817da61f43968e3f5105ca6ae7c1ffc17f55"
+    },
+    "src/app/src/RequiredFidelityV288.ts": {
+      "before": "b71832804012dcce568a27b8e58c02fbdc211a4bd9ef5d6a06fe9c4954d22cb7",
+      "after": "6427aa669de31d82223fcaee3d90120f706df3b2a4786b951c284a173baa6805"
+    },
+    "src/app/src/SourceQuarterCatalogueV309.ts": {
+      "before": "065565bff8881ca8232c62e06ecf1674f50f14d9d56b7e0a8ef4406750681a3a",
+      "after": "ba71987b4491ba7db66333ad80b34a8f871d1d266816f48e31009c26aec97e8a"
+    },
+    "src/app/src/SourceQuarterPacketV303.ts": {
+      "before": "2c55e36ebcc927fb988179fdc4e5acc9d69ed71c204021b1324292ea49dd4905",
+      "after": "b4e179774fe06ddb9838e595e940db219c7261eccc78bc3553f6ef61227b10a0"
+    },
+    "src/app/src/SourcesDialog.tsx": {
+      "before": "1df74264f47800d1c5ddf9021a969b248848c690a5d589009a086d88a6962243",
+      "after": "6b32cd45cd0dc12343d091c89d7a18a678ca5ec7c77784ebb2643b867d7dd7c0"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "before": "5e7d3e32c3ea47cbeb7c6d2dc63cb4000a435c07f509954f0ba846b05625e0fc",
+      "after": "91608da39082267dda4ff646eeb382b783d9b75ab201ad6e1c1b77d2fdc8abfc"
+    },
+    "src/app/src/SurroundingCityGeometry.ts": {
+      "before": "9183f9fc4da392ff41122c81ac50639f063e4ed636a948464db7264175c6cd97",
+      "after": "abf43cc2244b14a62c7dd8a688839e3c6578eacb1addd00e30b60bde5d7e4b64"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "f4eb74f071c14de4d978df9ada3b17ba5db74ca9645d8def1cc664a7b335b3fc",
+      "after": "67cd55b27e473cb708a10517ee539597dceb3f7e76accb8d631675a29cf48ef2"
+    },
+    "src/app/src/mitteRoadsV343.ts": {
+      "before": "d47c38dea042d701307fec73ec9bf9cc8e7ac8b1bd5726e8571b1cde21594cfd",
+      "after": "61b1ce34f27f004f3577868e9c381051d38d877c7f0669d736ccab0bde0af808"
+    },
+    "src/app/src/startupView.ts": {
+      "before": "f1a2270fe331f5f8583ad563be4c14f676c49c576ee7a6ccf537dbc701478ae4",
+      "after": "00545c06836e2ff769f06f36080cc7cb515d80e2836c66cab5f68cfccc165123"
+    }
+  }
+}

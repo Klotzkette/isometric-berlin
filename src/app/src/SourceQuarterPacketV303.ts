@@ -1,4 +1,5 @@
 import { surroundingPacketFingerprint } from "./surroundingPacketFingerprint";
+import {validRoofUndersideV345} from "./roofUndersideV345";
 import type { SurroundingBuilding, SurroundingCityChunk, SurroundingNavigation, SurroundingPackedLines, SurroundingPackedMesh } from "./SurroundingCityGeometry";
 
 type RecordPin = { mesh:number; kind:string; fingerprint:number };
@@ -33,7 +34,7 @@ function buildingValid(b:SurroundingBuilding):boolean{
   const ring=(r:number[][])=>Array.isArray(r)&&r.length>=3&&r.length<=100000&&r.every(p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite));
   return !!b&&ring(b.ring)&&Array.isArray(b.holes)&&b.holes.length<=1000&&b.holes.every(ring)&&Number.isFinite(b.height)&&Number.isFinite(b.minHeight)&&b.height>=b.minHeight&&typeof b.sourceId==="string"&&(b.groundOffset===undefined||Number.isFinite(b.groundOffset))&&
     (b.roofTriangles===undefined||Array.isArray(b.roofTriangles)&&b.roofTriangles.length<=100000&&b.roofTriangles.every(t=>Array.isArray(t)&&t.length===3&&t.every(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite))))&&
-    (b.nativeRoofCaps===undefined||Array.isArray(b.nativeRoofCaps)&&b.nativeRoofCaps.length<=100000&&b.nativeRoofCaps.every(r=>Array.isArray(r)&&r.length===5&&r.every(Number.isFinite)&&r[2]>r[0]&&r[3]>r[1]));
+    (b.nativeRoofCaps===undefined||Array.isArray(b.nativeRoofCaps)&&b.nativeRoofCaps.length<=100000&&b.nativeRoofCaps.every(r=>Array.isArray(r)&&r.length===5&&r.every(Number.isFinite)&&r[2]>r[0]&&r[3]>r[1]))&&validRoofUndersideV345(b);
 }
 function replaceNav(nav:SurroundingNavigation,p:SourceQuarterPlanV303):SurroundingNavigation|undefined{
   const remaining=nav.buildings.slice();

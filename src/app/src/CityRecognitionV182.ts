@@ -10,12 +10,13 @@ import source from "./data/cityRecognitionV182.json";
 import { keepCivicBoxV182V210, keepCivicSegmentV182V210 } from "./westCivicPreviousV210";
 import { keepTownhallBoxV182V227, keepTownhallSegmentV182V227 } from "./townhallPreviousV227";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { estrelHotelDetailV345 } from "./NeukoellnFacadeDetailV345";
 
 export const CITY_RECOGNITION_V182_GROUP = "Measured civic and theatre recognition v182";
 export const CITY_RECOGNITION_V182_NATIVE_GROUP = "Native civic and theatre recognition v182";
 
 /** A small additive skin. Earlier building owners, courts and detail stay intact. */
-export function createCityRecognitionV182(minecraft = false, includeSupersededEstimates = true, replaceTownhallEstimates = false, replaceStadthausEstimate = false, replaceStaatsoperEstimate = false, replaceOperaTheatresV274 = false): Group {
+export function createCityRecognitionV182(minecraft = false, includeSupersededEstimates = true, replaceTownhallEstimates = false, replaceStadthausEstimate = false, replaceStaatsoperEstimate = false, replaceOperaTheatresV274 = false, facadeDetailV345 = false): Group {
   const root = new Group();
   root.name = minecraft ? CITY_RECOGNITION_V182_NATIVE_GROUP : CITY_RECOGNITION_V182_GROUP;
   root.userData = {
@@ -30,8 +31,11 @@ export function createCityRecognitionV182(minecraft = false, includeSupersededEs
   const opera = staatsoperV240PreviousFilters(!includeSupersededEstimates && replaceStaatsoperEstimate);
   const segments = includeSupersededEstimates ? source.segments : source.segments.filter((row, index) =>
     keepCivicSegmentV182V210(row, index) && (!replaceTownhallEstimates || keepTownhallSegmentV182V227(row, index)) && (!replaceStadthausEstimate || keepStadthausSegmentV182V239(row, index)) && opera.segment(row, index) && theatres.segment(row, index));
-  const boxes = includeSupersededEstimates ? source.boxes : source.boxes.filter((row, index) =>
+  const originalBoxes = includeSupersededEstimates ? source.boxes : source.boxes.filter((row, index) =>
     keepCivicBoxV182V210(row, index) && (!replaceTownhallEstimates || keepTownhallBoxV182V227(row, index)) && (!replaceStadthausEstimate || keepStadthausBoxV182V239(row, index)) && opera.box(row, index) && theatres.box(row, index));
+  const fineDetail=facadeDetailV345?estrelHotelDetailV345(minecraft,originalBoxes):[];
+  const boxes=facadeDetailV345?[...originalBoxes,...fineDetail.map(member=>member.row)]:originalBoxes;
+  if(facadeDetailV345)root.userData.facadeDetailV345={site:"Estrel Hotel",members:fineDetail.length};
   const positions = new Float32Array(segments.length * 6);
   const colors = new Float32Array(positions.length);
   const color = new Color();
