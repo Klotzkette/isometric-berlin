@@ -371,6 +371,7 @@ import {
 } from "./TunnelPortals";
 
 export type MinecraftVoxelWorldOptions = {
+  refineForeignOffice?: boolean;
   potsdamerPavilions?: boolean;
   nordbahnhofCuts?: NordbahnhofNativeCuts;
   wilhelmStreetFrontsV325?:boolean;
@@ -2646,7 +2647,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createDhmArchitecture(true));
   yield;
-  group.add(createMinecraftEastCivicArchitecture());
+  group.add(createMinecraftEastCivicArchitecture({ refineForeignOffice: options.refineForeignOffice }));
   yield;
   group.add(createMinecraftRussianEmbassySourceGeometry({ mobileLike: options.detailProfile === "mobile" }));
   yield;

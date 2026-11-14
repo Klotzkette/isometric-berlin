@@ -3071,3 +3071,26 @@ sculptural, building and road owners. Preserve the independent cardinal Native
 interpretation. The two surveyed green verges on Heinrich-von-Gagern-Straße
 remain green; add their documented raised curb lines rather than inventing
 cycleways or widening the road.
+
+
+### Step 10 — v344 historic Mitte exterior corrections
+
+The owner requests the Auswärtiges Amt/former Reichsbank, Gendarmenmarkt's
+second-row streets, Bauakademie and the area behind the former Staatsratsgebäude
+(current ESMT). Admit finite source-bound facade changes on the actual retained
+LoD2 wall triangles, independently cardinal in Native. Keep all other shell,
+roof, courtyard, navigation and city-packet owners. The new glass bands and
+Reichsbank curved-front windows may replace only their exactly receipted earlier
+fittings, with original standalone defaults and a closed fallback. Depict the
+current Bauakademie site, never a completed proposed reconstruction. Its exact
+Musterecke and Roter Saal source prisms and actual cardinal Native columns may
+receive additive brickwork, cornices and public window relief, preserving their
+existing height and navigation; no invented third historic facade. PETRI's
+9m generic Drawn fallback and 12m Native body may receive a complete additive
+exterior reaching the approximately 24m documented height, with the source
+footprint and exact native columns preserved. Its upper loggia is open; the
+ground arcade is exterior relief, not newly traversable museum space. Do not
+claim exact measured heights from an architecture-competition description.
+Preserve all six modes, full mobile detail, 93 tour stops, same-origin complete
+city packets and existing startup/Worker/memory/package limits. Verify the
+public complete viewer and both downloads before promoting the release.

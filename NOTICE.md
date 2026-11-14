@@ -3102,3 +3102,41 @@ Photographs are reference-only, with no image pixels or texture files included.
 Joint width, laying pattern and small material-colour differences are model
 approximations. See [street notes](docs/streets-v343.md) and
 [Philharmonie paving evidence](docs/kulturforum-paving-v343.md).
+
+
+## Historic Mitte exteriors (v344)
+
+The source-bound Auswärtiges Amt/Reichsbank facades use the unchanged Berlin
+LoD2 source. Visual references: Derbrauni, *Auswärtiges Amt 01.jpg*, CC BY 4.0;
+Andreas Praefcke, *Auswärtiges Amt Neubau Berlin.jpg*, CC BY 3.0; Jörg Zägel,
+*Berlin, Mitte, Kurstrasse, Erweiterungsbau der Reichsbank.jpg*, CC BY-SA 3.0;
+Doris Antony, *Auswaertiges Amt Spree.jpg*, CC BY-SA 3.0; Bettenburg,
+*ZK-SED-Berlin.jpg*, CC BY-SA 2.0 DE; Sansculotte, *Berlin auswaertigesamt kl.jpg*,
+CC BY-SA 2.5. [Image links, licence links and observations](docs/foreign-office-v344.md).
+
+PETRI uses the retained OpenStreetMap footprint (ODbL), official Berlin project
+documentation, BIM's 2025 opening notice and exterior reference photographs
+by Christof Hannemann (Landesdenkmalamt Berlin handover) and Florian Nagler
+Architekten. [Sources and limitations](docs/petri-exterior-v344.md).
+These photographs are reference-only. No imagery, textures or architectural
+plan reproductions are included. Unmeasured facade details and PETRI's roughly
+24 m height remain stated model approximations.
+
+Gendarmenmarkt second-row elevations: Landesdenkmalamt Berlin architectural
+records and photographic references (1999/2001; Mendelssohn Bank: LDA/Bittner,
+2013), GrothGruppe with Pysall/Stahrenberg+Partner (Hausvogteiplatz 2), and Robert
+Bosch Stiftung (Französische Straße 32). The dated photographs inform permanent
+facade features; their pixels are not reproduced. Full property/source mapping
+and actual retained host evidence: [Gendarmenmarkt v344](docs/gendarmen-second-row-v344.md).
+
+Schlossplatz and Breite Straße: official Berlin LoD2, ESMT campus documentation,
+Berlin Senate's 2021/2024 Breite Straße competition photographs of the existing
+buildings, and the Schinkelplatz project reference. No proposed development is
+presented as completed. [Sources, host mapping and limitations](docs/schlossplatz-context-v344.md).
+
+Bauakademie remnant recognition uses the Bundesstiftung Bauakademie site/history
+photographs (Anke Illing), Errichtungsstiftung photographs (Horst Draheim and
+Renate Schoele), and the Bundesstiftung's 2024 Eiche opening photograph. The
+current Musterecke and Roter Saal are distinguished from future reconstruction.
+Photographs remain external references, not redistributed textures.
+[Sources and exact preserved owners](docs/bauakademie-exterior-v344.md).

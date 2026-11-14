@@ -73,6 +73,14 @@ const STREET_VIEWS_V343: typeof GARDEN_VIEWS_V330 = {
   "Straßen am Kanzleramt": { position: [65, 62, 20], target: [-40, 5, -62] },
 };
 
+const MITTE_EXTERIOR_VIEWS_V344: typeof GARDEN_VIEWS_V330 = {
+  "Auswärtiges Amt – Werderscher Markt": { position: [2130, 230, 30], target: [1870, 15, 510] },
+  "Gendarmenmarkt – zweite Reihe": { position: [1680, 140, 840], target: [1610, 15, 550] },
+  "Bauakademie und Schinkelplatz": { position: [2160, 148, 430], target: [1848, 12, 329] },
+  "Breite Straße und Marstall": { position: [2030, 105, 510], target: [2190, 15, 405] },
+  "PETRI Berlin": { position: [2245, 62, 781], target: [2178, 17, 688] },
+};
+
 // Extra place links use the same focus control without adding tour stops.
 export const STARTUP_ONLY_SIGHTS = [
   "Kaiser-Wilhelm-Gedächtniskirche",
@@ -93,6 +101,7 @@ export const STARTUP_ONLY_SIGHTS = [
   ...Object.keys(TRANSPORT_VIEWS_V334),
   ...Object.keys(BRITZ_NEUKOELLN_VIEWS_V342),
   ...Object.keys(STREET_VIEWS_V343),
+  ...Object.keys(MITTE_EXTERIOR_VIEWS_V344),
 ].map(name => ({ name, role: "owner_added" }));
 
 export function startupOnlySight(name: string) {
@@ -105,7 +114,7 @@ export type StartupFlightView = Pick<NavigationSnapshot, "pose" | "fov"> & { lan
  * flight lens. No pedestrian state is created or enabled. */
 export function startupFlightView(name: string): StartupFlightView {
   if (name === GALLERY_FLIGHT_START_V223.landmarkName) return GALLERY_FLIGHT_START_V223;
-  const extra = GARDEN_VIEWS_V330[name] ?? AMENITY_VIEWS_V332[name] ?? COURT_VIEWS_V333[name] ?? TRANSPORT_VIEWS_V334[name] ?? BRITZ_NEUKOELLN_VIEWS_V342[name] ?? STREET_VIEWS_V343[name];
+  const extra = GARDEN_VIEWS_V330[name] ?? AMENITY_VIEWS_V332[name] ?? COURT_VIEWS_V333[name] ?? TRANSPORT_VIEWS_V334[name] ?? BRITZ_NEUKOELLN_VIEWS_V342[name] ?? STREET_VIEWS_V343[name] ?? MITTE_EXTERIOR_VIEWS_V344[name];
   if (extra) return { landmarkName: name, fov: 16, pose: { target: [...extra.target], position: [...extra.position] } };
   const view = SIMULATION_START_VIEWS[name];
   if (!view) return GALLERY_FLIGHT_START_V223;

@@ -29,7 +29,10 @@ the Spree and discover the city's architecture from an isometric perspective.
 Isometric Berlin verbindet die Formen einer Stadtkarte mit der Freiheit einer
 begehbaren 3D-Welt. Reichstag, Kanzleramt, Kulturforum, Potsdamer Platz und viele
 weitere Orte erhalten eigene architektonische Details. Straßen, Wasser,
-Grünflächen und Bahntrassen geben der Stadt ihren Zusammenhang. Im Hauptbahnhof
+Grünflächen und Bahntrassen geben der Stadt ihren Zusammenhang. Rund um den
+Gendarmenmarkt und am Spreekanal prägen eigenständige Straßenfassaden, die
+geschwungene ehemalige Reichsbank, der gläserne Neubau des Auswärtigen Amts
+und die historischen Häuser an der Breiten Straße das Stadtbild. Im Hauptbahnhof
 führen Treppen und Rolltreppen durch die Ebenen; Reichstag und Abgeordnetenhaus
 erhalten begehbare Plenarsäle, der Reichstag auch den Weg in die Glaskuppel.
 Ein Klick auf den Reichstag öffnet seinen Längsschnitt durch Plenarsaal, Büros
@@ -255,8 +258,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.223** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.223/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.224** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.224/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

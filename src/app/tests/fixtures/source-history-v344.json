@@ -1,0 +1,41 @@
+{
+  "additions": {
+    "src/app/src/BauakademieExteriorV344.ts": "f93485f1e48d3e7da6b9529ee1c28f41d8de6168e5c874736b9fd031aa7680ca",
+    "src/app/src/ForeignOfficeV344.ts": "8705e1196bc15dee4752c087872bb06a10e1eb104ccf7bd5d66b0f8472b74fd4",
+    "src/app/src/GendarmenSecondRowV344.ts": "6dfb24e7c8a5e6583ed03897e9deed983123ae543a75cbf5fd2dfa1f1ed1ccd8",
+    "src/app/src/PetriExteriorV344.ts": "b9ae69c53da98516021e3d1acbe67bcd155539351f5e5433b9c64bc56b5df2f6",
+    "src/app/src/SchlossplatzContextV344.ts": "008e349f48c5f88ffdd19aac841768015ce8bb02c82e777a1fbe83f802a88689",
+    "src/app/src/data/bauakademieExteriorV344.json": "d2f2bb486e14eec40e1523e20cc9cb1cf73a84c3aa627aee2d5918fc1fb77a7e",
+    "src/app/src/data/foreignOfficeV344.json": "4fc61bf99e1b3734b352ffaa5b991db062434fb8dd143c162ae4bab8ce197f55",
+    "src/app/src/data/gendarmenSecondRowV344.json": "03439556bd5f19903a477bdd7075e982718c9cb41f7fd456269fc275bfc40e32",
+    "src/app/src/data/petriExteriorV344.json": "7fce977b0669e424e6d8716e17b36511f6483efa16cc8695031ff1a89d5d25e6",
+    "src/app/src/data/schlossplatzContextV344.json": "8a028d0160dd0bb964f1aaf3940153ce9c286bd93260ab513a2c288576d35dc8",
+    "src/app/src/sourceWallHostV344.ts": "c45bb0af57e5a7da9533d643b9e31a0f25b3659a55867244294f3b839cc979ad"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "c06c40ebb18e7fd958dea1cb6c86ffcb5b7ef3221cc913839243f5c166a2c85a",
+      "after": "1062f089dc93fb968869e7af74c35094a3b4c9d922c34aa9db9905f012a8d463"
+    },
+    "src/app/src/EastCivicArchitecture.ts": {
+      "before": "81c4cf5230cb731bde14809cb59be3efca58a5f2783b84fc849340df618e7366",
+      "after": "e8cb6b466791ecaad37a8e8b989c6cd6a74a47a344787dabbe87812b4ab16eaa"
+    },
+    "src/app/src/MinecraftVoxelWorld.ts": {
+      "before": "3cf7dd48a87547663cb43a643ca2b39fd072fa3582eab3dd421431a1c5f49142",
+      "after": "775982d79e39d04b9f14158a34909d069fccae1b4ba9800d661bcbb03acfe4d9"
+    },
+    "src/app/src/SourcesDialog.tsx": {
+      "before": "48f8de034ef987b9a074ef0932cc6b6b8a6b4c46335ca136afea33008308067e",
+      "after": "1df74264f47800d1c5ddf9021a969b248848c690a5d589009a086d88a6962243"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "b4f1312439c945f535896362d1aa37f77d401c5b9ac348b0f18ff2281317ccfc",
+      "after": "f4eb74f071c14de4d978df9ada3b17ba5db74ca9645d8def1cc664a7b335b3fc"
+    },
+    "src/app/src/startupView.ts": {
+      "before": "721794e16f7bed35bae926ec0e22149411e7982b5664fcd97c3b350a31fb175c",
+      "after": "f1a2270fe331f5f8583ad563be4c14f676c49c576ee7a6ccf537dbc701478ae4"
+    }
+  }
+}
