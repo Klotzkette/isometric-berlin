@@ -1,0 +1,1 @@
+var e=``+new URL(`fuelStationsV351Packets003.json-CcrSH-sr.gz`,import.meta.url).href;export{e as default};

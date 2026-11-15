@@ -1,0 +1,1 @@
+var e=``+new URL(`fuelStationsV351Packets000.json-C4E8VT-d.gz`,import.meta.url).href;export{e as default};
