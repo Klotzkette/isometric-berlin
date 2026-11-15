@@ -4743,6 +4743,42 @@
       "license": "External reference only; no image reuse licence asserted",
       "role": "architectural_reference_only_no_image_or_texture_distributed",
       "geometry_status": "Complete retained LoD2 building families, including roofs. Display datum remains unchanged; small facade fittings are estimates."
+    },
+    {
+      "landmark_id": "berlin_facilities_v350",
+      "title": "Berliner Schulen, Kindertagesstätten und Apothekenstandorte",
+      "page_url": "https://daten.berlin.de/",
+      "file_url": "",
+      "artist": "Geoportal Berlin",
+      "license": "dl-de/zero-2-0",
+      "license_url": "https://www.govdata.de/dl-de/zero-2-0",
+      "credit": "Geoportal Berlin · public location datasets",
+      "role": "official_facility_location_data",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "berlin_childcare_v350",
+      "title": "Kitaliste November 2025",
+      "page_url": "https://www.berlin.de/sen/bildung/service/daten/",
+      "file_url": "https://www.berlin.de/sen/bildung/service/daten/kitaliste-nov-2025.xlsx",
+      "artist": "Senatsverwaltung für Bildung, Jugend und Familie",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Senatsverwaltung für Bildung, Jugend und Familie · CC BY 4.0; normalized and reconciled with official location records",
+      "role": "supplementary_facility_data",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "berlin_pharmacies_v350",
+      "title": "Apothekenfinder Berlin",
+      "page_url": "https://www.akberlin.de/patientinnen/apothekenfinder",
+      "file_url": "",
+      "artist": "Apothekerkammer Berlin",
+      "license": "Public factual directory reference; no image or logo reuse",
+      "license_url": "",
+      "credit": "Apothekerkammer Berlin · checked November 2026",
+      "role": "current_pharmacy_identity_reference",
+      "photo_bundled": false
     }
   ]
 }
