@@ -1,0 +1,75 @@
+{
+  "additions": {
+    "src/app/src/A10TransportV347.ts": "8090f8c173ce335914a8ab6179a1ed3a32591558fdfc61cfadbebd4381009583",
+    "src/app/src/BuddhistFrohnauGroundV347.ts": "bf810009dbe874d468235b33d21e49efa2d7f9e03898279f516835ba7d353f07",
+    "src/app/src/ClayDahlemV347.ts": "cac8dcf9231254e4a143ebc1c061d2379d3aa6dff985442929b28985187b2fcb",
+    "src/app/src/NamedGravesV347.ts": "8f0cb0fbc63e9b2f31189f6138cd64693e19168292918d02c1721bf49008cb95",
+    "src/app/src/SacredPlacesV347.ts": "3a1b6303a65e6e368718c8b20471866c74d23901dffb702c365fea376ddbc34d",
+    "src/app/src/data/a10TransportV347.json": "3503be8f8828dee0e9e84d41d3eb0e4eca9c56039194491b1ad239cd0c9de294",
+    "src/app/src/data/buddhistFrohnauGroundV347.json": "1e573e2e399d7fa9555c7535690d9d31a9ae9be87c227a882a66cc5b946987cc",
+    "src/app/src/data/clayDahlemV347.json": "16da44c18047159c31f99b208dd71939b29c5cc7422117ec28574b5c2f4d0565",
+    "src/app/src/data/clayDahlemV347Index.json": "9e1f199761f3dbb981cd2c8aef63f30b4711ae609bdea9d20351217ab6a51028",
+    "src/app/src/data/namedGravesV347.json": "c5e71e9f1182d9a948f91694b23d8d9a10445aa2d1ffee37f4ed4efb338f98f4",
+    "src/app/src/data/sacredPlacesV347Index.json": "764a5eb6e63afc5de4e2590976443a3294bef7554dd4eb85cc21c2dcbc795473",
+    "src/app/src/data/sacredPlacesV347Packets00.json": "48109a8851a93e793408164efc063d0e3d99da8bcfd0715c999fbf935e4fef27",
+    "src/app/src/data/sacredPlacesV347Packets01.json": "048ddaeeee0d979fc33e89676ab9c63d50ba1d8e1fabf375db46eeeeb1abbdff",
+    "src/app/src/data/sacredPlacesV347Packets02.json": "0aab4b72b0499db313e6c4647e9265c5ee6a584c07ccaac172bba627c941e1ce",
+    "src/app/src/data/sacredPlacesV347Packets03.json": "884254e7acad525d45bd3e297335394350565aa70dca8a806d89b9e5c463e361",
+    "src/app/src/data/sacredPlacesV347Packets04.json": "aef1ab1b3957639a5ad75384a7f3ff4f15c39d61a175f9f4141d840c40851a51",
+    "src/app/src/data/sacredPlacesV347Packets05.json": "88fa242a52d462c972b049c3fe8559c142c237ecfb19745eae6943408e522eac",
+    "src/app/src/data/sacredPlacesV347Packets06.json": "509240f046345b09f04ac5c95c0280255256861a2fdbb29b46a064b7c4bef397",
+    "src/app/src/data/sacredPlacesV347Packets07.json": "2e1704b2328c49dfc3919c4d4dea5c1ddcf4cd6232361e38b36e951505ea91fe",
+    "src/app/src/data/sacredPlacesV347Packets08.json": "31ab44507fe5e5b26f4c4de30cf46697226e275d96800122c465f10eb20453e4",
+    "src/app/src/data/sacredPlacesV347Packets09.json": "30e43544f62d0382143a11a5e26847c503849d12b928f30c134a21772249c83c",
+    "src/app/src/data/sacredPlacesV347Packets10.json": "9a162a73735c8cc93ddd2d970c4ada5c5c915afcb6a6dd4747102ed180f4cd73",
+    "src/app/src/data/sacredPlacesV347Packets11.json": "8c493a12392d8b452f004207cdfac283acc72491b8d2c3f4199b125f2601f7e2",
+    "src/app/src/data/universityRefinementV347.json": "51289b07a63684d6a7cc8771a6f2c04a55f6318ceceebd69447889bf68545c51",
+    "src/app/src/universityRefinementV347.ts": "5804c73102c68d12aacacb7b8bd789a4e8d40ae7837ece772e8268ac60fa16f1"
+  },
+  "changes": {
+    "src/app/losslessJsonData.ts": {
+      "before": "804c4b5494dafc2eb70e0c86ea2a8411a92c9cb2b015d706322795e2dd371978",
+      "after": "c4c756602b46731d3b3510a55d3a4eaf13dca1ec53b42fd41957fa68caa3205c"
+    },
+    "src/app/package.json": {
+      "before": "af4d28b6c37584320f98b159524618ffc4660aa5db7e2814df01d4ba0aed0b45",
+      "after": "4ef3cff63dd3db122c474a3c907ca94b38258fa0dd91079a717861318d07300b"
+    },
+    "src/app/src/MeasuredTerrainOwnersV342.ts": {
+      "before": "f3de3375b581f6814518e6b42286083e46d5e383949b3a3fe391c8c5e55e8d22",
+      "after": "c9f6ef4520761d269d8fec24233eaf81bdb96697b398f8abe3b49c10020edc16"
+    },
+    "src/app/src/PublicAmenitiesV332.ts": {
+      "before": "46906a61ba887cc0e585d1a8b99a04b8361b21205ab3f2b5e0f122654651b8e1",
+      "after": "300672d723d2535558ad12c7ba8ed3a8aed8507e9bb2d567f8e2d60f9e485b1e"
+    },
+    "src/app/src/RegionOutlinesV200.ts": {
+      "before": "34b236d3223eb3b125d55c12f4df958617cf2709da83842867fa496a61028633",
+      "after": "819e5b517aaf44807698a9984d0a068c893079ac9e3ea835f23a3b4711e30651"
+    },
+    "src/app/src/SourceQuarterCatalogueV309.ts": {
+      "before": "3e329f5064cb7e39159632a471ef6f3346313377d321cb2346a9ca4ae3628375",
+      "after": "04f501db5c2423b76d87e47ee8cb791c8882d03aed8938b37a4cb72af0ecc605"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "before": "d640ae7ea0abbff7667fc928d4caaa3232353703371d521f5e7a083198efcc84",
+      "after": "e883c2b919ab0873fe039eaf942e1f7264e9f7a516eb1630bf0e0acbe65fdc37"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "6001741544cb6e84544945aab97bf83304d2cb34c1ae884b2056e94c320284a1",
+      "after": "c5a51404b5cbaf9b195ac0015477f116f395ae9ecfaa206c4d59fc7fdc949cc2"
+    },
+    "src/app/src/TuWaterV168.ts": {
+      "before": "11b6eaf07f006dbe8dc899353ad87e2c02447104fe6cce102dba324e535794b4",
+      "after": "0ba6ce69b3d5e510df38110a98b3847a022bf90fe53ac080a971b47bb03d1cce"
+    },
+    "src/app/src/UniversitiesArchitectureV322.ts": {
+      "before": "f868bf45ac1d5b69f499a63a60353174cb44bc8040def94ec870ff962cf2c2a9",
+      "after": "1dcf6b71760d11e1ad370b9057951bc5b8ed992b049a184a8b36fb2f8084cde5"
+    },
+    "src/app/src/surroundingCityScope.ts": {
+      "before": "a24a14278f8c4a28938b647e801e66edf7da19ad59b1c0c12196b161ccc63047",
+      "after": "fed6d85efa851108038500f9e6cff2ff8f158d61b0fa8c981ef729e5bb468f5f"
+    }
+  }
+}

@@ -18,6 +18,8 @@ import { schwanenwerderV346 } from "./SchwanenwerderV346";
 import { airfieldSurfacesV346 } from "./AirfieldSurfacesV346";
 import { huxleysEntranceV346 } from "./HuxleysEntranceV346";
 import { mainRoadFrontsEntriesV346 } from "./MainRoadFrontsV346";
+import { clayDahlemV347 } from "./ClayDahlemV347";
+import { sacredPlacesEntriesV347 } from "./SacredPlacesV347";
 import { so36FrontV345 } from "./So36FrontV345";
 import { estrelTowerPacketV345 } from "./EstrelTowerPacketV345";
 import { weddingRingWestV345 } from "./WeddingRingWestV345";
@@ -106,6 +108,8 @@ export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV
   schwanenwerderV346,
   ...mainRoadFrontsEntriesV346,
   airfieldSurfacesV346,
+  clayDahlemV347,
+  ...sacredPlacesEntriesV347,
   ...groundEntriesV329("public-green-v329", publicGreenIndexV329.sources),
   ...groundEntriesV329("park-paths-v329", parkPathsIndexV329.sources),
   ...groundEntriesV329("zebra-crossings-v329", zebraCrossingsIndexV329.sources),

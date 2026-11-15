@@ -2,11 +2,14 @@
  * Each tile retains its own weak plan, rather than inflating an entire region
  * when the existing serial district decoder reads one key. */
 import mainRoadFrontsV346Index from "./src/data/mainRoadFrontsV346Index.json";
+import sacredPlacesV347Index from "./src/data/sacredPlacesV347Index.json";
 import publicGreenIndexV329 from "./src/data/publicGreenV329Index.json";
 import parkPathsIndexV329 from "./src/data/parkPathsV329Index.json";
 import zebraCrossingsIndexV329 from "./src/data/zebraCrossingsV329Index.json";
 
 export const NEIGHBOURHOOD_PLAN_SOURCES_V300: ReadonlySet<string> = new Set([
+  ...sacredPlacesV347Index.sources.map(({ file }) => "data/" + file),
+  "data/clayDahlemV347.json",
   ...mainRoadFrontsV346Index.sources.map(({file}: {file:string}) => "data/" + file),
   "data/airfieldSurfacesV346.json",
   "data/huxleysEntranceV346.json",

@@ -18,12 +18,12 @@ function release(root: ReturnType<typeof createRegionOutlinesV200>): void {
   });
 }
 
-test("each regional family preserves fourteen exact batches plus the bounded BER refinement", () => {
+test("each regional family preserves fourteen exact batches plus BER and A10 refinements", () => {
   for (const native of [false, true]) {
     const root = createRegionOutlinesV200(native);
     const source = native ? nativeSource : drawn;
     let bytes = 0;
-    expect(root.children.length).toBe(15);
+    expect(root.children.length).toBe(16);
     expect(root.children[14].name).toContain("BER Willy Brandt");
     expect(root.userData.fullStaticDetailOnTouch).toBe(true);
     expect(root.userData.blockNative).toBe(native);

@@ -1,0 +1,9 @@
+{
+  "modules": 11,
+  "nativeMeshFields": 10,
+  "uncompressedMinifiedBytes": 9017577,
+  "encodedMinifiedBytes": 3501625,
+  "savedBytes": 5515952,
+  "scope": "Ten exact altMitteV169Native meshes fields and namedGravesV347.sites only. Existing eager strong identity; no data, source JSON, codec or historical registry changes.",
+  "validation": "Actual minified isolated Vite before/after bundles executed; every full source value and named/default alias verified; metadata-only build tree-shakes all geometry and codec."
+}

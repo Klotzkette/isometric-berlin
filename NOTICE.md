@@ -3180,3 +3180,103 @@ geometric references only; no photo pixels, posters or third-party logo artwork
 are distributed. Details, source links and estimate boundaries are documented in
 [street fronts](docs/main-road-fronts-v346.md), [Huxleys](docs/huxleys-entrance-v346.md)
 and [islands](docs/islands-v346.md).
+
+## V347: Clayallee, Dahlem, campuses, cemeteries and regional transport
+
+Mapped building identities, paths, graves, aircraft and aviation fittings are
+© [OpenStreetMap contributors](https://www.openstreetmap.org/copyright),
+[ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/). The retained Berlin
+extract is dated 13 November 2026; the bounded A10 and BER API records were
+checked on 15 November 2026. Geoportal Berlin supplies LoD2 building surfaces,
+DGM1 terrain, the state boundary and heritage-garden polygons under
+[Datenlizenz Deutschland – Zero 2.0](https://www.govdata.de/dl-de/zero-2-0).
+Versioned source archives and evidence retain the individual identities and
+hashes. Earlier source credits continue to apply.
+
+### Clayallee, AlliiertenMuseum and Domäne Dahlem
+
+Clayallee building form: [Berlin LoD2 tile 382/5812](https://gdi.berlin.de/data/a_lod2/atom/LoD2_382_5812.zip).
+Architectural and external photographic references: [Landesdenkmalamt Berlin](https://www.berlin.de/landesdenkmalamt/denkmale/highlight-denkmale-der-alliierten/usa/steglitz-zehlendorf/hauptquartier-general-lucius-d-clay-647598.php),
+[heritage record 09075385](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09075385),
+[Bollinger + Fehlig Architekten, Fünf Morgen](https://www.bollinger-fehlig.de/projekte/5-morgen/)
+and their [project sheet](https://www.bollinger-fehlig.de/wp-content/uploads/2021/01/210104_5MMI_BFA_PB_EN.pdf).
+Site identities: [EducationUSA / US Mission Berlin](https://educationusa.state.gov/node/646)
+and [EDEKA Clayallee](https://www.edeka.de/maerkte/801006/).
+
+Hastings TG 503: [AlliiertenMuseum collection](https://www.alliiertenmuseum.de/sammlung/)
+and [aircraft visitor reference](https://www.alliiertenmuseum.de/veranstaltung/flugzeug/),
+with dimensions from [Paradata](https://paradata.org.uk/content/4663321).
+The museum's exterior photograph is reference-only. Aircraft held elsewhere
+in the collection are not asserted to be exhibited on this site.
+
+Domäne Dahlem: operator [2025 site plan](https://www.domaene-dahlem.de/wp-content/uploads/2025/06/Lageplan-Domaene-Dahlem.pdf),
+[agricultural account](https://www.domaene-dahlem.de/landgut/landwirtschaft/)
+and [Bienenburg account](https://www.domaene-dahlem.de/wildbienen-auf-der-domaene-dahlem/).
+Field-row phase, the small honey-bee-hive arrangement, material colours and
+unsurveyed facade/aircraft dimensions are declared display estimates. The
+distinct mapped wild-bee insect hotel is not treated as the apiary.
+[Source mapping and limitations](docs/clay-dahlem-v347.md).
+
+### University exteriors
+
+The retained campus LoD2/OSM sources remain unchanged. External references:
+[BHT Haus Grashof](https://www.bht-berlin.de/121/page/1),
+[HU Physics Lise-Meitner-Haus](https://www.physik.hu-berlin.de/de/institut/ueber/lise-meitner-haus/das-institutsgebaeude),
+photographs by Birgit Gilsenbach;
+[HWR campus gallery](https://www.hwr-berlin.de/studium/studieren-an-der-hwr-berlin/ins-studium-starten),
+photographs by Oana Popa-Costea; and the
+[FU Henry-Ford-Bau architectural account](https://www.fu-berlin.de/presse/publikationen/tsp/archiv/2007/ts_20070416/ts_20070416_11.html),
+whose photo credit names Reinhard Görner / Florian Bolk / Bernd Wannenmacher.
+TU retains its earlier reference by
+[Gunnar Klack, June 2017](https://commons.wikimedia.org/wiki/File:Technische-Universitaet-Hauptgebaeude-Berlin-Charlottenburg-06-2017.jpg),
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+Fine fittings are estimated on actual source walls; the low official HU
+Physics height is not presented as corrected by this pass.
+[Campus evidence and preservation](docs/university-refinement-v347.md).
+
+### Cemetery routes, named graves and Frohnau
+
+Cemetery boundaries and paths retain their OpenStreetMap identities. Mapped
+worship points are not treated as photographic building surveys or evidence of
+an unspecified denomination. [Inventory and route evidence](docs/sacred-places-v347.md).
+
+Fontane grave reference: [visitBerlin / Nele Niederstadt](https://www.visitberlin.de/de/event/dauerausstellung-am-theodor-fontane-grab),
+two contemporary black steles and their perimeter. Hoffmann grave reference:
+[Harvey Kneeslapper, 5 May 2023](https://commons.wikimedia.org/wiki/File:Grab_E._T._A._Hoffmann.jpg),
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+These photographs guide bounded geometric interpretations. Dimensions,
+orientation, plants and simplified ornament are estimates; no photograph,
+inscription image or copied lettering is distributed.
+[Named-grave evidence](docs/named-graves-v347.md).
+
+Buddhist House grounds: Geoportal Berlin
+[heritage garden 09046233](https://gdi.berlin.de/services/wfs/denkmale),
+[LoD2 tile 385/5833](https://gdi.berlin.de/data/a_lod2/atom/LoD2_385_5833.zip)
+and [DGM1 tile 384/5832](https://gdi.berlin.de/data/dgm1/atom/DGM1_384_5832.zip).
+Architectural and stair references: [Bezirksamt Reinickendorf](https://www.berlin.de/ba-reinickendorf/ueber-den-bezirk/tourismus/artikel.82764.php)
+and the [Buddhist House operator gallery](https://das-buddhistische-haus.de/de/gallery/4-das-buddhistische-haus).
+The individual tread/riser layout is an interpretation between mapped
+endpoints; terrain uses the documented sampling of the official height data.
+[Bounded Frohnau sources and scope](docs/buddhist-frohnau-v347.md).
+
+### A10 and BER
+
+A10 topology: [OpenStreetMap route relation 21105](https://www.openstreetmap.org/relation/21105)
+and bounded official API way/node records. The
+[federal A10/A24 completion report](https://dserver.bundestag.de/btd/20/087/2008720.pdf)
+provides construction-status context. The model retains cartographic source
+courses; it does not derive surveyed bridge heights from map layers.
+
+BER site status: [Flughafen Berlin Brandenburg GmbH](https://corporate.berlin-airport.de/de/unternehmen-presse/ber/flughafenanlagen.html)
+and its [June 2025 factsheet](https://corporate.berlin-airport.de/content/dam/corporate/de/unternehmen-presse/ber/flughafenanlagen-ber.pdf).
+The [FAA lighting reference](https://www.faa.gov/Air_traffic/publications/atpubs/aim_html/chap2_section_1.html)
+informs a generic colour convention where mapped light records omit colour;
+explicit mapped colours take precedence. Fixture dimensions and untagged colours
+are display estimates, not a manufacturer's specification or an operational
+aviation indication. Stand, gate and holding-position points are archived without
+invented sign or marking extents. [Transport source notes](docs/regional-transport-v347.md).
+
+All new institutional photographs and plans are external visual references.
+Rights remain with their publishers and credited authors; no free image-reuse
+licence is implied where none is stated. No source imagery or photographic
+texture is included in these additions.

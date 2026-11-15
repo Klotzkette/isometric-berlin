@@ -7,6 +7,7 @@ import source from "./data/publicAmenitiesV332.json";
 import { amenityFurnitureV332 } from "./PublicAmenityFurnitureV332";
 import { recreationFurnitureV332 } from "./PublicRecreationFurnitureV332";
 import { createNaunynSpaetiV332, NAUNYN_SPAETI_V332 } from "./NaunynSpaetiV332";
+import { createNamedGravesV347 } from "./NamedGravesV347";
 
 type Kind = "toilet" | "postbox" | "kiosk" | "spaeti" | "playground" | "play-equipment"
   | "fountain" | "paddling" | "drinking" | "pool" | "strandbath" | "police" | "police-hq";
@@ -120,6 +121,7 @@ type Support = {
 export function createPublicAmenitiesV332() {
   const root = new Group();
   root.name = "Verified public amenities v332";
+  const namedGraves = createNamedGravesV347();
   const box = new BoxGeometry();
   const material = new MeshStandardMaterial({ roughness: 0.8 });
   const water = new MeshStandardMaterial({ color: 0x62a6b5, roughness: 0.48 });
@@ -165,12 +167,15 @@ export function createPublicAmenitiesV332() {
     ): boolean {
       if (timestamp - lastScan < 260) return false;
       lastScan = timestamp;
+      const gravesChanged = namedGraves.refresh(x, z, native, support);
+      if (namedGraves.root.children.length && !namedGraves.root.parent) root.add(namedGraves.root);
+      else if (!namedGraves.root.children.length) namedGraves.root.removeFromParent();
       camera.getWorldDirection(direction);
       const distanceToFocus = Math.hypot(camera.position.x - x, camera.position.y, camera.position.z - z);
       if (previous && previous.native === native && previous.show === show && previous.lang === lang &&
           previous.revision === revision && (previous.x - x) ** 2 + (previous.z - z) ** 2 < 9 ** 2 &&
           (!show || direction.dot(previousDirection) > 0.998 &&
-            Math.abs(previous.distance - distanceToFocus) < 7)) return false;
+            Math.abs(previous.distance - distanceToFocus) < 7)) return gravesChanged;
       previous = { x, z, distance: distanceToFocus, native, show, lang, revision };
       previousDirection.copy(direction);
       const [shopX, shopZ] = NAUNYN_SPAETI_V332.worldXZ;
@@ -267,8 +272,15 @@ export function createPublicAmenitiesV332() {
       }
       return true;
     },
+    namedGravesSolidAt: namedGraves.solidAt,
+    releaseNamedGraves(): boolean {
+      const changed = namedGraves.release();
+      namedGraves.root.removeFromParent();
+      return changed;
+    },
     dispose(): void {
       root.removeFromParent();
+      namedGraves.dispose();
       releaseStorefront();
       for (const sprite of activeBadges.values()) releaseBadge(sprite);
       for (const mesh of activeBasins.values()) mesh.geometry.dispose();

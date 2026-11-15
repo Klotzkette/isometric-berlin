@@ -15,6 +15,7 @@ import { schwellenraumMaterialFor } from "./visual-modes/schwellenraum/materialG
 import type { PrismBuilding } from "./IsometricCityWorld";
 import { createExactOwnersSourceV321 } from "./ExactOwnersV321";
 import { uniExactPlansV322 } from "./universitiesPreviousV322";
+import { universityRefinementRowsV347Steps } from "./universityRefinementV347";
 export { uniExactPlansV322 } from "./universitiesPreviousV322";
 
 type Face={owner:string;parent?:string;a:number[];d:number[];n:number[];range:number[];polygon:number[][];holes:number[][][];voids:number[][]};
@@ -134,7 +135,10 @@ export function* createUniversitiesArchitectureV322Steps(native=false,options:{s
   if(!native)r.packed=yield*createPackedRootStepsV309(packedOwner,'Complete retained official university sheets',false,source.models.filter(m=>!m.native)as RequiredPackedV307[],{sourceLeaves:source.sites.reduce((n,s)=>n+s.partIds.length,0)},g=>root.add(g));
   for(const site of source.sites){
    if(native){const q=source.models.find(q=>q.native&&q.key===site.key+'-independent-native')as NativeRows|undefined;if(!q)throw Error('Missing complete university native body');const list=rows(q);r.nativeBodies.push(...list);add(site.key+' independent native exterior',list);yield;}
-   const list=yield*fittingRows(site,native);if(!list.frames.length||!list.glass.length)throw Error('Missing complete university front '+site.key);add(site.key+' source-bound frames',list.frames);yield;add(site.key+' source-bound glazing',list.glass,true);yield;
+   const list=yield*fittingRows(site,native);
+   const refinement=yield*universityRefinementRowsV347Steps(site.key,native);
+   list.frames.push(...refinement.frames);list.glass.push(...refinement.glass);
+   if(!list.frames.length||!list.glass.length)throw Error('Missing complete university front '+site.key);add(site.key+' source-bound frames',list.frames);yield;add(site.key+' source-bound glazing',list.glass,true);yield;
   }
   if(native)for(const q of source.models)if(q.native&&q.key.endsWith('-new-ground-native')){const list=rows(q as NativeRows);r.nativeBodies.push(...list);add(q.key+' exact new campus floor',list);yield;}
   freezeStaticSceneTransforms(root);

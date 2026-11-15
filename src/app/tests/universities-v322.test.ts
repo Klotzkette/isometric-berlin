@@ -41,7 +41,7 @@ test.each([false,true])("actual finite model, idempotent touch interleave, parki
  try{
   expect(hasCompleteUniversitiesArchitectureV322(root,native)).toBeTrue();expect(hasCompleteUniversitiesArchitectureV322(root.clone(),native)).toBeFalse();
   const members=root.children.filter(c=>c instanceof InstancedMesh)as InstancedMesh[];
-  const count=members.reduce((n,m)=>n+m.count,0);expect(count).toBe(native?242548:95310);
+  const count=members.reduce((n,m)=>n+m.count,0);expect(count).toBe(native?247699:105130);
   interleaveStaticGeometry(root);drain(parkStaticGeometrySteps(root));drain(parkStaticInstancesSteps(root));expect(hasCompleteUniversitiesArchitectureV322(root,native)).toBeTrue();
   for(const mode of["night","snowstorm","schwellenraum","flood","day","minecraft"]){setIsoNightPresentation(root,mode==="night",true,mode as any);expect(hasCompleteUniversitiesArchitectureV322(root,native)).toBeTrue();}
   expect(retireSceneMaterialPrograms(root)).toBeGreaterThan(0);expect(hasCompleteUniversitiesArchitectureV322(root,native)).toBeTrue();

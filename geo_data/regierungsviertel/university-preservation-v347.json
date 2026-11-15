@@ -1,0 +1,612 @@
+{
+  "baseline": "84d3c452",
+  "method": "Unmodified prior-commit factories; exact Float32 matrix and colour prefixes of every batch",
+  "snapshots": [
+    {
+      "kind": "universities",
+      "native": false,
+      "batches": [
+        {
+          "name": "hu-grimm-hegel source-bound frames",
+          "count": 3246,
+          "matrix": "79c7f7d15fce8edcd5b25187d2460be15c7868fec08a38290d0119ad06d9c8bc",
+          "color": "9f54d3b47f15c00e1786dd5ee138b2e0fb21ebfba1673a03bd651fae2ae3b556"
+        },
+        {
+          "name": "hu-grimm-hegel source-bound glazing",
+          "count": 541,
+          "matrix": "88a6905d279bbfe7ebaad80aa02848ecacdc08ec5fe9bbfcc114040cb5ff3fb9",
+          "color": "1b274fd76476b29b54e0aeb7bd606dac68b7c6b25f62a0fabf4a67c694ce5dba"
+        },
+        {
+          "name": "fu-henry-ford source-bound frames",
+          "count": 1248,
+          "matrix": "803cd7a781e8b84dee9a4708982696554ae5666253073cda21ce685b57792cee",
+          "color": "b8c7349c29310fc19ca47694831f70873e861690c6bffdac7d9923e799410823"
+        },
+        {
+          "name": "fu-henry-ford source-bound glazing",
+          "count": 208,
+          "matrix": "673b3239c0a119afc37ea4a9bd173674980fc9552ae92ba9d1a100c0328569fa",
+          "color": "a6bbfb61bc8a53ac9f18b0e2ae5cea8b69df1c0c86e9a520c5b6d4b998bc8d21"
+        },
+        {
+          "name": "tu-mathematik source-bound frames",
+          "count": 3840,
+          "matrix": "bc2eb8f3ac8929031e158448e176e5af82888a42d37ad339ff1e77f312111cab",
+          "color": "74a5a07abdc1a9b2cf2e01a2102573a5fe65484798062b185ebf3aa346290f13"
+        },
+        {
+          "name": "tu-mathematik source-bound glazing",
+          "count": 640,
+          "matrix": "41ae33f33a3d1b63d574c816294c702e77b5eeb82117cd5c172a7d0fc3227069",
+          "color": "27bfbf5ff7351c91d6ce1702a6f982272f80f9a77bd28e36482eab8a8acaf7a7"
+        },
+        {
+          "name": "tu-architektur source-bound frames",
+          "count": 2430,
+          "matrix": "cd46d575bad21bf068cb2fd7379643dfa4d1fedbc99ed5f1207808681acc31eb",
+          "color": "35ef5d622e33170ddfcd665a92730030715b28a6e4833282ec53e1715778dd2b"
+        },
+        {
+          "name": "tu-architektur source-bound glazing",
+          "count": 405,
+          "matrix": "6aa4dceacf75aa5fdb800aeda22c72a5e06db0e9a810dd72c5a73f631e49a4e8",
+          "color": "477362a256a2109abc302c23ed74bbd0cb8ee9976cd502a9fd6bc535998b653e"
+        },
+        {
+          "name": "tu-udk-bibliothek source-bound frames",
+          "count": 3360,
+          "matrix": "c96cb162457df1872c822ba79e3d39dec9e3fccefbe3554c36965e4fc3f8e698",
+          "color": "a8a54dba9c3c45371847075e2546e7ddd125b0ad867c6ff08aa416990f9e74c9"
+        },
+        {
+          "name": "tu-udk-bibliothek source-bound glazing",
+          "count": 560,
+          "matrix": "7b431ef9f7a1f7a1e14f0a2e36c8381c44e679fe617bac61ecaaf1bf17199481",
+          "color": "b1102317e78dad9e3d283b6cdbcb15433ddbd18f879448c8ce91b19d2909c15f"
+        },
+        {
+          "name": "fu-holzlaube source-bound frames",
+          "count": 2584,
+          "matrix": "72bbabcdad97384eb9d8ab8dca5967c6c62f781bcad66b6e9848e8d44b17a534",
+          "color": "45804318a290e957b0dd7e7975f0a49953dfd24e471c10b3cb4c9e0ee7771126"
+        },
+        {
+          "name": "fu-holzlaube source-bound glazing",
+          "count": 334,
+          "matrix": "0806d674374bd2bfbb4cc83cb3d933d0066809268722b4b8cddf279a93d5774b",
+          "color": "5717e2a694af11678dd7d5af2e4df2f6e231447a33659b69c552620c66f7f6bf"
+        },
+        {
+          "name": "hwr-schoeneberg source-bound frames",
+          "count": 6492,
+          "matrix": "0acb3ffa000ef68b3fc7ff8534635e94c2af057a96743acea31a79e8ff8d7fc6",
+          "color": "34d29c1c5e79a964930b5c4abc65c23d2dba9fc5929e3edec9b611c95a9d9214"
+        },
+        {
+          "name": "hwr-schoeneberg source-bound glazing",
+          "count": 1082,
+          "matrix": "6efc9f0fa0281f69e610474304eb9a788a5a098b8bb23cce40cd15982b8c136b",
+          "color": "de1caba0b1599bddd7fac97eb7c74996c61c3e86dadaff53f61541e3fef15e94"
+        },
+        {
+          "name": "bht-wedding source-bound frames",
+          "count": 13818,
+          "matrix": "7704ba212b4b5c025ef65cf4cb166b3e4cbfbcac4ec1ca10ec8910f403581303",
+          "color": "ee657d372088c60984bae83c3759e6b5a51e5d01a8f198bdb16534b1a8d5cf9b"
+        },
+        {
+          "name": "bht-wedding source-bound glazing",
+          "count": 2303,
+          "matrix": "2d6c9d7bd37ea6640640efa851f55a29334a7c8e320d9bb6d0da2acd59eab9c8",
+          "color": "27e5b49c2858bcab54e16a5d366ce53c5f6bdd6645652dcedf2a03ce13143fcf"
+        },
+        {
+          "name": "hu-adlershof source-bound frames",
+          "count": 8280,
+          "matrix": "ce0f6c9cfd44f5af94fe9075614b3e23d88b6095b38bba6a9cdae3d2a0b8227e",
+          "color": "f642c58a75a4f4dbbf84471ec74b8afaa1d308a6277df365cce357ae984d655e"
+        },
+        {
+          "name": "hu-adlershof source-bound glazing",
+          "count": 1380,
+          "matrix": "277d6f40e5fd465906469694134b7e8dc937b53cfbfce028a3ade5b9f6e62f0f",
+          "color": "2ea3455c81e945ee87ff78c105abcc8362999aa1937c621992a10eb8ba53ff39"
+        },
+        {
+          "name": "htw-treskowallee source-bound frames",
+          "count": 5894,
+          "matrix": "acd4deb9f9b88e98852d1f912c7ec901f3f5be5f9f1ec57c3287491c64e1bdd9",
+          "color": "9d08dcbd69637af40cb3ba3c1944797d4b0bc3b8cfa7455d60a48ff2f3c0cf00"
+        },
+        {
+          "name": "htw-treskowallee source-bound glazing",
+          "count": 842,
+          "matrix": "e560b35aa392cdde1cdffa1dae9cf95d823d92f78288ef68474e98084885fd8c",
+          "color": "f94b661c5b9eed5ddae915b35d7b9a510174d3e52f2707dec9e687f33286ab20"
+        },
+        {
+          "name": "ash-main source-bound frames",
+          "count": 2706,
+          "matrix": "2e3edae3ecb516aa5c450c65293b297fe4b87c6cf8a681e467d2b92a855fa4f6",
+          "color": "e998235c1449fdffd9d070c6d44dce56309b1d258d2ea1ceebb0c4ea12b837bf"
+        },
+        {
+          "name": "ash-main source-bound glazing",
+          "count": 451,
+          "matrix": "772195249db117b07e55926e368ec89cc692edfbc1cdd4bc6bcacd3a4ada293f",
+          "color": "0e98fcf925c31ce8e2a356304212d737638375556e3d04a5db230534f51dcbd8"
+        },
+        {
+          "name": "ash-extension source-bound frames",
+          "count": 2106,
+          "matrix": "dcdd76bcda35750a3e87e28d04d1427f0a42da8c7a2c19c37dda0d40e087ff92",
+          "color": "e5e0be3f36c82003d882c559679c629c0e3db6690e4a93c24b1dc9cfa2aeb969"
+        },
+        {
+          "name": "ash-extension source-bound glazing",
+          "count": 351,
+          "matrix": "038910f060b84a2fca0920e58ef961970a0e625e4d074d0cf4dc7b8532cb0e8e",
+          "color": "94941d5d86a508367520f32a23c4ea449d6d0f548003114d7f97efae477b9fe4"
+        },
+        {
+          "name": "ehb source-bound frames",
+          "count": 876,
+          "matrix": "d3f3e37718c78fa64dd1cf849b07f5b359b5a109f59f8514c4d7699f7d464d02",
+          "color": "863c898564c440c842e614a0e257dd33c4aef4f355a01dc9fad63c1594bd0813"
+        },
+        {
+          "name": "ehb source-bound glazing",
+          "count": 146,
+          "matrix": "b3156a369aa4829b32f0b1f85cfb62fe14f869160ccbe0b96557d731dfd6f6b5",
+          "color": "a023d7ae9c240f233bfdb7a7977516acde15e93ffcb6e73326dae551e6294ab7"
+        },
+        {
+          "name": "khsb source-bound frames",
+          "count": 2569,
+          "matrix": "f650f816e0e8249311893eadb0e52200ef99055dc33cbefbcd5006c5f724bcd4",
+          "color": "982c8a6fd73fd1e35c267abad8cd268769ee5cca64a2a5c61732a5eecb2969c5"
+        },
+        {
+          "name": "khsb source-bound glazing",
+          "count": 367,
+          "matrix": "ffd08d1c620bbf148bfa7d1742e57bf5d55c308b05543ab91a4cec06acdbca74",
+          "color": "9557a1b54b92fba2175dbf345721758eb6f55c0ddded6215154f4622cb1c3ced"
+        },
+        {
+          "name": "hwr-lichtenberg source-bound frames",
+          "count": 9054,
+          "matrix": "818ae1bd3572b1d233bfc95e414bc15f4fad08da8c2a745ccd494352870d8521",
+          "color": "feac6d7e56fc19167a9af88d02a2e5faf75167df7c09a2d0e3f89d804e7b75b9"
+        },
+        {
+          "name": "hwr-lichtenberg source-bound glazing",
+          "count": 1509,
+          "matrix": "13da3563e6a13664df3f01b75fb9d6463ccfc01ae2c622753cdff7933fe1ab3e",
+          "color": "97bfdf152112550f27f83305856a2377cbffa963008673f0294bf9e789b69553"
+        },
+        {
+          "name": "udk-hardenberg source-bound frames",
+          "count": 3156,
+          "matrix": "960aed6abe0e858a4c968d76de1d14e7b8bc8e94f41467586c9d68847769f3d6",
+          "color": "1c8d327040908d82d078909c9d438682a5fbb35c5bace5f186935d8cd1de6033"
+        },
+        {
+          "name": "udk-hardenberg source-bound glazing",
+          "count": 526,
+          "matrix": "ea70ad7bf6f62ce4a8321776911b0302970cbf61c71a654c3fc6a8e51a7be760",
+          "color": "1966515378dd7838c280de428f55ee23c792f3b8b8766e3a75349f8d5120d7a7"
+        },
+        {
+          "name": "weissensee source-bound frames",
+          "count": 2460,
+          "matrix": "03f3ee34329426c4f39b260aba58c5d058752fa480fbb909f8c8a8724b909921",
+          "color": "db9b7aa37d85156010d7c04598c7b72cda323debf9a9ba40ef74674667a08fed"
+        },
+        {
+          "name": "weissensee source-bound glazing",
+          "count": 410,
+          "matrix": "a36bd20178b600d23a616f326065f4374d2650bd46835a4b1d4843bfb30cae43",
+          "color": "8b0b28aba3559cb2ae227b051e853ddcd54551952b816be54fd95b65ecb412ab"
+        },
+        {
+          "name": "htw-wilhelminenhof source-bound frames",
+          "count": 7994,
+          "matrix": "142daba7a48a024186c93c1b5ffcd88614406d26858519c359362f33dd4f4343",
+          "color": "e9b3fee7bc4b759aed2dc53d11015fcf1c236a2efa80b1377239beb8ca3e5e12"
+        },
+        {
+          "name": "htw-wilhelminenhof source-bound glazing",
+          "count": 1142,
+          "matrix": "7e785ccbee55cdd7f01f2b4a471480491197dc035669445819fd93911f6d3607",
+          "color": "24156771e5fde15f0d7c46d24733b4bb50fb00055b5d4968b3743b8dc3c83e40"
+        }
+      ]
+    },
+    {
+      "kind": "tu",
+      "native": false,
+      "batches": [
+        {
+          "name": "TU aluminium ribbons sandstone arcades and VWS panel window details",
+          "count": 6944,
+          "matrix": "c55328d99d444c336c79d9c51e3ca248dbaa856e5381f338b200cd1df40a326b",
+          "color": "4b5c449336c50793ae8b6d1b23eb88f61bc3ef38e62fc109b0d86ddc739610d9"
+        }
+      ]
+    },
+    {
+      "kind": "universities",
+      "native": true,
+      "batches": [
+        {
+          "name": "hu-grimm-hegel independent native exterior",
+          "count": 134,
+          "matrix": "c88d2bd32cfc5bb117fa2b1a631c163dcc76dcf557ef89e4db7bfbf32006b262",
+          "color": "375067faf0c8a2f4d3099cee39d201989015eeef152f7d8a1d8a72129bc354b6"
+        },
+        {
+          "name": "hu-grimm-hegel source-bound frames",
+          "count": 10170,
+          "matrix": "b88a67c76d97b0477f281c8863a70b5bceb2f644dbfcf9627835264349bf354e",
+          "color": "fed083a2aa37a0fd551b519f8b7cf4b15cfc78ceeec3f7c718e079e6b3137c50"
+        },
+        {
+          "name": "hu-grimm-hegel source-bound glazing",
+          "count": 1695,
+          "matrix": "d0bbc9482957e979b1bc4a7f0c33f629aa05169570afaff756a8e524d697a0b8",
+          "color": "024c728d291b47ecaee28789231e101e61137a6dec9e8ac4fbcc43fce099f4e5"
+        },
+        {
+          "name": "fu-henry-ford independent native exterior",
+          "count": 214,
+          "matrix": "53925433ae6c417ee8f049044187c83622564d7b25145971404032ec23fc130c",
+          "color": "79521c0d47659125c1474b03638429a9930497fd077e5cfa52dc8900f849aeca"
+        },
+        {
+          "name": "fu-henry-ford source-bound frames",
+          "count": 2004,
+          "matrix": "59a81c3d1ff2a8f4451ad2050aec82a3de3741ba23460ec7a3cb5c1c856157c6",
+          "color": "37e1d3cd00d452b4f4de813982da6979184dd348e4f8372af540292d4f80c35c"
+        },
+        {
+          "name": "fu-henry-ford source-bound glazing",
+          "count": 334,
+          "matrix": "3aa968b18b10733ce25026cea038e173b54ea0f4bc3e620ee954d60d51d128a0",
+          "color": "80e21548d40a301e379081323bf21cf8fc722f1abe86dad59fd7071856b93dad"
+        },
+        {
+          "name": "tu-mathematik independent native exterior",
+          "count": 558,
+          "matrix": "c6ae3421e66cea49a9686318d1e20c25d67acb4ea7501514e5fd3c9a02977e87",
+          "color": "407e7bdedafa03dfaa9a25c6bd9f32243bc24c98762a9f54d2a6c8d1a906bc24"
+        },
+        {
+          "name": "tu-mathematik source-bound frames",
+          "count": 15414,
+          "matrix": "221a91cb24ad6666fa7f45ac2182eb08e2a7219d1490abda6ad96169f19fde73",
+          "color": "8944cd77fcb68b50e12423af4a6c217ef7e6e753364f55fa9cf46cb133c331d5"
+        },
+        {
+          "name": "tu-mathematik source-bound glazing",
+          "count": 2569,
+          "matrix": "6520c9750c6f41007bc69c063d0c90f7aacad0e556ae5b22155c84f3df0c4334",
+          "color": "0444563615cacd0be06a2f194d7fde29bf7ee84a26243114f91dd7128ea3f388"
+        },
+        {
+          "name": "tu-architektur independent native exterior",
+          "count": 278,
+          "matrix": "06930f49bc037e34f513a33d830e9d86eef3f56776f92ee5863c88e3e8a89ec0",
+          "color": "9f02b55352a04c382bd28fae118823c5639f4286438769a8359de5a445932b38"
+        },
+        {
+          "name": "tu-architektur source-bound frames",
+          "count": 11028,
+          "matrix": "820f50bb469023a76ed4be4fa0516d267d6abbe53225babd157a0b5c427dccbc",
+          "color": "8b0681b10a5228f6032a69e852f7d26780e7678fbca6de5a97d025cf7b224987"
+        },
+        {
+          "name": "tu-architektur source-bound glazing",
+          "count": 1838,
+          "matrix": "2537954d6e5076a7953182bdbf4a4ac3708b49e770a54c442d9a0490b1c6a25f",
+          "color": "00021f65940882251b7395201d666a3549dbd3c658bd02164becfba7baa1d980"
+        },
+        {
+          "name": "tu-udk-bibliothek independent native exterior",
+          "count": 182,
+          "matrix": "cae0635450559025baadf4f411abf09fc3fdd5e0d60a034597f2d6955ba40395",
+          "color": "9ccc0c06e66e061be2313252144e9e6802f1268385eb2b45efd9e17c2090939f"
+        },
+        {
+          "name": "tu-udk-bibliothek source-bound frames",
+          "count": 4314,
+          "matrix": "0f450f688c663a723e42be198c55b0b2ac1cffea9760df26b77b7b01ef6383f9",
+          "color": "bb6656764252606b3acb57e7f22efae589ae318780a67633c1b70b62eb188a9d"
+        },
+        {
+          "name": "tu-udk-bibliothek source-bound glazing",
+          "count": 719,
+          "matrix": "5b7273d9fb568ea6a5394732f91395e255c0c9d8f43846e58ab34a78939efa36",
+          "color": "fbc81acf00a8a74a02e2007cc358a6f4d52736d36b350ab398431781e4e434e1"
+        },
+        {
+          "name": "fu-holzlaube independent native exterior",
+          "count": 867,
+          "matrix": "3a123fed22f5086d3b4172ec1edc65ac4f882fc90a0a1465bd6218aac0e08d38",
+          "color": "9bff3e81a8c88a9401769ac430baf0b6b48413a8b4b30d225601408853eaaeb8"
+        },
+        {
+          "name": "fu-holzlaube source-bound frames",
+          "count": 7668,
+          "matrix": "c9b079a205195e72e7ba933868fff22b95a1cbe8f88d25fd9cdce93a31deeff2",
+          "color": "1f3db2a963977e5467b4fc09f82a05908d74033e5fcc5402ba25195c72258020"
+        },
+        {
+          "name": "fu-holzlaube source-bound glazing",
+          "count": 1020,
+          "matrix": "374c0a9b5904a860096fe07c8d8622fbb9cf2beb9937de96e8163edc534ae5e9",
+          "color": "01fed1cf5705a5dc9247705baf2434f5e0cde56e519b60a68b1720c36d8c905b"
+        },
+        {
+          "name": "hwr-schoeneberg independent native exterior",
+          "count": 412,
+          "matrix": "a60bb2bf970d048c86443b526fc56b00f57aa8d52d637de1c938c20599373165",
+          "color": "ff55401f0bcfc6ae834996fd83935e48f6809ad64bd3dc8abdf414ba29e487ad"
+        },
+        {
+          "name": "hwr-schoeneberg source-bound frames",
+          "count": 16986,
+          "matrix": "44e4c74f7345db6bbdc5965d0b1e77cef60a94ab2364a6b302a1cdfcddd6dd6f",
+          "color": "bb4212e7a00e29bdb781496b98811f2d30b398f376422bc5e3c82683aafeafa5"
+        },
+        {
+          "name": "hwr-schoeneberg source-bound glazing",
+          "count": 2831,
+          "matrix": "b1b3b1f6446936c6d595f0293ef8b459744d7fb5849a62b0966136f6c413e54a",
+          "color": "1dc00b259d0a5e2d9d178b5bb246a8084540c27241333d5a572ccb091d0edb42"
+        },
+        {
+          "name": "bht-wedding independent native exterior",
+          "count": 2811,
+          "matrix": "f55286e1b5eaceedd0b485344910d30062844435ec3c677d40fddf705808f739",
+          "color": "c1ac7cf18ee8195928d473d94940b7ed014d029f69cf5ae569997615427cc84e"
+        },
+        {
+          "name": "bht-wedding source-bound frames",
+          "count": 15186,
+          "matrix": "af4a01d1432e6b74b71edda325f4f9d74ca6ed30b3ae1b329dd5a4b84d965efb",
+          "color": "d25c18c9bdea7c07a9df0df57b0363e66442d5fddc94084e00a6c1775a93792a"
+        },
+        {
+          "name": "bht-wedding source-bound glazing",
+          "count": 2531,
+          "matrix": "7417a859da240d96acfbc6488ae621878503387be57c05c223fe62930ffaa759",
+          "color": "204e0b5485eb8444f6192bd5e705d1f5af7af63e4de9228ce93b61deb0d091ff"
+        },
+        {
+          "name": "hu-adlershof independent native exterior",
+          "count": 3134,
+          "matrix": "d6a853dde82561e13a601b8927006d0b877ea67e339e82664c275ffb71b40a47",
+          "color": "99578182efa310f5165d91bf98270d30b362e49a7046974bff51d3669e3bd091"
+        },
+        {
+          "name": "hu-adlershof source-bound frames",
+          "count": 9594,
+          "matrix": "f52bf2912d9c2836da9124e44ddb812c48106c4e0d0da76e864df201f87e2814",
+          "color": "ddc17751b7285dab767fe4b8c40c62b62f86c528e40bb680febb78434254394f"
+        },
+        {
+          "name": "hu-adlershof source-bound glazing",
+          "count": 1599,
+          "matrix": "be6888325b347d766451d05eb85f30d5d5438ba96dcbb1af3680e14e2e6437cf",
+          "color": "51010a419686b6d63d71f17b75578c0a0ef14c7f39d0fc4827847d90d05b434a"
+        },
+        {
+          "name": "htw-treskowallee independent native exterior",
+          "count": 888,
+          "matrix": "75daec72fe57dbb1182ec6fb9e0371c5dd312353b0e3d856fe8f485df152f502",
+          "color": "13cfd6aab234705c07bb49b68ed45bea23cdc5f6221bc9e6d518d0936031f1fd"
+        },
+        {
+          "name": "htw-treskowallee source-bound frames",
+          "count": 18382,
+          "matrix": "98f0194f4c9277c94026c1d2b074fd4be4e2adfd4b35226725e6aaaf253c41d5",
+          "color": "cd2289a1fa2ec5d527c2775c306569e24125626b3ff208466ee14d07b3d6e567"
+        },
+        {
+          "name": "htw-treskowallee source-bound glazing",
+          "count": 2626,
+          "matrix": "cea31fdeb70741562e3bdf134c8a9b6f13e474b648fb4da38fc42a6c65838351",
+          "color": "f826e5974cbf3958a213a82a026ac09ca434c4561c2f745ca4292c9e5ab4dcfb"
+        },
+        {
+          "name": "ash-main independent native exterior",
+          "count": 212,
+          "matrix": "c5b7fa7736977c0c21159604782b4648e88bc26070773cd01c23073a6db09aad",
+          "color": "b95f825e8f0fd81cb45ddf32733fd6311962fb481f65c62973ca6719e1e434c6"
+        },
+        {
+          "name": "ash-main source-bound frames",
+          "count": 5004,
+          "matrix": "2982711f3e5df525ca508839ce1657f93ee6d44234179d9361602f2bedde4c33",
+          "color": "f25d26f19552deb71bba7bb4f912e9ddc620816ea2fc58a858a6d2aae5aa1996"
+        },
+        {
+          "name": "ash-main source-bound glazing",
+          "count": 834,
+          "matrix": "e00485058711aa783e9a7c81fcb9c7db5215dd0084b6b2efb19e0826c393eaa3",
+          "color": "1ffbd13fb0e47187d128e00c743bbb0d0e623ef2ad9c69093a2b6a7c18bfeb51"
+        },
+        {
+          "name": "ash-extension independent native exterior",
+          "count": 98,
+          "matrix": "260d3dfc1d64badcea1a226d9a70e1bec6b5be68692b5b5dc248e94ac33fba8b",
+          "color": "0152793387178b0bdac8edd8c0fa08102255f5902e5c8c56fb8b929d47526a7e"
+        },
+        {
+          "name": "ash-extension source-bound frames",
+          "count": 4848,
+          "matrix": "0b18a926356c261cac31d3c7d3d258b9c74c277602108024f37e8ef1b9493795",
+          "color": "b4a690fd0619db84f64155ae11d177ec1e565cc2bcd8406c3846aa5aa04b4a62"
+        },
+        {
+          "name": "ash-extension source-bound glazing",
+          "count": 808,
+          "matrix": "6a535df13689d3da71159e0884bea08f1f7b58bfc77601477664ba10c3f17149",
+          "color": "15f99e9dd17c4ea91d0a7942b520f46fef7f18213d7f7e8b9e06e986120099c0"
+        },
+        {
+          "name": "ehb independent native exterior",
+          "count": 447,
+          "matrix": "c11908f67b0129c5d6679cfee63a738a31f73cc2c080f4d993ad70094b6fa282",
+          "color": "79282432642771c69a4ac18f372b108e842bf84e672c8216e0ef8c0d46d098a0"
+        },
+        {
+          "name": "ehb source-bound frames",
+          "count": 6000,
+          "matrix": "016fff0d81fde324824435847891ce61163942f4d9ebd3509181759e0b9cad83",
+          "color": "0534da7f582ddf0d62a5b02da5d57808d6164769a22728a34ed6af4a88eed16f"
+        },
+        {
+          "name": "ehb source-bound glazing",
+          "count": 1000,
+          "matrix": "a7bdc0a8ac3a736b11e1bf6a1bc80c4f0d00fa8f4e9c53f3bb6a8f67ab37e47e",
+          "color": "780a00b9830b89152ddd9afaa918091b47fa984adf560bb6ff96ce8ffe26c552"
+        },
+        {
+          "name": "khsb independent native exterior",
+          "count": 250,
+          "matrix": "ac09d122cff90ab0a23a2b45d75a3392dc3816b1e8b85a1edd324e04c0c7f767",
+          "color": "a0111f3ea86e600670af7367c3703f06ab2f3d7d65338b1412256717c69661b3"
+        },
+        {
+          "name": "khsb source-bound frames",
+          "count": 8708,
+          "matrix": "838671b399a0a1cc668a41af8e329da9e929b689eca3986752977e00e75b220c",
+          "color": "c1eab03bb27ebc16c9a75406d472214704b3014f1a0c07e8c1cd1830dda6e6e4"
+        },
+        {
+          "name": "khsb source-bound glazing",
+          "count": 1244,
+          "matrix": "36e757961676af28fefc84e0f4b4f41fe12bf5320da24cc2800dc18fb5dc2274",
+          "color": "f419b9a59fced5d772a5d89b49fb18da3699ed85627f5c8e1a61d93b88a93411"
+        },
+        {
+          "name": "hwr-lichtenberg independent native exterior",
+          "count": 330,
+          "matrix": "a14559be769f1cb5d730cabaee6737dda7c4e287384e586da7d8cf80b4bd4222",
+          "color": "54415b6f54af4fc754fb6d322f14f3242f251696cf128c99d0aaa46e476dc354"
+        },
+        {
+          "name": "hwr-lichtenberg source-bound frames",
+          "count": 32694,
+          "matrix": "78a635aab67a9b2f503a98bbcefda6b5569f593abdaac6ae705aef3d62a147fb",
+          "color": "044e38325146624b43127e247578491c0534bbb7a1235450fcbdf478eef71194"
+        },
+        {
+          "name": "hwr-lichtenberg source-bound glazing",
+          "count": 5449,
+          "matrix": "b3b396cd9c72dd42810589f81e5d5af2457ec151d6498ad5ed797118578ecb4f",
+          "color": "f0588c39531a2a5f3a1e36f9798b255a2669b065dddf79bd8ee810205f1d2533"
+        },
+        {
+          "name": "udk-hardenberg independent native exterior",
+          "count": 1771,
+          "matrix": "56796bdf8240833d9a7256240778187886fb4e3b4dd3be83db615d2c98f41a7a",
+          "color": "d9d10b31a3738b84087f8307cc39385b188a82774d29a4cf6687f8cca771fc54"
+        },
+        {
+          "name": "udk-hardenberg source-bound frames",
+          "count": 13290,
+          "matrix": "b92bf38b965454b8476118dd627cfb6e9ebffaf2130fe3faa54dbd1f524084cd",
+          "color": "1e89206464593de07e5d747f93146fbd30377ca857be00b6b698ae8448216bb4"
+        },
+        {
+          "name": "udk-hardenberg source-bound glazing",
+          "count": 2215,
+          "matrix": "ab36e601f4a9db37cf922b64b99d05148d7255df2d746b48f66c2a9985d4f929",
+          "color": "152021ec07a84fc0a3bb48e39aa722f8a94f5b2df3ea3972e9efd4ffd1aba41a"
+        },
+        {
+          "name": "weissensee independent native exterior",
+          "count": 930,
+          "matrix": "a1d219382b570779b492be293c54a2379aebe0e6298ac4a96c666598991a8895",
+          "color": "e9541947a1e436fbf5bfcc5ac44b634bb59b0b1837275d62307dbdaffed29e12"
+        },
+        {
+          "name": "weissensee source-bound frames",
+          "count": 4224,
+          "matrix": "98707564c8c84cf480ddd6a670664c86b0eee451d7f7c341c2adcff9704e3772",
+          "color": "7566d884bb4c12bb5ab6aebfa07ffba7933be3591397e8c3b18e1ea9f1eabdd1"
+        },
+        {
+          "name": "weissensee source-bound glazing",
+          "count": 704,
+          "matrix": "2a14cd3ce5afbd0241ecbf4c07e24df3fff7dfd41160c50109de38e741bbd477",
+          "color": "9b3a7e2873f474e3ca7b367784fc3c07d66e8f1d6227eeb3cc1c2e9cda954970"
+        },
+        {
+          "name": "htw-wilhelminenhof independent native exterior",
+          "count": 1090,
+          "matrix": "0b6c6235e219b0df40765dc7e6a94d785e30749cb56f1d4b25fa7a6161be37da",
+          "color": "e9fd149ed85e0c197e9d2103fdc0b64799942f70b8eeee9f802328fd69babdba"
+        },
+        {
+          "name": "htw-wilhelminenhof source-bound frames",
+          "count": 10724,
+          "matrix": "26e017ae14dc8b03b5bff04ab1a12eda689195ab9dad51f98d4055ccf11bff6c",
+          "color": "d43be287dc765e76e652dda9f28a798a077bddf15fe920f64f5ad765adb9bb54"
+        },
+        {
+          "name": "htw-wilhelminenhof source-bound glazing",
+          "count": 1532,
+          "matrix": "002523829184c9147299ba694d32b3dd1f4f58105dd23aa33a11ba1e697c9fac",
+          "color": "d14892e2e746bf5a066b8411d9ad3a10d4aaeba1b7797a520354df51fb8a644b"
+        },
+        {
+          "name": "ash-main-new-ground-native exact new campus floor",
+          "count": 41,
+          "matrix": "bebb80bae32685b6e0cfa501d90436b2e940ee01a2a0f6018a2c456439a388d5",
+          "color": "6e38477483ea05e28dc7aef2fc19bee144d3766cab3698dde8f9a17525cd2953"
+        },
+        {
+          "name": "ash-extension-new-ground-native exact new campus floor",
+          "count": 22,
+          "matrix": "cac9c9ab2f5cfde3ea4e31c92e63771cb3ade70ef9f6b8e73f8cafd5020e5835",
+          "color": "19eebf58d61e80e5234ee36a1bdcd5e0d1424f2e74eedb38b02ab768db991dfa"
+        },
+        {
+          "name": "ehb-new-ground-native exact new campus floor",
+          "count": 49,
+          "matrix": "a25ff521ec0e7b38677e110f6e892fe6d6a1a2f6dcf0061eb2050a4a11f696b9",
+          "color": "c22719ff63c8da4c610666d27212f7ab1a547278ed77b3cc9cc79281b42a8c63"
+        },
+        {
+          "name": "khsb-new-ground-native exact new campus floor",
+          "count": 44,
+          "matrix": "99b5f157eba0b8583e11259cf7e90af0b1c6699b0486c2c6e71dc2d93b3016f8",
+          "color": "b3ef8b5970b9e507712d85b4ef6894c23b2bd9c55c81db1169c4d1ba31777d70"
+        }
+      ]
+    },
+    {
+      "kind": "tu",
+      "native": true,
+      "batches": [
+        {
+          "name": "Independent TU source skin and open UT2 pipe blocks",
+          "count": 23072,
+          "matrix": "4ebc302c27076e9933b9bd0e71fd00af60ae79ecea53c011a02c6e45874f53c9",
+          "color": "9211778df11ea19a77dca8f1633298b19efdfb48c0689fe8821dd9769a14a8b3"
+        },
+        {
+          "name": "Orthogonal TU and VWS facade detail blocks",
+          "count": 40877,
+          "matrix": "b17dac94f459c7943ca7ad19f8bbe58f6b1a8553b11f82be76b3eb67b2860638",
+          "color": "9e7df7ed471489a5653f1b742e756de4c685d67a9b63a402c395c483f5927bb9"
+        }
+      ]
+    }
+  ]
+}

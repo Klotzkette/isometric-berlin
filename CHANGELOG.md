@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.227 — 2026-11-15
+
+- Refine the Clayallee consulate exterior, adjacent shopping building and five Fünf Morgen buildings with complete measured source families. Add the mapped Hastings TG 503 at the AlliiertenMuseum and bounded field, apiary and wild-bee-hotel details at Domäne Dahlem; retain its existing farm buildings.
+- Add source-bound exterior fittings at BHT Haus Grashof, HU Adlershof Physics, HWR Schöneberg, FU Henry-Ford-Bau and the TU main building. Preserve the existing campuses; the low official HU Physics envelope remains a documented unresolved height limitation.
+- Add supported mapped paths at 81 cemeteries, the two photo-referenced Fontane/Hoffmann grave sites on actual visible terrain, and the bounded Buddhist House grounds in Frohnau with complete measured buildings, terrain and a source-guided stair interpretation.
+- Preserve the existing complete A10 ring and add mapped interchange ramps, limited approaches and carriageway edges in its cartographic representation. Add all 5,417 mapped BER aviation-light anchors while retaining the existing airport buildings and surfaces. Unsurveyed heights, fixture dimensions, facade openings, grave ornaments and planting arrangements remain documented estimates; all six modes, full mobile Drawn detail and existing live limits are retained.
+- Losslessly encode ten existing Native construction fields and the named-grave source field using the shared codec, retaining their complete values and ordinary object ownership. [Finite storage offset and isolated proof](docs/lossless-packed-v347.md).
+
 ## v1.0.226 — 2026-11-15
 
 - Add the previously missing Kladow/Gatow coverage with 12,360 newly represented measured building families and complete roofs; preserve every earlier city packet. Add the currently mapped Tegel apron/taxiway footprint and correct the Tempelhof apron material.

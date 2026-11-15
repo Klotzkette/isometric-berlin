@@ -8,6 +8,7 @@ import type { SurroundingNavigationTile } from "./SurroundingCity";
 import { surroundingBuildingSolidAt, surroundingPolygonContains } from "./SurroundingCityGeometry";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { createBerAirportV205 } from "./BerAirportV205";
+import { createA10TransportV347 } from "./A10TransportV347";
 
 /** Stable borrowed cells; scope and camera imports do not eagerly load this layer. */
 export const regionalV200NavigationTiles = navigation.tiles as unknown as readonly SurroundingNavigationTile[];
@@ -56,6 +57,7 @@ export function createRegionOutlinesV200(native = false): Group {
     root.add(lines);
   }
   root.add(createBerAirportV205(native));
+  root.add(createA10TransportV347(native));
   return freezeStaticSceneTransforms(root);
 }
 

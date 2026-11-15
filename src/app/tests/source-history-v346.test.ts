@@ -5,6 +5,8 @@ import { readFileSync } from "node:fs";
 import { assertSourceLayerV326 } from "./helpers/sourceHistoryV326";
 import { projectSourceBeforeV346, sourceAtBeforeV346 } from "./helpers/sourceHistoryV346";
 
+import { sourceAtBeforeV347 } from "./helpers/sourceHistoryV347";
+
 const root = new URL("../../..", import.meta.url);
 const published = "daa0c5e372f6c86147dd89962da3fdbd2947e861";
 const digest = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
@@ -17,12 +19,12 @@ test("v346 independently reconstructs each exact published v225 source and rejec
   expect(Object.keys(receipt.changes).length).toBeGreaterThan(0);
   expect(Object.keys(receipt.additions).length).toBeGreaterThan(0);
   for(const [path,row] of Object.entries(receipt.changes)){
-    const current=readFileSync(new URL(path,root));
+    const current=sourceAtBeforeV347(path,readFileSync(new URL(path,root)));
     const before=execFileSync("git",["show",`${published}:${path}`],{cwd:root,maxBuffer:32*1024*1024});
     expect(digest(before)).toBe(row.before);expect(digest(current)).toBe(row.after);
     expect(Buffer.from(sourceAtBeforeV346(path,current)).equals(before)).toBe(true);
     expect(projectSourceBeforeV346(current.toString())).toBe(before.toString());
-    expect(()=>sourceAtBeforeV346(path,Buffer.concat([current,Buffer.from(" ")]))).toThrow("Unknown exact v346 source bytes");
+    expect(()=>sourceAtBeforeV346(path,Buffer.concat([current,Buffer.from(" ")]))).toThrow(/Unknown exact v34[67] source bytes/);
   }
-  for(const [path,hash] of Object.entries(receipt.additions))expect(digest(readFileSync(new URL(path,root)))).toBe(hash);
+  for(const [path,hash] of Object.entries(receipt.additions))expect(digest(sourceAtBeforeV347(path,readFileSync(new URL(path,root))))).toBe(hash);
 },60_000);

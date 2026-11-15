@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "inputs": [
+    {
+      "path": "src/app/src/data/universitiesArchitectureV322.json",
+      "sha256": "465eed4b2439ee5147362117544eb1dd15b38182ca9f73a6b2ac21b57f2155cb"
+    },
+    {
+      "path": "src/app/src/data/tuWaterV168Source.json",
+      "sha256": "60fcefaaf9d19b3f5b9782b5db41b90a021cdc22bedfd712124bbceea0bfe057"
+    },
+    {
+      "path": "geo_data/regierungsviertel/universities-v322-source.json.gz",
+      "sha256": "f5db51c908035d089c034d245dea1cad365b1047a12ed0c171e0b5b0c5cdc3b7"
+    },
+    {
+      "path": "geo_data/regierungsviertel/universities-v322-model-audit.json",
+      "sha256": "0076d2e8c844f09e7a63dd102167ed03fed21d7c7fbf782c8732e93fb4b29b2b"
+    }
+  ],
+  "retainedGeometry": "No source, prior facade, owner, roof, navigation or campus footprint is replaced",
+  "calibration": "Small fitting positions, dimensions and colours are reference-guided display estimates, not a photogrammetric survey",
+  "physicsHeightLimitation": "The retained raw GML family DEBE09YYO0000JKS gives main leaf DEBE3DNx5J2uyOEc only 3m. All four direct leaves are complete; no ancestor surface is missing. Official photographs show more upper glazing. This pass does not stretch or replace that source roof and must not be described as a corrected complete-height physics reconstruction.",
+  "sites": [
+    {
+      "key": "bht-wedding",
+      "kind": "grashof",
+      "parents": [
+        "DEBE01YYK0003tI7"
+      ],
+      "drawnFaces": 47,
+      "nativeFaces": 81
+    },
+    {
+      "key": "hu-adlershof",
+      "kind": "physics",
+      "parents": [
+        "DEBE09YYO0000JKS"
+      ],
+      "drawnFaces": 41,
+      "nativeFaces": 13
+    },
+    {
+      "key": "hwr-schoeneberg",
+      "kind": "hwr-stone",
+      "parents": [
+        "DEBE07YY900007oD",
+        "DEBE07YY900008t1"
+      ],
+      "drawnFaces": 9,
+      "nativeFaces": 13
+    },
+    {
+      "key": "fu-henry-ford",
+      "kind": "ford-pilasters",
+      "parents": [
+        "DEBE06YYB0000Wkm"
+      ],
+      "drawnFaces": 4,
+      "nativeFaces": 11
+    },
+    {
+      "key": "tu-main",
+      "kind": "tu-aluminium",
+      "parents": [
+        "DEBE04YY500006Rw"
+      ],
+      "drawnFaces": 2,
+      "nativeFaces": 32
+    }
+  ],
+  "currentAudit": {
+    "huMain": "Retain full V168 palace, 95 original boundaries and existing ornament; no demonstrated missing envelope",
+    "fuMain": "Retain V187 Rost-/Silberlaube and library and V322 Holzlaube complete families",
+    "huSecondary": "Retain V266 Campus Nord and V322 Grimm/Hegelplatz",
+    "hwrLichtenberg": "Retain all existing source buildings and glass links; no guessed replacement",
+    "tuMain": "Retain all 24 TU/VWS source parts, Audimax and original courtyards; no interior/access change"
+  }
+}

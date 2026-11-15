@@ -2,6 +2,7 @@
  * Companions and arbitrary prefix matches cannot acquire navigation terrain.
  */
 export const measuredTerrainOwnersV342: ReadonlySet<string> = new Set([
+  "buddhist347--9_-26",
   "britzer342-4_18", "britzer342-4_19",
   "britzer342-5_17", "britzer342-5_18", "britzer342-5_19",
   "britzer342-6_17", "britzer342-6_18", "britzer342-6_19",

@@ -940,6 +940,7 @@ type Runtime = {
   outerOutlineTaskV309?: Promise<void>;
   northernOriginalGroundV309?: { drawn?: (x:number,z:number)=>number|null; native?: (x:number,z:number)=>number|null };
   amenityGroundRevisionV332?: number;
+  namedGravesSolidAtV347?: (x:number,y:number,z:number,radius:number,native:boolean)=>boolean;
   startDeferredDetails: () => void;
   trafficSignals?: Group | null;
   potsdamerTrafficTower: Group;
@@ -4370,6 +4371,7 @@ function prepareIsoNavigation(
     (schwellenraumProtectedAt(x, y, z) ||
       schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
   pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
+    if (runtime.namedGravesSolidAtV347?.(x,y,z,radius ?? 0,voxelModeActive(runtime))) return true;
     if ((voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.openSitesNavigationV346?.solidAt(x,y,z,radius)) return true;
     if (northContextSolid(runtime, x, y, z, radius)) return true;
     if ((voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.karlMarxPlacesSolidAtV316?.(x,y,z,radius,voxelModeActive(runtime))) return true;
@@ -5556,6 +5558,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
     zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId, parliamentWorldReadyV295(runtime));
   environment.interiorSolidAt = (x, y, z, radius) => {
+    if (runtime.namedGravesSolidAtV347?.(x,y,z,radius ?? 0,voxelModeActive(runtime))) return true;
     if ((voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.openSitesNavigationV346?.solidAt(x,y,z,radius)) return true;
     if (northContextSolid(runtime, x, y, z, radius)) return true;
     if ((voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.karlMarxPlacesSolidAtV316?.(x,y,z,radius,voxelModeActive(runtime))) return true;
@@ -9388,6 +9391,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const nearby = runtime.presentationReady && !runtime.firstUploadParkingV323?.pending &&
           !runtime.underside && camera.position.y < 380 && environment !== null;
         if (!nearby) {
+          if (publicAmenities?.releaseNamedGraves()) runtime.renderInvalidated = true;
           for (const layer of [publicAmenities, busStops, railAccess]) {
             if (!layer?.root.visible) continue;
             layer.root.visible = false;
@@ -9401,6 +9405,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             void import("./PublicAmenitiesV332").then(({ createPublicAmenitiesV332 }) => {
               if (disposed) return;
               publicAmenities = createPublicAmenitiesV332();
+              runtime.namedGravesSolidAtV347 = publicAmenities.namedGravesSolidAt;
               scene.add(publicAmenities.root);
               runtime.renderInvalidated = true;
             }).catch(error => { if (!disposed) console.warn("Public amenities:", error); });
@@ -10811,6 +10816,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.disposed = true;
         publicAmenities?.dispose();
         publicAmenities = null;
+        runtime.namedGravesSolidAtV347 = undefined;
         busStops?.dispose();
         busStops = null;
         railAccess?.dispose();

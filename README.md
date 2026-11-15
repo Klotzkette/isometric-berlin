@@ -97,6 +97,20 @@ modellierte Seen, Hügel und Gartenwege die charakteristischen Parkbauten.
 Schloss und Gutshof Britz, Dorfkirche, Hufeisensiedlung, Stadtbad Neukölln und
 Körnerpark-Orangerie haben eigene, aus Gebäudedaten abgeleitete Formen.
 
+An der [Clayallee und in Dahlem](docs/clay-dahlem-v347.md) prägen das
+Konsulatsgebäude, die Häuser von Fünf Morgen, die Hastings des AlliiertenMuseums
+und die Felder der Domäne das Bild. [Ausgewählte Hochschulfassaden](docs/university-refinement-v347.md)
+zeigen eigene Fenster-, Stein- und Metallgliederungen.
+[Friedhofswege](docs/sacred-places-v347.md), die [Grabstellen von Fontane und Hoffmann](docs/named-graves-v347.md)
+sowie das [Buddhistische Haus in Frohnau](docs/buddhist-frohnau-v347.md) ergänzen
+die ruhigeren Orte der Stadt. Vermessene Formen und kartierte Standorte bleiben
+von geschätzten kleinen Ausstattungsdetails unterscheidbar.
+
+Der [Berliner Ring und seine Anschlussstellen](docs/regional-transport-v347.md)
+erscheinen als kartografisches Linienmodell. Am BER folgen die kleinen
+Flugfeldleuchten ihren kartierten Standorten innerhalb der bestehenden
+Flughafenlandschaft.
+
 Die [Straßen- und Gehwegdetails](docs/streets-v343.md) verbinden vermessene
 Straßenränder am Kanzleramt mit zusammenhängendem Pflaster und feinen
 Plattenfugen westlich der Philharmonie. Im Kerngebiet
@@ -190,6 +204,18 @@ In [Britzer Garten, Britz and Neukölln](docs/britz-neukoelln-v342.md), mapped
 lakes, hills and garden paths accompany distinctive park architecture.
 Schloss and Gutshof Britz, the village church, Hufeisensiedlung, Stadtbad
 Neukölln and Körnerpark Orangerie use individual source-derived building forms.
+
+[Clayallee and Dahlem](docs/clay-dahlem-v347.md) include the consulate exterior,
+Fünf Morgen buildings, the AlliiertenMuseum's Hastings and the Domäne's fields.
+[Selected university facades](docs/university-refinement-v347.md) have distinct
+window, stone and metal details. [Cemetery paths](docs/sacred-places-v347.md),
+the [Fontane and Hoffmann graves](docs/named-graves-v347.md) and
+the [Buddhist House in Frohnau](docs/buddhist-frohnau-v347.md) offer quieter
+places to explore. Measured forms and mapped locations are distinguished from
+estimated small fittings. The [A10 ring and its junctions](docs/regional-transport-v347.md)
+use a cartographic line representation; BER's small airfield lights follow
+their mapped positions within the existing airport landscape.
+
 Startup shows actual file and construction work; further areas load for the
 current view. Touch devices retain the full drawn detail.
 
@@ -258,8 +284,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.226** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.226/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.227** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.227/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

@@ -3165,3 +3165,23 @@ losslessBase85SourcesV346.ts may use the already-existing Base85 alphabet with
 unchanged gzip admission, eager/strong/weak lifetime, values and source hashes.
 Validate complete roundtrips and actual built sizes. No live, startup or Worker
 budget increase is authorized by these representation-only changes.
+
+### Step 10 — v347 Clayallee, campuses, regional transport and sacred places
+
+The owner requests the public Clayallee consulate exterior and adjoining built
+sites, AlliiertenMuseum, Domäne Dahlem, university main and secondary buildings,
+Adlershof, BER, the complete mapped A10 ring/interchanges, southwestern woodland
+routes and historic cemeteries and religious sites. Audit the current source
+inventory without treating a mapped location as photographic exterior evidence.
+Keep unverified interiors, future plans and aircraft not currently exhibited out
+of represented geometry. Preserve existing source bodies and detailed models;
+new fittings share their exact host admission and unload lifetime in both modes.
+Use actual cemetery boundaries and paths, independently verified named graves
+and distinct religious identities; never invent names, grave registers or crosses.
+Only finite source-owned additions are permitted outside previous ground, with
+the entire old coverage subtracted. Do not infer engineering elevations from
+cartographic motorway lines. Existing live, startup and Worker limits, all six
+modes, full mobile detail, 93 stops and complete same-origin packages remain.
+Measured finite offline/static allowances may grow for these explicitly requested
+sites; the public tree stays below its existing byte ceiling. Root integrates,
+checks immutable history and publishes the complete checked viewer and downloads.

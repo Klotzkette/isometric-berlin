@@ -5,14 +5,15 @@ import {
 } from "three";
 import source from "./data/tuWaterV168Source.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { universityRefinementRowsV347 } from "./universityRefinementV347";
 
 export const TU_WATER_V168_GROUP = "TU Berlin complete main building and Schleuseninsel Umlauftank 2";
 export const TU_WATER_V168_NATIVE_GROUP = "TU Berlin and Umlauftank 2 independent native blocks";
 export const TU_WATER_V168_RENDER_BUDGET = /* @__PURE__ */ (() => Object.freeze({
   sourceParents: source.parents.length, sourceParts: source.sourceParts.length,
-  facadeInstances: source.facadeBoxes.length,
+  facadeInstances: source.facadeBoxes.length + 1706, // V347 audited finite aluminium ribs, same batch.
   nativeSourceRuns: source.nativeRows.length,
-  nativeDetailInstances: source.nativeDetailRows.length,
+  nativeDetailInstances: source.nativeDetailRows.length + 1717,
   drawnBatches: 2, nativeBatches: 2,
 }))();
 type Surface = { color: number; triangles: number[][][] };
@@ -65,11 +66,11 @@ function group(native: boolean): Group {
   };
   if (native) {
     const shell = instances(source.nativeRows, true); shell.name = "Independent TU source skin and open UT2 pipe blocks";
-    const detail = instances(source.nativeDetailRows, true); detail.name = "Orthogonal TU and VWS facade detail blocks";
+    const detail = instances([...source.nativeDetailRows, ...universityRefinementRowsV347('tu-main',true).frames], true); detail.name = "Orthogonal TU and VWS facade detail blocks";
     root.add(shell, detail);
   } else {
     const shell = surfacesMesh(source.surfaces); shell.name = "Complete measured TU and VWS walls roofs courtyards and corrected open UT2 structure";
-    const detail = instances(source.facadeBoxes.map(r => r.slice(0, 8).map(Number))); detail.name = "TU aluminium ribbons sandstone arcades and VWS panel window details";
+    const detail = instances([...source.facadeBoxes.map(r => r.slice(0, 8).map(Number)), ...universityRefinementRowsV347('tu-main',false).frames]); detail.name = "TU aluminium ribbons sandstone arcades and VWS panel window details";
     root.add(shell, detail);
   }
   return freezeStaticSceneTransforms(root);
