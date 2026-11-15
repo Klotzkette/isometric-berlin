@@ -1,0 +1,49 @@
+{
+  "additions": {
+    "src/app/src/DbTowerCrownV348.ts": "5bf2e350d81d237b18b56d7891e0581beacd831c1c399e653ac1e6f4d82dd326",
+    "src/app/src/GroundFinishV348.ts": "15967ba27a36deb5240e23d92fdf6f09e9f2961e91c46003e5d8743f54030658",
+    "src/app/src/WaterRipplesV348.ts": "b85499661afbfd0edbb42a326fd8c8ce37af698495a09832f3955aba17a5b73a"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "4ef3cff63dd3db122c474a3c907ca94b38258fa0dd91079a717861318d07300b",
+      "after": "938a26398b2f4c775fc786956a08ef6e252a7765f3f79730ef7d53169589de75"
+    },
+    "src/app/src/DbTowerArchitecture.ts": {
+      "before": "85807d4b35db44564f6966cecf06265c29d5e1cb871824f05d8112ffa634520f",
+      "after": "980b738374e99d254fe712fab55db57ad521928edc57a80952ba60907c38d8e2"
+    },
+    "src/app/src/DistrictStreets.ts": {
+      "before": "0060fa246e3801c5edf4151ee97c8c100665f708594a45a8177ab90feaab8180",
+      "after": "a5cf66eb590daa235ab5b8d4c4607a0a78a3b1831bcd86039e409e9f1f144ae7"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "17c5e652c9ea1748865c2dca4a27bd606b01fa0b82530456f6fd3bb23ada0c98",
+      "after": "c2a6533d28da445303b9bd96a79f77cb89f6d5eef45c6388d6c3fe02573ea29b"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "before": "e883c2b919ab0873fe039eaf942e1f7264e9f7a516eb1630bf0e0acbe65fdc37",
+      "after": "506294d884ada03791976d614a622caaa6630f4cbc1f6d6ce6a1b892d817238c"
+    },
+    "src/app/src/SurroundingCityGeometry.ts": {
+      "before": "abf43cc2244b14a62c7dd8a688839e3c6578eacb1addd00e30b60bde5d7e4b64",
+      "after": "f6ba86e918e8ed00e3bcfe7cf80892b0de3f7f4310678a3ecc9c18f2ec8b9c44"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "c5a51404b5cbaf9b195ac0015477f116f395ae9ecfaa206c4d59fc7fdc949cc2",
+      "after": "b9994199d12a3fa6c933853f7c5ba8a9428f590a9e5a6785920773269775aac6"
+    },
+    "src/app/src/ordinaryFacadeTones.ts": {
+      "before": "464fef004a3a5a77e2e8aece832540fb38cca004b2d56731fbacd92cf41d7809",
+      "after": "df47ce4d4584d1036ec88aa31ac8b2946a606e0b0d871ff84eab0d067271aa96"
+    },
+    "src/app/src/outerHousePaletteV262.ts": {
+      "before": "6ed686918bffe7a420202ee975f2967e9939411a9b02641ddc99312bdebdf64d",
+      "after": "5d8f90d4a59b82fd97e11647f285e48d45f239ea2abb700316326cc71bdbb244"
+    },
+    "src/app/src/visual-modes/schwellenraum/materialGrade.ts": {
+      "before": "b7ba1ce6fe2e3493036a44b85b2c8ecbc133aced4b5cb51b31d59050eb9a58c2",
+      "after": "b3d7c673bbc21494207601342cf2d9be94c8950ba0ae5655db53f369187bb865"
+    }
+  }
+}

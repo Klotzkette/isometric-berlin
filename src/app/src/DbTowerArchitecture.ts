@@ -1,10 +1,11 @@
 import { BoxGeometry, BufferGeometry, Color, DoubleSide, Float32BufferAttribute, Group, InstancedBufferAttribute, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Quaternion, ShapeUtils, Vector2, Vector3 } from "three";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { planDbTowerCrownV348 } from "./DbTowerCrownV348";
 import { DB_TOWER_PROFILE as P, DB_TOWER_SOURCE as S, dbTowerDisplayY, dbTowerPartContains, dbTowerRoofAt, type DbTowerPart } from "./dbTowerProfile";
 export type DbTowerOptions={mobileLike?:boolean;diagnostics?:boolean};
 type Point=[number,number,number];
 type Family="frame"|"glass"|"crown"|"logo-red"|"logo-white";
-export type DbTowerBlock={position:Point;size:Point;yaw:number;color:number;family:Family;role:string;floor:number;normal:[number,number]};
+export type DbTowerBlock={position:Point;size:Point;yaw:number;tilt?:number;color:number;family:Family;role:string;floor:number;normal:[number,number]};
 const FRAME=0x72888e, DARK=0x344a51, WHITE=0xf7f7ee, RED=0xda1429;
 const MAIN=S.parts.find(p=>p.id.endsWith("xpXBjoqL"))!;
 const UP=new Vector3(0,1,0);
@@ -78,6 +79,7 @@ export function planDbTowerArchitecture(minecraft=false,mobileLike=false):DbTowe
   const n=Math.max(1,Math.ceil(Math.hypot(bx-ax,by-ay)/(minecraft?.22:.10)));
   for(let k=0;k<n;k++)add(w,2*u-(ax+(bx-ax)*(k+.5)/n),ay+(by-ay)*(k+.5)/n,Math.max(.42,Math.abs(bx-ax)/n+.12),Math.max(.42,Math.abs(by-ay)/n+.12),.10,.61,WHITE,"logo-white",letter===0?"DB letter D":"DB letter B");
  }
+ blocks.push(...planDbTowerCrownV348(minecraft));
  return blocks;
 }
 function pair(family:Family,vertexColors=false){
@@ -122,7 +124,7 @@ function create(options:DbTowerOptions,minecraft:boolean):Group{
  const geometry=new BoxGeometry(1,1,1);geometry.deleteAttribute("uv");
  for(const family of["frame","glass","crown","logo-red","logo-white"] as const){
   const a=blocks.filter(b=>b.family===family),mesh=new InstancedMesh(geometry,new MeshBasicMaterial(),0),matrices=new Float32Array(a.length*16),colors=new Float32Array(a.length*3),matrix=new Matrix4(),q=new Quaternion(),c=new Color();
-  a.forEach((b,i)=>{matrix.compose(new Vector3(...b.position),q.setFromAxisAngle(UP,b.yaw),new Vector3(...b.size));matrices.set(matrix.toArray(),i*16);c.setHex(b.color).toArray(colors,i*3);});
+  a.forEach((b,i)=>{q.setFromAxisAngle(UP,b.yaw);if(b.tilt)q.multiply(new Quaternion().setFromAxisAngle(new Vector3(0,0,1),b.tilt));matrix.compose(new Vector3(...b.position),q,new Vector3(...b.size));matrices.set(matrix.toArray(),i*16);c.setHex(b.color).toArray(colors,i*3);});
   mesh.instanceMatrix=new InstancedBufferAttribute(matrices,16);mesh.instanceColor=new InstancedBufferAttribute(colors,3);mesh.count=a.length;mesh.name=`BahnTower ${family}`;attach(mesh,pair(family));
   mesh.computeBoundingBox();mesh.computeBoundingSphere();root.add(mesh);
  }

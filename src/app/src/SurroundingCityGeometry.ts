@@ -1,3 +1,5 @@
+import { bindGroundFinishV348, certifyPacketGroundFinishV348Steps, markPacketGroundFinishV348, type GroundFinishPartSpanV348 } from "./GroundFinishV348";
+import { certifyPackedRiverWaterV348, type PackedRiverSelectorV348 } from "./WaterRipplesV348";
 import { prepareTempelhoferFieldV345, applyTempelhoferFieldV345, bindTempelhoferFieldV345 } from "./TempelhoferFieldV345";
 import { decodeGardenTerrainV330 } from "./GardenTerrainV330";
 import { measuredTerrainOwnersV342 } from "./MeasuredTerrainOwnersV342";
@@ -288,6 +290,8 @@ function disposeUnpublishedChunk(root: Group): void {
  * interleaved ink buffer. Nothing is triangulated or voxelised on the phone.
  */
 export type SurroundingOwnershipOptions = {
+  groundFinishV348?: boolean;
+  riverFinishV348?: (mesh: Mesh, selector: PackedRiverSelectorV348) => void;
   neukoellnBuildingsV342?: SourceQuarterSourceV303;
   groundOverlaysV329?: boolean;
   transportDetailsV334?: boolean;
@@ -492,6 +496,7 @@ export function* buildSurroundingCityChunk(
       ? yield* surroundingColourOwners(chunk.nav.buildings, chunk.nav.groundY, chunk.origin[1], chunk.origin[0], chunk.origin[2], undefined, refineOuterRoofsV230(id), refineOuterHousePaletteV262(id), refineOuterHousePaletteV262(id) ? primaryHousePaletteV273 : undefined) : undefined;
     let vertexOffset = 0, indexOffset = 0;
     let groundOverlayStart: number | undefined;
+    const groundSpansV348: GroundFinishPartSpanV348[] = [];
     for (const [meshIndex, part] of chunk.meshes.entries()) {
       if (meshIndex === firstGroundOverlayPart) groundOverlayStart = indexOffset;
       const count = encodedBytes(part.positions, 6) / 6;
@@ -587,6 +592,7 @@ export function* buildSurroundingCityChunk(
       yield* applyTempelhoferFieldV345(chunk,meshIndex,indices,indexOffset);
       const hillTransfer=yield* applyMauerparkTerrainTrianglesV298(chunk,meshIndex,indices,indexOffset);
       if(hillTransfer)root.userData.mauerparkTerrainTrianglesV298=(root.userData.mauerparkTerrainTrianglesV298??0)+hillTransfer;
+      if (ownership.groundFinishV348 && !minecraft) groundSpansV348.push({kind:part.kind,indexStart:indexOffset,indexCount:written});
       vertexOffset += count;
       indexOffset += written;
     }
@@ -642,6 +648,14 @@ export function* buildSurroundingCityChunk(
         body.userData.groundOverlayDayV329 = overlayDay;
         body.userData.groundOverlayNightV329 = overlayNight;
         body.material = [dayMaterial, overlayDay];
+      }
+      if (ownership.groundFinishV348 && !minecraft && !apertures) {
+        const ground = yield* certifyPacketGroundFinishV348Steps(chunk, vertices, indices, groundSpansV348);
+        if (ground && markPacketGroundFinishV348(body, ground)) bindGroundFinishV348(body);
+      }
+      if (ownership.riverFinishV348 && !minecraft) {
+        const river = yield* certifyPackedRiverWaterV348(chunk.origin[1], chunk.nav, vertices, indices);
+        if (river) ownership.riverFinishV348(body, river);
       }
       body.userData.surroundingCity = true;
       root.add(body);

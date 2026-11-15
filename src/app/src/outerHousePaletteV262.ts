@@ -9,8 +9,8 @@ const linear = (hex: number): Rgb => new Color(hex).toArray().map(value => Math.
 // warm ochre, muted clay and cool stone alongside ivory instead of giving every
 // eighth ordinary owner conspicuously pink, cyan or green fallback plaster.
 export const OUTER_HOUSE_FACADE_SWATCHES_V262 = [
-  0xd0c6b2, 0xbfae98, 0xe1dbc9, 0xb9beb1,
-  0xc7b6aa, 0xb6bdba, 0xcbb88e, 0xc1bfb3,
+  0xcec7ba, 0xbcb1a2, 0xded9cd, 0xb8bbb4,
+  0xc1b6ac, 0xb5bab8, 0xc4b79e, 0xbebcb4,
 ] as const;
 // A separate, darker fallback cap. A warm tone does not assert brick tiles or
 // a pitched roof; measured roof forms and mapped material receipts still win.

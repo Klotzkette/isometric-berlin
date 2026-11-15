@@ -3185,3 +3185,16 @@ modes, full mobile detail, 93 stops and complete same-origin packages remain.
 Measured finite offline/static allowances may grow for these explicitly requested
 sites; the public tree stays below its existing byte ceiling. Root integrates,
 checks immutable history and publishes the complete checked viewer and downloads.
+
+
+### Step 10 — v348 restrained city finish and river ripples
+
+The owner requests light-touch realism in existing Berlin geometry: subdued
+ordinary fallback plaster and ground finishes, subtle Spree/canal ripples and
+source-supported BahnTower crown details. Keep original sources, shorelines,
+paths, buildings, materials with recorded colours and authored landmark paint.
+Shader finishes must have exact semantic/source admission, chain existing
+aperture and material hooks, respect unload/disposal and reduced motion, and
+add no new geometry, photographic textures, timers or shadow refreshes. Do not
+identify an unspecified chimney by guess. All six modes, full mobile detail,
+93 stops, live/startup/Worker limits and the public byte ceiling stay fixed.

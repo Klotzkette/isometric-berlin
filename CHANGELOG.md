@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.228 — 2026-11-15
+
+- Refine the existing city with restrained mineral fallback facade tones, semantically admitted ground finishes and subtle ordinary river/canal ripples. Preserve recorded landmark colours, source geometry, shorelines, routes, every static city packet and all six modes.
+- Add photo-referenced open steel bracing inside the BahnTower crown, retaining its complete previous structure and independent Native detail. The unspecified chimney remains unresolved pending a location.
+- Keep full mobile detail and existing startup, streaming and live-memory limits. No photographic textures or new water/ground draw calls are introduced.
+
 ## v1.0.227 — 2026-11-15
 
 - Refine the Clayallee consulate exterior, adjacent shopping building and five Fünf Morgen buildings with complete measured source families. Add the mapped Hastings TG 503 at the AlliiertenMuseum and bounded field, apiary and wild-bee-hotel details at Domäne Dahlem; retain its existing farm buildings.

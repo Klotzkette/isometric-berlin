@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-11-15",
+  "site": "BahnTower, Potsdamer Platz 2, Berlin",
+  "sourceParent": "DEBE01YYK0002KhX",
+  "sourceFile": "src/app/src/dbTowerSource.json",
+  "sourceJsonCharacters": 19829,
+  "sourceJsonFnv1a32": 131521907,
+  "baseline": "00cc1ce0",
+  "references": [
+    {
+      "url": "https://mediathek.deutschebahn.com/marsDB/de/instance/picture/Bahntower---Konzernzentrale-der-Deutschen-Bahn---Berlin---Potsdamer-Platz.xhtml?oid=8324901",
+      "archiveId": "DB283779",
+      "year": 2025,
+      "credit": "Copyright Deutsche Bahn AG / Volker Emersleben",
+      "use": "External visual reference: exposed slender diagonal crown steelwork behind glazing. No pixels distributed."
+    },
+    {
+      "url": "https://www.smv.com/news-und-stories/bahntower-ist-wieder-an-db-ag-uebergeben",
+      "date": "2024-09-09",
+      "credit": "SMV Bauprojektsteuerung",
+      "use": "Completed refurbishment and exterior frame/support reference; no pixels distributed."
+    },
+    {
+      "url": "https://www.aukett-heese.de/de/projects/sony-center-bahntower/",
+      "use": "Primary architectural identity, 103m height, 26 storeys and 2024 refurbishment; not a structural survey."
+    }
+  ],
+  "addition": {
+    "drawnMembers": 42,
+    "nativeMembers": 440,
+    "newDrawCalls": 0,
+    "mobileAdditionMatchesDesktop": true,
+    "sourceSurfacesPreserved": 99,
+    "removedOwners": [],
+    "estimated": ["steel section", "ten brace bay groups", "frame inset", "short ties"]
+  },
+  "unresolved": {
+    "spokenObject": "Schornstein",
+    "reason": "No unique site or verified DB-tower chimney identity follows from the phrase or cited sources.",
+    "action": "No separate chimney inferred or changed."
+  }
+}

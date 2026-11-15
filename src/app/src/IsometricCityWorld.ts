@@ -1,3 +1,4 @@
+import { markGroundFinishV348 } from "./GroundFinishV348";
 import { isPotsdamerNorthPavilionSource } from "./PotsdamerPavilionOwnership";
 import type { NordbahnhofDrawnCuts } from "./NordbahnhofPublicAccess";
 import { prepareMoabitMitteV300CoreFittingRetirement } from "./MoabitMitteV300CoreFittings";
@@ -10360,6 +10361,7 @@ export function createSmoothSurfaces(
     lawnMesh.userData.dayMaterial = dayMaterial;
     lawnMesh.userData.nightMaterial = nightMaterial;
     lawnMesh.name = "smooth parkland lawns";
+    markGroundFinishV348(lawnMesh, "grass");
     group.add(lawnMesh);
   }
 
@@ -10532,6 +10534,7 @@ export function createSmoothSurfaces(
     mesh.userData.dayMaterial = dayMaterial;
     mesh.userData.nightMaterial = nightMaterial;
     mesh.name = surface.name;
+    if (surface.kind === "asphalt" || surface.kind === "paving") markGroundFinishV348(mesh, surface.kind);
     group.add(mesh);
   }
 
@@ -13399,6 +13402,7 @@ export function* createIsometricCityCoreStepsV309(
     slabs.userData.nightMaterial = slabs.material;
     slabs.userData.dayMaterial = new MeshBasicMaterial({ color: 0xffffff });
     slabs.material = slabs.userData.dayMaterial as MeshBasicMaterial;
+    markGroundFinishV348(slabs, "core-drawn");
     // Exact water must also own its boundary through the underlying raster land.
     // The clip keeps each existing run's paint/height and all authored exclusions.
     restoreJamesSimonGroundOwnership(slabs, ground);

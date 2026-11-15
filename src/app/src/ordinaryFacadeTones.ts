@@ -1,9 +1,10 @@
 // Display estimates for unrecorded mineral plaster, warm stone and muted
-// masonry. The palette spans light limewash through deeper clay and sand.
+// masonry. Restrained mineral tones avoid peach/green fallback bands; the
+// stable family assignments still span limewash, stone and muted clay.
 // It is used only by existing, source-bound fallback paint paths.
 export const ORDINARY_FACADE_TONES = [
-  0xe1d5bf, 0xccb69a, 0xece6d8, 0xc5bfaa, 0xc4a592, 0xbcbfb6,
-  0xd3bd9d, 0xd3cec0, 0xe1cbb0, 0xbba990, 0xdad7cb, 0xbba08e,
+  0xded8cb, 0xc7bbab, 0xe9e5dc, 0xc1beb4, 0xbdaea3, 0xb9bcb7,
+  0xccc0ad, 0xd0cdc4, 0xdbceba, 0xb8ae9f, 0xd6d4cc, 0xb5a79b,
 ] as const;
 
 // Keep the same family assignments as the exact historical receipts. The

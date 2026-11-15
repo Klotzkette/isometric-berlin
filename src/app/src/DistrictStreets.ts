@@ -1,3 +1,4 @@
+import { markGroundFinishV348, type GroundFinishKindV348 } from "./GroundFinishV348";
 import {
   BufferAttribute, BufferGeometry, DoubleSide, Float32BufferAttribute, Group,
   LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial,
@@ -121,7 +122,7 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
   group.name = name;
   group.userData.sourceGeometry = streets.source;
   const terrainAt = districtStreetTerrainSampler(ground);
-  const addSurface = (name: string, positions: Float32Array, day: number, night: number, indices?: StreetIndexArray): void => {
+  const addSurface = (name: string, positions: Float32Array, day: number, night: number, indices?: StreetIndexArray, finish?: GroundFinishKindV348): void => {
     if (!positions.length) return;
     const dayMaterial = new MeshBasicMaterial({ color: day, side: DoubleSide });
     const nightMaterial = new MeshBasicMaterial({ color: night, side: DoubleSide });
@@ -131,6 +132,7 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
     mesh.userData.dayMaterial = dayMaterial;
     mesh.userData.nightMaterial = nightMaterial;
     mesh.userData.staticAntiFlicker = true;
+    if (finish) markGroundFinishV348(mesh, finish);
     group.add(mesh);
   };
   for (const surface of streets.surfaces) {
@@ -138,6 +140,7 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
     addSurface(
       style.name, decodeSurfacePositions(surface.positions_cm_b64, terrainAt, style.lift),
       style.day, style.night, decodeSurfaceIndices(surface.indices_b64, transaction?.surfaceRemovals.get(surface.kind)),
+      surface.kind === "sidewalk" ? "paving" : surface.kind === "gravel" ? undefined : surface.kind,
     );
   }
 

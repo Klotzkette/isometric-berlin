@@ -1,3 +1,5 @@
+import { bindGroundFinishV348 } from "./GroundFinishV348";
+import { createWaterRipplesV348, type WaterRipplesV348 } from "./WaterRipplesV348";
 import {ubahnGroundMaskBytesV326,type UbahnGroundRuntimeV326} from "./UbahnGroundRuntimeV326";
 import {createCoreUbahnLifecycleV326} from "./CoreUbahnLifecycleV326";
 import {governmentPreviousPrismV321,universitiesPreviousPrismV322} from "./GovernmentOfficeOwnershipV323";
@@ -880,6 +882,7 @@ type Runtime = {
   gpuWarmup?: SceneGpuWarmup;
   gpuResidency?: SceneGpuResidency;
   geometryResidency?: SceneGeometryGpuResidency;
+  riverRipplesV348?: WaterRipplesV348;
   surroundingCity?: SurroundingCity;
   coreUbahnV326?:Map<Group,UbahnGroundRuntimeV326>;
   coreUbahnLifecycleV326?:ReturnType<typeof createCoreUbahnLifecycleV326<Group,NorthernFidelityBundleV309>>;
@@ -2132,6 +2135,8 @@ function startSurroundingCity(runtime: Runtime): void {
   const pending = loadStartupModuleV323(()=>import("./SurroundingCity"),yieldStartupWork,()=>runtime.disposed||runtime.loadSignal.aborted).then(({ createSurroundingCity }) => {
   if (runtime.disposed || runtime.loadSignal.aborted) return;
   const city = createSurroundingCity({
+    groundFinishV348:true,
+    riverFinishV348:(mesh,selector)=>(runtime.riverRipplesV348??=createWaterRipplesV348()).bind(mesh,selector),
     manifestUrl: new URL("../surrounding-berlin-v159/manifest.json", runtime.sceneRootUrl),
     schlossplatzV239: true,
     stralauSisyphosV299:true,
@@ -2873,6 +2878,7 @@ export function applyLightingToRoot(
   mode: LightingMode,
   lightsOn = true,
 ): void {
+  bindGroundFinishV348(root, mode === "minecraft");
   const seen = new Set<MeshStandardMaterial>();
   root.traverse((object) => {
     compactStaticGeometry(object);
@@ -3957,6 +3963,8 @@ async function attachProgressiveWorldMessage(
     const nordbahnhof = currentNordbahnhofPlan(runtime.isoWorld);
     if (nordbahnhof) nordbahnhof.cutGround(object);
   }
+  bindGroundFinishV348(object);
+  if (message.kind === "surfaces") object.traverse(child => (runtime.riverRipplesV348 ??= createWaterRipplesV348()).bind(child));
   setIsoNightPresentation(
     object,
     runtime.lightingMode === "night",
@@ -5371,6 +5379,8 @@ function ensureIsoWorld(
       // Publish the complete preview root atomically. The progressive worker
       // is deliberately started only after this pointer and scene attachment
       // exist; any later failure rolls both it and its batches back below.
+      bindGroundFinishV348(isoWorld);
+      isoWorld.traverse(child => (runtime.riverRipplesV348 ??= createWaterRipplesV348()).bind(child));
       runtime.isoWorld = isoWorld;
       syncPotsdamerLegacyNorth(runtime);
       (runtime.governmentOfficesV321??={}).drawn=provisionalGovernmentV321??undefined;
@@ -9562,6 +9572,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if (!towerSteamOnScreen) {
           runtime.schwellenraumLastTowerSteamFrameAt = timestamp;
         }
+        const riverFrameDueV348 = runtime.riverRipplesV348?.update(timestamp, runtime.lightingMode, reducedMotion, documentHidden || runtime.underside) === true;
         const floodAnimating = runtime.floodWater?.visible === true && !reducedMotion;
         if (!floodAnimating) runtime.floodLastFrameAt = timestamp;
         const floodFrameDue = floodAnimating &&
@@ -9603,7 +9614,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           ? FLOOD_FRAME_INTERVAL_MS : Number.POSITIVE_INFINITY;
         // Kite cloth and the rescue helicopter need a cadenced redraw, not a new city shadow atlas or
         // a simulated input event that would continually defer GPU warmup.
-        if (outlineMotion) passiveFrameIntervalMs = 0;
+        if (outlineMotion || riverFrameDueV348) passiveFrameIntervalMs = 0;
         const europaStarOnScreen = !reducedMotion && !runtime.underside && !documentHidden &&
           isBerlinerEnsembleRoofSignOnScreen(runtime.europaCenterStarTargets, camera, europaStarScreenScratch);
         if (!europaStarOnScreen) runtime.europaCenterStarLastFrameAt = timestamp;
@@ -9819,6 +9830,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             ordinaryEnvironmentFrameIntervalMs;
         const environmentalMotion =
           outlineMotion ||
+          riverFrameDueV348 ||
           floodFrameDue ||
           schwellenraumMotion.animateFlags ||
           schwellenraumMotion.animatePariserPlatzEntities ||
@@ -10846,6 +10858,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         if(runtime.voxelWorld){wilhelmStreetModuleV325?.releaseWilhelmStreetFrontsRuntimeV325(runtime.voxelWorld,true);wilhelmHousingModuleV324?.releaseWilhelmHousingRuntimeV324(runtime.voxelWorld,true);}
         runtime.surroundingCity?.dispose();
         runtime.surroundingCity = undefined;
+        runtime.riverRipplesV348?.dispose();
+        runtime.riverRipplesV348 = undefined;
         runtime.zooAnimalsV282?.dispose();
         runtime.zooAnimalsV282 = undefined;
         runtime.hbfStationV291?.dispose();
