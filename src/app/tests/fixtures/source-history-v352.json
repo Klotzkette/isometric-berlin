@@ -14,7 +14,7 @@
     },
     "src/app/src/NamedGravesV347.ts": {
       "before": "8f0cb0fbc63e9b2f31189f6138cd64693e19168292918d02c1721bf49008cb95",
-      "after": "532213303ba71d6d30a932b76adee909e5566fe5890ce57dcca6faa9b2a9d5ad"
+      "after": "ea4217b2bbdb3f7532a26fbefdedeff6fa9643c0c9def5efd152cb20da6d15e2"
     },
     "src/app/src/SourceQuarterCatalogueV309.ts": {
       "before": "9fc701205bfd6206408876c97b0cb49fa28bac6f9bf21bb834b13e5611d4cfd1",
@@ -23,6 +23,14 @@
     "src/app/src/SurroundingCity.ts": {
       "before": "561024765bcd0f6cefb129ad07b8dd43baca3f828c74e87493a0fe60d98d4ecb",
       "after": "ee5970caace8bb908f2c70d13767cccf3248b6845b2f9f451ef32b0e8eb9a2c3"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "023e984d52888a08215887f59e1de4bf5d1d1a30562ba71cfe71159aede820b1",
+      "after": "597aa602e741a3e7721a81fad4eba49cb562e7e056784603640944d3122aa858"
+    },
+    "src/app/src/TiergartenMonuments.ts": {
+      "before": "70aa6e6ad666d2f5ff0fd795c64009884fd27f188bebc36d9e164de4c20e6295",
+      "after": "c1ca137bb9f765c0b7e9c10d16e948189dce3afc6d0c383a9f1c871790049e50"
     }
   }
 }

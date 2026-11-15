@@ -92,7 +92,7 @@ def navpoly(p, origin):
   return translate(Polygon(p["ring"], p.get("holes", [])), origin[0], origin[2])
 
 
-def facade(detail, surface, kind, family, ground):
+def facade(detail, surface, kind, family, ground, *, disjoint=True):
   """Source-clipped photographic frame rhythm, never a new building envelope."""
   ring = surface["rings"][0]
   pairs = [(a, b) for a, b in zip(ring, ring[1:] + ring[:1]) if abs(a[1] - b[1]) < 0.02]
@@ -122,6 +122,26 @@ def facade(detail, surface, kind, family, ground):
     return 0
   lo, hi = plane.bounds[1], plane.bounds[3]
   count = 0
+  layers = []
+
+  def emit(polygon, color, role, depth):
+    for piece in pieces(polygon):
+      rings = []
+      for ring in [piece.exterior, *piece.interiors]:
+        points = [
+          [
+            float(a[0] + d[0] * x + n[0] * depth),
+            float(yy),
+            float(a[1] + d[1] * x + n[1] * depth),
+          ]
+          for x, yy in list(ring.coords)[:-1]
+        ]
+        normal = np.sum(np.cross(points, np.roll(points, -1, axis=0)), axis=0)
+        if normal[0] * n[0] + normal[2] * n[1] < 0:
+          points.reverse()
+        rings.append(points)
+      for tri in triangles_for(rings):
+        detail.triangles.append((tri, color, role))
 
   def rect(u, y, w, h, color, role, depth=0.085):
     nonlocal count
@@ -129,6 +149,10 @@ def facade(detail, surface, kind, family, ground):
     # Require a complete rectangle, including a narrow border, on this source sheet.
     if not plane.buffer(-0.025).covers(q):
       return False
+    if disjoint:
+      layers.append((q, color, role))
+      count += 1
+      return True
     points = [
       [
         float(a[0] + d[0] * x + n[0] * depth),
@@ -196,6 +220,16 @@ def facade(detail, surface, kind, family, ground):
         "estimated stone pier",
         0.13,
       )
+  if disjoint:
+    # One visible facade plane. Subtract the complete later colour regions
+    # instead of placing full panes over full backing rectangles 2 cm apart.
+    # That spacing fights in the finite browser depth buffer at city distances.
+    covered = Polygon()
+    for polygon, color, role in reversed(layers):
+      visible = polygon.difference(covered)
+      if not visible.is_empty:
+        emit(visible, color, role, 0.18)
+      covered = covered.union(polygon)
   return count
 
 
@@ -306,11 +340,19 @@ def build(task):
             )
           )
     source_triangles = len(detail.triangles)
+    native_detail = Detail()
+    native_detail.triangles = detail.triangles.copy()
     fittings = sum(
       facade(detail, s, kind, family, 3) for s in surfaces if s["kind"] == "WallSurface"
     )
+    native_fittings = sum(
+      facade(native_detail, s, kind, family, 3, disjoint=False)
+      for s in surfaces
+      if s["kind"] == "WallSurface"
+    )
+    assert native_fittings == fittings
     print(key, "source", source_triangles, "fittings", fittings, flush=True)
-    native, caps = native_model(detail)
+    native, caps = native_model(native_detail)
     # These are independent cardinal roof cells actually present in the Native mesh.
     native_domain = unary_union([box(*c[:4]) for c in caps])
     all_vertices = [

@@ -176,9 +176,9 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # measured complete package 1,230,305,168 bytes (+872,310). Offline ceiling only;
 # the public tree retains its strict 1,000,000,000-byte cap and live limits.
 # v1.0.232 adds seven finite restaurant/industrial hosts and source-bound sport,
-# cafe and memorial details: 1,231,550,791 bytes in the complete offline package.
+# cafe and memorial details: 1,232,215,637 bytes, including disjoint windows.
 # Only its measured whole-MiB allowance grows; all live and public caps stay fixed.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 1175 * 1024 * 1024
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 1176 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

@@ -2,6 +2,7 @@
 
 import base64
 import gzip
+import subprocess
 from collections import Counter, defaultdict
 
 import numpy as np
@@ -213,7 +214,9 @@ def test_native_is_cardinal_and_uses_independent_nav_and_bounded_packets():
         )
       else:
         assert any(b.get("roofTriangles") for b in packet["nav"]["buildings"])
-  assert total == evidence["bytes"] < 800_000
+  # Finite four-packet receipt after disjoint Drawn window tessellation; the
+  # runtime decoder/live/Worker and release-wide public caps are unchanged.
+  assert total == evidence["bytes"] < 1_500_000
 
 
 def test_photo_fittings_stay_on_full_wall_and_face_outward_in_either_winding():
@@ -232,3 +235,39 @@ def test_photo_fittings_stay_on_full_wall_and_face_outward_in_either_winding():
       assert (q[:, 2] < 0).all()
       assert q[:, 0].min() > 0 and q[:, 0].max() < 20
       assert q[:, 1].min() > 3 and q[:, 1].max() < 20
+
+
+def test_drawn_window_colours_partition_one_plane_without_losing_the_pattern():
+  family = box(0, 0, 20, 10)
+  surface = {
+    "kind": "WallSurface",
+    "rings": [[[0, 3, 0], [20, 3, 0], [20, 20, 0], [0, 20, 0]]],
+  }
+  for kind in ["siemens", "gillette"]:
+    old, current = Detail(), Detail()
+    assert facade(old, surface, kind, family, 3, disjoint=False) == facade(
+      current, surface, kind, family, 3
+    )
+    polygons = []
+    for triangle, _, _ in current.triangles:
+      t = np.asarray(triangle)
+      assert np.allclose(t[:, 2], -0.18)
+      polygons.append(Polygon(t[:, [0, 1]]))
+    complete = unary_union(polygons)
+    previous = unary_union(
+      [Polygon(np.asarray(t)[:, [0, 1]]) for t, _, _ in old.triangles]
+    )
+    assert complete.symmetric_difference(previous).area < 1e-7
+    assert abs(sum(p.area for p in polygons) - complete.area) < 1e-7
+    assert {tuple(color) for _, color, _ in current.triangles} == {
+      tuple(color) for _, color, _ in old.triangles
+    }
+
+
+def test_drawn_facade_depth_fix_keeps_both_native_packets_byte_identical():
+  for host in ["gillette-factory", "siemens-schaltwerk"]:
+    path = (
+      f"src/app/public/mesh/surrounding-berlin-v159/civic352-{host}.minecraft.json.gz"
+    )
+    previous = subprocess.check_output(["git", "show", f"058ffd69:{path}"], cwd=ROOT)
+    assert previous == (ROOT / path).read_bytes()

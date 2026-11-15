@@ -2817,6 +2817,16 @@ function addMergedMonumentBatch(parent: Group, builder: Builder): void {
   for (const edge of builder.edges) edge.dispose();
 }
 
+const fechterFallbacksV352 = new WeakMap<Group, Group>();
+
+/** Only the constructor-verified old Fechter owner may be hidden by its successor. */
+export function setFechterFallbackHiddenV352(root: Group | undefined, hidden: boolean): boolean {
+  const fallback = root && fechterFallbacksV352.get(root);
+  if (!fallback || fallback.parent?.parent !== root || fallback.visible === !hidden) return false;
+  fallback.visible = !hidden;
+  return true;
+}
+
 export function createTiergartenMonuments(
   street: StreetDetailsPayload,
   ground: VoxelPayload,
@@ -2828,6 +2838,7 @@ export function createTiergartenMonuments(
   const sample = worldGroundSampler(ground);
   const ordinaryBuilder: Builder = { edges: [], parts: [] };
   const protectedBuilder: Builder = { edges: [], parts: [] };
+  const fechterBuilder: Builder = { edges: [], parts: [] };
   let floraplatzAnimalCount = 0;
   let fallbackArtworkCount = 0;
   let graefeChariteAnchor: {
@@ -2849,7 +2860,11 @@ export function createTiergartenMonuments(
     }
     const name = entry.name;
     const isProtected = entry.schwellenraum_protected === true;
-    const builder = isProtected ? protectedBuilder : ordinaryBuilder;
+    const exactFechter = entry.osm_key === "node/3624148007" && entry.osm_element === "node" &&
+      entry.osm_id === "3624148007" && name === "Peter Fechter" && entry.kind === "memorial" &&
+      entry.memorial_type === "stele" && isProtected && entry.x_dm === 14392 && entry.z_dm === 12682 &&
+      entry.w_dm === 0 && entry.d_dm === 0;
+    const builder = exactFechter ? fechterBuilder : isProtected ? protectedBuilder : ordinaryBuilder;
     if (isProtected) protectedSourceKeys.push(entry.osm_key);
     const partCountBefore = builder.parts.length;
     const memorialType = entry.memorial_type || "unclassified";
@@ -2954,7 +2969,7 @@ export function createTiergartenMonuments(
       protectedRenderedSourceKeys.push(entry.osm_key);
     }
   }
-  if (ordinaryBuilder.parts.length === 0&& protectedBuilder.parts.length === 0 && kindertransportAnchor === null) {
+  if (ordinaryBuilder.parts.length === 0&& protectedBuilder.parts.length === 0 && fechterBuilder.parts.length === 0 && kindertransportAnchor === null) {
     return null;
   }
   const group = new Group();
@@ -3043,6 +3058,17 @@ export function createTiergartenMonuments(
   protectedBatch.userData.presentationContract = "Exact ordinary Day material, ink and transform in Schwellenraum";
   addMergedMonumentBatch(protectedBatch, protectedBuilder);
   group.add(protectedBatch);
+  if (fechterBuilder.parts.length) {
+    // Same original stele words/materials/ink, with an independently reversible
+    // visibility boundary. Every other marker remains in its original batch.
+    const fallback = new Group();
+    fallback.name = "Peter Fechter original OSM stele fallback v352";
+    fallback.userData.schwellenraumGeschuetzt = true;
+    fallback.userData.sourceKeys = ["node/3624148007"];
+    addMergedMonumentBatch(fallback, fechterBuilder);
+    protectedBatch.add(fallback);
+    fechterFallbacksV352.set(group, fallback);
+  }
   if (kindertransportAnchor) {
     const kindertransport = createKindertransportMemorial(kindertransportAnchor.groundYM);
     (kindertransportAnchor.protected ? protectedBatch :

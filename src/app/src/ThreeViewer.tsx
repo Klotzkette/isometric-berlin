@@ -538,7 +538,7 @@ import { createFuelStations } from "./FuelStations";
 import { createRiversideVenues } from "./RiversideVenues";
 import { createSpreebogenOffice } from "./SpreebogenOffice";
 import { createVessels } from "./Vessels";
-import { createTiergartenMonuments } from "./TiergartenMonuments";
+import { createTiergartenMonuments, setFechterFallbackHiddenV352 } from "./TiergartenMonuments";
 import { createInitialDrawnWater, drawnWaterMonumentKeys } from "./initialDrawnWater";
 import {
   ACTIVE_MOTION_FRAME_INTERVAL_MS,
@@ -9398,6 +9398,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       let railAccess: RailAccessV334 | null = null;
       let railAccessRequested = false;
       let lastAmenityRefresh = -Infinity;
+      const setFechterFallbackHidden = (hidden: boolean): void => {
+        const owner = runtime.isoWorld?.getObjectByName("OSM Tiergarten monuments");
+        if (owner instanceof Group && setFechterFallbackHiddenV352(owner, hidden)) runtime.renderInvalidated = true;
+      };
       function updatePublicAmenities(timestamp: number): void {
         const environment = runtime.pedestrian.environment;
         const nearby = runtime.presentationReady && !runtime.firstUploadParkingV323?.pending &&
@@ -9458,6 +9462,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           water: (x: number, z: number) => pedestrianPointIsWater(x, z, environment.water) ||
             environment.extension?.waterAt(x, z) === true,
           blocked: (x: number, y: number, z: number) => pedestrianPointIsBlocked(x, z, y, environment.obstacles, environment),
+          setFechterFallbackHidden,
           hasHost: (id: string, sha256: string) => runtime.surroundingCity?.hasResidentChunk(id, sha256) === true,
           ownsStair: (id: string) => id === NORDBAHNHOF_PUBLIC_STAIR && nordbahnhofPlan(runtime) !== null,
           landing: (x: number, z: number, hint: number) => environment.interiorGroundAt?.(x, z, hint) ?? null,

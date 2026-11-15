@@ -31,19 +31,22 @@ navigation and materials were checked independently in both mode families.
 Six visual modes, the 93-stop tour, mobile detail and the existing live/startup/
 Worker limits remain unchanged.
 
-The complete public tree contains 6,933 files and **998,599,869 bytes**, which is
-935,389 bytes smaller than v1.0.231 despite the additions. A finite
+The complete public tree contains 6,933 files and **999,264,716 bytes**, which is
+270,542 bytes smaller than v1.0.231 despite the additions. A finite
 [lossless recompression](public-lossless-v352.md) of 48 existing packets saves
 2,180,970 bytes with byte-identical decoded contents. All assets remain served
-from the viewer's own origin. The full offline package is 1,231,550,791 bytes;
-its measured allowance is 1,175 MiB. No runtime geometry reduction funds this
+from the viewer's own origin. The full offline package is 1,232,215,637 bytes;
+its measured allowance is 1,176 MiB. No runtime geometry reduction funds this
 storage saving.
 
 ## Validation and known limits
 
-The final focused frontend suite passes 52 tests, the new Python site checks
-pass 18 tests, and package/release checks pass 101 tests. TypeScript and the
-production build pass. All newly authored Python files pass Ruff.
+The final focused frontend suite passes 55 tests, the new Python site checks
+pass 20 tests, and package/release checks pass 101 tests. TypeScript and the
+production build pass. All newly authored Python files pass Ruff. The Fechter fallback correction also
+passes 66 focused ownership, lifecycle and memorial-protection tests. Browser
+checks cover the corrected Siemens facade and Fechter column, with the
+subpixel aliasing limit of thin distant window mullions recorded in the civic notes.
 
 The repository-wide historical suite is not clean: an attempted run recorded
 359 passes, 14 failures and 14 setup errors before it was stopped during an

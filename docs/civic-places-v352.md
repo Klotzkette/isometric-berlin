@@ -10,12 +10,12 @@ References were checked on 15 November 2026; their photographs have their own da
 
 | Host | Official parent | Parts | Public Drawn + Native bytes |
 | --- | --- | ---: | ---: |
-| `civic352-siemens-schaltwerk` | `DEBE05YYQ00001kM` | 20 | 416,473 |
-| `civic352-gillette-factory` | `DEBE07YY90000174` + `DEBE07YY900007Wm` | 36 | 318,938 |
+| `civic352-siemens-schaltwerk` | `DEBE05YYQ00001kM` | 20 | 954,456 |
+| `civic352-gillette-factory` | `DEBE07YY90000174` + `DEBE07YY900007Wm` | 36 | 444,875 |
 
-The four packets total **735,411 bytes**: 397 complete official source sheets,
+The four packets total **1,399,331 bytes**: 397 complete official source sheets,
 1,080 source triangles, and 10,714 small source-clipped facade rectangles.
-The final geometry contains 22,658 Drawn and 44,340 Native triangles. Each mode
+The final geometry contains 104,414 Drawn and 44,340 Native triangles. Each mode
 uses its own building navigation and roof representation. Native is a separately
 sampled, merged cardinal surface skin, not the smooth model rotated into cubes.
 
@@ -39,6 +39,15 @@ Window spacing, glass tone and small trim dimensions are recognition estimates,
 not measured aperture surveys. Each complete rectangle must fit on its source
 wall, including holes and a narrow edge margin. Outward winding is verified for
 both source directions before Native sampling.
+
+Browser QA exposed depth fighting in the initial Drawn windows: full light
+backing rectangles, glass and grid bars overlapped at 2–3 cm intervals. The final
+compiler partitions each wall fitting into disjoint colour regions on one plane
+18 cm outside the source wall. This preserves the complete projected pattern
+and colours without near-coplanar backing faces. Both independent Native packet
+files are byte-identical to source commit `058ffd69`; original source bodies and
+all navigation also remain unchanged. Extra Drawn tessellation is recorded in
+the packet sizes above; no decoder, live, Worker or public-tree cap is raised.
 
 Each complete parent receives one disclosed vertical translation to the existing
 3 m surrounding-city display datum. This preserves relative roof and wall heights;
@@ -110,11 +119,15 @@ To audit current predecessor output without replacing the frozen receipt:
 bun run src/app/scripts/capture-civic-predecessors-v352.ts /tmp/civic-current-production.json.gz
 ```
 
-Seven Python tests verify finite source identity, full source preservation,
+Nine Python tests verify finite source identity, full source preservation,
 independent Native geometry/navigation, production-ground subtraction, public
 hashes/bounds and outward source-supported fittings. Two Bun tests decode all four
 new packets through the actual production builder and compare all six old
-production outputs exactly with their frozen receipt. A local geometric
-review of the actual exported meshes was inspected; it is not a substitute for
-the root release's browser QA in context. The known, pre-existing northern
+production outputs exactly with their frozen receipt. A complete Siemens facade audit checks all 49 fitted source sheets: emitted
+triangles have no positive-area overlap before or after centimetre quantization,
+including the six shared source-plane groups. The facade plane is 18 cm outward
+from each source sheet; no other source wall intersects a glazing-triangle
+centroid within 19 cm. Browser QA confirms clean rectangular panes and mullions
+in the close view. At city distance the 5.5 cm mullions are subpixel and can show
+aliasing; this pass does not claim an alias-free image at every distance. The known, pre-existing northern
 terrain-receipt issue documented in V351 is not changed by this work.

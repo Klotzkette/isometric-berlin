@@ -13,6 +13,8 @@ export type NamedGraveSupportV347 = {
   ground: (x: number, z: number) => number | null;
   water: (x: number, z: number) => boolean;
   blocked: (x: number, y: number, z: number) => boolean;
+  /** Actual Drawn-world fallback owner; no shared state between Viewer instances. */
+  setFechterFallbackHidden?: (hidden: boolean) => void;
 };
 export const NAMED_GRAVE_SITES_V347 = source.sites as Site[];
 export const WALL_MARKER_SITES_V352 = wallSource.sites as Site[];
@@ -56,6 +58,15 @@ export function createNamedGravesV347() {
   root.userData.textureFree = true;
   const active = new Map<string, Active>();
   let samplingSupport = false;
+  let fechterFallbackHook: NamedGraveSupportV347["setFechterFallbackHidden"];
+  let fechterFallbackHidden = false;
+
+  function syncFechterFallback(): void {
+    const hidden = [...active.values()].some(entry => entry.site.id === "node/3624148007" && !entry.native);
+    if (hidden === fechterFallbackHidden) return;
+    fechterFallbackHook?.(hidden);
+    fechterFallbackHidden = hidden;
+  }
 
   function release(key: string): void {
     const entry = active.get(key);
@@ -69,6 +80,7 @@ export function createNamedGravesV347() {
   function releaseAll(): boolean {
     const changed = active.size > 0;
     for (const key of active.keys()) release(key);
+    syncFechterFallback();
     return changed;
   }
 
@@ -93,6 +105,11 @@ export function createNamedGravesV347() {
   return {
     root,
     refresh(x: number, z: number, native: boolean, support: NamedGraveSupportV347): boolean {
+      if (fechterFallbackHook !== support.setFechterFallbackHidden) {
+        if (fechterFallbackHidden) fechterFallbackHook?.(false);
+        fechterFallbackHook = support.setFechterFallbackHidden;
+        fechterFallbackHidden = false;
+      }
       let changed = false;
       for (const site of MEMORIAL_SITES) {
         const nearby = (site.anchor[0] - x) ** 2 + (site.anchor[1] - z) ** 2 <= RADIUS ** 2;
@@ -122,6 +139,7 @@ export function createNamedGravesV347() {
         active.set(site.key, { site, native, y, mesh, model });
         changed = true;
       }
+      syncFechterFallback();
       return changed;
     },
     solidAt(x: number, y: number, z: number, radius: number, native: boolean): boolean {
@@ -135,6 +153,6 @@ export function createNamedGravesV347() {
       return false;
     },
     release: releaseAll,
-    dispose(): void { releaseAll(); root.removeFromParent(); },
+    dispose(): void { releaseAll(); fechterFallbackHook = undefined; root.removeFromParent(); },
   };
 }

@@ -250,7 +250,7 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     }
   });
 
-  test("generic memorials stay merged while the Kindertransport model retains four exact material batches", () => {
+  test("generic memorials stay merged with one reversible Fechter fallback and four Kindertransport batches", () => {
     expect(monuments).toBeInstanceOf(Group);
     const bodies = monumentBodyMeshes(monuments);
     const inks: LineSegments[] = [];
@@ -261,8 +261,11 @@ describe("drawn Tiergarten monuments (OSM historic layer)", () => {
     });
     const kindertransport = monuments.getObjectByName("Denkmal zur Erinnerung an Kindertransporte") as Group;
     expect(monumentBodyMeshes(kindertransport)).toHaveLength(4);
-    expect(bodies).toHaveLength(6);
-    expect(inks).toHaveLength(6);
+    expect(bodies).toHaveLength(7);
+    expect(inks).toHaveLength(7);
+    const fechter = monuments.getObjectByName("Peter Fechter original OSM stele fallback v352") as Group;
+    expect(monumentBodyMeshes(fechter)).toHaveLength(1);
+    expect(fechter.children.filter(o => o instanceof LineSegments)).toHaveLength(1);
     for (const body of bodies) {
       expect(body.geometry.getAttribute("color")).toBeDefined();
     }

@@ -25,6 +25,16 @@ material is resident; there is no new controller, timer or ground surface. Loss
 of ground support, a mode switch or departure releases geometry and collision
 together. The original grave dataset is byte-identical.
 
+The earlier generic Fechter stele and rectangular plinth remain as a reversible
+fallback. Only its exact original OSM identity, subtype and decimetre coordinates
+are separated into a protected child of the existing monument batch; its source
+vertices, colours, normals and ink are unchanged. The actual Viewer hides that
+child while the supported Drawn column is admitted and restores it on departure,
+missing terrain, mode change or disposal. Native uses its independent model and
+never hides a Drawn fallback on its own behalf. Other memorials and navigation
+are unchanged. The isolated fallback costs one body and one ink batch outside
+the active Fechter area; both are hidden while the replacement is visible.
+
 The Dieter Wohlfahrt cross in Staaken and the photographed Kliem/Schulze and
 Schwietzer outer-ring steles remain explicit gaps: their exact mapped anchors
 have no current resident ground. In Staaken the nearest retained ground ends
@@ -36,3 +46,7 @@ Validation: independent Drawn/Native real-Core-ground admission, exact collision
 full Native cardinality, wet/missing/blocked footprint rejection, disposal and
 byte-identical prior models. The inventory and derivative are reproducible with
 `uv run python -m scripts.build_wall_markers_v352 --check`.
+The original monument geometry receipt from revision `058ffd69` covers all
+164,213 triangle/ink records; its hash remains unchanged after the partition.
+The existing V322 Berlin/Pyramide replacement also remains complete across
+fallback hiding and restoration.
