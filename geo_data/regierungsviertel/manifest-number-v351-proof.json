@@ -1,0 +1,16 @@
+{
+  "beforeBytes": 4163437,
+  "afterBytes": 4114835,
+  "savedBytes": 48602,
+  "beforeSha256": "34d0b150e0ae9416982deaba4ae8f784e4aa9c8c2a684cff6aee275f69db9b54",
+  "afterSha256": "9ca505c21e2341f0fc15d77debadf890e162b1f6f2b8a1cc36f01d11a647d7fd",
+  "allDoubleBitsAndOtherValuesEqual": true,
+  "baseSourceCommit": "33941dd9a2f144c06c4529fe35b19f3d2e1bb931",
+  "shortenedIntegralSpellings": 24301,
+  "comparedValues": 447915,
+  "sourceByteCapUnchanged": 4144128,
+  "descriptorCountBefore": 3038,
+  "descriptorCountAfter": 3080,
+  "newFuelHosts": 33,
+  "newRestaurantHosts": 9
+}

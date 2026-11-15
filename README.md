@@ -85,6 +85,10 @@ sowie [Apotheken](docs/pharmacies-v350.md) werden mit tatsächlichen Gebäudegru
 abgeglichen. Namensschilder und kartierte Wege ergänzen belegte Standorte.
 Die [Abdeckungsprüfung](docs/civic-facilities-v350.md) unterscheidet erfasste
 Adressen von sichtbar ergänzten und genauer ausgearbeiteten Gebäuden.
+[Tankstellen](docs/fuel-v351.md) erhalten offene Dächer, Stützen und Zapfsäulen
+an belegten Standorten. [McDonald’s-Filialen](docs/mcdonalds-v351.md) verbinden
+abgeglichene Adressen mit Fassadenschildern und einzelnen Gebäudemodellen.
+Die Standortlisten unterscheiden sichtbare Ausarbeitung und noch offene Geometriefragen.
 Abdeckung und
 Genauigkeit sind in den [Datennotizen](docs/data.md) und den
 [Angaben zur metrischen Präzision](docs/metric-precision.md) dokumentiert.
@@ -173,6 +177,10 @@ Directories of [primary schools and childcare](docs/education-v350.md) and
 Nameplates and mapped paths aid recognition at supported locations; the
 [coverage audit](docs/civic-facilities-v350.md) distinguishes recorded addresses
 from visible additions and individually detailed buildings.
+[Filling stations](docs/fuel-v351.md) include open canopies, supports and dispensers
+at supported locations. [McDonald’s branches](docs/mcdonalds-v351.md) combine
+matched addresses with facade signs and individual building models. Coverage
+records distinguish visible work from unresolved geometry.
 
 - **Move freely:** orbit, zoom, walk through the streets or fly above the
   rooftops, using a mouse, keyboard or touch controls.
@@ -294,8 +302,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.230** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.230/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.231** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.231/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

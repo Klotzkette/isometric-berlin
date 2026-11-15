@@ -3307,3 +3307,32 @@ associations and distinguishes coverage from a complete photographic rebuild.
 See [education sources](docs/education-v350.md),
 [pharmacy sources](docs/pharmacies-v350.md) and
 [facility matching](docs/civic-facilities-v350.md).
+
+
+## Berlin filling stations and McDonald's branches (V351)
+
+Mapped sites, building/canopy outlines and recorded operating-status tags derive
+from OpenStreetMap, © OpenStreetMap contributors, **ODbL 1.0**, snapshot
+13 November 2026. Existing Geoportal Berlin building geometry and the finite
+ATKIS DGM1 terrain samples use **Datenlizenz Deutschland – Zero – Version 2.0**.
+Original DGM tile URLs, archive hashes and retained source-cell coordinates
+accompany the derived heights. The flat forecourt/base height is an approximation.
+
+The [official McDonald's finder](https://www.mcdonalds.com/de/de-de/restaurant-suche.html)
+and the public operator directories listed in the
+[fuel operator audit](docs/fuel-v351-operator-evidence.md) establish location facts.
+Directory listing is distinguished from mapped-active status and from an
+independently observed operating business. Identity matches do not move geometry
+or override conflicting brand evidence. Contacts and personal franchise data
+are excluded. Operator photographs serve as external visual references only;
+no photograph, website artwork, font file or downloaded logo texture is bundled.
+Procedural sign geometry identifies the represented businesses; trademarks
+remain with their respective owners and imply no affiliation.
+
+Unmapped canopy clearances, support/dispenser arrangements, sign dimensions,
+restaurant heights and small facade/glazing details are display estimates.
+Current fuel prices, unverified entrances and invented interior branches are
+not represented. [Fuel coverage](docs/fuel-v351.md) and
+[restaurant coverage](docs/mcdonalds-v351.md) retain every unresolved association
+and separate the complete matched inventory from the smaller set of visible
+geometry changes.

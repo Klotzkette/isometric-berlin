@@ -172,7 +172,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v1.0.230 school/childcare/pharmacy recognition and mapped paths add 1,392,862
 # bytes: complete offline package 1,229,432,858 bytes. Next whole-MiB ceiling
 # only; public tree stays below 1,000,000,000 bytes and all live limits stay fixed.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 1173 * 1024 * 1024
+# v1.0.231 adds 42 finite fuel/restaurant hosts and source-bound refinements:
+# measured complete package 1,230,305,168 bytes (+872,310). Offline ceiling only;
+# the public tree retains its strict 1,000,000,000-byte cap and live limits.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 1174 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

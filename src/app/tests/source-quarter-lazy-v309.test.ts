@@ -35,7 +35,11 @@ describe("exact lazy source-quarter recipes v309",()=>{
   await expect(load("exact")).rejects.toThrow("offline");await expect(load("exact")).rejects.toThrow("Incomplete exact");expect((await load("exact"))[0].source).toBe(source);expect(calls).toBe(3);
  });
  test("all exact catalogue keys and full immutable recipes equal the existing static path",async()=>{
-  expect(SOURCE_QUARTER_CATALOGUE_V309.filter(entry=>entry.admission===undefined&&!entry.kind.endsWith("-v329"))).toHaveLength(90);
+  // Compare the complete immutable legacy path; later independently proven
+  // catalogue additions must not turn this into a stale total-count assertion.
+  expect(SOURCE_QUARTER_CATALOGUE_V309.filter(entry=>SOURCE_QUARTERS_V303.some(old=>old.kind===entry.kind))).toHaveLength(SOURCE_QUARTERS_V303.length);
+  expect(SOURCE_QUARTER_CATALOGUE_V309.filter(entry=>entry.kind==='fuel-stations-v351')).toHaveLength(4);
+  expect(SOURCE_QUARTER_CATALOGUE_V309.filter(entry=>entry.kind==='mcdonalds-v351')).toHaveLength(1);
   expect(await loadSourceQuarterRecipesV309("unmapped-source-id")).toEqual([]);
   const legacyLoader=createSourceQuarterRecipeLoaderV309(SOURCE_QUARTER_CATALOGUE_V309.filter(e=>SOURCE_QUARTERS_V303.some(old=>old.kind===e.kind)));
   for(const old of SOURCE_QUARTERS_V303){const catalogue=SOURCE_QUARTER_CATALOGUE_V309.find(e=>e.kind===old.kind)!;expect([...catalogue.keys].sort()).toEqual([...old.source.keys].sort());for(const key of old.source.keys){const [mode,id]=key.split(":"),loaded=await legacyLoader(id,mode==="minecraft");const entry=loaded.find(e=>e.kind===old.kind)!;expect(entry.source).toEqual(old.source);expect(entry.requiredReplacement).toBe(old.requiredReplacement);}}

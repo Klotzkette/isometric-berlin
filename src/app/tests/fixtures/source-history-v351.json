@@ -1,0 +1,27 @@
+{
+  "additions": {
+    "src/app/src/FuelStationsV351.ts": "daa346ff9b63c14bef5dce3dbf012c18bdebeca5deb9287d6bda3e1c6676fcd9",
+    "src/app/src/McdonaldsV351.ts": "d24df71a1d13fb6e40e2a0a3456dab81bc578422b61d9bb619a30dd34f960bbf",
+    "src/app/src/data/fuelStationsV351Index.json": "4961fb74f0c24cd980c52c435ee9652b821a488eb4f07f7da71f39dbd1e20676",
+    "src/app/src/data/mcdonaldsV351Index.json": "b3142663e8bf16e8a96c4df48ef36bec2f4bb3c42dcb4cd5f523c55bc28cfe09",
+    "src/app/src/data/mcdonaldsV351Packets00.json": "21b2bbf10611de1f2857690278d6ff2af7db14d849b6d3ad351e64848957c29e"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "716725dc2b19f1635a9a8a62595c3c59dbb1d2827c21d0aa5144b01d2982e025",
+      "after": "36ee5a699633410d41d2861ae114c55e2d30a36ed07a9e3ec63d82a212693db1"
+    },
+    "src/app/src/SourceQuarterCatalogueV309.ts": {
+      "before": "a9b3d15060c60bc2c28ffbe368f343d4b84d139de5930a2f45ddd7900051ee31",
+      "after": "9fc701205bfd6206408876c97b0cb49fa28bac6f9bf21bb834b13e5611d4cfd1"
+    },
+    "src/app/src/SourcesDialog.tsx": {
+      "before": "f97e6fda061785f93e2bba2910a88cc6aa6113dad7efa863d365560252af5788",
+      "after": "b7ed05db5c3b217a6770ac8dbb9fcc6eec152a0b3ccf29d821af723888d9ca55"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "before": "506294d884ada03791976d614a622caaa6630f4cbc1f6d6ce6a1b892d817238c",
+      "after": "561024765bcd0f6cefb129ad07b8dd43baca3f828c74e87493a0fe60d98d4ecb"
+    }
+  }
+}

@@ -39,9 +39,10 @@ export const SURROUNDING_CITY_SCAN_MS = 180;
 export const SURROUNDING_CITY_RETIRE_MS = 1_800;
 export const SURROUNDING_CITY_RESIDENT_BUDGET_BYTES = 24 * 1024 * 1024;
 export const SURROUNDING_CITY_MAX_CHUNK_BYTES = 12 * 1024 * 1024;
-// Exact V346 Kladow/Gatow and Tegel coverage extends static metadata only.
+// V351 adds exactly 33 mapped fuel roofs and nine restaurant source hosts.
+// The finite descriptor allowance extends static metadata only.
 // The resident geometry, transfer, decode and prefetch limits remain fixed.
-export const SURROUNDING_CITY_MAX_DESCRIPTORS = 3_038;
+export const SURROUNDING_CITY_MAX_DESCRIPTORS = 3_080;
 export const SURROUNDING_CITY_MAX_FOOTPRINTS = 2_935;
 export const SURROUNDING_CITY_MAX_MANIFEST_BYTES = 4047 * 1024;
 // Hosted delta packets add one bounded length to each changed descriptor.

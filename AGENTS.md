@@ -3233,3 +3233,26 @@ load only with their bounded host and preserve cancellation/disposal; all
 six modes, identical mobile detail, 93 stops and live/startup/Worker limits
 remain unchanged. Keep the public tree below its existing byte ceiling and
 record any measured finite offline allowance for the requested new sources.
+
+### Step 10 — v351 Berlin filling stations and McDonald's restaurants
+
+The owner requests all Berlin filling stations and McDonald's restaurants to
+be found and represented more accurately. Audit the complete available mapped
+inventory against current public operator directories. Distinguish active,
+unconfirmed, former, co-located and indoor sites, with explicit per-site outcomes.
+Use actual mapped canopy/forecourt/building outlines and physically supported
+brand recognition; unknown fitting dimensions remain documented estimates.
+Do not invent current fuel prices, entrances, drive-through lanes or a facade
+for an indoor concession. Existing thirteen forecourt models and the authored
+Hauptbahnhof restaurant stay preserved unless an exact evidenced correction
+includes the complete original source and independent geometry/navigation proof.
+
+New additions share their bounded host admission, cancellation and retirement.
+Native support is independently cardinal; all six modes, complete mobile detail,
+93 tour stops and existing live/startup/Worker limits remain unchanged. Only
+finite source-owned site supplements are authorized outside existing coverage.
+The complete public tree remains below 1,000,000,000 bytes. Any required lossless
+storage offset must use the existing codec and prove byte-identical decoded
+sources and unchanged ownership, with a finite list and measured size receipt.
+Keep preceding packages and immutable history, verify the complete public viewer
+and both downloadable archives, and publish under the owner's standing request.
