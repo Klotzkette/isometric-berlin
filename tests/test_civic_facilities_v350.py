@@ -8,6 +8,8 @@ import pytest
 from scripts.build_civic_facilities_v350 import (
   GEO,
   ROOT,
+  plate,
+  plate_height_offset,
   short_name,
   validate_address_cache,
 )
@@ -54,3 +56,30 @@ def test_frozen_runtime_modules_have_complete_production_preservation_proofs():
   assert all(row["valid"] and row["fullyDecodedSupport"] for row in proof["keys"])
   assert "day-night-material-hook-and-uniforms" in proof["checks"]
   assert "fully-decoded-live-wall-and-fitting-clearance" in proof["checks"]
+
+
+def test_reviewed_kita_height_stays_bound_to_its_verified_owner_and_live_wall():
+  receipt = read(GEO / "civic-facilities-v350-evidence.json.gz")
+  owner = next(
+    row for row in receipt["sourceOwners"] if "kita:04071240" in row["facilityIds"]
+  )
+  offset = plate_height_offset(owner["facilityIds"], owner["owner"])
+  assert offset == owner["displayHeightOffsetMetres"] == 1.0
+  assert plate_height_offset(["kita:unrelated"], owner["owner"]) == 0.0
+  with pytest.raises(ValueError, match="no longer matches its owner"):
+    plate_height_offset(owner["facilityIds"], "different-building")
+  module = read(ROOT / "src/app/src/data/civicFacilitiesV350Packets00.json")
+  for mode, face in (("drawn", "drawnFace"), ("minecraft", "nativeFace")):
+    key = mode + ":-10_-1"
+    packet = module["packets"][key]
+    assert packet["plates"][0] == plate(
+      owner[face],
+      packet["origin"],
+      owner["category"],
+      owner["names"][0],
+      height_offset=offset,
+    )
+    proof = next(
+      row for row in receipt["completeProductionProof"]["keys"] if row["key"] == key
+    )
+    assert proof["valid"] and proof["fullyDecodedSupport"]

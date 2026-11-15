@@ -31,6 +31,13 @@ avoids existing projecting fittings. A plate may shift along the same measured
 wall to a clear supported position. Native plates follow its own cardinal wall;
 they are not a snap of the Drawn position.
 
+Full-scene visual review places the estimated recognition plate for EKT —
+Kindergarten am Schloß Charlottenburg one metre higher on its verified wall, so
+the existing foreground strip does not cover its name. This single adjustment
+is bound to facility `kita:04071240` and owner `DEBE04YY500001aC`; both geometry
+families again passed fully decoded wall support, fitting-clearance and complete
+production preservation checks. The height remains a display estimate.
+
 All 4,046 inventory records have an explicit outcome:
 
 | Outcome | Facilities |
@@ -55,7 +62,7 @@ hosts. Shared geometric glyphs expand only for a requested admitted host, with
 at most eleven plates in the measured release. Expanded binary plans are weakly
 cached; the existing packet decoder owns rendering, cancellation and disposal.
 The existing whole-source lossless codec reduces the 29 module payloads to
-155,661 transformed bytes; it decodes each compact object only when that lazy
+155,669 transformed bytes; it decodes each compact object only when that lazy
 module is imported. All 29 roundtrips and 898 expanded plans were compared with
 the original data. This is the repository's existing codec and ownership model.
 There are no new textures, network datasets, timers, workers or residency limits.

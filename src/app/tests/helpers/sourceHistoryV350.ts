@@ -11,7 +11,7 @@ type Receipt = {
   changes: Record<string, { before: string; after: string }>;
 };
 const proof = readFileSync(new URL("../fixtures/source-history-v350.json", import.meta.url));
-if (digest(proof) !== "e2a46c78a4bf0842dff3ed6ebd7565f860be4cf395d973188eb7446d2e2bb1bc") {
+if (digest(proof) !== "fa36b98ad95af8cdf113f1c42de73663f62ba3f355101bb749588ed1aac1462b") {
   throw Error("Changed immutable v350 source proof");
 }
 const receipt = JSON.parse(proof.toString("utf8")) as Receipt;

@@ -33,6 +33,11 @@ PUBLIC = common.PUBLIC
 KIND = "civic-facilities-v350"
 RECEIPT = GEO / "civic-facilities-v350-evidence.json.gz"
 CATEGORIES = {"primary-school": 0, "kita": 1, "pharmacy": 2}
+PLATE_HEIGHT_OVERRIDES = {
+  # Full-scene visual review: keep the estimated recognition name above the
+  # existing foreground strip. This is a display height, not a surveyed sign.
+  "kita:04071240": ("DEBE04YY500001aC", 1.0),
+}
 
 
 def validate_address_cache(cache, source_files):
@@ -120,7 +125,18 @@ def supported_faces(packet, building, triangles, roads, road_tree, occupied, bou
   )
 
 
-def plate(face, origin, category, name, stack=0):
+def plate_height_offset(facility_ids, owner):
+  offsets = []
+  for facility_id in facility_ids:
+    if facility_id in PLATE_HEIGHT_OVERRIDES:
+      expected_owner, offset = PLATE_HEIGHT_OVERRIDES[facility_id]
+      if owner != expected_owner:
+        raise ValueError("Facility height override no longer matches its owner")
+      offsets.append(offset)
+  return max(offsets, default=0.0)
+
+
+def plate(face, origin, category, name, stack=0, height_offset=0.0):
   a, b = np.asarray(face["a"]), np.asarray(face["b"])
   direction = (b - a) / math.dist(a, b)
   center = (a + b) / 2
@@ -128,7 +144,7 @@ def plate(face, origin, category, name, stack=0):
   # Low-level wall plaque; it is not presented as an actual entrance sign.
   return [
     round((center[0] - origin[0]) * 100),
-    round((face["low"] + 0.85 + stack * 0.42 - origin[1]) * 100),
+    round((face["low"] + 0.85 + stack * 0.42 + height_offset - origin[1]) * 100),
     round((center[1] - origin[2]) * 100),
     round(direction[0] * 1e6),
     round(direction[1] * 1e6),
@@ -335,6 +351,7 @@ def build(inventories):
       name = row["name"] + (f" +{len(group) - 1}" if len(group) > 1 else "")
       stack = per_owner[owner]
       per_owner[owner] += 1
+      height_offset = plate_height_offset([r["id"] for r, _ in group], owner)
       for mode in plates:
         plates[mode].append(
           plate(
@@ -343,6 +360,7 @@ def build(inventories):
             category,
             name,
             stack,
+            height_offset,
           )
         )
       reports.append(
@@ -359,6 +377,8 @@ def build(inventories):
           signGeometry="estimated-small-recognition-plate-not-surveyed-entrance-or-shopfront",
         )
       )
+      if height_offset:
+        reports[-1]["displayHeightOffsetMetres"] = height_offset
     assert max(map(len, plates.values())) <= 64, (host, "plate allowance")
     for mode in plates:
       plans[mode + ":" + host] = dict(
