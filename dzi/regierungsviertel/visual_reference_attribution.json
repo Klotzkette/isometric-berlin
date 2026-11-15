@@ -4860,6 +4860,69 @@
       "role": "reference_only_identity_material_and_proportion_check",
       "photo_bundled": false,
       "note": "Two mapped stelae retain their original bodies. Small procedural hold placement is illustrative, not an exact climbing-route survey."
+    },
+    {
+      "landmark_id": "nikolaikirche_v353_rao",
+      "title": "Nikolaikirche — tower restoration and exterior photographs",
+      "page_url": "https://www.rao-berlin.de/projekt/denkmalrestauration-der-nikolaikirche-berlin/",
+      "credit": "RAO; restoration photographs 2016–2021; rectified survey images credited to Trigonart",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Original LoD2 footprints retained as metric anchors; corrected roof/opening dimensions and masonry patterns are photographic display estimates."
+    },
+    {
+      "landmark_id": "nikolaiviertel_v353_landesdenkmalamt",
+      "title": "Nikolaikirche and reconstructed Nikolaiviertel ensemble",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011266",
+      "credit": "Landesdenkmalamt Berlin",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Monument descriptions and building-part identities; no photographic pixels or protected plans distributed."
+    },
+    {
+      "landmark_id": "nikolaiviertel_v353_isek",
+      "title": "ISEK Nikolaiviertel, July 2021 — existing spaces and house fronts",
+      "page_url": "https://www.berlin.de/sen/stadtentwicklung/_assets/quartiersentwicklung/foerderprogramme/lebendige-zentren-und-quartiere/be211101_isek_nikolaiviertel_endbericht_juli2021_barrierefrei_klein.pdf?ts=1758291378",
+      "credit": "Senatsverwaltung für Stadtentwicklung und Wohnen Berlin; ISEK Nikolaiviertel, 2021",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Existing street and frontage evidence only. Proposed changes in the document are not asserted as completed."
+    },
+    {
+      "landmark_id": "knoblauchhaus_v353",
+      "title": "Knoblauchhaus — museum exterior",
+      "page_url": "https://www.knoblauchhaus.de/",
+      "credit": "Stiftung Stadtmuseum Berlin / museum exterior photographs",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Source wall planes retained; individual window axes, blind bays, cornices and dormer proportions are display estimates."
+    },
+    {
+      "landmark_id": "wappenbrunnen_v353",
+      "title": "Wappenbrunnen — material, dimensions and exterior",
+      "page_url": "https://bildhauerei-in-berlin.de/bildwerk/wappenbrunnen-7845/",
+      "credit": "Description Jörg Kuhn; photograph Detlev J. Pietzsch, 2009, CC BY 4.0; sculpture Gerhard Thieme, ironwork Hans-Joachim Kunsch",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Official mapped anchor; documented overall height 6m, basin height 1.7m and diameter 4m; procedural bear, reliefs and ironwork are display approximations, no photograph or copied inscription bundled."
+    },
+    {
+      "landmark_id": "nikolaikirchplatz_houses_v353",
+      "title": "Bürgerhäuser am Nikolaikirchplatz and Zum Nußbaum — exterior photographs",
+      "page_url": "https://berlin-nikolaiviertel.com/2024/09/lessing-mendelsohn-und-die-buergerhaeuser-am-nikolaikirchplatz/",
+      "credit": "Nikolaiviertel e.V. / berlin-nikolaiviertel.com (website VICAMEDIA UG); house photographs IMG_8611, IMG_8612, IMG_8613, IMG_4201; Zum Nußbaum IMG_5941 and IMG_5945; no separately identified photographer",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Photographed floor counts, axes, blind fields and material families on verified existing source walls; minor fitting dimensions are display estimates."
+    },
+    {
+      "landmark_id": "ephraim_palais_v353",
+      "title": "Ephraim-Palais — rounded corner and museum exterior",
+      "page_url": "https://www.berlin.museum/museum/ephraim-palais",
+      "credit": "© Stadtmuseum Berlin | Foto: Alexander Rentsch; museum exterior photograph DSC186350_1920px",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Four photographed storeys replace the incorrect generic window rows at the supported rounded corner and adjoining fronts; existing gilt balconies and pilasters retained."
     }
   ]
 }
