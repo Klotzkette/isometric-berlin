@@ -1,3 +1,4 @@
+import { inheritHbfVentFinishV349 } from "../../HbfVentFinishV349";
 import { inheritGroundFinishV348 } from "../../GroundFinishV348";
 import {
   Color,
@@ -53,6 +54,7 @@ function createSchwellenraumMaterialGrade(dayMaterial: Material): Material {
   const material = dayMaterial.clone();
   restoreInheritedReichstagSectionV318(dayMaterial, material);
   inheritGroundFinishV348(dayMaterial, material);
+  inheritHbfVentFinishV349(dayMaterial, material);
   material.name = `${dayMaterial.name || dayMaterial.type} Schwellenraum grade`;
   material.userData.schwellenraumMaterialGrade = true;
   const previousOnBeforeCompile = material.onBeforeCompile.bind(material);

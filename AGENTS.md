@@ -3198,3 +3198,15 @@ aperture and material hooks, respect unload/disposal and reduced motion, and
 add no new geometry, photographic textures, timers or shadow refreshes. Do not
 identify an unspecified chimney by guess. All six modes, full mobile detail,
 93 stops, live/startup/Worker limits and the public byte ceiling stay fixed.
+
+
+### Step 10 — v349 Washingtonplatz ventilation tower clarification
+
+The owner identifies the previously unspecified chimney as the DB-logo air
+shaft on Washingtonplatz at Berlin Hauptbahnhof. Refine this exact existing
+three-wall tower using the structural engineer's primary description/photos.
+Keep the original 60 m structure, placement, frame/rod geometry, three DB signs,
+plinth, antennas and navigation. Glass-block surface subdivision is a bounded
+photographic display estimate; add no texture or geometry. Rebind any shader
+after existing Worker transport and preserve mode/retirement ownership. Keep
+all V348 changes and existing live, startup, Worker and public byte limits.

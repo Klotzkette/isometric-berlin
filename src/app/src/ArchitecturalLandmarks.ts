@@ -42,6 +42,7 @@ import {
   markArchitecturalInk,
 } from "./architecturalInk";
 import { createLetteringTexture } from "./drawnLettering";
+import { bindHbfVentFinishV349, markHbfVentFinishV349 } from "./HbfVentFinishV349";
 import {
   type ArchitecturalSignature as ReichstagDomeSignature,
   createOfficialReichstagDome,
@@ -6561,9 +6562,9 @@ function addStationDbPylon(group: Group, washingtonFacadeZ: number): void {
   const pylonZ = washingtonFacadeZ - 7.4;
   const pylonHeight = HAUPTBAHNHOF_DB_PYLON_PROFILE.heightM;
   const frame = modelMaterial(0x445257, { metalness: 0.62, roughness: 0.36 });
-  const screen = modelMaterial(0x819093, {
-    metalness: 0.3,
-    roughness: 0.5,
+  const screen = modelMaterial(0xb5c2c5, {
+    metalness: 0.12,
+    roughness: 0.44,
   });
   const faceWidth = HAUPTBAHNHOF_DB_PYLON_PROFILE.faceWidthM;
   const triangleRadius = faceWidth / Math.sqrt(3);
@@ -6613,6 +6614,8 @@ function addStationDbPylon(group: Group, washingtonFacadeZ: number): void {
       screen,
     );
     wallMesh.name = "Hauptbahnhof Washingtonplatz DB pylon";
+    markHbfVentFinishV349(wallMesh);
+    bindHbfVentFinishV349(wallMesh);
     wallMesh.position.set(wall.centerX, pylonHeight / 2, wall.centerZ);
     wallMesh.rotation.y = wall.rotationY;
     wallMesh.castShadow = true;

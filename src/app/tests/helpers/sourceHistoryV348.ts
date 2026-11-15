@@ -1,3 +1,4 @@
+import { assertSourceLayerV349, isSourceAdditionV349, projectSourceBeforeV349, sourceAtBeforeV349 } from "./sourceHistoryV349";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -18,6 +19,10 @@ const receipt = JSON.parse(proof.toString("utf8")) as Receipt;
 const predecessors = new Map<string, Buffer>();
 
 export function assertSourceLayerV348(previous: Readonly<Record<string, string>>, files: readonly string[]): void {
+  const current = { ...previous };
+  for (const [path, row] of Object.entries(receipt.changes)) current[path] = row.after;
+  Object.assign(current, receipt.additions);
+  assertSourceLayerV349(current, files);
   for (const [path, { before, after }] of Object.entries(receipt.changes)) {
     if (previous[path] !== before || before === after) throw Error(`Unexpected v348 source change: ${path}`);
     const raw = execFileSync("git", ["show", `${previousCommit}:${path}`], { cwd: root, maxBuffer: 32 * 1024 * 1024 });
@@ -25,17 +30,18 @@ export function assertSourceLayerV348(previous: Readonly<Record<string, string>>
     predecessors.set(path, raw);
   }
   for (const [path, hash] of Object.entries(receipt.additions)) {
-    if (Object.hasOwn(previous, path) || !files.includes(path) || digest(readFileSync(resolve(root, path))) !== hash) {
+    if (Object.hasOwn(previous, path) || !files.includes(path) || digest(sourceAtBeforeV349(path, readFileSync(resolve(root, path)))) !== hash) {
       throw Error(`Changed v348 source addition: ${path}`);
     }
   }
 }
 
 export function isSourceAdditionV348(path: string): boolean {
-  return Object.hasOwn(receipt.additions, path);
+  return Object.hasOwn(receipt.additions, path) || isSourceAdditionV349(path);
 }
 
 export function sourceAtBeforeV348(path: string, raw: Uint8Array): Uint8Array {
+  raw = sourceAtBeforeV349(path, raw);
   const row = receipt.changes[path];
   if (!row) return raw;
   const hash = digest(raw);
@@ -46,6 +52,7 @@ export function sourceAtBeforeV348(path: string, raw: Uint8Array): Uint8Array {
 }
 
 export function projectSourceBeforeV348(source: string): string {
+  source = projectSourceBeforeV349(source);
   const hash = digest(source);
   const path = Object.keys(receipt.changes).find(name => receipt.changes[name].after === hash);
   if (!path) return source;

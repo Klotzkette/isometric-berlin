@@ -1,0 +1,23 @@
+{
+  "additions": {
+    "src/app/src/HbfVentFinishV349.ts": "59c7c961c232b77470fc26fe15218bce8c6d5eb03ee7a86a426e2d67be77b2ef"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "938a26398b2f4c775fc786956a08ef6e252a7765f3f79730ef7d53169589de75",
+      "after": "4745a0f2f338b3e87d7a73ba742d35985c029d9c4170ed34cb2886ff4f95f3e3"
+    },
+    "src/app/src/ArchitecturalLandmarks.ts": {
+      "before": "d71381334358f6156f7a429bc591d89434c6304f7f0749e7cfec5139fc97e827",
+      "after": "12d1516da24fbda144c27753706ffca40ae2ef04096d324e0f42fc85cb628bb9"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "b9994199d12a3fa6c933853f7c5ba8a9428f590a9e5a6785920773269775aac6",
+      "after": "023e984d52888a08215887f59e1de4bf5d1d1a30562ba71cfe71159aede820b1"
+    },
+    "src/app/src/visual-modes/schwellenraum/materialGrade.ts": {
+      "before": "b3d7c673bbc21494207601342cf2d9be94c8950ba0ae5655db53f369187bb865",
+      "after": "20de1c96dfe0384f17a7ced55a93b041e480427b6df9e7a73f4096ce0e0a8f51"
+    }
+  }
+}

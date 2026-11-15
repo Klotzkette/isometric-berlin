@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.229
+
+- Refine the clarified Washingtonplatz DB ventilation tower with subtle frosted glass-block infill, retaining its existing 60 m structure, three walls, logos, plinth and antenna.
+- Preserve the complete v1.0.228 city finish, water ripples, all city packets and all six modes.
+
 ## v1.0.228 — 2026-11-15
 
 - Refine the existing city with restrained mineral fallback facade tones, semantically admitted ground finishes and subtle ordinary river/canal ripples. Preserve recorded landmark colours, source geometry, shorelines, routes, every static city packet and all six modes.

@@ -1,3 +1,4 @@
+import { bindHbfVentFinishV349 } from "./HbfVentFinishV349";
 import { bindGroundFinishV348 } from "./GroundFinishV348";
 import { createWaterRipplesV348, type WaterRipplesV348 } from "./WaterRipplesV348";
 import {ubahnGroundMaskBytesV326,type UbahnGroundRuntimeV326} from "./UbahnGroundRuntimeV326";
@@ -2879,6 +2880,7 @@ export function applyLightingToRoot(
   lightsOn = true,
 ): void {
   bindGroundFinishV348(root, mode === "minecraft");
+  bindHbfVentFinishV349(root, mode === "minecraft");
   const seen = new Set<MeshStandardMaterial>();
   root.traverse((object) => {
     compactStaticGeometry(object);
