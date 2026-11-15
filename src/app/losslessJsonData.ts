@@ -17,6 +17,11 @@ import { exactEagerFieldsV321, assertEagerFieldV321 } from "./losslessEagerField
 import { exactEagerFieldsV322, assertEagerFieldV322 } from "./losslessEagerFieldsV322";
 import { exactEagerFieldsV325, assertEagerFieldV325 } from "./losslessEagerFieldsV325";
 import { exactPackedFieldsV347, assertPackedFieldV347 } from "./losslessPackedFieldsV347";
+import civicFacilitiesIndexV350 from "./src/data/civicFacilitiesV350Index.json";
+
+// These new compact modules retain the same ordinary source object as their
+// JSON imports. Geometry still expands weakly, only for the requested host.
+const CIVIC_COMPACT_SOURCES_V350 = new Set(civicFacilitiesIndexV350.sources.map(({ file }) => file));
 
 export const LOSSLESS_JSON_FIELD_BYTES = 64 * 1024;
 
@@ -442,7 +447,8 @@ export function transformLosslessJsonData(
 ): LosslessJsonTransform | undefined {
   const normalizedId = id.replaceAll("\\", "/");
   const retainedName = normalizedId.match(/\/src\/app\/src\/([^/]+)$/)?.[1];
-  const eagerRetainedSource = EAGER_RETAINED_SOURCE_NAMES.some(name => name === retainedName);
+  const eagerRetainedSource = EAGER_RETAINED_SOURCE_NAMES.some(name => name === retainedName)
+    || CIVIC_COMPACT_SOURCES_V350.has(normalizedId.match(/\/src\/app\/src\/data\/([^/]+)$/)?.[1] ?? "");
   const sourcePath = normalizedId.match(/\/src\/app\/src\/(.+)$/)?.[1] ?? "";
   const eagerV274 = LOSSLESS_EAGER_FIELDS_V274[sourcePath] ?? [];
   const eagerV282 = LOSSLESS_EAGER_FIELDS_V282[sourcePath] ?? [];

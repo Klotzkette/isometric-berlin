@@ -1,0 +1,393 @@
+{
+  "schemaVersion": 1,
+  "fetched": "2026-11-15",
+  "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/",
+  "query": "LbtnGemeinschaftsGrundstufe; Schuljahr2026/27",
+  "records": [
+    {
+      "id": "01K04",
+      "name": "Heinrich-von-Stephan-Gemeinschaftsschule",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30357",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "b925a5b9e2b309ac40065fd02abaf0271c4b2fd0a9b5019eebbf4a0fcfe91a76"
+    },
+    {
+      "id": "01K10",
+      "name": "Theodor-Heuss-Gemeinschaftsschule",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31145",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "a2f4d31a072703e88870d3a76df27d65481b2d082ef03fcba5d62a7c49e640f4"
+    },
+    {
+      "id": "01P25",
+      "name": "Internationale Lomonossow-Schule Berlin (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30575",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "ee8c5b1b18f26f8239a6f13d20af0f0881814f314fbd75d544ea1ed17a6dd54a"
+    },
+    {
+      "id": "02K02",
+      "name": "Carl-von-Ossietzky-Gemeinschaftsschule",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30588",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "c95587dc55c7061a0bc9fff0e750578ed8d39df1b7b3831e12296dd6dbe47fda"
+    },
+    {
+      "id": "02K04",
+      "name": "Bergmannkiez-Gemeinschaftsschule",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30590",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "7a19b0c364a5c9cc555f9e31d1736e71a331f17e5dfbba92cc34471806b1ac19"
+    },
+    {
+      "id": "02K06",
+      "name": "Emanuel-Lasker-Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30410",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "ff5b46b4491a7f4fd193488694d38c18a14494c7cc0b5ddb6e60a58a714d8a0a"
+    },
+    {
+      "id": "02K11",
+      "name": "Temple-Grandin-Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31338",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "47bfeb44818d7876fdfbb2c425cef027fbe01b9060cdb709b282b6aab799b257"
+    },
+    {
+      "id": "02P13",
+      "name": "Netzwerk-Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30975",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "8fc50c775f266816fdecbc0365523677b0c7022c8b3c868b8f775fe9134b2d0a"
+    },
+    {
+      "id": "03K07",
+      "name": "Tesla-Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30461",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "219f9da744b21a2fa38272c70a2d75bb84e043d5cd8eaca10eeab26031686f71"
+    },
+    {
+      "id": "03K11",
+      "name": "Wilhelm-von-Humboldt-Gemeinschaftsschule",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30558",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "4418822bdfc25cb18861f4aaa4e71900e83cf23c021b3d3eac12e7261c5f4c53"
+    },
+    {
+      "id": "03P20",
+      "name": "SchuleEins (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30191",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "679427af55f76b534c282a13dff35a11fc4b059fb052e83444fc48de76499501"
+    },
+    {
+      "id": "03P22",
+      "name": "Klax International School (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31041",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "1b237d09350f7f4841acd9b8f000dad5d743c14587737a4c8355a496c7aa86f1"
+    },
+    {
+      "id": "03P26",
+      "name": "Lauder Beth-Zion Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30964",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "9b621d1106f340e866fcf6a00ef36bc5d9c1f36421aa7e553872a1a2046b796e"
+    },
+    {
+      "id": "03P28",
+      "name": "Platanus Schule Berlin (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30734",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "2bed21f64325a468b5cf2f8c1767e957c3a4e8ce49d0c0fa49f81cdf4d226507"
+    },
+    {
+      "id": "03P32",
+      "name": "Montessori-Gemeinschaftsschule Berlin Buch",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31124",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "c2c24e5982dae9f8f8f4e767bd4849e338aa4a35aeccbc5dcc9030776fd916ad"
+    },
+    {
+      "id": "04K05",
+      "name": "Paula-Fürst-Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30774",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "9d47444291adef4ccadcbd0bea547d49723db23367ccc9c3880228404fdc9abc"
+    },
+    {
+      "id": "04K11",
+      "name": "11. Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31355",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "30b08929b95e81b9d31e8366c16fcf49802ea7c07e767b72e24322fddc0431b8"
+    },
+    {
+      "id": "04P02",
+      "name": "Schele-Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30710",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "b80c3fba5af8b1560bfbfe88a1be009776196ebf065d54acd7beff65ad10e414"
+    },
+    {
+      "id": "04P41",
+      "name": "Freudberg-Gemeinschaftsschule",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31213",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "f345b5cd81b5a279cb0b81e1c476be383a089e5c09d3687f4e8bf1b87f7b2196"
+    },
+    {
+      "id": "05K05",
+      "name": "B.-Traven-Gemeinschaftsschule",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30405",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "1fb35ebe42bc517f606c367035badf3d4c0146688f9df3c3d49980e1ab6624fb"
+    },
+    {
+      "id": "05K10",
+      "name": "10. Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31345",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "84a4ac88a7e7fd337b0f3b226c20eeb72198f689052edd7307559993ab8a4a8b"
+    },
+    {
+      "id": "06K11",
+      "name": "Anna-Essinger-Gemeinschaftsschule",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31201",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "1e9defe5a642492c75f4f84e9850250b175f022519cda00c5107566575c954e7"
+    },
+    {
+      "id": "06P13",
+      "name": "Gemeinschaftsschule nach der Pädagogik Berthold Ottos",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30958",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "3d46e917ecb649efb812362c19bc9a097dfeca05cebdc795631987664c45f221"
+    },
+    {
+      "id": "06P21",
+      "name": "Internationale Montessorischule Berlin (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31357",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "92496a61cda18a03007730468c9d005dcc3819113a23becc04dd369974e94deb"
+    },
+    {
+      "id": "07K12",
+      "name": "Friedenauer Gemeinschaftsschule",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31109",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "a4690c05d77664aae28092efe5728ae748bd80b4f6cf67a731131fecb800333b"
+    },
+    {
+      "id": "07P13",
+      "name": "Deutsch Skandinavische Gemeinschaftsschule",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31117",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "b525d1790e061109a75ced08f4fceaa677580167cd865ac1edebf04ee51ce204"
+    },
+    {
+      "id": "07P19",
+      "name": "Freie Schule Schöneberg (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31203",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "08e381589e1a9f8812092fdc036ceeba69a8777c75179aab47c69cbc7f2a8e19"
+    },
+    {
+      "id": "08K01",
+      "name": "Walter-Gropius-Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30053",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "717f3acdcb259570630f97a4d45a9102d8e7561dd243c12964353262a409cd3a"
+    },
+    {
+      "id": "08K06",
+      "name": "Fritz-Karsen-Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30052",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "3254ee136c3afbbba87348ef6ba95b221ffb17ffe08c4ce79e1e6bb2039e9871"
+    },
+    {
+      "id": "08K08",
+      "name": "Gemeinschaftsschule auf dem Campus Rütli",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31047",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "0dd7529c182c051718cadf36960754e8afcf11f27363f80de51bc57347aa8370"
+    },
+    {
+      "id": "08K13",
+      "name": "Gemeinschaftsschule Campus Efeuweg",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31187",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "a44efee50d2a76c79e0c569fc44031b6cee9a95643ae97f647bef5629b4faa47"
+    },
+    {
+      "id": "08P09",
+      "name": "MeineSchuleBerlin (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30744",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "2c164ed4c3468d2a0f4fd34fcba781a365a3e493498ab604f2b98499e5dc5a4a"
+    },
+    {
+      "id": "09K02",
+      "name": "Anna-Seghers-Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30124",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "5e254d35c80ac66a7cde5930f76ba2aa9e530643f79d8a7208fa83004df81a44"
+    },
+    {
+      "id": "09K07",
+      "name": "Sophie-Brahe-Gemeinschaftsschule",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30116",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "dbcd2a633fd16a0b8da68edfaded224de7bb9874a3cc2001be195fe5a210410e"
+    },
+    {
+      "id": "09K09",
+      "name": "Grünauer Gemeinschaftsschule",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30643",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "b7f85755209cb66bd4fda012c0a501a7fc5e8c9d80acb5f9f7f17c404dbcebdc"
+    },
+    {
+      "id": "09K10",
+      "name": "10. Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31333",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "cdcac7fc79ace8ee351772f72e8befded1a6eee2f6dea7fc13444e6f61ced4fa"
+    },
+    {
+      "id": "09P06",
+      "name": "Montessori Campus Berlin Köpenick (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30484",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "df47d6a8ea95ebb34667cf0275cf721c767a0d9a2c9a2a2de979a213e34971d0"
+    },
+    {
+      "id": "10K10",
+      "name": "Wolfgang-Amadeus-Mozart-Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30926",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "cf70f8539e2cbd013ae8cb7b8b33d4f3b657cb83e5b78fc041ca5ff1de79f369"
+    },
+    {
+      "id": "10K11",
+      "name": "Marcana-Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31181",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "d9ba1ce0fbddcf671732d6ef4d32f3826d499b1b0b9365fb3d5beaf6249494ad"
+    },
+    {
+      "id": "10K12",
+      "name": "Gretel-Bergmann-Gemeinschaftsschule",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31228",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "f9e4629145f8e339a0ca9a375c333059019c4a501c1ad5ca1e8c179c219b48a8"
+    },
+    {
+      "id": "10P10",
+      "name": "Internationale Lomonossow-Schule Berlin Marzahn (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30715",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "caf3bdc27c1fd32b44791086aa3fcf9965c7320bfcff1726039de6996f5d488b"
+    },
+    {
+      "id": "11K10",
+      "name": "Grüner Campus Malchow (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30629",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "d472ea0f9fa0cc8861d13c71e5198c471660ac16efcb585c2aa3bf15fd60410c"
+    },
+    {
+      "id": "11K12",
+      "name": "Paul-und-Charlotte-Kniese-Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31188",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "ad18b26838a66c703b07247f03c657bbf4209344b488bd7e713af8f2909730e0"
+    },
+    {
+      "id": "12K12",
+      "name": "Campus Hannah Höch (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31171",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "f24eeabf1b012bfb5ab44c9194c327a5fe99c43c02affd1c6582865b485076c4"
+    },
+    {
+      "id": "12P06",
+      "name": "Elisabethstift-Schule (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30044",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "f659893fea254f6f77805b146a4c1bb33ee43c28af152508ffcdd9f21050355b"
+    },
+    {
+      "id": "12P10",
+      "name": "Demokratische Schule X (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=30612",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "a7d461e096271d5ad9dc89787b0295a8eada327acd71b2bca7efdfb2e4aa4c9e"
+    },
+    {
+      "id": "12P11",
+      "name": "Alternativschule Berlin (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31098",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "191b3a6ff179380d020c8d343492784b0a152767c262581f5a41826096c0d640"
+    },
+    {
+      "id": "12P19",
+      "name": "APEGO-Schule Berlin (Gemeinschaftsschule)",
+      "sourceUrl": "https://www.bildung.berlin.de/Schulverzeichnis/Schulportrait.aspx?IDSchulzweig=31241",
+      "primaryStageEvidence": "Official Gemeinschaftsschulen mit Grundstufe filter",
+      "primarySiteStatus": "main-site-is-not-proof-of-primary-campus-address",
+      "sourceSha256": "b6388e6b338bd0959fe609ee2a47d20d8ca64708774c520f6f49626426c79901"
+    }
+  ],
+  "scope": "Official primary-stage institutional identity verified; actual primary-stage campus address requires further individual confirmation. No new coordinates or runtime records inferred."
+}

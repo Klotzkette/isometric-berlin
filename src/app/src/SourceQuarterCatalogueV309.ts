@@ -20,6 +20,8 @@ import { huxleysEntranceV346 } from "./HuxleysEntranceV346";
 import { mainRoadFrontsEntriesV346 } from "./MainRoadFrontsV346";
 import { clayDahlemV347 } from "./ClayDahlemV347";
 import { sacredPlacesEntriesV347 } from "./SacredPlacesV347";
+import { civicFacilitiesEntriesV350 } from "./CivicFacilitiesV350";
+import { facilityPathsEntriesV350 } from "./FacilityPathsV350";
 import { so36FrontV345 } from "./So36FrontV345";
 import { estrelTowerPacketV345 } from "./EstrelTowerPacketV345";
 import { weddingRingWestV345 } from "./WeddingRingWestV345";
@@ -113,6 +115,8 @@ export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV
   ...groundEntriesV329("public-green-v329", publicGreenIndexV329.sources),
   ...groundEntriesV329("park-paths-v329", parkPathsIndexV329.sources),
   ...groundEntriesV329("zebra-crossings-v329", zebraCrossingsIndexV329.sources),
+  ...civicFacilitiesEntriesV350,
+  ...facilityPathsEntriesV350,
 ];
 
 /** Separate factory permits deterministic transport/retry tests without mocks

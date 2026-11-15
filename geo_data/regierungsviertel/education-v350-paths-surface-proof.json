@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "plans": 1168,
+  "materialHeightRegions": 2531,
+  "maxSymmetricDifferenceSquareCentimetres": 1.9382668928241168e-08,
+  "policy": "Every source-colour and exact-centimetre-height footprint remains equal through actual TypeScript expansion; holes, islands and fractional quantization intersections retained. No baseline city faces changed."
+}

@@ -3210,3 +3210,26 @@ plinth, antennas and navigation. Glass-block surface subdivision is a bounded
 photographic display estimate; add no texture or geometry. Rebind any shader
 after existing Worker transport and preserve mode/retirement ownership. Keep
 all V348 changes and existing live, startup, Worker and public byte limits.
+
+### Step 10 — v350 primary schools, childcare and pharmacies across Berlin
+
+The owner requests primary schools, public and private childcare facilities,
+pharmacies and their immediate street surroundings throughout all Berlin
+districts. Use complete attributed official facility inventories, with source
+dates and explicit distinction between main-site points, actual building
+footprints and mapped entrances. Verify combined-school primary stages and
+current pharmacy identities where supported; retain unresolved records in the
+audit rather than inventing a location or implying current operation.
+
+Existing source buildings, authored models, roofs, facades, navigation and
+street courses remain intact. Recognition details must attach only to an
+unambiguously matched, physically supported retained facade, independently in
+Drawn and Native. Small plates, glyphs and unsurveyed fitting dimensions are
+display estimates, never a photographic reconstruction claim. Mapped access
+paths and surface refinements must be clipped to literal retained ground and
+exclude existing finer geometry, buildings, roads and water. No guessed
+entrances, zebra crossings or terrain slopes. Compact construction recipes
+load only with their bounded host and preserve cancellation/disposal; all
+six modes, identical mobile detail, 93 stops and live/startup/Worker limits
+remain unchanged. Keep the public tree below its existing byte ceiling and
+record any measured finite offline allowance for the requested new sources.

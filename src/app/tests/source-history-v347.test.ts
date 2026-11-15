@@ -24,7 +24,7 @@ test("v347 independently reconstructs each exact published v226 source and rejec
     expect(digest(before)).toBe(row.before);expect(digest(current)).toBe(row.after);
     expect(Buffer.from(sourceAtBeforeV347(path,latest)).equals(before)).toBe(true);
     expect(projectSourceBeforeV347(latest.toString())).toBe(before.toString());
-    expect(()=>sourceAtBeforeV347(path,Buffer.concat([latest,Buffer.from(" ")]))).toThrow(/Unknown exact v34[789] source bytes/);
+    expect(()=>sourceAtBeforeV347(path,Buffer.concat([latest,Buffer.from(" ")]))).toThrow(/Unknown exact v(?:34[789]|350) source bytes/);
   }
   for(const [path,hash] of Object.entries(receipt.additions))expect(digest(sourceAtBeforeV348(path,readFileSync(new URL(path,root))))).toBe(hash);
 },60_000);

@@ -1,0 +1,481 @@
+{
+  "schemaVersion": 1,
+  "sourcePath": "geo_data/regierungsviertel/education-v350-source.json.gz",
+  "sourceSha256": "3b524bb057b29fb414a2e2403da324c2a2e683e5623ba2f9f5438b0744dcc03d",
+  "counts": {
+    "kita": 2941,
+    "primary-school": 439
+  },
+  "schoolOperators": {
+    "oeffentlich": 387,
+    "privat": 52
+  },
+  "kitaWfsXlsxMatches": 2881,
+  "kitaDirectoryStatus": {
+    "older-xlsx-only-current-status-unverified": 36,
+    "in-latest-official-publicly-funded-snapshot": 2905
+  },
+  "byDistrict": {
+    "primary-school": {
+      "Charlottenburg-Wilmersdorf": 31,
+      "Friedrichshain-Kreuzberg": 35,
+      "Lichtenberg": 38,
+      "Marzahn-Hellersdorf": 36,
+      "Mitte": 39,
+      "Neukölln": 37,
+      "Pankow": 55,
+      "Reinickendorf": 30,
+      "Spandau": 33,
+      "Steglitz-Zehlendorf": 35,
+      "Tempelhof-Schöneberg": 36,
+      "Treptow-Köpenick": 34
+    },
+    "kita": {
+      "Charlottenburg-Wilmersdorf": 276,
+      "Friedrichshain-Kreuzberg": 282,
+      "Lichtenberg": 180,
+      "Marzahn-Hellersdorf": 167,
+      "Mitte": 357,
+      "Neukölln": 256,
+      "Pankow": 383,
+      "Reinickendorf": 171,
+      "Spandau": 167,
+      "Steglitz-Zehlendorf": 201,
+      "Tempelhof-Schöneberg": 288,
+      "Treptow-Köpenick": 213
+    }
+  },
+  "unresolved": [
+    {
+      "id": "01K04",
+      "name": "Heinrich-von-Stephan-Gemeinschaftsschule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "01K10",
+      "name": "Theodor-Heuss-Gemeinschaftsschule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "01P04",
+      "name": "Freie Waldorfschule Berlin Mitte",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Freie Waldorfschule"
+    },
+    {
+      "id": "01P23",
+      "name": "Evangelische Schule Berlin Zentrum (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "01P25",
+      "name": "Internationale Lomonossow-Schule Berlin (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "02K02",
+      "name": "Carl-von-Ossietzky-Gemeinschaftsschule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "02K04",
+      "name": "Bergmannkiez-Gemeinschaftsschule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "02K06",
+      "name": "Emanuel-Lasker-Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "02K11",
+      "name": "Temple-Grandin-Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "02P04",
+      "name": "Freie Waldorfschule Kreuzberg",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Freie Waldorfschule"
+    },
+    {
+      "id": "02P13",
+      "name": "Netzwerk-Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "03K07",
+      "name": "Tesla-Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "03K11",
+      "name": "Wilhelm-von-Humboldt-Gemeinschaftsschule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "03P03",
+      "name": "Schulen Christburg Campus Prenzlauer Berg",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Kombinierte allgemein bildende Schule"
+    },
+    {
+      "id": "03P20",
+      "name": "SchuleEins (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "03P22",
+      "name": "Klax International School (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "03P26",
+      "name": "Lauder Beth-Zion Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "03P28",
+      "name": "Platanus Schule Berlin (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "03P30",
+      "name": "Freie Waldorfschule am Prenzlauer Berg",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Freie Waldorfschule"
+    },
+    {
+      "id": "03P32",
+      "name": "Montessori-Gemeinschaftsschule Berlin Buch",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "04K05",
+      "name": "Paula-Fürst-Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "04K11",
+      "name": "11. Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "04P02",
+      "name": "Schele-Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "04P12",
+      "name": "Annie-Heuser-Schule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Freie Waldorfschule"
+    },
+    {
+      "id": "04P41",
+      "name": "Freudberg-Gemeinschaftsschule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "05K05",
+      "name": "B.-Traven-Gemeinschaftsschule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "05K10",
+      "name": "10. Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "05P01",
+      "name": "Freie Waldorfschule Havelhöhe",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Freie Waldorfschule"
+    },
+    {
+      "id": "05P13",
+      "name": "Wilhelmstadt Schulen",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Kombinierte allgemein bildende Schule"
+    },
+    {
+      "id": "06K11",
+      "name": "Anna-Essinger-Gemeinschaftsschule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "06P04",
+      "name": "Rudolf-Steiner-Schule Berlin",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Freie Waldorfschule"
+    },
+    {
+      "id": "06P05",
+      "name": "Emil Molt Schule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Freie Waldorfschule"
+    },
+    {
+      "id": "06P06",
+      "name": "Königin-Luise-Stiftung",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Kombinierte allgemein bildende Schule"
+    },
+    {
+      "id": "06P13",
+      "name": "Gemeinschaftsschule nach der Pädagik Berthold Ottos",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "06P18",
+      "name": "Bilinguale Schule Phorms Berlin Süd",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Kombinierte allgemein bildende Schule"
+    },
+    {
+      "id": "06P20",
+      "name": "Freie Schule Anne-Sophie Berlin",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Kombinierte allgemein bildende Schule"
+    },
+    {
+      "id": "06P21",
+      "name": "Internationale Montessorischule Berlin (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "07K12",
+      "name": "Friedenauer Gemeinschaftsschule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "07P13",
+      "name": "Deutsch Skandinavische Gemeinschaftsschule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "07P18",
+      "name": "Johannes-Schule Berlin",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Freie Waldorfschule"
+    },
+    {
+      "id": "07P19",
+      "name": "Freie Schule Schöneberg (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "08K01",
+      "name": "Walter-Gropius-Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "08K06",
+      "name": "Fritz-Karsen-Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "08K08",
+      "name": "Gemeinschaftsschule auf dem Campus Rütli",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "08K13",
+      "name": "Gemeinschaftsschule Campus Efeuweg",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "08P04",
+      "name": "Katholische Schule Sankt Marien",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Kombinierte allgemein bildende Schule"
+    },
+    {
+      "id": "08P09",
+      "name": "MeineSchuleBerlin (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "09K02",
+      "name": "Anna-Seghers-Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "09K07",
+      "name": "Sophie-Brahe-Gemeinschaftsschule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "09K09",
+      "name": "Grünauer Gemeinschaftsschule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "09K10",
+      "name": "10. Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "09P01",
+      "name": "Freie Waldorfschule Berlin-Südost",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Freie Waldorfschule"
+    },
+    {
+      "id": "09P06",
+      "name": "Montessori Campus Berlin Köpenick (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "09P09",
+      "name": "BEST-Sabel-Oberschule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Kombinierte allgemein bildende Schule"
+    },
+    {
+      "id": "09P18",
+      "name": "Freie Interkulturelle Waldorfschule Berlin",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Freie Waldorfschule"
+    },
+    {
+      "id": "10K10",
+      "name": "Wolfgang-Amadeus-Mozart-Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "10K11",
+      "name": "Marcana-Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "10K12",
+      "name": "Gretel-Bergmann-Gemeinschaftsschule",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "10K14",
+      "name": "14. Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "10P10",
+      "name": "Internationale Lomonossow-Schule Berlin Marzahn (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "11K10",
+      "name": "Grüner Campus Malchow (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "11K12",
+      "name": "Paul-und-Charlotte-Kniese-Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "12K12",
+      "name": "Campus Hannah Höch (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "12P02",
+      "name": "Waldorfschule Märkisches Viertel Berlin",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Freie Waldorfschule"
+    },
+    {
+      "id": "12P03",
+      "name": "Evangelische Schule Frohnau",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Kombinierte allgemein bildende Schule"
+    },
+    {
+      "id": "12P04",
+      "name": "Katholische Schule Salvator",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Kombinierte allgemein bildende Schule"
+    },
+    {
+      "id": "12P06",
+      "name": "Elisabethstift-Schule (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "12P07",
+      "name": "Private Goethe-Schulen",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Kombinierte allgemein bildende Schule"
+    },
+    {
+      "id": "12P10",
+      "name": "Demokratische Schule X (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "12P11",
+      "name": "Alternativschule Berlin (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    },
+    {
+      "id": "12P19",
+      "name": "APE-Schule Berlin (Gemeinschaftsschule)",
+      "reason": "primary-stage-site-not-verified",
+      "schoolType": "Gemeinschaftsschule"
+    }
+  ],
+  "geometryScope": "Directory coordinates are not measured entrances, wall ownership, building outlines, or photographic facade evidence.",
+  "retainedFields": "Only public facility identity/type/address/coordinates/operator class. No telephone, staff contacts, email, capacity or pupil data.",
+  "inventoryPath": "geo_data/regierungsviertel/education-v350-inventory.json.gz",
+  "inventorySha256": "c5d2a9128e3a01120681e239165956d5e60aa1756c7e33b58293b08143841887",
+  "inventoryBytes": 138465
+}

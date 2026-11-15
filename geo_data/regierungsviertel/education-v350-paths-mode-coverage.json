@@ -1,0 +1,32 @@
+[
+  {
+    "host": "-4_-3",
+    "missingMode": "minecraft",
+    "reason": "noLiteralSupportedPatch"
+  },
+  {
+    "host": "east200-0_-15",
+    "missingMode": "minecraft",
+    "reason": "noLiteralSupportedPatch"
+  },
+  {
+    "host": "outer187--14_17",
+    "missingMode": "minecraft",
+    "reason": "noLiteralSupportedPatch"
+  },
+  {
+    "host": "outer187--15_13",
+    "missingMode": "minecraft",
+    "reason": "noLiteralSupportedPatch"
+  },
+  {
+    "host": "outer187-25_16",
+    "missingMode": "minecraft",
+    "reason": "noLiteralSupportedPatch"
+  },
+  {
+    "host": "ring182--9_10",
+    "missingMode": "minecraft",
+    "reason": "noLiteralSupportedPatch"
+  }
+]

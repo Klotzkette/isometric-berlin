@@ -1,0 +1,55 @@
+{
+  "additions": {
+    "src/app/src/CivicFacilitiesV350.ts": "76abab2ad33e5e0cfb438ffd4ce3294f58465ada8bb6c96f75ae7e337b679f88",
+    "src/app/src/FacilityPathsV350.ts": "9dabe1d364a2122f9e398a6f690c7c04fda556479f4c440cfaec33c1ae419629",
+    "src/app/src/data/civicFacilitiesV350Index.json": "8e4436df91644467355bce5a127ad67bf44436b8a65464ae87b3e6900e2b442b",
+    "src/app/src/data/civicFacilitiesV350Packets00.json": "20baff0e9bb455e5d386402b3e62f28c6c83f36e7da3ed622c463eda020e3133",
+    "src/app/src/data/civicFacilitiesV350Packets01.json": "1cefc3211bff3b849139d1b29929c0463b556e7059a184e298a008b5819b0009",
+    "src/app/src/data/civicFacilitiesV350Packets02.json": "f9223f70bcf082313f7b1ba590ae8e74616a4d5f000dc80322ada905cb10717d",
+    "src/app/src/data/civicFacilitiesV350Packets03.json": "4bf5edf2cdf2a06a8c48e96703f367e623156d22357e81efd475b0c4a6fb147a",
+    "src/app/src/data/civicFacilitiesV350Packets04.json": "fee6d8bc6fd43bcd9bba19f42ee8838f87f86f17f783b2da72e39aa679dd0b47",
+    "src/app/src/data/civicFacilitiesV350Packets05.json": "6d2bb4674573c7b9ccdd45a481ee5bba81aa94af0c3dfc9bcd0cf5eaebd5a94b",
+    "src/app/src/data/civicFacilitiesV350Packets06.json": "2865e10be979c7fe83ca3136d10eb8d84710ff5c45116e1e8335056409d5baa0",
+    "src/app/src/data/civicFacilitiesV350Packets07.json": "4b7f3b0a7707b77d76a0efc866324ec63c4c02c25af40d4ccfdf65d93e63016d",
+    "src/app/src/data/civicFacilitiesV350Packets08.json": "27a12c275d336672f1eced441f8b32ecd47ab338fa66a0d3bdbdc48bdeb21ec8",
+    "src/app/src/data/civicFacilitiesV350Packets09.json": "c24f8df56f8f55cd106914dd4bfe5a85ed207dace850458abb592d8cbec90490",
+    "src/app/src/data/civicFacilitiesV350Packets10.json": "df076f29fcd5cdad51e60d5889869a4d67f16d7d18136f35db3e5c19f03db8f8",
+    "src/app/src/data/civicFacilitiesV350Packets11.json": "3f97db7fb5d3ef10ee5acd7f3164a1ae6beb80cf07b8a9701c3e8b432daaea69",
+    "src/app/src/data/civicFacilitiesV350Packets12.json": "a16b3c73b89fe486350835538d116a37ef7de1a7124d8a179fd1b37ddc2ad295",
+    "src/app/src/data/civicFacilitiesV350Packets13.json": "55662c73b900fe0ee3a9d569b5beadff4da4b57878036c4abed65c4e9ec25c81",
+    "src/app/src/data/civicFacilitiesV350Packets14.json": "b378866c7549961eeea1bef2a9bf0ebb217d02bdced977b25365e47c2f0fe5c8",
+    "src/app/src/data/civicFacilitiesV350Packets15.json": "9e594bcddf2416cabdc8cc92a63024355fa8488709b88508ebd14a87fd085a3a",
+    "src/app/src/data/civicFacilitiesV350Packets16.json": "8eac27111da7d8d51a0f2d58966376e4ae5177a722c1b46a7c50e3d3d63a674a",
+    "src/app/src/data/civicFacilitiesV350Packets17.json": "d32bc8da23652e76e3e83304396bdf2cf2905f3977a76202b1d22efcab2152f9",
+    "src/app/src/data/civicFacilitiesV350Packets18.json": "84508b43c14f75c37fdddb9ddaf24b5fd4738bc2a34c947e31209bbce3ac0565",
+    "src/app/src/data/civicFacilitiesV350Packets19.json": "bf90adb4416e985adcb47b48d031496c8f17ed1365bec195190b0100aa0c005c",
+    "src/app/src/data/civicFacilitiesV350Packets20.json": "5a12abdd7b3225e876ddcdd31cf3e43485a4da32d4249cb9582ae74fc9c82bee",
+    "src/app/src/data/civicFacilitiesV350Packets21.json": "73ff49476bc45ed03d2c1233b6c7260a02cdc3d916052a7d31faef491683e5d7",
+    "src/app/src/data/civicFacilitiesV350Packets22.json": "08b387d95afc69ff0d4ec7fcec9edc183950a750f92d336a7bd375fadc841bc1",
+    "src/app/src/data/civicFacilitiesV350Packets23.json": "409b25728884b7b14674b843767fca8396577986addc528ab8500f342efe4248",
+    "src/app/src/data/civicFacilitiesV350Packets24.json": "ea2e184e830cdc60d94bddb766676857b68655e21fdb2a813ed41508898ec967",
+    "src/app/src/data/civicFacilitiesV350Packets25.json": "cb327da78d5a74591a4ffc72dbdd49b6bb826658757b74a6b75b8368100212b8",
+    "src/app/src/data/civicFacilitiesV350Packets26.json": "70f0053233dd1e374773d7532bf0d4bffab7de379fef76e40031c3b73f11dfd0",
+    "src/app/src/data/civicFacilitiesV350Packets27.json": "b46bbeeb6bc8910e4fc4b70464c3c5192101bbd002b7fdc8a013b88a7b5246b2",
+    "src/app/src/data/civicFacilitiesV350Packets28.json": "ee079f1ee20f83b69f96cb66cd8465a90ab661aef3f997ba4ea45d219ef46a98",
+    "src/app/src/data/facilityPathsV350Index.json": "6dfa4fb1d608a7419d5051df7ec3bd85a2725ac6173bcefbb28a1ebbbb0701d1"
+  },
+  "changes": {
+    "src/app/losslessJsonData.ts": {
+      "before": "c4c756602b46731d3b3510a55d3a4eaf13dca1ec53b42fd41957fa68caa3205c",
+      "after": "be403b3bbbfbcc5086ea0ce6e099228ca0aa6a4b3f038eaf8e906fcb405bc548"
+    },
+    "src/app/package.json": {
+      "before": "4745a0f2f338b3e87d7a73ba742d35985c029d9c4170ed34cb2886ff4f95f3e3",
+      "after": "716725dc2b19f1635a9a8a62595c3c59dbb1d2827c21d0aa5144b01d2982e025"
+    },
+    "src/app/src/SourceQuarterCatalogueV309.ts": {
+      "before": "04f501db5c2423b76d87e47ee8cb791c8882d03aed8938b37a4cb72af0ecc605",
+      "after": "a9b3d15060c60bc2c28ffbe368f343d4b84d139de5930a2f45ddd7900051ee31"
+    },
+    "src/app/src/SourcesDialog.tsx": {
+      "before": "6b32cd45cd0dc12343d091c89d7a18a678ca5ec7c77784ebb2643b867d7dd7c0",
+      "after": "f97e6fda061785f93e2bba2910a88cc6aa6113dad7efa863d365560252af5788"
+    }
+  }
+}

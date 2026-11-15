@@ -1,0 +1,8 @@
+{
+  "plans": 1168,
+  "medianMs": 0.20845900000000483,
+  "p95Ms": 1.919667000000004,
+  "maxMs": 8.585541,
+  "maxVertices": 4579,
+  "maxDecodedMeshBytes": 89811
+}

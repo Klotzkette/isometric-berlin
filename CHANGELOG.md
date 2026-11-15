@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.230
+
+- Adds source-matched primary-school, childcare and pharmacy recognition across Berlin, with explicit inventory dates and unresolved-location accounting.
+- Refines mapped pedestrian access around educational facilities on retained source-supported ground; preserves earlier buildings, street courses and all six modes.
+
 ## 1.0.229
 
 - Refine the clarified Washingtonplatz DB ventilation tower with subtle frosted glass-block infill, retaining its existing 60 m structure, three walls, logos, plinth and antenna.

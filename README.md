@@ -80,6 +80,11 @@ Gebäudeformen mit ortsspezifischen Fassaden und charakteristischen Details.
 folgen eigenen Standort- und Geometrienachweisen. Auf der
 [Pfaueninsel](docs/southwest-sites-v326.md) gehören Schloss, Wege und frei
 umherlaufende blaue und weiße Pfauen zur Landschaft.
+Einrichtungsverzeichnisse ergänzen die Orientierung: [Grundschulen und Kitas](docs/education-v350.md)
+sowie [Apotheken](docs/pharmacies-v350.md) werden mit tatsächlichen Gebäudegrundrissen
+abgeglichen. Namensschilder und kartierte Wege ergänzen belegte Standorte.
+Die [Abdeckungsprüfung](docs/civic-facilities-v350.md) unterscheidet erfasste
+Adressen von sichtbar ergänzten und genauer ausgearbeiteten Gebäuden.
 Abdeckung und
 Genauigkeit sind in den [Datennotizen](docs/data.md) und den
 [Angaben zur metrischen Präzision](docs/metric-precision.md) dokumentiert.
@@ -163,6 +168,11 @@ proportions, window frames and reveals, sills, plinths and eave details.
 [youth theatres and Archenhold Observatory](docs/youth-theatres-v322.md), and
 [public monuments](docs/memorial-accuracy-v322.md) combine measured building forms
 with individual facades and recognizable architectural features.
+Directories of [primary schools and childcare](docs/education-v350.md) and
+[pharmacies](docs/pharmacies-v350.md) are matched to actual building footprints.
+Nameplates and mapped paths aid recognition at supported locations; the
+[coverage audit](docs/civic-facilities-v350.md) distinguishes recorded addresses
+from visible additions and individually detailed buildings.
 
 - **Move freely:** orbit, zoom, walk through the streets or fly above the
   rooftops, using a mouse, keyboard or touch controls.
@@ -284,8 +294,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.229** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.229/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.230** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.230/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

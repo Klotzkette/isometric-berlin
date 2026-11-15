@@ -3280,3 +3280,30 @@ All new institutional photographs and plans are external visual references.
 Rights remain with their publishers and credited authors; no free image-reuse
 licence is implied where none is stated. No source imagery or photographic
 texture is included in these additions.
+
+## Primary schools, childcare and pharmacies (V350)
+
+Geoportal Berlin school main sites (2026/27), publicly funded childcare sites
+(31 December 2025), and pharmacy location points use **Datenlizenz Deutschland –
+Zero – Version 2.0**. The supplementary November 2025 Kita spreadsheet is
+attributed to **Senatsverwaltung für Bildung, Jugend und Familie**, under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), from the
+[official education data page](https://www.berlin.de/sen/bildung/service/daten/).
+Records are normalized and reconciled; older spreadsheet-only entries retain
+their unverified current status. Public funding does not imply public ownership.
+
+Current pharmacy identities are checked against the
+[Apothekerkammer Berlin finder](https://www.akberlin.de/patientinnen/apothekenfinder)
+in November 2026. Public location facts are retained; no website images, logo
+artwork or contact directories are reproduced. Individually reviewed address
+differences retain their source evidence. OpenStreetMap geometry and paths use
+ODbL 1.0, © OpenStreetMap contributors, snapshot 13 November 2026.
+
+Facility points do not establish building footprints, entrances or photographic
+facade details. Small wall-mounted category/nameplates are model orientation
+aids; their dimensions and lettering are display estimates. Existing measured
+buildings and streets remain intact. The inventory retains unresolved building
+associations and distinguishes coverage from a complete photographic rebuild.
+See [education sources](docs/education-v350.md),
+[pharmacy sources](docs/pharmacies-v350.md) and
+[facility matching](docs/civic-facilities-v350.md).
