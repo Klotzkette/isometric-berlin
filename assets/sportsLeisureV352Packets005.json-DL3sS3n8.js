@@ -1,0 +1,1 @@
+var e=``+new URL(`sportsLeisureV352Packets005.json-DkrQgrGq.gz`,import.meta.url).href;export{e as default};

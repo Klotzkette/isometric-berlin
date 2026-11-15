@@ -4779,6 +4779,87 @@
       "credit": "Apothekerkammer Berlin · checked November 2026",
       "role": "current_pharmacy_identity_reference",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "wall-places-v352",
+      "title": "Karte der Erinnerungsorte",
+      "page_url": "https://www.stiftung-berliner-mauer.de/de/stiftung/karte-der-erinnerungsorte",
+      "credit": "Stiftung Berliner Mauer; current public identity/location facts, November 2026",
+      "role": "directory_reference",
+      "photo_bundled": false,
+      "geometry_status": "196 audited directory records are not 196 reconstructed physical sites. Current remnants and historical border lines are distinguished."
+    },
+    {
+      "landmark_id": "peter-fechter-v352",
+      "title": "Peter Fechter — Zimmerstraße memorial",
+      "page_url": "https://www.gedenktafeln-in-berlin.de/gedenktafeln/detail/peter-fechter/841",
+      "credit": "Gedenktafeln in Berlin; sculpture Karl Biedermann. External reference only.",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Exact mapped anchor and documented 2.60m height; cylinder diameter/material colour estimated; inscriptions omitted."
+    },
+    {
+      "landmark_id": "siemens_schaltwerk_v352",
+      "title": "Siemens Schaltwerk-Hochhaus — industrial architecture",
+      "page_url": "https://industriekultur.berlin/ort/schaltwerk-hochhaus/",
+      "credit": "Berliner Zentrum Industriekultur / Siemens",
+      "role": "reference_only_material_and_proportion_check",
+      "photo_bundled": false,
+      "note": "Photographs remain with their rights holders. Procedural window spacing and glass tone are documented display estimates; complete building geometry comes from Berlin LoD2."
+    },
+    {
+      "landmark_id": "gillette_factory_v352",
+      "title": "Gillette Berlin — 2025 operator exterior photograph",
+      "page_url": "https://pgnewsroom.de/pressemeldungen/pressemitteilung-details/2025/Ein-starkes-Zeichen-fr-Innovation-und-Qualitt-Made-in-Germany-Der-Regierende-Brgermeister-Kai-Wegner-besucht-das-Gillette-Werk-in-Berlin-Tempelhof/default.aspx",
+      "credit": "Procter & Gamble, 2025",
+      "role": "reference_only_material_and_proportion_check",
+      "photo_bundled": false,
+      "note": "Photographs remain with their rights holders. Procedural window spacing and glass tone are documented display estimates; complete building geometry comes from Berlin LoD2."
+    },
+    {
+      "landmark_id": "gastronomy_v352",
+      "title": "Berlin operator directories and reference facades",
+      "page_url": "https://einstein-kaffee.de/standorte/standorte-berlin/",
+      "credit": "Einstein Kaffee / Burger King / Konnopke",
+      "role": "reference_only_identity_material_and_proportion_check",
+      "photo_bundled": false,
+      "note": "Directory addresses do not imply that every location received a new facade. Ten supported locations are refined; all dispositions remain in docs/gastronomy-v352.md."
+    },
+    {
+      "landmark_id": "starbucks_albrechtstrasse_v352",
+      "title": "Starbucks Albrechtstraße — AmRest exterior reference",
+      "page_url": "https://www.food-service.de/weltweit/news/starbucks--amrest-ein-partner-400-coffeeshops-60206",
+      "credit": "AmRest; published by food-service, 5 July 2024",
+      "role": "reference_only_identity_material_and_proportion_check",
+      "photo_bundled": false,
+      "note": "White facade lettering is procedural. The dated exterior image is reference-only; current branch identity is separately verified with Starbucks."
+    },
+    {
+      "landmark_id": "burger_king_holzhauser_v352",
+      "title": "Burger King Holzhauser Straße reopening exterior",
+      "page_url": "https://de.linkedin.com/posts/jens-baran-27161439a_burger-king-holzhauser-stra%C3%9Fe-in-berlin-activity-7478845536733794305-iEYV",
+      "credit": "Jens Baran, 2026",
+      "role": "reference_only_identity_material_and_proportion_check",
+      "photo_bundled": false,
+      "note": "Operator staff photograph supports warm masonry and dark glazing. No people, advertisements or photographic pixels are redistributed."
+    },
+    {
+      "landmark_id": "sports_pools_v352",
+      "title": "BBB pools — directory and basin-edge visual reference",
+      "page_url": "https://www.berlinerbaeder.de/baeder/detail/sommerbad-am-insulaner/",
+      "credit": "Berliner Bäder-Betriebe",
+      "role": "reference_only_identity_material_and_proportion_check",
+      "photo_bundled": false,
+      "note": "All 67 directory entries have an explicit outcome. Finite contours at five outdoor pools follow retained mapped surfaces; small fitting widths and colours remain estimates."
+    },
+    {
+      "landmark_id": "schwedter_nordwand_v352",
+      "title": "Schwedter Nordwand — concrete relief and climbing holds",
+      "page_url": "https://www.alpinclub-berlin.de/Kletteranlagen/Aussenanlagen/Schwedter_Nordwand",
+      "credit": "AlpinClub Berlin / Deutscher Alpenverein",
+      "role": "reference_only_identity_material_and_proportion_check",
+      "photo_bundled": false,
+      "note": "Two mapped stelae retain their original bodies. Small procedural hold placement is illustrative, not an exact climbing-route survey."
     }
   ]
 }
