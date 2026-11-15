@@ -24,6 +24,8 @@ import { civicFacilitiesEntriesV350 } from "./CivicFacilitiesV350";
 import { facilityPathsEntriesV350 } from "./FacilityPathsV350";
 import { fuelStationsEntriesV351 } from "./FuelStationsV351";
 import { mcdonaldsEntriesV351 } from "./McdonaldsV351";
+import { sportsLeisureEntriesV352 } from "./SportsLeisureV352";
+import { gastronomyEntriesV352 } from "./GastronomyV352";
 import { so36FrontV345 } from "./So36FrontV345";
 import { estrelTowerPacketV345 } from "./EstrelTowerPacketV345";
 import { weddingRingWestV345 } from "./WeddingRingWestV345";
@@ -121,6 +123,8 @@ export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV
   ...facilityPathsEntriesV350,
   ...fuelStationsEntriesV351,
   ...mcdonaldsEntriesV351,
+  ...sportsLeisureEntriesV352,
+  ...gastronomyEntriesV352,
 ];
 
 /** Separate factory permits deterministic transport/retry tests without mocks

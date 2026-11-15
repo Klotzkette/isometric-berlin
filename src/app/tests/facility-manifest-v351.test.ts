@@ -7,7 +7,8 @@ test('all 42 exact facility additions pass the actual bounded manifest validator
  const path='src/app/public/mesh/surrounding-berlin-v159/manifest.json';
  const root=new URL('../../..',import.meta.url);
  const wire=readFileSync(new URL(path,root));
- const current=JSON.parse(wire.toString());
+ const latest=JSON.parse(wire.toString());
+ const current={...latest,chunks:latest.chunks.slice(0,3080)};
  const before=JSON.parse(execFileSync('git',['show',`33941dd9:${path}`],{cwd:root,maxBuffer:8*1024*1024}).toString());
  expect(validateSurroundingManifest(current)).toBe(current);
  expect(before.chunks).toHaveLength(3038);
@@ -18,8 +19,8 @@ test('all 42 exact facility additions pass the actual bounded manifest validator
  expect(added.filter((c:any)=>c.id.startsWith('fuel351-'))).toHaveLength(33);
  expect(added.filter((c:any)=>c.id.startsWith('mcdonalds351-'))).toHaveLength(9);
  expect(wire.length).toBeLessThanOrEqual(SURROUNDING_CITY_MAX_MANIFEST_BYTES);
- expect(()=>validateSurroundingManifest({...current,chunks:[...current.chunks,{...added[0],id:'unbounded-extra'}]})).toThrow('Invalid surrounding-city manifest');
- expect(SURROUNDING_CITY_MAX_DESCRIPTORS).toBe(3080);
+ expect(()=>validateSurroundingManifest({...latest,chunks:[...latest.chunks,{...added[0],id:'unbounded-extra'}]})).toThrow('Invalid surrounding-city manifest');
+ expect(SURROUNDING_CITY_MAX_DESCRIPTORS).toBe(3087);
  expect(SURROUNDING_CITY_RESIDENT_BUDGET_BYTES).toBe(24*1024*1024);
  expect(SURROUNDING_CITY_MAX_CHUNK_BYTES).toBe(12*1024*1024);
  expect(SURROUNDING_CITY_PREFETCH_BYTES).toBe(4*1024*1024);

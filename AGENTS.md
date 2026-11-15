@@ -3256,3 +3256,24 @@ storage offset must use the existing codec and prove byte-identical decoded
 sources and unchanged ownership, with a finite list and measured size receipt.
 Keep preceding packages and immutable history, verify the complete public viewer
 and both downloadable archives, and publish under the owner's standing request.
+
+### Step 10 — v352 gastronomy, sports, civic and memorial places
+
+The owner requests Burger King, Starbucks, Einstein cafés, major currywurst and
+beer venues; public pools, football grounds, ice rinks, trampoline/climbing sites;
+Wall memorials including the outskirts; federal/Senate offices, the DRV tower,
+industrial landmarks, DDR housing and large botanical gardens. Reconcile current
+primary directories with exact mapped identities. Retain closed/historical and
+unresolved records explicitly; a locator pin never proves a footprint, entrance,
+facade or complete photographic reconstruction. Resolve colloquial place names
+from primary evidence and never represent future conversions as already built.
+
+Preserve existing authored structures, source surfaces, navigation and all six
+modes. Add finite details only on independently verified Drawn and Native hosts,
+with the same admission, cancellation and retirement lifetime. Current physical
+Wall remains must be distinguished from demolished historical border courses;
+never fill the historical line with invented walls or victim inscriptions.
+All existing live/startup/Worker limits, full mobile detail and 93 stops remain.
+Keep the public tree below 1,000,000,000 bytes through proven lossless offsets,
+retain immutable source history, and publish the complete checked viewer and
+both archives under the owner's standing authorization.

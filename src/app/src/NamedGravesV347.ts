@@ -1,8 +1,9 @@
-/** Two photo-referenced graves on the actual currently visible Core terrain. */
+/** Verified memorial models on actual currently resident terrain. */
 import {
   BufferAttribute, BufferGeometry, DoubleSide, Group, Mesh, MeshStandardMaterial,
 } from "three";
 import source from "./data/namedGravesV347.json";
+import wallSource from "./data/wallMarkersV352.json";
 import { decodeBase64Bytes } from "./decodeBase64Bytes";
 
 type Solid = { ring: number[][]; low: number; high: number };
@@ -14,6 +15,10 @@ export type NamedGraveSupportV347 = {
   blocked: (x: number, y: number, z: number) => boolean;
 };
 export const NAMED_GRAVE_SITES_V347 = source.sites as Site[];
+export const WALL_MARKER_SITES_V352 = wallSource.sites as Site[];
+// The three 180 m admission disks are pairwise disjoint (source receipt/test).
+// They share the original controller, one live mesh/material and no new timer.
+const MEMORIAL_SITES = [...NAMED_GRAVE_SITES_V347, ...WALL_MARKER_SITES_V352];
 const RADIUS = 180;
 
 export function namedGraveGeometryV347(model: Model): BufferGeometry {
@@ -47,7 +52,7 @@ type Active = { site: Site; native: boolean; y: number; mesh: Mesh; model: Model
 
 export function createNamedGravesV347() {
   const root = new Group();
-  root.name = "Fontane and Hoffmann — verified grave locations v347";
+  root.name = "Verified graves and Wall memorial locations";
   root.userData.textureFree = true;
   const active = new Map<string, Active>();
   let samplingSupport = false;
@@ -89,7 +94,7 @@ export function createNamedGravesV347() {
     root,
     refresh(x: number, z: number, native: boolean, support: NamedGraveSupportV347): boolean {
       let changed = false;
-      for (const site of NAMED_GRAVE_SITES_V347) {
+      for (const site of MEMORIAL_SITES) {
         const nearby = (site.anchor[0] - x) ** 2 + (site.anchor[1] - z) ** 2 <= RADIUS ** 2;
         let y: number | null = null;
         // Existing model solids must not reject their own source floor on the

@@ -89,6 +89,11 @@ Adressen von sichtbar ergänzten und genauer ausgearbeiteten Gebäuden.
 an belegten Standorten. [McDonald’s-Filialen](docs/mcdonalds-v351.md) verbinden
 abgeglichene Adressen mit Fassadenschildern und einzelnen Gebäudemodellen.
 Die Standortlisten unterscheiden sichtbare Ausarbeitung und noch offene Geometriefragen.
+[Cafés und Imbisse](docs/gastronomy-v352.md), [Bäder und Sportanlagen](docs/sports-leisure-v352.md)
+sowie [Industriebauten](docs/civic-places-v352.md) verbinden belegte Gebäudeformen
+mit ausgewählten Schildern, Beckenrändern, Toren und Fassadendetails.
+Die [Mauerorte](docs/wall-places-v352.md) unterscheiden heutige Gedenkzeichen von
+historischen Grenzverläufen; offene Standort- und Geometriefragen bleiben dokumentiert.
 Abdeckung und
 Genauigkeit sind in den [Datennotizen](docs/data.md) und den
 [Angaben zur metrischen Präzision](docs/metric-precision.md) dokumentiert.
@@ -181,6 +186,11 @@ from visible additions and individually detailed buildings.
 at supported locations. [McDonald’s branches](docs/mcdonalds-v351.md) combine
 matched addresses with facade signs and individual building models. Coverage
 records distinguish visible work from unresolved geometry.
+[Cafés and food venues](docs/gastronomy-v352.md), [pools and sports sites](docs/sports-leisure-v352.md)
+and [industrial buildings](docs/civic-places-v352.md) combine documented forms
+with selected fascia signs, basin edges, open goals and facade details.
+The [Wall memorial audit](docs/wall-places-v352.md) distinguishes present-day
+markers from historical border lines and records unresolved sites explicitly.
 
 - **Move freely:** orbit, zoom, walk through the streets or fly above the
   rooftops, using a mouse, keyboard or touch controls.
@@ -302,8 +312,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.231** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.231/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.232** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.232/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

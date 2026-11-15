@@ -1,0 +1,28 @@
+{
+  "additions": {
+    "src/app/src/GastronomyV352.ts": "7159afd6382149c013963e5e1083c3dfdf951c165181e30a6bfad3fb960125a2",
+    "src/app/src/SportsLeisureV352.ts": "69a0deec2b77b16937ead272928918c2aa10a71899bc83f3c38f78e49315dc0c",
+    "src/app/src/data/gastronomyV352Index.json": "3bf69c28391b576a18bc413c9174050454ea6804f4ac0848dee15f3fddab019b",
+    "src/app/src/data/gastronomyV352Packets00.json": "8c912c54b3d1a9db88719fe593db1ac177cba6a66e1ce1745d96bb35f21f8ad0",
+    "src/app/src/data/sportsLeisureV352Index.json": "50c69685a47fc598db1b7befebaf63ff9b665eaf72cae1f9df9b8c8c08b3ef91",
+    "src/app/src/data/wallMarkersV352.json": "6cfef79a2f45edff98b5cacc0253da032fc87994e85598c05e2d28fd4f26d1e8"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "36ee5a699633410d41d2861ae114c55e2d30a36ed07a9e3ec63d82a212693db1",
+      "after": "c68e960104fd843fee5367e2a140226994cfea7471fdc04fa8f1d030f6735e1c"
+    },
+    "src/app/src/NamedGravesV347.ts": {
+      "before": "8f0cb0fbc63e9b2f31189f6138cd64693e19168292918d02c1721bf49008cb95",
+      "after": "532213303ba71d6d30a932b76adee909e5566fe5890ce57dcca6faa9b2a9d5ad"
+    },
+    "src/app/src/SourceQuarterCatalogueV309.ts": {
+      "before": "9fc701205bfd6206408876c97b0cb49fa28bac6f9bf21bb834b13e5611d4cfd1",
+      "after": "fcff7c24b840716def9574264beff3709a0775d1d05b0d17af803105c1c4965e"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "before": "561024765bcd0f6cefb129ad07b8dd43baca3f828c74e87493a0fe60d98d4ecb",
+      "after": "ee5970caace8bb908f2c70d13767cccf3248b6845b2f9f451ef32b0e8eb9a2c3"
+    }
+  }
+}

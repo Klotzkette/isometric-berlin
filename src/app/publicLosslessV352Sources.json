@@ -1,0 +1,1209 @@
+{
+  "basePublicCommit": "60f208bf6857ed9ead4938f903dc4b23f1614934",
+  "baseSourceCommit": "69810478315fb30ab5ded23f8bde39c51cb1ca20",
+  "rows": [
+    {
+      "file": "ring182-9_9.minecraft.json.gz",
+      "id": "ring182-9_9",
+      "mode": "minecraft",
+      "oldBytes": 566649,
+      "decodedBytes": 2216495,
+      "oldSha256": "09594c7e27f877e97f364aada8adf7fa08f2b04ae0a34639f3697876e8004705",
+      "decodedSha256": "91a157edbb04a2f324f306e83aafa7e25b6398c6157d48ad882c14a24cf59f85",
+      "oldDescriptor": {
+        "url": "ring182-9_9.minecraft.json.gz",
+        "bytes": 566649,
+        "decodedBytes": 2216495,
+        "encoding": "gzip",
+        "sha256": "09594c7e27f877e97f364aada8adf7fa08f2b04ae0a34639f3697876e8004705"
+      },
+      "chunkBounds": [
+        4608,
+        4608,
+        5120,
+        5120
+      ],
+      "newBytes": 499130,
+      "newSha256": "b22309149e68c8c706137eccdd8d07b3bb19720294beeef5b1b426f630975e7d",
+      "savedBytes": 67519
+    },
+    {
+      "file": "ring182-12_1.minecraft.json.gz",
+      "id": "ring182-12_1",
+      "mode": "minecraft",
+      "oldBytes": 531127,
+      "decodedBytes": 2073675,
+      "oldSha256": "c25143c8bf773d4a0d457bc006516ac2921292e386540cafc1b2458786602b49",
+      "decodedSha256": "a83dba30acb15242c65be5641527961f44043f9e1509381091fb26d77398ba96",
+      "oldDescriptor": {
+        "url": "ring182-12_1.minecraft.json.gz",
+        "bytes": 531127,
+        "decodedBytes": 2073675,
+        "encoding": "gzip",
+        "sha256": "c25143c8bf773d4a0d457bc006516ac2921292e386540cafc1b2458786602b49"
+      },
+      "chunkBounds": [
+        6144,
+        512,
+        6656,
+        1024
+      ],
+      "newBytes": 468140,
+      "newSha256": "b5dfab18e815396e93803e0afa7ba257825908498878119518df70e9a86c5946",
+      "savedBytes": 62987
+    },
+    {
+      "file": "ring182-12_0.minecraft.json.gz",
+      "id": "ring182-12_0",
+      "mode": "minecraft",
+      "oldBytes": 504980,
+      "decodedBytes": 1970236,
+      "oldSha256": "9bca63b9568e9ec5b16a649cddb82f96324dd54974c6a02c49d7bcf999ecdae1",
+      "decodedSha256": "fb94d86f1a284e47bb5af94bb0373fed49f14eb2d1e10cab7fa4c2d81faa744f",
+      "oldDescriptor": {
+        "url": "ring182-12_0.minecraft.json.gz",
+        "bytes": 504980,
+        "decodedBytes": 1970236,
+        "encoding": "gzip",
+        "sha256": "9bca63b9568e9ec5b16a649cddb82f96324dd54974c6a02c49d7bcf999ecdae1"
+      },
+      "chunkBounds": [
+        6144,
+        0,
+        6656,
+        512
+      ],
+      "newBytes": 447897,
+      "newSha256": "61ac3024a1c3ffef6a7261f78de578171654db6e14ddc7739657deb39cc6134e",
+      "savedBytes": 57083
+    },
+    {
+      "file": "spree237--3_-1.minecraft.json.gz",
+      "id": "spree237--3_-1",
+      "mode": "minecraft",
+      "oldBytes": 494725,
+      "decodedBytes": 2087067,
+      "oldSha256": "9afec07f2b979b0a2557af0ef02d16b0b5361bf73a4bf6f870a1cf6cbda47fb6",
+      "decodedSha256": "6c39698b87b4f0c996fa444bcd4d2f5b8644f082428cd87bf8948249e8bceda3",
+      "oldDescriptor": {
+        "url": "spree237--3_-1.minecraft.json.gz",
+        "encoding": "gzip",
+        "bytes": 494725,
+        "decodedBytes": 2087067,
+        "sha256": "9afec07f2b979b0a2557af0ef02d16b0b5361bf73a4bf6f870a1cf6cbda47fb6"
+      },
+      "chunkBounds": [
+        -1536,
+        -512,
+        -1024,
+        0
+      ],
+      "newBytes": 445190,
+      "newSha256": "1b5cec6a8b00edaa5424eb9fc9eacea60a8508794dc5d9a5409ece0e70d349ea",
+      "savedBytes": 49535
+    },
+    {
+      "file": "7_-5.minecraft.json.gz",
+      "id": "7_-5",
+      "mode": "minecraft",
+      "oldBytes": 478390,
+      "decodedBytes": 1826058,
+      "oldSha256": "315468de68179e691405b24762c169f35abc997d72dbb0ca3f83a6f6ccb59baa",
+      "decodedSha256": "5a8cc6af81f4b0f64c2e33f9dae2584abc6f49df605cb38936e9dacce92ad51b",
+      "oldDescriptor": {
+        "url": "7_-5.minecraft.json.gz",
+        "bytes": 478390,
+        "decodedBytes": 1826058,
+        "encoding": "gzip",
+        "sha256": "315468de68179e691405b24762c169f35abc997d72dbb0ca3f83a6f6ccb59baa"
+      },
+      "chunkBounds": [
+        3584,
+        -2560,
+        4096,
+        -2048
+      ],
+      "newBytes": 422706,
+      "newSha256": "4281eac74c7d06395a4eae51d9ec01d93651d190e3037bb91b0f2f3b1de3cc1f",
+      "savedBytes": 55684
+    },
+    {
+      "file": "kladow346--33_10.minecraft.json.gz",
+      "id": "kladow346--33_10",
+      "mode": "minecraft",
+      "oldBytes": 468301,
+      "decodedBytes": 1751781,
+      "oldSha256": "b1b1eb5c01191b14f37590dc6d64f01476a391cad319ae33917f965df07b9bef",
+      "decodedSha256": "1fc0fc3b9ac0c297f663b64467e7970b07e4e0a4339e110285b5e98e12e24c4d",
+      "oldDescriptor": {
+        "url": "kladow346--33_10.minecraft.json.gz",
+        "bytes": 468301,
+        "decodedBytes": 1751781,
+        "encoding": "gzip",
+        "sha256": "b1b1eb5c01191b14f37590dc6d64f01476a391cad319ae33917f965df07b9bef"
+      },
+      "chunkBounds": [
+        -16896,
+        5120,
+        -16384,
+        5632
+      ],
+      "newBytes": 414687,
+      "newSha256": "83ba8d439e31cdf2bafe7c42588b0cc79ade55d7bd788c7ee3ed5ecafab705bf",
+      "savedBytes": 53614
+    },
+    {
+      "file": "britzer342-6_19-p2.minecraft.json.gz",
+      "id": "britzer342-6_19-p2",
+      "mode": "minecraft",
+      "oldBytes": 463354,
+      "decodedBytes": 1905107,
+      "oldSha256": "771ab9eebf0dbfdfa94c98ca1a9f3d22f2c8efbb2b83ad97903eeadcfc5e5c39",
+      "decodedSha256": "3a84f1e09ac3c250596b35487b443f47efac6151ad8394b78dd2678825973014",
+      "oldDescriptor": {
+        "url": "britzer342-6_19-p2.minecraft.json.gz",
+        "bytes": 463354,
+        "encoding": "gzip",
+        "decodedBytes": 1905107,
+        "sha256": "771ab9eebf0dbfdfa94c98ca1a9f3d22f2c8efbb2b83ad97903eeadcfc5e5c39"
+      },
+      "chunkBounds": [
+        3072,
+        9728,
+        3584,
+        10240
+      ],
+      "newBytes": 398194,
+      "newSha256": "904d0bca351e514d6fab5bbb96a31c387a452ff6f1a431c9c3e78be129c644e4",
+      "savedBytes": 65160
+    },
+    {
+      "file": "east200-19_-11.minecraft.json.gz",
+      "id": "east200-19_-11",
+      "mode": "minecraft",
+      "oldBytes": 457414,
+      "decodedBytes": 1744254,
+      "oldSha256": "759eaf14199cebc185f0b79e240b0a262f3f9ae65624b2757bbdb95cf04c5bb8",
+      "decodedSha256": "00bf88f034d13fb68b5dcb8a2700a74444ad9fd98ac3b29689bc6e2e8f53f66a",
+      "oldDescriptor": {
+        "url": "east200-19_-11.minecraft.json.gz",
+        "bytes": 457414,
+        "decodedBytes": 1744254,
+        "encoding": "gzip",
+        "sha256": "759eaf14199cebc185f0b79e240b0a262f3f9ae65624b2757bbdb95cf04c5bb8"
+      },
+      "chunkBounds": [
+        9728,
+        -5632,
+        10240,
+        -5120
+      ],
+      "newBytes": 402278,
+      "newSha256": "d96bb87ee49a0fbe73a956fb096b84f63cedf3ca8f66418af04f1e2b8538e4b5",
+      "savedBytes": 55136
+    },
+    {
+      "file": "britzer342-5_18.minecraft.json.gz",
+      "id": "britzer342-5_18",
+      "mode": "minecraft",
+      "oldBytes": 451890,
+      "decodedBytes": 1906477,
+      "oldSha256": "9e4386102684070bd4833db6a25f773c4412dfed98e27325867b264e32c0620d",
+      "decodedSha256": "1f31746adeff10511cd569ca17844fa5ee772151b399df1550cf66062e2950a9",
+      "oldDescriptor": {
+        "url": "britzer342-5_18.minecraft.json.gz",
+        "bytes": 451890,
+        "encoding": "gzip",
+        "decodedBytes": 1906477,
+        "sha256": "9e4386102684070bd4833db6a25f773c4412dfed98e27325867b264e32c0620d"
+      },
+      "chunkBounds": [
+        2560,
+        9216,
+        3072,
+        9728
+      ],
+      "newBytes": 395125,
+      "newSha256": "7bf9cab49112e19e0c920afee5b630bf1e9c835669f7d4559f6340983f2fe8ae",
+      "savedBytes": 56765
+    },
+    {
+      "file": "kladow346--34_12.minecraft.json.gz",
+      "id": "kladow346--34_12",
+      "mode": "minecraft",
+      "oldBytes": 449088,
+      "decodedBytes": 1678181,
+      "oldSha256": "15a4ec3edafaa6aeaac6f8bc1fb8fd308c7c83c2784ba552d0a702198081df69",
+      "decodedSha256": "495660b2cef7525bf8e017d53f8c43a06a7ff87ebfa55245a09a71eaaed382d8",
+      "oldDescriptor": {
+        "url": "kladow346--34_12.minecraft.json.gz",
+        "bytes": 449088,
+        "decodedBytes": 1678181,
+        "encoding": "gzip",
+        "sha256": "15a4ec3edafaa6aeaac6f8bc1fb8fd308c7c83c2784ba552d0a702198081df69"
+      },
+      "chunkBounds": [
+        -17408,
+        6144,
+        -16896,
+        6656
+      ],
+      "newBytes": 399552,
+      "newSha256": "4bd6c5498497bbe0039a9539859acb5d9e36583ce4b09594dc6299259fb90f4d",
+      "savedBytes": 49536
+    },
+    {
+      "file": "kladow346--33_11.minecraft.json.gz",
+      "id": "kladow346--33_11",
+      "mode": "minecraft",
+      "oldBytes": 445231,
+      "decodedBytes": 1661189,
+      "oldSha256": "fcf6aeffd4dd35bee880d109e9161be9e7bdc22fbe42989aa432cf976e880ad5",
+      "decodedSha256": "7dd17995b9e733157ecd5b96c9edf90b1d56dca9627d62585869d81fabaaeb53",
+      "oldDescriptor": {
+        "url": "kladow346--33_11.minecraft.json.gz",
+        "bytes": 445231,
+        "decodedBytes": 1661189,
+        "encoding": "gzip",
+        "sha256": "fcf6aeffd4dd35bee880d109e9161be9e7bdc22fbe42989aa432cf976e880ad5"
+      },
+      "chunkBounds": [
+        -16896,
+        5632,
+        -16384,
+        6144
+      ],
+      "newBytes": 395135,
+      "newSha256": "b87221c69ca48595315fb34c3efe1cf88eeab0c0c0e722f52d7c46141779d538",
+      "savedBytes": 50096
+    },
+    {
+      "file": "kladow346--33_13.minecraft.json.gz",
+      "id": "kladow346--33_13",
+      "mode": "minecraft",
+      "oldBytes": 426908,
+      "decodedBytes": 1587144,
+      "oldSha256": "896079172e1bb96bb871c30ec0f18b830c97a2ee617d498de0e2b14cde2480a2",
+      "decodedSha256": "c2b5e1eeb418242265dd8660b22519cc54f7647351a615381e94af07e0ad1f64",
+      "oldDescriptor": {
+        "url": "kladow346--33_13.minecraft.json.gz",
+        "bytes": 426908,
+        "decodedBytes": 1587144,
+        "encoding": "gzip",
+        "sha256": "896079172e1bb96bb871c30ec0f18b830c97a2ee617d498de0e2b14cde2480a2"
+      },
+      "chunkBounds": [
+        -16896,
+        6656,
+        -16384,
+        7168
+      ],
+      "newBytes": 379361,
+      "newSha256": "d78317a43a1de0a22c56385adf455968a78715ca3e57dcb815fe1fbb56219768",
+      "savedBytes": 47547
+    },
+    {
+      "file": "britzer342-6_19-p1.drawn.json.gz",
+      "id": "britzer342-6_19-p1",
+      "mode": "drawn",
+      "oldBytes": 425873,
+      "decodedBytes": 1615155,
+      "oldSha256": "0ed3a5b703b2d7460130cf9ba5d1896a397e1b6da0edc628654458bb127d7ef2",
+      "decodedSha256": "42a4b7390965077b9aaf7fe32c8808d10e2d285628ccffe1039436d6e773936a",
+      "oldDescriptor": {
+        "url": "britzer342-6_19-p1.drawn.json.gz",
+        "bytes": 425873,
+        "encoding": "gzip",
+        "decodedBytes": 1615155,
+        "sha256": "0ed3a5b703b2d7460130cf9ba5d1896a397e1b6da0edc628654458bb127d7ef2"
+      },
+      "chunkBounds": [
+        3072,
+        9728,
+        3584,
+        10240
+      ],
+      "newBytes": 377615,
+      "newSha256": "1cba70d03819a408cf41aa32b9974944f54ff26de6cdecda8c4b43deb386f664",
+      "savedBytes": 48258
+    },
+    {
+      "file": "kladow346--32_14.minecraft.json.gz",
+      "id": "kladow346--32_14",
+      "mode": "minecraft",
+      "oldBytes": 424279,
+      "decodedBytes": 1584960,
+      "oldSha256": "377db2f5648f88e70c26b270b3c1a696adde5aa65102f5b773d1ee531836cd0f",
+      "decodedSha256": "5a5c755b5ff2ad94c465d89a4f31ae3c1123f64525bc8aefca7abb2f3646874f",
+      "oldDescriptor": {
+        "url": "kladow346--32_14.minecraft.json.gz",
+        "bytes": 424279,
+        "decodedBytes": 1584960,
+        "encoding": "gzip",
+        "sha256": "377db2f5648f88e70c26b270b3c1a696adde5aa65102f5b773d1ee531836cd0f"
+      },
+      "chunkBounds": [
+        -16384,
+        7168,
+        -15872,
+        7680
+      ],
+      "newBytes": 377147,
+      "newSha256": "de638a87d2d21f55d046337113b4a2605ae4065dd83e4e7b409e657c8c9692c4",
+      "savedBytes": 47132
+    },
+    {
+      "file": "hansa237--4_0.minecraft.json.gz",
+      "id": "hansa237--4_0",
+      "mode": "minecraft",
+      "oldBytes": 422949,
+      "decodedBytes": 1655204,
+      "oldSha256": "34a20b4a9aa5bd7d1697cd5c0d114598bc703d0e480535bfd8c3c850156f1026",
+      "decodedSha256": "f0e131afff9adad641dcbf0c93acb4c98c76c237bfba2e6d0e1091380782b7db",
+      "oldDescriptor": {
+        "url": "hansa237--4_0.minecraft.json.gz",
+        "encoding": "gzip",
+        "bytes": 422949,
+        "decodedBytes": 1655204,
+        "sha256": "34a20b4a9aa5bd7d1697cd5c0d114598bc703d0e480535bfd8c3c850156f1026"
+      },
+      "chunkBounds": [
+        -2048,
+        0,
+        -1536,
+        512
+      ],
+      "newBytes": 367752,
+      "newSha256": "6d4c56ea126299ee0b052616827a9c0adae198eac013e3fb8ac2a21f6f54c613",
+      "savedBytes": 55197
+    },
+    {
+      "file": "kladow346--29_11.minecraft.json.gz",
+      "id": "kladow346--29_11",
+      "mode": "minecraft",
+      "oldBytes": 422084,
+      "decodedBytes": 1542676,
+      "oldSha256": "4e3999d36a2d2ef1627306b2d5b7a5b20ae3cd777f4e40fca68961debccec9f5",
+      "decodedSha256": "d10298760ec176014c1a10ff00c8dfc9a1c0a70d81bcc65302da53f7317a602f",
+      "oldDescriptor": {
+        "url": "kladow346--29_11.minecraft.json.gz",
+        "bytes": 422084,
+        "decodedBytes": 1542676,
+        "encoding": "gzip",
+        "sha256": "4e3999d36a2d2ef1627306b2d5b7a5b20ae3cd777f4e40fca68961debccec9f5"
+      },
+      "chunkBounds": [
+        -14848,
+        5632,
+        -14336,
+        6144
+      ],
+      "newBytes": 374390,
+      "newSha256": "34ed326f17f152b34fbcb3de1118797a2c24b15816a919c9861c3b97a181a630",
+      "savedBytes": 47694
+    },
+    {
+      "file": "britzer342-7_19.drawn.json.gz",
+      "id": "britzer342-7_19",
+      "mode": "drawn",
+      "oldBytes": 421056,
+      "decodedBytes": 1385763,
+      "oldSha256": "3f535c0b7b9ace7786a3c1845c57ecea3a3fcdff7574db7e13db5a6a47a7e1fc",
+      "decodedSha256": "2229074eb4fa45b776162d9d8007c4afe95222537fe9613da17537dce2ed4b10",
+      "oldDescriptor": {
+        "url": "britzer342-7_19.drawn.json.gz",
+        "bytes": 421056,
+        "encoding": "gzip",
+        "decodedBytes": 1385763,
+        "sha256": "3f535c0b7b9ace7786a3c1845c57ecea3a3fcdff7574db7e13db5a6a47a7e1fc"
+      },
+      "chunkBounds": [
+        3584,
+        9728,
+        4096,
+        10240
+      ],
+      "newBytes": 379911,
+      "newSha256": "1a92b42d6205d7d5d734bee7a51d9dc9364de75aa28f42da20ad2a5ff74b99ff",
+      "savedBytes": 41145
+    },
+    {
+      "file": "britzer342-6_19.minecraft.json.gz",
+      "id": "britzer342-6_19",
+      "mode": "minecraft",
+      "oldBytes": 420402,
+      "decodedBytes": 1587588,
+      "oldSha256": "11604efaa8678a75f747e0d6daa9de48f64cfd43f7000aa666b8ec09488fad6d",
+      "decodedSha256": "209612c442d80b671188efdd537fc82acc4bdfa704cda922d4a85ffdffecd4cf",
+      "oldDescriptor": {
+        "url": "britzer342-6_19.minecraft.json.gz",
+        "bytes": 420402,
+        "encoding": "gzip",
+        "decodedBytes": 1587588,
+        "sha256": "11604efaa8678a75f747e0d6daa9de48f64cfd43f7000aa666b8ec09488fad6d"
+      },
+      "chunkBounds": [
+        3072,
+        9728,
+        3584,
+        10240
+      ],
+      "newBytes": 371546,
+      "newSha256": "b20d89a5e3a9b67716264450d53263cbd5975bc00fc72742ef31f7bbc1dc9c19",
+      "savedBytes": 48856
+    },
+    {
+      "file": "kladow346--31_13.minecraft.json.gz",
+      "id": "kladow346--31_13",
+      "mode": "minecraft",
+      "oldBytes": 417052,
+      "decodedBytes": 1534394,
+      "oldSha256": "c92a2770fe0925a66f87cb6829eef1f3a849d8abf93a842b005b0f015df07fae",
+      "decodedSha256": "4639f05d1ffb6398212d3bc8d0c3f56df6d6d7836d1365394b6c581f8701aaab",
+      "oldDescriptor": {
+        "url": "kladow346--31_13.minecraft.json.gz",
+        "bytes": 417052,
+        "decodedBytes": 1534394,
+        "encoding": "gzip",
+        "sha256": "c92a2770fe0925a66f87cb6829eef1f3a849d8abf93a842b005b0f015df07fae"
+      },
+      "chunkBounds": [
+        -15872,
+        6656,
+        -15360,
+        7168
+      ],
+      "newBytes": 368809,
+      "newSha256": "88966581326565a3e9ecdac2f773159ae20e2173d070119ba09bbf24d53e7ad5",
+      "savedBytes": 48243
+    },
+    {
+      "file": "britzer342-6_17.minecraft.json.gz",
+      "id": "britzer342-6_17",
+      "mode": "minecraft",
+      "oldBytes": 412821,
+      "decodedBytes": 1577017,
+      "oldSha256": "64094a447d279c4fdcc5a3fd94900a3be0324cbdd223cc9729effd85a164f298",
+      "decodedSha256": "e4782121a5a9b631e33d08b7a217d6c5ac42b09dc9a10fc51dfcc01e78495190",
+      "oldDescriptor": {
+        "url": "britzer342-6_17.minecraft.json.gz",
+        "bytes": 412821,
+        "encoding": "gzip",
+        "decodedBytes": 1577017,
+        "sha256": "64094a447d279c4fdcc5a3fd94900a3be0324cbdd223cc9729effd85a164f298"
+      },
+      "chunkBounds": [
+        3072,
+        8704,
+        3584,
+        9216
+      ],
+      "newBytes": 363059,
+      "newSha256": "f872158ab692fa9dd5f35aa75d5113311dfb1c802b91f23f79d45ae6ed8d9107",
+      "savedBytes": 49762
+    },
+    {
+      "file": "southrail238-1_4.minecraft.json.gz",
+      "id": "southrail238-1_4",
+      "mode": "minecraft",
+      "oldBytes": 411863,
+      "decodedBytes": 1723180,
+      "oldSha256": "b807d834513a551e52ab1c062c7e05ed2129c242ef733984e9d10d7601dc36e5",
+      "decodedSha256": "a6cfea6c3f5a4dbce87ecaba7782bcdd1ec4b706fe935a88cabe7c0336cdafac",
+      "oldDescriptor": {
+        "url": "southrail238-1_4.minecraft.json.gz",
+        "encoding": "gzip",
+        "bytes": 411863,
+        "decodedBytes": 1723180,
+        "sha256": "b807d834513a551e52ab1c062c7e05ed2129c242ef733984e9d10d7601dc36e5"
+      },
+      "chunkBounds": [
+        512,
+        2048,
+        1024,
+        2560
+      ],
+      "newBytes": 374608,
+      "newSha256": "72d6e1e2caabe220c019b2b816186dac0f1174c8f2657833c0a2a6ccabc849c1",
+      "savedBytes": 37255
+    },
+    {
+      "file": "southrail238-2_4.minecraft.json.gz",
+      "id": "southrail238-2_4",
+      "mode": "minecraft",
+      "oldBytes": 408623,
+      "decodedBytes": 1677726,
+      "oldSha256": "97dcc5348063bd0cb51abdecacac96f0a35879555934a88c56c35caad9731714",
+      "decodedSha256": "329486a8e74cc430eac45bf7a627da05ff2e50c63dea9fded2e3e6770ec34fd6",
+      "oldDescriptor": {
+        "url": "southrail238-2_4.minecraft.json.gz",
+        "encoding": "gzip",
+        "bytes": 408623,
+        "decodedBytes": 1677726,
+        "sha256": "97dcc5348063bd0cb51abdecacac96f0a35879555934a88c56c35caad9731714"
+      },
+      "chunkBounds": [
+        1024,
+        2048,
+        1536,
+        2560
+      ],
+      "newBytes": 367220,
+      "newSha256": "c44eeff5779418be3637f212a3933f8ab7113985545ec3aa0224d4c3f15ea14a",
+      "savedBytes": 41403
+    },
+    {
+      "file": "kladow346--34_13.minecraft.json.gz",
+      "id": "kladow346--34_13",
+      "mode": "minecraft",
+      "oldBytes": 395717,
+      "decodedBytes": 1478163,
+      "oldSha256": "c334499c5bc512f70e4932817f79b49f7c442a3fd5b71f70059e58bb3e65358d",
+      "decodedSha256": "195e70ad58d385f6d22b610da5154345828f8df6b9fea4d606c1ed4b12513d8b",
+      "oldDescriptor": {
+        "url": "kladow346--34_13.minecraft.json.gz",
+        "bytes": 395717,
+        "decodedBytes": 1478163,
+        "encoding": "gzip",
+        "sha256": "c334499c5bc512f70e4932817f79b49f7c442a3fd5b71f70059e58bb3e65358d"
+      },
+      "chunkBounds": [
+        -17408,
+        6656,
+        -16896,
+        7168
+      ],
+      "newBytes": 351709,
+      "newSha256": "b808a8766d5020ecc24b5c6425c3e44cd2c0481086ac75458e72b4ff53d89917",
+      "savedBytes": 44008
+    },
+    {
+      "file": "britzer342-6_18-p1.minecraft.json.gz",
+      "id": "britzer342-6_18-p1",
+      "mode": "minecraft",
+      "oldBytes": 395097,
+      "decodedBytes": 1424467,
+      "oldSha256": "081dbc34f9207d85ab8ea0eb1659173d04979f8b09b8132abab2374bdf2bf55c",
+      "decodedSha256": "fc83877a0fbfa360c8f89e8818d4ab8cd2964bfa1dbc167ea4d8a1f5a294258c",
+      "oldDescriptor": {
+        "url": "britzer342-6_18-p1.minecraft.json.gz",
+        "bytes": 395097,
+        "encoding": "gzip",
+        "decodedBytes": 1424467,
+        "sha256": "081dbc34f9207d85ab8ea0eb1659173d04979f8b09b8132abab2374bdf2bf55c"
+      },
+      "chunkBounds": [
+        3072,
+        9216,
+        3584,
+        9728
+      ],
+      "newBytes": 346618,
+      "newSha256": "5cd14cb455656240ab025d0dd096d18216e9c0f243e7fde57b7fa740948911da",
+      "savedBytes": 48479
+    },
+    {
+      "file": "britzer342-6_18.minecraft.json.gz",
+      "id": "britzer342-6_18",
+      "mode": "minecraft",
+      "oldBytes": 393507,
+      "decodedBytes": 1540050,
+      "oldSha256": "971cbf9422a9f551ef17edf233b846364f2eeb804a4a6c09c6983c2b752a4571",
+      "decodedSha256": "f376fe4531276ca8eeb12c2294fbaba3ae1f20ef429de994ac77fe423dc89455",
+      "oldDescriptor": {
+        "url": "britzer342-6_18.minecraft.json.gz",
+        "bytes": 393507,
+        "encoding": "gzip",
+        "decodedBytes": 1540050,
+        "sha256": "971cbf9422a9f551ef17edf233b846364f2eeb804a4a6c09c6983c2b752a4571"
+      },
+      "chunkBounds": [
+        3072,
+        9216,
+        3584,
+        9728
+      ],
+      "newBytes": 348386,
+      "newSha256": "17f7a5006c76061f284b08679b75d0b72d8a102b8e7c1a0fde7a7ec8ed041b37",
+      "savedBytes": 45121
+    },
+    {
+      "file": "britzer342-5_18-p2.minecraft.json.gz",
+      "id": "britzer342-5_18-p2",
+      "mode": "minecraft",
+      "oldBytes": 391683,
+      "decodedBytes": 1401255,
+      "oldSha256": "7a678c6c413c758ef140a928e1ae8372b9449cbdf3110be9b9f1268a3ae20095",
+      "decodedSha256": "94bb14e55574c847f796935c2f8a0bae8cd1da5f4d85d8f71f26fab88cfc55ce",
+      "oldDescriptor": {
+        "url": "britzer342-5_18-p2.minecraft.json.gz",
+        "bytes": 391683,
+        "encoding": "gzip",
+        "decodedBytes": 1401255,
+        "sha256": "7a678c6c413c758ef140a928e1ae8372b9449cbdf3110be9b9f1268a3ae20095"
+      },
+      "chunkBounds": [
+        2560,
+        9216,
+        3072,
+        9728
+      ],
+      "newBytes": 343258,
+      "newSha256": "bc620ef628b91cbd08598243f908a6815998068e8a260561faca0efccd5beb1e",
+      "savedBytes": 48425
+    },
+    {
+      "file": "north190-4_-11.minecraft.json.gz",
+      "id": "north190-4_-11",
+      "mode": "minecraft",
+      "oldBytes": 387822,
+      "decodedBytes": 1480693,
+      "oldSha256": "525ebd0a91f4439a451569342aa8c5557ffcb2c07ccb3c968a0c6e80c2f49b56",
+      "decodedSha256": "2081f95187ac090fa9905f4c17717c9f8bd01b941957435ce8ebb5ce83335a9d",
+      "oldDescriptor": {
+        "url": "north190-4_-11.minecraft.json.gz",
+        "bytes": 387822,
+        "decodedBytes": 1480693,
+        "encoding": "gzip",
+        "sha256": "525ebd0a91f4439a451569342aa8c5557ffcb2c07ccb3c968a0c6e80c2f49b56"
+      },
+      "chunkBounds": [
+        2048,
+        -5632,
+        2560,
+        -5120
+      ],
+      "newBytes": 340912,
+      "newSha256": "ffc7b30b49b41187273c6ee629d30181bfd8bd67efd2f69dcb62ed9389f13308",
+      "savedBytes": 46910
+    },
+    {
+      "file": "southrail238-3_4.minecraft.json.gz",
+      "id": "southrail238-3_4",
+      "mode": "minecraft",
+      "oldBytes": 382602,
+      "decodedBytes": 1615162,
+      "oldSha256": "9e2db0ce4a6aaca541b786b0183e374233e9d07e1f983e8da026cdc963e56727",
+      "decodedSha256": "3e77dd4e7b311bfb841f0ed77f993d1e9cacfe9bc5482207a30e282e756dff83",
+      "oldDescriptor": {
+        "url": "southrail238-3_4.minecraft.json.gz",
+        "encoding": "gzip",
+        "bytes": 382602,
+        "decodedBytes": 1615162,
+        "sha256": "9e2db0ce4a6aaca541b786b0183e374233e9d07e1f983e8da026cdc963e56727"
+      },
+      "chunkBounds": [
+        1536,
+        2048,
+        2048,
+        2560
+      ],
+      "newBytes": 333828,
+      "newSha256": "dc1f8cbf6ed87ee7d2b4b8819891188355579d1f623771083e16763663577244",
+      "savedBytes": 48774
+    },
+    {
+      "file": "britzer342-6_18-p2.minecraft.json.gz",
+      "id": "britzer342-6_18-p2",
+      "mode": "minecraft",
+      "oldBytes": 376413,
+      "decodedBytes": 1479475,
+      "oldSha256": "f7671afea7bc920cf72e800451fda7bac31e9e97e54b6a0dfd80fee4f21e1e68",
+      "decodedSha256": "77b35c13a79fd12800be633368be71fa4928446771185f4efa552bccdbebf054",
+      "oldDescriptor": {
+        "url": "britzer342-6_18-p2.minecraft.json.gz",
+        "bytes": 376413,
+        "encoding": "gzip",
+        "decodedBytes": 1479475,
+        "sha256": "f7671afea7bc920cf72e800451fda7bac31e9e97e54b6a0dfd80fee4f21e1e68"
+      },
+      "chunkBounds": [
+        3072,
+        9216,
+        3584,
+        9728
+      ],
+      "newBytes": 326921,
+      "newSha256": "6ec35dc47a392a107d2897515b7d66046ab13fb5017f669453eb4a7488dbbd62",
+      "savedBytes": 49492
+    },
+    {
+      "file": "torfront244-3_-3.minecraft.json.gz",
+      "id": "torfront244-3_-3",
+      "mode": "minecraft",
+      "oldBytes": 374692,
+      "decodedBytes": 1560541,
+      "oldSha256": "3639304dd8d08960f726da864a84fcd587eff825144d25948b0fc76040b8ff83",
+      "decodedSha256": "04896c3f22e2cd604317d976650d0ab18c198a33622a69ec036eb7d7d2972b4c",
+      "oldDescriptor": {
+        "url": "torfront244-3_-3.minecraft.json.gz",
+        "encoding": "gzip",
+        "bytes": 374692,
+        "decodedBytes": 1560541,
+        "sha256": "3639304dd8d08960f726da864a84fcd587eff825144d25948b0fc76040b8ff83"
+      },
+      "chunkBounds": [
+        1536,
+        -1536,
+        2048,
+        -1024
+      ],
+      "newBytes": 330940,
+      "newSha256": "bb59457dd230882156caa4555cd6a2c86bdb840e69cfd2596cf7d19aae7cb52d",
+      "savedBytes": 43752
+    },
+    {
+      "file": "britzer342-5_18.drawn.json.gz",
+      "id": "britzer342-5_18",
+      "mode": "drawn",
+      "oldBytes": 373466,
+      "decodedBytes": 1145165,
+      "oldSha256": "4e37df539a2840b926432d983bb70581d78978c886379c173223cd238aad664a",
+      "decodedSha256": "1f4bbff759ab60c2f5664b26b2b1d12768ef070c80c0c5431ba66092c266cabb",
+      "oldDescriptor": {
+        "url": "britzer342-5_18.drawn.json.gz",
+        "bytes": 373466,
+        "encoding": "gzip",
+        "decodedBytes": 1145165,
+        "sha256": "4e37df539a2840b926432d983bb70581d78978c886379c173223cd238aad664a"
+      },
+      "chunkBounds": [
+        2560,
+        9216,
+        3072,
+        9728
+      ],
+      "newBytes": 341031,
+      "newSha256": "80b6c6c794de9f6338f693dddb11c86c05bbee86c924d457a2ff10abc3bdefef",
+      "savedBytes": 32435
+    },
+    {
+      "file": "tegeler-forst--15_-17.drawn.json.gz",
+      "id": "tegeler-forst--15_-17",
+      "mode": "drawn",
+      "oldBytes": 370017,
+      "decodedBytes": 1190570,
+      "oldSha256": "ce53bab5f7b00cac8e77e6cfd0b15e684f4a04de5794477ea1ad4d6969619d11",
+      "decodedSha256": "54d99735f43dc26645c06df7739184db67ebfff04929097b729aff315a62c716",
+      "oldDescriptor": {
+        "url": "tegeler-forst--15_-17.drawn.json.gz",
+        "bytes": 370017,
+        "encoding": "gzip",
+        "decodedBytes": 1190570,
+        "sha256": "ce53bab5f7b00cac8e77e6cfd0b15e684f4a04de5794477ea1ad4d6969619d11"
+      },
+      "chunkBounds": [
+        -7680,
+        -8704,
+        -7168,
+        -8192
+      ],
+      "newBytes": 343808,
+      "newSha256": "2264f7d008cb10ea4813bca1f08c1e6a31abd05d43cfe32dad9dc6128666d361",
+      "savedBytes": 26209
+    },
+    {
+      "file": "britzer342-5_18-p4.minecraft.json.gz",
+      "id": "britzer342-5_18-p4",
+      "mode": "minecraft",
+      "oldBytes": 369255,
+      "decodedBytes": 1456215,
+      "oldSha256": "e5489e054bc1d3fa961933f4d3a48dfedb375fd8b29fe52aa494ff2cc505ebe3",
+      "decodedSha256": "54aea5ba3f5c92eeedd67a495c6f1e0dd35857cc07ad706649f58fe19ed9b660",
+      "oldDescriptor": {
+        "url": "britzer342-5_18-p4.minecraft.json.gz",
+        "bytes": 369255,
+        "encoding": "gzip",
+        "decodedBytes": 1456215,
+        "sha256": "e5489e054bc1d3fa961933f4d3a48dfedb375fd8b29fe52aa494ff2cc505ebe3"
+      },
+      "chunkBounds": [
+        2560,
+        9216,
+        3072,
+        9728
+      ],
+      "newBytes": 321371,
+      "newSha256": "842ec68db086b3b9918004699d19d0efadbcf31bb77643582aa06262b58a2525",
+      "savedBytes": 47884
+    },
+    {
+      "file": "britzer342-5_18-p3.minecraft.json.gz",
+      "id": "britzer342-5_18-p3",
+      "mode": "minecraft",
+      "oldBytes": 369021,
+      "decodedBytes": 1457391,
+      "oldSha256": "c3f8c462d108a969e07a1d8c3bab4afa42590cccedbecc841913aa84eb987d03",
+      "decodedSha256": "ec96f68c0093b82b97eb4ef36c405126ea7c73d596a540f0741e2e9c9533f7aa",
+      "oldDescriptor": {
+        "url": "britzer342-5_18-p3.minecraft.json.gz",
+        "bytes": 369021,
+        "encoding": "gzip",
+        "decodedBytes": 1457391,
+        "sha256": "c3f8c462d108a969e07a1d8c3bab4afa42590cccedbecc841913aa84eb987d03"
+      },
+      "chunkBounds": [
+        2560,
+        9216,
+        3072,
+        9728
+      ],
+      "newBytes": 319869,
+      "newSha256": "6cb6ee566fbd67fa1bfce272544da3ca5a599141667ae43035d60fcd03b84976",
+      "savedBytes": 49152
+    },
+    {
+      "file": "britzer342-5_18-p2.drawn.json.gz",
+      "id": "britzer342-5_18-p2",
+      "mode": "drawn",
+      "oldBytes": 365767,
+      "decodedBytes": 1458007,
+      "oldSha256": "01e072e98ff2235b471b60242ad3350bc0aef840138443b2711112132cebc71f",
+      "decodedSha256": "9edfb98d6e00d11c722cf571b73bad2b43e568c0a22e58d5b7c78bfec55b5ba3",
+      "oldDescriptor": {
+        "url": "britzer342-5_18-p2.drawn.json.gz",
+        "bytes": 365767,
+        "encoding": "gzip",
+        "decodedBytes": 1458007,
+        "sha256": "01e072e98ff2235b471b60242ad3350bc0aef840138443b2711112132cebc71f"
+      },
+      "chunkBounds": [
+        2560,
+        9216,
+        3072,
+        9728
+      ],
+      "newBytes": 318382,
+      "newSha256": "dd09b426869484d30dbe7ee2b2f5a7c4bff26e236910065a77e8ef01ac3d02a0",
+      "savedBytes": 47385
+    },
+    {
+      "file": "ring182-9_9.drawn.json.gz",
+      "id": "ring182-9_9",
+      "mode": "drawn",
+      "oldBytes": 362897,
+      "decodedBytes": 1117703,
+      "oldSha256": "88421b9f1b3ee475bccf1cbd91711df8912ff3a42449717469e204728b6a3a10",
+      "decodedSha256": "22c229430a983231124ed5e37a537e7ad63ec43cbba9cf20604500c11c123964",
+      "oldDescriptor": {
+        "url": "ring182-9_9.drawn.json.gz",
+        "bytes": 362897,
+        "decodedBytes": 1117703,
+        "encoding": "gzip",
+        "sha256": "88421b9f1b3ee475bccf1cbd91711df8912ff3a42449717469e204728b6a3a10"
+      },
+      "chunkBounds": [
+        4608,
+        4608,
+        5120,
+        5120
+      ],
+      "newBytes": 333840,
+      "newSha256": "f808ca6723f74a3b94c68c9fd09fe8b00821eccd499f5a47165c103752a3b895",
+      "savedBytes": 29057
+    },
+    {
+      "file": "southrail238--2_4.minecraft.json.gz",
+      "id": "southrail238--2_4",
+      "mode": "minecraft",
+      "oldBytes": 362819,
+      "decodedBytes": 1537346,
+      "oldSha256": "ffe041e67217ba9db3e1e2abd3454dae2bdf9e4865f011a58b4c6a828e969a9a",
+      "decodedSha256": "72a5f9a15cb2509085a4be8825e67106cdf55f70ddd0a8bcab2e24117e94c325",
+      "oldDescriptor": {
+        "url": "southrail238--2_4.minecraft.json.gz",
+        "encoding": "gzip",
+        "bytes": 362819,
+        "decodedBytes": 1537346,
+        "sha256": "ffe041e67217ba9db3e1e2abd3454dae2bdf9e4865f011a58b4c6a828e969a9a"
+      },
+      "chunkBounds": [
+        -1024,
+        2048,
+        -512,
+        2560
+      ],
+      "newBytes": 319827,
+      "newSha256": "6c9523c9c5a9c31efb3996d26e085419614a77d37902057dc18521b1df4f4470",
+      "savedBytes": 42992
+    },
+    {
+      "file": "kladow346--29_10.minecraft.json.gz",
+      "id": "kladow346--29_10",
+      "mode": "minecraft",
+      "oldBytes": 357637,
+      "decodedBytes": 1290118,
+      "oldSha256": "5cf7f24daba2ac05c25557651aa344e2def0d6917f660b4c13143b82d4d1ccd7",
+      "decodedSha256": "ddf5376c5f2be0eda9db9b6938da66ac4c515dea901060b6302e569dc402b9db",
+      "oldDescriptor": {
+        "url": "kladow346--29_10.minecraft.json.gz",
+        "bytes": 357637,
+        "decodedBytes": 1290118,
+        "encoding": "gzip",
+        "sha256": "5cf7f24daba2ac05c25557651aa344e2def0d6917f660b4c13143b82d4d1ccd7"
+      },
+      "chunkBounds": [
+        -14848,
+        5120,
+        -14336,
+        5632
+      ],
+      "newBytes": 317156,
+      "newSha256": "acf1268e14a94aa83b501a2f1ceea20c4c0ad8ac97b27d79d36d69c96ca0b6d2",
+      "savedBytes": 40481
+    },
+    {
+      "file": "britzer342-5_18-p5.minecraft.json.gz",
+      "id": "britzer342-5_18-p5",
+      "mode": "minecraft",
+      "oldBytes": 356113,
+      "decodedBytes": 1425471,
+      "oldSha256": "d75d027a2fa1c33694f1fb3771811913fb0f6b64f668568eac153b734860647e",
+      "decodedSha256": "05ef049c7edd058e75f591f4880736e26a4c1f2c2e8cbf5b90970ca18b13a087",
+      "oldDescriptor": {
+        "url": "britzer342-5_18-p5.minecraft.json.gz",
+        "bytes": 356113,
+        "encoding": "gzip",
+        "decodedBytes": 1425471,
+        "sha256": "d75d027a2fa1c33694f1fb3771811913fb0f6b64f668568eac153b734860647e"
+      },
+      "chunkBounds": [
+        2560,
+        9216,
+        3072,
+        9728
+      ],
+      "newBytes": 309632,
+      "newSha256": "44e4190140450a9729cb098143250a5f8a6ced23337f22a4d2ca25508ebc47b4",
+      "savedBytes": 46481
+    },
+    {
+      "file": "britzer342-5_19.drawn.json.gz",
+      "id": "britzer342-5_19",
+      "mode": "drawn",
+      "oldBytes": 354223,
+      "decodedBytes": 1175131,
+      "oldSha256": "abb51f445b946a8365c1ca2f5a8ceadeae7f718821c24c6f0be50d185ecd1ddc",
+      "decodedSha256": "f604148b6a62d3dd5a64e82a38bdfce37faadb0272a0ed21997acbc0ce2d5813",
+      "oldDescriptor": {
+        "url": "britzer342-5_19.drawn.json.gz",
+        "bytes": 354223,
+        "encoding": "gzip",
+        "decodedBytes": 1175131,
+        "sha256": "abb51f445b946a8365c1ca2f5a8ceadeae7f718821c24c6f0be50d185ecd1ddc"
+      },
+      "chunkBounds": [
+        2560,
+        9728,
+        3072,
+        10240
+      ],
+      "newBytes": 319005,
+      "newSha256": "62b61eb859cf818f49e939f6d7652ac4810fcd1e90d812b0b188ba012d47d1e3",
+      "savedBytes": 35218
+    },
+    {
+      "file": "ring182-11_1.minecraft.json.gz",
+      "id": "ring182-11_1",
+      "mode": "minecraft",
+      "oldBytes": 352550,
+      "decodedBytes": 1384035,
+      "oldSha256": "3bd1156d45494f5ab3df647fc22fe2e3004c4d12de645bb97ce4a7cb999fd451",
+      "decodedSha256": "a5502701683f7ab733fe137871a87e9ad9595e4acf5144d7ffa270236d67cbff",
+      "oldDescriptor": {
+        "url": "ring182-11_1.minecraft.json.gz",
+        "bytes": 352550,
+        "decodedBytes": 1384035,
+        "encoding": "gzip",
+        "sha256": "3bd1156d45494f5ab3df647fc22fe2e3004c4d12de645bb97ce4a7cb999fd451"
+      },
+      "chunkBounds": [
+        5632,
+        512,
+        6144,
+        1024
+      ],
+      "newBytes": 312287,
+      "newSha256": "0c118a903c0dbf43c035fd9d9beb26bbef0bed57ef8c7714210751dbe2065889",
+      "savedBytes": 40263
+    },
+    {
+      "file": "britzer342-6_18-p1.drawn.json.gz",
+      "id": "britzer342-6_18-p1",
+      "mode": "drawn",
+      "oldBytes": 349374,
+      "decodedBytes": 1327671,
+      "oldSha256": "e0e07635ec34db6a2bd2a620d617c64f65a4b4a696d4b7cb2594246e4c67f3ba",
+      "decodedSha256": "430b8e67b54fa105f536bb075c2dd29c10e242e56c6b5c1e60dd515f0162ee71",
+      "oldDescriptor": {
+        "url": "britzer342-6_18-p1.drawn.json.gz",
+        "bytes": 349374,
+        "encoding": "gzip",
+        "decodedBytes": 1327671,
+        "sha256": "e0e07635ec34db6a2bd2a620d617c64f65a4b4a696d4b7cb2594246e4c67f3ba"
+      },
+      "chunkBounds": [
+        3072,
+        9216,
+        3584,
+        9728
+      ],
+      "newBytes": 308031,
+      "newSha256": "06b168bdb9c8aded05b637a6b927b4c51272cae1ee29e008551287b2ea98698e",
+      "savedBytes": 41343
+    },
+    {
+      "file": "kladow346--34_9.minecraft.json.gz",
+      "id": "kladow346--34_9",
+      "mode": "minecraft",
+      "oldBytes": 342966,
+      "decodedBytes": 1270993,
+      "oldSha256": "3c53b59a5e9e71479a0837c1e834897d2586c6e7c32a70dbf7b1566affdb6223",
+      "decodedSha256": "c91ef0323311cd40204e9b20222031c3036cbfed7b2fcc60e0430ab52d3b1c86",
+      "oldDescriptor": {
+        "url": "kladow346--34_9.minecraft.json.gz",
+        "bytes": 342966,
+        "decodedBytes": 1270993,
+        "encoding": "gzip",
+        "sha256": "3c53b59a5e9e71479a0837c1e834897d2586c6e7c32a70dbf7b1566affdb6223"
+      },
+      "chunkBounds": [
+        -17408,
+        4608,
+        -16896,
+        5120
+      ],
+      "newBytes": 303647,
+      "newSha256": "91da5ea9cbbfee362c0e0d6a1c4526390352250d264a76e0ee0d193298daa71f",
+      "savedBytes": 39319
+    },
+    {
+      "file": "kladow346--34_10.minecraft.json.gz",
+      "id": "kladow346--34_10",
+      "mode": "minecraft",
+      "oldBytes": 331376,
+      "decodedBytes": 1242513,
+      "oldSha256": "c511be93076ddad532e1462c0e3f020ec7e427c1bc122b28a858fa26dd92d433",
+      "decodedSha256": "b28db0a2cd786c2eb9ed81cb500b3e247bc404e31b46cf4c53d138af48822831",
+      "oldDescriptor": {
+        "url": "kladow346--34_10.minecraft.json.gz",
+        "bytes": 331376,
+        "decodedBytes": 1242513,
+        "encoding": "gzip",
+        "sha256": "c511be93076ddad532e1462c0e3f020ec7e427c1bc122b28a858fa26dd92d433"
+      },
+      "chunkBounds": [
+        -17408,
+        5120,
+        -16896,
+        5632
+      ],
+      "newBytes": 293094,
+      "newSha256": "b40887d8f28f66690d6b70594bac1c6d7ec0973276d59d5e47c264ec33981be3",
+      "savedBytes": 38282
+    },
+    {
+      "file": "kladow346--34_13.drawn.json.gz",
+      "id": "kladow346--34_13",
+      "mode": "drawn",
+      "oldBytes": 329882,
+      "decodedBytes": 1670400,
+      "oldSha256": "016ce7a178734eab6716db2304b025e5013792da3486fc7c4055797c3fff30a2",
+      "decodedSha256": "86d5518fb0912585fd6984ebd490019ef0b43a5b258ca87a934fb785de26ddba",
+      "oldDescriptor": {
+        "url": "kladow346--34_13.drawn.json.gz",
+        "bytes": 329882,
+        "decodedBytes": 1670400,
+        "encoding": "gzip",
+        "sha256": "016ce7a178734eab6716db2304b025e5013792da3486fc7c4055797c3fff30a2"
+      },
+      "chunkBounds": [
+        -17408,
+        6656,
+        -16896,
+        7168
+      ],
+      "newBytes": 302465,
+      "newSha256": "3d5f43fd0b0787d9e033638c3cfb99914f823c84ce4204ec009314664e4a72e6",
+      "savedBytes": 27417
+    },
+    {
+      "file": "kladow346--33_14.drawn.json.gz",
+      "id": "kladow346--33_14",
+      "mode": "drawn",
+      "oldBytes": 329497,
+      "decodedBytes": 1561956,
+      "oldSha256": "a3c4862b51a8064d256659e43a505c73e0d12c66b34f64b38cc5ea524742bc74",
+      "decodedSha256": "f936f557c20429218ad824b6678da9edc54486ef8b73d8ecc0807960faa7e470",
+      "oldDescriptor": {
+        "url": "kladow346--33_14.drawn.json.gz",
+        "bytes": 329497,
+        "decodedBytes": 1561956,
+        "encoding": "gzip",
+        "sha256": "a3c4862b51a8064d256659e43a505c73e0d12c66b34f64b38cc5ea524742bc74"
+      },
+      "chunkBounds": [
+        -16896,
+        7168,
+        -16384,
+        7680
+      ],
+      "newBytes": 302866,
+      "newSha256": "b154f628ce91a83c65bae2367bb9ff1dd448846bd7f60088c73ad7c6ae84b307",
+      "savedBytes": 26631
+    },
+    {
+      "file": "britzer342-6_19.drawn.json.gz",
+      "id": "britzer342-6_19",
+      "mode": "drawn",
+      "oldBytes": 329168,
+      "decodedBytes": 954403,
+      "oldSha256": "bc4b3f0226b5befa2d5ccc6114d5e64301f5a264874b4cd1a6d7e8457c6097e4",
+      "decodedSha256": "e934650b3f1c7254ccf03edde8e61bc2afca77457680b05aae92a817118916f2",
+      "oldDescriptor": {
+        "url": "britzer342-6_19.drawn.json.gz",
+        "bytes": 329168,
+        "encoding": "gzip",
+        "decodedBytes": 954403,
+        "sha256": "bc4b3f0226b5befa2d5ccc6114d5e64301f5a264874b4cd1a6d7e8457c6097e4"
+      },
+      "chunkBounds": [
+        3072,
+        9728,
+        3584,
+        10240
+      ],
+      "newBytes": 304427,
+      "newSha256": "fb92d429b9c14db37a4123420f034d47fcfc61e1aaa3fd29cfb5bc83ccdb56e7",
+      "savedBytes": 24741
+    },
+    {
+      "file": "kladow346--32_11.minecraft.json.gz",
+      "id": "kladow346--32_11",
+      "mode": "minecraft",
+      "oldBytes": 327852,
+      "decodedBytes": 1220764,
+      "oldSha256": "1e0cb076291557628c25b00f40216f5cc39b364580727899f048a3ed28d4aebd",
+      "decodedSha256": "6c7bee1cae79b60872ade1b766e31a2a30c189915c22a4a24f0adbadbd9dd566",
+      "oldDescriptor": {
+        "url": "kladow346--32_11.minecraft.json.gz",
+        "bytes": 327852,
+        "decodedBytes": 1220764,
+        "encoding": "gzip",
+        "sha256": "1e0cb076291557628c25b00f40216f5cc39b364580727899f048a3ed28d4aebd"
+      },
+      "chunkBounds": [
+        -16384,
+        5632,
+        -15872,
+        6144
+      ],
+      "newBytes": 292740,
+      "newSha256": "4b8d57d05b07858d1b7287451c91229659e89bb71390166d9682eb57d3ac7ae7",
+      "savedBytes": 35112
+    }
+  ],
+  "savedPacketBytes": 2180970,
+  "selectedPackets": 48,
+  "compressor": "@gfx/zopfli 1.0.15; numiterations:1"
+}
