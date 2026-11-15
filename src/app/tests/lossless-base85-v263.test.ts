@@ -88,11 +88,12 @@ test("only the frozen exact source paths select base85; root arrays stay eager a
     "data/augustFrontsV274.json",
   ];
   const additionsV300=["data/moabitMitteV300.json","data/ostHousingV301.json","data/westKiezV302.json"];
-  const previousSources=new Set([...LOSSLESS_BASE85_SOURCES_V263].filter(path=>!additionsV300.includes(path)&&!additionsV303.includes(path)));
+  const additionsV334=["data/katzengrabenV334.json","data/namedElevatedStationsV334.json"];
+  const previousSources=new Set([...LOSSLESS_BASE85_SOURCES_V263].filter(path=>!additionsV300.includes(path)&&!additionsV303.includes(path)&&!additionsV334.includes(path)));
   // Keep the complete old registry and its frozen hash. The three new finite
   // neighbourhood records are an explicit additional set, never a new baseline.
   expect(previousSources.size).toBe(243);
-  expect([...LOSSLESS_BASE85_SOURCES_V263].filter(path=>!previousSources.has(path)).sort()).toEqual([...additionsV300,...additionsV303].sort());
+  expect([...LOSSLESS_BASE85_SOURCES_V263].filter(path=>!previousSources.has(path)).sort()).toEqual([...additionsV300,...additionsV303,...additionsV334].sort());
   for (const path of additionsV274) expect(LOSSLESS_BASE85_SOURCES_V263.has(path), path).toBeTrue();
   const baseline = [...previousSources].filter(path => !additionsV274.includes(path)).sort();
   expect(baseline.length).toBe(235);
@@ -135,14 +136,17 @@ test("the finite v273 colour and school additions decode exactly without changin
     expect(LOSSLESS_BASE85_SOURCES_V263.has(path)).toBeTrue();
     const text = readFileSync(new URL(`../src/${path}`, import.meta.url), "utf8");
     const expected = JSON.parse(text), { data, result, decodes } = compile(text, path);
-    expect(decodes()).toBe(0);
+    // V322 pins nativeColors as eager; the construction rows remain weak.
+    const eager = name === "steglitzWindowsV273" ? 1 : 0;
+    expect(decodes()).toBe(eager);
+    if (eager) expect(data.nativeColors).toEqual(expected.nativeColors);
     const field = name === "steglitzWindowsV273" ? "nativeRows" : "packets";
     expect(result.code).toContain("new WeakRef(value)");
     expect(Object.getOwnPropertyDescriptor(data, field)?.get).toBeFunction();
     const first = data[field];
     expect(first).toEqual(expected[field]);
     expect(data[field]).toBe(first);
-    expect(decodes()).toBe(1);
+    expect(decodes()).toBe(eager + 1);
     expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
     for (const eager of ["schemaVersion", "keys", "palette", "version", "owner", "origin"]) {
       if (Object.hasOwn(data, eager)) {

@@ -10,6 +10,9 @@ import { spreebogenTerrainYAt } from "../src/spreebogenBankProfile";
 import { freezeStaticSceneTransforms } from "../src/staticSceneTransforms";
 import { setIsoNightPresentation } from "../src/IsometricCityWorld";
 import { indexGeometryExactly } from "../src/exactGeometryIndex";
+import { decodeLosslessGzipJson, encodeLosslessBase85 } from "../src/losslessGzipBase85";
+import { compressRestoredRoadSourceV346 } from "../losslessRestoredRoadSurfacesV346";
+import { gzipSync } from "node:zlib";
 import type { RestoredRoadBatch, RestoredRoadManifest } from "../src/restoredRoadSurfaces";
 import { GROSSER_STERN_GATEHOUSES_V164_PROFILE, gatehouseV164World } from "../src/grosserSternGatehousesV164Profile";
 
@@ -35,7 +38,7 @@ function host(fetcher: (url: string) => Promise<unknown> = async () => { throw n
     LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial, Raycaster, Vector3, markArchitecturalInk,
     smoothGroundTopSampler, spreebogenTerrainYAt, freezeStaticSceneTransforms, cutGrosserSternGatehouseGroundSurface: cutter,
     roadDataUrl: "./assets/restored-road-fixture.ndjson.txt", fetch: fetcher,
-    RESTORED_ROAD_MAX_LINE_CHARS: 2 * 1024 * 1024, indexGeometryExactly: indexer, decodeSizes,
+    RESTORED_ROAD_MAX_LINE_CHARS: 2 * 1024 * 1024, indexGeometryExactly: indexer, decodeSizes, decodeLosslessGzipJson,
   };
   return new Function(...Object.keys(bindings), `${compiled}\nreturn { createRestoredRoadBatch, createRestoredRoadSurfaceBatches, roadLines, decodeSizes };`)(...Object.values(bindings)) as {
     decodeSizes: number[];
@@ -113,6 +116,45 @@ function geometryBytes(root: Group): number {
 }
 
 describe("restored exact road runtime", () => {
+  test("bounded compressed transport retains geometry, completion skips and cancellation", async () => {
+    const batches = [asphalt(), { ...asphalt(), id: "already-attached", xz: "unused" }, { ...asphalt(), id: "last" }];
+    const { text } = compressRestoredRoadSourceV346(records(batches).join("\n"));
+    const lines = text.trimEnd().split("\n");
+    const network = streamResponse(lines.map(line => new TextEncoder().encode(line + "\n")));
+    const runtime = host(async () => network.response);
+    const stream = runtime.createRestoredRoadSurfaceBatches(ground, new Set(["already-attached"]));
+    const first = (await stream.next()).value!;
+    expect(first.id).toBe(batches[0].id);
+    expect(network.pulled()).toBe(2);
+    const plainNetwork = streamResponse(records([asphalt()]).map(line => new TextEncoder().encode(line + "\n")));
+    const plain = host(async () => plainNetwork.response).createRestoredRoadSurfaceBatches(ground);
+    expect(fingerprint(first.root)).toBe(fingerprint((await plain.next()).value!.root));
+    await plain.return(undefined);
+    expect((await stream.next()).value!.id).toBe("last");
+    expect(network.pulled()).toBe(4);
+    await stream.return(undefined);
+    expect(network.cancelled()).toBe(1);
+    expect(network.response.body.locked).toBeFalse();
+
+    const cancelled = streamResponse(lines.map(line => new TextEncoder().encode(line + "\n")));
+    const early = host(async () => cancelled.response).createRestoredRoadSurfaceBatches(ground);
+    await early.next(); await early.return(undefined);
+    expect(cancelled.pulled()).toBe(2);
+    expect(cancelled.cancelled()).toBe(1);
+    expect(cancelled.response.body.locked).toBeFalse();
+  });
+
+  test("compressed corrupt, oversized and forged-size batches reject and unlock", async () => {
+    const header = compressRestoredRoadSourceV346(records([asphalt()]).join("\n")).text.split("\n")[0];
+    const oversized = gzipSync(JSON.stringify("x".repeat(2 * 1024 * 1024)));
+    const forged = Buffer.from(oversized); forged.writeUInt32LE(2, forged.length - 4);
+    for (const line of ["invalid", encodeLosslessBase85(oversized), encodeLosslessBase85(forged), "x".repeat(2 * 1024 * 1024 + 1)]) {
+      const network = streamResponse([header, line].map(value => new TextEncoder().encode(value + "\n")));
+      await expect(host(async () => network.response).createRestoredRoadSurfaceBatches(ground).next()).rejects.toThrow();
+      expect(network.response.body.locked).toBeFalse();
+      expect(network.cancelled()).toBe(1);
+    }
+  });
   test("uses all cached vertices and triangle indices on continuous surveyed terrain", () => {
     const root = host().createRestoredRoadBatch(asphalt(), (x, z) => 3 + x / 4 + z / 2);
     const object = root.children[0] as Mesh;

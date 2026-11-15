@@ -58,14 +58,25 @@ export function decodeLosslessBase85(encoded: string): Uint8Array<ArrayBuffer> {
 
 /** Same gzip, parser and temporary-buffer retirement as the existing decoder.
  * Only the source string alphabet differs; caller cache ownership is untouched. */
-export function decodeLosslessGzipJson(encoded: string): unknown {
+export function decodeLosslessGzipJson(encoded: string, maxDecodedBytes?: number): unknown {
   const bytes = decodeLosslessBase85(encoded);
   let decoded: Uint8Array<ArrayBuffer> | undefined;
+  let boundedOutput: Uint8Array<ArrayBuffer> | undefined;
   try {
-    decoded = gunzipSync(bytes) as Uint8Array<ArrayBuffer>;
+    if (maxDecodedBytes === undefined) decoded = gunzipSync(bytes) as Uint8Array<ArrayBuffer>;
+    else {
+      if (!Number.isSafeInteger(maxDecodedBytes) || maxDecodedBytes < 0 || bytes.length < 18) throw new Error("Invalid bounded gzip size");
+      const expected = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(bytes.length - 4, true);
+      if (expected > maxDecodedBytes) throw new Error("Lossless gzip exceeds bounded decoded size");
+      // fflate never grows a supplied output. One sentinel byte detects a forged
+      // smaller ISIZE even when the decompressed prefix happens to be valid JSON.
+      boundedOutput = new Uint8Array(expected + 1);
+      decoded = gunzipSync(bytes, { out: boundedOutput }) as Uint8Array<ArrayBuffer>;
+      if (decoded.length !== expected) throw new Error("Invalid bounded gzip decoded size");
+    }
     return JSON.parse(new TextDecoder().decode(decoded));
   } finally {
     releaseScratchBuffer(bytes.buffer);
-    releaseScratchBuffer(decoded?.buffer);
+    releaseScratchBuffer(boundedOutput?.buffer ?? decoded?.buffer);
   }
 }

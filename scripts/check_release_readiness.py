@@ -167,7 +167,8 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v1.0.225 adds bounded station-front, airport, Estrel and Tiergarten recipes.
 # Measured complete package: 1,193,314,546 bytes, +5,072,396 over v1.0.224.
 # 1139 MiB is the next whole-MiB offline-only ceiling; all live caps stay fixed.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 1139 * 1024 * 1024
+# v1.0.226 measured complete package: 1,225,122,455 bytes; finite offline scope only.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 1169 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

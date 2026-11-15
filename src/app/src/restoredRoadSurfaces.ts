@@ -5,6 +5,7 @@ import { cutGrosserSternGatehouseGroundSurface, smoothGroundTopSampler, type Vox
 import { spreebogenTerrainYAt } from "./spreebogenBankProfile";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { indexGeometryExactly } from "./exactGeometryIndex";
+import { decodeLosslessGzipJson } from "./losslessGzipBase85";
 
 export type RestoredRoadBatch = { id: string; kind: "asphalt" | "paving" | "kerbs"; xz: string; indices?: string };
 export type RestoredRoadManifest = { format: string; version: number; encoding: string; source_sha256: string; batch_count: number };
@@ -133,12 +134,12 @@ export async function* createRestoredRoadSurfaceBatches(
   const ids = new Set<string>();
   for await (const line of roadLines(response.body)) {
     let value: unknown;
-    try { value = JSON.parse(line); }
+    try { value = manifest?.encoding === "ndjson-gzip-base85-json" ? decodeLosslessGzipJson(line, RESTORED_ROAD_MAX_LINE_CHARS) : JSON.parse(line); }
     catch { throw new Error("Exact street data contains invalid JSON"); }
     if (!manifest) {
       const candidate = value as RestoredRoadManifest;
       if (!candidate || candidate.format !== "bounded-source-road-surfaces" || candidate.version !== 1 ||
-        candidate.encoding !== "ndjson-base64-float32" || !Number.isSafeInteger(candidate.batch_count) || candidate.batch_count < 0) {
+        !["ndjson-base64-float32", "ndjson-gzip-base85-json"].includes(candidate.encoding) || !Number.isSafeInteger(candidate.batch_count) || candidate.batch_count < 0) {
         throw new Error("Exact street data is incomplete");
       }
       manifest = candidate;

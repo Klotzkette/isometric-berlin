@@ -1,0 +1,96 @@
+{
+  "additions": {
+    "src/app/src/AirfieldSurfacesV346.ts": "6e4af0bce6aea5ae5b903d7c3a32ac46dd32093d64211b14dcc4cbedbe839626",
+    "src/app/src/HuxleysEntranceV346.ts": "0c45638fe305a71556df814beeb430f5f937a785ace05b833e2c9685e56cc89d",
+    "src/app/src/MainRoadFrontsV346.ts": "0d85b3fa3111f6e88909e5cf797fc33157dc3b9eb276689be4e6428614d45596",
+    "src/app/src/OpenSitesV346.ts": "b11e396899392d4ab98f2878433a46de0f35d56ba86e53620b2eb0b15666c735",
+    "src/app/src/PfaueninselDetailsV346.ts": "a2795eee619c765ca58b72e1e63f5cd11ff7d92b1c72891f03a4d374a49d671f",
+    "src/app/src/SchwanenwerderV346.ts": "4780f63f34617cb11adb305be755d9dbb45c229d7522eb8da22187c687c383eb",
+    "src/app/src/WollankFrontsV346.ts": "a1190259809ebe2e8c5810afb567ae389f5899e084c5d16cea2706c9754a6f05",
+    "src/app/src/data/addedCityScopeV346.json": "600cfc47d244854552d1db5f06a543d0805c4750d3240736dc4b23a451733b3e",
+    "src/app/src/data/airfieldSurfacesV346.json": "ad5a2b0ff4028d1959bf0f191a2dc17536b33ad456f95e868e832e062389dd9d",
+    "src/app/src/data/airfieldSurfacesV346Index.json": "9dd4fb75e21b859cb9f005639dee1992b3db94bf87cb0ccff242b2c922f42722",
+    "src/app/src/data/huxleysEntranceV346.json": "d4017927efcb2dafbad210bed0ad118e21c2d832716098a05765266d93a17fbe",
+    "src/app/src/data/mainRoadFrontsV346Index.json": "3aea77bfa457584cc2a2a86509417cbc4da870c8d0123413bb94e30a87360d01",
+    "src/app/src/data/mainRoadFrontsV346Packets00.json": "c95c2596dc5c8479d14558f378837cb81b26387b8d703b4c2e1bfd560d263d95",
+    "src/app/src/data/mainRoadFrontsV346Packets01.json": "8dbdcfc4c57c6996efd04c52c5b3348e0d3aab8963e746b864ddf45d185b1a19",
+    "src/app/src/data/mainRoadFrontsV346Packets02.json": "981380368c0048ab1cdbbbf678236c95e0f73aae162de875cf7db7d7d33ad653",
+    "src/app/src/data/mainRoadFrontsV346Packets03.json": "f2616faa9816d6e6d05bbddb1a6c46112228fcbc11e7732fa397a42f3201c14a",
+    "src/app/src/data/mainRoadFrontsV346Packets04.json": "6f50a1c3e05559b9bbfc6e08b54dbe9712168e2504c065f3677113395a4bd971",
+    "src/app/src/data/mainRoadFrontsV346Packets05.json": "175ac6198d6aa999ce5b65dd6dc83b6b3b85d886b0fb58836f8b5d2b99ed7bde",
+    "src/app/src/data/mainRoadFrontsV346Packets06.json": "6967abefde9b67a7e84254dfd813b93dbe060222664d3fe1065bb1f9c80c910c",
+    "src/app/src/data/mainRoadFrontsV346Packets07.json": "cb4c84efe3ba32539ab3ad2b2443f2a79dcff2f4c7ec6048f2d4a59b742682a8",
+    "src/app/src/data/mainRoadFrontsV346Packets08.json": "3d9b3a81b9f2365bd7073bb36cfbdd87bc4cbbb3419dfb3f8dc591762f27004b",
+    "src/app/src/data/mainRoadFrontsV346Packets09.json": "372f0ca9a42cbbd2b7a6dce08e5ece8dc945a168ef96a28d0de2ba493faaaf45",
+    "src/app/src/data/mainRoadFrontsV346Packets10.json": "56c6fd0f14af245dcb0104b8f8bbbe73c10b50164df25062d336cc7d46187849",
+    "src/app/src/data/mainRoadFrontsV346Packets11.json": "f1d0c675ce6cc28d9937bd44361a375946097679bcf42c0b7e5cf8f52414ed7e",
+    "src/app/src/data/mainRoadFrontsV346Packets12.json": "dcb66b116699f90421679d34dbe0fa0c50f1e1b53003a9add1ad678baee4ff1b",
+    "src/app/src/data/mainRoadFrontsV346Packets13.json": "af45cd3ae91039ebc7c484f17f36d2a0f8cb2673e5e65a88bb5211dbb0287f5a",
+    "src/app/src/data/mainRoadFrontsV346Packets14.json": "76cc907301e17428862cfd155c0dba92a754f578557411b6d459e948b6bbff34",
+    "src/app/src/data/mainRoadFrontsV346Packets15.json": "a118d4c69772a608b2f8a8747af8c37a69560a4eb0d2aecc2112d2f36d8d6693",
+    "src/app/src/data/mainRoadFrontsV346Packets16.json": "d8b239652cbd1c4e68ed218c67a4f5c299ced22856c4a24b7f7af9cd0309c9eb",
+    "src/app/src/data/mainRoadFrontsV346Packets17.json": "f384e56e664d03ed48f503d2106b768f17fdf592cafdc9c1dc7bf21bf96976ea",
+    "src/app/src/data/mainRoadFrontsV346Packets18.json": "494d04f4791531ed0905336d5f1ca0fa98b0ed659b20c1aa2cf5f549e1bd6c2b",
+    "src/app/src/data/mainRoadFrontsV346Packets19.json": "ec40577c642a953199a4281f7ed0882d95a67cd876e7c2b17b5c1f271684c563",
+    "src/app/src/data/mainRoadFrontsV346Packets20.json": "1d2585b92e6ad60d659df416aa586692c2d1d84534108b9e59f94f3eee5e77a4",
+    "src/app/src/data/mainRoadFrontsV346Packets21.json": "0fd51fec01ea22c5f5153d46f53030c2a60d3ad5fdd16aced65da594869afa55",
+    "src/app/src/data/mainRoadFrontsV346Packets22.json": "f0d1e8e6249d4c7f228cede7fdeb50a6e33f23475a9d443291472d2b1c4dae79",
+    "src/app/src/data/mainRoadFrontsV346Packets23.json": "7ab9e535510048cb3fcb3d0a92d6d8053a7afd4c136594121061205164c4871d",
+    "src/app/src/data/mainRoadFrontsV346Packets24.json": "ba51f7dd63e7e11b599df98eb659fb3422a5797afe10a36a2126e10a6abf4e6f",
+    "src/app/src/data/mainRoadFrontsV346Packets25.json": "0285f7dafef663368153bfe0429d819f3be365b099850147616ec11e314461fd",
+    "src/app/src/data/mainRoadFrontsV346Packets26.json": "38033bce4020e17a5f40fc3f22b5033437c0ff679a5a78cc805afefea58d11de",
+    "src/app/src/data/mainRoadFrontsV346Packets27.json": "73596c2970011e00565b78b2f3a62d4cfae56547c529947a5383f6fd5b6f6344",
+    "src/app/src/data/mainRoadFrontsV346Packets28.json": "fc6d5ad7d9383ffd7dbea41dbd9cef75cfed6560421668a5b6d86f486d5b2d8a",
+    "src/app/src/data/mainRoadFrontsV346Packets29.json": "8035ee327e2d48ad0e27a1f90dd6dd19e757b0c63f32162be2f9fff3769a6f92",
+    "src/app/src/data/openSitesV346.json": "172066215b6ba8c34a21d124f09b96693e1c854fca5693d9cbb05a5d72840db3",
+    "src/app/src/data/pfaueninselDetailsV346.json": "f4b378ff6527568823e38ba2f402ec39e031b074f5b9e2f8ff1a91e27d57e3b7",
+    "src/app/src/data/schwanenwerderV346Packets.json": "32f8287f20f32db3a5ab96fc7d0fd4498050f51e85f1e20795a29846083f163e",
+    "src/app/src/data/wollankFrontsV346.json": "1090829e1d7ee279e29bea3cdc37d6fd182ceeadae725e7a0902dfd2739db574"
+  },
+  "changes": {
+    "src/app/losslessBase85SourcesV263.ts": {
+      "before": "b37dff5e7aa4eeb6aaeb8b38f0795720409cf5afde4237f12fdab9b2fef178e3",
+      "after": "9bfbed8585912a459dff6f6fd508f2485dd7c403f3b74fe77389ae884e95060f"
+    },
+    "src/app/losslessJsonData.ts": {
+      "before": "1d5f2a8cebabea7d5fc3f803a726ef5ec86ab2303129e78d09c22d0252cc05cf",
+      "after": "804c4b5494dafc2eb70e0c86ea2a8411a92c9cb2b015d706322795e2dd371978"
+    },
+    "src/app/package.json": {
+      "before": "222fb9db7704446964677fc756d11e653c8066a964e4d1ff004fe8e0fac7fd73",
+      "after": "af4d28b6c37584320f98b159524618ffc4660aa5db7e2814df01d4ba0aed0b45"
+    },
+    "src/app/src/OuterThinOutlines.ts": {
+      "before": "b9556986b8c0a8b1ce814f404a50b716f63ac496e3ad37ab3b6ca1dd4dda711f",
+      "after": "ba052d01bf734e8b74da7555ea72b7e72de7c2e858088b66b19e9d06889e179a"
+    },
+    "src/app/src/OutlineLandmarksV182.ts": {
+      "before": "d08bb6052954418106d407e2b4d8817da61f43968e3f5105ca6ae7c1ffc17f55",
+      "after": "7722bec53f712cbb70ce5ea71dcd4ad448d3694008d67e50c014bf1bb52b5af1"
+    },
+    "src/app/src/SourceQuarterCatalogueV309.ts": {
+      "before": "ba71987b4491ba7db66333ad80b34a8f871d1d266816f48e31009c26aec97e8a",
+      "after": "3e329f5064cb7e39159632a471ef6f3346313377d321cb2346a9ca4ae3628375"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "before": "91608da39082267dda4ff646eeb382b783d9b75ab201ad6e1c1b77d2fdc8abfc",
+      "after": "d640ae7ea0abbff7667fc928d4caaa3232353703371d521f5e7a083198efcc84"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "67cd55b27e473cb708a10517ee539597dceb3f7e76accb8d631675a29cf48ef2",
+      "after": "6001741544cb6e84544945aab97bf83304d2cb34c1ae884b2056e94c320284a1"
+    },
+    "src/app/src/losslessGzipBase85.ts": {
+      "before": "bc9c987e09c881c52884101897b02fa9860178548f1811c4ae45760c4da3931a",
+      "after": "9d8c0674aa3b9edc64f32cdf070459834ec54e993806ea5e15110374237bc0ec"
+    },
+    "src/app/src/restoredRoadSurfaces.ts": {
+      "before": "81719d2e879d50d22aaa341694c0b425d6f5b9429a81866a92110963295c896c",
+      "after": "83545f642ac914a2a5c4bc8442e38ad963277617c9ffe4564f40c185e8eccaf6"
+    },
+    "src/app/src/surroundingCityScope.ts": {
+      "before": "de1b800b24e721ca7520eae0ed524b162aea75e3928b864e9be2308d8de08d3d",
+      "after": "a24a14278f8c4a28938b647e801e66edf7da19ad59b1c0c12196b161ccc63047"
+    }
+  }
+}

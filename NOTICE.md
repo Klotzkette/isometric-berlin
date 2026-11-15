@@ -3165,3 +3165,18 @@ building:part ways 1017413850, 1017413851, 1535787743, 1535834587, 1535834588,
 (ODbL 1.0). SO36 entrance reference: visitBerlin / Prokura Nepp,
 [venue page](https://www.visitberlin.de/de/so36). Both are external geometric
 references only; no image pixels are included. See the v345 city detail notes.
+
+
+## V346: Kladow, airfields, islands and ordinary street fronts
+
+Berlin Geoportal LoD2 (dl-de/zero-2-0) provides the complete Kladow/Gatow,
+Schwanenwerder, Hellweg and Humboldthain building sheets. The official principal
+road network, `strnetz:uebergeordnetes_strnetz`, uses dl-de-zero-2.0. Current mapped
+footprints, storeys, airfield surfaces and street lines are OpenStreetMap
+contributors / Geofabrik, ODbL-1.0, extract through 13 November 2026.
+See the versioned sources and hashes in `geo_data/regierungsviertel/*v346*`.
+Huxleys and Pfaueninsel exterior photographs/operator plans are external
+geometric references only; no photo pixels, posters or third-party logo artwork
+are distributed. Details, source links and estimate boundaries are documented in
+[street fronts](docs/main-road-fronts-v346.md), [Huxleys](docs/huxleys-entrance-v346.md)
+and [islands](docs/islands-v346.md).

@@ -36,9 +36,9 @@ test("all206 parsed values and hash references remain exact; only finite named d
 });
 
 test("only measured static allowances grow; all transfer/residency/vertex/index live limits stay fixed",()=>{
- expect(SURROUNDING_CITY_MAX_DESCRIPTORS).toBe(2906);expect(SURROUNDING_CITY_MAX_FOOTPRINTS).toBe(2907);
- expect(SURROUNDING_CITY_MAX_MANIFEST_BYTES).toBe(3922*1024);
- expect(legacyBytes.byteLength).toBe(3853868);expect(body.byteLength).toBe(4015235);expect(SURROUNDING_CITY_MAX_MANIFEST_BYTES-body.byteLength).toBeLessThan(2048);
+ expect(SURROUNDING_CITY_MAX_DESCRIPTORS).toBe(2989);expect(SURROUNDING_CITY_MAX_FOOTPRINTS).toBe(2934);
+ expect(SURROUNDING_CITY_MAX_MANIFEST_BYTES).toBe(4023*1024);
+ expect(legacyBytes.byteLength).toBe(3853868);expect(body.byteLength).toBe(4119471);expect(SURROUNDING_CITY_MAX_MANIFEST_BYTES-body.byteLength).toBeGreaterThanOrEqual(0);expect(SURROUNDING_CITY_MAX_MANIFEST_BYTES-body.byteLength).toBeLessThan(2048);
  expect(SURROUNDING_CITY_RESIDENT_BUDGET_BYTES).toBe(24*1024*1024);expect(SURROUNDING_CITY_MAX_CHUNK_BYTES).toBe(12*1024*1024);
  expect(SURROUNDING_CITY_PREFETCH_BYTES).toBe(4*1024*1024);expect(SURROUNDING_CITY_PREFETCH_COUNT).toBe(2);
  expect(SURROUNDING_CITY_SCAN_MS).toBe(180);expect(SURROUNDING_CITY_RETIRE_MS).toBe(1800);
@@ -54,7 +54,7 @@ test("actual bounded HTTP manifest loader admits the complete expanded metadata 
  const calls:string[]=[];
  const city=createSurroundingCity({manifestUrl:new URL("https://example.test/manifest.json"),camera,
   fetch:(async (input: URL | RequestInfo)=>{calls.push(String(input));if(!String(input).endsWith("manifest.json"))throw new Error("Unexpected geometry request");return new Response(body.toString(),{headers:{"Content-Type":"application/json"}});}) as typeof fetch});
- try{await city.ready;expect(city.manifest?.chunks).toHaveLength(2906);expect(city.residentChunkCount).toBe(0);expect(calls).toEqual(["https://example.test/manifest.json"]);expect(city.groundAt(100000000,100000000)).toBeNull();expect(city.solidAt(100000000,3,100000000,.4)).toBeFalse();}
+ try{await city.ready;expect(city.manifest?.chunks).toHaveLength(2989);expect(city.residentChunkCount).toBe(0);expect(calls).toEqual(["https://example.test/manifest.json"]);expect(city.groundAt(100000000,100000000)).toBeNull();expect(city.solidAt(100000000,3,100000000,.4)).toBeFalse();}
  finally{city.dispose();}
 },10000);
 
@@ -88,5 +88,18 @@ test("named additions compose their exact packet receipts without changing the p
   expect(south.packets).toEqual({});
   previous.chunks.push(...south.additions);
   previous.footprint.push(...south.footprintAdditions);
+  // V346 appends exact independently hashed supplements after the whole v225 city.
+  const coverage = JSON.parse(readFileSync(new URL("geo_data/regierungsviertel/city-coverage-v346-receipt.json", root), "utf8"));
+  const published225 = execFileSync("git", ["show", `${coverage.baseline}:src/app/public/mesh/surrounding-berlin-v159/manifest.json`], {
+    cwd:fileURLToPath(root),maxBuffer:5*1024*1024,
+  });
+  expect(hash(published225)).toBe(coverage.previousManifestSha256);
+  expect(previous).toEqual(JSON.parse(published225.toString()));
+  expect(coverage.preservedChunks).toBe(2906);expect(coverage.newChunks).toBe(83);expect(hash(body)).toBe(coverage.manifestSha256);
+  for (const [label, filename] of [["kladow346", "kladow-airfield-v346-manifest.json"], ["tegel346", "tegel-airfield-v346-manifest.json"]]) {
+    const bytes=readFileSync(new URL("geo_data/regierungsviertel/"+filename,root)),supplement=JSON.parse(bytes.toString());
+    previous.chunks.push(...supplement.chunks);previous.footprint.push(...supplement.footprint);
+    previous[label+"V346"]={sourceFile:filename,sourceSha256:hash(bytes),source:supplement.source,chunks:supplement.chunks.map((c:{id:string})=>c.id)};
+  }
   expect(expanded).toEqual(previous);
 });

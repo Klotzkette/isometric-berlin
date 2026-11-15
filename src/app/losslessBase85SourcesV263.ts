@@ -1,3 +1,4 @@
+import { LOSSLESS_BASE85_SOURCES_V346 } from "./losslessBase85SourcesV346";
 // Finite audited JSON module ownership, initially the three v263 main chunks.
 // Codec selection only: field thresholds and strong/weak/eager lifetimes stay intact.
 import { LOSSLESS_NORTHERN_SOURCES_V309 } from "./losslessNorthernSourcesV309";
@@ -256,7 +257,7 @@ export const LOSSLESS_BASE85_BEFORE_V309: ReadonlySet<string> = new Set([
   "data/zionskirchplatzV193Evidence.json",
   "data/zooPalastV260.json",
 ]);
-export const LOSSLESS_BASE85_SOURCES_V263: ReadonlySet<string> = new Set([
+export const LOSSLESS_BASE85_BEFORE_V346: ReadonlySet<string> = new Set([
   "data/universitiesArchitectureV322.json", "data/universitiesPreviousV322.json",
   "data/universitiesV322Packets.json", "data/youthTheatresV322.json",
   "data/memorialPreviousV322.json",
@@ -267,4 +268,8 @@ export const LOSSLESS_BASE85_SOURCES_V263: ReadonlySet<string> = new Set([
   "data/federalMinistryPressQuarterV321.json",
   "data/berlinSenateBuildingsV321.json",
   "data/berlinSenatePreviousV321.json",
+]);
+
+export const LOSSLESS_BASE85_SOURCES_V263: ReadonlySet<string> = new Set([
+  ...LOSSLESS_BASE85_BEFORE_V346, ...LOSSLESS_BASE85_SOURCES_V346,
 ]);

@@ -49,6 +49,7 @@ import { createViktoriaparkV194 } from "./ViktoriaparkV194";
 import { createAirportsV194 } from "./AirportsV194";
 import { addAirportExteriorsV345 } from "./AirportExteriorsV345";
 import { createWestLakesV194 } from "./WestLakesV194";
+import {attachPfaueninselDetailsV346,pfaueninselDetailsGroundAtV346,pfaueninselDetailsSolidAtV346} from "./PfaueninselDetailsV346";
 import { createDrachenbergKitesV195 } from "./DrachenbergKitesV195";
 import { createTeufelsbergStationV195 } from "./TeufelsbergStationV195";
 import { createDrachenbergLawnV195 } from "./DrachenbergLawnV195";
@@ -132,6 +133,10 @@ export function* createOutlineLandmarksV182Steps(
     const model = activeSteglitzSchoolStores();
     return model ? steglitzLidlV327SolidAt(model, x, y, z, radius) : false;
   };
+  let pfaueninselV346:Group|null=null;
+  root.userData.pfaueninselGroundAtV346=(x:number,z:number)=>root.visible?pfaueninselDetailsGroundAtV346(pfaueninselV346,x,z):null;
+  root.userData.pfaueninselSolidAtV346=(x:number,y:number,z:number,radius=0)=>root.visible&&pfaueninselDetailsSolidAtV346(pfaueninselV346,x,y,z,radius);
+  root.userData.releasePfaueninselDetailsV346=()=>{pfaueninselV346=null;};
   let southwestV326:Group|null=null,peacocksV326:Group|null=null;
   const peacockClockV326=createPfaueninselPeacockClockV326();
   root.userData.hasSouthWestSitesV326=(family:boolean)=>hasSouthWestSitesRuntimeV326(root,southwestV326,family);
@@ -266,7 +271,9 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createEurefCampusV262(nextNative));
       yield;
-      root.add(createWestLakesV194(nextNative));
+      const westLakes=createWestLakesV194(nextNative);
+      pfaueninselV346=attachPfaueninselDetailsV346(westLakes,nextNative);
+      root.add(westLakes);
       yield;
       southwestV326=yield*createSouthWestSitesV326Steps(nextNative);
       if(southwestV326)root.add(southwestV326);
@@ -398,7 +405,7 @@ export function* createOutlineLandmarksV182Steps(
 /** Release unpublished partial work as well as completed mode families. */
 export function disposeOutlineConstruction(root: Group): void {
   const release: (()=>void)[]=[];
-  root.traverse(object=>{if(typeof object.userData.releaseSouthWestSitesV326==="function")release.push(object.userData.releaseSouthWestSitesV326);if(typeof object.userData.releasePublicSitesV322==="function")release.push(object.userData.releasePublicSitesV322);});
+  root.traverse(object=>{if(typeof object.userData.releasePfaueninselDetailsV346==="function")release.push(object.userData.releasePfaueninselDetailsV346);if(typeof object.userData.releaseSouthWestSitesV326==="function")release.push(object.userData.releaseSouthWestSitesV326);if(typeof object.userData.releasePublicSitesV322==="function")release.push(object.userData.releasePublicSitesV322);});
   for(const close of release)close();
   const geometries = new Set<BufferGeometry>(), materials = new Set<Material>();
   root.traverse(object => {

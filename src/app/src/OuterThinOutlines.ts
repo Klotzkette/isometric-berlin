@@ -43,6 +43,7 @@ export function* createOuterThinOutlinesSteps(
     // Keep detailed navigation in this lazy supplement, out of the startup bundle.
     root.userData.solidAt = (x: number, y: number, z: number, radius = 0) =>
       root.visible&&!!landmarks&&landmarks.parent===root&&landmarks!.visible&&landmarks!.userData.publicSitesSolidAtV322?.(x,y,z,radius)===true ||
+      activeLandmarks()?.userData.pfaueninselSolidAtV346?.(x,y,z,radius)===true ||
       activeLandmarks()?.userData.steglitzStoresSolid(x, y, z, radius) === true ||
       eurefV262SolidAt(x, y, z, radius, activeMode === "minecraft") ||
       tempelhofV261SolidAt(x, y, z, radius, activeMode === "minecraft") ||
@@ -69,6 +70,7 @@ export function* createOuterThinOutlinesSteps(
     root.userData.steglitzStoresFloor = (x: number, z: number, currentY?: number) =>
       activeLandmarks()?.userData.steglitzStoresFloor(x, z, currentY) ?? null;
     root.userData.groundAt = (x: number, z: number) =>
+      activeLandmarks()?.userData.pfaueninselGroundAtV346?.(x,z) ??
       eurefV262GroundAt(x, z, activeMode === "minecraft") ??
       windkanalV261GroundAt(x, z, activeMode === "minecraft") ??
       tempelhofV261GroundAt(x, z, activeMode === "minecraft") ??

@@ -3125,3 +3125,43 @@ OSM-relation-21070307 in ring182-11_10, including their arbitrary fallback
 height, roof lines and collision data. Their complete old source and the
 current map evidence remain retained. Keep every unrelated packet triangle,
 road, water, ground and navigation entry; see docs/estrel-ownership-v345.md.
+
+### Step 10 — v346 open sites, main-road corridors and southwestern islands
+
+The owner requests completion of the remaining Humboldthain, Wollankstraße,
+Hellweg/Ellen-Epstein-Straße and Huxleys entrance details, building accuracy along
+Berlin's principal roads through the state boundary and nearby side streets,
+the former Gatow, Tegel and Tempelhof airfields, Kladow, Schwanenwerder and
+Pfaueninsel with its palace and villas. This explicitly authorizes finite new
+mapped coverage at Gatow/Kladow and missing main-road building corridors inside
+the Berlin boundary. Record exact source polygons and subtract existing coverage;
+do not replace open land with invented housing or silently claim photographic
+accuracy for procedural window subdivisions.
+
+Retain all prior city geometry, sources and detail. Complete, independently
+checked official building parts may supersede exact documented old fallback
+envelopes at the named sites, with matching navigation and full old-source
+receipts. Supplementary fittings must bind to actual Drawn and independent
+Native source walls and share their host's admission, unloading and restoration.
+Use current mapped storeys and measured walls wherever available; label unknown
+apertures and material dimensions as estimates. Preserve all six modes, the
+93-stop tour, identical mobile Drawn detail and every live/Worker/startup budget.
+Only an evidenced finite offline allowance for the requested additional source
+detail may grow. Root owns shared integration, source history, packaging and
+publication; area agents use separate versioned sources and factories.
+
+
+V346 finite static-storage offset: the complete public tree must remain below
+1,000,000,000 bytes while retaining the explicitly requested new coverage.
+The old V290 whole-road-gzip experiment remains excluded. For this finite
+release, the unchanged 425 original restored-road NDJSON batches may instead
+use independently compressed gzip/Base85 lines through the existing shared
+codec, in the existing yielded Worker stream. Keep the legacy parser, per-line
+backpressure/cancellation, exact geometry bytes and original source file; bound
+both encoded and decoded allocation. Do not inflate the complete road file or
+claim a transfer-speed improvement without measurement. The main and Worker
+builds must emit only the reached compact asset. The 106 exact paths in
+losslessBase85SourcesV346.ts may use the already-existing Base85 alphabet with
+unchanged gzip admission, eager/strong/weak lifetime, values and source hashes.
+Validate complete roundtrips and actual built sizes. No live, startup or Worker
+budget increase is authorized by these representation-only changes.

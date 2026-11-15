@@ -1,12 +1,25 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import { LOSSLESS_BASE85_BEFORE_V309, LOSSLESS_BASE85_SOURCES_V263 } from "../losslessBase85SourcesV263";
+import { LOSSLESS_BASE85_BEFORE_V309, LOSSLESS_BASE85_BEFORE_V346 as LOSSLESS_BASE85_SOURCES_V263 } from "../losslessBase85SourcesV263";
 import { LOSSLESS_NORTHERN_SOURCES_V309 } from "../losslessNorthernSourcesV309";
 import { READONLY_CONSTRUCTION_JSON_FIELDS, transformLosslessJsonData } from "../losslessJsonData";
 import { decodeLosslessGzipJson } from "../src/losslessGzipBase85";
 
-test("the current registry preserves the complete frozen old set and only the finite northern additions", () => {
-  expect([...LOSSLESS_BASE85_SOURCES_V263].filter(path => !LOSSLESS_BASE85_BEFORE_V309.has(path)).sort()).toEqual([...LOSSLESS_NORTHERN_SOURCES_V309].sort());
+// Later V321/V322 source encodings are explicit additional scopes. This test
+// still checks the complete historical V309 selection, without treating later
+// named work as a changed V309 baseline.
+const later = new Set([
+  "data/universitiesArchitectureV322.json", "data/universitiesPreviousV322.json",
+  "data/universitiesV322Packets.json", "data/youthTheatresV322.json",
+  "data/memorialPreviousV322.json", "data/youthTheatreFrontsV322Packets.json",
+  "data/berlinSenateV321.json", "data/federalMinistriesV321.json",
+  "data/federalMinistriesV321Previous.json", "data/federalMinistriesV321Packets.json",
+  "data/federalMinistryPressQuarterV321.json", "data/berlinSenateBuildingsV321.json",
+  "data/berlinSenatePreviousV321.json",
+]);
+test("the registry retains the complete frozen V309 selection beside explicit later scopes", () => {
+  expect([...later].every(path => LOSSLESS_BASE85_SOURCES_V263.has(path))).toBeTrue();
+  expect([...LOSSLESS_BASE85_SOURCES_V263].filter(path => !LOSSLESS_BASE85_BEFORE_V309.has(path) && !later.has(path)).sort()).toEqual([...LOSSLESS_NORTHERN_SOURCES_V309].sort());
   expect([...LOSSLESS_BASE85_BEFORE_V309].every(path => LOSSLESS_BASE85_SOURCES_V263.has(path))).toBeTrue();
   expect(LOSSLESS_NORTHERN_SOURCES_V309.size).toBe(24);
   expect([...LOSSLESS_NORTHERN_SOURCES_V309].every(path => /^data\/[a-zA-Z0-9]+V30[6789][a-zA-Z0-9]*\.json$/.test(path))).toBeTrue();

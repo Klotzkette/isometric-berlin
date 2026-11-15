@@ -13,6 +13,11 @@ import theatresIndexV322 from "./data/youthTheatreFrontsV322PacketIndex.json";
 import publicGreenIndexV329 from "./data/publicGreenV329Index.json";
 import parkPathsIndexV329 from "./data/parkPathsV329Index.json";
 import zebraCrossingsIndexV329 from "./data/zebraCrossingsV329Index.json";
+import { wollankFrontsV346 } from "./WollankFrontsV346";
+import { schwanenwerderV346 } from "./SchwanenwerderV346";
+import { airfieldSurfacesV346 } from "./AirfieldSurfacesV346";
+import { huxleysEntranceV346 } from "./HuxleysEntranceV346";
+import { mainRoadFrontsEntriesV346 } from "./MainRoadFrontsV346";
 import { so36FrontV345 } from "./So36FrontV345";
 import { estrelTowerPacketV345 } from "./EstrelTowerPacketV345";
 import { weddingRingWestV345 } from "./WeddingRingWestV345";
@@ -96,6 +101,11 @@ export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV
   weddingRingWestV345,
   so36FrontV345,
   estrelTowerPacketV345,
+  huxleysEntranceV346,
+  wollankFrontsV346,
+  schwanenwerderV346,
+  ...mainRoadFrontsEntriesV346,
+  airfieldSurfacesV346,
   ...groundEntriesV329("public-green-v329", publicGreenIndexV329.sources),
   ...groundEntriesV329("park-paths-v329", parkPathsIndexV329.sources),
   ...groundEntriesV329("zebra-crossings-v329", zebraCrossingsIndexV329.sources),

@@ -4370,6 +4370,7 @@ function prepareIsoNavigation(
     (schwellenraumProtectedAt(x, y, z) ||
       schwellenraumProtectedMemorialAt(memorialProtection, x, y, z));
   pedestrianEnvironment.interiorSolidAt = (x, y, z, radius) => {
+    if ((voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.openSitesNavigationV346?.solidAt(x,y,z,radius)) return true;
     if (northContextSolid(runtime, x, y, z, radius)) return true;
     if ((voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.karlMarxPlacesSolidAtV316?.(x,y,z,radius,voxelModeActive(runtime))) return true;
     if (parliamentWorldReadyV295(runtime) && parliamentSolidAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,y,z,0)) return true;
@@ -4443,6 +4444,8 @@ function prepareIsoNavigation(
   const formerBridgeGround = pedestrianEnvironment.bridgeGroundAt;
   pedestrianEnvironment.bridgeGroundAt = (x, z) => monbijouV231DeckAt(x, z, runtime.lightingMode === "minecraft") ?? formerBridgeGround?.(x, z) ?? null;
   pedestrianEnvironment.interiorGroundAt = (x, z, currentGroundY) => {
+    const openSiteRoof = (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.openSitesNavigationV346?.groundAt(x,z,currentGroundY) ?? null;
+    if (openSiteRoof !== null) return openSiteRoof;
     const perlebergerFloor = europacityRoadFloor(runtime, x, z, currentGroundY);
     if (perlebergerFloor !== null) return perlebergerFloor;
     if (parliamentWorldReadyV295(runtime)) { const floor=parliamentGroundAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,z,currentGroundY); if(floor!==null)return floor; }
@@ -4622,7 +4625,7 @@ function ensureIsoWorld(
   const potsdamerStationPhoto = import("./PotsdamerStationDrawn");
   const mitteStreetFrontsV340 = Promise.all([
     import("./MitteHistoricFrontsV340"), import("./MoabitStreetFrontsV340"),
-    import("./GendarmenSecondRowV344"), import("./SchlossplatzContextV344"), import("./PetriExteriorV344"), import("./BauakademieExteriorV344"), import("./TiergartenPathsV345"), import("./NordbahnhofFrontsV345"),
+    import("./GendarmenSecondRowV344"), import("./SchlossplatzContextV344"), import("./PetriExteriorV344"), import("./BauakademieExteriorV344"), import("./TiergartenPathsV345"), import("./NordbahnhofFrontsV345"), import("./OpenSitesV346"),
   ]);
   const abgeordnetenhausDetails = import("./AbgeordnetenhausDetails");
   const gropiusBauDetails = import("./GropiusBauDetails");
@@ -4715,7 +4718,7 @@ function ensureIsoWorld(
     breitscheidDetails, westSquaresDetails, eastSquaresDetails, hackescherDetails,
     cafeNeuerSeeDetails, spanishEmbassyDetails, gatehouseDetails, zooGroundsDetails, kranzlerDetails, zooStationDetails, huthmacherDetails, upbeatV166Details, alexanderNorthV166Details, cityWestCinemasV166Details, moabitJusticeV166Details, mitteHeritageV166Details, kosmosV166Details, neueSynagogeV167Details, tachelesV167Details, monbijouBathV167Details, humboldtMainV168Details, teehausRuinV168Details, tuWaterV168Details, altMitteCoreV169Details, bndV174Details, weinbergV174Details, zionV174Details, wallV174Details, zionFrontagesV175Details, northCorridorDetails, requiredSites, potsdamerStationPhoto, mitteStreetFrontsV340,
   ])
-    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumPavingV343, kulturforumPlazaV343, roadGroundV343, kulturforumMuseums, northRail, northContext, lindenContextV315, karlMarxV316, treptowV317, domEastHousingV318, europacityRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208, sitesV209, stationPhoto, [mitteFrontsV340, moabitFrontsV340, gendarmenV344, schlossplatzV344, petriV344, bauakademieV344, tiergartenPathsV345, nordbahnhofV345]]) => {
+    .then(async ([prisms, ground, street, surfaces, rail, spree, unterDenLinden, abgeordnetenhaus, gropiusBau, perimeter, palaces, jamesSimon, komischeOper, entrances, civicEast, dhm, embassy, outlines, streetsEast, tower, alexanderCivic, alexanderPublic, leipziger, potsdamerMinistry, leipzigerPerimeter, bikini, ulap, ulapQuarter, moabitHouses, concert, kulturforumPavingV343, kulturforumPlazaV343, roadGroundV343, kulturforumMuseums, northRail, northContext, lindenContextV315, karlMarxV316, treptowV317, domEastHousingV318, europacityRail, breitscheid, westSquares, eastSquares, hackescher, cafeNeuerSee, spanishEmbassy, gatehouses, zooGrounds, kranzler, zooStation, huthmacher, upbeatV166, alexanderNorthV166, cityWestCinemasV166, moabitJusticeV166, mitteHeritageV166, kosmosV166, neueSynagogeV167, tachelesV167, monbijouBathV167, humboldtMainV168, teehausRuinV168, tuWaterV168, altMitteCoreV169, bndV174, weinbergV174, zionV174, wallV174, zionFrontagesV175, northCorridorV208, sitesV209, stationPhoto, [mitteFrontsV340, moabitFrontsV340, gendarmenV344, schlossplatzV344, petriV344, bauakademieV344, tiergartenPathsV345, nordbahnhofV345, openSitesV346]]) => {
       if (runtime.disposed) {
         return;
       }
@@ -4928,6 +4931,9 @@ function ensureIsoWorld(
         yield* sitesV209.addRequiredSiteEnvelopesV209Steps(isoWorld);
         const petri = petriV344.createPetriExteriorV344(prisms.buildings);
         if (petri) isoWorld.add(petri);
+        const openSites = openSitesV346.createOpenSitesV346(prisms.buildings);
+        isoWorld.add(openSites);
+        isoWorld.userData.openSitesNavigationV346 = openSitesV346.createOpenSitesNavigationV346(isoWorld, openSites, false);
         isoWorld.add(bauakademieV344.createBauakademieExteriorV344(prisms.buildings));
         yield;
         isoWorld.add(mitteFrontsV340.createMitteHistoricFrontsV340(prisms.buildings));
@@ -5550,6 +5556,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     nationalgaleriePorticoWalkableAt(x,y,z,sourceId) ||
     zooStationV165PassageAt(x,y,z,sourceId) || grosserSternGatehousePassageAt(x,y,z,sourceId) || hackescherHoefePassageAt(x,y,z,sourceId) || sovietMemorialWalkableAt(x,y,z,sourceId) || visualModeWalkableInteriorAt(runtime.lightingMode, x, y, z, sourceId, parliamentWorldReadyV295(runtime));
   environment.interiorSolidAt = (x, y, z, radius) => {
+    if ((voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.openSitesNavigationV346?.solidAt(x,y,z,radius)) return true;
     if (northContextSolid(runtime, x, y, z, radius)) return true;
     if ((voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.karlMarxPlacesSolidAtV316?.(x,y,z,radius,voxelModeActive(runtime))) return true;
     if (parliamentWorldReadyV295(runtime) && parliamentSolidAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,y,z,0)) return true;
@@ -5608,6 +5615,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
   const formerBridgeGround = environment.bridgeGroundAt;
   environment.bridgeGroundAt = (x, z) => monbijouV231DeckAt(x, z, runtime.lightingMode === "minecraft") ?? formerBridgeGround?.(x, z) ?? null;
   environment.interiorGroundAt = (x, z, currentGroundY) =>
+    (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.openSitesNavigationV346?.groundAt(x,z,currentGroundY) ??
     europacityRoadFloor(runtime, x, z, currentGroundY) ??
     (parliamentWorldReadyV295(runtime) ? parliamentGroundAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,z,currentGroundY) : null) ??
     kulturforumPiazzettaFloorAt(x, z, runtime.lightingMode === "minecraft") ??
@@ -5778,10 +5786,10 @@ function ensureVoxelWorld(
 
       const nordbahnhofModule = prisms ? await import("./NordbahnhofPublicAccess") : null;
       const kulturforumPavingV343 = await import("./KulturforumPavingV343");
-      const [mitteFrontsV340, moabitFrontsV340, gendarmenV344, schlossplatzV344, petriV344, bauakademieV344, nordbahnhofV345] = prisms ? await Promise.all([
+      const [mitteFrontsV340, moabitFrontsV340, gendarmenV344, schlossplatzV344, petriV344, bauakademieV344, nordbahnhofV345, openSitesV346] = prisms ? await Promise.all([
         import("./MitteHistoricFrontsV340"), import("./MoabitStreetFrontsV340"),
-        import("./GendarmenSecondRowV344"), import("./SchlossplatzContextV344"), import("./PetriExteriorV344"), import("./BauakademieExteriorV344"), import("./NordbahnhofFrontsV345"),
-      ]) : [null, null, null, null, null, null, null];
+        import("./GendarmenSecondRowV344"), import("./SchlossplatzContextV344"), import("./PetriExteriorV344"), import("./BauakademieExteriorV344"), import("./NordbahnhofFrontsV345"), import("./OpenSitesV346"),
+      ]) : [null, null, null, null, null, null, null, null];
       if (runtime.disposed || runtime.loadSignal.aborted || !voxelWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
       const nordbahnhof = nordbahnhofModule?.prepareNordbahnhofNative(prisms?.buildings, payload) ?? null;
       provisionalVoxelWorld = new Group();
@@ -5849,6 +5857,11 @@ function ensureVoxelWorld(
         if (nordbahnhofV345) provisionalVoxelWorld.add(nordbahnhofV345.createNordbahnhofFrontsV345(provisionalVoxelWorld, true));
         const petri = petriV344.createPetriExteriorV344(prisms.buildings, payload);
         if (petri) provisionalVoxelWorld.add(petri);
+        if (openSitesV346) {
+          const openSites = openSitesV346.createOpenSitesV346(prisms.buildings, payload);
+          provisionalVoxelWorld.add(openSites);
+          provisionalVoxelWorld.userData.openSitesNavigationV346 = openSitesV346.createOpenSitesNavigationV346(provisionalVoxelWorld, openSites, true);
+        }
         provisionalVoxelWorld.add(bauakademieV344.createBauakademieExteriorV344(prisms.buildings, payload));
         provisionalVoxelWorld.add(mitteFrontsV340.createMitteHistoricFrontsV340(prisms.buildings, payload));
         const moabitFronts = moabitFrontsV340.createMoabitStreetFrontsV340(prisms.buildings, true, payload);

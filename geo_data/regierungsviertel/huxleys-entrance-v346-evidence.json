@@ -1,0 +1,134 @@
+{
+  "retrieved": "2026-11-15",
+  "owner": "DEBE08YYF00009PW",
+  "part": "DEBE3DjqaXknEpdh",
+  "building": "OSM-way-30255865",
+  "packet": "ring182-6_7",
+  "sources": [
+    "https://huxleysneuewelt.de/information",
+    "https://channelmusic.de/wp-content/uploads/2019/03/Venue-Specs-Huxleys-09-2019.pdf",
+    "https://neuewelt-berlin.de/wp-content/uploads/2020/02/SABIV_NW_Lage_200219-1.jpg",
+    "https://www.morgenpost.de/berlin/article404286900/huxleys-neue-welt-parken-anfahrt-garderobe-programm.html"
+  ],
+  "photoPixelsDistributed": false,
+  "registration": "Operator aerial, p.10, and directory ground plan locate the public portal north of the small eastern projecting wing, south of the adjacent Wettarena door; retained OSM parking 26832567 is east of the building, Hasenheide north. The directory north arrow points down. Projection corner and complete measured east facade locate the wall; 2.6m bay offset is a photo-derived estimate, not an entrance survey.",
+  "estimated": [
+    "2.6m bay centre north of the southern projecting wing",
+    "3.1m portal width and 3.1m glazing height",
+    "shallow 1.45m canopy projection and fittings",
+    "material tones"
+  ],
+  "rejectedAnchors": [
+    "interior POI 975700421",
+    "unrelated entrance 9104186570"
+  ],
+  "modes": [
+    {
+      "mode": "drawn",
+      "actualHostVertices": [
+        [
+          3341.67,
+          3,
+          3656.6
+        ],
+        [
+          3342.49,
+          3,
+          3645.06
+        ],
+        [
+          3341.67,
+          15.61,
+          3656.6
+        ],
+        [
+          3342.49,
+          15.61,
+          3645.06
+        ]
+      ],
+      "wall": {
+        "startXZ": [
+          3341.666,
+          3656.602
+        ],
+        "endXZ": [
+          3342.495,
+          3645.062
+        ],
+        "outwardSide": 1,
+        "wallBaseY": 3,
+        "wallTopY": 15.61,
+        "street": "Neue Welt eastern parking frontage",
+        "prismId": "DEBE3DjqaXknEpdh"
+      },
+      "estimatedBayU": 2.6,
+      "center": [
+        3341.8522963509567,
+        3,
+        3654.008682882943
+      ],
+      "sourceMeshes": [
+        "city",
+        "elevated-station-v238",
+        "street-curves-v276",
+        "network-fidelity-v326"
+      ],
+      "newVertices": 2496,
+      "newTriangles": 1248
+    },
+    {
+      "mode": "minecraft",
+      "actualHostVertices": [
+        [
+          3342,
+          3,
+          3652
+        ],
+        [
+          3342,
+          13,
+          3652
+        ],
+        [
+          3342,
+          3,
+          3656
+        ],
+        [
+          3342,
+          13,
+          3656
+        ]
+      ],
+      "wall": {
+        "startXZ": [
+          3342,
+          3656
+        ],
+        "endXZ": [
+          3342,
+          3652
+        ],
+        "outwardSide": 1,
+        "wallBaseY": 3,
+        "wallTopY": 15.61,
+        "street": "Neue Welt eastern parking frontage",
+        "prismId": "DEBE3DjqaXknEpdh"
+      },
+      "estimatedBayU": 2,
+      "center": [
+        3342,
+        3,
+        3654
+      ],
+      "sourceMeshes": [
+        "city",
+        "elevated-station-v238",
+        "network-fidelity-v326"
+      ],
+      "newVertices": 9840,
+      "newTriangles": 4920
+    }
+  ]
+}

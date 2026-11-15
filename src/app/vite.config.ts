@@ -1,6 +1,7 @@
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { losslessJsonData } from "./losslessJsonData";
+import { losslessRestoredRoadSurfacesV346 } from "./losslessRestoredRoadSurfacesV346";
 
 export const STARTUP_JS_BUDGET_BYTES = 400 * 1024;
 // The worker used to import 27 MB of unrelated model/navigation source data.
@@ -108,8 +109,8 @@ function startupBudget(): Plugin {
 
 export default defineConfig({
   base: "./",
-  plugins: [losslessJsonData(), react(), startupBudget()],
-  worker: { plugins: () => [losslessJsonData(), progressiveWorkerBudget()] },
+  plugins: [losslessRestoredRoadSurfacesV346(), losslessJsonData(), react(), startupBudget()],
+  worker: { plugins: () => [losslessRestoredRoadSurfacesV346(), losslessJsonData(), progressiveWorkerBudget()] },
   build: {
     sourcemap: false,
     rollupOptions: {

@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.226 — 2026-11-15
+
+- Add the previously missing Kladow/Gatow coverage with 12,360 newly represented measured building families and complete roofs; preserve every earlier city packet. Add the currently mapped Tegel apron/taxiway footprint and correct the Tempelhof apron material.
+- Refine 3,503 ordinary houses along principal roads and nearby side streets with current mapped storeys and source-bound fittings, plus five detailed Rettigweg fronts near Wollankstraße.
+- Refine the actual Huxleys parking-side entrance, measured Hellweg halls and Humboldthain reception building. Replace 91 coarse Schwanenwerder owners with complete measured villas; add the raised Pfaueninsel clock turret, zinc dome and bridge detail.
+- Use lossless per-batch street transport and the existing compact source encoding; retain all six modes, full mobile detail, 93 tour stops, complete same-origin city assets and existing startup/Worker/live-memory limits. Window subdivisions and unsurveyed architectural fittings remain explicitly documented estimates.
+
 ## v1.0.206 — 2026-11-06
 
 - Recompose the nineteen housing families east of the Holocaust Memorial around shared storeys, continuous ground floors and explicit oriel rhythms. Add nine source-bound facade groups along the complete Wilhelmstraße, from Reichstagufer to Hallesches Ufer, while preserving all original building bodies, roofs, courts, passages and navigation.

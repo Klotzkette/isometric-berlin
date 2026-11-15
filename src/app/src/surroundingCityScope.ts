@@ -1,3 +1,4 @@
+import addedCityV346 from "./data/addedCityScopeV346.json";
 import marzahn from "./data/marzahnScopeV230.json";
 import stralau from "./data/stralauScopeV299.json";
 import { botanicalV230GroundAt } from "./botanicalV230Navigation";
@@ -25,6 +26,17 @@ const outskirtsPolygons = [...outskirts.footprint,...northCity.footprint,...name
   return {polygon,minX,minZ,maxX,maxZ};
 });
 
+// The exact new-only Kladow/Gatow and Tegel polygons, with original holes.
+// A world-family remount can keep its walker on the established 3 m datum
+// before any city tile is resident. Actual resident height/roads retain priority.
+const addedGroundV346 = addedCityV346.footprint.map(polygon => ({polygon,
+  minX:Math.min(...polygon.ring.map(p=>p[0])),maxX:Math.max(...polygon.ring.map(p=>p[0])),
+  minZ:Math.min(...polygon.ring.map(p=>p[1])),maxZ:Math.max(...polygon.ring.map(p=>p[1])),
+}));
+export function addedCityScopeGroundAtV346(x:number,z:number):number|null {
+  return addedGroundV346.some(p=>x>=p.minX&&x<=p.maxX&&z>=p.minZ&&z<=p.maxZ&&surroundingPolygonContains(p.polygon,x,z))?addedCityV346.groundY:null;
+}
+
 /**
  * Known display ground is available before any outer chunk request. A mobile
  * world-family remount must keep a walker in their new district while loading.
@@ -40,5 +52,5 @@ export function surroundingScopeGroundAt(x: number, z: number, native = false): 
     ringScope.footprint.some(polygon => surroundingPolygonContains(polygon, x, z)) ||
     coverageScope.footprint.some(polygon => surroundingPolygonContains(polygon, x, z)) ||
     outskirtsPolygons.some(p => x>=p.minX && x<=p.maxX && z>=p.minZ && z<=p.maxZ && surroundingPolygonContains(p.polygon,x,z)))
-    ? terrainGroundAt(x, z, scope.groundY, native) : null;
+    ? terrainGroundAt(x, z, scope.groundY, native) : addedCityScopeGroundAtV346(x,z);
 }
