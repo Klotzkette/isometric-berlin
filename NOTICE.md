@@ -3336,3 +3336,25 @@ not represented. [Fuel coverage](docs/fuel-v351.md) and
 [restaurant coverage](docs/mcdonalds-v351.md) retain every unresolved association
 and separate the complete matched inventory from the smaller set of visible
 geometry changes.
+
+
+## Nikolaikirche, Nikolaikirchplatz and Wappenbrunnen (V353)
+
+The Nikolaikirche and neighbouring facades use Berlin LoD2 and mapped source
+identities together with exterior references from Landesdenkmalamt Berlin,
+RAO's 2016–2021 tower-restoration documentation (rectified survey images credited
+to Trigonart), Stiftung Stadtmuseum Berlin and the Senate's July 2021 ISEK.
+The local quarter association's berlin-nikolaiviertel.com photographs document
+the Bürgerhäuser am Nikolaikirchplatz (IMG_8611, IMG_8612, IMG_8613, IMG_4201)
+and Zum Nußbaum (IMG_5941, IMG_5945). The Stadtmuseum's Ephraim-Palais exterior
+photograph DSC186350_1920px (© Stadtmuseum Berlin | Foto: Alexander Rentsch)
+supports its four-storey rounded corner. Association photographs: Nikolaiviertel
+e.V.; website VICAMEDIA UG, no separately identified photographer.
+Wappenbrunnen reference: Jörg Kuhn, “Wappenbrunnen”,
+https://bildhauerei-in-berlin.de/bildwerk/wappenbrunnen-7845/, accessed 2026-11-15.
+Photograph: Detlev J. Pietzsch, 2009, CC BY 4.0; sculpture Gerhard Thieme,
+ironwork Hans-Joachim Kunsch. Photographs and protected plans remain external
+evidence, with no image pixels, inscriptions or textures redistributed.
+Photograph-derived fitting dimensions and ornamental interpretations are
+explicit display approximations. Complete per-reference credits are retained
+in the packaged visual-reference manifest and viewer source panel.

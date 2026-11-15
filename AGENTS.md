@@ -3277,3 +3277,26 @@ All existing live/startup/Worker limits, full mobile detail and 93 stops remain.
 Keep the public tree below 1,000,000,000 bytes through proven lossless offsets,
 retain immutable source history, and publish the complete checked viewer and
 both archives under the owner's standing authorization.
+
+### Step 10 — v353 Nikolaikirche and its immediate quarter
+
+The owner explicitly rejects the current Nikolaikirche and Nikolaiviertel
+appearance and requests a substantive accuracy correction. Compare the actual
+rendered church and adjacent houses with primary exterior photographs, recorded
+building parts and the documented reconstructed ensemble. Correct identified
+errors in the church's westwork, twin towers, hall/choir, roofs, openings and
+materials, and the immediate Nikolaikirchplatz street fronts. An old generic
+window grid or inaccurate authored proxy is not a reason to retain a proven
+error: its exact owned geometry may be superseded with an independently checked
+replacement and a retained original receipt. Keep unrelated owners, source
+evidence, navigation, ground and all earlier details outside the exact corrected
+parts. Measured envelopes and photo-estimated fittings must remain distinguished.
+
+Use independent cardinal Native construction and unchanged live/startup/Worker
+limits, all six modes, full mobile detail and the 93-stop tour. Verify the actual
+loaded result at west/east church views and immediate street level before
+publication. The public tree must stay below 1,000,000,000 bytes through proven
+lossless storage offsets if needed. Publish the complete checked viewer and both
+downloads under the owner's standing request. Root owns shared integration,
+history, release metadata and publication; church and neighbouring-house work
+have disjoint owners.

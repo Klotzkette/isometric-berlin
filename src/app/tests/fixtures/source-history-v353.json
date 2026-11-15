@@ -1,0 +1,23 @@
+{
+  "additions": {
+    "src/app/src/NikolaiFountainV353.ts": "be48762244a45c24ab4a1571da040fe7097b3c43ce4c42b26f2a8a8240173231",
+    "src/app/src/NikolaiQuarterV353.ts": "c3c5bbe2af7c473f3e855b52684b7d305580cd56ad9dd947ed14eb2ac65bac9e",
+    "src/app/src/NikolaikircheV353.ts": "d6e8afffad525abd1b77acfa6a0c785d97a3d2de6f8fddeec36f77443295f092",
+    "src/app/src/data/nikolaiQuarterV353Index.json": "47f46d95c52fbe0456b3df12b68f9efa8427201f55ddedf1e72a9cd9c004f005",
+    "src/app/src/data/nikolaikircheV353Index.json": "8abbad78a1fb3bb00e3916b40edf17016d4c73fc90889fdb28a2abcde8e98583"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "c68e960104fd843fee5367e2a140226994cfea7471fdc04fa8f1d030f6735e1c",
+      "after": "8971099aae61c67a7218bb7d45d2d97ae08a72ad172dfdd855960ebd98ce4e02"
+    },
+    "src/app/src/PublicAmenitiesV332.ts": {
+      "before": "300672d723d2535558ad12c7ba8ed3a8aed8507e9bb2d567f8e2d60f9e485b1e",
+      "after": "15d59af1d3ab60718f4d09560ede3ad9c1357355881ad89aa04c02ccf0479637"
+    },
+    "src/app/src/SourceQuarterCatalogueV309.ts": {
+      "before": "fcff7c24b840716def9574264beff3709a0775d1d05b0d17af803105c1c4965e",
+      "after": "a089088812d03b70da3a69ead6a2ef5c900ec19e6da31809b0696f831e15e66b"
+    }
+  }
+}
