@@ -3379,3 +3379,16 @@ Use exactly retained wall support in Drawn and Native for signs or small
 facade additions, and independently documented geometry when the actual
 building needs an addition. The v356 full publication agreement, storage
 limits, modes and touch detail continue to apply.
+
+### Step 10 — v358 Moabit accuracy and startup time
+
+Correct the Kleingartenkolonie Lehrter Straße north of the former Zellengefängnis,
+the Lesser-Ury-Weg housing, Kulturfabrik Lehrter Straße 35 and the Landespolizeidirektion
+at Invalidenstraße 57 with official map, height and exterior evidence. Keep the
+individual exact surveyed footprints and outdoor boundaries. Bind any correction
+to the complete earlier owner records and apply it consistently to initial and
+progressive rendering, walking and Minecraft. Distinguish estimated detailing
+from surveyed geometry. Preserve unrelated buildings, existing mobile detail,
+all six modes and the tour. Diagnose and reduce genuine user-visible loading
+and construction delays on the production entry point. Continue the checked
+public viewer and both complete downloads under the existing publication limits.

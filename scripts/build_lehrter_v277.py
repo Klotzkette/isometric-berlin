@@ -273,7 +273,7 @@ def prepare(source: dict[str, Any]) -> dict[str, Any]:
 
 
 def recognition(
-  source: dict[str, Any], blocks: list[Any]
+  source: dict[str, Any], blocks: list[Any], *, culture_front_v358: bool = False
 ) -> tuple[list[Any], list[Any], list[Any], list[Any]]:
   """Fit explicit primary-photo interpretations only onto actual public walls."""
   detailed = {
@@ -385,27 +385,40 @@ def recognition(
   length = front["length"]
   pitch = (length - 1.3) / 3
   axes = [0.65 + (i + 0.5) * pitch for i in range(3)]
+  wood = 0x754A3A
+  frame = 0xC8BEA9
   # Five storeys, double rectangular lights below a round-arched upper register.
   for i in range(4):
     u = 0.65 + i * pitch
     put(
-      front, u, 17.3, 0.44, 16.6, 0xC6BCA7, "kultur-monumental-stone-pier", 0.25, 0.24
+      front, u, 17.3, 0.44, 16.6, frame if culture_front_v358 else 0xC6BCA7, "kultur-monumental-stone-pier", 0.25, 0.24
     )
   for axis in axes:
     for yy in [11.3, 15.8, 20.3]:
-      put(front, axis, yy, pitch - 0.85, 3.35, 0x4B6265, "kultur-paired-window")
-      for du in [-(pitch - 0.85) / 2, 0, (pitch - 0.85) / 2]:
-        put(front, axis + du, yy, 0.09, 3.45, 0xE9E1CD, "kultur-window-mullion", 0.31)
-      put(
-        front,
-        axis,
-        yy + 0.55,
-        pitch - 0.85,
-        0.10,
-        0xE9E1CD,
-        "kultur-window-transom",
-        0.31,
-      )
+      if culture_front_v358:
+        # Each of the three measured bays has two independent timber windows,
+        # separated by a masonry pier. The bottom of these is never an opening.
+        for offset in (-0.85, 0.85):
+          center = axis + offset
+          put(front, center, yy, 1.39, 3.35, wood, "kultur-window-frame", 0.24)
+          for half in (-.29, .29):
+            for lift, h, tone in ((-.56, 1.84, 0x596E78), (1.07, 1.18, 0x566C76)):
+              put(front, center + half, yy + lift, .52, h, tone, "kultur-window-pane", 0.305, 0.05)
+        put(front, axis, yy, .32, 3.5, 0xA39B88, "kultur-middle-stone-pier", .25, .17)
+      else:
+        put(front, axis, yy, pitch - 0.85, 3.35, 0x4B6265, "kultur-paired-window")
+        for du in [-(pitch - 0.85) / 2, 0, (pitch - 0.85) / 2]:
+          put(front, axis + du, yy, 0.09, 3.45, 0xE9E1CD, "kultur-window-mullion", 0.31)
+        put(
+          front,
+          axis,
+          yy + 0.55,
+          pitch - 0.85,
+          0.10,
+          0xE9E1CD,
+          "kultur-window-transom",
+          0.31,
+        )
       put(
         front,
         axis,
@@ -465,14 +478,14 @@ def recognition(
         0xE5D9C2,
         "kultur-three-round-arch-rims",
       )
-    put(front, axis, 23.78, 0.10, 2.13, 0xDDD7C5, "kultur-upper-window-mullion", 0.35)
+    put(front, axis, 23.78, 0.10, 2.13, (wood if culture_front_v358 else 0xDDD7C5), "kultur-upper-window-mullion", 0.35)
     put(
       front,
       axis,
       23.62,
       pitch - 0.8,
       0.09,
-      0xDDD7C5,
+      wood if culture_front_v358 else 0xDDD7C5,
       "kultur-upper-window-transom",
       0.35,
     )
@@ -498,9 +511,15 @@ def recognition(
   # The portal and two ground arches are photographic estimates, not surveyed
   # metric apertures. They do not create an invented navigable tunnel.
   for axis in axes:
-    put(front, axis, 6.5, pitch - 0.8, 2.3, 0x43514B, "kultur-ground-opening")
-    if axis == axes[0]:
-      put(front, axis, 8.12, pitch - 0.8, 0.95, 0x43514B, "kultur-ground-left-portal")
+    portal = axis == axes[2 if culture_front_v358 else 0]
+    color = 0x6E332A if portal and culture_front_v358 else 0x43514B
+    put(front, axis, 6.5, pitch - 0.8, 2.3, color, "kultur-ground-opening")
+    if portal:
+      put(front, axis, 8.12, pitch - 0.8, 0.95, color, "kultur-ground-left-portal")
+      if culture_front_v358:
+        put(front, axis, 8.43, pitch - .72, .45, 0x45332E, "kultur-signed-lintel", .31)
+        for offset in (-.80, .80):
+          put(front, axis + offset, 6.95, .99, 1.60, 0x584B45, "kultur-portal-window", .29, .06)
     else:
       radius = (pitch - 0.8) / 2
       spring = 7.45
@@ -529,9 +548,13 @@ def recognition(
           0xE5D9C2,
           "kultur-ground-arch-rims",
         )
-    put(front, axis, 6.8, 0.10, 2.9, 0xCACAB8, "kultur-ground-mullion", 0.31)
-  label(front, "KULTURFABRIK", length / 2, 9.42, 0.49, 0x674E3E)
-  label(front, "FILMRAUSCHPALAST", axes[0], 8.28, 0.17, 0xE4DBBD)
+    put(front, axis, 6.8, 0.10, 2.9, wood if culture_front_v358 else 0xCACAB8, "kultur-ground-mullion", 0.31)
+  if culture_front_v358:
+    label(front, "KULTURFABRIK", axes[2], 8.31, 0.235, 0xF0E2D0)
+    label(front, "FILMRAUSCHPALAST", axes[2], 7.97, 0.115, 0xD4C4AD)
+  else:
+    label(front, "KULTURFABRIK", length / 2, 9.42, 0.49, 0x674E3E)
+    label(front, "FILMRAUSCHPALAST", axes[0], 8.28, 0.17, 0xE4DBBD)
   source["recognitionAnchors"] = {
     "cultureFront": {
       k: (v.tolist() if isinstance(v, np.ndarray) else v)

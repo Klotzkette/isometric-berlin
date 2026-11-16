@@ -94,6 +94,13 @@ const VENUE_VIEWS_V357: typeof GARDEN_VIEWS_V330 = {
   "AOK-Hochhaus Wilhelmstraße": { position: [970, 85, 2090], target: [1185, 34, 2264] },
 };
 
+const MOABIT_VIEWS_V358: Record<string, (typeof GARDEN_VIEWS_V330)[string] & { fov: number }> = {
+  "Landespolizeidirektion Moabit": { position: [-726, 35, -519], target: [-631, 16, -549], fov: 32 },
+  "Kleingartenkolonie Lehrter Straße": { position: [-620, 156, -884], target: [-399, 6, -1026], fov: 38 },
+  "Lesser-Ury-Weg": { position: [-547, 29, -665], target: [-608, 10, -706], fov: 27 },
+  "Kulturfabrik Moabit": { position: [-857, 34, -1693], target: [-791, 13, -1723], fov: 28 },
+};
+
 // Extra place links use the same focus control without adding tour stops.
 export const STARTUP_ONLY_SIGHTS = [
   "Kaiser-Wilhelm-Gedächtniskirche",
@@ -117,6 +124,7 @@ export const STARTUP_ONLY_SIGHTS = [
   ...Object.keys(MITTE_EXTERIOR_VIEWS_V344),
   ...Object.keys(CITY_DETAIL_VIEWS_V345),
   ...Object.keys(VENUE_VIEWS_V357),
+  ...Object.keys(MOABIT_VIEWS_V358),
 ].map(name => ({ name, role: "owner_added" }));
 
 export function startupOnlySight(name: string) {
@@ -129,6 +137,8 @@ export type StartupFlightView = Pick<NavigationSnapshot, "pose" | "fov"> & { lan
  * flight lens. No pedestrian state is created or enabled. */
 export function startupFlightView(name: string): StartupFlightView {
   if (name === GALLERY_FLIGHT_START_V223.landmarkName) return GALLERY_FLIGHT_START_V223;
+  const moabit = MOABIT_VIEWS_V358[name];
+  if (moabit) return { landmarkName: name, fov: moabit.fov, pose: { target: [...moabit.target], position: [...moabit.position] } };
   const extra = GARDEN_VIEWS_V330[name] ?? AMENITY_VIEWS_V332[name] ?? COURT_VIEWS_V333[name] ?? TRANSPORT_VIEWS_V334[name] ?? BRITZ_NEUKOELLN_VIEWS_V342[name] ?? STREET_VIEWS_V343[name] ?? MITTE_EXTERIOR_VIEWS_V344[name] ?? CITY_DETAIL_VIEWS_V345[name] ?? VENUE_VIEWS_V357[name];
   if (extra) return { landmarkName: name, fov: 16, pose: { target: [...extra.target], position: [...extra.position] } };
   const view = SIMULATION_START_VIEWS[name];

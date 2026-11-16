@@ -1,0 +1,157 @@
+{
+  "prismSourceSha256": "b56a8c157faa2d3df2a90c225e0819712d1261996025fcb2cece1b9cb41f602e",
+  "voxelSourceSha256": "343499436d39a1012be687f5ab26782acdc04030d41e32e758d0eea058b059ce",
+  "surfaceSampleSummary": [
+    {
+      "id": "68161919",
+      "heightSamples": 31,
+      "heightDm": 32
+    },
+    {
+      "id": "68161920",
+      "heightSamples": 24,
+      "heightDm": 23
+    },
+    {
+      "id": "00606826",
+      "heightSamples": 8,
+      "heightDm": 23
+    },
+    {
+      "id": "68161923",
+      "heightSamples": 36,
+      "heightDm": 28
+    },
+    {
+      "id": "68161924",
+      "heightSamples": 16,
+      "heightDm": 25
+    },
+    {
+      "id": "83710939",
+      "heightSamples": 9,
+      "heightDm": 23
+    },
+    {
+      "id": "69537508",
+      "heightSamples": 25,
+      "heightDm": 26
+    },
+    {
+      "id": "68161925",
+      "heightSamples": 19,
+      "heightDm": 21
+    },
+    {
+      "id": "68161926",
+      "heightSamples": 10,
+      "heightDm": 21
+    },
+    {
+      "id": "68161927",
+      "heightSamples": 30,
+      "heightDm": 25
+    }
+  ],
+  "nativeCellOwners": {
+    "68161919": [
+      [
+        -113,
+        -250
+      ],
+      [
+        -113,
+        -249
+      ],
+      [
+        -112,
+        -249
+      ]
+    ],
+    "68161920": [
+      [
+        -111,
+        -250
+      ]
+    ],
+    "00606826": [
+      [
+        -108,
+        -250
+      ]
+    ],
+    "68161923": [
+      [
+        -109,
+        -252
+      ],
+      [
+        -108,
+        -251
+      ]
+    ],
+    "68161924": [
+      [
+        -103,
+        -252
+      ]
+    ],
+    "69537508": [
+      [
+        -111,
+        -257
+      ]
+    ],
+    "68161925": [
+      [
+        -106,
+        -259
+      ]
+    ],
+    "68161926": [
+      [
+        -107,
+        -259
+      ]
+    ],
+    "68161927": [
+      [
+        -117,
+        -265
+      ],
+      [
+        -117,
+        -264
+      ]
+    ]
+  },
+  "allotment": {
+    "name": "Kleingartenanlage Lehrter Straße",
+    "kepNumber": "1001",
+    "osmRelation": 2177476,
+    "areaSqM": 10568.671,
+    "includedPathWays": [
+      118420274,
+      118420275,
+      27091103
+    ],
+    "protectedArea": "Beamtenfriedhof"
+  },
+  "sources": {
+    "allotmentInventory": "https://www.berlin.de/sen/uvk/natur-und-gruen/stadtgruen/gaertnern-in-der-stadt/kleingaerten/kleingartenentwicklungsplan/",
+    "listedHistoricEnsemble": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050274",
+    "osmRelation": "https://www.openstreetmap.org/relation/2177476",
+    "trueOrthophoto2026": "https://gdi.berlin.de/services/wms/truedop_2026?service=WMS&version=1.3.0&request=GetMap&layers=truedop_2026&styles=&crs=EPSG%3A25833&bbox=388925,5820860,389230,5821105&width=1525&height=1225&format=image%2Fjpeg",
+    "surfaceHeightGrid2026": "https://gdi.berlin.de/data/bdom/atom/388_5820.zip",
+    "terrainHeightGrid": "https://gdi.berlin.de/data/dgm1/atom/DGM1_388_5820.zip"
+  },
+  "method": "Drawn geometry traces visible plantings in TrueDOP20RGBI 2026 and the three mapped footways. The Beamtenfriedhof reservation and surveyed LoD2 buildings are clipped out. Native ground and hedges use full 0.5 m cardinal cells and exclude the existing 4 m building columns. Hedge heights and surface colors are visual estimates. Hut heights use the 85th percentile of 1 m bDOM minus DGM samples inside each surveyed footprint. The Native correction uses the existing 4 m vertical step and assigns exclusive footprint-owned columns.",
+  "referenceHashes": {
+    "kolonie.jpg": "742b8c20223dd710758fc455f6aa6cb4f8f4ca18f612292bbf97ebc0a811f263",
+    "bdom-388_5820.zip": "c8cdcaf9a290ece03f31d403d85fb78f392bf9877044ac18deeee47dea48f46e",
+    "dgm-388_5820.zip": "fc95a713a7a7691ec95477ff915ccf23094f3544e132094547d4c7b95795d144"
+  },
+  "drawnFeatures": 50,
+  "nativeRuns": 1103,
+  "nativeCells": 6966
+}

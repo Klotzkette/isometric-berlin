@@ -39,7 +39,8 @@ test("the building Worker cannot statically import the main-only road correction
   const worker=await Bun.file(new URL("../src/progressiveWorld.worker.ts",import.meta.url)).text();
   expect(core).not.toMatch(/import[^;]*["']\.\/RoadGroundV343["']/);
   expect(worker).not.toContain("RoadGroundV343");
-  expect(core).toContain("if (surfaces && !options.retainRasterAsphalt) options.restoreRoadGroundV343?.(slabs, ground)");
+  const guardedRoadRestore = /if \(surfaces && !options\.retainRasterAsphalt && options\.restoreRoadGroundV343\) \{\s*yield\* options\.restoreRoadGroundV343\(slabs, ground\);\s*\}/;
+  expect(guardedRoadRestore.test(core)).toBeTrue();
 });
 
 test("exact road identity rejects even a one-byte changed source", () => {

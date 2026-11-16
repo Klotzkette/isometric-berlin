@@ -4,18 +4,31 @@ import {
   MeshStandardMaterial, Quaternion, Vector3,
 } from 'three';
 import source from './data/lehrterV277.json';
+import front from './data/lehrterFrontV358.json';
 import { freezeStaticSceneTransforms } from './staticSceneTransforms';
 import { letteringStrokePaths } from './drawnLettering';
 
 type Vec = [number, number, number];
 type Segment = [Vec, Vec, number, number, string];
-export const LEHRTER_V277_BUDGET = Object.freeze({ ...source.counts, drawnBatches: 2, nativeBatches: 1, fullStaticDetailOnTouch: true });
+function boxDelta(patch: typeof front.drawn) {
+  const padding = patch.rows.endsWith("==") ? 2 : patch.rows.endsWith("=") ? 1 : 0;
+  return (patch.rows.length * .75 - padding) / 32 - (patch.end - patch.start);
+}
+export const LEHRTER_V277_BUDGET = Object.freeze({
+  ...source.counts,
+  facadeBoxes: source.counts.facadeBoxes + boxDelta(front.drawn),
+  nativeDetailBoxes: source.counts.nativeDetailBoxes + boxDelta(front.native),
+  ribSegments: source.counts.ribSegments + front.ribs.rows.length - (front.ribs.end - front.ribs.start),
+  drawnBatches: 2, nativeBatches: 1, fullStaticDetailOnTouch: true,
+});
+const frontShellCells = new Set(front.nativeShell);
 function bytes(value: string): ArrayBuffer { const b = atob(value), a = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a.buffer; }
 function material() {
   return { dayMaterial: new MeshBasicMaterial({ vertexColors: true, side: DoubleSide }), nightMaterial: new MeshStandardMaterial({ vertexColors: true, side: DoubleSide, roughness: .84, flatShading: true }), textureFree: true };
 }
 function shell(): Mesh {
   const points = new Float32Array(bytes(source.sourcePositions)), tones = new Uint32Array(bytes(source.sourceColors));
+  for (const face of front.triangles) tones[face] = front.color;
   const colors = new Float32Array(points.length), c = new Color();
   for (let i = 0; i < tones.length; i++) { c.setHex(tones[i]); for (let j = 0; j < 3; j++) c.toArray(colors, i * 9 + j * 3); }
   const geometry = new BufferGeometry(); geometry.setAttribute('position', new BufferAttribute(points, 3)); geometry.setAttribute('color', new BufferAttribute(colors, 3)); geometry.computeVertexNormals(); geometry.computeBoundingBox(); geometry.computeBoundingSphere();
@@ -28,7 +41,8 @@ function lettering(native = false): Segment[] {
     const mid = (Math.min(...pts.map(p => p[0])) + Math.max(...pts.map(p => p[0]))) / 2;
     for (const path of paths) for (let i = 1; i < path.length; i++) segments.push([at(path[i - 1][0] - mid, y + path[i - 1][1]), at(path[i][0] - mid, y + path[i][1]), height * .06, color, 'geometric-venue-lettering']);
   }
-  for (const f of source.labels) {
+  const labels = [...source.labels.slice(0, front.labels.start), ...front.labels.rows, ...source.labels.slice(front.labels.end)];
+  for (const f of labels) {
     const a = native ? f.nativeA : f.a;
     // Reading direction is camera-right from outside, independent of ring winding.
     const at = (u: number, y: number): Vec => [a[0] + f.n[1] * u, y, a[1] - f.n[0] * u];
@@ -43,8 +57,23 @@ function batch(native: boolean): InstancedMesh {
   const emit = (x: number, y: number, z: number, w: number, h: number, d: number, yaw: number, tone: number) => {
     matrix.makeRotationY(yaw); matrix.scale(scale.set(w, h, d)); matrix.setPosition(x, y, z); transforms.push(...matrix.elements); color.setHex(tone); tones.push(color.r, color.g, color.b);
   };
-  for (let i = 0; i < rows.length; i += 8) emit(rows[i], rows[i + 1], rows[i + 2], rows[i + 3], rows[i + 4], rows[i + 5], native ? 0 : rows[i + 6], rows[i + 7]);
-  for (const [a, b, width, tone] of [...(native ? [] : source.ribSegments as Segment[]), ...lettering(native)]) {
+  const patch = native ? front.native : front.drawn;
+  const replacement = new Float32Array(bytes(patch.rows));
+  function emitRows(values: Float32Array, recolor = false) {
+    for (let i = 0; i < values.length; i += 8) emit(
+      values[i], values[i + 1], values[i + 2], values[i + 3], values[i + 4], values[i + 5],
+      native ? 0 : values[i + 6], recolor && frontShellCells.has(i / 8) ? front.color : values[i + 7],
+    );
+  }
+  emitRows(rows.subarray(0, patch.start * 8), native);
+  emitRows(replacement);
+  emitRows(rows.subarray(patch.end * 8));
+  const ribs = native ? [] : [
+    ...source.ribSegments.slice(0, front.ribs.start),
+    ...front.ribs.rows,
+    ...source.ribSegments.slice(front.ribs.end),
+  ] as Segment[];
+  for (const [a, b, width, tone] of [...ribs, ...lettering(native)]) {
     const dx = b[0] - a[0], dy = b[1] - a[1], dz = b[2] - a[2], length = Math.hypot(dx, dy, dz);
     if (length < .00001) continue;
     if (native) {

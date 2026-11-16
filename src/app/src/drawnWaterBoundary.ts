@@ -81,15 +81,19 @@ export function restoreDrawnWaterBoundary(
     const xStart = Math.round(rawStart);
     const rawZ = (originalMatrices[offset + 14] - originalMatrices[offset + 10] / 2) / cell - min_z_idx;
     const z = Math.round(rawZ);
+    const row = rows.get(z);
+    if (!row) { plain(xStart, span); return; }
     // Earlier public-room cuts can leave a partial box. Such a fragment no
     // longer owns an entire raster cell and must retain its exact transform.
     if (Math.abs(rawSpan - span) > 1e-6 || Math.abs(rawStart - xStart) > 1e-6 ||
         Math.abs(rawZ - z) > 1e-6 || Math.abs(originalMatrices[offset + 10] - cell) > 1e-6 ||
         (data.depth_m !== undefined && originalMatrices[offset + 5] !== data.depth_m) ||
         originalMatrices[offset + 15] !== 1 ||
-        [1,2,3,4,6,7,8,9,11].some(i => originalMatrices[offset+i] !== 0)) { plain(xStart, span); return; }
-    const row = rows.get(z);
-    if (!row) { plain(xStart, span); return; }
+        originalMatrices[offset + 1] !== 0 || originalMatrices[offset + 2] !== 0 ||
+        originalMatrices[offset + 3] !== 0 || originalMatrices[offset + 4] !== 0 ||
+        originalMatrices[offset + 6] !== 0 || originalMatrices[offset + 7] !== 0 ||
+        originalMatrices[offset + 8] !== 0 || originalMatrices[offset + 9] !== 0 ||
+        originalMatrices[offset + 11] !== 0) { plain(xStart, span); return; }
     let from = xStart;
     for (let i = lowerBound(row, xStart); i < row.length; i++) {
       const record = row[i], x = cells[record];
@@ -104,29 +108,54 @@ export function restoreDrawnWaterBoundary(
     }
     if (from < xStart + span) plain(from, xStart + span - from);
   };
-  let newCount = 0, affected = 0;
-  for (let i = 0; i < oldCount; i++) visit(i, () => newCount++, record => affected += spans?.[record / RECORD_SIZE] ?? 1);
+  // Most instances are unchanged. Revisit only hosts with a changed
+  // complement and copy each untouched interval as one block of original
+  // Float32 bytes, preserving instance order and even non-raster transforms.
+  let newCount = 0, affected = 0, hasCut = false;
+  const changed: number[] = [];
+  const countPlain = () => { newCount++; };
+  const countCut = (record: number) => {
+    hasCut = true;
+    affected += spans?.[record / RECORD_SIZE] ?? 1;
+  };
+  for (let i = 0; i < oldCount; i++) {
+    const before = newCount;
+    hasCut = false;
+    visit(i, countPlain, countCut);
+    if (hasCut || newCount !== before + 1) changed.push(i);
+  }
   if (!affected) return;
   const matrices = new Float32Array(newCount * 16), colors = originalColors ? new Float32Array(newCount * 3) : null;
   const tiles = new Map<string, Array<readonly [number, number]>>();
-  let out = 0;
-  for (let instance = 0; instance < oldCount; instance++) visit(instance, (x, span) => {
-    matrices.set(originalMatrices.subarray(instance * 16, instance * 16 + 16), out * 16);
-    const originalSpan = Math.round(originalMatrices[instance * 16] / cell);
-    const originalStart = Math.round((originalMatrices[instance * 16 + 12] - originalMatrices[instance * 16] / 2) / cell) - min_x_idx;
-    if (span !== originalSpan || x !== originalStart) {
-      matrices[out * 16] = span * cell;
-      matrices[out * 16 + 12] = (min_x_idx + x + span / 2) * cell;
-    }
-    if (colors && originalColors) colors.set(originalColors.subarray(instance * 3, instance * 3 + 3), out * 3);
-    out++;
-  }, record => {
-    const x = (min_x_idx + cells[record]) * cell, z = (min_z_idx + cells[record + 1]) * cell;
-    const tile = `${Math.floor(x / 256)}:${Math.floor(z / 256)}`;
-    const entries = tiles.get(tile) ?? [];
-    if (!tiles.has(tile)) tiles.set(tile, entries);
-    entries.push([record, instance]);
-  });
+  let out = 0, unchangedStart = 0;
+  const copyUnchanged = (end: number) => {
+    if (unchangedStart === end) return;
+    matrices.set(originalMatrices.subarray(unchangedStart * 16, end * 16), out * 16);
+    if (colors && originalColors) colors.set(originalColors.subarray(unchangedStart * 3, end * 3), out * 3);
+    out += end - unchangedStart;
+  };
+  for (const instance of changed) {
+    copyUnchanged(instance);
+    visit(instance, (x, span) => {
+      matrices.set(originalMatrices.subarray(instance * 16, instance * 16 + 16), out * 16);
+      const originalSpan = Math.round(originalMatrices[instance * 16] / cell);
+      const originalStart = Math.round((originalMatrices[instance * 16 + 12] - originalMatrices[instance * 16] / 2) / cell) - min_x_idx;
+      if (span !== originalSpan || x !== originalStart) {
+        matrices[out * 16] = span * cell;
+        matrices[out * 16 + 12] = (min_x_idx + x + span / 2) * cell;
+      }
+      if (colors && originalColors) colors.set(originalColors.subarray(instance * 3, instance * 3 + 3), out * 3);
+      out++;
+    }, record => {
+      const x = (min_x_idx + cells[record]) * cell, z = (min_z_idx + cells[record + 1]) * cell;
+      const tile = `${Math.floor(x / 256)}:${Math.floor(z / 256)}`;
+      const entries = tiles.get(tile) ?? [];
+      if (!tiles.has(tile)) tiles.set(tile, entries);
+      entries.push([record, instance]);
+    });
+    unchangedStart = instance + 1;
+  }
+  copyUnchanged(oldCount);
   slabs.instanceMatrix = new InstancedBufferAttribute(matrices, 16);
   if (colors) slabs.instanceColor = new InstancedBufferAttribute(colors, 3);
   slabs.count = newCount;

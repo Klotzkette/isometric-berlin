@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.238
+
+- Refine the Kleingartenkolonie north of the former Moabit prison with mapped paths, individual plots and hedges. Use Berlin’s measured roof heights to correct ten garden sheds.
+- Make the Kulturfabrik recognizable by its portal and paired windows. Add photo-referenced façades at the Landespolizeidirektion and 14 building sections on Lesser-Ury-Weg.
+- Remove redundant work when assembling coarse terrain around waterways and kerbs. Break terrain setup into smaller steps so the browser can repaint while the complete city loads.
+
 ## 1.0.237
 
 - Add Berlin clubs, bars around Oranienstraße and Oranienburger Straße, all four AMRIT restaurants, health insurers and company locations.

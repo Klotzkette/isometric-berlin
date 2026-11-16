@@ -422,7 +422,7 @@ export type PrismPayload = {
  */
 export type IsometricCityBuildOptions = {
   /** Main-thread ground ownership only; its source table must never enter the building Worker. */
-  restoreRoadGroundV343?: (slabs: InstancedMesh, ground: VoxelPayload) => void;
+  restoreRoadGroundV343?: (slabs: InstancedMesh, ground: VoxelPayload) => Generator<void>;
   federalStateFittingsV321?: import("./FederalStateRepresentations").FederalStateRepresentationOptions["fittingsFactoryV321"];
   /** Only the completed required Hauptbahnhof model may open its retained source glazing. */
   hbfCirculationV291?: boolean;
@@ -3826,16 +3826,17 @@ const KERB_PAIRS = new Set([
  * roads meet lawns and plazas — draw those cell boundaries as thin ink
  * lines, the ligne-claire ground the buildings already live on.
  */
-function createKerbLines(
+function* createKerbLinesSteps(
   ground: VoxelPayload,
   skippedClasses: ReadonlySet<string> = new Set(),
   skipAtWorld?: (x: number, z: number) => boolean,
-): LineSegments | null {
+): Generator<void, LineSegments | null> {
   const cell = ground.cell_m;
   const { cols, min_x_idx, min_z_idx, rows } = ground.grid;
   const classGrid = new Int16Array(cols * rows).fill(-1);
-  ground.ground_rows.forEach((row, zOffset) => {
-    for (const [xStart, run, classId] of row) {
+  for (let zOffset = 0; zOffset < ground.ground_rows.length; zOffset++) {
+    if (zOffset % 16 === 0) yield;
+    for (const [xStart, run, classId] of ground.ground_rows[zOffset]) {
       for (let step = 0; step < run; step += 1) {
         const x = xStart + step;
         if (x >= 0 && x < cols) {
@@ -3843,28 +3844,23 @@ function createKerbLines(
         }
       }
     }
-  });
-  const nameOf = (id: number): string | null =>
-    id >= 0 ? (ground.classes[id] ?? null) : null;
-  const kerbPair = (a: number, b: number): boolean => {
-    if (a === b) {
-      return false;
+  }
+  // The exact class-pair rule depends only on the small source palette.
+  // Precompute it once before scanning the millions of same-class neighbours.
+  // High-resolution OSM surfaces still take priority over the coarse ink.
+  const classes = ground.classes.length + 1; // index zero is unclassified
+  const kerbPairs = new Uint8Array(classes * classes);
+  for (const [a, nameA] of ground.classes.entries()) {
+    if (!nameA || skippedClasses.has(nameA)) continue;
+    for (let b = a + 1; b < ground.classes.length; b++) {
+      const nameB = ground.classes[b];
+      if (!nameB || skippedClasses.has(nameB)) continue;
+      if (KERB_PAIRS.has(nameA < nameB ? `${nameA}|${nameB}` : `${nameB}|${nameA}`)) {
+        kerbPairs[(a + 1) * classes + b + 1] = 1;
+        kerbPairs[(b + 1) * classes + a + 1] = 1;
+      }
     }
-    const nameA = nameOf(a);
-    const nameB = nameOf(b);
-    if (!nameA || !nameB) {
-      return false;
-    }
-    // The high-resolution OSM surface layer owns these boundaries. Keeping
-    // their old 4 m grid ink underneath made a smooth road or river look
-    // square again wherever the coarse line protruded past the true curve.
-    if (skippedClasses.has(nameA) || skippedClasses.has(nameB)) {
-      return false;
-    }
-    return KERB_PAIRS.has(
-      nameA < nameB ? `${nameA}|${nameB}` : `${nameB}|${nameA}`,
-    );
-  };
+  }
   const sample = groundTopSampler(ground);
   const positions: number[] = [];
   const edge = (
@@ -3886,25 +3882,23 @@ function createKerbLines(
     );
   };
   for (let z = 0; z < rows; z += 1) {
+    if (z % 16 === 0) yield;
+    const worldZ = (min_z_idx + z + 0.5) * cell;
+    const rowOffset = z * cols;
     for (let x = 0; x < cols; x += 1) {
+      const here = classGrid[rowOffset + x] + 1;
+      if (here <= 0 || here >= classes) continue;
+      const right = x + 1 < cols ? classGrid[rowOffset + x + 1] + 1 : 0;
+      const below = z + 1 < rows ? classGrid[rowOffset + x + cols] + 1 : 0;
+      const rightKerb = right > 0 && right < classes && kerbPairs[here * classes + right] === 1;
+      const belowKerb = below > 0 && below < classes && kerbPairs[here * classes + below] === 1;
+      if (!rightKerb && !belowKerb) continue;
       const worldX = (min_x_idx + x + 0.5) * cell;
-      const worldZ = (min_z_idx + z + 0.5) * cell;
-      if (skipAtWorld?.(worldX, worldZ)) {
-        continue;
-      }
-      const here = classGrid[z * cols + x];
-      if (
-        x + 1 < cols &&
-        !skipAtWorld?.(worldX + cell, worldZ) &&
-        kerbPair(here, classGrid[z * cols + x + 1])
-      ) {
+      if (skipAtWorld?.(worldX, worldZ)) continue;
+      if (rightKerb && !skipAtWorld?.(worldX + cell, worldZ)) {
         edge(x + 1, z, x + 1, z + 1, x, z);
       }
-      if (
-        z + 1 < rows &&
-        !skipAtWorld?.(worldX, worldZ + cell) &&
-        kerbPair(here, classGrid[(z + 1) * cols + x])
-      ) {
+      if (belowKerb && !skipAtWorld?.(worldX, worldZ + cell)) {
         edge(x, z + 1, x + 1, z + 1, x, z);
       }
     }
@@ -13409,17 +13403,31 @@ export function* createIsometricCityCoreStepsV309(
     slabs.material = slabs.userData.dayMaterial as MeshBasicMaterial;
     markGroundFinishV348(slabs, "core-drawn");
     markHbfForecourtFinishV354(slabs);
+    // Keep the unfinished slabs in the provisional root so cancellation can
+    // dispose them at every checkpoint. The scene is still unpublished.
+    group.add(slabs);
+    yield;
     // Exact water must also own its boundary through the underlying raster land.
     // The clip keeps each existing run's paint/height and all authored exclusions.
     restoreJamesSimonGroundOwnership(slabs, ground);
+    yield;
     restoreHbfNorthRailGroundOwnership(slabs, ground, true);
+    yield;
     restoreGrosserSternGatehouseGroundOwnership(slabs);
-    if (surfaces?.water.length) restoreDrawnWaterBoundary(slabs, ground);
+    yield;
+    if (surfaces?.water.length) {
+      restoreDrawnWaterBoundary(slabs, ground);
+      yield;
+    }
     restoreAltMitteGroundSeamsV206(slabs, ground);
+    yield;
     cutUbahnGroundSlabsV281(slabs, false);
+    yield;
     restoreFidelityGroundSlabsV296(slabs,{dining:options.parliamentaryDiningV296,waterfront:options.waterfrontV296});
-    if (surfaces && !options.retainRasterAsphalt) options.restoreRoadGroundV343?.(slabs, ground);
-    group.add(slabs);
+    yield;
+    if (surfaces && !options.retainRasterAsphalt && options.restoreRoadGroundV343) {
+      yield* options.restoreRoadGroundV343(slabs, ground);
+    }
     // Transparent rivers with a visible bed ("Flüsse müssen
     // durchsichtig sein mit Flussbett"): a pale glass-like surface
     // plate floats over a sandy riverbed ~2.2 m below.
@@ -13482,8 +13490,9 @@ export function* createIsometricCityCoreStepsV309(
       surface.frustumCulled = false;
       group.add(bed);
       group.add(surface);
+      yield;
     }
-    const kerbs = createKerbLines(
+    const kerbs = yield* createKerbLinesSteps(
       ground,
       surfaces ? new Set(["asphalt", "water", "basin"]) : undefined,
       (x, z) => pointInBrandenburgApproach(x, z) || pointInHbfNorthRailCut(x, z) || Boolean(insideTunnelApproach?.(x, z)),
@@ -13491,6 +13500,7 @@ export function* createIsometricCityCoreStepsV309(
     if (kerbs) {
       group.add(kerbs);
     }
+    yield;
     const surfacesToBuild =
       options.smoothSurfaces === undefined ? surfaces : options.smoothSurfaces;
     if (surfacesToBuild) {
@@ -13531,6 +13541,7 @@ export function* createIsometricCityCoreStepsV309(
         group.add(quays);
       }
     }
+    yield;
     if (options.bridgeStructures !== false) {
       const bridges = createBridgeStructures(
         ground,
@@ -13539,6 +13550,7 @@ export function* createIsometricCityCoreStepsV309(
         options.coreSpreeBridgeFactoryV242,
       );
       if (bridges) group.add(bridges);
+      yield;
     }
     if (options.includeContext !== false) {
       group.add(createNorthernHumboldthafenRefinements(ground));

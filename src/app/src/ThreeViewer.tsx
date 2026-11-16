@@ -137,6 +137,9 @@ import { WORLD_ORBIT_BASE_DISTANCE_M, worldCameraFarM } from "./worldCameraDepth
 import { createMustafaFrontV356 } from "./MustafaFrontV356";
 import { createCoreVenueFrontsV357 } from "./CoreVenueFrontsV357";
 import { createAokTowerV357 } from "./AokTowerV357";
+import { correctGardenPrismsV358, correctGardenVoxelsV358 } from "./LehrterGardenPayloadV358";
+import { createLehrterGardensV358 } from "./LehrterGardensV358";
+import { createLesserUryFrontsV358 } from "./LesserUryFrontsV358";
 import { createSceneGpuWarmup, type SceneGpuWarmup } from "./sceneGpuWarmup";
 import { createSceneGpuResidency, type SceneGpuResidency } from "./sceneGpuResidency";
 import { createSceneGeometryGpuResidency, type SceneGeometryGpuResidency } from "./sceneGeometryGpuResidency";
@@ -3581,7 +3584,7 @@ function fetchPrismPayload(runtime: Runtime, fetcher?: FetchLike): Promise<Prism
   runtime.prismPayloadPromise ??= fetchJsonWithRetry<PrismPayload>(
     new URL(PRISM_WORLD_FILE, runtime.sceneRootUrl),
     { signal: runtime.loadSignal, fetcher },
-  ).catch((error: unknown) => {
+  ).then(correctGardenPrismsV358).catch((error: unknown) => {
     runtime.prismPayloadPromise = undefined;
     throw error;
   });
@@ -3636,7 +3639,7 @@ function fetchVoxelPayload(runtime: Runtime, fetcher?: FetchLike): Promise<Voxel
   runtime.voxelPayloadPromise ??= fetchJsonWithRetry<VoxelPayload>(
     new URL(VOXEL_WORLD_FILE, runtime.sceneRootUrl),
     { signal: runtime.loadSignal, fetcher },
-  ).catch((error: unknown) => {
+  ).then(correctGardenVoxelsV358).catch((error: unknown) => {
     runtime.voxelPayloadPromise = undefined;
     throw error;
   });
@@ -4882,9 +4885,10 @@ function ensureIsoWorld(
             bridgeStructures: !runtime.signatures.getObjectByName("drawn bridge structures"),
             coreSpreeBridgeFactoryV242: createCoreSpreeBridgesV242,
             retainRasterAsphalt: false,
-            restoreRoadGroundV343: (slabs, sourceGround) => {
+            restoreRoadGroundV343: function* (slabs, sourceGround) {
               const plaza = kulturforumPlazaV343.createKulturforumPlazaV343(sourceGround);
               roadGroundV343.restoreRoadGroundV343(slabs, sourceGround, plaza);
+              yield;
               if (surfaces) tiergartenPathsV345.restoreTiergartenPathsV345(slabs, sourceGround, surfaces);
             },
             retainRasterWater: runtime.coarsePointer && !surfaces,
@@ -4904,6 +4908,12 @@ function ensureIsoWorld(
         isoWorld.add(createCoreVenueFrontsV357(prisms.buildings));
         const aokTower = createAokTowerV357(prisms.buildings);
         if (aokTower) isoWorld.add(aokTower);
+        if (ground) {
+          const gardenGround = isoWorld.getObjectByName("Drawn ground slabs");
+          isoWorld.add(createLehrterGardensV358(
+            ground, false, gardenGround instanceof InstancedMesh ? gardenGround : undefined));
+        }
+        isoWorld.add(createLesserUryFrontsV358(prisms.buildings));
         yield*governmentV323.createWilhelmHousingRuntimeV324Steps(isoWorld,prisms.buildings,ground??undefined,false,runtime.coarsePointer);
         yield*governmentV323.createWilhelmStreetFrontsRuntimeV325Steps(isoWorld,prisms.buildings,ground??undefined,false,runtime.coarsePointer);
         let neukoellnAdmissionV305=applyNeukoellnLegacyV227V305(isoWorld,false,true,fidelityV288.neukoellnModel);
@@ -5854,8 +5864,11 @@ function ensureVoxelWorld(
         provisionalVoxelWorld.add(createCoreVenueFrontsV357(prisms.buildings, payload));
         const aokTower = createAokTowerV357(prisms.buildings, payload);
         if (aokTower) provisionalVoxelWorld.add(aokTower);
+        provisionalVoxelWorld.add(createLesserUryFrontsV358(prisms.buildings, payload));
       }
       const nativePavingGroundV343 = provisionalVoxelWorld.getObjectByName("Voxel ground runs");
+      provisionalVoxelWorld.add(createLehrterGardensV358(
+        payload, true, nativePavingGroundV343 instanceof InstancedMesh ? nativePavingGroundV343 : undefined));
       if (nativePavingGroundV343 instanceof InstancedMesh) {
         provisionalVoxelWorld.add(kulturforumPavingV343.createKulturforumPavingV343(
           () => { throw new Error("Native paving must use actual source block tops"); }, true, nativePavingGroundV343));

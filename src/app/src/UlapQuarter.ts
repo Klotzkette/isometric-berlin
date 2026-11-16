@@ -3,7 +3,7 @@ import { BoxGeometry, Color, Group, InstancedBufferAttribute, InstancedMesh,
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { moabitGuardHouseContains } from "./moabitGuardHouseProfile";
 import { ULAP_QUARTER_PARTS as PARTS, ULAP_QUARTER_GROUP_NAME,
-  MINECRAFT_ULAP_QUARTER_GROUP_NAME, ULAP_URANIA_PARENT } from "./ulapQuarterProfile";
+  MINECRAFT_ULAP_QUARTER_GROUP_NAME, ULAP_POLICE_PARENT, ULAP_URANIA_PARENT } from "./ulapQuarterProfile";
 
 type Part = typeof PARTS[number];
 type Point = [number, number, number];
@@ -147,6 +147,57 @@ function offices(batch: Batch, p: Part): void {
     }
   }
 }
+// The park-side photograph shows three aligned strip-window storeys on
+// the lower wing and another two on the taller wing of Haus 1.
+const POLICE_WINGS = new Set(["XVptlgsd", "IcJiJdAv"]);
+const POLICE_SHEET = 0xbabcb6;
+const POLICE_ORANGE = 0xc87c44;
+
+function policeOffices(batch: Batch, p: Part): void {
+  const low = p.viewerPrism.y0_dm / 10, top = eave(p);
+  const wing = POLICE_WINGS.has(p.viewerPrism.id);
+  for (const wall of walls(p)) {
+    const count = Math.max(1, Math.round(wall.length / 2.1));
+    const width = wall.length / count;
+    for (let bay = 0; bay < count; bay++) {
+      const center = (bay + .5) * width;
+      const clad = (bottom: number, upper: number) => {
+        if (upper - bottom <= .04 || !exposed(p, wall, center, (bottom + upper) / 2)) return;
+        batch.wall(p, wall, "police-cladding", center, (bottom + upper) / 2,
+          width, upper - bottom, .066, POLICE_SHEET, .15);
+      };
+      if (!wing) {
+        clad(low, top);
+        continue;
+      }
+      let sill = low;
+      for (let row = 0; row < 6; row++) {
+        const y = row === 0 ? 8.8 : 13 + (row - 1) * 3.8;
+        const h = row === 0 ? 2.28 : 1.7;
+        if (y + h / 2 >= top - .5) break;
+        clad(sill, y - h / 2);
+        sill = y + h / 2;
+        if (!exposed(p, wall, center, y)) continue;
+        batch.wall(p, wall, "police-window-band-frame", center, y, width, h, .068, 0x727c79, .19);
+        const parkSide = wall.nx < -.77;
+        const panel = row > 0 && parkSide && (bay + row * 2) % 11 === 6;
+        const accent = row > 0 && parkSide && (bay + 2) % 4 === 0 && !panel;
+        const solid = row === 0 ? width * .29 : accent ? Math.min(.37, width * .19) : .065;
+        batch.wall(p, wall, panel ? "police-window-infill" : "police-window-glass", center - solid / 2, y,
+          width - solid - .035, h - .13, .027, panel ? 0xb1bbb4 : (bay + row) % 3 === 0 ? 0x657173 : 0x505b5d, .24);
+        batch.wall(p, wall, accent ? "police-orange-infill" : "police-window-post",
+          center + (width - solid) / 2, y, solid, h - .09, .029,
+          accent ? POLICE_ORANGE : row === 0 ? POLICE_SHEET : 0x8b948e, .24);
+        if (!batch.native && !panel && row !== 0 && width > 1.1) {
+          batch.wall(p, wall, "police-window-mullion", center - solid / 2, y, .05, h - .1,
+            .03, 0x949d98, .264);
+        }
+      }
+      clad(sill, top);
+    }
+  }
+}
+
 function create(native: boolean, diagnostic: boolean): Group {
   const root = new Group(); root.name = native ? MINECRAFT_ULAP_QUARTER_GROUP_NAME : ULAP_QUARTER_GROUP_NAME;
   root.userData = { sourceBound: true, textureFree: true, fullStaticDetailOnTouch: true,
@@ -156,7 +207,9 @@ function create(native: boolean, diagnostic: boolean): Group {
   const batch = new Batch(native);
   for (const part of PARTS) {
     if (native) nativeShell(batch, part);
-    if (part.parent === ULAP_URANIA_PARENT) urania(batch, part); else offices(batch, part);
+    if (part.parent === ULAP_URANIA_PARENT) urania(batch, part);
+    else if (part.parent === ULAP_POLICE_PARENT) policeOffices(batch, part);
+    else offices(batch, part);
   }
   batch.finish(root, diagnostic);
   return freezeStaticSceneTransforms(root);

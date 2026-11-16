@@ -6,6 +6,7 @@ export const ULAP_QUARTER_PARTS = source.parts;
 export const ULAP_QUARTER_IDS: ReadonlySet<string> = new Set(source.parts.map(p => p.viewerPrism.id));
 export const ULAP_QUARTER_GROUP_NAME = "ULAP quarter retained Urania and office facades";
 export const MINECRAFT_ULAP_QUARTER_GROUP_NAME = "Minecraft ULAP quarter surface buildings";
+export const ULAP_POLICE_PARENT = "DEBE01YYK0002MpW";
 export const ULAP_URANIA_PARENT = "DEBE01YYK0002MoE";
 export const ULAP_QUARTER_PROFILE = Object.freeze({
   sourcePartCount: 34, sourceBuildingCount: 6, excludedLaboratoryPartCount: 19,

@@ -1,0 +1,49 @@
+{
+  "additions": {
+    "src/app/src/LehrterGardenPayloadV358.ts": "103bf1015dd156e8039885f2369d24a5fbb105c13a5bbfef8f7fd485266561af",
+    "src/app/src/LehrterGardensV358.ts": "5d748a7c59074910ef11049283927beff5d5f17d147b0992e0bd33b2d6d2e9c3",
+    "src/app/src/LesserUryFrontsV358.ts": "d54643710b1d8ff884d0cceec6ff6eda8da07e8a074e2f19639845168a47ecb8",
+    "src/app/src/data/lehrterFrontV358.json": "45e7b48a0996e396f085853f0f01f8093d91f770c99aca486111337bbfe3cab4",
+    "src/app/src/data/lehrterGardenCorrectionsV358.json": "cd46c9a6a4551fbef06f1cc221c87c0f035c0f43dd295784d8d01727cc685a76",
+    "src/app/src/data/lehrterGardensV358.json": "fff7f9a0f7e1ca807707285e73e4f95135cfec2bbcdde361ec57efbecbd07317",
+    "src/app/src/data/lesserUryV358.json": "2a1c5a9fa82ac627f1783771f56a388c1bc1c83d6a6665e78ed672bf422dfc74"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "9d271bf9c58f8c61b703df01db572048f943f23c876e42d749e536a207069dac",
+      "after": "bf410269f825f430282dcaa71534c3b169d3712048ad5fff4b7336080f0cb7e4"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "62ccbdc019395e18cb85011d826f74ba4a309f759e92c22676752cc20671a165",
+      "after": "ef626ca9c816d84c8ea4bc2aed47d5832ad8d593cdb0e9920a60a679cc307378"
+    },
+    "src/app/src/LehrterV277.ts": {
+      "before": "534cf5a0d29081086128905ad4b642ad59c404173f97d278a721a6a48da2ade1",
+      "after": "2461accc960503e0c67120c82a7cfdd2c27bddb38abb652b2f2047d381a9cc4f"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "35836018730025675c949bd081ac492bf21d92dcac242cbeecbd5ccaa726bb73",
+      "after": "4960a0274744220c82a8bbb0f87b06385ce8293acd6277e1a52dfb9cc157a69d"
+    },
+    "src/app/src/UlapQuarter.ts": {
+      "before": "2b45f9f573f418b8fa897945f93d2aa12403a9582bae710b66dcec9fef908e4e",
+      "after": "360cb5b7f0f9ce7a93a367f9d14bff204e8870e33da2527767365f9bae95985c"
+    },
+    "src/app/src/drawnWaterBoundary.ts": {
+      "before": "376e183d9967fc7a91b113d099547b8bd9cb28b612e736d98bb103ed5a9f4ea9",
+      "after": "ea3a6a757568eff5c4fa98cae1cbdb0a55099410142db0f07a81708df8c0424b"
+    },
+    "src/app/src/progressiveWorld.worker.ts": {
+      "before": "0f2be4b3aeb81b1e6a837e3d37689a11b7f35e718c5955a757da330160af42a0",
+      "after": "a7ddd789bc91ce840c5a8396b16b355969cca160d4a93fc0fca9708518b54a36"
+    },
+    "src/app/src/startupView.ts": {
+      "before": "94640126f82ce9e2e3ff493332485a26bf0a86cbd5efb315f95099c45bc4df54",
+      "after": "a9c47d49d413406f7af0683a37243a203747a600799e2d5c5c1055d9e162209b"
+    },
+    "src/app/src/ulapQuarterProfile.ts": {
+      "before": "838baec793856a5a6583675b7cb406ab4e40e5951dd5811fb6e569def94d4a94",
+      "after": "7a1985f822ec2556077fbf232a3c65d30a147204b97f306182fcf20b364305ac"
+    }
+  }
+}

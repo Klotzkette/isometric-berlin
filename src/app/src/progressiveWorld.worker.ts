@@ -1,3 +1,4 @@
+import { correctGardenPrismsV358 } from "./LehrterGardenPayloadV358";
 import { canReplacePotsdamerNorthPavilion } from "./PotsdamerPavilionOwnership";
 import { admitsChancelleryCanopySourceV289 } from "./ChancelleryCanopySourceV289Ownership";
 import { matchesBerlinHistoricDomOwnersV288 } from "./BerlinHistoricCoreV288Ownership";
@@ -110,7 +111,7 @@ async function loadPrismPayload(url: string): Promise<PrismPayload> {
   ) {
     throw new Error("LoD2 prism payload is incomplete");
   }
-  return payload;
+  return correctGardenPrismsV358(payload);
 }
 
 async function loadJsonResponse(url: string, label: string): Promise<Response> {
