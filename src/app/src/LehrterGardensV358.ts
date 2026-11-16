@@ -124,7 +124,7 @@ export function createLehrterGardensV358(
     for (const [rawKind, rawHeight, rawRings] of gardens.drawn) {
       const kind = rawKind as number;
       const height = rawHeight as number;
-      const rings = rawRings as Point[][];
+      const rings = rawRings as unknown as Point[][];
       const [outer, ...holes] = rings.map((ring) => ring.map(([x, z]) => new Vector2(x, z)));
       const flat = rings.flat();
       const clearance = 0.16 + kind * 0.008;
