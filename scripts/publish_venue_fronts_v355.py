@@ -11,11 +11,8 @@ from scripts import build_cluster_facades_v320 as common
 from scripts.build_venue_fronts_v355 import GEO, project
 
 
-def write(scratch):
-  inventory = common.read(scratch / "inventory.json")
-  capture = common.read(scratch / "result.json")
+def write_recipes(recipes, version):
   data = common.DATA
-  recipes = capture["recipes"]
   hosts = sorted({key.split(":", 1)[1] for key in recipes["keys"]})
   sources = []
   for group in range(0, len(hosts), 16):
@@ -24,7 +21,7 @@ def write(scratch):
       for host in hosts[group : group + 16]
       for mode in ("drawn", "minecraft")
     )
-    file = f"venueFrontsV355Packets{group // 16:02d}.json"
+    file = f"venueFrontsV{version}Packets{group // 16:02d}.json"
     common.write(
       data / file,
       dict(
@@ -32,7 +29,16 @@ def write(scratch):
       ),
     )
     sources.append(dict(file=file, keys=keys))
-  common.write(data / "venueFrontsV355Index.json", dict(sources=sources))
+  common.write(data / f"venueFrontsV{version}Index.json", dict(sources=sources))
+
+  return hosts, sources
+
+
+def write(scratch):
+  inventory = common.read(scratch / "inventory.json")
+  capture = common.read(scratch / "result.json")
+  data = common.DATA
+  hosts, sources = write_recipes(capture["recipes"], 355)
 
   previous = common.read(data / "publicAmenitiesV332.json")
   cell = previous["cellMeters"]

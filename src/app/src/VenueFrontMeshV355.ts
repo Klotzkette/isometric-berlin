@@ -4,7 +4,8 @@ import type { SurroundingPackedMesh } from "./SurroundingCityGeometry";
 import { surroundingPacketFingerprint } from "./surroundingPacketFingerprint";
 
 export const VENUE_FRONTS_KIND_V355 = "venue-fronts-v355";
-const categories = ["FINANZAMT", "BURGERAMT", "POLIZEI", "AUTOHAUS", "EINKAUFSCENTER"];
+export const VENUE_FRONTS_KIND_V356 = "venue-fronts-v356";
+const categories = ["FINANZAMT", "BURGERAMT", "POLIZEI", "AUTOHAUS", "EINKAUFSCENTER", "DONER"];
 function linear(rgb: number[]): number[] {
   return rgb.map(value => {
     const srgb = value / 255;
@@ -17,12 +18,9 @@ const palette = [
   { background: linear([44, 71, 110]), title: linear([245, 245, 236]), name: linear([228, 233, 240]) },
   { background: linear([48, 56, 61]), title: linear([244, 246, 241]), name: linear([225, 229, 229]) },
   { background: linear([224, 216, 196]), title: linear([80, 57, 41]), name: linear([49, 45, 40]) },
+  { background: linear([236, 225, 207]), title: linear([92, 54, 41]), name: linear([52, 39, 31]) },
 ];
-const style: WallPlateStyle = {
-  kind: VENUE_FRONTS_KIND_V355,
-  categories,
-  palette: category => palette[category],
-};
+
 export type VenuePlate = CivicPlateV350;
 export type VenuePanel = {
   anchor: VenuePlate;
@@ -111,7 +109,10 @@ export type VenueFrontRecipes = {
   packets: Record<string, VenueFrontPlan>;
 };
 
-export function venueFrontSourceV355(compact: VenueFrontRecipes): NeighbourhoodSourceV300 {
+export function venueFrontSourceV355(
+  compact: VenueFrontRecipes, kind = VENUE_FRONTS_KIND_V355,
+): NeighbourhoodSourceV300 {
+  const style: WallPlateStyle = { kind, categories, palette: category => palette[category] };
   const keys = compact.keys;
   if (compact.schemaVersion !== 1 || keys.length > 32 || new Set(keys).size !== keys.length ||
       Object.keys(compact.packets).length !== keys.length) {

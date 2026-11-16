@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.236
+
+- Add 36 selected and source-checked Berlin Döner locations to the nearby-places layer, including the existing Oggi’s kiosk on Heidestraße.
+- Add photograph-referenced storefront details for Mustafa’s, Rüyam and Vöner, plus shop plaques supported by the existing exterior meshes.
+- Resolve retained building associations for 18 civic and commercial sites. Add 15 plaques and record the pre-existing Berlin police headquarters model.
+- Retain the complete city, visual modes, tour and live-loading limits.
+
 ## 1.0.235
 
 - Add verified Berlin tax offices, citizens' offices, police sites, vehicle dealerships and shopping centres to the nearby-places layer.

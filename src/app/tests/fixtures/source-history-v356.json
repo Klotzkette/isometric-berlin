@@ -1,0 +1,35 @@
+{
+  "additions": {
+    "src/app/src/MustafaFrontV356.ts": "8690f3ebeeee3eebd04012c50b732b06f54d771a3554c7c03bcd5dd38bb2d46a",
+    "src/app/src/data/donerDirectoryV356.json": "d9e04e3803e90fbf0b15ae77ddb6e7c03389b2affd4b7b0647d932c8cdebf7d5",
+    "src/app/src/data/venueFrontsV356Index.json": "1533773122c4ab2b5b06989c8252c231269644c86ae9babdc4d84d2a4e563f9b",
+    "src/app/src/data/venueFrontsV356Packets00.json": "8127e447faae00fa2993099163478bc545500219529516673198d7b6c7d60eee",
+    "src/app/src/data/venueFrontsV356Packets01.json": "de11a9b4714fcf5d7ce7f3bbd041cabd62778a4b7d1e79011614f96c7d3895c8"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "e2139ca19a799bf7a55c0c3f27831b7ebe0d8563211babb43f402c46c3d75df3",
+      "after": "a4c1b7e582ce7e8c41686a0a57c1ca60987d94a15047e35a4a904df52d896c51"
+    },
+    "src/app/src/PublicAmenitiesV332.ts": {
+      "before": "aa0f49894d2b2afc2a532c89a2c10d369dbeb1cedfb3e1a76fc4cec3f220c96e",
+      "after": "022810854685cee795140d3e487587f7ef749a1a0bc639472c3bb45e20f25a14"
+    },
+    "src/app/src/SourceQuarterCatalogueV309.ts": {
+      "before": "5ac17efad9e2ff9d2c019dd95a731af7ee91314b63a4c1cbb295dad1fd71776b",
+      "after": "90b51e232553de32bd27cbde2e74a6acb6ba85d543ad9954fa7b8dcf1eeae5de"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "006ee80e35c5a4832a6d077edf91819658bcece616eb43ff416652a01897e30e",
+      "after": "5f475f3a70fd21ff5fd4304ed5cb1ab966af6c1e826e58dea83e4b3fd0e18f2a"
+    },
+    "src/app/src/VenueFrontMeshV355.ts": {
+      "before": "4ca47e7f4d20d91d1030bdf27a361a59ee795d760fef0e9cb9538d1490db6bbe",
+      "after": "a3a4f401ac5ca38432908b948f63d659ea76cfe5aaabc341eacea071533e19b0"
+    },
+    "src/app/src/VenueFrontsV355.ts": {
+      "before": "a7a4d7dec35b97f581d579a936a88148aca2d33ffa0b6e6fa5d36b457f9b0f42",
+      "after": "af4b2ce614cd01b31a7070f66c90e527f8134dc13c5929732a12f3039fa1cfe9"
+    }
+  }
+}

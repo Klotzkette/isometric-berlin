@@ -1,0 +1,421 @@
+{
+  "sources": {
+    "berlin": "https://www.berlin.de/en/tourism/insider-tips/7409762-5766508-berlins-best-doner-kebab.en.html",
+    "visit": "https://www.visitberlin.de/de/berliner-doener",
+    "oggis": "https://www.rbb-online.de/unterhaltung/archiv/videos-berlin/berlin-erleben/2026/30-dinge-die-moabit-besonders-machen/unsere-tipps.file.html/TIPPS_30DingedieMoabitbesondersmachen_2600605.pdf",
+    "oggis-schoenhauser": "https://fragdenstaat.de/anfrage/kontrollbericht-zu-oggi-s-gemuesekebab-berlin-1/",
+    "mustafas": "https://mustafas.de/",
+    "rueyam": "https://rueyam.de/",
+    "kups": "https://wolt.com/en/deu/berlin/restaurant/kups-gemuesekebap",
+    "voener": "https://www.visitberlin.de/de/voener",
+    "pamfilya": "https://pamfilyarestaurant.de/",
+    "imren": "https://imren-grill.de/standorte/",
+    "hasir": "https://www.hasir.de/restaurants/",
+    "hasir-group": "https://de.linkedin.com/company/hasir-group",
+    "nefis": "https://www.nefis-gemusekebap.de/location-and-hours",
+    "fugger": "https://www.ubereats.com/de/store/fugger-grill/aMQ6vBnZXy-kpk21IDVyEQ",
+    "doener-turm": "https://www.visitberlin.de/de/doener-turm",
+    "lale": "https://www.visitberlin.de/de/lale-imbiss",
+    "hisar": "https://www.hisarfreshfood.de/",
+    "kwa": "https://www.kebapyourlife.de/de/contact",
+    "demir": "https://www.mustafademirs-gemuesekebap.de/",
+    "demir-retro": "https://www.mustafademirsretrodoenerkebap.de/",
+    "tadim": "https://www.quandoo.de/place/tadim-1452/about",
+    "doyum": "https://www.opentable.de/r/doyum-restaurant",
+    "ugur": "https://www.deutschebiz.de/ugur-imbiss-01525-4077959"
+  },
+  "rows": [
+    [
+      "oggis-heidestrasse",
+      "Oggi's Gemüsekebab",
+      "Döberitzer Straße 1, 10557 Berlin",
+      "oggis",
+      "node/11669721667",
+      null,
+      {
+        "existingOwner": "CentralCivicDetails:oggis-mubis",
+        "landmarkName": "Oggi's Gemüsekebab",
+        "notes": "An der Ecke zur Heidestraße. Vorhandener Betrieb und vorhandene Modellgeometrie."
+      }
+    ],
+    [
+      "oggis-schoenhauser-allee",
+      "Oggi's Gemüsekebab",
+      "Schönhauser Allee 99/100, 10439 Berlin",
+      "oggis-schoenhauser",
+      "node/11384561040",
+      "way/645628405",
+      {
+        "notes": "Das Bezirksamt nennt 99; OSM und Publikumsverzeichnisse nennen 100. Der separate Kiosk ist eindeutig kartiert."
+      }
+    ],
+    [
+      "mustafas-mehringdamm",
+      "Mustafa’s Gemüse Kebap",
+      "Mehringdamm 33, 10961 Berlin",
+      "mustafas",
+      "node/7060011377",
+      "way/106766834",
+      {
+        "notes": "Aktueller Laden auf der Ostseite; der frühere Stand an Nr. 32 ist ausdrücklich ausgeschlossen."
+      }
+    ],
+    [
+      "rueyam-hauptstrasse",
+      "Rüyam Gemüse Kebab",
+      "Hauptstraße 36, 10827 Berlin",
+      "rueyam",
+      "node/5987841575",
+      "way/31276173",
+      {
+        "otherOsmRefs": [
+          "node/7660539094"
+        ],
+        "notes": "Beide PBF-Punkte liegen in demselben Gebäude. Die alte Hauptstraße 133 ist ausgeschlossen."
+      }
+    ],
+    [
+      "rueyam-schoenhauser-allee",
+      "Rüyam Gemüse Kebab",
+      "Schönhauser Allee 44a, 10435 Berlin",
+      "rueyam",
+      "node/5767984153",
+      "way/132555265",
+      {}
+    ],
+    [
+      "kups-kastanienallee",
+      "K’Ups Gemüse Kebap",
+      "Kastanienallee 102, 10435 Berlin",
+      "kups",
+      "node/778710954",
+      "way/386789995",
+      {}
+    ],
+    [
+      "voener-boxhagener-strasse",
+      "Vöner",
+      "Boxhagener Straße 56, 10245 Berlin",
+      "voener",
+      "node/863962760",
+      "way/968170087",
+      {}
+    ],
+    [
+      "pamfilya-luxemburger-strasse",
+      "Pamfilya",
+      "Luxemburger Straße 1, 13353 Berlin",
+      "pamfilya",
+      "node/3758752157",
+      "relation/1570221",
+      {}
+    ],
+    [
+      "imren-boppstrasse",
+      "Imren Grill",
+      "Boppstraße 10, 10967 Berlin",
+      "imren",
+      "node/997194070",
+      "way/70910924",
+      {}
+    ],
+    [
+      "imren-karl-marx-strasse",
+      "Imren Grill",
+      "Karl-Marx-Straße 75, 12043 Berlin",
+      "imren",
+      "node/1077664928",
+      "way/149732591",
+      {}
+    ],
+    [
+      "imren-wiener-strasse",
+      "Imren Grill",
+      "Wiener Straße 10, 10999 Berlin",
+      "imren",
+      "node/886109077",
+      null,
+      {
+        "directoryOnly": true,
+        "notes": "Betreiber nennt Nr. 10; OSM und Bestellangebot nennen Nr. 11. Der kartierte Standort bleibt ohne Gebäudezuweisung.",
+        "otherSources": [
+          "https://wolt.com/de/deu/berlin/restaurant/imren-grill-wienerstrae-berlin"
+        ]
+      }
+    ],
+    [
+      "imren-hauptstrasse",
+      "Imren Grill",
+      "Hauptstraße 156, 10827 Berlin",
+      "imren",
+      "node/3632408169",
+      "way/145603643",
+      {}
+    ],
+    [
+      "imren-muellerstrasse",
+      "Imren Grill",
+      "Müllerstraße 134, 13349 Berlin",
+      "imren",
+      "node/3017758067",
+      "way/297875025",
+      {}
+    ],
+    [
+      "imren-buttmannstrasse",
+      "Imren Grill",
+      "Buttmannstraße 1, 13357 Berlin",
+      "imren",
+      "way/57969068",
+      "way/57969068",
+      {
+        "otherOsmRefs": [
+          "node/719313894"
+        ],
+        "notes": "Benanntes Kioskpolygon deckt sich mit der Betreiberadresse. Der namenlose Adresskontext des anderen Imren-Pins wird nicht als zweite Filiale gewertet."
+      }
+    ],
+    [
+      "imren-ottostrasse",
+      "Imren Grill",
+      "Ottostraße 19, 10555 Berlin",
+      "imren",
+      "node/3841171917",
+      "way/96961596",
+      {}
+    ],
+    [
+      "imren-tempelhofer-damm",
+      "Imren Grill",
+      "Tempelhofer Damm 126, 12099 Berlin",
+      "imren",
+      "node/12996979241",
+      "way/133894852",
+      {}
+    ],
+    [
+      "hasir-adalbertstrasse",
+      "Hasır Kreuzberg",
+      "Adalbertstraße 10, 10999 Berlin",
+      "hasir",
+      "node/871561405",
+      "way/37739096",
+      {}
+    ],
+    [
+      "hasir-ocakbasi",
+      "Hasır Ocakbaşı",
+      "Oranienstraße 177, 10999 Berlin",
+      "hasir",
+      "node/3454171198",
+      "way/37739161",
+      {
+        "notes": "Eigener Eingang und eigener Betrieb an der Ecke Adalbertstraße, alternativ als Adalbertstraße 12 geführt."
+      }
+    ],
+    [
+      "hasir-schoeneberg",
+      "Hasır Schöneberg",
+      "Maaßenstraße 10, 10777 Berlin",
+      "hasir",
+      "node/1915589264",
+      "relation/945669",
+      {}
+    ],
+    [
+      "hasir-wilmersdorf",
+      "Hasır Wilmersdorf",
+      "Nürnberger Straße 46, 10789 Berlin",
+      "hasir",
+      "node/3084845244",
+      "way/26707836",
+      {}
+    ],
+    [
+      "hasir-spandau",
+      "Hasır Spandau",
+      "Breite Straße 43, 13597 Berlin",
+      "hasir-group",
+      "node/285431960",
+      "way/27266900",
+      {}
+    ],
+    [
+      "hasir-mitte",
+      "Hasır Mitte",
+      "Oranienburger Straße 4, 10178 Berlin",
+      "hasir-group",
+      "node/2796753234",
+      "way/147686966",
+      {}
+    ],
+    [
+      "nefis-hermannplatz",
+      "Nefis Gemüse Kebap",
+      "Kottbusser Damm 34, 10967 Berlin",
+      "nefis",
+      "node/11519456469",
+      "way/240776365",
+      {}
+    ],
+    [
+      "nefis-kotti",
+      "Nefis Gemüse Kebap Kotti",
+      "Adalbertstraße 6, 10999 Berlin",
+      "nefis",
+      "node/2840615699",
+      "way/37739106",
+      {}
+    ],
+    [
+      "nefis-beef-kottbusser-damm",
+      "Nefis Beef Kebap",
+      "Kottbusser Damm 1, 10967 Berlin",
+      "nefis",
+      "node/13716171764",
+      "way/342996206",
+      {}
+    ],
+    [
+      "nefis-leopoldplatz",
+      "Nefis Gemüse Kebap Leopoldplatz",
+      "Luxemburger Straße 33, 13353 Berlin",
+      "nefis",
+      "node/3229881310",
+      "way/111547115",
+      {}
+    ],
+    [
+      "lale-otto-suhr-allee",
+      "Lale Imbiss",
+      "Otto-Suhr-Allee 106, 10585 Berlin",
+      "lale",
+      "node/1333810531",
+      "way/88108703",
+      {}
+    ],
+    [
+      "fugger-imbiss",
+      "Fugger Imbiss",
+      "Fuggerstraße 17, 10777 Berlin",
+      "fugger",
+      "node/2320578324",
+      "way/148370882",
+      {
+        "otherOsmRefs": [
+          "node/6207589035"
+        ],
+        "notes": "Ecklokal Fuggerstraße/Martin-Luther-Straße; 2 OSM-Punkte am selben Betrieb."
+      }
+    ],
+    [
+      "doener-turm",
+      "Döner Turm",
+      "Turmstraße 31, 10551 Berlin",
+      "doener-turm",
+      "way/1157643941",
+      "way/1157643941",
+      {
+        "notes": "Benanntes OSM-Kioskpolygon an der Ecke Wilhelmshavener Straße. Ältere Tourismusseite nennt die Eckadresse Wilhelmshavener Straße 1."
+      }
+    ],
+    [
+      "hisar-yorckstrasse",
+      "Hisar",
+      "Yorckstraße 49, 10965 Berlin",
+      "hisar",
+      "node/352924669",
+      "way/31538184",
+      {}
+    ],
+    [
+      "kebap-with-attitude-gipsstrasse",
+      "Kebap with Attitude",
+      "Gipsstraße 2, 10119 Berlin",
+      "kwa",
+      "node/6708250137",
+      "way/23992220",
+      {}
+    ],
+    [
+      "mustafa-demir-warschauer-strasse",
+      "Mustafa Demir’s Gemüsekebap",
+      "Warschauer Straße 27a, 10243 Berlin",
+      "demir",
+      "node/3906985188",
+      "way/178064190",
+      {}
+    ],
+    [
+      "mustafa-demir-retro-doener",
+      "Mustafa Demir’s Retro Döner",
+      "Warschauer Straße 30, 10243 Berlin",
+      "demir-retro",
+      "node/3906999600",
+      "way/316894836",
+      {}
+    ],
+    [
+      "tadim-adalbertstrasse",
+      "Tadım",
+      "Adalbertstraße 98, 10999 Berlin",
+      "tadim",
+      "node/1583884357",
+      "way/37853280",
+      {}
+    ],
+    [
+      "doyum-admiralstrasse",
+      "Doyum",
+      "Admiralstraße 36, 10999 Berlin",
+      "doyum",
+      "node/4435796782",
+      null,
+      {
+        "directoryOnly": true,
+        "notes": "Der OSM-Ladenpunkt liegt in einem mit Nr. 38 getaggten Umriss; Nr. 36 ist separat erfasst. Keine Fassaden-Zuordnung aus dem Ortspunkt."
+      }
+    ],
+    [
+      "ugur-prinzenallee",
+      "Uğur Imbiss",
+      "Prinzenallee 14, 13357 Berlin",
+      "ugur",
+      "node/5887756699",
+      "way/41090469",
+      {}
+    ]
+  ],
+  "excluded": [
+    [
+      "Mustafa’s Gemüse Kebap – Mehringdamm 32",
+      "Alter Stand gegenüber; nicht der aktuelle Betreiberstandort.",
+      "https://mustafas.de/"
+    ],
+    [
+      "Rüyam – Hauptstraße 133",
+      "Ehemalige Filiale; Betreiber bestätigt Hauptstraße 36.",
+      "https://rueyam.de/"
+    ],
+    [
+      "Nefis – Oranienstraße 123, Kottbusser Damm 45, Müllerstraße 78, Karl-Marx-Straße 90",
+      "Teaser der Startseite weicht von der separaten Betreiber-Standortliste und den bestätigten OSM-Punkten ab. Keine weiteren Filialen aus diesem Teaser abgeleitet.",
+      "https://www.nefis-gemusekebap.de/"
+    ],
+    [
+      "Bagdad – Schlesische Straße 2",
+      "Operatorseite und touristischer Eintrag widersprechen dem häufig aktualisierten anderen Anbieter am selben OSM-Standort. Keine aktuelle Identität als Bagdad behauptet.",
+      "https://bagdad.eatbu.com/?lang=de"
+    ],
+    [
+      "Hasır Burger / Beef Grill Club",
+      "Eigenständige Burger- und Steakhaus-Geschäftszweige; kein Doppelimport als Dönerlokal.",
+      "https://de.linkedin.com/company/hasir-group"
+    ],
+    [
+      "Lale – weitere gleichnamige Punkte",
+      "Weitere Filialen ohne einzeln belegte aktuelle Betreiberadresse; der generische Lieferservice 106A wird nicht mit Lale Imbiss 106 verschmolzen.",
+      "https://www.visitberlin.de/de/lale-imbiss"
+    ]
+  ]
+}

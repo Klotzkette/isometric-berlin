@@ -3355,3 +3355,13 @@ addresses and exterior architecture are in scope. Do not add interior layouts
 or infer openings from a location pin. Preserve earlier passes and stream new
 assets through established finite host recipes. The public and download limits
 and the full publication agreement carry forward from v354.
+
+### Step 10 — v356 verified venue follow-up and Berlin Döner shops
+
+Continue the v355 building associations from exact retained source ownership.
+Add a current, representative set of well-known Berlin Döner shops and their
+documented branches, including Oggi's at Heidestraße. Keep its existing authored
+kiosk. Use the nearby-place layer for verified addresses and add only facades
+that have exterior support in both geometry families. Record the distinction
+between photographic frontage, recognition on a retained wall and a directory
+location. Keep the full content and existing publication limits from v355.

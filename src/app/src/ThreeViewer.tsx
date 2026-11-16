@@ -134,6 +134,7 @@ import { completeCooperatively } from "./cooperativeWork";
 import { startupWorkPositionV309, startupWorkPresentationV309, type StartupWorkV309 } from "./startupWorkV309";
 import { createBndPublicArtV314 } from "./BndPublicArtV314";
 import { WORLD_ORBIT_BASE_DISTANCE_M, worldCameraFarM } from "./worldCameraDepth";
+import { createMustafaFrontV356 } from "./MustafaFrontV356";
 import { createSceneGpuWarmup, type SceneGpuWarmup } from "./sceneGpuWarmup";
 import { createSceneGpuResidency, type SceneGpuResidency } from "./sceneGpuResidency";
 import { createSceneGeometryGpuResidency, type SceneGeometryGpuResidency } from "./sceneGeometryGpuResidency";
@@ -4896,6 +4897,8 @@ function ensureIsoWorld(
         reportDetailStep(0);
         provisionalIsoWorld = isoWorld;
         isoWorld.add(fidelityV288.root);
+        const mustafaFront = createMustafaFrontV356(prisms.buildings);
+        if (mustafaFront) isoWorld.add(mustafaFront);
         yield*governmentV323.createWilhelmHousingRuntimeV324Steps(isoWorld,prisms.buildings,ground??undefined,false,runtime.coarsePointer);
         yield*governmentV323.createWilhelmStreetFrontsRuntimeV325Steps(isoWorld,prisms.buildings,ground??undefined,false,runtime.coarsePointer);
         let neukoellnAdmissionV305=applyNeukoellnLegacyV227V305(isoWorld,false,true,fidelityV288.neukoellnModel);
@@ -5840,6 +5843,8 @@ function ensureVoxelWorld(
           isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
         },
       );
+      const mustafaFront = prisms && createMustafaFrontV356(prisms.buildings, payload);
+      if (mustafaFront) provisionalVoxelWorld.add(mustafaFront);
       const nativePavingGroundV343 = provisionalVoxelWorld.getObjectByName("Voxel ground runs");
       if (nativePavingGroundV343 instanceof InstancedMesh) {
         provisionalVoxelWorld.add(kulturforumPavingV343.createKulturforumPavingV343(

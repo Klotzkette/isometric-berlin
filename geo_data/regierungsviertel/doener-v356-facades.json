@@ -1,0 +1,215 @@
+{
+  "rueyam-hauptstrasse": [
+    {
+      "url": "https://rueyam.de/assets/img/Interior/ruyam_1_1.webp",
+      "credit": "Rüyam Gemüse Kebab, Betreiberfoto",
+      "description": "Straßenseitige linke bodentiefe Glasfront mit dunklen Rahmen und festem Oberlicht.",
+      "hostHint": "-3_7",
+      "ownerHint": "DEBE07YY90000FDy",
+      "point": [13.3523331, 52.48447084],
+      "normal": [0.60182, 0.79864],
+      "width": 3.6,
+      "bottom": 0.45,
+      "top": 2.75,
+      "finish": {
+        "type": "glazing",
+        "color": [62, 67, 65],
+        "frame": [38, 42, 42],
+        "count": 3
+      },
+      "native": {
+        "point": [13.35227694, 52.48444443],
+        "normal": [0, 1],
+        "width": 3.56
+      }
+    },
+    {
+      "url": "https://rueyam.de/assets/img/Interior/ruyam_1_1.webp",
+      "credit": "Rüyam Gemüse Kebab, Betreiberfoto",
+      "description": "Rechte Glasfront mit integriertem Eingang. Der gelbe Fassadenpfeiler bleibt zwischen den beiden Glasfeldern frei.",
+      "hostHint": "-3_7",
+      "ownerHint": "DEBE07YY90000FDy",
+      "point": [13.35238344, 52.4844951],
+      "normal": [0.60182, 0.79864],
+      "width": 3.7,
+      "bottom": 0.25,
+      "top": 2.75,
+      "finish": {
+        "type": "glazing",
+        "color": [53, 59, 58],
+        "frame": [38, 42, 42],
+        "count": 3
+      },
+      "native": {
+        "point": [13.35239269, 52.48449999],
+        "normal": [0, 1],
+        "width": 3.56
+      }
+    },
+    {
+      "url": "https://rueyam.de/assets/img/Interior/ruyam_1_1.webp",
+      "credit": "Rüyam Gemüse Kebab, Betreiberfoto",
+      "description": "Flache, dunkle Blende oberhalb der beiden Ladenfelder.",
+      "hostHint": "-3_7",
+      "ownerHint": "DEBE07YY90000FDy",
+      "point": [13.35235943, 52.48448353],
+      "normal": [0.60182, 0.79864],
+      "width": 8.65,
+      "bottom": 2.9,
+      "top": 3.45,
+      "finish": {
+        "type": "panel",
+        "color": [38, 42, 42],
+        "frame": [51, 55, 53],
+        "count": 1
+      },
+      "native": {
+        "point": [13.35239269, 52.48449999],
+        "normal": [0, 1],
+        "width": 3.56
+      }
+    },
+    {
+      "url": "https://rueyam.de/assets/img/Interior/ruyam_1_1.webp",
+      "credit": "Rüyam Gemüse Kebab, Betreiberfoto",
+      "description": "Breites schwarzes Schriftband mit grünem Saum aus dem aktuellen Betreiberfoto.",
+      "hostHint": "-3_7",
+      "ownerHint": "DEBE07YY90000FDy",
+      "point": [13.35235943, 52.48448353],
+      "normal": [0.60182, 0.79864],
+      "width": 8.65,
+      "bottom": 3.51,
+      "top": 4.12,
+      "finish": {
+        "type": "panel",
+        "color": [48, 49, 49],
+        "frame": [80, 119, 90],
+        "count": 1
+      },
+      "native": {
+        "point": [13.35239269, 52.48449999],
+        "normal": [0, 1],
+        "width": 3.56
+      }
+    }
+  ],
+  "rueyam-schoenhauser-allee": [
+    {
+      "url": "https://rueyam.de/assets/img/Interior/ruyam_2_1.webp",
+      "credit": "Rüyam Gemüse Kebab, Betreiberfoto",
+      "description": "Dunkles Glas der Vorsatzfront mit geteiltem Bestellfenster, links zur Tür.",
+      "hostHint": "5_-5",
+      "ownerHint": "DEBE03YY6000074L",
+      "point": [13.41252527, 52.54050988],
+      "normal": [-0.99995, -0.00984],
+      "width": 6.4,
+      "bottom": 0.48,
+      "top": 2.68,
+      "finish": {
+        "type": "glazing",
+        "color": [59, 64, 65],
+        "frame": [38, 42, 42],
+        "count": 4
+      },
+      "native": {
+        "point": [13.41252541, 52.54050988],
+        "normal": [-1, 0],
+        "width": 6.4
+      }
+    },
+    {
+      "url": "https://rueyam.de/assets/img/Interior/ruyam_2_1.webp",
+      "credit": "Rüyam Gemüse Kebab, Betreiberfoto",
+      "description": "Dunkle Blende der über die Ladenfront laufenden Markise.",
+      "hostHint": "5_-5",
+      "ownerHint": "DEBE03YY6000074L",
+      "point": [13.41252527, 52.54050988],
+      "normal": [-0.99995, -0.00984],
+      "width": 7.4,
+      "bottom": 2.8,
+      "top": 3.32,
+      "finish": {
+        "type": "panel",
+        "color": [41, 45, 44],
+        "frame": [51, 55, 53],
+        "count": 1
+      },
+      "native": {
+        "point": [13.41252541, 52.54050988],
+        "normal": [-1, 0],
+        "width": 7.4
+      }
+    },
+    {
+      "url": "https://rueyam.de/assets/img/Interior/ruyam_2_1.webp",
+      "credit": "Rüyam Gemüse Kebab, Betreiberfoto",
+      "description": "Schwarzes, grün eingefasstes Rüyam-Schriftband unter der hellen oberen Fassade.",
+      "hostHint": "5_-5",
+      "ownerHint": "DEBE03YY6000074L",
+      "point": [13.41252527, 52.54050988],
+      "normal": [-0.99995, -0.00984],
+      "width": 6.9,
+      "bottom": 3.38,
+      "top": 3.94,
+      "finish": {
+        "type": "panel",
+        "color": [48, 48, 49],
+        "frame": [80, 119, 90],
+        "count": 1
+      },
+      "native": {
+        "point": [13.41252541, 52.54050988],
+        "normal": [-1, 0],
+        "width": 6.9
+      }
+    }
+  ],
+  "voener-boxhagener-strasse": [
+    {
+      "url": "https://elpais.com/eps/2024-02-09/berlin-capital-mundial-del-kebab.html",
+      "credit": "Daniel Ochoa de Olza, El País Semanal, Vöner-Außenansicht",
+      "description": "Doppeltür mit braunem Querrahmen und den schmalen Seitenfeldern.",
+      "hostHint": "ring182-12_2",
+      "ownerHint": "OSM-way-968170087",
+      "point": [13.46873975, 52.50673763],
+      "normal": [0.58434, -0.81151],
+      "width": 3.16,
+      "bottom": 0.2,
+      "top": 2.54,
+      "finish": {
+        "type": "glazing",
+        "color": [70, 72, 67],
+        "frame": [161, 151, 129],
+        "count": 3
+      },
+      "native": {
+        "point": [13.46873309, 52.50674258],
+        "normal": [0, -1],
+        "width": 3.16
+      }
+    },
+    {
+      "url": "https://elpais.com/eps/2024-02-09/berlin-capital-mundial-del-kebab.html",
+      "credit": "Daniel Ochoa de Olza, El País Semanal, Vöner-Außenansicht",
+      "description": "Breiter cremeweißer handbeschrifteter Abschluss über dem Ladeneingang.",
+      "hostHint": "ring182-12_2",
+      "ownerHint": "OSM-way-968170087",
+      "point": [13.46873975, 52.50673763],
+      "normal": [0.58434, -0.81151],
+      "width": 3.26,
+      "bottom": 2.64,
+      "top": 3.26,
+      "finish": {
+        "type": "panel",
+        "color": [219, 212, 199],
+        "frame": [171, 165, 151],
+        "count": 1
+      },
+      "native": {
+        "point": [13.46873309, 52.50674258],
+        "normal": [0, -1],
+        "width": 3.26
+      }
+    }
+  ]
+}

@@ -30,7 +30,7 @@ SOURCES = (
   "polizeiwachen-v355-source.json.gz",
   "retail-v355-source.json.gz",
 )
-KINDS = ("tax-office", "citizen-office", "police", "car-dealer", "mall")
+KINDS = ("tax-office", "citizen-office", "police", "car-dealer", "mall", "doner")
 PROJECT = Transformer.from_crs(4326, 25833, always_xy=True)
 
 
@@ -252,19 +252,22 @@ def facade_panels(site, building, raw, native, bounds, host):
   return result
 
 
-def prepare(scratch, inputs):
+def prepare(scratch, inputs, *, sites=None, source_files=None):
   manifest = common.read(common.PUBLIC / "manifest.json")
   roads_file = GEO / "raw/city-v346/named-roads.geojson.gz"
   roads = [shape(row["geometry"]) for row in common.read(roads_file)["features"]]
   road_tree = STRtree(roads)
-  sites = {}
-  for path in inputs:
-    document = common.read(path)
-    for row in document["sites"]:
-      assert row["kind"] in KINDS and row["id"] not in sites
-      assert row["sourceUrl"].startswith("https://")
-      assert 13.07 < row["lon"] < 13.77 and 52.31 < row["lat"] < 52.71, row["id"]
-      sites[row["id"]] = row
+  if sites is None:
+    sites = {}
+    for path in inputs:
+      for row in common.read(path)["sites"]:
+        assert row["id"] not in sites
+        sites[row["id"]] = row
+  if source_files is None:
+    source_files = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs}
+  for row in sites.values():
+    assert row["kind"] in KINDS and row["sourceUrl"].startswith("https://")
+    assert 13.07 < row["lon"] < 13.77 and 52.31 < row["lat"] < 52.71, row["id"]
   ids = sorted(sites)
   areas = [site_geometry(sites[key]) for key in ids]
   points = [Point(project(sites[key]["lon"], sites[key]["lat"])) for key in ids]
@@ -273,7 +276,8 @@ def prepare(scratch, inputs):
   point_matches = defaultdict(list)
   contained_parts = defaultdict(list)
   site_areas = dict(zip(ids, areas, strict=True))
-  references = {}
+  references = defaultdict(set)
+  bindings = defaultdict(list)
   reference_points = []
   for key, row in sites.items():
     refs = row.get("facadeReference") or []
@@ -281,8 +285,11 @@ def prepare(scratch, inputs):
       refs = [refs]
     for ref in refs:
       if ref.get("hostHint") and ref.get("ownerHint") and ref.get("point"):
-        references[(ref["hostHint"], ref["ownerHint"])] = key
+        references[(ref["hostHint"], ref["ownerHint"])].add(key)
         reference_points.append(Point(project(*ref["point"])))
+    binding = row.get("wallBinding")
+    if binding:
+      bindings[binding["hostHint"]].append((key, binding))
   ref_targets = STRtree(reference_points)
   matches = defaultdict(list)
   core = common.read(
@@ -299,11 +306,17 @@ def prepare(scratch, inputs):
 
   for descriptor in manifest["chunks"]:
     bounds = box(*descriptor["bounds"])
-    if not len(targets.query(bounds, predicate="intersects")) and not len(
-      ref_targets.query(bounds, predicate="intersects")
+    bound_sites = bindings.get(descriptor["id"], ())
+    if (
+      not bound_sites
+      and not len(targets.query(bounds, predicate="intersects"))
+      and not len(ref_targets.query(bounds, predicate="intersects"))
     ):
       continue
-    raw = common.read(common.PUBLIC / descriptor["drawn"]["url"])
+    packet = common.PUBLIC / descriptor["drawn"]["url"]
+    if bound_sites:
+      assert common.sha(packet.read_bytes()) == descriptor["drawn"]["sha256"]
+    raw = common.read(packet)
     buildings = [
       (b, building_geometry(b, raw["origin"])) for b in raw["nav"]["buildings"]
     ]
@@ -313,14 +326,24 @@ def prepare(scratch, inputs):
       if p.is_valid and p.area > 4 and b.get("minHeight", 0) <= 0.1
     ]
     for building, poly in buildings:
-      hinted_key = references.get((descriptor["id"], building["sourceId"]))
-      if hinted_key:
-        matches[hinted_key].append((descriptor, building, poly.area))
+      hinted_keys = set(references.get((descriptor["id"], building["sourceId"]), ()))
+      for key, binding in bound_sites:
+        if (
+          building["sourceId"] == binding["ownerHint"]
+          and poly.distance(Point(project(*binding["point"]))) <= 2
+          and all(
+            descriptor[mode]["sha256"] == binding["packetSha256"][mode]
+            for mode in ("drawn", "minecraft")
+          )
+        ):
+          hinted_keys.add(key)
+      for key in hinted_keys:
+        matches[key].append((descriptor, building, poly.area))
       for index in point_targets.query(poly, predicate="covers"):
         point_matches[ids[index]].append((descriptor, building, poly.area))
       for index in targets.query(poly, predicate="intersects"):
         key = ids[index]
-        if key == hinted_key:
+        if key in hinted_keys:
           continue
         area = areas[index]
         if area.area:
@@ -336,8 +359,28 @@ def prepare(scratch, inputs):
   decisions = {}
   work = defaultdict(list)
   for key, row in sites.items():
+    if row.get("authoredLandmark"):
+      decisions[key] = dict(
+        status="existing-authored-model", landmark=row["authoredLandmark"]
+      )
+      continue
+    if row.get("directoryOnly"):
+      decisions[key] = dict(status="directory-only")
+      continue
     candidates = matches[key]
-    if not candidates and contained_parts[key]:
+    binding = row.get("wallBinding")
+    if binding:
+      candidates = [
+        candidate
+        for candidate in candidates
+        if candidate[0]["id"] == binding["hostHint"]
+        and candidate[1]["sourceId"] == binding["ownerHint"]
+        and all(
+          candidate[0][mode]["sha256"] == binding["packetSha256"][mode]
+          for mode in ("drawn", "minecraft")
+        )
+      ]
+    if not binding and not candidates and contained_parts[key]:
       parts = contained_parts[key]
       whole = site_areas[key]
       owners = {building["sourceId"] for _, building, _ in parts}
@@ -347,9 +390,14 @@ def prepare(scratch, inputs):
         >= 0.87
       ):
         candidates = [(d, b, p.area) for d, b, p in parts]
-    if not candidates and not row.get("buildingGeometry") and not row.get("geometry"):
+    if (
+      not binding
+      and not candidates
+      and not row.get("buildingGeometry")
+      and not row.get("geometry")
+    ):
       candidates = point_matches[key]
-    hints = {owner for (host, owner), site_id in references.items() if site_id == key}
+    hints = {owner for (_, owner), site_ids in references.items() if key in site_ids}
     if row.get("sourceOwner"):
       hints.add(row["sourceOwner"])
     hinted = [r for r in candidates if r[1]["sourceId"] in hints]
@@ -383,6 +431,10 @@ def prepare(scratch, inputs):
     modes = {}
     for mode in ("drawn", "minecraft"):
       path = common.PUBLIC / descriptor[mode]["url"]
+      if descriptor["id"] in bindings and any(
+        sites[key].get("wallBinding") for key, _, _ in rows
+      ):
+        assert common.sha(path.read_bytes()) == descriptor[mode]["sha256"]
       raw = common.read(path)
       retained = defaultdict(list)
       for b in raw["nav"]["buildings"]:
@@ -393,11 +445,22 @@ def prepare(scratch, inputs):
       records = {}
       for key, building, _ in rows:
         choices = [building] if mode == "drawn" else retained[building["sourceId"]]
+        if binding := sites[key].get("wallBinding"):
+          anchor = Point(project(*binding["point"]))
+          choices = [
+            b
+            for b in choices
+            if b.get("minHeight", 0) <= 0.1
+            and (poly := building_geometry(b, raw["origin"])).is_valid
+            and poly.area > 4
+            and poly.distance(anchor) <= 2
+          ]
         if not choices:
           continue
         options = (
           []
           if key in {"kotti-wache", "bundespolizei-hbf"}
+          or (sites[key]["kind"] == "doner" and sites[key].get("facadeReference"))
           or str(sites[key].get("storey", "0")) not in ("0", "ground", "")
           else [
             p
@@ -440,7 +503,7 @@ def prepare(scratch, inputs):
   common.write(
     scratch / "inventory.json",
     dict(
-      sourceFiles={p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs},
+      sourceFiles=source_files,
       sites=sites,
       decisions=decisions,
     ),

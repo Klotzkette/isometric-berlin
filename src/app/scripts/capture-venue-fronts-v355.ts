@@ -15,6 +15,7 @@ import { plateClearV350, drain } from "./civic-facility-support-v350";
 import { productionSupportV350, proveProductionV350 } from "./civic-production-proof-v350";
 import {
   VENUE_FRONTS_KIND_V355,
+  VENUE_FRONTS_KIND_V356,
   venueFrontSourceV355,
   type VenueFrontPlan,
   type VenueFrontRecipes,
@@ -39,8 +40,12 @@ const flags: SurroundingOwnershipOptions = {
   treptowWaterfrontV317:true, governmentOfficesV321:true, universitiesV322:true,
   wilhelmHousingV324:true, wilhelmStreetFrontsV325:true, southWestSitesV326:true,
 };
+const [jobsPath, resultPath, kind = VENUE_FRONTS_KIND_V355] = process.argv.slice(2);
+if (!jobsPath || !resultPath || ![VENUE_FRONTS_KIND_V355, VENUE_FRONTS_KIND_V356].includes(kind)) {
+  throw new Error("Expected jobs path, result path and optionally a venue layer kind");
+}
 const older = createSourceQuarterRecipeLoaderV309(SOURCE_QUARTER_CATALOGUE_V309.filter(
-  entry => entry.kind !== VENUE_FRONTS_KIND_V355 && !groundOverlayKindsV329.has(entry.kind),
+  entry => entry.kind !== VENUE_FRONTS_KIND_V356 && entry.kind !== kind && !groundOverlayKindsV329.has(entry.kind),
 ));
 const ground = createSourceQuarterRecipeLoaderV309(SOURCE_QUARTER_CATALOGUE_V309.filter(
   entry => groundOverlayKindsV329.has(entry.kind),
@@ -114,8 +119,6 @@ async function inspect(job: Job, mode: Mode) {
   return { available, raw, all, key, plan, start };
 }
 
-const [jobsPath, resultPath] = process.argv.slice(2);
-if (!jobsPath || !resultPath) throw new Error("Expected jobs and result path");
 const jobs = JSON.parse(readFileSync(jobsPath, "utf8")) as Job[];
 const packets: VenueFrontRecipes["packets"] = {};
 const admitted: Record<string, { host: string; owner: string; entranceEvidenceBothModes: boolean; plate: boolean; facadeReferences: string[] }> = {};
@@ -147,7 +150,7 @@ for (const job of jobs) {
         plates: selected.flatMap(row => row.showPlate ? [row.plate!] : []),
         panels: selected.flatMap(row => row.panelIndices.map(i => row.panels.get(i)!.panel)),
       };
-      const source = venueFrontSourceV355({ schemaVersion: 1, keys: [key], packets: { [key]: plan } });
+      const source = venueFrontSourceV355({ schemaVersion: 1, keys: [key], packets: { [key]: plan } }, kind);
       const proof = await proveProductionV350(result.raw, job.host, key.startsWith("minecraft:"),
         flags, result.all, source, result.start, plan.plates);
       if (!proof.valid) {
