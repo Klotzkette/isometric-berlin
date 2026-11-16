@@ -61,7 +61,7 @@ function addHousingFacade(
   const bays = Math.max(1, Math.floor(length / 2.65));
   const half = length / 2;
   // Near-coplanar coatings cover the generic glazing at its old offsets.
-  builder.face(edge, half, base + height / 2, length, height, .075, plaster, .136);
+  builder.face(edge, half, base + height / 2, length, height, .075, plaster, .152);
   builder.face(edge, half, base + baseHeight / 2, length, baseHeight, .08, plinth, .16);
   builder.face(edge, half, base + baseHeight, length, .12, .07, 0x867769, .20);
   builder.face(edge, half, edge.wallTopY - .16, length, .21, .10, 0xb2a995, .19);

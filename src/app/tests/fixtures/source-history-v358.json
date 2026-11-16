@@ -2,7 +2,7 @@
   "additions": {
     "src/app/src/LehrterGardenPayloadV358.ts": "103bf1015dd156e8039885f2369d24a5fbb105c13a5bbfef8f7fd485266561af",
     "src/app/src/LehrterGardensV358.ts": "5d748a7c59074910ef11049283927beff5d5f17d147b0992e0bd33b2d6d2e9c3",
-    "src/app/src/LesserUryFrontsV358.ts": "d54643710b1d8ff884d0cceec6ff6eda8da07e8a074e2f19639845168a47ecb8",
+    "src/app/src/LesserUryFrontsV358.ts": "1dff3ca790ab4db3ba5fd5e765020e0d4b149789244f80b4c5977ca5194c2aa7",
     "src/app/src/data/lehrterFrontV358.json": "45e7b48a0996e396f085853f0f01f8093d91f770c99aca486111337bbfe3cab4",
     "src/app/src/data/lehrterGardenCorrectionsV358.json": "cd46c9a6a4551fbef06f1cc221c87c0f035c0f43dd295784d8d01727cc685a76",
     "src/app/src/data/lehrterGardensV358.json": "fff7f9a0f7e1ca807707285e73e4f95135cfec2bbcdde361ec57efbecbd07317",
