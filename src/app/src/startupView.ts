@@ -97,8 +97,8 @@ const VENUE_VIEWS_V357: typeof GARDEN_VIEWS_V330 = {
 const MOABIT_VIEWS_V358: Record<string, (typeof GARDEN_VIEWS_V330)[string] & { fov: number }> = {
   "Landespolizeidirektion Moabit": { position: [-726, 35, -519], target: [-631, 16, -549], fov: 32 },
   "Kleingartenkolonie Lehrter Straße": { position: [-620, 156, -884], target: [-399, 6, -1026], fov: 38 },
-  "Lesser-Ury-Weg": { position: [-547, 29, -665], target: [-608, 10, -706], fov: 27 },
-  "Kulturfabrik Moabit": { position: [-857, 34, -1693], target: [-791, 13, -1723], fov: 28 },
+  "Lesser-Ury-Weg": { position: [-586, 15, -704], target: [-618, 12, -677], fov: 45 },
+  "Kulturfabrik Moabit": { position: [-812, 13, -1713], target: [-791, 15, -1723], fov: 55 },
 };
 
 // Extra place links use the same focus control without adding tour stops.
