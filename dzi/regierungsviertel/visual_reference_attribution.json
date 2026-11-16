@@ -4923,6 +4923,348 @@
       "role": "architectural_reference_only_no_image_or_texture_distributed",
       "photo_bundled": false,
       "geometry_status": "Four photographed storeys replace the incorrect generic window rows at the supported rounded corner and adjoining fronts; existing gilt balconies and pilasters retained."
+    },
+    {
+      "landmark_id": "dora_duncker_v354",
+      "title": "Dora-Duncker-Park — paths and retained railway",
+      "page_url": "https://gruen-berlin.de/projekte/parks/dora-duncker-park",
+      "credit": "Grün Berlin; photographs © Lichtschwärmer",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Mapped route/landmark anchors on retained production ground; small architectural fittings, vegetation and surface details are display estimates. Photos are not distributed."
+    },
+    {
+      "landmark_id": "baluschek_v354",
+      "title": "Hans-Baluschek-Park — linear railway-side park",
+      "page_url": "https://gruen-berlin.de/projekte/parks/hans-baluschek-park",
+      "credit": "Grün Berlin",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Mapped route/landmark anchors on retained production ground; small architectural fittings, vegetation and surface details are display estimates. Photos are not distributed."
+    },
+    {
+      "landmark_id": "suedgelaende_tower_v354",
+      "title": "Südgelände water tower — open red steel structure and documented 50m height",
+      "page_url": "https://www.natur-park-suedgelaende.de/bahntechnik-industriekultur/wasserturm/",
+      "credit": "Grün Berlin; drone photograph © Frank Sperling",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Mapped route/landmark anchors on retained production ground; small architectural fittings, vegetation and surface details are display estimates. Photos are not distributed."
+    },
+    {
+      "landmark_id": "suedgelaende_turntable_v354",
+      "title": "Südgelände turntable — documented 23m diameter",
+      "page_url": "https://www.natur-park-suedgelaende.de/bahntechnik-industriekultur/drehscheibe/",
+      "credit": "Grün Berlin",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Mapped route/landmark anchors on retained production ground; small architectural fittings, vegetation and surface details are display estimates. Photos are not distributed."
+    },
+    {
+      "landmark_id": "suedgelaende_paths_v354",
+      "title": "Südgelände paths and raised steel-grating walkway",
+      "page_url": "https://www.natur-park-suedgelaende.de/entdecken-erleben/rundwege/",
+      "credit": "Grün Berlin",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Mapped route/landmark anchors on retained production ground; small architectural fittings, vegetation and surface details are display estimates. Photos are not distributed."
+    },
+    {
+      "landmark_id": "fischerhuette_v354",
+      "title": "Fischerhütte / Alte Fischerhütte — operator exterior reference",
+      "page_url": "https://fischerhuette-berlin.de/",
+      "credit": "Fischerhütte / Laggner Gruppe; individual exterior photographer not credited on the page",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Full selected LoD2 wall/roof leaves and exact retained terrain anchors. Photo-informed materials and window spacing are estimates, not a facade survey. Existing shores, paths and water levels are unchanged."
+    },
+    {
+      "landmark_id": "paulsborn_v354",
+      "title": "Villa Paulsborn / Locanda 12 Apostoli — garden facade and portal",
+      "page_url": "https://www.locanda-12apostoli.de/",
+      "credit": "Locanda 12 Apostoli; individual photographer not credited on the page",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Full selected LoD2 wall/roof leaves and exact retained terrain anchors. Photo-informed materials and window spacing are estimates, not a facade survey. Existing shores, paths and water levels are unchanged."
+    },
+    {
+      "landmark_id": "paulsborn_heritage_v354",
+      "title": "Restaurant Forsthaus Paulsborn — official monument description and exterior",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09075450",
+      "credit": "Landesdenkmalamt Berlin; © LDA, Archiv, photograph 2008",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Full selected LoD2 wall/roof leaves and exact retained terrain anchors. Photo-informed materials and window spacing are estimates, not a facade survey. Existing shores, paths and water levels are unchanged."
+    },
+    {
+      "landmark_id": "grunewald_lakes_v354",
+      "title": "Grunewald Natura 2000 — official geography and nature reserve map",
+      "page_url": "https://www.berlin.de/sen/uvk/natur-und-gruen/naturschutz/natura-2000/natura-gebiete/grunewald/",
+      "credit": "Senatsverwaltung für Mobilität, Verkehr, Klimaschutz und Umwelt Berlin",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Full selected LoD2 wall/roof leaves and exact retained terrain anchors. Photo-informed materials and window spacing are estimates, not a facade survey. Existing shores, paths and water levels are unchanged."
+    },
+    {
+      "landmark_id": "dietrich_v354",
+      "title": "Leberstraße 65 — Marlene Dietrich birthplace",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Marlene_Dietrich_Birth_House_Panorama_2012-07-28_small.tiff",
+      "credit": "LezFraniak, own photograph 2012-07-28, CC BY-SA 3.0",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Selected street fronts on retained measured walls; floor/window counts and material families follow photos. Fitting dimensions are display estimates. No photographic pixels distributed."
+    },
+    {
+      "landmark_id": "leber13_v354",
+      "title": "Leberstraße 13",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09066611",
+      "credit": "Landesdenkmalamt Berlin, photograph 2005",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Selected street fronts on retained measured walls; floor/window counts and material families follow photos. Fitting dimensions are display estimates. No photographic pixels distributed."
+    },
+    {
+      "landmark_id": "leber18_v354",
+      "title": "Leberstraße 18",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09066612",
+      "credit": "Landesdenkmalamt Berlin, photograph 2005",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Selected street fronts on retained measured walls; floor/window counts and material families follow photos. Fitting dimensions are display estimates. No photographic pixels distributed."
+    },
+    {
+      "landmark_id": "leber32_v354",
+      "title": "Leberstraße 32",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09066613",
+      "credit": "Landesdenkmalamt Berlin, photograph 2005",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Selected street fronts on retained measured walls; floor/window counts and material families follow photos. Fitting dimensions are display estimates. No photographic pixels distributed."
+    },
+    {
+      "landmark_id": "yorck47_v354",
+      "title": "Yorckstraße 47 and 48",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09066750",
+      "credit": "© LDA-Fotoarchiv / Bittner 2014",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Selected street fronts on retained measured walls; floor/window counts and material families follow photos. Fitting dimensions are display estimates. No photographic pixels distributed."
+    },
+    {
+      "landmark_id": "riehmers_v354",
+      "title": "Riehmers Hofgarten",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09031026",
+      "credit": "© LDA-Archiv / Bittner 2012",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Selected street fronts on retained measured walls; floor/window counts and material families follow photos. Fitting dimensions are display estimates. No photographic pixels distributed."
+    },
+    {
+      "landmark_id": "scharoun_v354",
+      "title": "Scharoun house, Hohenzollerndamm 35–36",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011450",
+      "credit": "© LDA-DK / Beitl 2009",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Selected street fronts on retained measured walls; floor/window counts and material families follow photos. Fitting dimensions are display estimates. No photographic pixels distributed."
+    },
+    {
+      "landmark_id": "hohen44_v354",
+      "title": "Hohenzollerndamm 44",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011451",
+      "credit": "© LDA-DK / Beitl 2011",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Selected street fronts on retained measured walls; floor/window counts and material families follow photos. Fitting dimensions are display estimates. No photographic pixels distributed."
+    },
+    {
+      "landmark_id": "hohen45_v354",
+      "title": "Hohenzollerndamm 45",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011452",
+      "credit": "© LDA-DK / Beitl 2011",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Selected street fronts on retained measured walls; floor/window counts and material families follow photos. Fitting dimensions are display estimates. No photographic pixels distributed."
+    },
+    {
+      "landmark_id": "hohen181_v354",
+      "title": "Hohenzollerndamm 181–182",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09011556",
+      "credit": "© LDA-DK / Beitl 2009",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Selected street fronts on retained measured walls; floor/window counts and material families follow photos. Fitting dimensions are display estimates. No photographic pixels distributed."
+    },
+    {
+      "landmark_id": "yorck76_v354",
+      "title": "Yorckstraße 76",
+      "page_url": "https://gseggmbh.de/hauser/yorckstrasse-76/",
+      "credit": "GSE gGmbH, owner building photograph published 2025",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Selected street fronts on retained measured walls; floor/window counts and material families follow photos. Fitting dimensions are display estimates. No photographic pixels distributed."
+    },
+    {
+      "landmark_id": "museums_southwest_v354_0",
+      "title": "museum-period-and-current-site",
+      "page_url": "https://www.berlin.museum/museum/museumsdorf-dueppel",
+      "credit": "Museum/operator or official authority identified on the linked page",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Primary description and photographic reference; no copied imagery"
+    },
+    {
+      "landmark_id": "museums_southwest_v354_1",
+      "title": "timber-post-block-and-reed-construction",
+      "page_url": "https://www.dueppel.de/museumsdorf/gebaeude/",
+      "credit": "Museum/operator or official authority identified on the linked page",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Primary description and photographic reference; no copied imagery"
+    },
+    {
+      "landmark_id": "museums_southwest_v354_2",
+      "title": "hay-store-10-photos-and-location",
+      "page_url": "https://retold.eu/case-study/system/buildings/building-10",
+      "credit": "Museum/operator or official authority identified on the linked page",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Primary description and photographic reference; no copied imagery"
+    },
+    {
+      "landmark_id": "museums_southwest_v354_3",
+      "title": "museum-photogrammetry-collection",
+      "page_url": "https://sketchfab.com/stadtmuseumBLN/collections/museumsdorf-duppel-museum-village-duppel-a243b7c749734464b0d720c526f113f6",
+      "credit": "Museum/operator or official authority identified on the linked page",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Primary description and photographic reference; no copied imagery"
+    },
+    {
+      "landmark_id": "museums_southwest_v354_4",
+      "title": "bruecke-built-architecture",
+      "page_url": "https://www.bruecke-museum.de/de/museum/63/architektur",
+      "credit": "Museum/operator or official authority identified on the linked page",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Primary description and photographic reference; no copied imagery"
+    },
+    {
+      "landmark_id": "museums_southwest_v354_5",
+      "title": "kunsthaus-current-exterior",
+      "page_url": "https://kunsthaus-dahlem.de/haus/ueber-uns/",
+      "credit": "Museum/operator or official authority identified on the linked page",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Primary description and photographic reference; no copied imagery"
+    },
+    {
+      "landmark_id": "museums_southwest_v354_6",
+      "title": "current-cafe-and-terrace",
+      "page_url": "https://www.cafe-im-kunsthaus-dahlem.de/",
+      "credit": "Museum/operator or official authority identified on the linked page",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Primary description and photographic reference; no copied imagery"
+    },
+    {
+      "landmark_id": "museums_southwest_v354_7",
+      "title": "future-competition-not-built",
+      "page_url": "https://www.berlin.de/sen/bauen/wettbewerbe/2026/bruecke-museum/",
+      "credit": "Museum/operator or official authority identified on the linked page",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Primary description and photographic reference; no copied imagery"
+    },
+    {
+      "landmark_id": "museums_southwest_v354_8",
+      "title": "Museum Village Düppel - House 10",
+      "page_url": "https://sketchfab.com/3d-models/museum-village-duppel-house-10-6eebd94c865f4383a61ce7c7a706c607",
+      "credit": "Stadtmuseum Berlin",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Published image inspected for reconstruction typology; no photogrammetry mesh or image pixels shipped"
+    },
+    {
+      "landmark_id": "museums_southwest_v354_9",
+      "title": "Museum Village Düppel - House 11",
+      "page_url": "https://sketchfab.com/3d-models/museum-village-duppel-house-11-fb402b6df697443caa8bcac17b4c8daf",
+      "credit": "Stadtmuseum Berlin",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Published image inspected for reconstruction typology; no photogrammetry mesh or image pixels shipped"
+    },
+    {
+      "landmark_id": "museums_southwest_v354_10",
+      "title": "Museum Village Düppel - House 15",
+      "page_url": "https://sketchfab.com/3d-models/museum-village-duppel-house-15-d0a5b79785be47c486f72218ee6e607a",
+      "credit": "Stadtmuseum Berlin",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Published image inspected for reconstruction typology; no photogrammetry mesh or image pixels shipped"
+    },
+    {
+      "landmark_id": "museums_southwest_v354_11",
+      "title": "Museum Village Düppel - House 1 - Palisade",
+      "page_url": "https://sketchfab.com/3d-models/museum-village-duppel-house-1-palisade-e19cc59ae3394f1cbdb0b6ded98b855a",
+      "credit": "Stadtmuseum Berlin",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "Published image inspected for reconstruction typology; no photogrammetry mesh or image pixels shipped"
+    },
+    {
+      "landmark_id": "berlin-hauptbahnhof",
+      "title": "Washingtonplatz Endausbau",
+      "page_url": "https://www.voessing.de/de/projekte/washingtonplatz-am-hauptbahnhof-berlin--endausbau~pr612",
+      "credit": "Vössing Ingenieurgesellschaft mbH",
+      "role": "Primary built-material and western-tree-grove reference",
+      "photo_bundled": false,
+      "geometry_status": "Existing exact ground only; neutral granite display tone estimated, no new joint or height geometry"
+    },
+    {
+      "landmark_id": "berlin-hauptbahnhof",
+      "title": "Europaplatz Süd – current programme and construction status",
+      "page_url": "https://www.berlin.de/sen/bauen/baukultur/berliner-plaetzeprogramm/europaplatz-sued-1567894.php",
+      "credit": "Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen, Berlin",
+      "role": "Current distinction between existing paved forecourt and ongoing landscape redesign",
+      "photo_bundled": false,
+      "geometry_status": "No future completed design inferred"
+    },
+    {
+      "landmark_id": "berlin-hauptbahnhof",
+      "title": "ALKIS Berlin – Tatsächliche Nutzung and vegetation",
+      "page_url": "https://gdi.berlin.de/services/wfs/alkis",
+      "credit": "Geoportal Berlin / ALKIS, Datenlizenz Deutschland – Zero – Version 2.0",
+      "role": "Complete finite plaza/apron and protected-vegetation polygon sources, checked 2026-11-16",
+      "photo_bundled": false,
+      "geometry_status": "Source rings/holes retained; paint only on existing terrain"
+    },
+    {
+      "landmark_id": "berlin-hauptbahnhof",
+      "title": "Berlin Hauptbahnhof – Abluftkamin",
+      "page_url": "https://www.sbp.de/projekt/berlin-hauptbahnhof-abluftkamin/",
+      "credit": "schlaich bergermann partner",
+      "role": "Primary structural source for the one southern DB ventilation tower",
+      "photo_bundled": false,
+      "geometry_status": "Existing measured south source preserved; exact erroneous north duplicate removed"
+    },
+    {
+      "landmark_id": "paris-moskau",
+      "title": "Restaurant Paris–Moskau – current exterior",
+      "page_url": "https://www.paris-moskau.de/images/og-image.webp",
+      "credit": "Restaurant Paris–Moskau; photographer and capture date not stated",
+      "role": "Architectural reference only; north-facing open loggia, white infill, dark blue timber, brick frames and red tile roof",
+      "photo_bundled": false,
+      "geometry_status": "Measured source envelope; unsurveyed facade, roof details and awning dimensions are estimates"
+    },
+    {
+      "landmark_id": "paris-moskau",
+      "title": "Baudenkmal 09050226 – former railway house, exterior photograph 2004",
+      "page_url": "https://denkmaldatenbank.berlin.de/media/uploads/Tie/09050226a.jpg",
+      "credit": "Landesdenkmalamt Berlin, 2004",
+      "role": "Historical exterior reference, cross-checked against current operator photograph",
+      "photo_bundled": false,
+      "geometry_status": "Reference image only; no photograph pixels or textures distributed"
     }
   ]
 }

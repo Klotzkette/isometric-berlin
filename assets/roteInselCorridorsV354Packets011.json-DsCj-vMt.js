@@ -1,0 +1,1 @@
+var e=``+new URL(`roteInselCorridorsV354Packets011.json-DzYwoA1_.gz`,import.meta.url).href;export{e as default};
