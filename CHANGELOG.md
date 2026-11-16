@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.239
+
+- Shorten the browser startup by skipping irrelevant geometry in the Humboldthafen openings and reducing repeated work in façade exposure and source checks.
+- Keep the corrected city inventory compatible with its exact theatre ownership checks. Retain the intended lens when opening a landmark directly.
+
 ## 1.0.238
 
 - Refine the Kleingartenkolonie north of the former Moabit prison with mapped paths, individual plots and hedges. Use Berlin’s measured roof heights to correct ten garden sheds.

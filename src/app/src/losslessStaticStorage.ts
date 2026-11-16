@@ -7,6 +7,13 @@ type Values = BufferAttribute["array"];
 const parked = new WeakSet<Storage>();
 const BLOCK_BYTES = 256 * 1024;
 const MIN_BYTES = 64 * 1024;
+const MATRIX_WORDS = 16;
+type MatrixStorageBlock = {
+  compressed: Uint8Array;
+  firstRow: Uint32Array;
+  varyingColumns: number;
+};
+type StorageBlock = Uint8Array | MatrixStorageBlock;
 type StorageInfo = { arrayIdentity: object; bufferIdentity: object; byteLength: number; bufferBytes: number };
 const arrayIds = new WeakMap<object, object>(), bufferIds = new WeakMap<object, object>();
 const storageInfo = new WeakMap<Storage, StorageInfo>();
@@ -42,6 +49,67 @@ export function staticStorageInfo(storage: Storage): StorageInfo {
     byteLength: array.byteLength, bufferBytes: array.buffer.byteLength };
 }
 
+/** Store instance transforms by column to remove common rotation and scale
+ * words before compression. Use uint32 throughout so signed zeros and NaN
+ * payloads are reproduced exactly. */
+function packInstanceMatrixBlock(bytes: Uint8Array): StorageBlock {
+  const words = new Uint32Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / 4);
+  const rowCount = words.length / MATRIX_WORDS;
+  const firstRow = words.subarray(0, MATRIX_WORDS);
+  let varyingColumns = 0;
+  for (let i = MATRIX_WORDS; i < words.length; i += MATRIX_WORDS) {
+    for (let column = 0; column < MATRIX_WORDS; column++) {
+      if (words[i + column] !== firstRow[column]) varyingColumns |= 1 << column;
+    }
+    if (varyingColumns === 0xffff) return deflateSync(bytes, { level: 1 });
+  }
+  const columns: number[] = [];
+  for (let column = 0; column < MATRIX_WORDS; column++) {
+    if (varyingColumns & (1 << column)) columns.push(column);
+  }
+  // Keep the row layout when almost every word varies.
+  if (columns.length > 12) return deflateSync(bytes, { level: 1 });
+  const compact = new Uint32Array(columns.length * rowCount);
+  for (let i = 0; i < columns.length; i++) {
+    const column = columns[i];
+    const start = i * rowCount;
+    for (let row = 0; row < rowCount; row++) {
+      compact[start + row] = words[row * MATRIX_WORDS + column];
+    }
+  }
+  return {
+    compressed: deflateSync(new Uint8Array(compact.buffer), { level: 1 }),
+    firstRow: firstRow.slice(),
+    varyingColumns,
+  };
+}
+
+function unpackStaticBlock(block: StorageBlock, output: Uint8Array): void {
+  if (block instanceof Uint8Array) {
+    inflateSync(block, { out: output });
+    return;
+  }
+  const { compressed, firstRow, varyingColumns } = block;
+  const words = new Uint32Array(output.buffer, output.byteOffset, output.byteLength / 4);
+  const rowCount = words.length / MATRIX_WORDS;
+  let columnCount = 0;
+  for (let bits = varyingColumns; bits; bits &= bits - 1) columnCount++;
+  const compact = new Uint32Array(rowCount * columnCount);
+  inflateSync(compressed, { out: new Uint8Array(compact.buffer) });
+  let start = 0;
+  for (let column = 0; column < MATRIX_WORDS; column++) {
+    if (varyingColumns & (1 << column)) {
+      for (let row = 0; row < rowCount; row++) {
+        words[row * MATRIX_WORDS + column] = compact[start + row];
+      }
+      start += rowCount;
+    } else {
+      const word = firstRow[column];
+      for (let row = 0; row < rowCount; row++) words[row * MATRIX_WORDS + column] = word;
+    }
+  }
+}
+
 /**
  * Construction-only opt-in for immutable geometry. GPU buffers keep their
  * original precision. CPU reads reconstruct identical bytes synchronously;
@@ -50,7 +118,8 @@ export function staticStorageInfo(storage: Storage): StorageInfo {
  * A Three update or explicit array replacement permanently returns this storage
  * to its ordinary writable representation. Animated/unfinalized data is excluded.
  */
-export function* parkStaticAttribute(storage: Storage, ownsBuffer = false): Generator<void, number> {
+export function* parkStaticAttribute(storage: Storage, ownsBuffer = false,
+  instanceMatrix = false): Generator<void, number> {
   if (parked.has(storage) || typeof WeakRef !== "function" ||
       storage.usage !== StaticDrawUsage || storage.updateRanges.length ||
       storage.onUploadCallback !== (storage instanceof BufferAttribute
@@ -61,11 +130,16 @@ export function* parkStaticAttribute(storage: Storage, ownsBuffer = false): Gene
   if (original.byteLength < MIN_BYTES || original.byteOffset !== 0 ||
       original.byteLength !== original.buffer.byteLength) return 0;
   const bytes = new Uint8Array(original.buffer, original.byteOffset, original.byteLength);
-  const chunks: Uint8Array[] = [];
+  const packMatrix = instanceMatrix && original instanceof Float32Array && original.length % MATRIX_WORDS === 0;
+  const chunks: StorageBlock[] = [];
   let packedBytes = 0;
   for (let offset = 0; offset < bytes.length; offset += BLOCK_BYTES) {
-    const chunk = deflateSync(bytes.subarray(offset, offset + BLOCK_BYTES), { level: 1 });
-    chunks.push(chunk); packedBytes += chunk.length;
+    const block = bytes.subarray(offset, offset + BLOCK_BYTES);
+    const chunk = packMatrix ? packInstanceMatrixBlock(block) : deflateSync(block, { level: 1 });
+    chunks.push(chunk);
+    packedBytes += chunk instanceof Uint8Array
+      ? chunk.byteLength
+      : chunk.compressed.byteLength + chunk.firstRow.byteLength + 4;
     yield;
   }
   if (packedBytes >= bytes.length * 0.8) return 0;
@@ -80,7 +154,7 @@ export function* parkStaticAttribute(storage: Storage, ownsBuffer = false): Gene
   return saved;
 }
 
-function installStorage(storage: Storage, chunks: Uint8Array[], weak: WeakRef<Values>,
+function installStorage(storage: Storage, chunks: StorageBlock[], weak: WeakRef<Values>,
   ArrayType: { new(buffer: ArrayBuffer): Values }, byteLength: number, ownsBuffer: boolean): void {
   storageInfo.set(storage, staticStorageInfo(storage));
   let retirement: ReturnType<typeof setTimeout> | undefined;
@@ -104,7 +178,7 @@ function installStorage(storage: Storage, chunks: Uint8Array[], weak: WeakRef<Va
     if (!values || values.byteLength !== byteLength) {
       const raw = new Uint8Array(byteLength);
       for (let i = 0; i < chunks.length; i++) {
-        inflateSync(chunks[i], { out: raw.subarray(i * BLOCK_BYTES, (i + 1) * BLOCK_BYTES) });
+        unpackStaticBlock(chunks[i], raw.subarray(i * BLOCK_BYTES, (i + 1) * BLOCK_BYTES));
       }
       values = new ArrayType(raw.buffer);
       weak = new WeakRef(values);
@@ -179,7 +253,7 @@ export function* parkStaticInstancesSteps(root: Object3D,
   let saved = 0;
   for (const matrix of matrices) {
     if (shouldPark && !shouldPark(matrix)) continue;
-    saved += yield* parkStaticAttribute(matrix, true);
+    saved += yield* parkStaticAttribute(matrix, true, true);
   }
   return saved;
 }

@@ -453,7 +453,7 @@ import {
   SURFACE_WORLD_FILE,
   PRISM_WORLD_FILE,
   createBridgeStructures,
-  createIsometricCityStepsV309,
+  createIsometricCityRuntimeStepsV359 as createIsometricCityStepsV309,
   setIsoNightPresentation,
 } from "./IsometricCityWorld";
 import {
@@ -8032,6 +8032,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       } else if (initialFlightStartRef.current) {
         runtime.camera.position.fromArray(initialFlightViewRef.current.pose.position);
         runtime.controls.target.fromArray(initialFlightViewRef.current.pose.target);
+        runtime.focusedCameraFov = initialFlightViewRef.current.fov;
         runtime.camera.fov = initialFlightViewRef.current.fov;
         runtime.camera.updateProjectionMatrix();
         runtime.camera.lookAt(runtime.controls.target);

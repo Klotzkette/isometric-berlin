@@ -19,6 +19,11 @@ export function parliamentSourceOwnersAdmittedV295(buildings?: readonly unknown[
 export function parliamentRetainedOpeningsV295(building: PrismBuilding, enabled = false): readonly HbfOpeningV291[] {
   return enabled && building.id !== "eaCxS2u2" && fingerprints.get(building.id) === JSON.stringify(building) ? PARLIAMENT_OPENINGS_V295.reichstag : none;
 }
+
+// A slightly wider margin than the exact polygon clip keeps boundary triangles
+// eligible. The exact clip decides which of those triangles actually changes.
+const OPENING_CANDIDATE_MARGIN = 1e-8;
+
 /** Retain every old outside triangle and attribute. Only interpolated aperture
 * boundary vertices are new; original source sheets are never mutated. */
 export function parliamentClipGeometryV295(source: BufferGeometry, cuts: readonly HbfOpeningV291[]): BufferGeometry {
@@ -30,22 +35,74 @@ export function parliamentClipGeometryV295(source: BufferGeometry, cuts: readonl
     offsets.push(width);
     width += a.itemSize;
   }
-  const positions = source.getAttribute("position"), index = source.index, out: number[][] = names.map(() => []);
-  let changed = false;
+  const positions = source.getAttribute("position"), index = source.index;
+  const canFilter = names[0] === "position" && positions.itemSize === 3;
+  const candidates: HbfOpeningV291[] = [];
+  let out: number[][] | undefined;
+  const vertexAt = (i: number) => index ? index.getX(i) : i;
+  const appendOriginal = (target: number[][], a: number, b: number, c: number) => {
+    for (let k = 0; k < attrs.length; k++) {
+      const attribute = attrs[k], data = target[k];
+      for (let v = 0; v < attribute.itemSize; v++) data.push(attribute.getComponent(a, v));
+      for (let v = 0; v < attribute.itemSize; v++) data.push(attribute.getComponent(b, v));
+      for (let v = 0; v < attribute.itemSize; v++) data.push(attribute.getComponent(c, v));
+    }
+  };
   for (let i = 0; i < (index?.count ?? positions.count); i += 3) {
-    const tri = [0, 1, 2].map(j => { const k = index ? index.getX(i + j) : i + j; return attrs.flatMap(a => Array.from({ length: a.itemSize }, (_, v) => a.getComponent(k, v))); });
-    const parts = hbfPolygonComplementV291(tri, cuts);
-    if (parts)
-      changed = true;
-    for (const p of parts ?? [tri])
-      for (let j = 1; j + 1 < p.length; j++)
-        for (const v of [p[0], p[j], p[j + 1]])
-          attrs.forEach((a, k) => out[k].push(...v.slice(offsets[k], offsets[k] + a.itemSize)));
+    const a = vertexAt(i), b = vertexAt(i + 1), c = vertexAt(i + 2);
+    let relevantCuts = cuts;
+    if (canFilter) {
+      const ax = positions.getX(a), ay = positions.getY(a), az = positions.getZ(a);
+      const bx = positions.getX(b), by = positions.getY(b), bz = positions.getZ(b);
+      const cx = positions.getX(c), cy = positions.getY(c), cz = positions.getZ(c);
+      const minX = Math.min(ax, bx, cx), minY = Math.min(ay, by, cy), minZ = Math.min(az, bz, cz);
+      const maxX = Math.max(ax, bx, cx), maxY = Math.max(ay, by, cy), maxZ = Math.max(az, bz, cz);
+      candidates.length = 0;
+      for (const cut of cuts) {
+        const { min, max } = cut.bounds;
+        const margin = OPENING_CANDIDATE_MARGIN;
+        if (minX > max[0] + margin || maxX < min[0] - margin ||
+            minY > max[1] + margin || maxY < min[1] - margin ||
+            minZ > max[2] + margin || maxZ < min[2] - margin) continue;
+        candidates.push(cut);
+      }
+      relevantCuts = candidates;
+    }
+    const parts = relevantCuts.length
+      ? hbfPolygonComplementV291([a, b, c].map(vertex => {
+          const values: number[] = [];
+          for (const attribute of attrs) {
+            for (let v = 0; v < attribute.itemSize; v++) values.push(attribute.getComponent(vertex, v));
+          }
+          return values;
+        }), relevantCuts)
+      : null;
+    if (parts === null) {
+      if (out) appendOriginal(out, a, b, c);
+      continue;
+    }
+    if (!out) {
+      // Allocate replacement arrays only once a cut actually removes material.
+      out = names.map(() => []);
+      for (let original = 0; original < i; original += 3) {
+        appendOriginal(out, vertexAt(original), vertexAt(original + 1), vertexAt(original + 2));
+      }
+    }
+    for (const polygon of parts) {
+      for (let j = 1; j + 1 < polygon.length; j++) {
+        for (const vertex of [polygon[0], polygon[j], polygon[j + 1]]) {
+          for (let k = 0; k < attrs.length; k++) {
+            const end = offsets[k] + attrs[k].itemSize;
+            for (let v = offsets[k]; v < end; v++) out[k].push(vertex[v]);
+          }
+        }
+      }
+    }
   }
-  if (!changed)
+  if (!out)
     return source;
   const geometry = new BufferGeometry();
-  names.forEach((n, i) => geometry.setAttribute(n, new BufferAttribute(new Float32Array(out[i]), attrs[i].itemSize)));
+  for (let i = 0; i < names.length; i++) geometry.setAttribute(names[i], new BufferAttribute(new Float32Array(out[i]), attrs[i].itemSize));
   if (!geometry.getAttribute("normal"))
     geometry.computeVertexNormals();
   geometry.computeBoundingBox();

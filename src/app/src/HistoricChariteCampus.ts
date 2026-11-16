@@ -341,9 +341,11 @@ export function historicChariteFacadeTop(building: ChariteSourcePrism): number {
 export function chariteContainsRing(ring: number[][], x: number, z: number): boolean {
   let inside = false;
   for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const [ax, az] = ring[i].map(v => v / 10);
-    const [bx, bz] = ring[j].map(v => v / 10);
-    if ((az > z) !== (bz > z) && x < (bx - ax) * (z - az) / (bz - az) + ax) inside = !inside;
+    const a = ring[i], b = ring[j];
+    const az = a[1] / 10, bz = b[1] / 10;
+    if ((az > z) === (bz > z)) continue;
+    const ax = a[0] / 10, bx = b[0] / 10;
+    if (x < (bx - ax) * (z - az) / (bz - az) + ax) inside = !inside;
   }
   return inside;
 }
@@ -354,10 +356,12 @@ export function chariteFacadePointExposed(
 ): boolean {
   const x = wall.x1 + wall.dirX * along + wall.nx * outward;
   const z = wall.z1 + wall.dirZ * along + wall.nz * outward;
-  return !buildings.some(other => other.id !== sourceId &&
-    y >= other.y0_dm / 10 && y <= (other.y0_dm + other.h_dm) / 10 &&
-    chariteContainsRing(other.ring, x, z) &&
-    !(other.holes ?? []).some(hole => chariteContainsRing(hole, x, z)));
+  for (const other of buildings) {
+    if (other.id === sourceId || !(y >= other.y0_dm / 10 && y <= (other.y0_dm + other.h_dm) / 10)) continue;
+    if (chariteContainsRing(other.ring, x, z) &&
+        !other.holes?.some(hole => chariteContainsRing(hole, x, z))) return false;
+  }
+  return true;
 }
 
 export type ChariteHeritageWindow = {

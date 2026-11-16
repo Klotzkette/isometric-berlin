@@ -20,10 +20,24 @@ function* ownJSONSteps(value:unknown,budget={nodes:0}):Generator<void,string|nul
  const array=Array.isArray(value),keys=Object.keys(value);
  if(Object.getOwnPropertySymbols(value).length||Object.getOwnPropertyNames(value).length!==keys.length+(array?1:0))return null;
  if(array?(Object.getPrototypeOf(value)!==Array.prototype||keys.length!==value.length||keys.some((k,i)=>k!==String(i))):(Object.getPrototypeOf(value)!==Object.prototype&&Object.getPrototypeOf(value)!==null))return null;
- const fields:string[]=[];for(const key of keys){const d=Object.getOwnPropertyDescriptor(value,key);if(!d||!("value"in d))return null;const text=yield*ownJSONSteps(d.value,budget);if(text===null)return null;fields.push(array?text:JSON.stringify(key)+":"+text);}
+ const fields:string[]=[];
+ for(const key of keys){
+   const descriptor=Object.getOwnPropertyDescriptor(value,key);
+   if(!descriptor||!("value"in descriptor))return null;
+   const child=descriptor.value;
+   let text:string|null;
+   if(child!==null&&typeof child==="object"){
+     text=yield*ownJSONSteps(child,budget);
+   }else{
+     if(++budget.nodes%2048===0)yield;
+     text=ownJSON(child);
+   }
+   if(text===null)return null;
+   fields.push(array?text:JSON.stringify(key)+":"+text);
+ }
  return array?"["+fields.join(",")+"]":"{"+fields.join(",")+"}";
 }
-function* control(value:unknown,expected:number,trustedData=false):Generator<void,boolean>{const s=trustedData?JSON.stringify(value):yield*ownJSONSteps(value);if(s===null)return false;let h=2166136261;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),16777619)>>>0;if(i%32768===32767)yield;}return h===expected;}
+function* control(value:unknown,expected:number|readonly number[],trustedData=false):Generator<void,boolean>{const s=trustedData?JSON.stringify(value):yield*ownJSONSteps(value);if(s===null)return false;let h=2166136261;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),16777619)>>>0;if(i%32768===32767)yield;}return typeof expected==="number"?h===expected:expected.includes(h);}
 /** Entire exact old authored owner, including every roof run, centre and ring. */
 export function archenholdPreviousBuildingV322(value:unknown):boolean{const s=ownJSON(value);return s!==null&&data.oldArchenholdBuildings.some(expected=>s===ownJSON(expected));}
 function completeSources(values:readonly unknown[]|undefined):values is readonly unknown[]{if(!Array.isArray(values))return false;return data.oldArchenholdBuildings.every(expected=>{const rows=values.filter(v=>v&&typeof v==="object"&&Object.getOwnPropertyDescriptor(v,"id")?.value===expected.id);return rows.length===1&&archenholdPreviousBuildingV322(rows[0]);});}

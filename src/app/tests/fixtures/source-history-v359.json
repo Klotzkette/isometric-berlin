@@ -1,0 +1,41 @@
+{
+  "additions": {},
+  "changes": {
+    "src/app/package.json": {
+      "before": "bf410269f825f430282dcaa71534c3b169d3712048ad5fff4b7336080f0cb7e4",
+      "after": "af81b75f9ffe466c22ca7ae1274748ed847190fd2fd45b880ed970bd4695a8b7"
+    },
+    "src/app/src/ArchenholdV322.ts": {
+      "before": "a3584b93e87ba22f6e746a37994c51fd0cfbbce3aa2c003f4a3820b36a7025fe",
+      "after": "2c513ce4cd43eede04458029b3c190ee1c8cffc7b0d3e96a774488deb51dca20"
+    },
+    "src/app/src/HistoricChariteCampus.ts": {
+      "before": "75ad228e30144678272ccd222e8da933968de5d21f1bea4052e134463587601b",
+      "after": "a3adce09b8a209e86517fee7388b4181b00cbdd29795d34041b8b1f58d1da233"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "ef626ca9c816d84c8ea4bc2aed47d5832ad8d593cdb0e9920a60a679cc307378",
+      "after": "08447d26ef826079a1f7c2f3e40c84ec0ea76b69a95c32f968d7af8222121605"
+    },
+    "src/app/src/ParliamentRetainedEnvelopeV295.ts": {
+      "before": "6443fa3e7191045fd26691f3180bfbc6d94467167446ae5fe73afe36156ae03a",
+      "after": "f0eabbd7c527fdf35a55827ed4e18ec4832fdf122d88cf51e15a3e4c5a9d2345"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "4960a0274744220c82a8bbb0f87b06385ce8293acd6277e1a52dfb9cc157a69d",
+      "after": "40eea639d4b8b1a3a347cd95f84b3abd8a2b3e68698535319bd5ba53b0f5df6f"
+    },
+    "src/app/src/YouthTheatresV322.ts": {
+      "before": "b99bda24e53d4fe1f9f4646cefcaf0cc4e0ab94e19a4f8ea18c7e638d47adfc3",
+      "after": "4eaaa4d5787b6634a99073842c62df5dd1cf934d887713bfd69bafa7ee218d44"
+    },
+    "src/app/src/firstUploadParkingV323.ts": {
+      "before": "e8e301c6927c6effe66e61debb9f3e36e9c10ac9c7896c0fa0ded4907eef3aa6",
+      "after": "641b2fa2f09345a93a1da6b08fb921186c70e7219b7e03172935a31f6299965c"
+    },
+    "src/app/src/losslessStaticStorage.ts": {
+      "before": "6d1b966b100e24a7d0880a64fca4fb96d73115aebe571353449813d98a2ccae1",
+      "after": "0c770bd8cca7b2888b079748f1e7b29ff2166445b25c18e7f32572b3d025e907"
+    }
+  }
+}

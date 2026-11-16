@@ -219,7 +219,7 @@ function plan(roots: Object3D[], selected: Map<Storage, Entry>): FirstUploadPark
        try {
         for (const e of selected.values()) {
           if (!valid(e) || !exclusive(e)) { forget(e); continue; }
-          child = parkStaticAttribute(e.storage, e.ownsBuffer);
+          child = parkStaticAttribute(e.storage, e.ownsBuffer, e.ownsBuffer);
           let resumes = 0;
           const chunks = Math.ceil(e.array!.byteLength / (256 * 1024));
           for (;;) {

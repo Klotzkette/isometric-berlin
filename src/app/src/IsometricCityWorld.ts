@@ -13612,7 +13612,7 @@ export function createIsometricCity(
   }
 }
 
-export function* createIsometricCityStepsV309(
+export function createIsometricCityStepsV309(
   prisms: PrismPayload,
   ground: VoxelPayload | null,
   tunnel?: TunnelPortalCourseInput | null,
@@ -13620,6 +13620,22 @@ export function* createIsometricCityStepsV309(
   options: IsometricCityBuildOptions = {},
   onCreate?: (root: Group) => void,
   onProgress?: (progress: CityBuildProgressV309) => void,
+): Generator<void, Group> {
+  return createIsometricCityRuntimeStepsV359(
+    prisms, ground, tunnel, surfaces, options, onCreate, onProgress, createAltMitteCoreV169,
+  );
+}
+
+/** The browser loads the complete Alt-Mitte packet in its separate detail stage. */
+export function* createIsometricCityRuntimeStepsV359(
+  prisms: PrismPayload,
+  ground: VoxelPayload | null,
+  tunnel?: TunnelPortalCourseInput | null,
+  surfaces?: SurfacePayload | null,
+  options: IsometricCityBuildOptions = {},
+  onCreate?: (root: Group) => void,
+  onProgress?: (progress: CityBuildProgressV309) => void,
+  createStandaloneAltMitte?: () => Group,
 ): Generator<void, Group> {
   const group = yield* createIsometricCityCoreStepsV309(prisms, ground, tunnel, surfaces, options, onCreate, onProgress);
   const builders: (() => unknown)[] = [];
@@ -13640,7 +13656,9 @@ export function* createIsometricCityStepsV309(
     builders.push(() => group.add(createMuseumLenneArchitecture(prisms, { mobileLike: options.detailProfile === "mobile" })));
     if (options.includeBreitscheidTowers !== false) builders.push(() => group.add(createBreitscheidTowers()));
     if (options.includeOranienV167 !== false) builders.push(() => group.add(createNeueSynagogeV167(),createTachelesV167(),createMonbijouBathV167()));
-    if (options.includeAltMitteCoreV169 !== false) builders.push(() => group.add(createAltMitteCoreV169()));
+    if (createStandaloneAltMitte && options.includeAltMitteCoreV169 !== false) {
+      builders.push(() => group.add(createStandaloneAltMitte()));
+    }
     if (options.includeUniversitiesV168 !== false) builders.push(() => group.add(createHumboldtMainV168Details(),createTeehausRuinV168(),createTuWaterV168()));
     if (options.includeCityRefinementsV166 !== false) builders.push(() => group.add(createUpbeatV166FacadeDetails(),createAlexanderNorthV166(),createCityWestCinemasV166(),createMoabitJusticeV166(),createMitteHeritageV166(options.includeLegacyMonbijou === false),createKosmosV166()));
     if (options.includeCityWestV165 !== false) builders.push(() => group.add(createKranzlerV165(), createZooStationV165(), createZooGroundsV165(), createHuthmacherHaus()));
