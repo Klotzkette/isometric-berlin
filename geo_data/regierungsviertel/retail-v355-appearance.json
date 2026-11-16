@@ -1,0 +1,232 @@
+{
+  "osm/way/268407747": [
+    {
+      "url": "https://www.architekturpreis-berlin.de/Archiv/2016/Projekte/044/index.html",
+      "photoUrl": "https://www.architekturpreis-berlin.de/Archiv/2016/Projekte/044/image/12/BMW%20Niederlassung-Ansicht%20Messedamm.jpg@w=480&h=320",
+      "credit": "Lanz Architekten + Generalplaner, photo Christoph Stepan",
+      "point": [
+        13.282150698,
+        52.509499451
+      ],
+      "normal": [
+        -0.9966597,
+        0.0816661
+      ],
+      "width": 52,
+      "bottom": 8.05,
+      "top": 17.2,
+      "finish": {
+        "type": "lamellae",
+        "direction": "horizontal",
+        "color": [
+          130,
+          145,
+          156
+        ],
+        "frame": [
+          182,
+          188,
+          188
+        ],
+        "count": 29
+      },
+      "hostHint": "-12_1",
+      "ownerHint": "DEBE04YY500004XY",
+      "description": "Messedamm face, stacked light anodized-metal lamellae read from the completed west facade. The shown dimensions, spacing and colors are display estimates within the retained measured wall.",
+      "native": {
+        "point": [
+          13.282136123,
+          52.509584117
+        ],
+        "normal": [
+          -1,
+          0
+        ],
+        "width": 22,
+        "description": "Independent cardinal section uses exact x=-6084 facade run between z=882 and z=908, with same vertically measured bands."
+      }
+    },
+    {
+      "url": "https://www.architekturpreis-berlin.de/Archiv/2016/Projekte/044/index.html",
+      "photoUrl": "https://www.architekturpreis-berlin.de/Archiv/2016/Projekte/044/image/12/BMW%20Niederlassung-Ansicht%20Messedamm.jpg@w=480&h=320",
+      "credit": "Lanz Architekten + Generalplaner, photo Christoph Stepan",
+      "point": [
+        13.282150698,
+        52.509499451
+      ],
+      "normal": [
+        -0.9966597,
+        0.0816661
+      ],
+      "width": 47,
+      "bottom": 0.38,
+      "top": 7.25,
+      "finish": {
+        "type": "glazing",
+        "color": [
+          105,
+          130,
+          142
+        ],
+        "frame": [
+          42,
+          52,
+          54
+        ],
+        "count": 12
+      },
+      "hostHint": "-12_1",
+      "ownerHint": "DEBE04YY500004XY",
+      "description": "Deep showroom glazing below aluminium, with dark posts and a horizontal intermediate transom. Neutralized dusk tones and estimated glazing subdivisions.",
+      "native": {
+        "point": [
+          13.282136123,
+          52.509584117
+        ],
+        "normal": [
+          -1,
+          0
+        ],
+        "width": 22,
+        "description": "Independent cardinal section uses exact x=-6084 facade run between z=882 and z=908, with same vertically measured bands."
+      }
+    }
+  ],
+  "osm/way/615700425": [
+    {
+      "url": "https://www.unstudio.com/projects/further/the-eastside-mall/",
+      "photoUrl": "https://a.storyblok.com/f/324448/2672x2082/b681058bb8/the-eastside-mall.jpg",
+      "credit": "UNStudio, project exterior photograph",
+      "point": [
+        13.446582032,
+        52.505652452
+      ],
+      "normal": [
+        -0.014279,
+        0.9998981
+      ],
+      "width": 83,
+      "bottom": 13,
+      "top": 24,
+      "finish": {
+        "type": "lamellae",
+        "direction": "horizontal",
+        "color": [
+          70,
+          80,
+          89
+        ],
+        "frame": [
+          177,
+          186,
+          193
+        ],
+        "count": 17
+      },
+      "hostHint": "9_3",
+      "ownerHint": "DEBE02AL45z0001p",
+      "description": "Tamara-Danz-Straße frontage. Repeated silver ribbon edges against the dark upper wall; section anchored to the exposed retained wall below the highest roof points. Dimensions and courses estimated from exterior view."
+    },
+    {
+      "url": "https://www.unstudio.com/projects/further/the-eastside-mall/",
+      "photoUrl": "https://a.storyblok.com/f/324448/2672x2082/b681058bb8/the-eastside-mall.jpg",
+      "credit": "UNStudio, project exterior photograph",
+      "point": [
+        13.446582032,
+        52.505652452
+      ],
+      "normal": [
+        -0.014279,
+        0.9998981
+      ],
+      "width": 78,
+      "bottom": 1.2,
+      "top": 7.8,
+      "finish": {
+        "type": "glazing",
+        "color": [
+          90,
+          116,
+          128
+        ],
+        "frame": [
+          50,
+          58,
+          60
+        ],
+        "count": 19
+      },
+      "hostHint": "9_3",
+      "ownerHint": "DEBE02AL45z0001p",
+      "description": "South sidewalk two-level glass frontage. Approximate pane spacing and glass tint. Separately photographed elevated Warschauer Brücke portal is beyond this patch. Its lower edge clears the existing low facade/curb fittings in both actual geometry families."
+    }
+  ],
+  "osm/way/89721010": [
+    {
+      "url": "https://eduard-winter.de/EWfranklin.html",
+      "photoUrl": "https://eduard-winter.de/images/EW/pzb_detail.jpg",
+      "credit": "Eduard Winter Dienstleistungsgesellschaft mbH, project photograph",
+      "point": [
+        13.326601181,
+        52.521306121
+      ],
+      "normal": [
+        -0.259233,
+        -0.9658148
+      ],
+      "width": 35,
+      "bottom": 3.15,
+      "top": 8.35,
+      "finish": {
+        "type": "panel",
+        "color": [
+          147,
+          156,
+          158
+        ],
+        "frame": [
+          114,
+          123,
+          126
+        ],
+        "count": 12
+      },
+      "hostHint": "core",
+      "ownerHint": "89721010",
+      "description": "The photo shows cool silver rectangular cladding above a strip of lower showroom glass. This patch follows the exposed source face of the long northern plinth. Photo colours and proportions are estimates."
+    },
+    {
+      "url": "https://eduard-winter.de/EWfranklin.html",
+      "photoUrl": "https://eduard-winter.de/images/EW/pzb_detail.jpg",
+      "credit": "Eduard Winter Dienstleistungsgesellschaft mbH, project photograph",
+      "point": [
+        13.326601181,
+        52.521306121
+      ],
+      "normal": [
+        -0.259233,
+        -0.9658148
+      ],
+      "width": 35,
+      "bottom": 0.28,
+      "top": 3.0,
+      "finish": {
+        "type": "glazing",
+        "color": [
+          111,
+          133,
+          140
+        ],
+        "frame": [
+          64,
+          70,
+          72
+        ],
+        "count": 14
+      },
+      "hostHint": "core",
+      "ownerHint": "89721010",
+      "description": "The ground-level sales-room glazing band under the photographed silver facing, retained wall anchor. Photo-estimated glass and framing."
+    }
+  ]
+}

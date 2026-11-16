@@ -1,0 +1,274 @@
+{
+  "alexwache": {
+    "sourceOwner": "OSM-way-547670250",
+    "facadeReference": [
+      {
+        "url": "https://www.berlin.de/polizei/_assets/dienststellen/dir5/crop_668_890.6666666666666_7_281.83333333333337_675_1500_88a5cedfc136e27d4093f738ec4ffdb4_alexwache1.jpg",
+        "title": "Blue fascia under the Alexwache flat roof",
+        "credit": "Polizei Berlin",
+        "localPhotoSha256": "3e8548f9a8bb83310ef4e7448bccfee81f32add23cb363d518b75f4a0690ce69",
+        "point": [
+          13.4132645,
+          52.52146904
+        ],
+        "normal": [
+          0.728,
+          -0.686
+        ],
+        "width": 8.37,
+        "bottom": 2.27,
+        "top": 2.84,
+        "finish": {
+          "type": "panel",
+          "color": [
+            25,
+            49,
+            78
+          ],
+          "frame": [
+            21,
+            38,
+            56
+          ],
+          "count": 1
+        },
+        "geometryStatus": "Photograph-based display dimensions; exact source wall required.",
+        "native": {
+          "point": [
+            13.41321114,
+            52.52149359
+          ],
+          "normal": [
+            0,
+            -1
+          ],
+          "width": 3.55,
+          "bottom": 3.1,
+          "top": 3.76,
+          "support": {
+            "mode": "minecraft",
+            "host": "5_-1",
+            "packetSha256": "8f70cb027fa21b8f342c7dc701545de7a31a275802070630374ec853488f923a",
+            "sourceOwner": "OSM-way-547670250",
+            "worldEdge": [
+              [
+                2838,
+                -226
+              ],
+              [
+                2842,
+                -226
+              ]
+            ],
+            "worldY": [
+              3,
+              7
+            ],
+            "verification": "Both original quantized city wall triangles present at exact span and height."
+          }
+        }
+      },
+      {
+        "url": "https://www.berlin.de/polizei/_assets/dienststellen/dir5/crop_668_890.6666666666666_7_281.83333333333337_675_1500_88a5cedfc136e27d4093f738ec4ffdb4_alexwache1.jpg",
+        "title": "Dark framed glass and light metallic panels at the Alexwache",
+        "credit": "Polizei Berlin",
+        "localPhotoSha256": "3e8548f9a8bb83310ef4e7448bccfee81f32add23cb363d518b75f4a0690ce69",
+        "point": [
+          13.4132645,
+          52.52146904
+        ],
+        "normal": [
+          0.728,
+          -0.686
+        ],
+        "width": 7.55,
+        "bottom": 0.21,
+        "top": 2.27,
+        "finish": {
+          "type": "glazing",
+          "color": [
+            66,
+            90,
+            102
+          ],
+          "frame": [
+            61,
+            69,
+            76
+          ],
+          "count": 4
+        },
+        "geometryStatus": "Estimated band of street-facing openings; opening positions and widths are interpreted from the photo.",
+        "native": {
+          "point": [
+            13.41321114,
+            52.52149359
+          ],
+          "normal": [
+            0,
+            -1
+          ],
+          "width": 3.55,
+          "bottom": 0.22,
+          "top": 2.99,
+          "support": {
+            "mode": "minecraft",
+            "host": "5_-1",
+            "packetSha256": "8f70cb027fa21b8f342c7dc701545de7a31a275802070630374ec853488f923a",
+            "sourceOwner": "OSM-way-547670250",
+            "worldEdge": [
+              [
+                2838,
+                -226
+              ],
+              [
+                2842,
+                -226
+              ]
+            ],
+            "worldY": [
+              3,
+              7
+            ],
+            "verification": "Both original quantized city wall triangles present at exact span and height."
+          }
+        }
+      }
+    ],
+    "photoEvidence": [
+      {
+        "url": "https://www.berlin.de/polizei/_assets/dienststellen/dir5/nwa57_luft.jpg",
+        "credit": "Polizei Berlin / Dir E WSP PHuSt",
+        "geometryStatus": "Freestanding one-storey pavilion, charcoal flat roof, blue roof crown, metallic panels and dark glazing."
+      }
+    ]
+  },
+  "kotti-wache": {
+    "sourceOwner": "DEBE02YY40001ISn",
+    "facadeReference": [
+      {
+        "url": "https://www.berlin.de/polizei/_assets/dienststellen/dir5/kotttiwache1.jpg",
+        "title": "Dark first-floor frontage and entrance fascia of the Kotti police station",
+        "credit": "Polizei Berlin",
+        "localPhotoSha256": "a20fd6e0d98d514c167d4e1ecc957a610279bb36d546b4c4af54fc4c0ae2c7a7",
+        "point": [
+          13.41837424,
+          52.5001178
+        ],
+        "normal": [
+          -0.41,
+          0.912
+        ],
+        "width": 6.2,
+        "bottom": 3.42,
+        "top": 6.34,
+        "finish": {
+          "type": "panel",
+          "color": [
+            84,
+            82,
+            76
+          ],
+          "frame": [
+            60,
+            61,
+            63
+          ],
+          "count": 1
+        },
+        "geometryStatus": "Tenant level verified by official directory; fascia dimensions and floor height estimated from public photograph.",
+        "native": {
+          "point": [
+            13.41840111,
+            52.5001104
+          ],
+          "normal": [
+            0,
+            1
+          ],
+          "width": 3.55,
+          "bottom": 3.42,
+          "top": 6.34,
+          "support": {
+            "mode": "minecraft",
+            "host": "6_4",
+            "packetSha256": "0e39c684efcae6aa4323d33d52bfed425bb47d31e2664565ae40843c4bea1a10",
+            "sourceOwner": "DEBE02YY40001ISn",
+            "worldEdge": [
+              [
+                3138,
+                2160
+              ],
+              [
+                3142,
+                2160
+              ]
+            ],
+            "worldY": [
+              3,
+              37
+            ],
+            "verification": "Both original quantized city wall triangles present at exact span and height."
+          }
+        }
+      }
+    ]
+  },
+  "W_17": {
+    "facadeReference": [
+      {
+        "url": "https://www.berlin.de/polizei/_assets/dienststellen/dir1/a17_gebaeude.jpg",
+        "title": "Glazed Osram-Höfe entrance below the red and yellow brick façade",
+        "credit": "Polizei Berlin",
+        "localPhotoSha256": "80aebcac5c216b54531136381acdfbe3c6d8abda3b5085bed852ade4bd78da26",
+        "point": [
+          13.360743,
+          52.5527829
+        ],
+        "normal": [
+          0.9999,
+          0.0137
+        ],
+        "width": 4.5,
+        "bottom": 0.22,
+        "top": 2.98,
+        "finish": {
+          "type": "glazing",
+          "color": [
+            62,
+            68,
+            59
+          ],
+          "frame": [
+            164,
+            155,
+            140
+          ],
+          "count": 5
+        },
+        "geometryStatus": "Photograph-based display dimensions; exact source wall required."
+      }
+    ]
+  },
+  "W_28": {
+    "sourceOwner": "fNQrO6eN",
+    "photoEvidence": [
+      {
+        "url": "https://www.berlin.de/polizei/dienststellen/landespolizeidirektion/direktion-2/abschnitt-27/geba_ude-a28.png",
+        "credit": "Polizei Berlin",
+        "sha256": "cb772240d2d950275d4254853e365f662e5cf343014b214543c94aa70f6c1d82",
+        "geometryStatus": "Cream stone rustication with rounded ground-floor arches, salmon detail and projecting cornices. Entrance position comes independently from the mapped building boundary."
+      }
+    ]
+  },
+  "polizei-berlin-hq": {
+    "sourceOwner": "DEBE07YY900008Ks",
+    "photoEvidence": [
+      {
+        "url": "https://www.berlin.de/polizei/dienststellen/polizeipraesidium/",
+        "credit": "Polizei Berlin",
+        "geometryStatus": "Existing measured Tempelhof ensemble (AirportsV194)."
+      }
+    ]
+  }
+}

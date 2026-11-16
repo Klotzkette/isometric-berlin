@@ -20,15 +20,16 @@ function inside(a:number[],b:number[],c:number[],p:number[]):boolean{
 }
 /** Supports all five plaque sample points on retained coplanar wall triangles,
  * and rejects any forward-facing older fitting crossing its padded rectangle. */
-export function plateClearV350(meshes:Mesh[],plate:CivicPlateV350):boolean{
+export function plateClearV350(meshes:Mesh[],plate:CivicPlateV350, halfHeight = 20):boolean{
  const[x,y,z,dx,dz,nx,nz,width]=plate;
- const samples=[[-width/2-2,-20],[width/2+2,-20],[-width/2-2,20],[width/2+2,20],[0,0]],covered=samples.map(()=>false);
+ const samples=halfHeight === 20 ? [[-width/2-2,-20],[width/2+2,-20],[-width/2-2,20],[width/2+2,20],[0,0]] : [-width/2-2,-width/4,0,width/4,width/2+2].flatMap(x=>[-halfHeight,-halfHeight/2,0,halfHeight/2,halfHeight].map(y=>[x,y]));
+ const covered=samples.map(()=>false);
  for(const {p,i} of meshes)for(let t=0;t<i.length;t+=3){
   if(i[t]===i[t+1]||i[t]===i[t+2])continue;
   const a=[];
   for(let v=0;v<3;v++){const at=i[t+v]*3,xx=p[at]-x,zz=p[at+2]-z;a.push([(xx*dx+zz*dz)/1e6,p[at+1]-y,(xx*nx+zz*nz)/1e6]);}
   const us=a.map(q=>q[0]),ys=a.map(q=>q[1]),ds=a.map(q=>q[2]);
-  if(Math.max(...us)<-width/2-3||Math.min(...us)>width/2+3||Math.max(...ys)<-21||Math.min(...ys)>21)continue;
+  if(Math.max(...us)<-width/2-3||Math.min(...us)>width/2+3||Math.max(...ys)<-halfHeight-1||Math.min(...ys)>halfHeight+1)continue;
   if(ds.every(n=>Math.abs(n)<=1.5)){
    for(let s=0;s<samples.length;s++)if(inside(a[0],a[1],a[2],samples[s]))covered[s]=true;
   }else if(Math.max(...ds)>1.5&&Math.min(...ds)<45&&Math.max(...ds)>=2){

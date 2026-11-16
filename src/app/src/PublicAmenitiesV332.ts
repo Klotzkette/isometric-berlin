@@ -4,6 +4,7 @@ import {
   SpriteMaterial, SRGBColorSpace, Vector2, Vector3, type PerspectiveCamera,
 } from "three";
 import source from "./data/publicAmenitiesV332.json";
+import venueDirectory from "./data/venueDirectoryV355.json";
 import { amenityFurnitureV332 } from "./PublicAmenityFurnitureV332";
 import { recreationFurnitureV332 } from "./PublicRecreationFurnitureV332";
 import { createNaunynSpaetiV332, NAUNYN_SPAETI_V332 } from "./NaunynSpaetiV332";
@@ -11,11 +12,14 @@ import { createNamedGravesV347 } from "./NamedGravesV347";
 import { createNikolaiFountainV353 } from "./NikolaiFountainV353";
 
 type Kind = "toilet" | "postbox" | "kiosk" | "spaeti" | "playground" | "play-equipment"
-  | "fountain" | "paddling" | "drinking" | "pool" | "strandbath" | "police" | "police-hq";
+  | "fountain" | "paddling" | "drinking" | "pool" | "strandbath" | "police" | "police-hq"
+  | "tax-office" | "citizen-office" | "car-dealer" | "mall";
 type Site = [id: string, kind: Kind, name: string, x: number, z: number, model: string, variant: string, address: string];
 type Ring = [number, number][];
 type Basin = [id: string, site: string, x: number, z: number, rings: Ring[], runs: [number, number, number, number][]];
 const cells = source.cells as unknown as Record<string, Site[]>;
+const directoryCells = venueDirectory.cells as unknown as Record<string, Site[]>;
+const currentPoliceIds = new Set(venueDirectory.policeIds);
 const basins = source.basins as unknown as Record<string, Basin[]>;
 const CELL = source.cellMeters;
 const RADIUS = 280;
@@ -36,6 +40,10 @@ const badges: Record<Exclude<Kind, "play-equipment">, [string, string, string]> 
   strandbath: ["Strandbad", "Bathing beach", "#326e72"],
   police: ["Polizei", "Police", "#3b526f"],
   "police-hq": ["Polizeipräsidium", "Police headquarters", "#3b526f"],
+  "tax-office": ["Finanzamt", "Tax office", "#5c5145"],
+  "citizen-office": ["Bürgeramt", "Citizens' office", "#455960"],
+  "car-dealer": ["Autohaus", "Car dealership", "#384c57"],
+  mall: ["Einkaufszentrum", "Shopping centre", "#755d4c"],
 };
 
 function nearby<T>(index: Record<string, T[]>, x: number, z: number): T[] {
@@ -196,7 +204,9 @@ export function createPublicAmenitiesV332() {
         activeBadges.clear();
         language = lang;
       }
-      const ordered = nearby(cells, x, z).map(site => ({ site, distance: (site[3] - x) ** 2 + (site[4] - z) ** 2 }))
+      const localSites = nearby(cells, x, z).filter(site => !show || !currentPoliceIds.has(site[0]));
+      if (show) localSites.push(...nearby(directoryCells, x, z));
+      const ordered = localSites.map(site => ({ site, distance: (site[3] - x) ** 2 + (site[4] - z) ** 2 }))
         .filter(item => item.distance <= RADIUS ** 2)
         .sort((a, b) => a.distance - b.distance || a.site[0].localeCompare(b.site[0]));
       const shown = new Set<string>();

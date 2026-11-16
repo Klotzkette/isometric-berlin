@@ -3337,3 +3337,21 @@ other shared recognition-batch owners and independent Native interpretation.
 Correct false grass on actual mapped paved forecourts using exact official/OSM
 polygons, retaining real tree groves, construction distinctions, terrain and
 navigation. Do not apply an indiscriminate citywide green-to-stone recolour.
+
+### Step 10 — v355 Berlin public offices, police and retail sites
+
+The owner requests citywide identification and accurate exterior representation
+of Finanzämter, Bürgerämter, public police stations, car dealerships and malls.
+Use current Berlin government directories and published police sites. Reconcile
+shopping centres and vehicle sellers against mapped grounds, operator sources
+and the city boundary. Keep a per-site outcome, including duplicate addresses,
+closures and unresolved building matches. Directory coordinates establish site
+identity rather than a measured doorway. Distinguish exact retained geometry,
+photographically supported exterior work and estimated nameplates.
+
+Keep the complete earlier city, mode, tour and mobility detail. Any new mesh
+must be bounded to its actual source owner in each geometry family. Public
+addresses and exterior architecture are in scope. Do not add interior layouts
+or infer openings from a location pin. Preserve earlier passes and stream new
+assets through established finite host recipes. The public and download limits
+and the full publication agreement carry forward from v354.

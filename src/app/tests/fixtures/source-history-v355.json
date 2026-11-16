@@ -1,0 +1,33 @@
+{
+  "additions": {
+    "src/app/src/VenueFrontMeshV355.ts": "4ca47e7f4d20d91d1030bdf27a361a59ee795d760fef0e9cb9538d1490db6bbe",
+    "src/app/src/VenueFrontsV355.ts": "a7a4d7dec35b97f581d579a936a88148aca2d33ffa0b6e6fa5d36b457f9b0f42",
+    "src/app/src/data/venueDirectoryV355.json": "8177da6509a28bdbd0642dfff6a094be9071543fb3991d16a013a7f41107e27a",
+    "src/app/src/data/venueFrontsV355Index.json": "4291adeb4616047cb54a86d65af9a628bff36fd97eab14f09eb71efa9b212f70",
+    "src/app/src/data/venueFrontsV355Packets00.json": "d8bf490f08582c60b8bb88caca02fa91f7a7d07b2d027c327e4187978f91fd12",
+    "src/app/src/data/venueFrontsV355Packets01.json": "10aa586cdd2410d31d05dfe33b92a2ae9da1ff915aa97f263fbb1ef6c8a71157",
+    "src/app/src/data/venueFrontsV355Packets02.json": "e80a5d631e166b7e38d9d0982e227cce8b58f8a7f1daf095fed9144c38e1683c",
+    "src/app/src/data/venueFrontsV355Packets03.json": "f71822c7f7b76475f6bcac93ed5e4bb0687da2eec9ec4a8d0531fe6e446acc06",
+    "src/app/src/data/venueFrontsV355Packets04.json": "34c13e1c22aeb948318d5e06641cc1bb744841c4e8cc17a5b949624245bbdb77",
+    "src/app/src/data/venueFrontsV355Packets05.json": "a4054ed4752b54f321c1546b6d61945160578633a4188295586f5e5c215e4960",
+    "src/app/src/data/venueFrontsV355Packets06.json": "e50b67f21afa1d4faf1e56f3db43bba9350fbb71a93c5f7c78b56ca2ea0bdc47"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "d94004bc323920ed811a4c869e47ae623284846ce8691603a322cc1f92f0cc2a",
+      "after": "e2139ca19a799bf7a55c0c3f27831b7ebe0d8563211babb43f402c46c3d75df3"
+    },
+    "src/app/src/CivicFacilitiesV350.ts": {
+      "before": "76abab2ad33e5e0cfb438ffd4ce3294f58465ada8bb6c96f75ae7e337b679f88",
+      "after": "e909934435b69e76130182bc860616b839bc0eaab0bbb165857beda93ad117b0"
+    },
+    "src/app/src/PublicAmenitiesV332.ts": {
+      "before": "15d59af1d3ab60718f4d09560ede3ad9c1357355881ad89aa04c02ccf0479637",
+      "after": "aa0f49894d2b2afc2a532c89a2c10d369dbeb1cedfb3e1a76fc4cec3f220c96e"
+    },
+    "src/app/src/SourceQuarterCatalogueV309.ts": {
+      "before": "b4d471ca0fb48247364bf1a5f0898371bfddb06f2ffe66a569d54d6e08e2b009",
+      "after": "5ac17efad9e2ff9d2c019dd95a731af7ee91314b63a4c1cbb295dad1fd71776b"
+    }
+  }
+}

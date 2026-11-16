@@ -17,6 +17,12 @@ const GLYPHS: Record<string, string> = {
  '9':'111101111001111','-':'000000111000000','+':'000010111010000','.':'000000000000010',' ':'000000000000000',
 };
 const CATEGORIES = ['GRUNDSCHULE','KITA','APOTHEKE'];
+
+export type WallPlateStyle = {
+  kind: string;
+  categories: readonly string[];
+  palette?: (category: number) => { background: number[]; title: number[]; name: number[] };
+};
 export type CivicPlateV350 = [number,number,number,number,number,number,number,number,number,string];
 type CompactPlan = Omit<NeighbourhoodPlanV300,'append'|'appendFingerprint'> & {plates:CivicPlateV350[];facilityIds:string[]};
 export type CivicCompactSourceV350 = {schemaVersion:1;keys:string[];packets:Record<string,CompactPlan>};
@@ -31,12 +37,12 @@ function encoded(bytes:Uint8Array):string {
 function fingerprint(part:SurroundingPackedMesh):number {
  let h=2166136261;for(const text of [part.positions,part.colors,part.indices])for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),16777619)>>>0;return h;
 }
-export function civicPlateMeshV350(plates:readonly CivicPlateV350[],native=false):SurroundingPackedMesh {
+export function civicPlateMeshV350(plates:readonly CivicPlateV350[],native=false, style: WallPlateStyle = { kind: CIVIC_FACILITIES_KIND_V350, categories: CATEGORIES }):SurroundingPackedMesh {
  if(plates.length>64)throw Error('Civic facility host exceeds finite measured plate allowance');
  const positions:number[]=[],colours:number[]=[],indices:number[]=[];
  for(const row of plates){
   const [x,y,z,dx,dz,nx,nz,width,category,name]=row;
-  if(row.length!==10||row.slice(0,9).some(n=>typeof n!=='number'||!Number.isFinite(n))||![0,1,2].includes(category)||width<120||width>300||typeof name!=='string'||name.length>26)throw Error('Invalid civic source-wall plate');
+  if(row.length!==10||row.slice(0,9).some(n=>typeof n!=='number'||!Number.isFinite(n))||!Number.isInteger(category)||category<0||category>=style.categories.length||width<120||width>300||typeof name!=='string'||name.length>26)throw Error('Invalid civic source-wall plate');
   if(Math.abs(Math.hypot(dx,dz)-1e6)>2||Math.abs(Math.hypot(nx,nz)-1e6)>2||Math.abs(dx*nx+dz*nz)>2e6||native&&(![0,1e6,-1e6].includes(dx)||![0,1e6,-1e6].includes(dz)))throw Error('Unsupported civic source-wall direction');
   const quad=(u0:number,v0:number,u1:number,v1:number,depth:number,rgb:number[])=>{
    const start=positions.length/3;
@@ -48,7 +54,8 @@ export function civicPlateMeshV350(plates:readonly CivicPlateV350[],native=false
    if(dx*nz-dz*nx>0)indices.push(start,start+1,start+2,start,start+2,start+3);
    else indices.push(start,start+2,start+1,start,start+3,start+2);
   };
-  quad(-width/2,-18,width/2,18,5,PAPER);
+  const palette = style.palette?.(category) ?? { background: PAPER, title: category === 2 ? RED : INK, name: INK };
+  quad(-width/2,-18,width/2,18,5,palette.background);
   const text=(value:string,baseY:number,pitch:number,rgb:number[])=>{
    const total=(value.length*4-1)*pitch;
    for(let c=0;c<value.length;c++){
@@ -61,10 +68,10 @@ export function civicPlateMeshV350(plates:readonly CivicPlateV350[],native=false
     }
    }
   };
-  const title=CATEGORIES[category];text(title,2,Math.min(2.6,(width-12)/(title.length*4-1)),category===2?RED:INK);
-  const label=civicLabelV350(name);if(label)text(label,-13,Math.min(2,(width-12)/(label.length*4-1)),INK);
+  const title=style.categories[category];text(title,2,Math.min(2.6,(width-12)/(title.length*4-1)),palette.title);
+  const label=civicLabelV350(name);if(label)text(label,-13,Math.min(2,(width-12)/(label.length*4-1)),palette.name);
  }
- return {kind:CIVIC_FACILITIES_KIND_V350,positionType:'u16cm',positions:encoded(new Uint8Array(new Uint16Array(positions).buffer)),colors:encoded(new Uint8Array(colours)),indices:encoded(new Uint8Array(new Uint32Array(indices).buffer))};
+ return {kind:style.kind,positionType:'u16cm',positions:encoded(new Uint8Array(new Uint16Array(positions).buffer)),colors:encoded(new Uint8Array(colours)),indices:encoded(new Uint8Array(new Uint32Array(indices).buffer))};
 }
 /** Only compact words remain strongly held; expanded binary plans can retire. */
 export function civicFacilitySourceV350(compact:CivicCompactSourceV350):NeighbourhoodSourceV300 {

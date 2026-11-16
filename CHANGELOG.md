@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.235
+
+- Add verified Berlin tax offices, citizens' offices, police sites, vehicle dealerships and shopping centres to the nearby-places layer.
+- Add facility recognition and photo-referenced details on independently supported exterior walls, using the existing Drawn and Native tile pipeline.
+- Record location evidence, retained building associations and unresolved coverage in the source audit.
+
 ## 1.0.234
 
 - Remove the erroneous northern DB-tower duplicate at Europaplatz; retain the measured Washingtonplatz tower and its source-bound DB signs.

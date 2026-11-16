@@ -1,3 +1,4 @@
+import { sourceAtBeforeV355 } from "./helpers/sourceHistoryV355";
 import { expect, test } from "bun:test";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -17,12 +18,12 @@ test("v354 independently reconstructs each exact published v233 source and rejec
   expect(Object.keys(receipt.changes).length).toBeGreaterThan(0);
   expect(Object.keys(receipt.additions).length).toBeGreaterThan(0);
   for(const [path,row] of Object.entries(receipt.changes)){
-    const current=readFileSync(new URL(path,root));
+    const current=sourceAtBeforeV355(path,readFileSync(new URL(path,root)));
     const before=execFileSync("git",["show",`${published}:${path}`],{cwd:root,maxBuffer:32*1024*1024});
     expect(digest(before)).toBe(row.before);expect(digest(current)).toBe(row.after);
     expect(Buffer.from(sourceAtBeforeV354(path,current)).equals(before)).toBe(true);
-    expect(projectSourceBeforeV354(current.toString())).toBe(before.toString());
-    expect(()=>sourceAtBeforeV354(path,Buffer.concat([current,Buffer.from(" ")]))).toThrow("Unknown exact v354 source bytes");
+    expect(projectSourceBeforeV354(Buffer.from(current).toString())).toBe(before.toString());
+    expect(()=>sourceAtBeforeV354(path,Buffer.concat([current,Buffer.from(" ")]))).toThrow(/Unknown (?:exact )?v35[45] source bytes/);
   }
   for(const [path,hash] of Object.entries(receipt.additions))expect(digest(readFileSync(new URL(path,root)))).toBe(hash);
 },60_000);
