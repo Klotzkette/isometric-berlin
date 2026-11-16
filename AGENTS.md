@@ -3365,3 +3365,17 @@ kiosk. Use the nearby-place layer for verified addresses and add only facades
 that have exterior support in both geometry families. Record the distinction
 between photographic frontage, recognition on a retained wall and a directory
 location. Keep the full content and existing publication limits from v355.
+
+### Step 10 — v357 Berlin nightlife and company buildings
+
+Verify the current clubs, selected pubs on both Oranien streets, the four
+AMRIT branches, and Berlin health insurer and corporate buildings from
+operator and city sources. Represent Silencio at the former Watergate and
+retain the signed Sisyphos site in Rummelsburg. Keep company headquarters,
+Berlin offices and manufacturing sites distinct. Reuse the authored Siemens,
+Telekom and Gillette geometry at its evidenced location.
+
+Use exactly retained wall support in Drawn and Native for signs or small
+facade additions, and independently documented geometry when the actual
+building needs an addition. The v356 full publication agreement, storage
+limits, modes and touch detail continue to apply.

@@ -1,0 +1,1362 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-11-16",
+  "snapshot": "2026-11-15",
+  "pbfSha256": "aaa9292be3770db6dcf24165698c2dc821bba4b6f4911c81fe88936ec2375325",
+  "sitePolicy": "Berliner Verwaltung, Vertretungen, Unternehmenssitze und ausgewählte Fertigungsstandorte mit aktueller Primärquelle.",
+  "sites": [
+    {
+      "id": "aok-nordost-wilhelmstrasse",
+      "kind": "health-insurance",
+      "name": "AOK Nordost · Verwaltung und Pflegekasse",
+      "address": "Wilhelmstraße 1, 10963 Berlin",
+      "sourceUrl": "https://www.aok.de/pk/rechtliches/impressum/",
+      "lon": 13.389651,
+      "lat": 52.4987998,
+      "siteRole": "Verwaltungshochhaus und Rechtssitz der Pflegekasse",
+      "osmRef": "node/12239554548",
+      "osmUrl": "https://www.openstreetmap.org/node/12239554548",
+      "signName": "AOK Nordost",
+      "builtFormEvidence": "aok-surface-v357-source.json"
+    },
+    {
+      "id": "aok-bundesverband",
+      "kind": "health-insurance",
+      "name": "AOK-Bundesverband",
+      "address": "Rosenthaler Straße 31, 10178 Berlin",
+      "sourceUrl": "https://www.aok.de/gp/impressum",
+      "lon": 13.4030473,
+      "lat": 52.5252606,
+      "siteRole": "Sitz des Bundesverbands",
+      "osmRef": "node/2840695201",
+      "osmUrl": "https://www.openstreetmap.org/node/2840695201"
+    },
+    {
+      "id": "aok-centrum-wedding",
+      "kind": "health-insurance",
+      "name": "AOK · Centrum für Gesundheit",
+      "address": "Ostender Straße 1, 13353 Berlin",
+      "sourceUrl": "https://www.aok.de/pk/nordost/centrum-gesundheit-berlin/wegbeschreibung/",
+      "lon": 13.35489899,
+      "lat": 52.54827795,
+      "siteRole": "Centrum für Gesundheit im Neubau von 2021",
+      "osmRef": "way/607099809",
+      "osmUrl": "https://www.openstreetmap.org/way/607099809",
+      "buildingGeometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                13.3545421,
+                52.5481666
+              ],
+              [
+                13.3545915,
+                52.5481416
+              ],
+              [
+                13.3547866,
+                52.548045
+              ],
+              [
+                13.3552664,
+                52.5483989
+              ],
+              [
+                13.3551468,
+                52.5484431
+              ],
+              [
+                13.3550567,
+                52.5484973
+              ],
+              [
+                13.3550375,
+                52.548488
+              ],
+              [
+                13.3549319,
+                52.5485477
+              ],
+              [
+                13.3548075,
+                52.5484649
+              ],
+              [
+                13.3547577,
+                52.5484381
+              ],
+              [
+                13.354849,
+                52.5483893
+              ],
+              [
+                13.3545421,
+                52.5481666
+              ]
+            ]
+          ]
+        ]
+      },
+      "buildingOsmRef": "way/607099809",
+      "signName": "AOK",
+      "coreFacade": {
+        "url": "https://www.drzauft.de/projekt/zentrum-fuer-gesundheit-der-aok-nordost",
+        "point": [
+          13.35501999,
+          52.54821682
+        ],
+        "normal": [
+          0.755237,
+          0.655452
+        ],
+        "sign": {
+          "width": 2.5,
+          "height": 0.34,
+          "bottom": 3.37,
+          "backing": 4278085,
+          "ink": 14871780
+        },
+        "bands": [
+          {
+            "width": 3.5,
+            "bottom": 0.25,
+            "top": 3.25,
+            "fill": 5661532,
+            "frame": 5130563,
+            "bays": 3
+          },
+          {
+            "width": 3.5,
+            "bottom": 4.0,
+            "top": 6.6,
+            "fill": 5399395,
+            "frame": 7821634,
+            "bays": 3
+          },
+          {
+            "width": 3.5,
+            "bottom": 7.4,
+            "top": 9.65,
+            "fill": 5399395,
+            "frame": 7821634,
+            "bays": 3
+          }
+        ]
+      }
+    },
+    {
+      "id": "barmer-berlin",
+      "kind": "health-insurance",
+      "name": "BARMER · Hauptverwaltung",
+      "address": "Axel-Springer-Straße 44, 10969 Berlin",
+      "sourceUrl": "https://www.barmer.de/ueber-diese-website/impressum-1003148",
+      "lon": 13.3995784,
+      "lat": 52.5083362,
+      "siteRole": "Hauptverwaltung und Filiale am selben Standort",
+      "osmRef": "node/13729860278",
+      "osmUrl": "https://www.openstreetmap.org/node/13729860278",
+      "signName": "BARMER",
+      "coreFacade": {
+        "url": "https://www.barmer.de/presse/anreise-pressestelle-berlin-1061174",
+        "point": [
+          13.39945173,
+          52.50837102
+        ],
+        "normal": [
+          -0.902418,
+          -0.430863
+        ],
+        "sign": {
+          "width": 2.5,
+          "height": 0.28,
+          "bottom": 2.42,
+          "backing": 3562811,
+          "ink": 15528933
+        },
+        "bands": [
+          {
+            "width": 7.5,
+            "bottom": 4.1,
+            "top": 6.5,
+            "fill": 5203053,
+            "frame": 11971992,
+            "bays": 3
+          },
+          {
+            "width": 7.5,
+            "bottom": 7.3,
+            "top": 9.7,
+            "fill": 5399921,
+            "frame": 11971992,
+            "bays": 3
+          }
+        ]
+      }
+    },
+    {
+      "id": "techniker-berlin",
+      "kind": "health-insurance",
+      "name": "Techniker Krankenkasse · Berlin",
+      "address": "Alte Jakobstraße 81–82, 10179 Berlin",
+      "sourceUrl": "https://www.tk.de/presse/regional/berlin-brandenburg/kontakt-landesvertretung-berlin-brandenburg-2043238",
+      "lon": 13.4077872,
+      "lat": 52.5101084,
+      "siteRole": "Landesvertretung Berlin/Brandenburg und Filiale",
+      "osmRef": "node/3795842823",
+      "osmUrl": "https://www.openstreetmap.org/node/3795842823"
+    },
+    {
+      "id": "dak-berlin",
+      "kind": "health-insurance",
+      "name": "DAK-Gesundheit · Landesvertretung Berlin",
+      "address": "Beuthstraße 6, 10117 Berlin",
+      "sourceUrl": "https://www.dak.de/presse/kontakte-in-berlin_52120",
+      "lon": 13.402097,
+      "lat": 52.5097398,
+      "siteRole": "Landesvertretung",
+      "osmRef": "node/1552577129",
+      "osmUrl": "https://www.openstreetmap.org/node/1552577129"
+    },
+    {
+      "id": "gkv-spitzenverband",
+      "kind": "health-insurance",
+      "name": "GKV-Spitzenverband",
+      "address": "Reinhardtstraße 28, 10117 Berlin",
+      "sourceUrl": "https://www.gkv-spitzenverband.de/gkv_spitzenverband/anreiseinformationen/anreiseinformationen.jsp",
+      "lon": 13.3818063,
+      "lat": 52.5230202,
+      "siteRole": "Bundesverband am amtlich angegebenen Hauszugang 28",
+      "osmRef": "node/2427756269",
+      "osmUrl": "https://www.openstreetmap.org/node/2427756269"
+    },
+    {
+      "id": "vdek-zentrale",
+      "kind": "health-insurance",
+      "name": "Verband der Ersatzkassen · vdek",
+      "address": "Askanischer Platz 1, 10963 Berlin",
+      "sourceUrl": "https://www.vdek.com/ueber_uns/anfahrt.html",
+      "lon": 13.3811942,
+      "lat": 52.5050069,
+      "siteRole": "Verbandszentrale",
+      "osmRef": "node/7077803160",
+      "osmUrl": "https://www.openstreetmap.org/node/7077803160"
+    },
+    {
+      "id": "telekom-magenta-mitte",
+      "kind": "company",
+      "name": "Telekom · Magenta Mitte",
+      "address": "Ebertstraße 15A, 10117 Berlin",
+      "sourceUrl": "https://www.telekom.com/de/newsroom/aktuelles/medieninformationen/2024/09/telekom-berlin-hat-jetzt-eine-magenta-mitte",
+      "lon": 13.3772973,
+      "lat": 52.5113041,
+      "siteRole": "Hauptstadtrepräsentanz seit 2024",
+      "osmRef": "node/12253907488",
+      "osmUrl": "https://www.openstreetmap.org/node/12253907488",
+      "buildingGeometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                13.3771608,
+                52.5112126
+              ],
+              [
+                13.3771653,
+                52.5112062
+              ],
+              [
+                13.3771798,
+                52.5112055
+              ],
+              [
+                13.3774505,
+                52.5112442
+              ],
+              [
+                13.3774624,
+                52.5112485
+              ],
+              [
+                13.3774868,
+                52.5112666
+              ],
+              [
+                13.3774864,
+                52.5112751
+              ],
+              [
+                13.3774439,
+                52.5113399
+              ],
+              [
+                13.3774468,
+                52.5113877
+              ],
+              [
+                13.3774416,
+                52.5113937
+              ],
+              [
+                13.3774354,
+                52.511396
+              ],
+              [
+                13.3774288,
+                52.5113954
+              ],
+              [
+                13.3771951,
+                52.5113507
+              ],
+              [
+                13.377189,
+                52.5113471
+              ],
+              [
+                13.3771866,
+                52.5113354
+              ],
+              [
+                13.3771646,
+                52.5112307
+              ],
+              [
+                13.3771608,
+                52.5112126
+              ]
+            ]
+          ]
+        ]
+      },
+      "buildingOsmRef": "way/47423543",
+      "existingOwner": "Magenta Mitte curved-band facade overlays"
+    },
+    {
+      "id": "siemens-hauptverwaltung-berlin",
+      "kind": "company",
+      "name": "Siemens-Hauptverwaltung Berlin",
+      "address": "Nonnendammallee 101, 13629 Berlin",
+      "sourceUrl": "https://www.siemens.com/de-de/company/global-locations/germany/berlin-siemensstadt/",
+      "lon": 13.26112718,
+      "lat": 52.53788785,
+      "siteRole": "Standort Siemensstadt und eingetragener Berliner Firmensitz",
+      "osmRef": "relation/68163",
+      "osmUrl": "https://www.openstreetmap.org/relation/68163",
+      "buildingGeometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                13.2608841,
+                52.5373722
+              ],
+              [
+                13.2614359,
+                52.5373259
+              ],
+              [
+                13.2614266,
+                52.5372862
+              ],
+              [
+                13.2616584,
+                52.5372675
+              ],
+              [
+                13.2617226,
+                52.5375427
+              ],
+              [
+                13.2621521,
+                52.5375067
+              ],
+              [
+                13.2625598,
+                52.5374724
+              ],
+              [
+                13.2625031,
+                52.5372082
+              ],
+              [
+                13.2625007,
+                52.5371969
+              ],
+              [
+                13.2627502,
+                52.537175
+              ],
+              [
+                13.2627614,
+                52.5372175
+              ],
+              [
+                13.2632964,
+                52.5371723
+              ],
+              [
+                13.263335,
+                52.5373411
+              ],
+              [
+                13.2636256,
+                52.5373169
+              ],
+              [
+                13.2636451,
+                52.5374047
+              ],
+              [
+                13.2637253,
+                52.5373983
+              ],
+              [
+                13.2637635,
+                52.5375531
+              ],
+              [
+                13.263803,
+                52.5377298
+              ],
+              [
+                13.2637105,
+                52.5377374
+              ],
+              [
+                13.2637121,
+                52.5377445
+              ],
+              [
+                13.2637318,
+                52.5378292
+              ],
+              [
+                13.2634441,
+                52.5378538
+              ],
+              [
+                13.2634816,
+                52.5380182
+              ],
+              [
+                13.262938,
+                52.5380653
+              ],
+              [
+                13.2630405,
+                52.5385103
+              ],
+              [
+                13.2630571,
+                52.5385922
+              ],
+              [
+                13.2629857,
+                52.5385981
+              ],
+              [
+                13.2629881,
+                52.5386044
+              ],
+              [
+                13.262885,
+                52.5386133
+              ],
+              [
+                13.2628837,
+                52.5386036
+              ],
+              [
+                13.2628052,
+                52.5386107
+              ],
+              [
+                13.2627988,
+                52.5385735
+              ],
+              [
+                13.2625722,
+                52.5385926
+              ],
+              [
+                13.2616765,
+                52.5386655
+              ],
+              [
+                13.2616468,
+                52.5385373
+              ],
+              [
+                13.2617095,
+                52.5385309
+              ],
+              [
+                13.2616126,
+                52.5381094
+              ],
+              [
+                13.2610609,
+                52.5381564
+              ],
+              [
+                13.2610553,
+                52.5381337
+              ],
+              [
+                13.2610431,
+                52.5381346
+              ],
+              [
+                13.2610233,
+                52.5380365
+              ],
+              [
+                13.2610356,
+                52.5380357
+              ],
+              [
+                13.2609238,
+                52.5375432
+              ],
+              [
+                13.2608841,
+                52.5373722
+              ]
+            ],
+            [
+              [
+                13.2611569,
+                52.5374694
+              ],
+              [
+                13.2612243,
+                52.5377598
+              ],
+              [
+                13.2615349,
+                52.5377331
+              ],
+              [
+                13.2614675,
+                52.5374427
+              ],
+              [
+                13.2611569,
+                52.5374694
+              ]
+            ],
+            [
+              [
+                13.2612406,
+                52.537839
+              ],
+              [
+                13.2612951,
+                52.5380661
+              ],
+              [
+                13.2613723,
+                52.5380593
+              ],
+              [
+                13.2613663,
+                52.5380344
+              ],
+              [
+                13.2616019,
+                52.5380135
+              ],
+              [
+                13.2615534,
+                52.5378113
+              ],
+              [
+                13.2612406,
+                52.537839
+              ]
+            ],
+            [
+              [
+                13.2617432,
+                52.5376665
+              ],
+              [
+                13.2618265,
+                52.5380283
+              ],
+              [
+                13.2621287,
+                52.5380026
+              ],
+              [
+                13.2620575,
+                52.5376939
+              ],
+              [
+                13.262014,
+                52.5376976
+              ],
+              [
+                13.2620018,
+                52.5376444
+              ],
+              [
+                13.2617432,
+                52.5376665
+              ]
+            ],
+            [
+              [
+                13.261857,
+                52.5381544
+              ],
+              [
+                13.261938,
+                52.5385107
+              ],
+              [
+                13.2620358,
+                52.5385024
+              ],
+              [
+                13.2620319,
+                52.5384854
+              ],
+              [
+                13.262545,
+                52.5384423
+              ],
+              [
+                13.2627693,
+                52.5384235
+              ],
+              [
+                13.2626922,
+                52.5380842
+              ],
+              [
+                13.261857,
+                52.5381544
+              ]
+            ],
+            [
+              [
+                13.2622963,
+                52.5376725
+              ],
+              [
+                13.2623665,
+                52.5379845
+              ],
+              [
+                13.2626698,
+                52.5379592
+              ],
+              [
+                13.2625881,
+                52.5375958
+              ],
+              [
+                13.2623381,
+                52.5376166
+              ],
+              [
+                13.2623497,
+                52.5376681
+              ],
+              [
+                13.2622963,
+                52.5376725
+              ]
+            ],
+            [
+              [
+                13.262775,
+                52.537337
+              ],
+              [
+                13.2628144,
+                52.5375115
+              ],
+              [
+                13.2631158,
+                52.5374863
+              ],
+              [
+                13.2630764,
+                52.5373118
+              ],
+              [
+                13.262775,
+                52.537337
+              ]
+            ],
+            [
+              [
+                13.2628284,
+                52.5375797
+              ],
+              [
+                13.2629114,
+                52.5379472
+              ],
+              [
+                13.2632139,
+                52.5379219
+              ],
+              [
+                13.263131,
+                52.5375544
+              ],
+              [
+                13.2628284,
+                52.5375797
+              ]
+            ],
+            [
+              [
+                13.2632819,
+                52.537464
+              ],
+              [
+                13.2633457,
+                52.5377399
+              ],
+              [
+                13.263514,
+                52.5377255
+              ],
+              [
+                13.2634501,
+                52.5374496
+              ],
+              [
+                13.2632819,
+                52.537464
+              ]
+            ]
+          ]
+        ]
+      },
+      "buildingOsmRef": "relation/68163",
+      "geometryEvidence": {
+        "sourceId": "DEBE05YYQ00003NC",
+        "sourceTile": "https://gdi.berlin.de/data/a_lod2/atom/LoD2_382_5822.zip",
+        "leafParts": 18,
+        "heritageReference": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09085700"
+      }
+    },
+    {
+      "id": "siemens-schaltwerk-hochhaus",
+      "kind": "company",
+      "name": "Siemens · Schaltwerk-Hochhaus",
+      "address": "Nonnendammallee 104, 13629 Berlin",
+      "sourceUrl": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09085701",
+      "lon": 13.26036495,
+      "lat": 52.5386137,
+      "siteRole": "Historisches Büro- und Schaltwerkgebäude",
+      "osmRef": "way/126343559",
+      "osmUrl": "https://www.openstreetmap.org/way/126343559",
+      "buildingGeometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                13.260027,
+                52.5383384
+              ],
+              [
+                13.2601258,
+                52.5383304
+              ],
+              [
+                13.2601193,
+                52.5383007
+              ],
+              [
+                13.2601677,
+                52.5382968
+              ],
+              [
+                13.2601293,
+                52.5381206
+              ],
+              [
+                13.2600976,
+                52.5379749
+              ],
+              [
+                13.2600664,
+                52.5379774
+              ],
+              [
+                13.2600277,
+                52.5377996
+              ],
+              [
+                13.2600577,
+                52.5377972
+              ],
+              [
+                13.260056,
+                52.5377891
+              ],
+              [
+                13.2602992,
+                52.5377695
+              ],
+              [
+                13.2603215,
+                52.5378719
+              ],
+              [
+                13.2603344,
+                52.5379314
+              ],
+              [
+                13.2603802,
+                52.5379277
+              ],
+              [
+                13.2604987,
+                52.5379182
+              ],
+              [
+                13.2605104,
+                52.5379719
+              ],
+              [
+                13.2605218,
+                52.5380239
+              ],
+              [
+                13.2603609,
+                52.5380369
+              ],
+              [
+                13.2603742,
+                52.5380978
+              ],
+              [
+                13.2604274,
+                52.5383423
+              ],
+              [
+                13.2604671,
+                52.5385243
+              ],
+              [
+                13.2605776,
+                52.5390321
+              ],
+              [
+                13.2605825,
+                52.5390543
+              ],
+              [
+                13.2606143,
+                52.5390517
+              ],
+              [
+                13.2607352,
+                52.539042
+              ],
+              [
+                13.2607483,
+                52.539102
+              ],
+              [
+                13.2607578,
+                52.5391456
+              ],
+              [
+                13.2606069,
+                52.5391578
+              ],
+              [
+                13.2606491,
+                52.5393517
+              ],
+              [
+                13.2604062,
+                52.5393713
+              ],
+              [
+                13.2604004,
+                52.5393446
+              ],
+              [
+                13.2603641,
+                52.5393476
+              ],
+              [
+                13.2603247,
+                52.5391665
+              ],
+              [
+                13.2603584,
+                52.5391638
+              ],
+              [
+                13.2603518,
+                52.5391333
+              ],
+              [
+                13.2603403,
+                52.5390807
+              ],
+              [
+                13.2602925,
+                52.5390845
+              ],
+              [
+                13.2602848,
+                52.539049
+              ],
+              [
+                13.2603342,
+                52.539045
+              ],
+              [
+                13.2603289,
+                52.5390208
+              ],
+              [
+                13.2603055,
+                52.5389134
+              ],
+              [
+                13.2602879,
+                52.5388323
+              ],
+              [
+                13.2601375,
+                52.5388444
+              ],
+              [
+                13.2601286,
+                52.5388033
+              ],
+              [
+                13.2601155,
+                52.5387431
+              ],
+              [
+                13.2602145,
+                52.5387351
+              ],
+              [
+                13.2602085,
+                52.5387075
+              ],
+              [
+                13.2602628,
+                52.5387031
+              ],
+              [
+                13.2602038,
+                52.5384319
+              ],
+              [
+                13.2600501,
+                52.5384443
+              ],
+              [
+                13.2600398,
+                52.5383969
+              ],
+              [
+                13.260027,
+                52.5383384
+              ]
+            ]
+          ]
+        ]
+      },
+      "buildingOsmRef": "way/126343559",
+      "existingOwner": "civic352-siemens-schaltwerk"
+    },
+    {
+      "id": "gillette-werk-berlin",
+      "kind": "company",
+      "name": "Gillette · Werk Berlin",
+      "address": "Oberlandstraße 75–84, 12099 Berlin",
+      "sourceUrl": "https://www.pgcareers.com/de/de/bewirb-dich-an-einem-unserer-standorte",
+      "lon": 13.40637734,
+      "lat": 52.4628561,
+      "siteRole": "P&G-Fertigungsstandort für Gillette-Rasiersysteme",
+      "osmRef": "way/210080965",
+      "osmUrl": "https://www.openstreetmap.org/way/210080965",
+      "existingOwner": "civic352-gillette-factory"
+    },
+    {
+      "id": "deutsche-bahn-berlin",
+      "kind": "company",
+      "name": "Deutsche Bahn · Konzernzentrale",
+      "address": "Potsdamer Platz 2, 10785 Berlin",
+      "sourceUrl": "https://data.deutschebahn.com/opendata/Impressum-12736912",
+      "lon": 13.37501685,
+      "lat": 52.50967435,
+      "siteRole": "Konzernzentrale im BahnTower",
+      "osmRef": "way/11080117",
+      "osmUrl": "https://www.openstreetmap.org/way/11080117",
+      "buildingGeometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                13.3745502,
+                52.5097251
+              ],
+              [
+                13.3745893,
+                52.5096825
+              ],
+              [
+                13.3746225,
+                52.5096557
+              ],
+              [
+                13.3746631,
+                52.5096288
+              ],
+              [
+                13.3747073,
+                52.5096078
+              ],
+              [
+                13.3747397,
+                52.5095925
+              ],
+              [
+                13.3747813,
+                52.5095786
+              ],
+              [
+                13.3748208,
+                52.509567
+              ],
+              [
+                13.3748621,
+                52.5095582
+              ],
+              [
+                13.3749166,
+                52.50955
+              ],
+              [
+                13.374971,
+                52.5095445
+              ],
+              [
+                13.375072,
+                52.5095447
+              ],
+              [
+                13.3751727,
+                52.5095581
+              ],
+              [
+                13.3752541,
+                52.5095769
+              ],
+              [
+                13.3753157,
+                52.5096019
+              ],
+              [
+                13.3753692,
+                52.5096278
+              ],
+              [
+                13.3754253,
+                52.5096662
+              ],
+              [
+                13.3754516,
+                52.50969
+              ],
+              [
+                13.3754753,
+                52.5097141
+              ],
+              [
+                13.3754886,
+                52.5097364
+              ],
+              [
+                13.3754464,
+                52.5097325
+              ],
+              [
+                13.3754035,
+                52.5097286
+              ],
+              [
+                13.3753963,
+                52.50976
+              ],
+              [
+                13.3753894,
+                52.5097901
+              ],
+              [
+                13.3752612,
+                52.5097809
+              ],
+              [
+                13.3745502,
+                52.5097251
+              ]
+            ]
+          ]
+        ]
+      },
+      "buildingOsmRef": "way/11080117",
+      "existingOwner": "BahnTower at Potsdamer Platz"
+    },
+    {
+      "id": "zalando-se-hauptsitz",
+      "kind": "company",
+      "name": "Zalando · Hauptsitz",
+      "address": "Valeska-Gert-Straße 5, 10243 Berlin",
+      "sourceUrl": "https://corporate.zalando.com/de/impressum",
+      "lon": 13.44141899,
+      "lat": 52.5066234,
+      "siteRole": "Aktuelle Konzernadresse",
+      "osmRef": "way/615700427",
+      "osmUrl": "https://www.openstreetmap.org/way/615700427",
+      "buildingGeometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                13.4403365,
+                52.5067095
+              ],
+              [
+                13.4406614,
+                52.5065964
+              ],
+              [
+                13.4409115,
+                52.5065098
+              ],
+              [
+                13.4411759,
+                52.5064178
+              ],
+              [
+                13.4412758,
+                52.5064344
+              ],
+              [
+                13.4413807,
+                52.5064514
+              ],
+              [
+                13.4413961,
+                52.5064514
+              ],
+              [
+                13.4414127,
+                52.5064489
+              ],
+              [
+                13.4414264,
+                52.5064424
+              ],
+              [
+                13.4414377,
+                52.5064346
+              ],
+              [
+                13.4414423,
+                52.5064278
+              ],
+              [
+                13.4414972,
+                52.5063047
+              ],
+              [
+                13.4418468,
+                52.5061838
+              ],
+              [
+                13.4421453,
+                52.5065047
+              ],
+              [
+                13.4423396,
+                52.5067166
+              ],
+              [
+                13.4419448,
+                52.506651
+              ],
+              [
+                13.4419289,
+                52.5066504
+              ],
+              [
+                13.4419088,
+                52.5066529
+              ],
+              [
+                13.4418932,
+                52.506658
+              ],
+              [
+                13.4418813,
+                52.5066661
+              ],
+              [
+                13.4418725,
+                52.5066757
+              ],
+              [
+                13.4418478,
+                52.5067344
+              ],
+              [
+                13.4418116,
+                52.5068157
+              ],
+              [
+                13.4412691,
+                52.5069152
+              ],
+              [
+                13.4410443,
+                52.5068783
+              ],
+              [
+                13.4410286,
+                52.506877
+              ],
+              [
+                13.44101,
+                52.5068778
+              ],
+              [
+                13.4409957,
+                52.5068813
+              ],
+              [
+                13.4409837,
+                52.5068865
+              ],
+              [
+                13.4409745,
+                52.5068928
+              ],
+              [
+                13.4409567,
+                52.5069323
+              ],
+              [
+                13.4409372,
+                52.5069757
+              ],
+              [
+                13.440637,
+                52.5070307
+              ],
+              [
+                13.4407272,
+                52.5068297
+              ],
+              [
+                13.4407286,
+                52.5068173
+              ],
+              [
+                13.4407248,
+                52.5068037
+              ],
+              [
+                13.4407174,
+                52.5067924
+              ],
+              [
+                13.4407047,
+                52.5067815
+              ],
+              [
+                13.4406891,
+                52.5067727
+              ],
+              [
+                13.4406677,
+                52.5067655
+              ],
+              [
+                13.4403365,
+                52.5067095
+              ]
+            ]
+          ]
+        ]
+      },
+      "buildingOsmRef": "way/615700427"
+    },
+    {
+      "id": "delivery-hero-hauptsitz",
+      "kind": "company",
+      "name": "Delivery Hero · Hauptsitz",
+      "address": "Oranienburger Straße 70, 10117 Berlin",
+      "sourceUrl": "https://www.deliveryhero.com/privacy-policy/",
+      "lon": 13.3930373,
+      "lat": 52.5247747,
+      "siteRole": "Registrierter Konzernsitz",
+      "osmRef": "node/4432454379",
+      "osmUrl": "https://www.openstreetmap.org/node/4432454379",
+      "existingOwner": "CentralSitesV200 / NamedFrontsV239 Delivery Hero"
+    },
+    {
+      "id": "axel-springer-hauptsitz",
+      "kind": "company",
+      "name": "Axel Springer · Verlagssitz",
+      "address": "Axel-Springer-Straße 65, 10888 Berlin",
+      "sourceUrl": "https://www.axelspringer.com/de/impressum",
+      "lon": 13.3975324,
+      "lat": 52.5078107,
+      "siteRole": "Verlagssitz am Axel-Springer-Hochhaus",
+      "osmRef": "node/3052422451",
+      "osmUrl": "https://www.openstreetmap.org/node/3052422451",
+      "existingOwner": "PressQuarterV272"
+    },
+    {
+      "id": "bvg-hauptverwaltung",
+      "kind": "company",
+      "name": "BVG · Hauptverwaltung",
+      "address": "Holzmarktstraße 15–17, 10179 Berlin",
+      "sourceUrl": "https://nachgefragt.bvg.de/impressum/",
+      "lon": 13.423088,
+      "lat": 52.513426,
+      "siteRole": "Hauptverwaltung der Berliner Verkehrsbetriebe",
+      "osmRef": "node/4907457075",
+      "osmUrl": "https://www.openstreetmap.org/node/4907457075"
+    },
+    {
+      "id": "bayer-pharma-campus-berlin",
+      "kind": "company",
+      "name": "Bayer Pharma · Campus Berlin",
+      "address": "Müllerstraße 178, 13353 Berlin",
+      "sourceUrl": "https://www.bayer.com/sites/default/files/bayer-invoicing-addresses-and-contacts.pdf",
+      "lon": 13.3667475,
+      "lat": 52.5392077,
+      "siteRole": "Standort der Bayer Pharma AG und des Berliner Pharma-Campus",
+      "osmRef": "relation/6255291",
+      "osmUrl": "https://www.openstreetmap.org/relation/6255291",
+      "existingOwner": "BayerCampusV277"
+    }
+  ]
+}

@@ -1,11 +1,12 @@
 import type { SourceQuarterCatalogueEntryV309 } from "./SourceQuarterCatalogueV309";
-import { VENUE_FRONTS_KIND_V355, VENUE_FRONTS_KIND_V356, venueFrontSourceV355, type VenueFrontRecipes } from "./VenueFrontMeshV355";
+import { VENUE_FRONTS_KIND_V355, VENUE_FRONTS_KIND_V356, VENUE_FRONTS_KIND_V357, venueFrontSourceV355, type VenueFrontRecipes } from "./VenueFrontMeshV355";
 import index from "./data/venueFrontsV355Index.json";
-import nextIndex from "./data/venueFrontsV356Index.json";
+import indexV356 from "./data/venueFrontsV356Index.json";
+import indexV357 from "./data/venueFrontsV357Index.json";
 
 let loaders: Record<string, () => Promise<unknown>> = {};
 try {
-  loaders = import.meta.glob("./data/venueFrontsV35[56]Packets*.json");
+  loaders = import.meta.glob("./data/venueFrontsV35[567]Packets*.json");
 } catch {
   // Offline builds and the source verification runner use the local module URL.
 }
@@ -28,4 +29,5 @@ function entries(index: { sources: { file: string; keys: string[] }[] }, kind: s
 }
 
 export const venueFrontEntriesV355 = entries(index, VENUE_FRONTS_KIND_V355);
-export const venueFrontEntriesV356 = entries(nextIndex, VENUE_FRONTS_KIND_V356);
+export const venueFrontEntriesV356 = entries(indexV356, VENUE_FRONTS_KIND_V356);
+export const venueFrontEntriesV357 = entries(indexV357, VENUE_FRONTS_KIND_V357);

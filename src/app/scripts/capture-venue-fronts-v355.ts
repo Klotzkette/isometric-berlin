@@ -16,6 +16,7 @@ import { productionSupportV350, proveProductionV350 } from "./civic-production-p
 import {
   VENUE_FRONTS_KIND_V355,
   VENUE_FRONTS_KIND_V356,
+  VENUE_FRONTS_KIND_V357,
   venueFrontSourceV355,
   type VenueFrontPlan,
   type VenueFrontRecipes,
@@ -41,11 +42,12 @@ const flags: SurroundingOwnershipOptions = {
   wilhelmHousingV324:true, wilhelmStreetFrontsV325:true, southWestSitesV326:true,
 };
 const [jobsPath, resultPath, kind = VENUE_FRONTS_KIND_V355] = process.argv.slice(2);
-if (!jobsPath || !resultPath || ![VENUE_FRONTS_KIND_V355, VENUE_FRONTS_KIND_V356].includes(kind)) {
+if (!jobsPath || !resultPath || ![VENUE_FRONTS_KIND_V355, VENUE_FRONTS_KIND_V356, VENUE_FRONTS_KIND_V357].includes(kind)) {
   throw new Error("Expected jobs path, result path and optionally a venue layer kind");
 }
 const older = createSourceQuarterRecipeLoaderV309(SOURCE_QUARTER_CATALOGUE_V309.filter(
-  entry => entry.kind !== VENUE_FRONTS_KIND_V356 && entry.kind !== kind && !groundOverlayKindsV329.has(entry.kind),
+  entry => !groundOverlayKindsV329.has(entry.kind) && entry.kind !== VENUE_FRONTS_KIND_V357 &&
+    (entry.kind !== VENUE_FRONTS_KIND_V356 || kind === VENUE_FRONTS_KIND_V357) && entry.kind !== kind,
 ));
 const ground = createSourceQuarterRecipeLoaderV309(SOURCE_QUARTER_CATALOGUE_V309.filter(
   entry => groundOverlayKindsV329.has(entry.kind),

@@ -6,6 +6,7 @@ import {
 import source from "./data/publicAmenitiesV332.json";
 import venueDirectory from "./data/venueDirectoryV355.json";
 import donerDirectory from "./data/donerDirectoryV356.json";
+import nightlifeAndCompanies from "./data/venueDirectoryV357.json";
 import { amenityFurnitureV332 } from "./PublicAmenityFurnitureV332";
 import { recreationFurnitureV332 } from "./PublicRecreationFurnitureV332";
 import { createNaunynSpaetiV332, NAUNYN_SPAETI_V332 } from "./NaunynSpaetiV332";
@@ -14,13 +15,15 @@ import { createNikolaiFountainV353 } from "./NikolaiFountainV353";
 
 type Kind = "toilet" | "postbox" | "kiosk" | "spaeti" | "playground" | "play-equipment"
   | "fountain" | "paddling" | "drinking" | "pool" | "strandbath" | "police" | "police-hq"
-  | "tax-office" | "citizen-office" | "car-dealer" | "mall" | "doner";
+  | "tax-office" | "citizen-office" | "car-dealer" | "mall" | "doner"
+  | "club" | "pub" | "restaurant" | "company" | "health-insurance";
 type Site = [id: string, kind: Kind, name: string, x: number, z: number, model: string, variant: string, address: string];
 type Ring = [number, number][];
 type Basin = [id: string, site: string, x: number, z: number, rings: Ring[], runs: [number, number, number, number][]];
 const cells = source.cells as unknown as Record<string, Site[]>;
 const directoryCells = venueDirectory.cells as unknown as Record<string, Site[]>;
 const donerCells = donerDirectory.cells as unknown as Record<string, Site[]>;
+const nightlifeAndCompanyCells = nightlifeAndCompanies.cells as unknown as Record<string, Site[]>;
 const currentPoliceIds = new Set(venueDirectory.policeIds);
 const basins = source.basins as unknown as Record<string, Basin[]>;
 const CELL = source.cellMeters;
@@ -47,6 +50,11 @@ const badges: Record<Exclude<Kind, "play-equipment">, [string, string, string]> 
   "car-dealer": ["Autohaus", "Car dealership", "#384c57"],
   mall: ["Einkaufszentrum", "Shopping centre", "#755d4c"],
   doner: ["Dönerimbiss", "Döner shop", "#814c37"],
+  club: ["Club", "Nightclub", "#52465c"],
+  pub: ["Kneipe", "Pub", "#6c5042"],
+  restaurant: ["Restaurant", "Restaurant", "#784e39"],
+  company: ["Unternehmen", "Company", "#495966"],
+  "health-insurance": ["Krankenkasse", "Health insurer", "#37624f"],
 };
 
 function nearby<T>(index: Record<string, T[]>, x: number, z: number): T[] {
@@ -208,7 +216,8 @@ export function createPublicAmenitiesV332() {
         language = lang;
       }
       const localSites = nearby(cells, x, z).filter(site => !show || !currentPoliceIds.has(site[0]));
-      if (show) localSites.push(...nearby(directoryCells, x, z), ...nearby(donerCells, x, z));
+      if (show) localSites.push(...nearby(directoryCells, x, z), ...nearby(donerCells, x, z),
+        ...nearby(nightlifeAndCompanyCells, x, z));
       const ordered = localSites.map(site => ({ site, distance: (site[3] - x) ** 2 + (site[4] - z) ** 2 }))
         .filter(item => item.distance <= RADIUS ** 2)
         .sort((a, b) => a.distance - b.distance || a.site[0].localeCompare(b.site[0]));

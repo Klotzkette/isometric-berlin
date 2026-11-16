@@ -5,7 +5,8 @@ import { surroundingPacketFingerprint } from "./surroundingPacketFingerprint";
 
 export const VENUE_FRONTS_KIND_V355 = "venue-fronts-v355";
 export const VENUE_FRONTS_KIND_V356 = "venue-fronts-v356";
-const categories = ["FINANZAMT", "BURGERAMT", "POLIZEI", "AUTOHAUS", "EINKAUFSCENTER", "DONER"];
+export const VENUE_FRONTS_KIND_V357 = "venue-fronts-v357";
+const categories = ["FINANZAMT", "BURGERAMT", "POLIZEI", "AUTOHAUS", "EINKAUFSCENTER", "DONER", "CLUB", "KNEIPE", "RESTAURANT", "UNTERNEHMEN", "KRANKENKASSE"];
 function linear(rgb: number[]): number[] {
   return rgb.map(value => {
     const srgb = value / 255;
@@ -19,6 +20,11 @@ const palette = [
   { background: linear([48, 56, 61]), title: linear([244, 246, 241]), name: linear([225, 229, 229]) },
   { background: linear([224, 216, 196]), title: linear([80, 57, 41]), name: linear([49, 45, 40]) },
   { background: linear([236, 225, 207]), title: linear([92, 54, 41]), name: linear([52, 39, 31]) },
+  { background: linear([48, 45, 53]), title: linear([223, 218, 228]), name: linear([241, 239, 241]) },
+  { background: linear([74, 53, 44]), title: linear([230, 218, 194]), name: linear([243, 228, 201]) },
+  { background: linear([111, 54, 43]), title: linear([241, 222, 188]), name: linear([248, 233, 205]) },
+  { background: linear([60, 66, 73]), title: linear([228, 234, 236]), name: linear([246, 246, 243]) },
+  { background: linear([224, 231, 219]), title: linear([42, 77, 63]), name: linear([35, 57, 48]) },
 ];
 
 export type VenuePlate = CivicPlateV350;

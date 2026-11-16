@@ -31,7 +31,7 @@ import { roteInselCorridorsEntriesV354 } from "./RoteInselCorridorsV354";
 import { grunewaldVenuesEntriesV354 } from './GrunewaldVenuesV354';
 import { museumsSouthwestV354Entries } from './MuseumsSouthwestV354';
 import { railwayParksEntriesV354 } from "./RailwayParksV354";
-import { venueFrontEntriesV355, venueFrontEntriesV356 } from "./VenueFrontsV355";
+import { venueFrontEntriesV355, venueFrontEntriesV356, venueFrontEntriesV357 } from "./VenueFrontsV355";
 import { nikolaikirchePacketV353 } from "./NikolaikircheV353";
 import { so36FrontV345 } from "./So36FrontV345";
 import { estrelTowerPacketV345 } from "./EstrelTowerPacketV345";
@@ -140,6 +140,7 @@ export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV
   ...museumsSouthwestV354Entries,
   ...venueFrontEntriesV355,
   ...venueFrontEntriesV356,
+  ...venueFrontEntriesV357,
 ];
 
 /** Separate factory permits deterministic transport/retry tests without mocks

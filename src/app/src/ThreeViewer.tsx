@@ -135,6 +135,8 @@ import { startupWorkPositionV309, startupWorkPresentationV309, type StartupWorkV
 import { createBndPublicArtV314 } from "./BndPublicArtV314";
 import { WORLD_ORBIT_BASE_DISTANCE_M, worldCameraFarM } from "./worldCameraDepth";
 import { createMustafaFrontV356 } from "./MustafaFrontV356";
+import { createCoreVenueFrontsV357 } from "./CoreVenueFrontsV357";
+import { createAokTowerV357 } from "./AokTowerV357";
 import { createSceneGpuWarmup, type SceneGpuWarmup } from "./sceneGpuWarmup";
 import { createSceneGpuResidency, type SceneGpuResidency } from "./sceneGpuResidency";
 import { createSceneGeometryGpuResidency, type SceneGeometryGpuResidency } from "./sceneGeometryGpuResidency";
@@ -4899,6 +4901,9 @@ function ensureIsoWorld(
         isoWorld.add(fidelityV288.root);
         const mustafaFront = createMustafaFrontV356(prisms.buildings);
         if (mustafaFront) isoWorld.add(mustafaFront);
+        isoWorld.add(createCoreVenueFrontsV357(prisms.buildings));
+        const aokTower = createAokTowerV357(prisms.buildings);
+        if (aokTower) isoWorld.add(aokTower);
         yield*governmentV323.createWilhelmHousingRuntimeV324Steps(isoWorld,prisms.buildings,ground??undefined,false,runtime.coarsePointer);
         yield*governmentV323.createWilhelmStreetFrontsRuntimeV325Steps(isoWorld,prisms.buildings,ground??undefined,false,runtime.coarsePointer);
         let neukoellnAdmissionV305=applyNeukoellnLegacyV227V305(isoWorld,false,true,fidelityV288.neukoellnModel);
@@ -5845,6 +5850,11 @@ function ensureVoxelWorld(
       );
       const mustafaFront = prisms && createMustafaFrontV356(prisms.buildings, payload);
       if (mustafaFront) provisionalVoxelWorld.add(mustafaFront);
+      if (prisms) {
+        provisionalVoxelWorld.add(createCoreVenueFrontsV357(prisms.buildings, payload));
+        const aokTower = createAokTowerV357(prisms.buildings, payload);
+        if (aokTower) provisionalVoxelWorld.add(aokTower);
+      }
       const nativePavingGroundV343 = provisionalVoxelWorld.getObjectByName("Voxel ground runs");
       if (nativePavingGroundV343 instanceof InstancedMesh) {
         provisionalVoxelWorld.add(kulturforumPavingV343.createKulturforumPavingV343(

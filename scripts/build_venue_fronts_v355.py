@@ -30,7 +30,19 @@ SOURCES = (
   "polizeiwachen-v355-source.json.gz",
   "retail-v355-source.json.gz",
 )
-KINDS = ("tax-office", "citizen-office", "police", "car-dealer", "mall", "doner")
+KINDS = (
+  "tax-office",
+  "citizen-office",
+  "police",
+  "car-dealer",
+  "mall",
+  "doner",
+  "club",
+  "pub",
+  "restaurant",
+  "company",
+  "health-insurance",
+)
 PROJECT = Transformer.from_crs(4326, 25833, always_xy=True)
 
 
@@ -202,7 +214,44 @@ def facade_panels(site, building, raw, native, bounds, host):
       ) + "-lamellae"
     if kind not in ("horizontal-lamellae", "vertical-lamellae", "glazing", "panel"):
       continue
-    for face in boundary_faces(building, raw, bounds, native):
+    wall = ref.get("wall") if native else None
+    faces = boundary_faces(building, raw, bounds, native)
+    if wall:
+      if ref.get("hostHint") != host or ref.get("ownerHint") != building["sourceId"]:
+        continue
+      a, b = np.asarray(wall["a"]), np.asarray(wall["b"])
+      line = LineString([a, b])
+      if (
+        line.length < 1.65
+        or not (a[0] == b[0] or a[1] == b[1])
+        or not bounds.covers(line)
+        or not line.buffer(0.02).covers(anchor)
+      ):
+        continue
+      outline = building_geometry(building, origin)
+      if (
+        not outline.is_valid
+        or max(outline.exterior.distance(Point(p)) for p in (a, b)) > 2.6
+      ):
+        continue
+      direction = (b - a) / line.length
+      normal = [-direction[1], direction[0]]
+      if np.dot(normal, ref["normal"]) < 0:
+        normal = [-v for v in normal]
+      # Native stair-step planes differ from the navigation outline. The
+      # production stage still requires all samples on live wall triangles.
+      faces = [
+        dict(
+          a=a,
+          b=b,
+          length=line.length,
+          direction=direction,
+          normal=normal,
+          low=wall["low"],
+          high=wall["high"],
+        )
+      ]
+    for face in faces:
       a, b = np.asarray(face["a"]), np.asarray(face["b"])
       if native and a[0] != b[0] and a[1] != b[1]:
         continue

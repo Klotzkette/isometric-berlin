@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.237
+
+- Add Berlin clubs, bars around Oranienstraße and Oranienburger Straße, all four AMRIT restaurants, health insurers and company locations.
+- Represent Silencio at the former Watergate and link directly to the existing Sisyphos entrance.
+- Restore the AOK tower at Wilhelmstraße 1 using Berlin’s measured surface elevations and a photo reference for the window bands and AOK crown.
+
 ## 1.0.236
 
 - Add 36 selected and source-checked Berlin Döner locations to the nearby-places layer, including the existing Oggi’s kiosk on Heidestraße.

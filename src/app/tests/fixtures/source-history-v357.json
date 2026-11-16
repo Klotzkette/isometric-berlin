@@ -1,0 +1,41 @@
+{
+  "additions": {
+    "src/app/src/AokTowerV357.ts": "0f118af98be915d0135b1e8e62ff749b633e3646e8946e214f5caf495defdb0a",
+    "src/app/src/CoreVenueFrontsV357.ts": "ac22e9573109e7e68da75f42d203cd4209378bdca462389f6ce7b3a21dc6583e",
+    "src/app/src/data/aokTowerV357.json": "fbd96fbbac8487d8a14862d2358e1ed4d500b96e94b2f3a0f06ab02898e0b6ee",
+    "src/app/src/data/coreVenueFrontsV357.json": "d07494a7823784f05ae22749df24925d9673133392ccc8b641cfe72de3c4fd14",
+    "src/app/src/data/venueDirectoryV357.json": "109ccd0642174f0913c085bb5a00ed632372a68a559a46baa51ce95f89bb6dbb",
+    "src/app/src/data/venueFrontsV357Index.json": "91d94cce33faff900eea1d86a5f3045e78553be1610929cee62f4ba05b257b84",
+    "src/app/src/data/venueFrontsV357Packets00.json": "fb0ce29fcb13235b0979b6e27e555333d3c5f68fa490c28938cd0fc0b939d2c6"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "a4c1b7e582ce7e8c41686a0a57c1ca60987d94a15047e35a4a904df52d896c51",
+      "after": "9d271bf9c58f8c61b703df01db572048f943f23c876e42d749e536a207069dac"
+    },
+    "src/app/src/PublicAmenitiesV332.ts": {
+      "before": "022810854685cee795140d3e487587f7ef749a1a0bc639472c3bb45e20f25a14",
+      "after": "e641be7256f7eddead5a3dd182e3f36e08c9a3b6fa8ea408470e9d0a4c28efed"
+    },
+    "src/app/src/SourceQuarterCatalogueV309.ts": {
+      "before": "90b51e232553de32bd27cbde2e74a6acb6ba85d543ad9954fa7b8dcf1eeae5de",
+      "after": "7305a6d50e624fb4f3babfeb3fd8a97ab00bdd94c8a88b43403cb622171931b5"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "5f475f3a70fd21ff5fd4304ed5cb1ab966af6c1e826e58dea83e4b3fd0e18f2a",
+      "after": "35836018730025675c949bd081ac492bf21d92dcac242cbeecbd5ccaa726bb73"
+    },
+    "src/app/src/VenueFrontMeshV355.ts": {
+      "before": "a3a4f401ac5ca38432908b948f63d659ea76cfe5aaabc341eacea071533e19b0",
+      "after": "183e98538378c5952d5453bb4e956b97e3a55bad9c6eaf94a5ecbe28d633a800"
+    },
+    "src/app/src/VenueFrontsV355.ts": {
+      "before": "af4b2ce614cd01b31a7070f66c90e527f8134dc13c5929732a12f3039fa1cfe9",
+      "after": "2de4cf6c8a9e2f66a1f38fc5917dc048dc94f81319d6164f5e95abe81f39a65b"
+    },
+    "src/app/src/startupView.ts": {
+      "before": "00545c06836e2ff769f06f36080cc7cb515d80e2836c66cab5f68cfccc165123",
+      "after": "94640126f82ce9e2e3ff493332485a26bf0a86cbd5efb315f95099c45bc4df54"
+    }
+  }
+}
