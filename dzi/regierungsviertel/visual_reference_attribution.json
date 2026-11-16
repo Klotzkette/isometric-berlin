@@ -5265,6 +5265,144 @@
       "role": "Historical exterior reference, cross-checked against current operator photograph",
       "photo_bundled": false,
       "geometry_status": "Reference image only; no photograph pixels or textures distributed"
+    },
+    {
+      "landmark_id": "berlin-service-122282",
+      "title": "Bürgeramt Rathaus Tiergarten – exterior architectural reference",
+      "page_url": "https://www.berlin.de/ba-mitte/politik-und-verwaltung/aemter/amt-fuer-buergerdienste/buergeraemter/artikel.244730.php",
+      "image_url": "https://www.berlin.de/ba-mitte/politik-und-verwaltung/beauftragte/integration/gefluechtete-menschen/rathaus-mit-kirschblueten.jpg",
+      "credit": "Bezirksamt Mitte",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "OpenStreetMap building and main entrance combined with photo-referenced exterior geometry cues; unsurveyed dimensions are estimates."
+    },
+    {
+      "landmark_id": "berlin-service-122937",
+      "title": "Finanzamt Charlottenburg – exterior architectural reference",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09096101",
+      "image_url": "https://denkmaldatenbank.berlin.de/media/uploads/Web06/09096101.jpg",
+      "credit": "LDA-Fotoarchiv, Bittner 2017",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "OpenStreetMap building and main entrance combined with photo-referenced exterior geometry cues; unsurveyed dimensions are estimates."
+    },
+    {
+      "landmark_id": "berlin-service-324113",
+      "title": "Finanzamt Friedrichshain-Kreuzberg – exterior architectural reference",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09031098",
+      "image_url": "https://denkmaldatenbank.berlin.de/media/uploads/Kre/01/09031098b.jpg",
+      "credit": "LDA-Archiv, Bittner 2013",
+      "role": "architectural_reference_only_no_image_or_texture_distributed",
+      "photo_bundled": false,
+      "geometry_status": "OpenStreetMap building and main entrance combined with photo-referenced exterior geometry cues; unsurveyed dimensions are estimates."
+    },
+    {
+      "landmark_id": "tax-office",
+      "title": "ServicePortal Berlin – Finanzämter",
+      "page_url": "https://service.berlin.de/standorte/finanzaemter/",
+      "credit": "ServicePortal Berlin / Land Berlin",
+      "role": "Statutory location and address reference, checked 2026-11-16",
+      "photo_bundled": false,
+      "geometry_status": "Distinct physical office addresses with official map points; mapped building footprints are separate OSM evidence."
+    },
+    {
+      "landmark_id": "citizen-office",
+      "title": "ServicePortal Berlin – Bürgerämter",
+      "page_url": "https://service.berlin.de/standorte/buergeraemter/",
+      "credit": "ServicePortal Berlin / Land Berlin",
+      "role": "Statutory location and address reference, checked 2026-11-16",
+      "photo_bundled": false,
+      "geometry_status": "Distinct physical office addresses with official map points; mapped building footprints are separate OSM evidence."
+    },
+    {
+      "landmark_id": "berlin-v355-offices",
+      "title": "Adressen Regionales Bezugssystem (RBS)",
+      "page_url": "https://gdi.berlin.de/geonetwork/geonetwork/api/records/c43966c4-95b0-39f8-8b8c-545acfa7fbf9",
+      "credit": "Amt für Statistik Berlin-Brandenburg / Geoportal Berlin, Datenlizenz Deutschland – Zero – Version 2.0",
+      "role": "Exact address points for Klosterstraße, Pankow and Mehringdamm branch",
+      "photo_bundled": false,
+      "geometry_status": "Address geolocation, not a surveyed entrance."
+    },
+    {
+      "landmark_id": "polizei",
+      "title": "Öffentliche Polizeiwachen Berlin – Fachkarte",
+      "page_url": "https://gdi.berlin.de/geonetwork/geonetwork/api/records/1cc4e86e-6b03-3b66-806b-98e2b763c290",
+      "credit": "Polizei Berlin / Geoportal Berlin, DL-DE Zero 2.0",
+      "role": "Official location source",
+      "photo_bundled": false,
+      "geometry_status": "Public site or exterior reference. Source coordinates and new appearance estimates are distinguished in the V355 venue audit."
+    },
+    {
+      "landmark_id": "shopping-malls",
+      "title": "Einkaufscenter in Berlin nach Bezirken",
+      "page_url": "https://www.berlin.de/special/shopping/einkaufscenter/",
+      "credit": "Land Berlin",
+      "role": "Municipal named-centre directory",
+      "photo_bundled": false,
+      "geometry_status": "Public site or exterior reference. Source coordinates and new appearance estimates are distinguished in the V355 venue audit."
+    },
+    {
+      "landmark_id": "berlin-retail-v355",
+      "title": "Berlin OpenStreetMap geodata",
+      "page_url": "https://download.geofabrik.de/europe/germany/berlin.html",
+      "credit": "© OpenStreetMap contributors, ODbL; extract by Geofabrik",
+      "role": "Mapped current sales/retail site locations, polygons and entrance nodes",
+      "photo_bundled": false,
+      "geometry_status": "Public site or exterior reference. Source coordinates and new appearance estimates are distinguished in the V355 venue audit."
+    },
+    {
+      "landmark_id": "W_17",
+      "title": "Polizei-Wachstelle 17 · Regionalabschnitt 17/18 – exterior architectural reference",
+      "page_url": "https://www.berlin.de/polizei/_assets/dienststellen/dir1/a17_gebaeude.jpg",
+      "credit": "Polizei Berlin",
+      "role": "Architectural reference only; no image distributed",
+      "photo_bundled": false,
+      "geometry_status": "Public site or exterior reference. Source coordinates and new appearance estimates are distinguished in the V355 venue audit."
+    },
+    {
+      "landmark_id": "alexwache",
+      "title": "Alexwache · Nebenwache Alexanderplatz – exterior architectural reference",
+      "page_url": "https://www.berlin.de/polizei/_assets/dienststellen/dir5/crop_668_890.6666666666666_7_281.83333333333337_675_1500_88a5cedfc136e27d4093f738ec4ffdb4_alexwache1.jpg",
+      "credit": "Polizei Berlin",
+      "role": "Architectural reference only; no image distributed",
+      "photo_bundled": false,
+      "geometry_status": "Public site or exterior reference. Source coordinates and new appearance estimates are distinguished in the V355 venue audit."
+    },
+    {
+      "landmark_id": "kotti-wache",
+      "title": "Nebenwache am Kottbusser Tor – exterior architectural reference",
+      "page_url": "https://www.berlin.de/polizei/_assets/dienststellen/dir5/kotttiwache1.jpg",
+      "credit": "Polizei Berlin",
+      "role": "Architectural reference only; no image distributed",
+      "photo_bundled": false,
+      "geometry_status": "Public site or exterior reference. Source coordinates and new appearance estimates are distinguished in the V355 venue audit."
+    },
+    {
+      "landmark_id": "osm/way/268407747",
+      "title": "BMW Niederlassung Kaiserdamm – exterior architectural reference",
+      "page_url": "https://www.architekturpreis-berlin.de/Archiv/2016/Projekte/044/image/12/BMW%20Niederlassung-Ansicht%20Messedamm.jpg@w=480&h=320",
+      "credit": "Lanz Architekten + Generalplaner, photo Christoph Stepan",
+      "role": "Architectural reference only; no image distributed",
+      "photo_bundled": false,
+      "geometry_status": "Public site or exterior reference. Source coordinates and new appearance estimates are distinguished in the V355 venue audit."
+    },
+    {
+      "landmark_id": "osm/way/89721010",
+      "title": "Porsche Zentrum Berlin – exterior architectural reference",
+      "page_url": "https://eduard-winter.de/images/EW/pzb_detail.jpg",
+      "credit": "Eduard Winter Dienstleistungsgesellschaft mbH, project photograph",
+      "role": "Architectural reference only; no image distributed",
+      "photo_bundled": false,
+      "geometry_status": "Public site or exterior reference. Source coordinates and new appearance estimates are distinguished in the V355 venue audit."
+    },
+    {
+      "landmark_id": "osm/way/615700425",
+      "title": "East Side Mall – exterior architectural reference",
+      "page_url": "https://a.storyblok.com/f/324448/2672x2082/b681058bb8/the-eastside-mall.jpg",
+      "credit": "UNStudio, project exterior photograph",
+      "role": "Architectural reference only; no image distributed",
+      "photo_bundled": false,
+      "geometry_status": "Public site or exterior reference. Source coordinates and new appearance estimates are distinguished in the V355 venue audit."
     }
   ]
 }
