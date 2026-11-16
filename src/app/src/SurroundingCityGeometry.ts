@@ -38,6 +38,7 @@ import { prepareFriedrichshainV266 } from "./FriedrichshainV266";
 import { prepareScheunenV265 } from "./ScheunenV265";
 import { prepareAugustFrontsV274 } from "./AugustFrontsV274";
 import { prepareAllotmentsV264 } from "./AllotmentsV264";
+import { admitAllotmentDetailsV360, packAllotmentDetailsV360, type AllotmentDetailPlanV360 } from "./AllotmentDetailsV360";
 import { prepareEurefTransfersV262, applyEurefTransfersV262Triangles, applyEurefTransfersV262Lines, eurefNavigationV262 } from "./eurefTransfersV262";
 import { prepareOuterFacadesV262 } from "./outerFacadesV262";
 import { prepareGreyFacadesV263 } from "./greyFacadesV263";
@@ -294,6 +295,7 @@ export type SurroundingOwnershipOptions = {
   riverFinishV348?: (mesh: Mesh, selector: PackedRiverSelectorV348) => void;
   neukoellnBuildingsV342?: SourceQuarterSourceV303;
   groundOverlaysV329?: boolean;
+  allotmentDetailsV360?: AllotmentDetailPlanV360;
   transportDetailsV334?: boolean;
   namedTransportSourceV334?: NamedSiteSourceV238;
   /** Caller guarantees complete v239 bodies in the same publication transaction. */
@@ -402,6 +404,8 @@ export function* buildSurroundingCityChunk(
       !validNavigation(chunk.nav)) {
     throw new Error("Invalid surrounding-city chunk");
   }
+  const allotmentPlan = id === "3_-3" || id === "4_-3" ? undefined :
+    yield* admitAllotmentDetailsV360(chunk, ownership.allotmentDetailsV360);
   let gardenTerrainV330: DataView | undefined;
   if (chunk.gardenTerrainV330 !== undefined) {
     if (!/^gardens330-\d+_-?\d+$/.test(id) && !/^tegeler-forst--1[45]_-1[678]$/.test(id) && !measuredTerrainOwnersV342.has(id)) {
@@ -450,8 +454,11 @@ export function* buildSurroundingCityChunk(
   chunk = yield* prepareNeukoellnBuildingsV342(chunk, id, minecraft, ownership.neukoellnBuildingsV342);
   const firstGroundOverlayPart = chunk.meshes.length;
   for (const ticket of groundOverlayTicketsV329) chunk = yield* prepareNeighbourhoodPacketV300(chunk, ticket);
+  const allotmentPart = yield* packAllotmentDetailsV360(chunk, allotmentPlan, minecraft);
+  // Keep the authenticated predecessor object and its weakly held ownership data.
+  const meshParts = allotmentPart ? [...chunk.meshes, allotmentPart] : chunk.meshes;
 
-  if (chunk.meshes.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
+  if (meshParts.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
   root.position.fromArray(chunk.origin);
@@ -462,14 +469,14 @@ export function* buildSurroundingCityChunk(
   root.userData.neighbourhoodV300=neighbourhoodPacketAdmittedV300(chunk);
   root.userData.mauerparkTerrainV298=mauerparkTerrainAdmittedV298(chunk);
   bindTempelhoferFieldV345(root,chunk,minecraft);
-  root.userData.sourceKinds = [...new Set(chunk.meshes.map(part => part.kind))];
+  root.userData.sourceKinds = [...new Set(meshParts.map(part => part.kind))];
 
   let completed = false;
   try {
     // Validate counts before allocating the aggregate destination. Decoding is
     // deliberately serial: the largest temporary is one bounded source stream.
     let vertexCount = 0, indexCount = 0;
-    for (const part of chunk.meshes) {
+    for (const part of meshParts) {
       if (part.positionType !== "u16cm" || typeof part.positions !== "string" ||
           typeof part.colors !== "string" || typeof part.indices !== "string" ||
           (part.colorType !== undefined && part.colorType !== "u8" && part.colorType !== "u16linear")) {
@@ -496,9 +503,10 @@ export function* buildSurroundingCityChunk(
       ? yield* surroundingColourOwners(chunk.nav.buildings, chunk.nav.groundY, chunk.origin[1], chunk.origin[0], chunk.origin[2], undefined, refineOuterRoofsV230(id), refineOuterHousePaletteV262(id), refineOuterHousePaletteV262(id) ? primaryHousePaletteV273 : undefined) : undefined;
     let vertexOffset = 0, indexOffset = 0;
     let groundOverlayStart: number | undefined;
+    let originalVertexWords = vertices.length, originalIndexCount = indices.length;
     const groundSpansV348: GroundFinishPartSpanV348[] = [];
-    for (const [meshIndex, part] of chunk.meshes.entries()) {
-      if (meshIndex === firstGroundOverlayPart) groundOverlayStart = indexOffset;
+    for (const [meshIndex, part] of meshParts.entries()) {
+      if (meshIndex === firstGroundOverlayPart && meshIndex < chunk.meshes.length) groundOverlayStart = indexOffset;
       const count = encodedBytes(part.positions, 6) / 6;
       yield* interleavedPositions(part.positions, vertices, vertexOffset, 6);
       yield* interleavedColors(part.colors, vertices, vertexOffset, part.kind === "city" ? colourOwners : undefined, !minecraft, part.colorType === "u16linear");
@@ -511,6 +519,11 @@ export function* buildSurroundingCityChunk(
         }
         written += source.length;
         yield;
+      }
+      if (part === allotmentPart) {
+        originalVertexWords = vertexOffset * 6;
+        originalIndexCount = indexOffset;
+        break;
       }
       const panoramaTransferred = yield* replacePanoramaFacadeV202(id, minecraft, part, indices, indexOffset);
       if (panoramaTransferred) root.userData.panoramaTransferredTriangles = (root.userData.panoramaTransferredTriangles ?? 0) + panoramaTransferred;
@@ -650,11 +663,15 @@ export function* buildSurroundingCityChunk(
         body.material = [dayMaterial, overlayDay];
       }
       if (ownership.groundFinishV348 && !minecraft && !apertures) {
-        const ground = yield* certifyPacketGroundFinishV348Steps(chunk, vertices, indices, groundSpansV348);
+        const ground = yield* certifyPacketGroundFinishV348Steps(chunk,
+          allotmentPart ? vertices.subarray(0, originalVertexWords) : vertices,
+          allotmentPart ? indices.subarray(0, originalIndexCount) : indices, groundSpansV348);
         if (ground && markPacketGroundFinishV348(body, ground)) bindGroundFinishV348(body);
       }
       if (ownership.riverFinishV348 && !minecraft) {
-        const river = yield* certifyPackedRiverWaterV348(chunk.origin[1], chunk.nav, vertices, indices);
+        const river = yield* certifyPackedRiverWaterV348(chunk.origin[1], chunk.nav,
+          allotmentPart ? vertices.subarray(0, originalVertexWords) : vertices,
+          allotmentPart ? indices.subarray(0, originalIndexCount) : indices);
         if (river) ownership.riverFinishV348(body, river);
       }
       body.userData.surroundingCity = true;

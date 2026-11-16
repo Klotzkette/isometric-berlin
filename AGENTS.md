@@ -3392,3 +3392,15 @@ from surveyed geometry. Preserve unrelated buildings, existing mobile detail,
 all six modes and the tour. Diagnose and reduce genuine user-visible loading
 and construction delays on the production entry point. Continue the checked
 public viewer and both complete downloads under the existing publication limits.
+
+### Step 10 — v360 Berlin allotment gardens
+
+The owner requests the paths and low vegetation of the larger allotments
+throughout Berlin. Use only the grouped official facility boundaries, mapped
+paths and vegetation, and explicitly attributed observed vegetation heights and
+orthophoto traces. A finite site-only addition is authorized where previous
+terrain is missing. Do not invent plots, buildings, vegetation species or paths
+where the evidence is absent. Keep existing authored gardens, terrain and
+navigation. Native follows its own cardinal fitting. Load the garden files
+only as their relevant geometry is needed; keep all six styles, mobile detail,
+existing stream limits and complete same-origin publication.

@@ -17,6 +17,15 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Berlin allotment gardens (v1.0.240):** The [Berlin allotment inventory](https://daten.berlin.de/datensaetze/kleingartenbestand-berlin-wfs-350d69ef),
+  [ALKIS](https://daten.berlin.de/datensaetze/alkis-berlin-amtliches-liegenschaftskatasterinformationssystem-wfs-66e083ae),
+  [ATKIS](https://daten.berlin.de/datensaetze/atkis-basis-dlm-prasentationsdienst-wfs-d4316e05),
+  [2026 true orthophotos](https://daten.berlin.de/datensaetze/digitale-farbige-trueorthophotos-2026-dop20rgbi-wms-3801a94c)
+  and [2020 vegetation heights](https://daten.berlin.de/datensaetze/vegetationshohen-2020-umweltatlas-b3a1d6a1)
+  are from Geoportal Berlin. OpenStreetMap contributors (ODbL-1.0) supply mapped
+  paths and vegetation. Display interpretations and coverage are described in
+  [the allotment notes](docs/allotments-v360.md).
+
 - **Berlin transit:** [VBB Verkehrsverbund Berlin-Brandenburg GmbH](https://unternehmen.vbb.de/digitale-services/datensaetze/)
   provides timetable, stop and access records under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
   [Berlin's BVG WFS](https://gdi.berlin.de/services/wfs/oepnv_ungestoert) provides the bus-network cross-check

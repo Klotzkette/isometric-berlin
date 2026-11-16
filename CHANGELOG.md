@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.240
+
+- Add mapped paths, hedges and low vegetation to large Berlin allotment gardens in Drawn and Native modes.
+- Use the official garden boundaries to add missing sites without extending the city beyond the grounds themselves.
+- Load the extra details with nearby city tiles and preserve already modelled garden features.
+
 ## 1.0.239
 
 - Shorten the browser startup by skipping irrelevant geometry in the Humboldthafen openings and reducing repeated work in façade exposure and source checks.

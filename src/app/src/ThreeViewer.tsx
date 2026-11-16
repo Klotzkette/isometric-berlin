@@ -2142,6 +2142,7 @@ function startSurroundingCity(runtime: Runtime): void {
   const pending = loadStartupModuleV323(()=>import("./SurroundingCity"),yieldStartupWork,()=>runtime.disposed||runtime.loadSignal.aborted).then(({ createSurroundingCity }) => {
   if (runtime.disposed || runtime.loadSignal.aborted) return;
   const city = createSurroundingCity({
+    allotmentDetailsV360: true,
     groundFinishV348:true,
     riverFinishV348:(mesh,selector)=>(runtime.riverRipplesV348??=createWaterRipplesV348()).bind(mesh,selector),
     manifestUrl: new URL("../surrounding-berlin-v159/manifest.json", runtime.sceneRootUrl),
@@ -4598,6 +4599,32 @@ function prepareDistrictPathTerrain(
   };
 }
 
+function attachCoreAllotmentsV360(runtime: Runtime, world: Group, ground: VoxelPayload, native: boolean): void {
+  const active = () => !runtime.disposed && !runtime.loadSignal.aborted && !runtime.contextLost &&
+    (native ? runtime.voxelWorld === world : runtime.isoWorld === world);
+  void (async () => {
+    await yieldStartupPaintV309(runtime.loadSignal);
+    if (!active()) return;
+    const { loadCoreAllotmentsV360 } = await import("./CoreAllotmentDetailsV360");
+    const build = await loadCoreAllotmentsV360(runtime.loadSignal);
+    if (!active()) return;
+    const slabs = world.getObjectByName(native ? "Voxel ground runs" : "Drawn ground slabs");
+    const details = await completeCooperatively(
+      build(ground, slabs instanceof InstancedMesh ? slabs : undefined, native),
+      { yieldTask: yieldStartupWork, isCancelled: () => !active() },
+    );
+    if (!active()) {
+      disposeObject3D(runtime, details);
+      return;
+    }
+    world.add(details);
+    if (!native) setIsoNightPresentation(details, runtime.lightingMode === "night", runtime.nightLightsOn, runtime.lightingMode);
+    invalidateScenePresentation(runtime);
+  })().catch((error: unknown) => {
+    if (active()) console.warn("Mapped allotment detail could not be loaded:", error);
+  });
+}
+
 function ensureIsoWorld(
   runtime: Runtime,
   warn: (message: string) => void,
@@ -5475,6 +5502,7 @@ function ensureIsoWorld(
       // A consumer callback must never turn a ready world into a rollback.
       try {
         notifyPresentationReadyWhenPossible(runtime);
+        if (ground) attachCoreAllotmentsV360(runtime, isoWorld, ground, false);
       } catch (error: unknown) {
         if (import.meta.env.DEV) {
           console.error("Failed to notify drawn-world readiness", error);
@@ -6003,6 +6031,7 @@ function ensureVoxelWorld(
       // A Minecraft-only visit never renders the smooth park layer. Day's
       // successful loader calls the same idempotent hook later, so cold voxel
       // starts must not download/build a large group merely to hide it.
+      const completedNativeWorld = provisionalVoxelWorld;
       provisionalGovernmentNativeV321=null;
       provisionalVoxelWorld = null;
       provisionalBridges = null;
@@ -6014,6 +6043,7 @@ function ensureVoxelWorld(
       // As above, readiness is the final, non-transactional publication step.
       try {
         notifyPresentationReadyWhenPossible(runtime);
+        attachCoreAllotmentsV360(runtime, completedNativeWorld, payload, true);
       } catch (error: unknown) {
         if (import.meta.env.DEV) {
           console.error("Failed to notify voxel-world readiness", error);

@@ -1,0 +1,301 @@
+{
+  "release": "1.0.240",
+  "worldProjection": {
+    "crs": "EPSG:25833",
+    "originEasting": 389500,
+    "originNorthing": 5820000,
+    "north": "negative Z"
+  },
+  "inventoryCount": 868,
+  "largeFacilityCount": 617,
+  "minimumAreaM2": 10000,
+  "facilitiesWithDocumentedPaths": 609,
+  "noDocumentedInteriorPath": [
+    {
+      "id": "04064",
+      "name": "Spreegrund Süd - KGA"
+    },
+    {
+      "id": "04072",
+      "name": "Waldschulallee - KGA"
+    },
+    {
+      "id": "06205",
+      "name": "Leonorenstraße"
+    },
+    {
+      "id": "07040",
+      "name": "Morgenrot"
+    },
+    {
+      "id": "07085",
+      "name": "Vorarlberg"
+    },
+    {
+      "id": "09128",
+      "name": "Mühlenfließ KGA"
+    },
+    {
+      "id": "09132",
+      "name": "Neu Venedig KGA"
+    },
+    {
+      "id": "12002",
+      "name": "Am Erlengrabenteich"
+    }
+  ],
+  "inputs": {
+    "inventory-osm.json.gz": {
+      "decodedSha256": "d8df3d115048b3dd13b988766e9e2c7f09026300ee5b552f04ff46e665da9909",
+      "gzipSha256": "f8dbd5429ae47c6d6be2cff1af4adb305d46eaddf52161f1dbc51c16a8cee928"
+    },
+    "orthophoto-paths.json.gz": {
+      "decodedSha256": "1375853a78a61fc2563764b693956e29a80bf05052f2e88d0ff4655f3c0d74a3",
+      "gzipSha256": "12d2aea74656e92f47487e47659ba5b15bbc4894ac35d98478c948314f3604a3"
+    },
+    "official-details.json.gz": {
+      "decodedSha256": "798f6429f97cbc68ef89533491fe8d70f546d85ed63d0fb92d4db8ee589cadd6",
+      "gzipSha256": "8a7bec65ca7a1d07c787df97bfc5113454fed3ff81e2a64df398292018671fbb"
+    },
+    "vegetation-2020.json.gz": {
+      "decodedSha256": "2552a009cc25195ef156f240c3b5a7f80c0b4cb5fef5c8b961da63dfb96dda04",
+      "gzipSha256": "46f74db30afd82daed24d447fc4c98989cb3175233a89305458e7a01376f7748"
+    }
+  },
+  "inventoryAndOsm": {
+    "sites": {
+      "dataset": "https://daten.berlin.de/datensaetze/kleingartenbestand-berlin-wfs-350d69ef",
+      "endpoint": "https://gdi.berlin.de/services/wfs/kleingarten?service=WFS&version=2.0.0&request=GetFeature&typeNames=kleingarten%3Akleingarten&outputFormat=application%2Fjson&srsName=EPSG%3A25833",
+      "sha256": "c5f8fbca402528d6227ff52d666eaf7dbf0449bd8c6467ac85c1c62d5d4ae169",
+      "license": "dl-de-zero-2.0"
+    },
+    "osm": {
+      "dataset": "https://download.geofabrik.de/europe/germany/berlin.html",
+      "license": "ODbL 1.0",
+      "attribution": "© OpenStreetMap contributors",
+      "sha256": "228890fba84d33cf51231a08425cc58683fe327b9cbe1e7a746fa1c4a1360e50",
+      "dataDate": "Sat, 14 Nov 2026 01:32:37 GMT"
+    }
+  },
+  "orthophotos": {
+    "photo": {
+      "label": "Geoportal Berlin / Digitale farbige TrueOrthophotos 2026",
+      "catalog": "https://daten.berlin.de/datensaetze/digitale-farbige-trueorthophotos-2026-dop20rgbi-wms-3801a94c",
+      "service": "https://gdi.berlin.de/services/wms/truedop_2026",
+      "method": "Manual centerline digitization of discernible shared access lanes. Estimated widths.",
+      "evidence": [
+        {
+          "site": "12005",
+          "name": "Am Rathaus Wittenau",
+          "map": "https://gdi.berlin.de/services/wms/truedop_2026?VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&LAYERS=truedop_2026&STYLES=&SRS=EPSG%3A25833&BBOX=386017.9900%2C5827634.8150%2C386403.9900%2C5828020.8150&WIDTH=680&HEIGHT=680&FORMAT=image%2Fpng",
+          "sha256": "0a9f209062cff353ee0f2aeb6c903840ee623c70126e2d8b0c36c0ff457314ce",
+          "worldBBox": [
+            -3482.01,
+            -8020.815,
+            -3096.01,
+            -7634.815
+          ],
+          "size": [
+            680,
+            680
+          ]
+        },
+        {
+          "site": "12062",
+          "name": "Steintal",
+          "map": "https://gdi.berlin.de/services/wms/truedop_2026?VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&LAYERS=truedop_2026&STYLES=&SRS=EPSG%3A25833&BBOX=387226.6700%2C5829708.0400%2C387452.6700%2C5829934.0400&WIDTH=680&HEIGHT=680&FORMAT=image%2Fpng",
+          "sha256": "5e460c68cad013521532aec7b47c27f49a7662b25eb8249eb6acb3365311ed53",
+          "worldBBox": [
+            -2273.33,
+            -9934.04,
+            -2047.33,
+            -9708.04
+          ],
+          "size": [
+            680,
+            680
+          ]
+        }
+      ],
+      "license": "dl-de-zero-2.0"
+    }
+  },
+  "detailSources": {
+    "scope": "Grouped official anlagennummer; sum of flaechengroesse ≥10000 m²",
+    "inventory": "https://daten.berlin.de/datensaetze/kleingartenbestand-berlin-wfs-350d69ef",
+    "sourceProjection": "EPSG:25833",
+    "sceneProjection": {
+      "originEast": 389500,
+      "originNorth": 5820000,
+      "northDirection": "negative Z"
+    },
+    "geometryStatus": "Clipped municipal footway axes, hedge edges/axes, and mapped woody vegetation polygon footprints",
+    "heightStatus": "Nominal model dimensions. No official path widths or plant heights asserted. BRV is a width class.",
+    "sources": {
+      "atkis:b05_ax_wegpfadsteig_l": {
+        "catalogue": "https://daten.berlin.de/datensaetze/atkis-basis-dlm-prasentationsdienst-wfs-d4316e05",
+        "service": "https://gdi.berlin.de/services/wfs/atkis",
+        "typeName": "atkis:b05_ax_wegpfadsteig_l",
+        "license": "dl-de-zero-2.0",
+        "downloadRecords": 25372,
+        "downloadGzipSHA256": "5eeaf0b6c4c8c01a70cc1e682f4927bd17cb0423d7d178c5316643ac8e775961"
+      },
+      "atkis:b09_ax_fahrwegachse_l": {
+        "catalogue": "https://daten.berlin.de/datensaetze/atkis-basis-dlm-prasentationsdienst-wfs-d4316e05",
+        "service": "https://gdi.berlin.de/services/wfs/atkis",
+        "typeName": "atkis:b09_ax_fahrwegachse_l",
+        "license": "dl-de-zero-2.0",
+        "downloadRecords": 7528,
+        "downloadGzipSHA256": "4920ebba5ec4ad58b2a641875d3f815c305d4692cc73c87414fa4df0850a8b36"
+      },
+      "alkis:gewaesservegetationlinien": {
+        "catalogue": "https://daten.berlin.de/datensaetze/alkis-berlin-amtliches-liegenschaftskatasterinformationssystem-wfs-66e083ae",
+        "service": "https://gdi.berlin.de/services/wfs/alkis",
+        "typeName": "alkis:gewaesservegetationlinien",
+        "license": "dl-de-zero-2.0",
+        "downloadRecords": 2366,
+        "downloadGzipSHA256": "524cff59e0c3df491cca610d5359cccc79321bdc4cd8d4e357c9470aaf9167d4"
+      },
+      "atkis:c24_ax_vegetationsmerkmal_f": {
+        "catalogue": "https://daten.berlin.de/datensaetze/atkis-basis-dlm-prasentationsdienst-wfs-d4316e05",
+        "service": "https://gdi.berlin.de/services/wfs/atkis",
+        "typeName": "atkis:c24_ax_vegetationsmerkmal_f",
+        "license": "dl-de-zero-2.0",
+        "downloadRecords": 3989,
+        "downloadGzipSHA256": "61668f5d1d2408d22e3170cf16debd9f4b05cf841d342b5c267d9b9c6a97b1a9"
+      },
+      "atkis:c35_ax_gehoelz_f": {
+        "catalogue": "https://daten.berlin.de/datensaetze/atkis-basis-dlm-prasentationsdienst-wfs-d4316e05",
+        "service": "https://gdi.berlin.de/services/wfs/atkis",
+        "typeName": "atkis:c35_ax_gehoelz_f",
+        "license": "dl-de-zero-2.0",
+        "downloadRecords": 658,
+        "downloadGzipSHA256": "b0210b9289d77cab19c25b09b85a7aaac3979755229e0c50cc3a258a3d17aeb8"
+      },
+      "alkis:gewaesservegetationflaechen": {
+        "catalogue": "https://daten.berlin.de/datensaetze/alkis-berlin-amtliches-liegenschaftskatasterinformationssystem-wfs-66e083ae",
+        "service": "https://gdi.berlin.de/services/wfs/alkis",
+        "typeName": "alkis:gewaesservegetationflaechen",
+        "license": "dl-de-zero-2.0",
+        "downloadRecords": 12532,
+        "downloadGzipSHA256": "eeda57c3eb573aebf66023bea6cad39b9493ec20338674f5af0f715a4ead54c1"
+      }
+    },
+    "breakdown": {
+      "b05_ax_wegpfadsteig_l": {
+        "sites": 62,
+        "parts": 139,
+        "classes": {
+          "Fußweg": 120,
+          "Rad- und Fußweg": 19
+        }
+      },
+      "b09_ax_fahrwegachse_l": {
+        "sites": 15,
+        "parts": 43,
+        "classes": {
+          "Wirtschaftsweg": 29,
+          "Hauptwirtschaftsweg": 14
+        }
+      },
+      "gewaesservegetationlinien": {
+        "sites": 47,
+        "parts": 569,
+        "classes": {
+          "Heckenkante, rechts": 509,
+          "Heckenkante, links": 6,
+          "Heckenmitte": 54
+        }
+      },
+      "c24_ax_vegetationsmerkmal_f": {
+        "sites": 89,
+        "parts": 268,
+        "classes": {
+          "Gehölz": 259,
+          "Gebüsch": 9
+        }
+      },
+      "c35_ax_gehoelz_f": {
+        "sites": 37,
+        "parts": 72,
+        "classes": {
+          "Gehölz": 72
+        }
+      },
+      "gewaesservegetationflaechen": {
+        "sites": 0,
+        "parts": 0,
+        "classes": {}
+      }
+    },
+    "siteCount": 617,
+    "coverage": {
+      "paths": {
+        "parts": 182,
+        "sites": 75
+      },
+      "hedges": {
+        "parts": 569,
+        "sites": 47
+      },
+      "shrubs": {
+        "parts": 340,
+        "sites": 120
+      }
+    },
+    "extractDate": "2026-11-16"
+  },
+  "vegetationHeightSource": {
+    "source": "Berlin Umweltatlas: Vegetationshöhen 2020",
+    "dataset": "https://daten.berlin.de/datensaetze/vegetationshohen-2020-umweltatlas-b3a1d6a1",
+    "download": "https://gdi.berlin.de/data/ua_vegetationshoehen_2020/atom/veghoehe_2020.zip",
+    "method": "https://www.berlin.de/umweltatlas/biotope/vegetationshoehen/2020/methode/",
+    "sourceArchiveSha256": "1da27786951e2b85501c747aa5385bb88f61f9fae1480e17ac6573058c4645dc",
+    "license": "dl-de-zero-2.0",
+    "sourceProjection": "EPSG:25833",
+    "sourceResolutionMeters": 1,
+    "sourceImageryYear": 2020,
+    "sourceHeightUnit": "decimetre",
+    "heightUnitsBasis": "DN 1 equals the report’s stated minimum 0.1 m. Cross-checked against official block-level mean heights.",
+    "excludedMappedVegetation": [
+      "OSM and ALKIS hedges",
+      "OSM scrub and official Gebüsch"
+    ],
+    "clipSites": 617,
+    "representedSites": 617,
+    "heightRangeMeters": [
+      1.0,
+      2.8
+    ],
+    "minimumContiguousRasterAreaM2": 8,
+    "geometryStatus": "Footprints of observed elevated vegetation; species and hedge status unclassified.",
+    "heightStatus": "Mean above-ground surface height of selected 1m source cells, rounded to 0.2 m.",
+    "counts": {
+      "shrubs": 4936
+    },
+    "rawCandidateCount": 146124,
+    "selection": "Up to 8 prominent observed patches per site distributed on a 31 m grid. Candidate patches up to 88 m² preferred; larger outlines used only as fallback. Generalized by 0.92 m and clipped inside the official boundary. Footprint holes under 5 m² omitted."
+  },
+  "delivered": {
+    "inputFeatures": 13311,
+    "tiles": {
+      "drawn": 191,
+      "minecraft": 195
+    },
+    "exteriorTiles": 699,
+    "exteriorAreaM2": 22419145.4,
+    "coreDecodedBytes": 365641,
+    "coreCompressedBytes": 72635,
+    "packets": 113,
+    "totalCompressedBytes": 2723923,
+    "splitExteriorFacilities": 515,
+    "nativeSubcellExteriorFringes": [
+      "allotment360-19_7",
+      "allotment360-3_13",
+      "allotment360-21_16",
+      "allotment360-21_17"
+    ],
+    "nativeSubcellExteriorFringesTotalAreaM2": 9.46,
+    "indexChecksumSha256": "09c5cf38178a4503e2ab4f822693a870ed7375b46244ebf57f0f10f7684519d9"
+  }
+}

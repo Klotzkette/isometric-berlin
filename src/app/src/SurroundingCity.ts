@@ -7,6 +7,9 @@ import {northEastPublicSiteGroundAtV326,northEastPublicSiteWaterAtV326,northEast
 import { disposeSurroundingCityRoot } from "./disposeSurroundingCityRootV323";
 import { westKiezPacketCandidateV302 } from "./NeighbourhoodFidelityV300";
 import { fetchSurroundingTransport, SURROUNDING_TRANSPORT_IDLE_MS } from "./surroundingTransport";
+import {
+  allotmentExteriorTilesV360, createAllotmentExteriorChunkV360, hasAllotmentDetailPlanV360, loadAllotmentDetailPlanV360,
+} from "./AllotmentDetailsV360";
 import { restoreSurroundingPacketDelta } from "./SurroundingPacketDelta";
 import { prepareTierparkV276 } from "./TierparkV276";
 import { createZooAnimalsV282, type ZooAnimalHandleV282 } from './ZooAnimalsV282';
@@ -71,6 +74,11 @@ export type SurroundingCityManifest = {
   groundY: number;
   gardenFootprintStartV330?: number;
 };
+const EXTERIOR_ALLOTMENT_ASSET: Asset = { url: "", bytes: 0 };
+const allotmentExteriorDescriptorsV360: SurroundingChunkDescriptor[] = allotmentExteriorTilesV360.map(tile => ({
+  ...tile, drawn: EXTERIOR_ALLOTMENT_ASSET, minecraft: EXTERIOR_ALLOTMENT_ASSET,
+}));
+const exteriorDescriptorsV360 = new WeakSet(allotmentExteriorDescriptorsV360);
 type Resident = SurroundingChunkGeometry & { descriptor: SurroundingChunkDescriptor; lastWanted: number; southOwnersReadyV294: boolean; littenReadyV297:boolean; wallReadyV298:boolean;westReadyV302:boolean;neukoellnReadyV305:boolean;northCandidateV309:boolean;northReadyV309:boolean;treptowCandidateV317:boolean;treptowReadyV317:boolean;governmentCandidateV321:boolean;governmentReadyV321:boolean;universitiesCandidateV322:boolean;universitiesReadyV322:boolean;wilhelmCandidateV324:boolean;wilhelmReadyV324:boolean;wilhelmStreetCandidateV325:boolean;wilhelmStreetReadyV325:boolean;southwestCandidateV326:boolean;southwestReadyV326:boolean };
 export type SurroundingNavigationTile = {
   origin: readonly [number, number, number];
@@ -78,6 +86,7 @@ export type SurroundingNavigationTile = {
   nav: SurroundingNavigation;
 };
 export type SurroundingCityOptions = {
+  allotmentDetailsV360?: boolean;
   groundFinishV348?: boolean;
   riverFinishV348?: SurroundingOwnershipOptions["riverFinishV348"];
   /** Enable only after required Schlossplatz bodies belong to the active city. */
@@ -603,7 +612,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     const minecraft = mode === "minecraft";
     for (const descriptor of queue) {
       if (prefetches.size >= SURROUNDING_CITY_PREFETCH_COUNT) break;
-      if (descriptor.id === active?.id || residents.has(descriptor.id) || prefetches.has(descriptor.id) ||
+      if (exteriorDescriptorsV360.has(descriptor) || descriptor.id === active?.id || residents.has(descriptor.id) || prefetches.has(descriptor.id) ||
           (previousDesired && !previousDesired.has(descriptor.id)) ||
           !desired.has(descriptor.id) || now() - (failedAt.get(descriptor.id) ?? -Infinity) < 30_000) continue;
       const asset = minecraft ? descriptor.minecraft : descriptor.drawn;
@@ -628,20 +637,37 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
         if (now() - (failedAt.get(descriptor.id) ?? -Infinity) < 30_000) continue;
         const familyRevision = revision;
         const minecraft = mode === "minecraft";
+        const allotmentExterior = exteriorDescriptorsV360.has(descriptor);
         const asset = minecraft ? descriptor.minecraft : descriptor.drawn;
         const prefetched = takePrefetch(descriptor.id);
         const task = prefetched?.controller ?? new AbortController();
         active = { id: descriptor.id, controller: task };
         let unpublished: Group | null = null;
         try {
-          const loading = prefetched ? consumePrefetch(prefetched, task.signal, asset)
+          const loading = allotmentExterior ? Promise.resolve(undefined) : prefetched ? consumePrefetch(prefetched, task.signal, asset)
             : fetchJsonBounded(fetcher, surroundingPacketUrl(descriptor, minecraft, options.manifestUrl), task.signal, asset.bytes + 64, asset, transportIdleMs);
-          const recipes=options.sourceQuartersV303===true&&options.loadSourceQuarterSourcesV309
+          const recipes=!allotmentExterior&&options.sourceQuartersV303===true&&options.loadSourceQuarterSourcesV309
             ?Promise.resolve().then(()=>options.loadSourceQuarterSourcesV309!(descriptor.id,minecraft))
             :Promise.resolve(options.sourceQuarterSourcesV303);
           fillPrefetches();
           const [data,sourceQuarterSourcesV303] = await awaitPacketAndRecipesV309(loading,recipes,task.signal);
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) continue;
+          // Reuse the foreground slot once the ordinary tile has finished transferring.
+          const hasAllotmentPlan = options.allotmentDetailsV360 === true && !descriptor.detailCompanionOf &&
+            hasAllotmentDetailPlanV360(descriptor.id) &&
+            descriptor.id !== "3_-3" && descriptor.id !== "4_-3" &&
+            (options.publicSitesV326 !== true || ubahnCandidatesV326(descriptor.bounds).length === 0);
+          const allotmentDetailsV360 = allotmentExterior || hasAllotmentPlan
+            ? await loadAllotmentDetailPlanV360(descriptor.id, minecraft, task.signal, fetcher, transportIdleMs).catch(error => {
+              if (allotmentExterior) throw error;
+              return undefined;
+            })
+            : undefined;
+          if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) continue;
+          const packet = allotmentExterior
+            ? await finishV326(createAllotmentExteriorChunkV360(allotmentDetailsV360, descriptor.bounds, minecraft), task.signal)
+            : data as SurroundingCityChunk;
+          if (!packet) throw Error("Invalid exterior allotment tile");
           const littenReadyV297=options.littenStadthausV297?.(minecraft)===true,wallReadyV298=options.wallGalleryV298?.(minecraft)===true;
           const wilhelmCandidateV324=sourceQuarterSourcesV303?.some(entry=>entry.admission==="wilhelm-v324")===true;
           const wilhelmReadyV324=wilhelmCandidateV324&&options.wilhelmHousingV324?.(minecraft)===true;
@@ -677,11 +703,11 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
             !sourceQuarterSourcesV303?.some(({kind}) => groundOverlayKindsV329.has(kind)) ||
             ubahnCandidatesV326(descriptor.bounds).length === 0;
           const entry = await createStreamedSurroundingCityChunkV255(
-            data as SurroundingCityChunk, descriptor.id, minecraft, { signal: task.signal },
-            { groundFinishV348:options.groundFinishV348, riverFinishV348:options.riverFinishV348, operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,clusterFacadesV320:options.clusterFacadesV320,berlinSenateV321:options.berlinSenateV321,governmentOfficesV321:governmentReadyV321,universitiesV322:universitiesReadyV322,wilhelmHousingV324:wilhelmReadyV324,wilhelmStreetFrontsV325:wilhelmStreetReadyV325,southWestSitesV326:southwestReadyV326,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,groundOverlaysV329,transportDetailsV334:options.transportDetailsV334,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317 },
+            packet, descriptor.id, minecraft, { signal: task.signal },
+            { groundFinishV348:options.groundFinishV348, riverFinishV348:options.riverFinishV348, operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,clusterFacadesV320:options.clusterFacadesV320,berlinSenateV321:options.berlinSenateV321,governmentOfficesV321:governmentReadyV321,universitiesV322:universitiesReadyV322,wilhelmHousingV324:wilhelmReadyV324,wilhelmStreetFrontsV325:wilhelmStreetReadyV325,southWestSitesV326:southwestReadyV326,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,groundOverlaysV329,transportDetailsV334:options.transportDetailsV334,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317,allotmentDetailsV360 },
           );
           unpublished = entry.root;
-          if(options.publicSitesV326===true&&!descriptor.detailCompanionOf&&!entry.gardenTerrainV330){
+          if(options.publicSitesV326===true&&!allotmentExterior&&!descriptor.detailCompanionOf&&!entry.gardenTerrainV330){
             const originalHostsV326=entry.root.children.filter((o):o is Mesh=>o instanceof Mesh);
             const access=await finishV326(attachPacketUbahnAccessV326Steps(entry,minecraft,hasUbahnGroundApproachSourceV326(descriptor.id,minecraft,descriptor[minecraft?"minecraft":"drawn"])?(x,z)=>ubahnGroundApproachAtV326(x,z,minecraft):undefined,hasUbahnGroundApproachSourceV326(descriptor.id,minecraft,descriptor[minecraft?"minecraft":"drawn"])),task.signal);
             if(access){publicAccessV326.set(entry.root,access);entry.geometryBytes+=access.geometryBytes;entry.bufferCount+=access.bufferCount;}
@@ -828,7 +854,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       const b = descriptor.bounds;
       // The source extractor accepts building heights through 400 m. The
       // selection box must include their complete tops as well as ground.
-      box.min.set(b[0], -12, b[1]); box.max.set(b[2], 410, b[3]);
+      box.min.set(b[0], -12, b[1]); box.max.set(b[2], exteriorDescriptorsV360.has(descriptor) ? 7 : 410, b[3]);
       const near = distanceSquared(b, cameraPosition.x, cameraPosition.z) < 180 ** 2;
       if (!near && !frustum.intersectsBox(box)) continue;
       desired.add(descriptor.id);
@@ -887,7 +913,13 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       manifestAttempt = task;
       try {
         const value = await fetchJsonBounded(fetcher, options.manifestUrl, task.signal, SURROUNDING_CITY_MAX_HOSTED_MANIFEST_BYTES, undefined, transportIdleMs);
-        if (!disposed) { manifest = validateSurroundingManifest(value); refresh(); }
+        if (!disposed) {
+          const source = validateSurroundingManifest(value);
+          manifest = options.allotmentDetailsV360 === true && allotmentExteriorDescriptorsV360.length
+            ? { ...source, chunks: [...source.chunks, ...allotmentExteriorDescriptorsV360] }
+            : source;
+          refresh();
+        }
         return;
       } catch (error) {
         if (disposed || controller.signal.aborted) return;
@@ -945,6 +977,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     },
     gardenGroundAtV330(x, z) {
       const entry = at(x, z);
+      if (entry && exteriorDescriptorsV360.has(entry.descriptor)) return entry.nav.groundY;
       if (!entry?.gardenTerrainV330) return null;
       const lx = x - entry.origin[0], lz = z - entry.origin[2];
       if (!entry.nav.ground.some(p => surroundingPolygonContains(p, lx, lz))) return null;
@@ -953,6 +986,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     },
     groundAt(x, z) {
       const entry = at(x, z);
+      if (entry && exteriorDescriptorsV360.has(entry.descriptor)) return entry.nav.groundY;
       if (entry?.descriptor.id === "outer187--19_20") {
         const villageFloor = dueppelVillageFloorV354(entry.root.userData.sourceQuarterOwnersV303, x, z, mode === "minecraft");
         if (villageFloor !== null) return villageFloor;
