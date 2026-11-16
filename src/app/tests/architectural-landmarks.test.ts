@@ -17,7 +17,6 @@ import {
   type ReichstagModelSignature,
   createArchitecturalSignature,
   focusCameraForSignature,
-  HAUPTBAHNHOF_DB_PYLON_PROFILE,
   REICHSTAG_COURTYARDS,
   REICHSTAG_COURTYARD_DEPTH_M,
   REICHSTAG_FLAG_HEIGHT_M,
@@ -331,10 +330,9 @@ describe("metre-scale architectural recognition models", () => {
     expect(bounds.max.x - bounds.min.x).toBeGreaterThanOrEqual(321);
     expect(bounds.max.z - bounds.min.z).toBeGreaterThanOrEqual(180);
     expect(bounds.max.y).toBeGreaterThanOrEqual(46);
-    expect(bounds.max.y).toBeCloseTo(
-      HAUPTBAHNHOF_DB_PYLON_PROFILE.heightM + 2.55,
-      3,
-    );
+    // The 60 m south ventilation tower is a separate retained source owner.
+    // The station must not create the former north-side 62.55 m copy.
+    expect(bounds.max.y).toBeLessThan(60);
     const officeBridges = station!.children.filter(
       (child) => child.name === "Hauptbahnhof 46 m office bridge",
     );

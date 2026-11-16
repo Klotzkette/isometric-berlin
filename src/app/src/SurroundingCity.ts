@@ -23,6 +23,7 @@ import {
 import type { VisualMode } from "./visualMode";
 import { freezeStaticSceneTransform } from "./staticSceneTransforms";
 import { terrainGroundAt } from "./weinbergTerrainV176";
+import { dueppelVillageFloorV354 } from "./MuseumsSouthwestV354";
 import { spreeBridgeFloorAtV242, spreeBridgeSolidAtV242 } from "./SpreeBridgesV242";
 import { prepareTierparkV255 } from "./TierparkV255";
 import { annotatePlaygroundPacketV255 } from "./playgroundsV255";
@@ -909,6 +910,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       // Additive scopes can share a tile rectangle while owning disjoint land.
       // A retained partial tile must not mask the new tile's ground or water.
       const lx = x - entry.origin[0], lz = z - entry.origin[2];
+      if (entry.descriptor.id === "outer187--19_20" && dueppelVillageFloorV354(entry.root.userData.sourceQuarterOwnersV303, x, z, mode === "minecraft") !== null) return entry;
       if (entry.nav.ground.some(p => surroundingPolygonContains(p, lx, lz)) || entry.nav.water.some(p=>surroundingPolygonContains(p,lx,lz))) return entry;
     }
     return undefined;
@@ -951,6 +953,10 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     },
     groundAt(x, z) {
       const entry = at(x, z);
+      if (entry?.descriptor.id === "outer187--19_20") {
+        const villageFloor = dueppelVillageFloorV354(entry.root.userData.sourceQuarterOwnersV303, x, z, mode === "minecraft");
+        if (villageFloor !== null) return villageFloor;
+      }
       // A resident tile already verified exact source-ground membership. Avoid
       // walking the full larger city's shoreline inventory for every step.
       if (!entry) {

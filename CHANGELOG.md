@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.234
+
+- Remove the erroneous northern DB-tower duplicate at Europaplatz; retain the measured Washingtonplatz tower and its source-bound DB signs.
+- Correct Paris–Moskau's north-facing loggia and documented timber/brick architecture; replace false grass only on evidenced paved Hauptbahnhof forecourt owners.
+- Refine Museumsdorf Düppel with three source-mapped huts, reed and timber materials, and an open palisade entrance; retain measured Brücke-Museum and Kunsthaus buildings and add supported café furniture.
+- Add bounded path, tree and former-rail details through the southern railway parks, the red Südgelände water tower and its mapped turntable.
+- Refine selected documented fronts on Rote Insel, Yorckstraße and Hohenzollerndamm; retain original building bodies, roofs, courtyards and navigation.
+- Replace exact coarse Fischerhütte and Paulsborn owners with measured complete roofs and walls; retain the existing Grunewald lake rings, holes and terrain.
+- Preserve all six views, full mobile detail, the 93-place tour and live budgets; offset publication storage with identical-content gzip representations.
+
 ## 1.0.230
 
 - Adds source-matched primary-school, childcare and pharmacy recognition across Berlin, with explicit inventory dates and unresolved-location accounting.

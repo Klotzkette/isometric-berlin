@@ -1,3 +1,4 @@
+import { hbfSouthTowerNativeBadgesV354 } from "./HbfSouthTowerV354";
 import { CHANCELLERY_ENTRANCE_PROFILE, CHANCELLERY_LAWN_RINGS, chancelleryFenceLimits, chancelleryLawnContains } from "./ChancelleryEntranceProfile";
 import { chillidaNativeRowsV281, chillidaNativeLawnV281 } from "./ChancelleryForecourtV281";
 import {
@@ -1671,6 +1672,10 @@ function createHauptbahnhofBlocks(
           group.rotationY - radians);
       }
     }
+  }
+  for (const badge of hbfSouthTowerNativeBadgesV354()) {
+    pushBlock(opened, "Washingtonplatz retained south tower DB badge v354", badge.position, badge.size,
+      badge.red ? BLOCK.red : BLOCK.marbleLight);
   }
   return finishPlan(
     "Minecraft Berlin Hauptbahnhof block signature",

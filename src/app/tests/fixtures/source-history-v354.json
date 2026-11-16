@@ -1,0 +1,63 @@
+{
+  "additions": {
+    "src/app/src/GrunewaldVenuesV354.ts": "f2065019d117b57cde7cc6183bb017b5bd60cd74b4577a4f4d2a4616d1d920fa",
+    "src/app/src/HbfForecourtFinishV354.ts": "364e011b8f569122e800f836c52e7ccf294a4613e98a04ae2cedd1b4b2e491ef",
+    "src/app/src/HbfSouthTowerV354.ts": "a9077ee387b294fa80ac28bfe78a315dd0807b43e946cc1cd8d629cf61eb1fa9",
+    "src/app/src/MuseumsSouthwestV354.ts": "eef054899f32d250af2798429c8996356097764b471c0e29860f7069545a2095",
+    "src/app/src/ParisMoskauV354.ts": "71c3f3e843e07a4a5727d872c1b5b1bd4f7c313950636ef00c25b412e69f686a",
+    "src/app/src/RailwayParksV354.ts": "f2dc1a9420cacf337aa933bf7b51b3df93a203ae68f26f20387f979a31f87433",
+    "src/app/src/RoteInselCorridorsV354.ts": "bba66258ef14851001d33836c097c89ad92baab31b23b0fe86b9ab8819fe6ed0",
+    "src/app/src/data/grunewaldVenuesV354Index.json": "eefbb75b85380cad590bec7a28d5f27ff11ebfebf29fb8698c0e00602238cd06",
+    "src/app/src/data/hbfForecourtFinishV354.json": "f4256f2b534ef6e763a616337667b51c7044afe580b5996cb05631c716ef0d8e",
+    "src/app/src/data/museumsSouthwestV354Index.json": "cc89ceb01ebe2440f2e2bf25a9e691a36616df9504b54f351de1b15a079a2676",
+    "src/app/src/data/parisMoskauV354.json": "b350e0aef1e1985846b748bfbd1c28e172ece2d1533545b333155a546333c2b0",
+    "src/app/src/data/railwayParksV354Index.json": "c3f517cea9e64b76b37fc9a6a96adcb0b34692e4980848d2c9bb6b0f18b76f2b",
+    "src/app/src/data/roteInselCorridorsV354Index.json": "4bd100f22a27a6e118fc17b82a9b9299ed1788cc870636340058c53cd1c83428"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "8971099aae61c67a7218bb7d45d2d97ae08a72ad172dfdd855960ebd98ce4e02",
+      "after": "d94004bc323920ed811a4c869e47ae623284846ce8691603a322cc1f92f0cc2a"
+    },
+    "src/app/src/ArchitecturalLandmarks.ts": {
+      "before": "12d1516da24fbda144c27753706ffca40ae2ef04096d324e0f42fc85cb628bb9",
+      "after": "2f6ac44a35eec1b7f12a6a0f1b389e550912f8ed3c2cfcb8f2c5c37ae9f29a07"
+    },
+    "src/app/src/CityRecognitionRefinements.ts": {
+      "before": "184bbe1d0c8fea7c6da6e1c9a8b50fc23207955fca5ae87d25f12475263aa320",
+      "after": "d0e520b4ba3903ac3e141759f1267ae3f72bf77d5e3ff1391352b89d1df75aa4"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "c2a6533d28da445303b9bd96a79f77cb89f6d5eef45c6388d6c3fe02573ea29b",
+      "after": "62ccbdc019395e18cb85011d826f74ba4a309f759e92c22676752cc20671a165"
+    },
+    "src/app/src/MinecraftArchitecturalLandmarks.ts": {
+      "before": "0409e9ced025b55c0e220a6270921b5a05e875d0b91176c879d8f509a1671537",
+      "after": "cd3b8afa9a719909cdf3c4f0d6e99c9b49c1719a24a6b1cc740bd9cac4e93945"
+    },
+    "src/app/src/MinecraftVoxelWorld.ts": {
+      "before": "775982d79e39d04b9f14158a34909d069fccae1b4ba9800d661bcbb03acfe4d9",
+      "after": "ce28d93321e5d98220d33a40f7f4da5c4fd49e70cdd87da2b87a0518b8b4ff60"
+    },
+    "src/app/src/SourceQuarterCatalogueV309.ts": {
+      "before": "a089088812d03b70da3a69ead6a2ef5c900ec19e6da31809b0696f831e15e66b",
+      "after": "b4d471ca0fb48247364bf1a5f0898371bfddb06f2ffe66a569d54d6e08e2b009"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "before": "ee5970caace8bb908f2c70d13767cccf3248b6845b2f9f451ef32b0e8eb9a2c3",
+      "after": "a7068a629c00f8bc1972ecf75349e2da56413f07c5663149c56db0462b481f2b"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "597aa602e741a3e7721a81fad4eba49cb562e7e056784603640944d3122aa858",
+      "after": "006ee80e35c5a4832a6d077edf91819658bcece616eb43ff416652a01897e30e"
+    },
+    "src/app/src/progressiveWorld.ts": {
+      "before": "447ce797dd89d3e0068d5fc66bddab5c7dac0304a9913489997dc5de50605a8f",
+      "after": "d93d67fdce535907e5d28d7735b2402a137b66e6be118dc820fa9349f7ebf0bf"
+    },
+    "src/app/src/visual-modes/schwellenraum/materialGrade.ts": {
+      "before": "20de1c96dfe0384f17a7ced55a93b041e480427b6df9e7a73f4096ce0e0a8f51",
+      "after": "c98198fd84ebadf4445a3d4cdd5506a6549fe2061dd7103dbd380a97cce95254"
+    }
+  }
+}

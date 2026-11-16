@@ -17,6 +17,9 @@ import { HUMBOLDTHAFEN_BUILDING_IDS } from "./HumboldthafenBuildings";
 import { ECONOMIC_MINISTRY_IDS } from "./EconomicMinistryDetails";
 
 const REQUIRED_INITIAL_SOURCE_PARTS = new Set<string>([
+  // Complete main-thread Paris-Moskau replacement and guarded legacy fallback.
+  // One ordinary source moves into the unchanged Worker budget, none is lost.
+  "K0002Tlk",
   ...GROPIUS_BAU_PRISM_IDS,
   ...BUNDESRAT_IDS,
   ...ROHWEDDER_HAUS_IDS,

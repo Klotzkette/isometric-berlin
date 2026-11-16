@@ -1,3 +1,4 @@
+import { markHbfForecourtFinishV354 } from "./HbfForecourtFinishV354";
 import { markGroundFinishV348 } from "./GroundFinishV348";
 import { isPotsdamerNorthPavilionSource } from "./PotsdamerPavilionOwnership";
 import type { NordbahnhofDrawnCuts } from "./NordbahnhofPublicAccess";
@@ -185,6 +186,7 @@ import { ABGEORDNETENHAUS_PROFILE } from "./abgeordnetenhausProfile";
 import { GROPIUS_BAU_PRISM_TONES, GROPIUS_BAU_PRISM_ROOF_TONES } from "./gropiusBauProfile";
 import { hasPotsdamerUpperStoreys, POTSDAMER_UPPER_STOREYS, potsdamerPanoramaMaterialFor } from "./potsdamerPanoramaPalette";
 import { isAuguststrasseOldGableRimV270 } from "./AuguststrasseMuralV270Profile";
+import { prepareParisMoskauV354 } from './ParisMoskauV354';
 import {
   buildingAttributes,
   mappedGlazing,
@@ -11960,6 +11962,8 @@ export function* createIsometricCityCoreStepsV309(
   const mullionPositions: number[] = [];
   // Slender facade glazing axes: ink lines by day, warm strips by night.
   const buildings = options.buildings ?? prisms.buildings;
+  const parisMoskauV354 = prepareParisMoskauV354(buildings);
+  if (parisMoskauV354) group.add(parisMoskauV354.group);
   const ordinaryPanesV288: OrdinaryPaneV288[] = [];
   const exposedOrdinaryPaneV288 = ordinaryWindowExposureV288(prisms.buildings);
   const facadeAxisPositions = new Float32Accumulator(buildings.length * 180);
@@ -12125,6 +12129,7 @@ export function* createIsometricCityCoreStepsV309(
       onProgress?.({ phase: "buildings", completed: inspectedBuildings - 1, total: buildings.length });
       yield;
     }
+    if (parisMoskauV354?.replacesPrism(sourceBuilding)) continue;
     if (options.chancelleryCanopySourceV289 && isChancelleryCanopyOldPrismV289(sourceBuilding)) continue;
     if (options.moabitMitteV300 && isMoabitMitteV300OldCore(sourceBuilding)) continue;
     if (options.westKiezV302 && isWestKiezV302OldCore(sourceBuilding)) continue;
@@ -13403,6 +13408,7 @@ export function* createIsometricCityCoreStepsV309(
     slabs.userData.dayMaterial = new MeshBasicMaterial({ color: 0xffffff });
     slabs.material = slabs.userData.dayMaterial as MeshBasicMaterial;
     markGroundFinishV348(slabs, "core-drawn");
+    markHbfForecourtFinishV354(slabs);
     // Exact water must also own its boundary through the underlying raster land.
     // The clip keeps each existing run's paint/height and all authored exclusions.
     restoreJamesSimonGroundOwnership(slabs, ground);

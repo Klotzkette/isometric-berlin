@@ -1,3 +1,4 @@
+import { markHbfForecourtFinishV354 } from "./HbfForecourtFinishV354";
 import type { NordbahnhofNativeCuts } from "./NordbahnhofPublicAccess";
 import {createNativeStateRepresentationsV321} from "./StateRepresentationsV321";
 import {hasCompleteNeukoellnLandmarksV305} from "./NeukoellnLandmarksV305";
@@ -266,6 +267,7 @@ import { createMinecraftAbgeordnetenhausDetails } from "./AbgeordnetenhausDetail
 import { createMinecraftGropiusBauDetails } from "./GropiusBauDetails";
 import { inPotsdamerPanoramaLandscape, POTSDAMER_PANORAMA_LANDSCAPE, potsdamerPanoramaMaterialFor } from "./potsdamerPanoramaPalette";
 import { potsdamerPanoramaRoofBoxes } from "./potsdamerPanoramaRoofs";
+import { prepareParisMoskauV354 } from './ParisMoskauV354';
 import {
   buildingAttributes,
   mappedRoofTone,
@@ -2438,6 +2440,8 @@ export function* buildMinecraftVoxelWorldSteps(
     if(furniture)group.add(furniture);
   }
   const cell = payload.cell_m;
+  const parisMoskauV354 = prepareParisMoskauV354(options.sourcePrisms ?? [], true, payload);
+  if (parisMoskauV354) group.add(parisMoskauV354.group);
   // Buildings/trees carry ABSOLUTE cell indices; ground runs are grid
   // offsets (see the payload origin note): cell (x_idx, z_idx) spans
   // world x in [x_idx*cell, x_idx*cell + cell).
@@ -2482,6 +2486,7 @@ export function* buildMinecraftVoxelWorldSteps(
   restoreGrosserSternGatehouseGroundOwnership(groundSlabs);
   tintSintiRomaNativeWaterV256(groundSlabs);
   cutUbahnGroundSlabsV281(groundSlabs, true);
+  markHbfForecourtFinishV354(groundSlabs, true);
   group.add(groundSlabs);
   reportBuildStep(1);
   yield;
@@ -2852,6 +2857,7 @@ export function* buildMinecraftVoxelWorldSteps(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
+    if (parisMoskauV354?.replacesColumn(xIdx,zIdx,y0dm,y1dm,classId)) continue;
     const stationCuts = options.nordbahnhofCuts?.(xIdx, zIdx, y0dm, y1dm, classId);
     if (stationCuts?.length) nordbahnhofColumnCuts.set(nordbahnhofColumnKey(xIdx, zIdx), stationCuts);
     if(waterfrontColumnCutsV296(xIdx,zIdx,y0dm,y1dm,classId).length)waterfrontOriginalColumnsV296.set(`${xIdx},${zIdx}`,[xIdx,zIdx,y0dm,y1dm,classId]);

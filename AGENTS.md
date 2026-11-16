@@ -3300,3 +3300,40 @@ lossless storage offsets if needed. Publish the complete checked viewer and both
 downloads under the owner's standing request. Root owns shared integration,
 history, release metadata and publication; church and neighbouring-house work
 have disjoint owners.
+
+### Step 10 — v354 Düppel, southern railway parks and western neighbourhoods
+
+The owner requests Museumsdorf Düppel, the park chain south of the former
+railway lands at the Technikmuseum, Rote Insel, Yorckstraße west to east,
+Hohenzollerndamm, Brücke-Museum and its neighbourhood, and geographically
+accurate Grunewald lakes with their documented excursion venues. Resolve the
+actual sites against current primary sources: Düppel is a reconstructed
+medieval village, and the railway park chain must retain distinctions between
+active rail, former tracks, protected vegetation and publicly accessible paths.
+
+Implement finite source-bound corrections and additions on the actual mapped
+owners. Preserve earlier authored detail, measured source outlines, open spaces,
+water holes, navigation and terrain unless an independently checked replacement
+corrects an exact documented error with its complete original evidence retained.
+Photographic facade, roof and furnishing dimensions that are not surveyed remain
+explicit estimates. Do not invent unlocated houses, bridge levels, shoreline
+geometry or currently operating businesses. Each addition shares its bounded
+host's admission and retirement, with independently supported Native geometry.
+
+All six modes, full mobile detail, 93 tour stops and live/startup/Worker budgets
+remain fixed. New finite mapped coverage is permitted only for the requested
+sites where demonstrably absent from earlier coverage. Any necessary offline
+allowance must be measured and finite; the complete public tree stays below
+1,000,000,000 bytes through proven lossless offsets. Root owns shared integration,
+history and publication of the complete checked viewer and both archives;
+area agents own disjoint new V354 sources and factories.
+
+The owner's V354 continuation identifies an erroneous second DB ventilation
+tower on the Europaplatz side. Remove that exact authored northern duplicate,
+retain the actual measured southern Washingtonplatz tower and bind any DB
+recognition only to its verified source. Correct Restaurant Paris–Moskau at its
+exact mapped/LoD2 identity and orient the loggia toward Alt-Moabit. Preserve the
+other shared recognition-batch owners and independent Native interpretation.
+Correct false grass on actual mapped paved forecourts using exact official/OSM
+polygons, retaining real tree groves, construction distinctions, terrain and
+navigation. Do not apply an indiscriminate citywide green-to-stone recolour.

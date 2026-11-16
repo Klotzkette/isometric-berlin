@@ -1,4 +1,4 @@
-import { bindHbfVentFinishV349 } from "./HbfVentFinishV349";
+import { bindHbfForecourtFinishV354 } from "./HbfForecourtFinishV354";
 import { bindGroundFinishV348 } from "./GroundFinishV348";
 import { createWaterRipplesV348, type WaterRipplesV348 } from "./WaterRipplesV348";
 import {ubahnGroundMaskBytesV326,type UbahnGroundRuntimeV326} from "./UbahnGroundRuntimeV326";
@@ -2880,7 +2880,7 @@ export function applyLightingToRoot(
   lightsOn = true,
 ): void {
   bindGroundFinishV348(root, mode === "minecraft");
-  bindHbfVentFinishV349(root, mode === "minecraft");
+  bindHbfForecourtFinishV354(root);
   const seen = new Set<MeshStandardMaterial>();
   root.traverse((object) => {
     compactStaticGeometry(object);
@@ -3966,6 +3966,7 @@ async function attachProgressiveWorldMessage(
     if (nordbahnhof) nordbahnhof.cutGround(object);
   }
   bindGroundFinishV348(object);
+  bindHbfForecourtFinishV354(object);
   if (message.kind === "surfaces") object.traverse(child => (runtime.riverRipplesV348 ??= createWaterRipplesV348()).bind(child));
   setIsoNightPresentation(
     object,
@@ -5254,7 +5255,7 @@ function ensureIsoWorld(
           // landmark facades, Tiergarten bridges/memorials and exact mapped shop
           // fronts. The four merged batches stay visible in all surface modes;
           // Minecraft applies its own material presentation below.
-          const refinements = createCityRecognitionRefinements(ground);
+          const refinements = createCityRecognitionRefinements(ground, isoWorld);
           markAuthoredFlatUnlit(refinements);
           pendingSignatures.add(refinements);
           yield;
@@ -5382,6 +5383,7 @@ function ensureIsoWorld(
       // is deliberately started only after this pointer and scene attachment
       // exist; any later failure rolls both it and its batches back below.
       bindGroundFinishV348(isoWorld);
+      bindHbfForecourtFinishV354(isoWorld);
       isoWorld.traverse(child => (runtime.riverRipplesV348 ??= createWaterRipplesV348()).bind(child));
       runtime.isoWorld = isoWorld;
       syncPotsdamerLegacyNorth(runtime);

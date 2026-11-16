@@ -69,14 +69,16 @@ test('cache identity retains each earlier hook before wrapping and remains stabl
   expect(a.material.customProgramCacheKey()).not.toBe(b.material.customProgramCacheKey());
   a.material.dispose(); b.material.dispose(); a.geometry.dispose(); b.geometry.dispose();
 });
-test('actual Schwellenraum grade inherits the finish once and keeps both shader patches', () => {
+test('retained finish utility composes explicitly with a Schwellenraum grade', () => {
   const mesh = wall(); bindHbfVentFinishV349(mesh);
   const graded = schwellenraumMaterialFor(mesh, mesh.material);
+  // V354 retires automatic inheritance with the erroneous north tower.
+  expect(inheritHbfVentFinishV349(mesh.material, graded)).toBe(true);
   const shader = compile(graded);
   expect(shader.fragmentShader).toContain('diffuseColor.rgb=hbfVentFinishV349(diffuseColor.rgb)');
   expect(shader.fragmentShader).toContain('schwellenraumLuma');
   expect(shader.fragmentShader.match(/vec3 hbfVentFinishV349\(/g)).toHaveLength(1);
-  expect(graded.customProgramCacheKey()).toContain('|hbf-vent-finish-v349|schwellenraum-material-grade-v3');
+  expect(graded.customProgramCacheKey()).toContain('|schwellenraum-material-grade-v3|hbf-vent-finish-v349');
   expect(bindHbfVentFinishV349(mesh)).toBe(0);
   expect(compile(graded).fragmentShader).toEqual(shader.fragmentShader);
   mesh.material.dispose(); mesh.geometry.dispose();

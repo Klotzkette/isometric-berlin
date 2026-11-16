@@ -178,7 +178,10 @@ SURFACE_PLATE_KIND_CODES = {"asphalt": 1, "paving": 2}
 # v1.0.232 adds seven finite restaurant/industrial hosts and source-bound sport,
 # cafe and memorial details: 1,232,215,637 bytes, including disjoint windows.
 # Only its measured whole-MiB allowance grows; all live and public caps stay fixed.
-MAX_PACKAGE_UNCOMPRESSED_BYTES = 1176 * 1024 * 1024
+# v1.0.234 measured complete offline package: 1,236,782,185 bytes.
+# The finite 1180 MiB archive-only ceiling retains all prior assets; public/live
+# limits remain unchanged. See docs/public-lossless-v354.md.
+MAX_PACKAGE_UNCOMPRESSED_BYTES = 1180 * 1024 * 1024
 MIN_BOUNDED_MESH_TILES = 23
 MIN_BASE_MESH_FACES = 2_250_000
 MIN_SETTLED_SURFACE_FACES = 6_000_000

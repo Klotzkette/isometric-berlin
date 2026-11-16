@@ -1,3 +1,4 @@
+import { hasParisMoskauDrawnOwnerV354 } from "./ParisMoskauV354";
 import {
   BoxGeometry,
   CylinderGeometry,
@@ -1018,7 +1019,7 @@ function addSmallWaterBatch(parent: Group, builder: Builder): void {
   parent.add(group);
 }
 
-export function createCityRecognitionRefinements(ground: VoxelPayload): Group {
+export function createCityRecognitionRefinements(ground: VoxelPayload, parisOwnerWorld?: Group | null): Group {
   const root = new Group();
   root.name = "Open-data city recognition refinements";
   root.userData.geometryStatus =
@@ -1041,7 +1042,8 @@ export function createCityRecognitionRefinements(ground: VoxelPayload): Group {
   const smallWater = createBuilder();
 
   const north = createBuilder();
-  addParisMoskau(
+  // Only the actual complete attached replacement may retire this exact legacy contribution.
+  if (!hasParisMoskauDrawnOwnerV354(parisOwnerWorld)) addParisMoskau(
     north,
     groundAt(...CITY_REFINEMENT_PROFILES.parisMoskau.centreWorldM),
   );

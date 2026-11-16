@@ -129,8 +129,9 @@ describe("block-native Berlin architectural signatures", () => {
     // Its 328 old rail cubes transfer to all six complete, finer independent
     // cardinal courses, with the original gauge, iron colour and end reach.
     // All other legacy owners retain their source-complete outside fragments.
+    // V354 adds 84 independent cardinal badge blocks to the retained south tower.
     expect(meshes.map(({ count }) => count)).toEqual([
-      493, 714, 2_486, 349, 695, 56, 444,
+      493, 714, 2_570, 349, 695, 56, 444,
     ]);
   });
 
