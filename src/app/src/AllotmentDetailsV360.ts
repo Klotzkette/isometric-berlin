@@ -10,6 +10,7 @@ import exteriorIndex from "./data/allotmentDetailsV360ExteriorIndex.json";
 const KIND = "allotment-details-v360";
 const MAX_COMPRESSED_BYTES = 128 * 1024;
 const MAX_DECODED_BYTES = 512 * 1024;
+const MAX_RECENT_GROUP_BYTES = 192 * 1024;
 const MAX_VERTICES = 40_000;
 const MAX_INDICES = 90_000;
 const MAX_EXTERIOR_VERTICES = 80_000;
@@ -46,6 +47,7 @@ for (const locator of index.sources as PacketLocator[]) {
   for (const id of locator.ids) locatorById.set(id, locator);
 }
 const decodedFiles = new WeakMap<PacketLocator, WeakRef<PacketSource>>();
+let recentGroup: { locator: PacketLocator; source: PacketSource } | undefined;
 let assetUrls: Record<string, string> = {};
 try {
   assetUrls = import.meta.glob<string>("./data/allotmentDetailsV360Packets*.json.gz", {
@@ -57,15 +59,16 @@ export function hasAllotmentDetailPlanV360(id: string): boolean {
   return locatorById.has(id);
 }
 
-/** A tile fetches one bounded nearby group after its existing base transfer.
- * Decoded groups survive only while the browser keeps their weak reference. */
+/** Keep the last small validated group available for adjacent tiles. Older
+ * groups can be collected whenever the browser needs the memory. */
 export async function loadAllotmentDetailPlanV360(
   id: string, native: boolean, signal: AbortSignal, fetcher: typeof fetch,
   idleMs: number,
 ): Promise<AllotmentDetailPlanV360 | undefined> {
   const locator = locatorById.get(id);
   if (!locator) return undefined;
-  let source = decodedFiles.get(locator)?.deref();
+  if (signal.aborted) throw new DOMException("Aborted", "AbortError");
+  let source = recentGroup?.locator === locator ? recentGroup.source : decodedFiles.get(locator)?.deref();
   if (!source) {
     if (!Number.isSafeInteger(locator.compressedBytes) || locator.compressedBytes < 18 ||
         locator.compressedBytes > MAX_COMPRESSED_BYTES || !Number.isSafeInteger(locator.decodedBytes) ||
@@ -107,6 +110,8 @@ export async function loadAllotmentDetailPlanV360(
         locator.ids.some(key => !Object.hasOwn(source!.packets, key))) throw Error("Incomplete allotment packet group");
     if (typeof WeakRef === "function") decodedFiles.set(locator, new WeakRef(source));
   }
+  if (signal.aborted) throw new DOMException("Aborted", "AbortError");
+  recentGroup = locator.decodedBytes <= MAX_RECENT_GROUP_BYTES ? { locator, source } : undefined;
   const families = source.packets[id];
   const plan = families?.[native ? "minecraft" : "drawn"];
   return plan && families.foundation ? { ...plan, foundation: families.foundation } : plan;

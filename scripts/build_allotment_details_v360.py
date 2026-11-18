@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 from shapely import contains_xy, make_valid, union_all
 from shapely.affinity import translate
-from shapely.geometry import LineString, Point, Polygon, box, shape
+from shapely.geometry import LineString, Point, Polygon, box, mapping, shape
 from shapely.strtree import STRtree
 
 from scripts.build_allotments_v264 import navigation_guard
@@ -82,6 +82,31 @@ def source_vegetation_and_paths(files: list[Path]):
                     if area.area >= .15:
                         features.append((kind, height, str(row.get("site", "")), str(row.get("source", path.name)), area))
     return features
+
+
+def exclude_garden_parts(sites, features, exclusions):
+    """Remove withdrawn areas from the official baseline and all detail sources."""
+    by_site = {site["id"]: site for site in sites}
+    masks = defaultdict(list)
+    for feature in exclusions["features"]:
+        site_id = feature["properties"]["site"]
+        part_id = feature["properties"]["part_id"]
+        if part_id not in by_site[site_id]["officialPartIds"]:
+            raise ValueError(f"Unknown excluded inventory part: {site_id}/{part_id}")
+        masks[site_id].append(make_valid(shape(feature["geometry"])))
+    removed = {site_id: union_all(parts) for site_id, parts in masks.items()}
+    for site_id, mask in removed.items():
+        site = by_site[site_id]
+        remaining = make_valid(shape(site["geometry"])).difference(mask)
+        if remaining.is_empty:
+            raise ValueError(f"Exclusions removed every part of {site_id}")
+        site["geometry"] = mapping(remaining)
+    retained = []
+    for kind, height, site_id, source, geometry in features:
+        if site_id in removed:
+            geometry = geometry.difference(removed[site_id])
+        retained.extend((kind, height, site_id, source, part) for part in polygons(geometry))
+    return retained
 
 
 def nav_shapes(packet, key, window):
@@ -235,20 +260,38 @@ def packet_plan(packet, bounds, features, native, used, mask_window):
             "byStyle" if native else "sheets": pack_native(details) if native else details}, ground, blocked, sites
 
 
-def write_packets(output, plans):
+def write_packets(output, plans, previous_index=None):
     sources = []
     batch = {}
+    previous = read(previous_index)["sources"] if previous_index else []
+    previous_files = {group["file"] for group in previous}
+    next_file = 0
 
-    def flush():
+    def flush(file=None):
+        nonlocal next_file
         raw = json_bytes({"schemaVersion": 1, "packets": batch})
         zipped = gzip.compress(raw, compresslevel=9, mtime=0)
         if len(raw) > 512 * 1024 or len(zipped) > 128 * 1024:
             raise ValueError(f"Allotment packet exceeds its download allowance: {len(raw)}, {len(zipped)}")
-        file = f"allotmentDetailsV360Packets{len(sources):03d}.json.gz"
+        if file is None:
+            while True:
+                file = f"allotmentDetailsV360Packets{next_file:03d}.json.gz"
+                next_file += 1
+                if file not in previous_files:
+                    break
         (output / file).write_bytes(zipped)
         sources.append({"file": file, "ids": list(batch), "decodedBytes": len(raw), "compressedBytes": len(zipped)})
 
+    written = set()
+    for group in previous:
+        batch = {tile: plans[tile] for tile in group["ids"] if tile in plans}
+        if batch:
+            flush(group["file"])
+            written.update(batch)
+    batch = {}
     for tile, plan in plans.items():
+        if tile in written:
+            continue
         # Adjacent cells can reuse a small response. Never let a large cell
         # push the previous group over the runtime's download allowance.
         if batch and (len(batch) == 8 or len(json_bytes(batch)) + len(json_bytes(plan)) > 180_000):
@@ -371,14 +414,18 @@ def main():
     cli.add_argument("sources", nargs="+", type=Path)
     cli.add_argument("--output", default=DATA, type=Path)
     cli.add_argument("--audit", required=True, type=Path)
+    cli.add_argument("--previous-index", type=Path, help="Retain existing groups for stable cached asset URLs")
+    cli.add_argument("--exclude-garden-parts", type=Path, help="Withdrawn parts in the world coordinate system")
     args = cli.parse_args()
     features = source_vegetation_and_paths(args.sources)
     if not features:
         raise ValueError("No mapped allotment features.")
-    print(f"{len(features):,} mapped input shapes", flush=True)
-    index = STRtree([f[4] for f in features])
     inventory = read(args.sources[0])
     sites = inventory["sites"]
+    if args.exclude_garden_parts:
+        features = exclude_garden_parts(sites, features, read(args.exclude_garden_parts))
+    print(f"{len(features):,} mapped input shapes", flush=True)
+    index = STRtree([f[4] for f in features])
     site_index = STRtree([make_valid(shape(site["geometry"])) for site in sites])
     manifest = read(TILES / "manifest.json")
     grouped = defaultdict(list)
@@ -421,7 +468,7 @@ def main():
     plans.update(exterior)
     args.output.mkdir(parents=True, exist_ok=True)
     (args.output / "allotmentDetailsV360ExteriorIndex.json").write_bytes(json_bytes({"tiles": entries}) + b"\n")
-    packets = write_packets(args.output, plans)
+    packets = write_packets(args.output, plans, args.previous_index)
     core, core_sites = core_details(features, index)
     raw = json_bytes(core)
     core_bytes = gzip.compress(raw, compresslevel=9, mtime=0)

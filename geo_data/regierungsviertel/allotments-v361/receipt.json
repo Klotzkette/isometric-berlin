@@ -1,0 +1,491 @@
+{
+  "release": "1.0.241",
+  "baseline": "1.0.240",
+  "files": {
+    "additional-vegetation-2020.json.gz": "812e9a7808f954f0f1e20468c0726f1f333ecb88f09aa991a4adfa3bdfbd074f",
+    "garden-exclusions.geojson": "31d9348c75c08e4c25f4f1e911c4159d01d887faf1aa6e5d5242daa1921a9b4c",
+    "muehlenfliess-retired-component.json": "46afaea6db2a3e22d9631c73620c45621aad62a3f7d07becf6a9d6c54c8d7395",
+    "verified-paths.json": "0e00d41f46481940d68814ffebfc146464082c4d3e48688d6b9b45383c584895"
+  },
+  "vegetation": {
+    "source": "Berlin Umweltatlas: Vegetationshöhen 2020",
+    "dataset": "https://daten.berlin.de/datensaetze/vegetationshohen-2020-umweltatlas-b3a1d6a1",
+    "download": "https://gdi.berlin.de/data/ua_vegetationshoehen_2020/atom/veghoehe_2020.zip",
+    "method": "https://www.berlin.de/umweltatlas/biotope/vegetationshoehen/2020/methode/",
+    "sourceArchiveSha256": "1da27786951e2b85501c747aa5385bb88f61f9fae1480e17ac6573058c4645dc",
+    "license": "dl-de-zero-2.0",
+    "sourceProjection": "EPSG:25833",
+    "sourceResolutionMeters": 1,
+    "sourceImageryYear": 2020,
+    "sourceHeightUnit": "decimetre",
+    "heightUnitsBasis": "DN 1 equals the report’s stated minimum 0.1 m. Cross-checked against official block-level mean heights.",
+    "excludedMappedVegetation": [
+      "OSM and ALKIS hedges",
+      "OSM scrub and official Gebüsch"
+    ],
+    "clipSites": 617,
+    "representedSites": 617,
+    "heightRangeMeters": [
+      1.0,
+      2.8
+    ],
+    "minimumContiguousRasterAreaM2": 8,
+    "geometryStatus": "Footprints of observed elevated vegetation; species and hedge status unclassified.",
+    "heightStatus": "Mean above-ground surface height of selected 1m source cells, rounded to 0.2 m.",
+    "counts": {
+      "shrubs": 146124
+    },
+    "minimumSiteAreaM2": 100000,
+    "preferredCellSizeM": 44,
+    "minimumSeparationFromExistingM": 12,
+    "relativeToExisting": "Additional only. The prior low vegetation patches, mapped paths and plants are excluded.",
+    "outlineSimplificationM": 0.82,
+    "outlineCmQuantization": 1,
+    "siteBoundaryInset": 0.02,
+    "candidateSource": "Berlin Umweltatlas Vegetationshöhen 2020, 1 m raster, above-ground height 1–2.8 m.",
+    "heightAssignment": "Preserved source outline mean height, rounded to 0.2 m in the original raster extraction.",
+    "candidateFileSha256": "f40ea151fe2db2d18833328e3c0f0a5a93985ca215c546742cd398c7729ca1e9",
+    "selectionLimit": "Floor of site area / 13,000 m², with at least 9 and at most 32 additions per site.",
+    "selectedSites": {
+      "01017": {
+        "name": "KGA Rehberge",
+        "count": 11,
+        "areaM2": 1125.8
+      },
+      "03016": {
+        "name": "Freies Land",
+        "count": 11,
+        "areaM2": 743.4
+      },
+      "03023": {
+        "name": "Heinersdorf",
+        "count": 12,
+        "areaM2": 836.3
+      },
+      "03027": {
+        "name": "Märchenland",
+        "count": 32,
+        "areaM2": 2463.9
+      },
+      "03030": {
+        "name": "Pankeniederung",
+        "count": 10,
+        "areaM2": 475.2
+      },
+      "03037": {
+        "name": "Alte Baumschule",
+        "count": 9,
+        "areaM2": 714.9
+      },
+      "03039": {
+        "name": "Am Anger",
+        "count": 9,
+        "areaM2": 599.8
+      },
+      "03043": {
+        "name": "Am Rollberg",
+        "count": 9,
+        "areaM2": 594.7
+      },
+      "03053": {
+        "name": "Daheim II",
+        "count": 14,
+        "areaM2": 869.6
+      },
+      "03068": {
+        "name": "Gartenvörde",
+        "count": 9,
+        "areaM2": 648.4
+      },
+      "03083": {
+        "name": "Möllersfelde",
+        "count": 9,
+        "areaM2": 789.0
+      },
+      "03100": {
+        "name": "Rosenthal-Nord",
+        "count": 9,
+        "areaM2": 550.9
+      },
+      "03101": {
+        "name": "Rosenthal-Süd",
+        "count": 9,
+        "areaM2": 541.2
+      },
+      "04056": {
+        "name": "Saatwinkler Damm - KGA",
+        "count": 9,
+        "areaM2": 649.9
+      },
+      "04089": {
+        "name": "Grunewald im Jagen 84 - KGA (priv.)",
+        "count": 9,
+        "areaM2": 865.7
+      },
+      "05058": {
+        "name": "KGA Sandwiesen",
+        "count": 9,
+        "areaM2": 818.5
+      },
+      "05073": {
+        "name": "KGA Waldfrieden",
+        "count": 9,
+        "areaM2": 514.4
+      },
+      "06001": {
+        "name": "Alt-Schönow KG",
+        "count": 9,
+        "areaM2": 459.1
+      },
+      "06006": {
+        "name": "Schlachtensee-Süd DKG",
+        "count": 12,
+        "areaM2": 1251.0
+      },
+      "06010": {
+        "name": "Abendruh DKG",
+        "count": 13,
+        "areaM2": 1110.0
+      },
+      "08004": {
+        "name": "Am Buschkrug",
+        "count": 13,
+        "areaM2": 888.3
+      },
+      "08012": {
+        "name": "Britzer Wiesen",
+        "count": 16,
+        "areaM2": 1115.0
+      },
+      "08032": {
+        "name": "Goldregen",
+        "count": 10,
+        "areaM2": 840.9
+      },
+      "08035": {
+        "name": "Guter Wille",
+        "count": 12,
+        "areaM2": 731.5
+      },
+      "08039": {
+        "name": "Heimaterde",
+        "count": 27,
+        "areaM2": 2189.9
+      },
+      "08045": {
+        "name": "Kurt Poethig",
+        "count": 23,
+        "areaM2": 2254.9
+      },
+      "08048": {
+        "name": "Marienfelder Weg",
+        "count": 14,
+        "areaM2": 1448.0
+      },
+      "08064": {
+        "name": "Platanenblick",
+        "count": 12,
+        "areaM2": 913.5
+      },
+      "08065": {
+        "name": "Roseneck",
+        "count": 9,
+        "areaM2": 897.3
+      },
+      "08097": {
+        "name": "Zur Windmühle",
+        "count": 18,
+        "areaM2": 1449.4
+      },
+      "09112": {
+        "name": "Grüne Aue KGA",
+        "count": 9,
+        "areaM2": 484.2
+      },
+      "09147": {
+        "name": "Wilhelmstrand KGA",
+        "count": 10,
+        "areaM2": 633.6
+      },
+      "10002": {
+        "name": "KGA Am Fuchsberg",
+        "count": 9,
+        "areaM2": 620.6
+      },
+      "10003": {
+        "name": "KGA Am Kienberg",
+        "count": 10,
+        "areaM2": 913.6
+      },
+      "10018": {
+        "name": "KGA Dahlwitzer Straße",
+        "count": 32,
+        "areaM2": 2162.4
+      },
+      "10022": {
+        "name": "KGA Kaulsdorfer Busch",
+        "count": 19,
+        "areaM2": 1491.0
+      },
+      "10029": {
+        "name": "KGA Wacholderheide",
+        "count": 9,
+        "areaM2": 398.7
+      },
+      "11002": {
+        "name": "KGA Alwin Bielefeldt Rhinstr.",
+        "count": 12,
+        "areaM2": 1057.4
+      },
+      "11006": {
+        "name": "KGA Biesenhorst II Str. Am Heizhaus",
+        "count": 12,
+        "areaM2": 877.8
+      },
+      "11008": {
+        "name": "KGA Florafreunde",
+        "count": 21,
+        "areaM2": 1309.9
+      },
+      "11010": {
+        "name": "KGA Gartenfreunde Wuhlheide",
+        "count": 13,
+        "areaM2": 838.6
+      },
+      "11029": {
+        "name": "Am Außenring",
+        "count": 11,
+        "areaM2": 1060.2
+      },
+      "11033": {
+        "name": "KGA Falkenhöhe Nord",
+        "count": 9,
+        "areaM2": 536.9
+      },
+      "11036": {
+        "name": "KGA Land in Sonne Block I Wartenberger Str.",
+        "count": 18,
+        "areaM2": 1401.6
+      },
+      "11037": {
+        "name": "Margaretenhöhe Nord",
+        "count": 9,
+        "areaM2": 818.9
+      },
+      "12061": {
+        "name": "Steinberg",
+        "count": 16,
+        "areaM2": 1199.5
+      },
+      "12070": {
+        "name": "Vor den Toren I",
+        "count": 9,
+        "areaM2": 1004.2
+      },
+      "12073": {
+        "name": "Vor den Toren IV",
+        "count": 12,
+        "areaM2": 1022.5
+      },
+      "12075": {
+        "name": "Waldessaum",
+        "count": 11,
+        "areaM2": 938.7
+      }
+    },
+    "count": 628,
+    "areaM2": 48120.8
+  },
+  "pathSources": {
+    "photo": {
+      "label": "Geoportal Berlin / Digitale farbige TrueOrthophotos 2026",
+      "catalog": "https://daten.berlin.de/datensaetze/digitale-farbige-trueorthophotos-2026-dop20rgbi-wms-3801a94c",
+      "service": "https://gdi.berlin.de/services/wms/truedop_2026",
+      "method": "Manual centerline digitization of the discernible shared hard-surface lane between the two plot rows. Only the continuously visible segment; width estimated. No claim of public access.",
+      "evidence": [
+        {
+          "site": "07085",
+          "name": "Vorarlberg",
+          "map": "https://gdi.berlin.de/services/wms/truedop_2026?VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&LAYERS=truedop_2026&STYLES=&SRS=EPSG%3A25833&BBOX=387916.9841%2C5814639.6374%2C388043.9929%2C5814866.8491&WIDTH=636&HEIGHT=1137&FORMAT=image%2Fpng",
+          "size": [
+            636,
+            1137
+          ],
+          "worldBBox": [
+            -1583.0158823529412,
+            5133.150882352941,
+            -1456.0070588235294,
+            5360.362647058823
+          ],
+          "sha256": "7bb645f98cc8b89f866d804f756976bcfdd4bd458fbe58443457d324b7e34019"
+        }
+      ]
+    },
+    "leonorenstrasse": {
+      "catalog": "https://daten.berlin.de/datensaetze/digitale-farbige-trueorthophotos-sommer-2025-truedop20rgbi-wms-d714b73c",
+      "method": "Only the continuously visible rail-parallel access trail to multiple plots, digitized in the 2025 summer image and checked against visible stretches of the same alignment in the 2026 image. Width is estimated. Shared access implies no claim of public access.",
+      "evidence": [
+        {
+          "site": "06205",
+          "name": "Leonorenstraße",
+          "map": "https://gdi.berlin.de/services/wms/truedop_2025_sommer?VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&LAYERS=truedop_2025_sommer_rgb&STYLES=&SRS=EPSG%3A25833&BBOX=387616.3479%2C5811505.0344%2C387745.8656%2C5811641.6815&WIDTH=648&HEIGHT=684&FORMAT=image%2Fpng",
+          "size": [
+            648,
+            684
+          ],
+          "worldBBox": [
+            -1883.6520588235294,
+            8358.318529411767,
+            -1754.1344117647059,
+            8494.965588235294
+          ],
+          "sha256": "b1a6e612f550892f2bd8932edf08c09d37cc5e1743b8805d429a44a38cf31b9b"
+        },
+        {
+          "site": "06205",
+          "name": "Leonorenstraße",
+          "map": "https://gdi.berlin.de/services/wms/truedop_2026?VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&LAYERS=truedop_2026&STYLES=&SRS=EPSG%3A25833&BBOX=387616.3479%2C5811505.0344%2C387745.8656%2C5811641.6815&WIDTH=648&HEIGHT=684&FORMAT=image%2Fpng",
+          "size": [
+            648,
+            684
+          ],
+          "worldBBox": [
+            -1883.6520588235294,
+            8358.318529411767,
+            -1754.1344117647059,
+            8494.965588235294
+          ],
+          "sha256": "e2e8c5e9e7e25e2071a7496a2128acc1cda5053401a8906bcf1e00e3900eb22a"
+        }
+      ]
+    }
+  },
+  "otherReviewedSites": [
+    {
+      "site": "04064",
+      "finding": "Spreegrund Süd. Direct plot gates on service lane; Höhenweg is on the outside."
+    },
+    {
+      "site": "04072",
+      "finding": "Waldschulallee. Roadside strips with perimeter access."
+    },
+    {
+      "site": "07040",
+      "finding": "Morgenrot. Direct access from the Ullsteinstraße sidewalk."
+    },
+    {
+      "site": "09128",
+      "finding": "Mühlenfließ. Two remaining narrow components; no confirmed shared interior path. See separate retirement receipt for part 269."
+    },
+    {
+      "site": "09132",
+      "finding": "Neu Venedig. Direct access from Elsterweg and Lerchenweg."
+    },
+    {
+      "site": "12002",
+      "finding": "Am Erlengrabenteich. Public loop outside the garden parcel footprints.",
+      "source": "https://www.gartenbund.de/kolonie-am-erlengrabenteich/"
+    }
+  ],
+  "compile": {
+    "generator": "scripts/build_allotment_details_v360.py",
+    "inputsInOrder": [
+      "../allotments-v360/inventory-osm.json.gz",
+      "../allotments-v360/orthophoto-paths.json.gz",
+      "../allotments-v360/official-details.json.gz",
+      "../allotments-v360/vegetation-2020.json.gz",
+      "additional-vegetation-2020.json.gz",
+      "verified-paths.json"
+    ],
+    "excludeGardenParts": "garden-exclusions.geojson",
+    "previousIndex": "2ca955fa:src/app/src/data/allotmentDetailsV360Index.json"
+  },
+  "addedPaths": [
+    {
+      "site": "07085",
+      "id": "truedop-2026/07085/west-central",
+      "coords": [
+        [
+          -1531.29,
+          5251.85
+        ],
+        [
+          -1532.29,
+          5256.85
+        ],
+        [
+          -1533.69,
+          5262.64
+        ],
+        [
+          -1534.69,
+          5267.24
+        ],
+        [
+          -1536.29,
+          5274.03
+        ],
+        [
+          -1537.68,
+          5279.63
+        ]
+      ],
+      "estimatedWidthM": 1.4
+    },
+    {
+      "site": "06205",
+      "id": "truedop-2025-2026/06205/north",
+      "coords": [
+        [
+          -1877.86,
+          8476.79
+        ],
+        [
+          -1872.26,
+          8471.79
+        ],
+        [
+          -1865.86,
+          8466.2
+        ],
+        [
+          -1860.27,
+          8461.2
+        ],
+        [
+          -1854.07,
+          8455.61
+        ],
+        [
+          -1847.87,
+          8450.22
+        ],
+        [
+          -1843.48,
+          8446.22
+        ],
+        [
+          -1841.68,
+          8444.42
+        ]
+      ],
+      "estimatedWidthM": 1.2
+    }
+  ],
+  "delivered": {
+    "inputFeatures": 13935,
+    "tiles": {
+      "drawn": 194,
+      "minecraft": 194
+    },
+    "exteriorTiles": 699,
+    "exteriorAreaM2": 22412016.5,
+    "coreDecodedBytes": 375249,
+    "coreCompressedBytes": 74977,
+    "packets": 113,
+    "totalCompressedBytes": 2859725,
+    "changedRecipeFiles": 74,
+    "totalCompressedDifference": 135792,
+    "inventorySha256": "b36456ef260e362d622d2e9db4fdea3898a30a10ced3f39bf8cec78969cd4249"
+  }
+}

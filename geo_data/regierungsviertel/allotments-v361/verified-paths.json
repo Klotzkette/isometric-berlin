@@ -1,0 +1,146 @@
+{
+  "paths": [
+    {
+      "id": "truedop-2026/07085/west-central",
+      "site": "07085",
+      "class": "footway",
+      "source": "TrueDOP 2026",
+      "surface": "paved",
+      "width": 1.4,
+      "widthStatus": "photo estimate",
+      "coords": [
+        [
+          -1531.29,
+          5251.85
+        ],
+        [
+          -1532.29,
+          5256.85
+        ],
+        [
+          -1533.69,
+          5262.64
+        ],
+        [
+          -1534.69,
+          5267.24
+        ],
+        [
+          -1536.29,
+          5274.03
+        ],
+        [
+          -1537.68,
+          5279.63
+        ]
+      ]
+    },
+    {
+      "id": "truedop-2025-2026/06205/north",
+      "site": "06205",
+      "class": "footway",
+      "source": "TrueDOP 2025 summer and 2026",
+      "surface": "compacted",
+      "width": 1.2,
+      "widthStatus": "photo estimate",
+      "coords": [
+        [
+          -1877.86,
+          8476.79
+        ],
+        [
+          -1872.26,
+          8471.79
+        ],
+        [
+          -1865.86,
+          8466.2
+        ],
+        [
+          -1860.27,
+          8461.2
+        ],
+        [
+          -1854.07,
+          8455.61
+        ],
+        [
+          -1847.87,
+          8450.22
+        ],
+        [
+          -1843.48,
+          8446.22
+        ],
+        [
+          -1841.68,
+          8444.42
+        ]
+      ]
+    }
+  ],
+  "sources": {
+    "photo": {
+      "label": "Geoportal Berlin / Digitale farbige TrueOrthophotos 2026",
+      "catalog": "https://daten.berlin.de/datensaetze/digitale-farbige-trueorthophotos-2026-dop20rgbi-wms-3801a94c",
+      "service": "https://gdi.berlin.de/services/wms/truedop_2026",
+      "method": "Manual centerline digitization of the discernible shared hard-surface lane between the two plot rows. Only the continuously visible segment; width estimated. No claim of public access.",
+      "evidence": [
+        {
+          "site": "07085",
+          "name": "Vorarlberg",
+          "map": "https://gdi.berlin.de/services/wms/truedop_2026?VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&LAYERS=truedop_2026&STYLES=&SRS=EPSG%3A25833&BBOX=387916.9841%2C5814639.6374%2C388043.9929%2C5814866.8491&WIDTH=636&HEIGHT=1137&FORMAT=image%2Fpng",
+          "size": [
+            636,
+            1137
+          ],
+          "worldBBox": [
+            -1583.0158823529412,
+            5133.150882352941,
+            -1456.0070588235294,
+            5360.362647058823
+          ],
+          "sha256": "7bb645f98cc8b89f866d804f756976bcfdd4bd458fbe58443457d324b7e34019"
+        }
+      ]
+    },
+    "leonorenstrasse": {
+      "catalog": "https://daten.berlin.de/datensaetze/digitale-farbige-trueorthophotos-sommer-2025-truedop20rgbi-wms-d714b73c",
+      "method": "Only the continuously visible rail-parallel access trail to multiple plots, digitized in the 2025 summer image and checked against visible stretches of the same alignment in the 2026 image. Width is estimated. Shared access implies no claim of public access.",
+      "evidence": [
+        {
+          "site": "06205",
+          "name": "Leonorenstraße",
+          "map": "https://gdi.berlin.de/services/wms/truedop_2025_sommer?VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&LAYERS=truedop_2025_sommer_rgb&STYLES=&SRS=EPSG%3A25833&BBOX=387616.3479%2C5811505.0344%2C387745.8656%2C5811641.6815&WIDTH=648&HEIGHT=684&FORMAT=image%2Fpng",
+          "size": [
+            648,
+            684
+          ],
+          "worldBBox": [
+            -1883.6520588235294,
+            8358.318529411767,
+            -1754.1344117647059,
+            8494.965588235294
+          ],
+          "sha256": "b1a6e612f550892f2bd8932edf08c09d37cc5e1743b8805d429a44a38cf31b9b"
+        },
+        {
+          "site": "06205",
+          "name": "Leonorenstraße",
+          "map": "https://gdi.berlin.de/services/wms/truedop_2026?VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&LAYERS=truedop_2026&STYLES=&SRS=EPSG%3A25833&BBOX=387616.3479%2C5811505.0344%2C387745.8656%2C5811641.6815&WIDTH=648&HEIGHT=684&FORMAT=image%2Fpng",
+          "size": [
+            648,
+            684
+          ],
+          "worldBBox": [
+            -1883.6520588235294,
+            8358.318529411767,
+            -1754.1344117647059,
+            8494.965588235294
+          ],
+          "sha256": "e2e8c5e9e7e25e2071a7496a2128acc1cda5053401a8906bcf1e00e3900eb22a"
+        }
+      ]
+    }
+  }
+}

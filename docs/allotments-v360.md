@@ -35,3 +35,31 @@ small cell may remain visible only in Drawn mode.
 Berlin source attribution: Geoportal Berlin; where specified in the source
 catalogue, Datenlizenz Deutschland – Zero 2.0. OpenStreetMap data © OpenStreetMap
 contributors, [ODbL 1.0](https://www.openstreetmap.org/copyright).
+
+## Follow-up in 1.0.241
+
+The 49 facilities of at least 100,000 m² receive 628 additional low-vegetation
+outlines from the same 2020 raster, distributed within the official boundaries.
+The additional outlines avoid already mapped plants and paths. The largest
+sites, including Märchenland and Dahlwitzer Straße, receive 32 each. These are
+historical surface-height observations, and do not establish current species
+or the condition of each individual plant.
+
+The [2026 orthophotos](https://daten.berlin.de/datensaetze/digitale-farbige-trueorthophotos-2026-dop20rgbi-wms-3801a94c)
+show a paved 28 m route between plots in Vorarlberg. Orthophotos from 2025 and
+2026 support a 49 m route inside Leonorenstraße, parallel to the railway.
+The widths are display estimates. The gardens reviewed at Am Erlengrabenteich, Neu Venedig,
+Morgenrot, Waldschulallee and Spreegrund Süd have evidence of access from the
+perimeter. The Erlengrabenteich operator explicitly confirms a public shoreline
+path connecting its separate plots.
+
+The cleared private Mühlenfließ component, inventory part 269 at
+Friedrichshagener Straße 56, is removed from the allotment layer. The district's
+written response SchA IX/1074 and the 2026 orthophoto identify the affected
+part. Parts 250 and 336 remain represented. See the
+[follow-up source receipt](../geo_data/regierungsviertel/allotments-v361/receipt.json)
+for measurements, exact service references and the compilation options.
+
+The last validated nearby packet has a bounded cache, so adjacent tiles can
+reuse it after garbage collection. Packages keep their prior tile groups and
+unchanged recipes retain their content-based URLs.

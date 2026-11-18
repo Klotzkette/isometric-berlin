@@ -1,0 +1,363 @@
+{
+  "site": "09128",
+  "officialPart": {
+    "ogr_fid": 269,
+    "anlagennummer": "09128",
+    "objektname": "Mühlenfließ KGA",
+    "strasse": "Friedrichshagener Straße",
+    "flaechengroesse": 8736,
+    "parzellenanzahl": 21,
+    "landoderbezirk": 0,
+    "zwischenpaechter": "BV Köpenick"
+  },
+  "retainedOfficialPartIds": [
+    250,
+    336
+  ],
+  "sourceProjection": "EPSG:25833",
+  "worldCoordinates": "x=Easting-389500, z=5820000-Northing",
+  "exclusionGeometries": [
+    {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            14057.95,
+            7524.94
+          ],
+          [
+            14029.3,
+            7520.28
+          ],
+          [
+            14029.23,
+            7519.18
+          ],
+          [
+            14023.57,
+            7518.45
+          ],
+          [
+            14015.05,
+            7518.95
+          ],
+          [
+            14003.3,
+            7521.32
+          ],
+          [
+            13994.23,
+            7525.67
+          ],
+          [
+            13991.82,
+            7526.82
+          ],
+          [
+            13985.17,
+            7531.57
+          ],
+          [
+            13984.46,
+            7532.08
+          ],
+          [
+            13983.84,
+            7531.43
+          ],
+          [
+            13977.47,
+            7534.92
+          ],
+          [
+            13966.31,
+            7541.03
+          ],
+          [
+            13959.98,
+            7546.27
+          ],
+          [
+            13949.0,
+            7555.35
+          ],
+          [
+            13947.2,
+            7556.84
+          ],
+          [
+            13945.47,
+            7554.75
+          ],
+          [
+            13943.17,
+            7556.4
+          ],
+          [
+            13943.77,
+            7558.3
+          ],
+          [
+            13938.64,
+            7562.14
+          ],
+          [
+            13936.61,
+            7563.66
+          ],
+          [
+            13930.69,
+            7566.66
+          ],
+          [
+            13929.57,
+            7568.19
+          ],
+          [
+            13922.17,
+            7578.26
+          ],
+          [
+            13920.66,
+            7576.8
+          ],
+          [
+            13919.79,
+            7577.79
+          ],
+          [
+            13917.66,
+            7580.25
+          ],
+          [
+            13906.37,
+            7586.23
+          ],
+          [
+            13898.96,
+            7590.15
+          ],
+          [
+            13897.22,
+            7591.89
+          ],
+          [
+            13896.05,
+            7593.06
+          ],
+          [
+            13896.15,
+            7594.48
+          ],
+          [
+            13896.21,
+            7595.21
+          ],
+          [
+            13894.58,
+            7596.48
+          ],
+          [
+            13891.71,
+            7598.74
+          ],
+          [
+            13888.55,
+            7601.22
+          ],
+          [
+            13879.84,
+            7606.94
+          ],
+          [
+            13874.02,
+            7610.77
+          ],
+          [
+            13868.85,
+            7615.33
+          ],
+          [
+            13862.63,
+            7620.81
+          ],
+          [
+            13856.27,
+            7626.42
+          ],
+          [
+            13854.62,
+            7629.75
+          ],
+          [
+            13851.32,
+            7636.4
+          ],
+          [
+            13847.1,
+            7647.73
+          ],
+          [
+            13846.71,
+            7648.3
+          ],
+          [
+            13847.45,
+            7651.9
+          ],
+          [
+            13848.08,
+            7654.98
+          ],
+          [
+            13867.07,
+            7662.18
+          ],
+          [
+            13873.17,
+            7659.46
+          ],
+          [
+            13878.57,
+            7656.64
+          ],
+          [
+            13887.95,
+            7650.03
+          ],
+          [
+            13895.25,
+            7644.39
+          ],
+          [
+            13904.88,
+            7636.94
+          ],
+          [
+            13905.13,
+            7637.24
+          ],
+          [
+            13914.25,
+            7630.78
+          ],
+          [
+            13922.91,
+            7624.5
+          ],
+          [
+            13931.08,
+            7618.58
+          ],
+          [
+            13942.64,
+            7610.2
+          ],
+          [
+            13953.95,
+            7602.05
+          ],
+          [
+            13963.17,
+            7595.39
+          ],
+          [
+            13973.26,
+            7588.12
+          ],
+          [
+            13987.11,
+            7578.13
+          ],
+          [
+            13994.58,
+            7572.74
+          ],
+          [
+            14004.28,
+            7565.74
+          ],
+          [
+            14011.02,
+            7560.88
+          ],
+          [
+            14018.94,
+            7555.17
+          ],
+          [
+            14026.87,
+            7549.45
+          ],
+          [
+            14034.47,
+            7543.96
+          ],
+          [
+            14042.15,
+            7538.42
+          ],
+          [
+            14050.11,
+            7532.69
+          ],
+          [
+            14051.18,
+            7531.92
+          ],
+          [
+            14058.57,
+            7526.58
+          ],
+          [
+            14057.95,
+            7524.94
+          ]
+        ]
+      ]
+    }
+  ],
+  "primaryEvidence": {
+    "districtReply": "https://www.berlin.de/ba-treptow-koepenick/_assets/bvv/pdf/mdv-ix-37.pdf",
+    "districtDocumentNumber": "SchA IX/1074",
+    "districtReplyDate": "2025-10-16",
+    "districtFinding": "Pacht gekündigt, Räumung durch die Kleingärtner/-innen 2020. Die Antwort betrifft Friedrichshagener Straße 56 / Flurstück 242.",
+    "orthophoto": {
+      "site": "09128",
+      "name": "Mühlenfließ KGA",
+      "map": "https://gdi.berlin.de/services/wms/truedop_2026?VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&LAYERS=truedop_2026&STYLES=&SRS=EPSG%3A25833&BBOX=403340.7788%2C5812332.0285%2C403563.5553%2C5812489.5815&WIDTH=1114&HEIGHT=788&FORMAT=image%2Fpng",
+      "size": [
+        1114,
+        788
+      ],
+      "worldBBox": [
+        13840.77882352941,
+        7510.418529411764,
+        14063.555294117645,
+        7667.971470588235
+      ],
+      "sha256": "c9c84f359064f9403b6b7c4b2b01889e60493effe3c38a91692afb94aedc561f"
+    },
+    "orthophotoFinding": "Großflächig abgeräumte Parzellen mit auffälligen Resten abgebrochener Lauben. Der Bildbefund betrifft die zusammenhängende frühere Anlage im Umriss 269.",
+    "cadastreRequest": "https://gdi.berlin.de/services/wfs/alkis?service=WFS&version=2.0.0&request=GetFeature&typeNames=alkis%3Aflurstuecke&outputFormat=application%2Fjson&srsName=EPSG%3A25833&BBOX=403346,5812337,403560,5812483,EPSG%3A25833",
+    "cadastreResponseSha256": "7d2a6fc343260f5635664fe0d9611ae041e70935b4eeccf297beb853e4f65d24",
+    "cadastreRecord": {
+      "uuid": "DEBE09YYP0003bmF",
+      "bezeich": "AX_Flurstueck",
+      "afl": 8414,
+      "fsko": "11051546400242____",
+      "zae": "242",
+      "nen": "",
+      "gmk": "0515",
+      "namgmk": "Köpenick",
+      "fln": "464",
+      "gdz": "11000009",
+      "namgem": "Treptow-Köpenick",
+      "zde": "2004-01-01",
+      "dst": "1136",
+      "beg": "2015-09-27"
+    },
+    "gardenPolygonM2": 8744.44,
+    "gardenAndKnownCadastreOverlapM2": 8061.72
+  }
+}

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.241
+
+- Add observed low vegetation to 49 large allotment gardens. The largest sites, including Märchenland and Dahlwitzer Straße, gain up to 32 additional patches each.
+- Trace two interior paths in the Vorarlberg and Leonorenstraße allotments.
+- Correct the withdrawn part of the Mühlenfließ allotment from Berlin's 2026 orthophoto and the borough's parcel record.
+- Reuse the most recently decoded garden data while adjacent tiles load.
+
 ## 1.0.240
 
 - Add mapped paths, hedges and low vegetation to large Berlin allotment gardens in Drawn and Native modes.
