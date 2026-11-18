@@ -110,9 +110,26 @@ if (uRiverEnabledV348 > 0.5 && vRiverEligibleV348 > 0.999) {
     // follows the daytime sun at (-760, 980, 720) above a horizontal surface.
     vec3 riverEye = normalize(cameraPosition - vRiverWorldV348);
     float sunward = smoothstep(0.42, 0.95, dot(riverEye, vec3(0.530, 0.683, -0.502)));
-    float crest = smoothstep(0.58, 0.94, riverWave) * smoothstep(-0.6, 0.65, riverSwell);
-    float resolved = 1.0 - smoothstep(0.28, 1.2, riverFootprint);
-    vec3 reflection = mix(vec3(0.12, 0.16, 0.18), vec3(0.38, 0.35, 0.27), sunward);
+    // Space short crests along the existing second wave train. Each wave
+    // patch has its own offset, length and intensity, continuous as it drifts.
+    vec2 waveAxes = vec2(dot(riverP, vec2(0.420, 0.909)), riverB);
+    vec2 spacing = vec2(5.7, 2.9);
+    vec2 cell = floor(waveAxes / spacing);
+    vec3 seed = fract(cell.xyx * vec3(0.1031, 0.1137, 0.1379));
+    seed += dot(seed, seed.yxz + 19.19);
+    vec3 variation = fract((seed.xxy + seed.yzz) * seed.zyx);
+    vec2 local = (fract(waveAxes / spacing) - 0.5 - (variation.xy - 0.5) * vec2(0.42, 0.64)) * spacing;
+    float along = local.x / (0.42 + 0.67 * variation.y);
+    float crossCrest = local.y + (variation.z - 0.5) * 0.18 * local.x + 0.055 * along * along;
+    float aa = clamp(0.5 * fwidth(riverB), 0.005, 0.13);
+    float halfWidth = 0.045 + 0.025 * variation.x;
+    float stroke = (1.0 - smoothstep(0.55, 1.0, abs(along))) *
+                   (1.0 - smoothstep(halfWidth - aa, halfWidth + aa, abs(crossCrest)));
+    float crest = stroke * (0.15 + 0.85 * variation.z * variation.z) *
+                  smoothstep(0.14, 0.76, variation.x + 0.24 * riverSwell) *
+                  (0.48 + 0.52 * smoothstep(-0.4, 0.75, riverWave));
+    float resolved = 1.0 - smoothstep(0.22, 0.84, riverFootprint);
+    vec3 reflection = mix(vec3(0.042, 0.058, 0.065), vec3(0.138, 0.126, 0.099), sunward);
     outgoingLight += riverTop * smoothstep(0.0, 0.16, riverEye.y) * resolved * crest * reflection;
   }
 }
