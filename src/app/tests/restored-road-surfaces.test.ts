@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import ts from "typescript";
+import { readRoadWordRecord, readRoadWordBatch, ROAD_PLANES_ENCODING } from "../src/roadWordPlanesV362";
 import {
   BufferAttribute, BufferGeometry, DoubleSide, Group, LineBasicMaterial,
   LineSegments, Mesh, MeshBasicMaterial, Raycaster, Vector3,
@@ -11,7 +12,7 @@ import { freezeStaticSceneTransforms } from "../src/staticSceneTransforms";
 import { setIsoNightPresentation } from "../src/IsometricCityWorld";
 import { indexGeometryExactly } from "../src/exactGeometryIndex";
 import { decodeLosslessGzipJson, encodeLosslessBase85 } from "../src/losslessGzipBase85";
-import { compressRestoredRoadSourceV346 } from "../losslessRestoredRoadSurfacesV346";
+import { compressRestoredRoadSourceV346, packRoadWordPlanes } from "../losslessRestoredRoadSurfacesV346";
 import { gzipSync } from "node:zlib";
 import type { RestoredRoadBatch, RestoredRoadManifest } from "../src/restoredRoadSurfaces";
 import { GROSSER_STERN_GATEHOUSES_V164_PROFILE, gatehouseV164World } from "../src/grosserSternGatehousesV164Profile";
@@ -27,6 +28,7 @@ const compiled = ts.transpileModule(functions.join("\n"), {
 
 function host(fetcher: (url: string) => Promise<unknown> = async () => { throw new Error("Unexpected fetch"); }, indexer: (geometry: BufferGeometry) => unknown = indexGeometryExactly, cutter = cutGrosserSternGatehouseGroundSurface) {
   const decodeSizes: number[] = [];
+  const inflatedRoadIds: string[] = [];
   const bindings = {
     TextDecoder: class extends TextDecoder {
       decode(input?: AllowSharedBufferSource, options?: TextDecodeOptions): string {
@@ -38,10 +40,15 @@ function host(fetcher: (url: string) => Promise<unknown> = async () => { throw n
     LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial, Raycaster, Vector3, markArchitecturalInk,
     smoothGroundTopSampler, spreebogenTerrainYAt, freezeStaticSceneTransforms, cutGrosserSternGatehouseGroundSurface: cutter,
     roadDataUrl: "./assets/restored-road-fixture.ndjson.txt", fetch: fetcher,
-    RESTORED_ROAD_MAX_LINE_CHARS: 2 * 1024 * 1024, indexGeometryExactly: indexer, decodeSizes, decodeLosslessGzipJson,
+    RESTORED_ROAD_MAX_LINE_CHARS: 2 * 1024 * 1024, indexGeometryExactly: indexer, decodeSizes, decodeLosslessGzipJson, readRoadWordRecord, ROAD_PLANES_ENCODING, inflatedRoadIds,
+    readRoadWordBatch(record: ReturnType<typeof readRoadWordRecord>) {
+      inflatedRoadIds.push(record.id);
+      return readRoadWordBatch(record);
+    },
   };
-  return new Function(...Object.keys(bindings), `${compiled}\nreturn { createRestoredRoadBatch, createRestoredRoadSurfaceBatches, roadLines, decodeSizes };`)(...Object.values(bindings)) as {
+  return new Function(...Object.keys(bindings), `${compiled}\nreturn { createRestoredRoadBatch, createRestoredRoadSurfaceBatches, roadLines, decodeSizes, inflatedRoadIds };`)(...Object.values(bindings)) as {
     decodeSizes: number[];
+    inflatedRoadIds: string[];
     roadLines: (body: ReadableStream<Uint8Array>) => AsyncGenerator<string>;
     createRestoredRoadBatch: typeof import("../src/restoredRoadSurfaces").createRestoredRoadBatch;
     createRestoredRoadSurfaceBatches: typeof import("../src/restoredRoadSurfaces").createRestoredRoadSurfaceBatches;
@@ -142,6 +149,54 @@ describe("restored exact road runtime", () => {
     expect(cancelled.pulled()).toBe(2);
     expect(cancelled.cancelled()).toBe(1);
     expect(cancelled.response.body.locked).toBeFalse();
+  });
+
+  test("packed coordinates and indices draw the same surfaces through the ordinary stream", async () => {
+    const batches = [asphalt(), { ...asphalt(), id: "second" }];
+    const packed = packRoadWordPlanes(records(batches).join("\n")).text.trimEnd().split("\n");
+    const network = streamResponse(packed.map(line => new TextEncoder().encode(line + "\n")));
+    const stream = host(async () => network.response).createRestoredRoadSurfaceBatches(ground);
+    const control = host(async () => new Response(records(batches).join("\n"))).createRestoredRoadSurfaceBatches(ground);
+    expect(fingerprint((await stream.next()).value!.root)).toBe(fingerprint((await control.next()).value!.root));
+    expect(network.pulled()).toBe(2);
+    await stream.return(undefined);
+    await control.return(undefined);
+    expect(network.cancelled()).toBe(1);
+    expect(network.response.body.locked).toBeFalse();
+
+    const row = JSON.parse(packed[1]);
+    for (const invalid of [[...row.slice(0, 2), row[2] + 8, row[3], row[4]], [...row.slice(0, 4), "broken"]]) {
+      const bad = streamResponse([new TextEncoder().encode(packed[0] + "\n" + JSON.stringify(invalid) + "\n")]);
+      await expect(host(async () => bad.response).createRestoredRoadSurfaceBatches(ground).next()).rejects.toThrow();
+      expect(bad.response.body.locked).toBeFalse();
+    }
+  });
+
+  test("resuming the packed stream validates every header and only inflates outstanding geometry", async () => {
+    const batches = ["first", "second", "third"].map(id => ({ ...asphalt(), id }));
+    const [header, first, second, third] = packRoadWordPlanes(records(batches).join("\n")).text.trimEnd().split("\n");
+    const completed = new Set(["first", "second"]);
+    const network = streamResponse([header, first, second, third].map(line => new TextEncoder().encode(line + "\n")));
+    const runtime = host(async () => network.response);
+    const stream = runtime.createRestoredRoadSurfaceBatches(ground, completed);
+    const only = (await stream.next()).value!;
+    expect(only.id).toBe("third");
+    const control = host(async () => new Response(records([batches[2]]).join("\n"))).createRestoredRoadSurfaceBatches(ground);
+    expect(fingerprint(only.root)).toBe(fingerprint((await control.next()).value!.root));
+    await control.return(undefined);
+    expect((await stream.next()).done).toBeTrue();
+    expect(runtime.inflatedRoadIds).toEqual(["third"]);
+    expect(network.response.body.locked).toBeFalse();
+
+    const invalidDimensions = JSON.parse(second);
+    invalidDimensions[2] = -8;
+    for (const invalid of [first, JSON.stringify(invalidDimensions)]) {
+      const bad = streamResponse([header, first, invalid, third].map(line => new TextEncoder().encode(line + "\n")));
+      const rejected = host(async () => bad.response);
+      await expect(rejected.createRestoredRoadSurfaceBatches(ground, completed).next()).rejects.toThrow();
+      expect(rejected.inflatedRoadIds).toEqual([]);
+      expect(bad.response.body.locked).toBeFalse();
+    }
   });
 
   test("compressed corrupt, oversized and forged-size batches reject and unlock", async () => {

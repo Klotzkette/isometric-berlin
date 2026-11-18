@@ -1,6 +1,6 @@
 import { Group } from "three";
 import {
-  buildSurroundingCityChunk,
+  buildCityChunkWithPaletteV362,
   type SurroundingCityChunk,
   type SurroundingOwnershipOptions,
 } from "./SurroundingCityGeometry";
@@ -55,7 +55,7 @@ export function* buildAltMitteCoreV169Steps(
       )
         throw new Error("Invalid or duplicate Alt-Mitte core chunk identity");
       ids.add(chunk.id);
-      const decoded = yield* buildSurroundingCityChunk(
+      const decoded = yield* buildCityChunkWithPaletteV362(
         chunk.packet,
         `alt-mitte-v169-${chunk.id}`,
         native,
@@ -74,7 +74,7 @@ export function* buildAltMitteCoreV169Steps(
     }
     if (payload.hospitalCorrection) {
       const id = "hospital-roof-v215";
-      const correction = yield* buildSurroundingCityChunk(payload.hospitalCorrection, id, native);
+      const correction = yield* buildCityChunkWithPaletteV362(payload.hospitalCorrection, id, native);
       correction.root.name = "Bundeswehrkrankenhaus modern flat roof and technical storey v215";
       correction.root.userData.sourceEnvelopeResident = true;
       correction.root.userData.hospitalRoofV215 = true;
@@ -84,7 +84,7 @@ export function* buildAltMitteCoreV169Steps(
     }
     if (payload.springerCorrection) {
       const id = "springer-current-v215";
-      const correction = yield* buildSurroundingCityChunk(payload.springerCorrection, id, native);
+      const correction = yield* buildCityChunkWithPaletteV362(payload.springerCorrection, id, native);
       correction.root.name = "Zentrales Springergebäude current OSM envelope v215";
       correction.root.userData.sourceEnvelopeResident = true;
       correction.root.userData.springerV215 = true;
@@ -93,7 +93,7 @@ export function* buildAltMitteCoreV169Steps(
       yield;
     }
     if (payload.eastCinemasCorrection) {
-      const correction = yield* buildSurroundingCityChunk(payload.eastCinemasCorrection, "east-cinemas-v260", native);
+      const correction = yield* buildCityChunkWithPaletteV362(payload.eastCinemasCorrection, "east-cinemas-v260", native);
       correction.root.name = "Kino International open cantilever source correction v260";
       correction.root.userData.sourceEnvelopeResident = true;
       correction.root.userData.eastCinemasV260 = true;

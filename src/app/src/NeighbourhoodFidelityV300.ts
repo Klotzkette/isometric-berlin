@@ -4,16 +4,20 @@ import west from "./data/westKiezV302.json";
 import { captureNeighbourhoodPacketV300, prepareNeighbourhoodPacketV300, neighbourhoodPacketCandidateV300, type NeighbourhoodSourceV300, type NeighbourhoodTicketV300 } from "./NeighbourhoodPacketV300";
 import type { SurroundingCityChunk } from "./SurroundingCityGeometry";
 
-const regions: readonly [NeighbourhoodSourceV300, string][] = [
-  [moabit as unknown as NeighbourhoodSourceV300, "moabit-mitte-v300"],
-  [east as unknown as NeighbourhoodSourceV300, "ost-housing-v301"],
-  [west as unknown as NeighbourhoodSourceV300, "west-kiez-v302"],
-];
-/** The eager keys do not inflate the unrelated region or another tile. */
 export function* captureNeighbourhoodFidelityV300(chunk: SurroundingCityChunk, id: string, native: boolean, enabled = false, westCoreReady = false): Generator<void, NeighbourhoodTicketV300[]> {
+  return yield* captureNeighbourhoodFromSourcesV362(chunk, id, native, enabled, westCoreReady, east as unknown as NeighbourhoodSourceV300);
+}
+
+export function* captureNeighbourhoodFromSourcesV362(chunk: SurroundingCityChunk, id: string, native: boolean, enabled: boolean, westCoreReady: boolean, eastHousing?: NeighbourhoodSourceV300): Generator<void, NeighbourhoodTicketV300[]> {
   const tickets: NeighbourhoodTicketV300[] = [];
-  if (enabled) for (const [source, kind] of regions) {
-    if (kind === "west-kiez-v302" && !westCoreReady) continue;
+  if (!enabled) return tickets;
+  const regions: readonly [NeighbourhoodSourceV300 | undefined, string][] = [
+    [moabit as unknown as NeighbourhoodSourceV300, "moabit-mitte-v300"],
+    [eastHousing, "ost-housing-v301"],
+    [westCoreReady ? west as unknown as NeighbourhoodSourceV300 : undefined, "west-kiez-v302"],
+  ];
+  for (const [source, kind] of regions) {
+    if (!source) continue;
     const ticket = yield* captureNeighbourhoodPacketV300(chunk, id, native, true, source, kind);
     if (ticket) tickets.push(ticket);
   }

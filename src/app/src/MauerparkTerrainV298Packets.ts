@@ -49,11 +49,19 @@ export function* prepareMauerparkTerrainV298(
   chunk: SurroundingCityChunk, id: string, native = false, ownersReady = false,
   evidence: MauerparkTerrainEvidenceV298 = data,
 ): Generator<void, SurroundingCityChunk> {
+  return yield* prepareMauerparkFromSourceV362(chunk, id, native, ownersReady, evidence);
+}
+
+export function* prepareMauerparkFromSourceV362(
+  chunk: SurroundingCityChunk, id: string, native: boolean, ownersReady: boolean,
+  evidence?: MauerparkTerrainEvidenceV298,
+): Generator<void, SurroundingCityChunk> {
   const earlier = prior(chunk);
   if (!ownersReady) return earlier?.original ?? chunk;
   if (earlier) return chunk;
   // Reject unrelated tiles before touching the weak, compressed packet field.
   if (id !== "3_-6" && id !== "3_-5" && id !== "4_-6" && id !== "4_-5") return chunk;
+  if (!evidence) throw new Error("Missing Mauerpark terrain for " + id);
   if (evidence.schemaVersion !== 1 || !Object.hasOwn(evidence.packets, id)) return chunk;
   const plan = evidence.packets[id]?.[native ? "minecraft" : "drawn"];
   if (!plan || plan.origin.length !== 3 || plan.origin.some((v, i) => !Number.isFinite(v) || v !== chunk.origin[i]) ||

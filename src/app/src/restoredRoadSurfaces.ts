@@ -7,12 +7,15 @@ import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { indexGeometryExactly } from "./exactGeometryIndex";
 import { decodeLosslessGzipJson } from "./losslessGzipBase85";
 
+import { readRoadWordRecord, readRoadWordBatch, ROAD_PLANES_ENCODING, type RoadWordBatch } from "./roadWordPlanesV362";
+
 export type RestoredRoadBatch = { id: string; kind: "asphalt" | "paving" | "kerbs"; xz: string; indices?: string };
 export type RestoredRoadManifest = { format: string; version: number; encoding: string; source_sha256: string; batch_count: number };
 /** A corrupt response cannot grow an unbounded partial-line buffer. */
 export const RESTORED_ROAD_MAX_LINE_CHARS = 2 * 1024 * 1024;
 
-function bytes(encoded: string): ArrayBuffer {
+function bytes(encoded: string | ArrayBuffer): ArrayBuffer {
+  if (typeof encoded !== "string") return encoded;
   const text = atob(encoded);
   const result = new Uint8Array(text.length);
   for (let i = 0; i < text.length; i++) result[i] = text.charCodeAt(i);
@@ -20,7 +23,7 @@ function bytes(encoded: string): ArrayBuffer {
 }
 
 /** No triangulation, smoothing or giant temporary number arrays at startup. */
-export function createRestoredRoadBatch(batch: RestoredRoadBatch, terrainAt: (x: number, z: number) => number): Group {
+export function createRestoredRoadBatch(batch: RestoredRoadBatch | RoadWordBatch, terrainAt: (x: number, z: number) => number): Group {
   const xz = new Float32Array(bytes(batch.xz));
   const root = new Group();
   root.name = batch.id;
@@ -139,22 +142,23 @@ export async function* createRestoredRoadSurfaceBatches(
     if (!manifest) {
       const candidate = value as RestoredRoadManifest;
       if (!candidate || candidate.format !== "bounded-source-road-surfaces" || candidate.version !== 1 ||
-        !["ndjson-base64-float32", "ndjson-gzip-base85-json"].includes(candidate.encoding) || !Number.isSafeInteger(candidate.batch_count) || candidate.batch_count < 0) {
+        !["ndjson-base64-float32", "ndjson-gzip-base85-json", ROAD_PLANES_ENCODING].includes(candidate.encoding) || !Number.isSafeInteger(candidate.batch_count) || candidate.batch_count < 0) {
         throw new Error("Exact street data is incomplete");
       }
       manifest = candidate;
       continue;
     }
-    const batch = value as RestoredRoadBatch;
-    if (!batch || typeof batch.id !== "string" || typeof batch.xz !== "string" ||
-      !["asphalt", "paving", "kerbs"].includes(batch.kind) ||
-      (batch.kind !== "kerbs" && typeof batch.indices !== "string") || ids.has(batch.id) || ++count > manifest.batch_count) {
+    const packed = manifest.encoding === ROAD_PLANES_ENCODING ? readRoadWordRecord(value, RESTORED_ROAD_MAX_LINE_CHARS) : null;
+    const plain = value as RestoredRoadBatch;
+    if (!packed && (!plain || typeof plain.id !== "string" || typeof plain.xz !== "string" ||
+        !["asphalt", "paving", "kerbs"].includes(plain.kind) || (plain.kind !== "kerbs" && typeof plain.indices !== "string"))) {
       throw new Error("Exact street data contains an invalid batch");
     }
-    ids.add(batch.id);
-    if (!completed.has(batch.id)) yield { id: batch.id, root: createRestoredRoadBatch(batch, terrainAt) };
-    // Do not retain the encoded source while later transferred geometry is built.
-    batch.xz = ""; batch.indices = undefined;
+    const id = packed?.id ?? plain.id;
+    if (ids.has(id) || ++count > manifest.batch_count) throw new Error("Exact street data contains an invalid batch");
+    ids.add(id);
+    if (completed.has(id)) continue;
+    yield { id, root: createRestoredRoadBatch(packed ? readRoadWordBatch(packed) : plain, terrainAt) };
   }
   if (!manifest || count !== manifest.batch_count) throw new Error("Exact street data is incomplete");
 }

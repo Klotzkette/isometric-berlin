@@ -74,6 +74,7 @@ const STREET_VIEWS_V343: typeof GARDEN_VIEWS_V330 = {
 };
 
 const MITTE_EXTERIOR_VIEWS_V344: typeof GARDEN_VIEWS_V330 = {
+  "Berliner Dom": { position: [1464, 261, 315], target: [1970, 46, 42] },
   "Auswärtiges Amt – Werderscher Markt": { position: [2130, 230, 30], target: [1870, 15, 510] },
   "Gendarmenmarkt – zweite Reihe": { position: [1680, 140, 840], target: [1610, 15, 550] },
   "Bauakademie und Schinkelplatz": { position: [2160, 148, 430], target: [1848, 12, 329] },

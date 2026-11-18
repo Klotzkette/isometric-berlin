@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Box3, InstancedMesh, Mesh, ShaderLib, Vector3 } from "three";
+import { Box3, InstancedMesh, Mesh, Raycaster, ShaderLib, Vector3 } from "three";
 import {
   createFernsehturmArchitecture,
   createMinecraftFernsehturmArchitecture,
@@ -9,7 +9,7 @@ import {
   FERNSEHTURM_DETAIL_PROFILE as P,
   fernsehturmSunReflection,
 } from "../src/fernsehturmDetailProfile";
-import { FERNSEHTURM_PROFILE as original } from "../src/schlossEastProfile";
+import { FERNSEHTURM_PROFILE as original, fernsehturmOutlineSolidAt } from "../src/schlossEastProfile";
 
 function signature(root: ReturnType<typeof createFernsehturmArchitecture>) {
   const arrays: Uint8Array[] = [];
@@ -56,6 +56,18 @@ describe("Fernsehturm measured silhouette and bounded details", () => {
     expect(P.observationLevel).toBe(203);
     expect(P.restaurantLevel).toBe(207);
   });
+  test("the concrete shaft reaches nine metres in diameter beneath the sphere", () => {
+    const height = 194, y = P.groundY + height, radius = 4.5 + 3.5 * 2 / 176;
+    expect(fernsehturmOutlineSolidAt(P.x + radius - .01, P.z, y)).toBeTrue();
+    expect(fernsehturmOutlineSolidAt(P.x + radius + .01, P.z, y)).toBeFalse();
+    for (const native of [false, true]) {
+      const root = native ? createMinecraftFernsehturmArchitecture() : createFernsehturmArchitecture();
+      root.updateMatrixWorld(true);
+      const ray = new Raycaster(new Vector3(P.x + 30, y, P.z), new Vector3(-1, 0, 0));
+      const hit = ray.intersectObjects(root.children.filter(m => !m.userData.fernsehturmHorizonCoverage), true)[0];
+      expect(Math.abs(hit.point.x - P.x - radius)).toBeLessThan(native ? P.nativeCell / 2 : .02);
+    }
+  });
   for (const native of [false, true])
     test(`complete equal touch/desktop geometry and surface budget (${native})`, () => {
       const create = native
@@ -68,8 +80,8 @@ describe("Fernsehturm measured silhouette and bounded details", () => {
       expect(stats.bytes).toBeLessThan(native ? 2_000_000 : 1_700_000);
       expect(stats.instances).toBeLessThan(native ? 24000 : 1000);
       expect(stats.hash).toBe(native
-        ? "7cd716b8317d35b43f30bf12e27735e2199c246f74a8bf1b4a91a4d6c977b247"
-        : "63bd34dd23fa2da7dd50d77ddf129865eb152753df290aa8a9a4586711d914dc");
+        ? "37ad8c738d8865cbe3c0b2ac84c6747b184d0509e99557716516eb000a6cd6ef"
+        : "cb11344465f6202177318070e1c37b19f196dc551816ee30d8755eafd341349c");
       const box = new Box3().setFromObject(root);
       expect(box.min.y).toBeCloseTo(P.groundY, 3);
       expect(box.max.y).toBeCloseTo(P.groundY + 368, 3);

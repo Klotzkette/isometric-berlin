@@ -18,6 +18,7 @@ describe("gallery flight startup v223", () => {
     }
     for (const mode of ["day", "night", "snowstorm", "schwellenraum", "flood", "minecraft"] as const)
       expect(directStartupMode(`?theme=${mode}`)).toBe(mode);
+    expect(startupViewSelection(landmarks.landmarks, "#landmark=berliner-dom")).toEqual({ name: "Berliner Dom", automatic: false });
     expect(DEFAULT_VIEW.focus).toBe("Reichstagsgebäude");
   });
 

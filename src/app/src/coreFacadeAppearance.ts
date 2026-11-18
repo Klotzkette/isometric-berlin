@@ -4,6 +4,7 @@ import {
   type CoreHousePartV273,
 } from "./CoreHouseColoursV273";
 import unpainted from "./data/coreFacadeFallback.json";
+import officePrints from "./data/officePrismPaintV362.json";
 import { coreResidentialDrawnTone, ORDINARY_FACADE_TONES } from "./ordinaryFacadeTones";
 
 /** Drawn-only lookup for the source parts without an overview colour. It does
@@ -17,4 +18,11 @@ export function coreResidentialFacadeTone(part: CoreHousePartV273): number | und
   const rows = (unpainted as unknown as Readonly<Record<string, readonly number[][]>>)[part.id];
   const row = exactCoreHouseRow(part, rows?.[0], rows);
   return row ? ORDINARY_FACADE_TONES[row[2]] : undefined;
+}
+
+/** These exact public architecture sources are also verified by their retained
+ * rendered vertex colours before the replacement facade is attached. */
+export function hasOfficePrismPaintV362(part: CoreHousePartV273): boolean {
+  const prints: Readonly<Record<string, readonly number[]>> = officePrints;
+  return Boolean(part.id && exactCoreHouseRow(part, prints[part.id]));
 }

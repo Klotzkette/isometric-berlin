@@ -21,9 +21,12 @@ export function createFernsehturmOutlineMesh(): Mesh {
   };
   append(new CylinderGeometry(P.shaftBottomRadius, P.footRadius, P.footFlareHeight, 32),
     P.groundY + P.footFlareHeight / 2, 0xc5cbca);
-  const shaftHeight = P.shaftTopHeight - P.footFlareHeight;
+  const headBottom = P.sphereCenterHeight - P.sphereRadius;
+  const shaftHeight = headBottom - P.footFlareHeight;
   append(new CylinderGeometry(P.shaftTopRadius, P.shaftBottomRadius, shaftHeight, 32),
     P.groundY + P.footFlareHeight + shaftHeight / 2, 0xc5cbca);
+  append(new CylinderGeometry(P.shaftTopRadius, P.shaftTopRadius, P.shaftTopHeight - headBottom, 32),
+    P.groundY + (headBottom + P.shaftTopHeight) / 2, 0xc5cbca);
   append(new SphereGeometry(P.sphereRadius, 32, 20), P.groundY + P.sphereCenterHeight, 0xa2afb2);
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));

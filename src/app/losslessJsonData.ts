@@ -23,6 +23,8 @@ import civicFacilitiesIndexV350 from "./src/data/civicFacilitiesV350Index.json";
 // JSON imports. Geometry still expands weakly, only for the requested host.
 const CIVIC_COMPACT_SOURCES_V350 = new Set(civicFacilitiesIndexV350.sources.map(({ file }) => file));
 
+export const STREAMED_TILE_DATA_V362 = /\/(?:primaryColoursV273_\d{2}|ostHousingV301|mauerparkTerrainV298)\.json$/;
+
 export const LOSSLESS_JSON_FIELD_BYTES = 64 * 1024;
 
 const PACKED_PACKET_JSON = /\/data\/altMitteV169(?:Drawn|Native)\/packet-\d+\.json$/;
@@ -655,8 +657,24 @@ export function losslessJsonData(
       productionBuild = config.command === "build";
     },
     async transform(source, id) {
+      // A dynamic module namespace retains every named export. Limit this
+      // streamed entry to the default object so its weak packet getter is
+      // decoded only for the active tile and remains collectible afterwards.
+      if (/\/primaryColoursV273_\d{2}\.json\?colour-bank$/.test(id)) {
+        return {
+          code: `export { default } from ${JSON.stringify(id.split("?")[0])};`,
+          map: null,
+          moduleType: "js" as const,
+        };
+      }
       const prepared = productionBuild ? await preparation.prepare(source, id) : undefined;
-      return transformLosslessJsonData(source, id, LOSSLESS_JSON_FIELD_BYTES, prepared);
+      const result = transformLosslessJsonData(source, id, LOSSLESS_JSON_FIELD_BYTES, prepared);
+      // These tile banks build private data objects. Their standalone synchronous
+      // re-exports must not turn unused imports into eager browser requests.
+      if (result && STREAMED_TILE_DATA_V362.test(id)) {
+        return { ...result, moduleSideEffects: false };
+      }
+      return result;
     },
     buildEnd() {
       preparation.clear();

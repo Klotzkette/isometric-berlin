@@ -46,6 +46,49 @@ function clock(b:Builder,a:Axis,u:number,y:number,r:number,dark=false):void {
   for(let i=0;i<12;i++){const t=i*Math.PI/6;b.beam(point(a,u+Math.sin(t)*r*.76,y+Math.cos(t)*r*.76,.65),point(a,u+Math.sin(t)*r*.91,y+Math.cos(t)*r*.91,.65),.12,dark?C.gold:C.shade);}
   b.beam(point(a,u,y,.75),point(a,u-.4*r,y+.52*r,.75),.16,C.gold);b.beam(point(a,u,y,.76),point(a,u+.62*r,y+.15*r,.76),.11,C.gold);
 }
+/** Four 4.75 m clock faces. The Senate's tower photograph shows a turquoise
+ * hour ring with pale oval cartouches and gilded hands around a light centre. */
+function rathausDial(b:Builder, a:Axis, u:number, y:number):void {
+  const r = 4.75 / 2;
+  const centre = new Vector3(...point(a, u, y, 0));
+  const normal = new Vector3(...point(a, u, y, 1)).sub(centre).normalize();
+  const tangent = new Vector3(...point(a, u + 1, y, 0)).sub(centre).normalize();
+  // Local X goes clockwise when the dial is viewed from outside.
+  if (tangent.clone().cross(UP).dot(normal) < 0) tangent.negate();
+  const at = (x:number, h:number, depth:number):P =>
+    centre.clone().addScaledVector(tangent, x).addScaledVector(UP, h).addScaledVector(normal, depth).toArray() as P;
+  const disc = (radius:number, depth:number, color:number):void => {
+    if (b.minecraft) {
+      const rows = 16, step = radius * 2 / rows;
+      for (let k = 0; k < rows; k++) {
+        const h = (k + .5) * step - radius;
+        b.facade(a, u, y + h, 2 * Math.sqrt(radius * radius - h * h), step, color, depth, .04);
+      }
+    } else {
+      b.add("round", at(0, 0, depth), [radius * 2, .04, radius * 2], color,
+        new Quaternion().setFromUnitVectors(UP, normal));
+    }
+  };
+  disc(r, .65, 0xe4e2cf);
+  circle(b, a, u, y, r - .055, .12, 0xb7ac88, .73, 32);
+  disc(r * .91, .70, 0x57939a);
+  disc(r * .51, .75, 0xd5ded4);
+  for (let i = 0; i < 12; i++) {
+    const angle = i * Math.PI / 6, dx = Math.sin(angle), dy = Math.cos(angle);
+    const radial = tangent.clone().multiplyScalar(dx).addScaledVector(UP, dy);
+    const cross = radial.clone().cross(normal);
+    const turn = new Quaternion().setFromRotationMatrix(new Matrix4().makeBasis(cross, radial, normal));
+    const cartouche = (width:number, height:number, depth:number, color:number):void =>
+      b.add("balls", at(dx*r*.71, dy*r*.71, depth), [width,height,.038], color, turn);
+    cartouche(.64, .91, .76, 0x475951);
+    cartouche(.53, .80, .81, 0xd8dfc7);
+    b.beam(at(dx*r*.57,dy*r*.57,.86), at(dx*r*.84,dy*r*.84,.86), .10, 0xba964d);
+    b.beam(at(dx*r*.32,dy*r*.32,.84), at(dx*r*.47,dy*r*.47,.84), .049, 0x66716a);
+  }
+  b.beam(at(0,0,.92), at(-r*.38,r*.39,.92), .20, C.gold);
+  b.beam(at(0,0,.96), at(r*.13,-r*.80,.96), .14, C.gold);
+  b.add("balls",at(0,0,1.00), [.27,.27,.27], C.gold);
+}
 function ornamentBand(b:Builder,a:Axis,y:number):void {
   const l=length(a);b.facade(a,l/2,y+.62,l,.17,C.pale,.37,.3);b.facade(a,l/2,y-.55,l,.15,C.pale,.37,.3);
   const n=Math.max(1,Math.floor(l/1.5));for(let i=0;i<n;i++){const u=(i+.5)*l/n;arch(b,a,u,y-.4,.66,.9,false,C.shade,C.light,.28);if(!b.minecraft)b.facade(a,u,y-.23,.10,.45,C.light,.47);}
@@ -76,7 +119,7 @@ function rathaus(b:Builder):void {
     const a=outwardAxis(tower,corners[e],corners[(e+1)%4]),l=length(a);
     for(const u of[l*.32,l*.68]){arch(b,a,u,33.0,2.7,18.4);b.facade(a,u,41.3,.13,16.6,C.pale,.65);circle(b,a,u,49.8,.55,.16,C.pale,.64,14);}
     for(const y of[32.3,54.8,72.6,76.8])b.facade(a,l/2,y,l+.7,.42,C.light,.30,.48);
-    arch(b,a,l/2,58.2,8.9,12,false,C.brick,C.light,.3);clock(b,a,l/2,64.5,2.45);
+    arch(b,a,l/2,58.2,8.9,12,false,C.brick,C.light,.3);rathausDial(b,a,l/2,64.5);
     for(const u of[.85,l-.85]){arch(b,a,u,58.2,1.22,12.2,false,C.dark,C.light,.67);b.beam(point(a,u-.6,58.2,.8),point(a,u-.6,69.3,.8),.42,C.stone);b.beam(point(a,u+.6,58.2,.8),point(a,u+.6,69.3,.8),.42,C.stone);}
     ornamentBand(b,a,74.0);
     b.facade(a,l/2,76.75,l,1.4,C.light,.08,.28);

@@ -4,6 +4,7 @@ import {
   MeshBasicMaterial, MeshStandardMaterial, ShapeUtils, Vector2, Vector3,
 } from "three";
 import source from "./data/cafeNeuerSeeV164Source.json";
+import compactedPaths from "./data/cafeGardenRoutesV362.json";
 import { letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { pointInWorldRing, type WorldRing } from "./chancelleryExtensionProfile";
@@ -128,6 +129,22 @@ function garden(g:Garden):void {
   }else{
     g.sheets.push(...floors.gardenSurfaces);
     for(const [a,b] of floors.deckPlankLines)g.line(0x9b8a6d,[a[0],floors.deckY+.009,a[1]],[b[0],floors.deckY+.009,b[1]],.018);
+  }
+  // These three compacted routes occupy the reserved gaps in the café floor.
+  const pathColor = 0xa79f8f, pathY = 5.325;
+  if (g.native) {
+    const cell = compactedPaths.cell;
+    for (const [x,z,w,h] of compactedPaths.runs) {
+      g.box(pathColor, (x + w / 2) * cell, pathY - .02, (z + h / 2) * cell, w * cell, .04, h * cell);
+    }
+  } else {
+    const points = compactedPaths.points.map(([x,z]) => [x / 100, pathY, z / 100]);
+    const triangles: number[][][] = [];
+    for (let i = 0; i < compactedPaths.indices.length; i += 3) {
+      const ix = compactedPaths.indices;
+      triangles.push([points[ix[i]], points[ix[i+1]], points[ix[i+2]]]);
+    }
+    g.sheets.push({color: pathColor, triangles});
   }
   for(const [a,b] of floors.shorelineDeckRails){
     const y=floors.deckY,dx=b[0]-a[0],dz=b[1]-a[1],n=Math.max(1,Math.ceil(Math.hypot(dx,dz)/2.2));

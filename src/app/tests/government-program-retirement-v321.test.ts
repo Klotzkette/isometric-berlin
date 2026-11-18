@@ -1,4 +1,6 @@
 /** Exercise real touch shader retirement with actual finite source families. */
+import {bindGroundFinishV348} from "../src/GroundFinishV348";
+import {bindHbfForecourtFinishV354} from "../src/HbfForecourtFinishV354";
 import{expect,test}from"bun:test";
 import{readFileSync}from"node:fs";
 import ts from"typescript";
@@ -15,13 +17,13 @@ import{runtimeConstructorOptionsV310}from"./helpers/northRuntimeActualV310";
 import{compactStaticGeometry}from"../src/compactStaticGeometry";
 import{setFlatUnlit,setBuildingColorMode}from"../src/drawnBuildings";
 import{schwellenraumObjektmodus}from"../src/visual-modes/schwellenraum/presentation";
-import{schwellenraumMaterialFor,setSchwellenraumStandardMaterialTone,hasSchwellenraumMaterialProvenance}from"../src/visual-modes/schwellenraum/materialGrade";
+import{groundOverlayPresentationV329,schwellenraumMaterialFor,setSchwellenraumStandardMaterialTone,hasSchwellenraumMaterialProvenance}from"../src/visual-modes/schwellenraum/materialGrade";
 import{createMinecraftMaterialState,setMinecraftMaterialPresentation,restoreMinecraftMaterialPresentation,disposeMinecraftMaterialState,hasMinecraftMaterialProvenance}from"../src/visual-modes/minecraft/materialMode";
 import{applyArchitecturalInkMode}from"../src/architecturalInk";
 const viewer=readFileSync(new URL("../src/ThreeViewer.tsx",import.meta.url),"utf8"),ast=ts.createSourceFile("ThreeViewer.tsx",viewer,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
 function node(name:string){const n=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name)as ts.FunctionDeclaration;if(!n)throw Error("Missing actual Viewer function "+name);return n;}
 function actual(names:string[],deps:Record<string,unknown>,last=names.at(-1)!){const text=names.map(name=>node(name).getText(ast).replace(/^export /,"")).join("\n"),js=ts.transpileModule(text,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;return new Function(...Object.keys(deps),js+";return "+last)(...Object.values(deps));}
-const light=actual(["applyMaterialLighting","applyLightingToRoot"],{Mesh,LineSegments,MeshStandardMaterial,LineBasicMaterial,compactStaticGeometry,setFlatUnlit,setBuildingColorMode,schwellenraumObjektmodus,schwellenraumMaterialFor,setSchwellenraumStandardMaterialTone,applyArchitecturalInkMode,MOONLIGHT_EMISSIVE:0x1c2636,MOONLIGHT_EMISSIVE_INTENSITY:.22});
+const light=actual(["applyMaterialLighting","applyLightingToRoot"],{Mesh,LineSegments,MeshStandardMaterial,LineBasicMaterial,bindGroundFinishV348,bindHbfForecourtFinishV354,compactStaticGeometry,setFlatUnlit,setBuildingColorMode,schwellenraumObjektmodus,groundOverlayPresentationV329,schwellenraumMaterialFor,setSchwellenraumStandardMaterialTone,applyArchitecturalInkMode,MOONLIGHT_EMISSIVE:0x1c2636,MOONLIGHT_EMISSIVE_INTENSITY:.22});
 const relight=actual(["voxelModeActive","currentGovernmentOfficesV321","applyGovernmentLightingV321"],{applyLightingToRoot:light,wilhelmHousingModuleV324:undefined,wilhelmStreetModuleV325:undefined});
 const scene=node("setSceneLighting"),boundary=scene.body!.statements.filter(s=>ts.isIfStatement(s)&&s.getText(ast).includes("retireSceneMaterialPrograms(runtime.scene)"));expect(boundary).toHaveLength(1);
 const dayShare=scene.body!.statements.find(s=>ts.isVariableStatement(s)&&s.declarationList.declarations.some(d=>d.name.getText(ast)==="sharesDayMaterials"))!;

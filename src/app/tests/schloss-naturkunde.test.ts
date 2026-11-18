@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Box3, BufferGeometry, Group, InstancedMesh, Matrix4, Mesh, Raycaster, Vector3 } from "three";
+import { Box3, Color, BufferGeometry, Group, InstancedMesh, Matrix4, Mesh, Raycaster, Vector3 } from "three";
 import source from "../src/schlossNaturkundeSource.json";
 import { createSchlossNaturkundeShells, createMinecraftSchlossNaturkundeShells } from "../src/SchlossNaturkundeShells";
 import { createSchlossNaturkundeFacades, createMinecraftSchlossNaturkundeFacades, SCHLOSS_NATURKUNDE_FACADE_PROFILE, naturkundeFrontOffsetAt } from "../src/SchlossNaturkundeFacades";
@@ -39,6 +39,30 @@ describe("Schloss and Naturkunde retained architecture", () => {
     const hit = new Raycaster(origin, normal.clone().negate()).intersectObject(root, true)[0];
     expect(hit).toBeDefined();
     expect(hit.object.parent).toBe(facade);
+  });
+  test("Spree-side openings and stone piers remain visible above the full shell", () => {
+    const p = SCHLOSS_NATURKUNDE_FACADE_PROFILE.schloss, { start, end } = p.east;
+    const axis = new Vector3(end[0]-start[0],0,end[1]-start[1]), length=axis.length();
+    axis.normalize();
+    const normal = new Vector3(axis.z,0,-axis.x);
+    for (const native of [false,true]) {
+      const root = new Group();
+      root.add(native ? createMinecraftSchlossNaturkundeShells() : createSchlossNaturkundeShells(),
+        native ? createMinecraftSchlossNaturkundeFacades() : createSchlossNaturkundeFacades());
+      root.updateMatrixWorld(true);
+      const paintAt=(along:number,height:number)=>{
+        const ray = new Raycaster(new Vector3(start[0],p.groundY+height,start[1])
+          .addScaledVector(axis,along).addScaledVector(normal,6),normal.clone().negate(),0,8);
+        const hit=ray.intersectObject(root,true)[0], paint=new Color();
+        expect(hit?.object).toBeInstanceOf(InstancedMesh);
+        (hit.object as InstancedMesh).getColorAt(hit.instanceId!,paint);
+        return paint.getHex();
+      };
+      for(const [y,count] of [[2.5,23],[10,23],[17,23],[24.5,46]]) {
+        for(let i=0;i<count;i++) expect(paintAt((i+.5)*length/count,y)).toBe(0x576466);
+        expect(paintAt(length/count,y)).toBe(0xdcd8cf);
+      }
+    }
   });
   test("native cornices remain narrow instead of expanding to their world bounding boxes", () => {
     const root = createMinecraftSchlossNaturkundeFacades(), matrix = new Matrix4(), scale = new Vector3();

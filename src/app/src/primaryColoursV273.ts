@@ -30,12 +30,15 @@ import bank28 from "./data/primaryColoursV273_28.json";
 import bank29 from "./data/primaryColoursV273_29.json";
 import bank30 from "./data/primaryColoursV273_30.json";
 import bank31 from "./data/primaryColoursV273_31.json";
-import index from "./data/primaryColoursV273Index.json";
+import { primaryColourBankIndexV362 } from "./primaryColourBankV362";
 import { applyGreyClusterColoursV263, type GreyClusterColourSourceV263 } from "./greyClusterColoursV263";
 import { primaryHousePaletteV273 } from "./primaryHousePaletteV273";
 import type { SurroundingCityChunk } from "./SurroundingCityGeometry";
 const banks = [bank0,bank1,bank2,bank3,bank4,bank5,bank6,bank7,bank8,bank9,bank10,bank11,bank12,bank13,bank14,bank15,bank16,bank17,bank18,bank19,bank20,bank21,bank22,bank23,bank24,bank25,bank26,bank27,bank28,bank29,bank30,bank31] as GreyClusterColourSourceV263[];
-const locations: Readonly<Record<string, number>> = index;
+export function synchronousPrimaryColourBankV362(id: string, native: boolean) {
+  const index = primaryColourBankIndexV362(id, native);
+  return index === undefined ? undefined : banks[index];
+}
 
 /** Each weak shard is read only for its exact current construction packet.
  * The existing guarded decoder validates the whole recipe before any write. */
@@ -44,8 +47,8 @@ export function* applyPrimaryColoursV273(
   vertices: Uint16Array, offset: number, count: number,
 ): Generator<void, number> {
   if (chunk.meshes[mesh]?.kind !== "city") return 0;
-  const key = `${native ? "minecraft" : "drawn"}:${id}`;
-  if (!Object.prototype.hasOwnProperty.call(locations, key)) return 0;
+  const bank = synchronousPrimaryColourBankV362(id, native);
+  if (!bank) return 0;
   return yield* applyGreyClusterColoursV263(chunk, id, native, mesh, vertices, offset, count,
-    banks[locations[key]], primaryHousePaletteV273);
+    bank, primaryHousePaletteV273);
 }

@@ -60,6 +60,8 @@ export function createFernsehturmHorizonCoverage(
   for (const band of bands) {
     const first = positions.length / 3;
     color.setHex(band.color);
+    // Match the area-averaged concrete shading on the reduced shaft silhouette.
+    if (band.color === 0xc5c5b9) color.multiplyScalar(.88);
     for (const [side, end] of [[-1, 0], [1, 0], [1, 1], [-1, 1]]) {
       const radius = end ? band.topRadius : band.bottomRadius;
       positions.push(P.x + side * radius, P.groundY + (end ? band.top : band.bottom), P.z);
@@ -209,7 +211,7 @@ export function createFernsehturmHorizonCoverage(
 export function drawnFernsehturmCoverageBands(): TowerCoverageBand[] {
   const bands: TowerCoverageBand[] = [
     {bottom:0,top:20,bottomRadius:16,topRadius:8,color:0xc5c5b9},
-    {bottom:20,top:196,bottomRadius:8,topRadius:5.704347826,color:0xc5c5b9},
+    {bottom:20,top:196,bottomRadius:P.shaftBottomRadius,topRadius:P.shaftTopRadius,color:0xc5c5b9},
     {bottom:228,top:250,bottomRadius:6.55,topRadius:6.55,color:0xb8b8ab},
   ];
   const radius = (y:number) => Math.sqrt(Math.max(0,256-(y-212)**2));

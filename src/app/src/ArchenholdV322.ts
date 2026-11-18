@@ -17,6 +17,15 @@ function ownJSON(value:unknown):string|null{
 function* ownJSONSteps(value:unknown,budget={nodes:0}):Generator<void,string|null>{
  if(++budget.nodes%2048===0)yield;
  if(value===null||typeof value!=="object")return ownJSON(value);
+ // Survey coordinates dominate the complete source inventory. Validate both
+ // own data properties directly, including descriptor and key restrictions.
+ if(Array.isArray(value)&&value.length===2&&Object.getPrototypeOf(value)===Array.prototype){
+   const x=Object.getOwnPropertyDescriptor(value,"0"),y=Object.getOwnPropertyDescriptor(value,"1");
+   if(x?.enumerable&&y?.enumerable&&Number.isFinite(x.value)&&Number.isFinite(y.value)&&Reflect.ownKeys(value).length===3){
+     budget.nodes+=2;if(budget.nodes%2048<2)yield;
+     return `[${x.value},${y.value}]`;
+   }
+ }
  const array=Array.isArray(value),keys=Object.keys(value);
  if(Object.getOwnPropertySymbols(value).length||Object.getOwnPropertyNames(value).length!==keys.length+(array?1:0))return null;
  if(array?(Object.getPrototypeOf(value)!==Array.prototype||keys.length!==value.length||keys.some((k,i)=>k!==String(i))):(Object.getPrototypeOf(value)!==Object.prototype&&Object.getPrototypeOf(value)!==null))return null;
@@ -37,7 +46,40 @@ function* ownJSONSteps(value:unknown,budget={nodes:0}):Generator<void,string|nul
  }
  return array?"["+fields.join(",")+"]":"{"+fields.join(",")+"}";
 }
-function* control(value:unknown,expected:number|readonly number[],trustedData=false):Generator<void,boolean>{const s=trustedData?JSON.stringify(value):yield*ownJSONSteps(value);if(s===null)return false;let h=2166136261;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),16777619)>>>0;if(i%32768===32767)yield;}return typeof expected==="number"?h===expected:expected.includes(h);}
+function* control(value:unknown,expected:number|readonly number[],trustedData=false):Generator<void,boolean>{
+ let hash=2166136261;
+ function* append(text:string){
+   for(let start=0;start<text.length;start+=32768){
+     const end=Math.min(text.length,start+32768);
+     for(let i=start;i<end;i++)hash=Math.imul(hash^text.charCodeAt(i),16777619);
+     if(end-start===32768)yield;
+   }
+ }
+ if(!trustedData&&Array.isArray(value)){
+   // Feed the same JSON punctuation and fields into FNV one row at a time.
+   // This avoids building and flattening a second city-wide string.
+   const keys=Object.keys(value);
+   if(Object.getPrototypeOf(value)!==Array.prototype||Reflect.ownKeys(value).length!==keys.length+1||
+      keys.length!==value.length||keys.some((k,i)=>k!==String(i)))return false;
+   hash=Math.imul(hash^91,16777619);
+   const budget={nodes:1};
+   for(let i=0;i<keys.length;i++){
+     const row=Object.getOwnPropertyDescriptor(value,keys[i]);
+     if(!row||!("value" in row))return false;
+     const text=yield*ownJSONSteps(row.value,budget);
+     if(text===null)return false;
+     if(i)hash=Math.imul(hash^44,16777619);
+     yield*append(text);
+   }
+   hash=Math.imul(hash^93,16777619);
+ }else{
+   const text=trustedData?JSON.stringify(value):yield*ownJSONSteps(value);
+   if(text===null)return false;
+   yield*append(text);
+ }
+ const result=hash>>>0;
+ return typeof expected==="number"?result===expected:expected.includes(result);
+}
 /** Entire exact old authored owner, including every roof run, centre and ring. */
 export function archenholdPreviousBuildingV322(value:unknown):boolean{const s=ownJSON(value);return s!==null&&data.oldArchenholdBuildings.some(expected=>s===ownJSON(expected));}
 function completeSources(values:readonly unknown[]|undefined):values is readonly unknown[]{if(!Array.isArray(values))return false;return data.oldArchenholdBuildings.every(expected=>{const rows=values.filter(v=>v&&typeof v==="object"&&Object.getOwnPropertyDescriptor(v,"id")?.value===expected.id);return rows.length===1&&archenholdPreviousBuildingV322(rows[0]);});}

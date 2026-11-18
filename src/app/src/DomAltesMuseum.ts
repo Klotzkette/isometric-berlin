@@ -62,8 +62,37 @@ function domDetail(b:Builder,root:Group):void{
  b.box(front(-3.2,10.7,34.2),[11.2,10.8,.25],0x5e5442,D.yaw);b.add("arch",front(-3.2,19.4,34.6),[18.8,18.8,7],LIGHT,q);b.add("arch",front(-3.2,19.4,34.72),[16.8,16.8,3],DARK,q);b.box(front(-3.2,22.8,34.1),[13.8,6.2,.23],0xb89e6d,D.yaw);
  for(let i=-2;i<=2;i++)figure(b,front(-3.2+i*2.3,20.3,34.1),3.8,i%2?0xd5c09a:0x927c55,D.yaw);
  for(const u of[-13.5,7.1])figure(b,front(u,18.3,35),4,COPPER,D.yaw,true);figure(b,front(-3.2,36,34.1),5.5,COPPER,D.yaw,true);
- const[du,dv]=D.domeLocal;b.add("column",at(du,(D.drumBase+D.drumTop)/2,dv),[D.domeRadius*2,D.drumTop-D.drumBase,D.domeRadius*2],STONE);
- for(let j=0;j<20;j++){const t=j*Math.PI/10,u=du+Math.cos(t)*21.2,v=dv+Math.sin(t)*21.2,p=at(u,0,v),yaw=D.yaw+Math.PI/2-t;column(b,[p[0],D.drumBase+2,p[2]],13,.52,yaw);b.box(at(du+Math.cos(t+.078)*21.5,44.5,dv+Math.sin(t+.078)*21.5),[2.05,8.5,.16],GLASS,yaw);figure(b,at(du+Math.cos(t)*21.5,D.drumTop-.6,dv+Math.sin(t)*21.5),2.7,COPPER,yaw,true);}
+ const [du, dv] = D.domeLocal;
+ const drumMiddle = (D.drumBase + D.drumTop) / 2, drumHeight = D.drumTop - D.drumBase;
+ if (!b.minecraft) b.add("column", at(du, drumMiddle, dv), [D.domeRadius*2, drumHeight, D.domeRadius*2], STONE);
+ // Eight tripartite windows and the eight musical angels on the intervening piers.
+ for (let bay = 0; bay < 8; bay++) {
+   const angle = bay * Math.PI / 4, yaw = D.yaw + Math.PI / 2 - angle;
+   const face = (across: number, y: number, radius: number): P => at(
+     du + Math.cos(angle) * radius + Math.sin(angle) * across,
+     y, dv + Math.sin(angle) * radius - Math.cos(angle) * across,
+   );
+   // A regular eight-sided block shell keeps the native stone cheeks behind
+   // the glazing, including the diagonals. Each window sits on its own panel.
+   if (b.minecraft) b.box(face(0, drumMiddle, D.domeRadius - .42),
+     [2 * D.domeRadius * Math.tan(Math.PI / 8), drumHeight, .8], STONE, yaw);
+   const glassRadius = D.domeRadius + .1;
+   for (const offset of [-2.87, 0, 2.87]) {
+     const width = offset === 0 ? 3.1 : 2.1;
+     b.box(face(offset, 44.6, glassRadius), [width, 10.7, .2], 0x666c68, yaw);
+     for (const y of [40.85, 44.65, 48.85]) {
+       b.box(face(offset, y, glassRadius + .14), [width, .16, .12], y === 48.85 ? 0x929178 : DARK, yaw);
+     }
+   }
+   for (const offset of [-4.6, -1.83, 1.83, 4.6]) {
+     const radius = Math.sqrt((glassRadius + .3) ** 2 - offset ** 2);
+     column(b, face(offset, 38, radius), 13, Math.abs(offset) > 4 ? .56 : .38, yaw);
+   }
+   const pier = angle + Math.PI / 8;
+   const plinth = at(du + Math.cos(pier) * 21.4, D.drumTop, dv + Math.sin(pier) * 21.4);
+   b.box(plinth, [2.55, 1, 1.95], LIGHT, D.yaw + Math.PI / 2 - pier);
+   figure(b, [plinth[0], plinth[1] + .5, plinth[2]], 2.8, COPPER, D.yaw + Math.PI / 2 - pier, true);
+ }
  for(const y of[D.drumBase+.6,D.drumTop-.9,D.drumTop])for(let i=0;i<48;i++){const t=i*Math.PI/24;b.box(at(du+Math.cos(t)*21.7,y,dv+Math.sin(t)*21.7),[2.92,.5,.62],LIGHT,D.yaw+Math.PI/2-t);}
  dome(b,root,at(du,D.drumTop,dv),D.domeRadius,D.domeTop-D.drumTop,"Berliner Dom copper main cupola");
  for(let i=0;i<8;i++){const t=i*Math.PI/4+.2,r=19.6,world=at(du+Math.cos(t)*r,65.5,dv+Math.sin(t)*r),n=new Vector3(Math.cos(t)*Math.cos(D.yaw)+Math.sin(t)*Math.sin(D.yaw),.6,-Math.cos(t)*Math.sin(D.yaw)+Math.sin(t)*Math.cos(D.yaw)).normalize(),rotation=new Quaternion().setFromUnitVectors(new Vector3(0,0,1),n);b.add("sphere",world,[1.6,2.1,.15],BRONZE,rotation);b.add("ring",world,[2,2.5,2],PALE,rotation);}

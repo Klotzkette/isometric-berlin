@@ -25,6 +25,7 @@ import {
   createFernsehturmHorizonCoverage, drawnFernsehturmCoverageBands,
   nativeFernsehturmCoverageBands, retainFernsehturmHorizonContrast,
 } from "./FernsehturmHorizon";
+import { fernsehturmShaftRadius } from "./schlossEastProfile";
 type Point = [number, number, number];
 type Block = {
   p: Point;
@@ -112,10 +113,11 @@ class GeometryBatch {
   normals: number[] = [];
   colours: number[] = [];
   private color = new Color();
+  private edge = new Vector3();
+  private otherEdge = new Vector3();
   triangle(a: Point, b: Point, c: Point, color: number): void {
-    const n = new Vector3(...b)
-      .sub(new Vector3(...a))
-      .cross(new Vector3(...c).sub(new Vector3(...a)))
+    const n = this.edge.set(b[0] - a[0], b[1] - a[1], b[2] - a[2])
+      .cross(this.otherEdge.set(c[0] - a[0], c[1] - a[1], c[2] - a[2]))
       .normalize();
     this.color.setHex(color);
     const shade =
@@ -157,9 +159,10 @@ class GeometryBatch {
     rt: number,
     color: number,
     segments = 64,
+    openEnded = false,
   ): void {
     this.append(
-      new CylinderGeometry(rt, rb, top - bottom, segments),
+      new CylinderGeometry(rt, rb, top - bottom, segments, 1, openEnded),
       [0, (bottom + top) / 2, 0],
       color,
     );
@@ -290,7 +293,9 @@ export function createFernsehturmArchitecture(_mobileLike = false): Group {
     glass = new GeometryBatch(),
     members: Block[] = [];
   solid.cylinder(0, 20, 16, 8, CONCRETE);
-  solid.cylinder(20, 250, 8, 4.5, CONCRETE);
+  const headBottom = P.sphereCenterHeight - P.sphereRadius;
+  solid.cylinder(P.footFlareHeight, headBottom, P.shaftBottomRadius, P.shaftTopRadius, CONCRETE, 64, true);
+  solid.cylinder(headBottom, P.shaftTopHeight, P.shaftTopRadius, P.shaftTopRadius, CONCRETE, 64, true);
   for (const h of [184.5, 188.1]) {
     solid.cylinder(h, h + 1.25, 7.3, 7.3, FRAME);
     solid.cylinder(h + 1.25, h + 1.65, 7.45, 7.45, 0x6b797c);
@@ -475,7 +480,7 @@ export function createMinecraftFernsehturmArchitecture(
   for (let lo = 0; lo < 250; lo += cell) {
     const hi = Math.min(250, lo + cell),
       h = (lo + hi) / 2,
-      r = h <= 20 ? 16 - h * 0.4 : 8 - ((h - 20) * 3.5) / 230;
+      r = fernsehturmShaftRadius(h);
     if (h < 196 || h > 228) ring(body, h, hi - lo, r, CONCRETE);
   }
   for (let lo = 196; lo < 228; lo += cell) {

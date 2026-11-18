@@ -1,6 +1,6 @@
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
-import { losslessJsonData } from "./losslessJsonData";
+import { losslessJsonData, STREAMED_TILE_DATA_V362 } from "./losslessJsonData";
 import { losslessRestoredRoadSurfacesV346 } from "./losslessRestoredRoadSurfacesV346";
 
 export const STARTUP_JS_BUDGET_BYTES = 400 * 1024;
@@ -102,6 +102,19 @@ function startupBudget(): Plugin {
           `Initial JavaScript graph is ${initialBytes} bytes; ` +
             `budget is ${STARTUP_JS_BUDGET_BYTES} bytes`,
         );
+      }
+      // The 3D viewer starts one dynamic import after the shell. Count its
+      // static dependencies as well when checking for accidentally eager tiles.
+      for (const chunk of Object.values(bundle)) {
+        if (chunk.type === "chunk" && Object.keys(chunk.modules).some(id => id.endsWith("/src/ThreeViewer.tsx"))) {
+          visit(chunk.fileName);
+        }
+      }
+      for (const file of visited) {
+        const chunk = bundle[file];
+        if (chunk?.type !== "chunk") continue;
+        const eagerTile = Object.keys(chunk.modules).find(id => STREAMED_TILE_DATA_V362.test(id));
+        if (eagerTile) this.error("Regional detail is in the startup graph: " + eagerTile);
       }
     },
   };

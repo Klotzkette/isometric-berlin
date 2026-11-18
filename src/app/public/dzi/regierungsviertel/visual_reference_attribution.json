@@ -5403,6 +5403,78 @@
       "role": "Architectural reference only; no image distributed",
       "photo_bundled": false,
       "geometry_status": "Public site or exterior reference. Source coordinates and new appearance estimates are distinguished in the V355 venue audit."
+    },
+    {
+      "landmark_id": "rotes-rathaus",
+      "title": "Four clock faces and tower front",
+      "page_url": "https://www.berlin.de/rbmskzl/service/rotes-rathaus/rathausturm-928027.php",
+      "credit": "Senatskanzlei Berlin, photograph by Florian Selig",
+      "role": "Public exterior reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "rotes-rathaus",
+      "title": "Rotes Rathaus cover photograph, clock and gilded hands",
+      "page_url": "https://www.berlin.de/rbmskzl/service/berlin-informationen/publikationen/25_senat_flyer_rotes_rathaus_de_100x210-web.pdf",
+      "credit": "Senatskanzlei Berlin, cover photograph © Landesarchiv Berlin / Thomas Platow",
+      "role": "Public exterior reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "rotes-rathaus",
+      "title": "Tower clock diameter, 150 Years of the Rotes Rathaus, p. 49",
+      "page_url": "https://www.berlin.de/rbmskzl/_assets/rathausbilder/200914_bauzaunmodule_gesamt_a.pdf",
+      "credit": "Senatskanzlei Berlin / BVG Projekt GmbH",
+      "role": "Public exterior reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "berliner-dom",
+      "title": "The eight drum windows",
+      "page_url": "https://www.berlinerdom.de/fileadmin/user_upload/01_Startseite-Home/Mediathek/Pressefotos___Pressemitteilungen/Pressemitteilungen/Einladung_PK_Spendenkampagne_Tambour.pdf",
+      "credit": "Berliner Dom / Dombauhütte",
+      "role": "Public exterior reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "berliner-dom",
+      "title": "Engel (Kuppel)",
+      "page_url": "https://bildhauerei-in-berlin.de/bildwerk/engel-kuppel-11032/",
+      "credit": "Bildhauerei in Berlin",
+      "role": "Public exterior reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "berliner-schloss",
+      "title": "Spree facade, CF008507 and CF011802",
+      "page_url": "https://www.humboldtforum.org/de/presse/medien/humboldt-forum-im-berliner-schloss-2/",
+      "credit": "© Stiftung Humboldt Forum im Berliner Schloss, photographs by Alexander Schippel",
+      "role": "Public exterior reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "fernsehturm",
+      "title": "Berlin mathematisch, LU5, tower measurements and drawing",
+      "page_url": "https://bildungsserver.berlin-brandenburg.de/fileadmin/bbb/unterricht/faecher/naturwissenschaften/mint/iMINT-Akademie/iMINT-Grundschule/Mathematik/Themenkisten/Themenkiste_Berlin_mathematisch/GS_M_TK_Berlin_mathematisch_LU5_Berliner_Fernsehturm_2023_07_09.pdf",
+      "credit": "iMINT-Akademie / Senatsverwaltung für Bildung, Jugend und Familie",
+      "role": "Public exterior reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "lustgarten-tiergarten",
+      "title": "TrueDOP 2026 surface and paths",
+      "page_url": "https://daten.berlin.de/datensaetze/digitale-farbige-trueorthophotos-2026-dop20rgbi-wms-3801a94c",
+      "credit": "Geoportal Berlin, TrueDOP 2026, dl-de/zero-2-0",
+      "role": "Public exterior reference",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "lustgarten",
+      "title": "Lustgarten Berlin, landscape design",
+      "page_url": "https://atelier-loidl.de/de/lustgarten%2C-berlin",
+      "credit": "Atelier LOIDL Landschaftsarchitekten",
+      "role": "Public exterior reference",
+      "photo_bundled": false
     }
   ]
 }

@@ -2,15 +2,16 @@
 import ts from "typescript";
 import {readFileSync} from "node:fs";
 import {Group} from "three";
+import {potsdamerPavilionTerrainAdmitted} from "../../src/PotsdamerPavilionRoutes";
 import {createCoreSpreeBridgesV242} from "../../src/CoreSpreeBridgesV242";
 import type {PrismPayload} from "../../src/IsometricCityWorld";
 const viewer=readFileSync(new URL("../../src/ThreeViewer.tsx",import.meta.url),"utf8");
 const ast=ts.createSourceFile("ThreeViewer.tsx",viewer,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
 function call(name:string){const calls:ts.CallExpression[]=[];function walk(node:ts.Node){if(ts.isCallExpression(node)&&ts.isIdentifier(node.expression)&&node.expression.text===name)calls.push(node);ts.forEachChild(node,walk);}walk(ast);if(calls.length!==1)throw Error(`Exactly one actual viewer call required: ${name}`);return calls[0];}
-export function runtimeConstructorOptionsV310(native:boolean,mobileLike:boolean,prisms:PrismPayload){
+export function runtimeConstructorOptionsV310(native:boolean,mobileLike:boolean,prisms:PrismPayload,payload?:VoxelPayload){
  const expression=call(native?"buildMinecraftVoxelWorldSteps":"createIsometricCityStepsV309").arguments[4];if(!expression||!ts.isObjectLiteralExpression(expression))throw Error("Actual complete viewer constructor options missing");
  const signatures=new Group(),bridges=new Group();bridges.name="drawn bridge structures";signatures.add(bridges);
- const bindings={runtime:{coarsePointer:mobileLike,signatures},prisms,initialBuildings:[],fidelityV288:{moabitMitte:true,westKiez:true,parliamentaryDining:true,waterfront:true,historicDom:true,potsdamerCorridor:true,chancelleryCanopy:true},hbfCirculationV291:true,parliamentInteriorsV295:true,stationPhotoAdmitted:true,surfaces:{},progressiveInput:{},createCoreSpreeBridgesV242};
+ const bindings={runtime:{coarsePointer:mobileLike,signatures},prisms,payload,potsdamerPavilionTerrainAdmitted,nordbahnhof:null,potsdamerNorthPavilion:false,initialBuildings:[],fidelityV288:{moabitMitte:true,westKiez:true,parliamentaryDining:true,waterfront:true,historicDom:true,potsdamerCorridor:true,chancelleryCanopy:true},hbfCirculationV291:true,parliamentInteriorsV295:true,stationPhotoAdmitted:true,surfaces:{},progressiveInput:{},createCoreSpreeBridgesV242};
  const compiled=ts.transpileModule(`const options = ${expression.getText(ast)};`,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
  return new Function(...Object.keys(bindings),`${compiled};return options;`)(...Object.values(bindings)) as Record<string,unknown>;
 }
@@ -40,7 +41,7 @@ export async function actualNativeRuntimeV310(onStage?:(name:string,count:number
  const payload=await json<VoxelPayload>("minecraft-voxels.json"),prisms=await json<PrismPayload>("lod2-prisms.json"),manifest=await json<{tiergartentunnel:TunnelPortalCourseInput}>("scene.json"),full=new Group();
  const ground=()=>{const all:InstancedMesh[]=[];full.traverse(o=>{if(o instanceof InstancedMesh&&o.name==="Voxel ground runs")all.push(o);});if(all.length!==1)throw Error("One exact final native ground owner required");return all[0];};
  let first=false;
- await stage(buildMinecraftVoxelWorldSteps(full,payload,buildColumnToneLookup(prisms),manifest.tiergartentunnel,runtimeConstructorOptionsV310(true,false,prisms)),()=>{if(!first&&full.getObjectByName("Voxel ground runs")){first=true;onStage?.("first-ground-yield",ground().count);}});
+ await stage(buildMinecraftVoxelWorldSteps(full,payload,buildColumnToneLookup(prisms),manifest.tiergartentunnel,runtimeConstructorOptionsV310(true,false,prisms,payload)),()=>{if(!first&&full.getObjectByName("Voxel ground runs")){first=true;onStage?.("first-ground-yield",ground().count);}});
  onStage?.("complete-constructor",ground().count);
  await stage(addRequiredSiteEnvelopesV209Steps(full,true));full.userData.prepareNeukoellnLegacyV305?.();
  onStage?.("complete-required-sites",ground().count);await stage(parkStaticInstancesSteps(full));onStage?.("instance-parking",ground().count);

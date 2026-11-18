@@ -176,10 +176,34 @@ function schloss(b: Builder): void {
   // SHF explicitly identifies these as new contemporary sculptures, not copies.
   for (const [axis, u] of [[p.north, 1.6], [p.north, 20.0], [p.south, 1.6]] as const)
     statue(b, point(axis, u, p.groundY + 30.4, 1.15), 3.14 / 2.565);
-  // Modern Spree elevation intentionally retains its spare concrete/glass order.
-  const l = length(p.east);
-  for (let bay = 0; bay < 12; bay++) for (const y of [11, 19.8, 27.8])
-    b.facade(p.east, (bay + .5) * l / 12, y, 3.65, 5.5, .23, GLASS, .72);
+  // The photographic elevation has 23 broad axes and twice that rhythm at the attic.
+  const east = p.east, lengthEast = length(east);
+  // The retained native shell has 2.5 m cells. Clear even its oblique corner blocks.
+  const face = b.minecraft ? 1.85 : .25;
+  const limestone = 0xdcd8cf, glass = 0x576466;
+  b.facade(east, lengthEast / 2, p.groundY + 15, lengthEast, 30, .16, glass, face);
+  // Continuous mullions and floor bands enclose the recessed glazing.
+  // Each frame member is shared by the windows on either side.
+  for (const [count, low, high, fraction] of [[23, 0, 21.4, .32], [46, 21.4, 30, .28]]) {
+    const pitch = lengthEast / count;
+    for (let i = 0; i <= count; i++) {
+      const edge = i === 0 || i === count, width = pitch * fraction;
+      const u = i === 0 ? width / 4 : i === count ? lengthEast - width / 4 : i * pitch;
+      b.facade(east, u, p.groundY + (low + high) / 2,
+        edge ? width / 2 : width, high - low, .64, limestone, face + .27);
+    }
+  }
+  for (const [low, high] of [[0, .1], [5.8, 7.4], [13.2, 14.9], [20.5, 22.2], [27.2, 30]])
+    b.facade(east, lengthEast / 2, p.groundY + (low + high) / 2, lengthEast, high - low, .65, limestone, face + .27);
+  for (const height of [3.55, 10.95, 18.3])
+    b.facade(east, lengthEast / 2, p.groundY + height, lengthEast, .13, .1, 0x373f40, face + .16);
+  // From the river the positive axis points south (towards the observer's left).
+  const letter = ([x, y]: readonly number[]) => point(east, lengthEast / 2 - x * 1.85, p.groundY + 6.15 + y, face + .65);
+  for (const path of letteringStrokePaths("HUMBOLDT FORUM", .72)) {
+    for (let i = 1; i < path.length; i++) {
+      b.beam(letter(path[i - 1]), letter(path[i]), .085, 0x41413b);
+    }
+  }
   const [x, z] = p.domeCentre;
   // A curved subdivision replaces the LoD2 dome's coarse extruded perimeter,
   // retaining the same footprint and 64.870 m top; original planes are retained.

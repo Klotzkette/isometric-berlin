@@ -1,7 +1,7 @@
 import { Group } from "three";
 import drawn from "./data/springerV215Drawn.json";
 import native from "./data/springerV215Minecraft.json";
-import { buildSurroundingCityChunk, type SurroundingCityChunk } from "./SurroundingCityGeometry";
+import { buildCityChunkWithPaletteV362, type SurroundingCityChunk } from "./SurroundingCityGeometry";
 import { SPRINGER_V215_OWNER, SPRINGER_V215_CURRENT_OWNER } from "./springerV215Profile";
 
 export const SPRINGER_V215_GROUP = "Zentrales Springergebäude current OSM envelope v215";
@@ -9,7 +9,7 @@ export const SPRINGER_V215_GROUP = "Zentrales Springergebäude current OSM envel
 /** Standalone audit factory. Production installs the same required packet in
  * the Alt-Mitte publication transaction, never a second outline-layer shell. */
 export function* buildSpringerV215Steps(blockNative = false): Generator<void, Group> {
-  const result=yield* buildSurroundingCityChunk(
+  const result=yield* buildCityChunkWithPaletteV362(
     (blockNative?native:drawn) as unknown as SurroundingCityChunk,
     "springer-current-v215",blockNative,
   );

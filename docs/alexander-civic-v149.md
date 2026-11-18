@@ -129,3 +129,16 @@ Native construction took approximately 30 ms in the local Bun measurement;
 this is a bounded construction observation, not a device/frame-rate guarantee.
 The geometry is built once, stays resident and introduces no per-frame work,
 textures, camera-dependent reconstruction or hidden solid voxel fill.
+
+## Town hall clock faces
+
+The tower carries four clock faces, each 4.75 m across. Both viewer geometries
+show the pale outer edge, turquoise hour ring, twelve oval hour markers and
+gilded hands. The hand position is illustrative. Colours and the widths of
+the ornamental rings are estimated from the Senate Chancellery's exterior
+photographs. The tower body, three courtyards and the neighbouring church use
+the existing source measurements.
+
+- [Senate Chancellery, Rathausturm und Uhr, exterior photograph by Florian Selig](https://www.berlin.de/rbmskzl/service/rotes-rathaus/rathausturm-928027.php)
+- [Senate Chancellery brochure, cover photograph by Thomas Platow / Landesarchiv Berlin](https://www.berlin.de/rbmskzl/service/berlin-informationen/publikationen/25_senat_flyer_rotes_rathaus_de_100x210-web.pdf)
+- [150 Years of the Rotes Rathaus, p. 49, measured face diameter](https://www.berlin.de/rbmskzl/_assets/rathausbilder/200914_bauzaunmodule_gesamt_a.pdf)

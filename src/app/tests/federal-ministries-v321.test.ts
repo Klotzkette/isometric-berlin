@@ -3,6 +3,12 @@ import {readFileSync} from "node:fs";
 import {gunzipSync} from "node:zlib";
 import {Group,InstancedMesh,InterleavedBufferAttribute,LineSegments,Mesh,Material} from "three";
 import data from "../src/data/federalMinistriesV321.json";
+import officePrints from "../src/data/officePrismPaintV362.json";
+import {hasOfficePrismPaintV362} from "../src/coreFacadeAppearance";
+import {berlinSenatePreviousPlanV321} from "../src/BerlinSenateBuildingsV321";
+import {uniExactPlansV322} from "../src/UniversitiesArchitectureV322";
+import {wilhelmHousingCorePlanV324} from "../src/WilhelmHousingV324Core";
+import {wilhelmStreetFrontsCorePlanV325} from "../src/WilhelmStreetFrontsV325Core";
 import previous from "../src/data/federalMinistriesV321Previous.json";
 import packets from "../src/data/federalMinistriesV321Packets.json";
 import {createFederalMinistriesV321,createFederalMinistriesV321Steps,hasCompleteFederalMinistriesV321,
@@ -67,6 +73,16 @@ test("all actual Drawn/full/touch/preview/central catalogues bind complete curre
 test("cooperative cancellation disposes unpublished geometry and authored disposal closes the private model",()=>{
  let partial:Group|undefined;const steps=createFederalMinistriesV321Steps(false,{sourcePrisms:p.buildings},r=>partial=r);expect(steps.next().done).toBeFalse();steps.return(partial!);expect(hasCompleteFederalMinistriesV321(partial!)).toBeFalse();expect(partial!.children).toHaveLength(0);
  const root=createFederalMinistriesV321(false,{sourcePrisms:p.buildings});(root.children[1]as InstancedMesh).geometry.dispose();expect(hasCompleteFederalMinistriesV321(root)).toBeFalse();dispose(root);
+});
+
+test("earlier source paint is bounded to the exact combined office-family inputs",()=>{
+ const groups=[federalMinistryPreviousPlanV321(),berlinSenatePreviousPlanV321(),uniExactPlansV322(),wilhelmHousingCorePlanV324(),wilhelmStreetFrontsCorePlanV325()];
+ const ids=new Set(groups.flatMap(({plan})=>plan.owners.map(owner=>owner.id)));
+ expect(Object.keys(officePrints).sort()).toEqual([...ids].sort());
+ for(const prism of p.buildings) {
+  expect(hasOfficePrismPaintV362(prism)).toBe(ids.has(prism.id));
+  if(ids.has(prism.id)) expect(hasOfficePrismPaintV362({...prism,h_dm:prism.h_dm+1})).toBeFalse();
+ }
 });
 
 test("actual Drawn constructor's initially hidden night strips admit, survive Day/Night and restore exact source refs",()=>{

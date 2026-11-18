@@ -9,6 +9,11 @@ export const GENERIC_FACADE_SWATCHES = [
 ] as const;
 const tones = GENERIC_FACADE_SWATCHES.map(value => new Color(value));
 
+// Original swatches used in the verified public-architecture mesh receipts.
+export const OFFICE_FACADE_SWATCHES_V362 = [0xddc29e, 0xcba989, 0xe9dcc0, 0xafc0a7,
+  0xd4a596, 0xa8c4cb, 0xd2b679, 0xc6c6b8] as const;
+const officeTones = OFFICE_FACADE_SWATCHES_V362.map(value => new Color(value));
+
 export function genericFacadeIndex(id: string): number {
   let hash = 2166136261;
   for (let i = 0; i < id.length; i++) hash = Math.imul(hash ^ id.charCodeAt(i), 16777619);
@@ -16,6 +21,6 @@ export function genericFacadeIndex(id: string): number {
 }
 
 /** Shared read-only paint; callers copy/lerp it rather than mutate it. */
-export function genericFacadeTone(id: string): Color {
-  return tones[genericFacadeIndex(id)];
+export function genericFacadeTone(id: string, retainedOffice = false): Color {
+  return (retainedOffice ? officeTones : tones)[genericFacadeIndex(id)];
 }

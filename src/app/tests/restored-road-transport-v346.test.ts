@@ -1,3 +1,4 @@
+import { readRoadWordRecord, readRoadWordBatch } from "../src/roadWordPlanesV362";
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { gzipSync, gunzipSync } from "node:zlib";
@@ -8,7 +9,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runInNewContext } from "node:vm";
 import { build } from "vite";
-import { compressRestoredRoadSourceV346, losslessRestoredRoadSurfacesV346 } from "../losslessRestoredRoadSurfacesV346";
+import { compressRestoredRoadSourceV346, losslessRestoredRoadSurfacesV346, packRoadWordPlanes } from "../losslessRestoredRoadSurfacesV346";
 import { decodeLosslessBase85, decodeLosslessGzipJson, encodeLosslessBase85 } from "../src/losslessGzipBase85";
 
 const sourcePath = new URL("../src/data/restoredRoadSurfaces.ndjson.txt", import.meta.url);
@@ -33,6 +34,38 @@ test("all 425 production batches remain byte-exact through independently bounded
   expect(receipt.maxDecodedBatchChars).toBe(225_327);
   expect(sha(readFileSync(sourcePath, "utf8"))).toBe(before);
 }, 30_000);
+
+test("shuffled word planes recover all 425 source records byte for byte", () => {
+  const source = readFileSync(sourcePath, "utf8");
+  const { text, receipt } = packRoadWordPlanes(source);
+  const [, ...lines] = text.trimEnd().split("\n");
+  const original = source.trimEnd().split("\n").slice(1);
+  expect(lines.length).toBe(425);
+  for (const [i, line] of lines.entries()) {
+    const row = readRoadWordBatch(readRoadWordRecord(JSON.parse(line), 2 * 1024 * 1024));
+    const xz = Buffer.from(row.xz).toString("base64");
+    const indices = row.indices && Buffer.from(row.indices).toString("base64");
+    expect(JSON.stringify({ ...row, xz, indices })).toBe(original[i]);
+  }
+  expect(receipt.transportBytes).toBeLessThan(13_000_000);
+  expect(receipt.sourceSha256).toBe(sha(source));
+}, 30_000);
+
+test("packed roads reject changed geometry and checksum bytes even when the expanded size matches", () => {
+  const planes = Buffer.from([3, 7, 9, 12, 19, 23, 35, 48, 52, 68, 77, 85, 97, 105, 109, 126]);
+  const compressed = gzipSync(planes, { level: 0 });
+  const offset = compressed.indexOf(planes);
+  expect(offset).toBeGreaterThan(0);
+  const decode = (bytes: Uint8Array) => readRoadWordBatch(readRoadWordRecord(
+    ["r", "kerbs", planes.length, 0, encodeLosslessBase85(bytes)], 2 * 1024 * 1024,
+  ));
+  expect(decode(compressed).xz.byteLength).toBe(planes.length);
+  for (const index of [offset + 1, compressed.length - 8]) {
+    const corrupt = Buffer.from(compressed);
+    corrupt[index] ^= 1;
+    expect(() => decode(corrupt)).toThrow("checksum");
+  }
+});
 
 test("optional decode bound preserves defaults and refuses oversized or forged ISIZE before parsing", () => {
   const json = JSON.stringify({ exact: [-0, 0.123456789012345, "Grün"] });
@@ -59,7 +92,7 @@ test("build-only plugin intercepts precisely the road URL and emits one compress
   expect(await load.call(context, "/project/unrelated.ndjson.txt?url")).toBeUndefined();
   expect(await load.call(context, fileURLToPath(sourcePath) + "?url")).toBe('export default "__VITE_ASSET__asset1__";');
   expect(emitted).toHaveLength(2);
-  expect(emitted[0].name).toBe("restoredRoadSurfaces-gzip-base85-v346.ndjson.txt");
+  expect(emitted[0].name).toBe("restoredRoadSurfaces-words-v362.ndjson.txt");
   const receipt = JSON.parse(emitted[1].source);
   expect(receipt.transportBytes).toBe(Buffer.byteLength(emitted[0].source));
   expect(receipt.transportSha256).toBe(sha(emitted[0].source));
@@ -77,7 +110,7 @@ test("actual IIFE worker executes and fetches its emitted compressed asset at th
       build: { write: false, minify: true, rolldownOptions: { input: entry } } });
     if (Array.isArray(result) || !("output" in result)) throw new Error("Expected production output");
     const output = result.output;
-    const asset = output.find(item => item.type === "asset" && item.fileName.includes("restoredRoadSurfaces-gzip-base85-v346"));
+    const asset = output.find(item => item.type === "asset" && item.fileName.includes("restoredRoadSurfaces-words-v362"));
     const script = output.find(item => item.type === "asset" && /worker.*\.js$/.test(item.fileName));
     expect(asset).toBeDefined(); expect(script).toBeDefined();
     expect(output.filter(item => item.type === "asset" && item.fileName.includes("restoredRoadSurfaces"))).toHaveLength(1);

@@ -54,9 +54,9 @@ import { PERGAMON_PANORAMA_V202_IDS } from "./pergamonPanoramaV202Profile";
 import { CENTRAL_SITES_V200_REPLACED_PRISM_IDS } from "./centralSitesV200ReplacementProfile";
 import { CENTRAL_SITES_V200_FALSE_PRISM_IDS } from "./centralSitesV200Profile";
 import { NATIONALGALERIE_V183_IDS } from "./neueNationalgalerieV183Profile";
-import { GENERIC_FACADE_SWATCHES, genericFacadeTone } from "./cityColourV184";
+import { GENERIC_FACADE_SWATCHES, OFFICE_FACADE_SWATCHES_V362, genericFacadeTone } from "./cityColourV184";
 import { coreHousePaintV273 } from "./CoreHouseColoursV273";
-import { coreResidentialFacadeTone } from "./coreFacadeAppearance";
+import { coreResidentialFacadeTone, hasOfficePrismPaintV362 } from "./coreFacadeAppearance";
 import { refineCoreParkReliefSurface } from "./parkReliefSurfaceV182";
 import { BERLIN_WALL_MEMORIAL_V174_PRISM_IDS } from "./berlinWallMemorialV174Profile";
 import { createAltMitteCoreV169 } from "./AltMitteDrawnCoreV169";
@@ -1772,7 +1772,8 @@ function facadeColorFor(
   if (recordedTone !== undefined) {
     return target.setHex(recordedTone).lerp(IVORY, urban ? 0.04 : 0.12);
   }
-  const ordinaryPaint = coreResidentialFacadeTone(building);
+  const retainedOffice = hasOfficePrismPaintV362(building);
+  const ordinaryPaint = retainedOffice ? coreHousePaintV273(building)?.[2] : coreResidentialFacadeTone(building);
   if (ordinaryPaint !== undefined) return target.setHex(ordinaryPaint);
   // Retain the per-part Step-8 illustration sample where no stronger source
   // attribute exists; this colour is not a surveyed facade observation.
@@ -1784,11 +1785,12 @@ function facadeColorFor(
     // Only neutral, unmeasured illustration samples need a little distinction.
     // Source colours and bespoke models returned above stay untouched.
     if (neutral)
-      target.lerp(genericFacadeTone(building.id), 0.38);
+      target.lerp(genericFacadeTone(building.id, retainedOffice), 0.38);
     return target;
   }
   const className = classes[building.class] ?? "concrete";
-  const shades = FACADE_SHADES[className] ?? FALLBACK_FACADE;
+  const shades = retainedOffice && className !== "glass" ? OFFICE_FACADE_SWATCHES_V362 :
+    FACADE_SHADES[className] ?? FALLBACK_FACADE;
   let hash = 0;
   for (const char of building.id) {
     hash = (hash * 31 + char.charCodeAt(0)) >>> 0;

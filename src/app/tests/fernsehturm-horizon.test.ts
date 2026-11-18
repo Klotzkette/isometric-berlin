@@ -50,8 +50,8 @@ describe("Fernsehturm horizon area coverage",()=>{
     expect(mesh.material.transparent).toBeTrue();
     expect(geometry.attributes.uv).toBeUndefined();
     const bytes=Object.values(geometry.attributes).reduce((n,a)=>n+a.array.byteLength,geometry.index!.array.byteLength);
-    expect(bytes).toBe(native ? 25_500 : 9_588);
-    expect(geometry.attributes.position.count / 4).toBe(native ? 125 : 47);
+    expect(bytes).toBe(native ? 25_704 : 9_588);
+    expect(geometry.attributes.position.count / 4).toBe(native ? 126 : 47);
     expect(geometry.boundingBox!.min.y).toBeCloseTo(P.groundY,3);
     expect(geometry.boundingBox!.max.y).toBeCloseTo(P.groundY+368,3);
     expect(geometry.boundingBox!.max.x-P.x).toBeLessThan(17.4);
@@ -78,7 +78,7 @@ describe("Fernsehturm horizon area coverage",()=>{
         expect(shader.fragmentShader).not.toContain("coverageFade");
       }
     });
-    expect(originals).toBe(native?3:4);expect(originalInstances).toBe(native?11831:900);
+    expect(originals).toBe(native?3:4);expect(originalInstances).toBe(native?11327:900);
     updateFernsehturmLighting(root,[0,1,0],.45);
     expect(mesh.material.uniforms.coverageDaylight.value).toBe(.45);
     const mobile=coverageMesh(create(true));

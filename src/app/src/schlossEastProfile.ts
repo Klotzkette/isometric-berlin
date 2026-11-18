@@ -23,17 +23,23 @@ export const FERNSEHTURM_PROFILE = {
 } as const;
 export const FERNSEHTURM_ANTENNA = { x: towerX, z: towerZ, base: 254.63, top: 372.63 } as const;
 
+/** The published 9 m diameter applies immediately below the spherical head. */
+export function fernsehturmShaftRadius(h: number): number {
+  const p = FERNSEHTURM_PROFILE;
+  if (h <= p.footFlareHeight)
+    return p.footRadius + (p.shaftBottomRadius - p.footRadius) * Math.max(0, h) / p.footFlareHeight;
+  const headBottom = p.sphereCenterHeight - p.sphereRadius;
+  const slope = Math.min(1, (h - p.footFlareHeight) / (headBottom - p.footFlareHeight));
+  return p.shaftBottomRadius + (p.shaftTopRadius - p.shaftBottomRadius) * slope;
+}
+
 /** The illustrated TV tower replaces only its two generalized source collision prisms. */
 export function fernsehturmOutlineSolidAt(x: number, z: number, y: number, radius = 0): boolean {
   const p = FERNSEHTURM_PROFILE, h = y - p.groundY;
   if (h < -radius || h > p.totalHeight + radius) return false;
   const distance = Math.hypot(x - p.x, z - p.z);
-  let wallRadius = 0;
-  if (h <= p.footFlareHeight) wallRadius = p.footRadius +
-    (p.shaftBottomRadius - p.footRadius) * Math.max(0, h) / p.footFlareHeight;
-  else if (h <= p.shaftTopHeight) wallRadius = p.shaftBottomRadius +
-    (p.shaftTopRadius - p.shaftBottomRadius) * (h - p.footFlareHeight) / (p.shaftTopHeight - p.footFlareHeight);
-  else wallRadius = 1.45 - Math.min(1, (h - p.shaftTopHeight) / p.antennaHeight) * 1.05;
+  let wallRadius = h <= p.shaftTopHeight ? fernsehturmShaftRadius(h)
+    : 1.45 - Math.min(1, (h - p.shaftTopHeight) / p.antennaHeight) * 1.05;
   const dy = h - p.sphereCenterHeight;
   if (Math.abs(dy) <= p.sphereRadius) wallRadius = Math.max(wallRadius, Math.sqrt(p.sphereRadius ** 2 - dy ** 2));
   return distance <= wallRadius + radius;

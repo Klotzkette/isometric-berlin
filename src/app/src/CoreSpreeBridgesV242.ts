@@ -1,5 +1,5 @@
 import { Group, Material, Mesh, type Object3D } from "three";
-import { createSurroundingCityChunk, type SurroundingNavigation } from "./SurroundingCityGeometry";
+import { buildCityChunkWithPaletteV362, type SurroundingNavigation } from "./SurroundingCityGeometry";
 import { spreeBridgeCoreOwnerV242, spreeBridgeCorePacketsV242, spreeBridgeFloorAtV242,
   spreeBridgeSolidAtV242, type SpreeBridgeCorePacketV242 } from "./SpreeBridgesV242";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
@@ -54,7 +54,10 @@ function dispose(root: Group): void {
 function decode(packet: SpreeBridgeCorePacketV242, native: boolean) {
   if (packet.meshes.length !== 1 || packet.meshes[0].kind !== "spree-bridges-v242" ||
       !packet.nav.spreeBridgesV242?.floors.length) throw new Error("Incomplete core bridge owner");
-  const built = createSurroundingCityChunk(packet, `spree-core-v242-${packet.owner}`, native);
+  const steps = buildCityChunkWithPaletteV362(packet, `spree-core-v242-${packet.owner}`, native);
+  let result = steps.next();
+  while (!result.done) result = steps.next();
+  const built = result.value;
   const mesh = built.root.children[0];
   // A source owner is replaced only by its complete decoded group, never by an
   // empty named shell or a partial family. Decoder validates every source index.

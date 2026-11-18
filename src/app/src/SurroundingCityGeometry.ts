@@ -5,7 +5,7 @@ import { decodeGardenTerrainV330 } from "./GardenTerrainV330";
 import { measuredTerrainOwnersV342 } from "./MeasuredTerrainOwnersV342";
 import { prepareNeukoellnBuildingsV342 } from "./NeukoellnBuildingsV342";
 import { applySourceQuarterTrianglesV303, applySourceQuarterLinesV303, sourceQuarterExtraLineVerticesV303, sourceQuarterNavigationV303, sourceQuarterOwnersV303, captureSourceQuarterPacketV303, prepareSourceQuarterPacketV303, type SourceQuarterSourceV303, type SourceQuarterTicketV303 } from "./SourceQuarterPacketV303";
-import { captureNeighbourhoodFidelityV300, prepareNeighbourhoodFidelityV300 } from "./NeighbourhoodFidelityV300";
+import { captureNeighbourhoodFromSourcesV362 as captureNeighbourhoodFidelityV300, prepareNeighbourhoodFidelityV300 } from "./NeighbourhoodFidelityV300";
 import { applyNeighbourhoodTrianglesV300, neighbourhoodPacketAdmittedV300, captureNeighbourhoodPacketV300, prepareNeighbourhoodPacketV300, neighbourhoodPacketCandidateV300, type NeighbourhoodSourceV300 } from "./NeighbourhoodPacketV300";
 import { prepareChinaEmbassyV288 } from "./MitteEmbassiesV288";
 import { preparePotsdamerCorridorV288 } from "./PotsdamerCorridorV288";
@@ -14,7 +14,7 @@ import { transferMitteEnsembleTrianglesV281 } from "./mitteEnsembleV281Ownership
 import { prepareStreetCurvesV276, streetCurveExtraLineVerticesV276, applyStreetCurveLinesV276 } from "./streetCurvesV276";
 import { prepareCityWestTransportV281, applyCityWestTransportV281Triangles, applyCityWestTransportV281Lines, cityWestTransportNavigationV281 } from "./CityWestTransportV281";
 import { transferOperaTheatreTrianglesV274, transferOperaTheatreLinesV274, operaTheatreNavigationV274 } from "./operaTheatresV274Ownership";
-import { applyPrimaryColoursV273 } from "./primaryColoursV273";
+import { primaryColourBankIndexV362, loadSurroundingDetailSourcesV362, type SurroundingDetailSourcesV362 } from "./primaryColourBankV362";
 import { primaryHousePaletteV273 } from "./primaryHousePaletteV273";
 import { applyLegacyHouseMaterialsV273 } from "./legacyHouseMaterialsV273";
 import { applyRemainingAltMitteColoursV273 } from "./remainingAltMitteColoursV273";
@@ -32,7 +32,7 @@ import { prepareFeuerwacheKreuzbergV267, applyFeuerwacheKreuzbergV267Triangles, 
 import { prepareKreuzbergStreetsV267 } from "./KreuzbergStreetsV267";
 import { prepareNordMauerparkV266 } from "./NordMauerparkV266";
 import { prepareLittenStadthausV297, applyLittenStadthausTrianglesV297 } from "./LittenStadthausV297Packets";
-import { prepareMauerparkTerrainV298, applyMauerparkTerrainTrianglesV298, mauerparkTerrainAdmittedV298, mauerparkTerrainExtraLineVerticesV298, applyMauerparkTerrainLinesV298 } from "./MauerparkTerrainV298Packets";
+import { prepareMauerparkFromSourceV362 as prepareMauerparkTerrainV298, applyMauerparkTerrainTrianglesV298, mauerparkTerrainAdmittedV298, mauerparkTerrainExtraLineVerticesV298, applyMauerparkTerrainLinesV298 } from "./MauerparkTerrainV298Packets";
 import { captureStralauSisyphosV299, prepareStralauSisyphosV299 } from "./StralauSisyphosV299Packets";
 import { prepareFriedrichshainV266 } from "./FriedrichshainV266";
 import { prepareScheunenV265 } from "./ScheunenV265";
@@ -336,13 +336,14 @@ export type SurroundingOwnershipOptions = {
 
 /** Exact prior construction stage for bounded, source-bound quarter receipts.
  * No scene allocation, publication, new quarter edit or ownership default. */
-export function* prepareSurroundingQuarterPredecessorV303(
+export function* prepareSurroundingQuarterFromSourcesV362(
   chunk: SurroundingCityChunk, id: string, minecraft = false,
   ownership: SurroundingOwnershipOptions = {},
+  sources: SurroundingDetailSourcesV362 = {},
 ): Generator<void, SurroundingCityChunk> {
   // Add source-bound ordinary-house fittings inside the existing tile lifetime.
   // Cancellation can discard preparation before any scene/GPU object is made.
-  const neighbourhoodTicketsV300=yield* captureNeighbourhoodFidelityV300(chunk,id,minecraft,ownership.neighbourhoodV300===true,ownership.westKiezV302===true);
+  const neighbourhoodTicketsV300=yield* captureNeighbourhoodFidelityV300(chunk,id,minecraft,ownership.neighbourhoodV300===true,ownership.westKiezV302===true,sources.eastHousing);
   const stralauTicketV299=yield* captureStralauSisyphosV299(chunk,id,minecraft,ownership.stralauSisyphosV299===true);
   chunk = yield* prepareNordMauerparkV266(chunk, id, minecraft);
   chunk = yield* prepareFriedrichshainV266(chunk, id, minecraft);
@@ -378,7 +379,7 @@ export function* prepareSurroundingQuarterPredecessorV303(
   chunk = yield* prepareChinaEmbassyV288(chunk, id, minecraft);
   chunk = yield* prepareEastStadtbahnV288(chunk, id, minecraft);
   chunk = yield* prepareLittenStadthausV297(chunk,id,minecraft,ownership.littenStadthausV297===true);
-  chunk = yield* prepareMauerparkTerrainV298(chunk,id,minecraft,ownership.wallGalleryV298===true);
+  chunk = yield* prepareMauerparkTerrainV298(chunk,id,minecraft,ownership.wallGalleryV298===true,sources.mauerpark);
   chunk = yield* prepareStralauSisyphosV299(chunk,stralauTicketV299);
   chunk = yield* prepareNeighbourhoodFidelityV300(chunk,neighbourhoodTicketsV300);
   chunk = yield* prepareTempelhoferFieldV345(chunk,id,minecraft);
@@ -391,12 +392,13 @@ export const groundOverlayKindsV329: ReadonlySet<string> = new Set([
   "zebra-crossings-v329",
 ]);
 
-export function* buildSurroundingCityChunk(
+export function* buildCityChunkWithPaletteV362(
   chunk: SurroundingCityChunk,
   id: string,
   minecraft = false,
   parkBacking = false,
   ownership: SurroundingOwnershipOptions = {},
+  sources: SurroundingDetailSourcesV362 = {},
 ): Generator<void, SurroundingChunkGeometry> {
   if (chunk?.schemaVersion !== 1 || !Array.isArray(chunk.origin) ||
       chunk.origin.length !== 3 || !chunk.origin.every(Number.isFinite) ||
@@ -444,7 +446,7 @@ export function* buildSurroundingCityChunk(
       :yield*captureNeighbourhoodPacketV300(chunk,id,minecraft,true,entry.source as unknown as NeighbourhoodSourceV300,entry.kind);
     if (ticket) (overlay ? groundOverlayTicketsV329 : quarterTicketsV303).push(ticket);
   }
-  chunk = yield* prepareSurroundingQuarterPredecessorV303(chunk,id,minecraft,ownership);
+  chunk = yield* prepareSurroundingQuarterFromSourcesV362(chunk,id,minecraft,ownership,sources);
   for(const ticket of quarterTicketsV303)chunk=yield*prepareSourceQuarterPacketV303(chunk,ticket);
   chunk = yield* prepareNeighbourhoodPacketV300(chunk, clusterTicketV320);
   chunk = yield* prepareNeighbourhoodPacketV300(chunk, senateTicketV321);
@@ -546,8 +548,11 @@ export function* buildSurroundingCityChunk(
       if (part.colorType !== "u16linear") {
       const greyCorners = yield* applyGreyClusterColoursV263(chunk, id, minecraft, meshIndex, vertices, vertexOffset, count, undefined, primaryHousePaletteV273);
       if (greyCorners) root.userData.greyClusterColourVerticesV263 = (root.userData.greyClusterColourVerticesV263 ?? 0) + greyCorners;
-      const primaryColours = yield* applyPrimaryColoursV273(chunk, id, minecraft, meshIndex, vertices, vertexOffset, count);
-      if (primaryColours) root.userData.primaryColourVerticesV273 = (root.userData.primaryColourVerticesV273 ?? 0) + primaryColours;
+      if (part.kind === "city" && primaryColourBankIndexV362(id, minecraft) !== undefined) {
+        if (!sources.primaryColours) throw new Error("Missing facade colours for " + id);
+        const changed = yield* applyGreyClusterColoursV263(chunk, id, minecraft, meshIndex, vertices, vertexOffset, count, sources.primaryColours, primaryHousePaletteV273);
+        if (changed) root.userData.primaryColourVerticesV273 = (root.userData.primaryColourVerticesV273 ?? 0) + changed;
+      }
       const legacyColours = yield* applyLegacyHouseMaterialsV273(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (legacyColours) root.userData.legacyColourVerticesV273 = (root.userData.legacyColourVerticesV273 ?? 0) + legacyColours;
       const appearance = yield* applyAltMitteAppearanceV213(id, minecraft, part, meshIndex, vertices, vertexOffset, count);
@@ -733,15 +738,9 @@ export function* buildSurroundingCityChunk(
   }
 }
 
-export function createSurroundingCityChunk(
-  chunk: SurroundingCityChunk, id: string, minecraft = false,
-  ownership: SurroundingOwnershipOptions = {},
-): SurroundingChunkGeometry {
-  const iterator = buildSurroundingCityChunk(chunk, id, minecraft, false, ownership);
-  let next = iterator.next();
-  while (!next.done) next = iterator.next();
-  return next.value;
-}
+// The standalone synchronous API has access to every colour bank. Authored
+// centre models and the streamed viewer use the bounded decoder above.
+export { prepareSurroundingQuarterPredecessorV303, buildSurroundingCityChunk, createSurroundingCityChunk } from "./surroundingCityStandaloneV362";
 
 export type SurroundingChunkSchedule = {
   signal?: AbortSignal;
@@ -765,7 +764,9 @@ export async function createSurroundingCityChunkCooperatively(
   const now = schedule.now ?? (() => performance.now());
   const yieldTask = schedule.yield ?? yieldSurroundingTask;
   const budget = Math.max(0, schedule.budgetMs ?? 3);
-  const iterator = buildSurroundingCityChunk(chunk, id, minecraft, true, ownership);
+  if (schedule.signal?.aborted) throw new DOMException("Aborted", "AbortError");
+  const sources = await loadSurroundingDetailSourcesV362(id, minecraft, ownership);
+  const iterator = buildCityChunkWithPaletteV362(chunk, id, minecraft, true, ownership, sources);
   let started = now();
   try {
     while (true) {

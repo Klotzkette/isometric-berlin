@@ -1,5 +1,5 @@
 import {describe,expect,test} from "bun:test";
-import {Box3,InstancedMesh,Mesh,Raycaster,Vector3} from "three";
+import {Box3,Color,InstancedMesh,Mesh,Raycaster,Vector3} from "three";
 import ground from "../public/mesh/regierungsviertel/minecraft-voxels.json";
 import {createDomAltesMuseum,createMinecraftDomAltesMuseum} from "../src/DomAltesMuseum";
 import {ALTES_PROFILE as A,DOM_PROFILE as D,DOM_ALTES_SOURCE as S,GRANITE_BOWL_PROFILE as B,domWorld,altesWorld,domFrontVAt,domRoofAt,museumDisplayY,museumPartContains,isDomAltesReplacementColumn,domAltesExtraSolidAt,domAltesExtraGroundAt} from "../src/domAltesMuseumProfile";
@@ -17,6 +17,22 @@ describe("source-bound Berliner Dom, Altes Museum and granite bowl",()=>{
  });
  test("all profiles retain cross and bowl within compact texture-free budgets",()=>{
   const values=[];for(const mobileLike of[false,true])for(const minecraft of[false,true]){const root=minecraft?createMinecraftDomAltesMuseum({mobileLike}):createDomAltesMuseum({mobileLike});root.updateMatrixWorld(true);const m=metrics(root);values.push(m);expect(m.calls).toBeLessThanOrEqual(16);expect(m.instances).toBeLessThan(21000);expect(m.bytes).toBeLessThan(1900000);root.traverse(o=>{if(o instanceof Mesh){expect(o.geometry.getAttribute("uv")).toBeUndefined();expect(o.userData.dayMaterial).toBeDefined();expect(o.userData.nightMaterial).toBeDefined();expect(o.userData.moonlitMaterial).toBeDefined();if(minecraft)expect(o instanceof InstancedMesh).toBe(true);}});expect(new Box3().setFromObject(root).max.y).toBeCloseTo(D.top,3);if(minecraft)expect(m.calls).toBe(1);else expect(root.getObjectByName("Granitschale hollow polished red-granite basin")).toBeDefined();}expect(values[2]).toEqual(values[0]);expect(values[3].instances).toBeLessThan(values[1].instances);
+ });
+ test("the eight drum windows each expose three panes on the finished facade",()=>{
+  for(const root of [createDomAltesMuseum(),createMinecraftDomAltesMuseum()]){
+   root.updateMatrixWorld(true);
+   for(let bay=0;bay<8;bay++){
+    const angle=bay*Math.PI/4,c=Math.cos(angle),s=Math.sin(angle);
+    const radial=new Vector3(c*Math.cos(D.yaw)+s*Math.sin(D.yaw),0,-c*Math.sin(D.yaw)+s*Math.cos(D.yaw));
+    for(const offset of [-2.87,0,2.87]){
+     const origin=domWorld(D.domeLocal[0]+c*25+s*offset,44,D.domeLocal[1]+s*25-c*offset);
+     const hit=new Raycaster(new Vector3(...origin),radial.clone().negate(),0,5).intersectObject(root,true)[0];
+     expect(hit?.object).toBeInstanceOf(InstancedMesh);
+     const paint=new Color();(hit.object as InstancedMesh).getColorAt(hit.instanceId!,paint);
+     expect(paint.getHex()).toBe(0x666c68);
+    }
+   }
+  }
  });
  test("roof callbacks match real cupola and cross geometry",()=>{
   const root=createDomAltesMuseum();root.updateMatrixWorld(true);for(const[u,v]of[[D.domeLocal[0]+8,D.domeLocal[1]],[D.domeLocal[0]+16,D.domeLocal[1]+3],[...D.domeLocal]]){const p=domWorld(u,120,v),ray=new Raycaster(new Vector3(...p),new Vector3(0,-1,0)),hit=ray.intersectObject(root,true)[0];expect(hit).toBeDefined();expect(Math.abs(hit.point.y-(domRoofAt(p[0],p[2])??0))).toBeLessThan(.35);}for(const p of S.altes.parts)expect(museumDisplayY(p,p.top_y_m)).toBeLessThanOrEqual(32.211);

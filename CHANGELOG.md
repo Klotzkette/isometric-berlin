@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.242
+
+- Restore the detailed political façades that could disappear after city-wide recolouring, including the Federal Ministry of the Interior. Check the existing models of the Reichstag, Chancellery, Bellevue, Bundesrat and Berlin House of Representatives.
+- Add a direct view across the Lustgarten to the Berliner Dom. Refine its eight drum windows and sculptural silhouettes, the window rhythm of the Humboldt Forum’s Spree façade, the Fernsehturm shaft and the four clock faces at Rotes Rathaus.
+- Follow Berlin’s orthophoto for the Lustgarten crossing paths, Altes Museum forecourt, two marked traffic islands at Schloßplatz and compacted footpaths through the Café am Neuen See beer garden. Fill 359.65 m² of exposed gaps at the paved road edges by the Dom and Schloßplatz.
+- Load neighbourhood colours and selected terrain and façade details with their local tiles. Store the complete restored street and pavement geometry in a smaller lossless format.
+
 ## 1.0.241
 
 - Add observed low vegetation to 49 large allotment gardens. The largest sites, including Märchenland and Dahlwitzer Straße, gain up to 32 additional patches each.

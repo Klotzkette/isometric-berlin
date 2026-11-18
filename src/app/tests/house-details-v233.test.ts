@@ -84,8 +84,8 @@ function prepare(chunk: SurroundingCityChunk, id: string, native: boolean): Surr
 
 test("the historical fixture replays every production preparer in the exact source-admission order",()=>{
   const source=readFileSync(new URL("../src/SurroundingCityGeometry.ts",import.meta.url),"utf8");
-  const predecessorStart=source.indexOf("export function* prepareSurroundingQuarterPredecessorV303(");
-  const buildStart=source.indexOf("export function* buildSurroundingCityChunk(");
+  const predecessorStart=source.indexOf("export function* prepareSurroundingQuarterFromSourcesV362(");
+  const buildStart=source.indexOf("export function* buildCityChunkWithPaletteV362(");
   expect(predecessorStart).toBeGreaterThan(0);expect(predecessorStart).toBeLessThan(buildStart);
   const body=source.slice(predecessorStart,buildStart);
   const actual=[...body.matchAll(/chunk\s*=\s*yield\*\s*(prepare\w+)\(/g)].map(m=>m[1]);
@@ -97,8 +97,8 @@ test("the historical fixture replays every production preparer in the exact sour
   // before its explicitly opted-in new quarter stage and all allocation.
   const wrapper=source.slice(buildStart,source.indexOf('if (chunk.meshes.length > 16) throw',buildStart));
   expect([...wrapper.matchAll(/chunk\s*=\s*yield\*\s*(prepare\w+)\(/g)].map(m=>m[1]))
-    .toEqual(["prepareSurroundingQuarterPredecessorV303","prepareSourceQuarterPacketV303"]);
-  expect(wrapper.indexOf("captureSourceQuarterPacketV303(")).toBeLessThan(wrapper.indexOf("prepareSurroundingQuarterPredecessorV303("));
+    .toEqual(["prepareSurroundingQuarterFromSourcesV362","prepareSourceQuarterPacketV303"]);
+  expect(wrapper.indexOf("captureSourceQuarterPacketV303(")).toBeLessThan(wrapper.indexOf("prepareSurroundingQuarterFromSourcesV362("));
   expect(wrapper).toContain("ownership.sourceQuartersV303===true");
 });
 function budget(packet: SurroundingCityChunk, native: boolean) {

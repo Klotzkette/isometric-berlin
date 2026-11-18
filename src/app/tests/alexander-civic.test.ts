@@ -1,5 +1,5 @@
 import {describe,expect,test} from "bun:test";
-import {Box3,Mesh,InstancedMesh,Raycaster,Vector3} from "three";
+import {Box3,Color,Matrix4,Mesh,InstancedMesh,Raycaster,Vector3} from "three";
 import source148 from "../src/schlossEastSource.json";
 import {createAlexanderCivicArchitecture,createMinecraftAlexanderCivicArchitecture} from "../src/AlexanderCivicArchitecture";
 import {ALEXANDER_CIVIC_SOURCE as source,ALEXANDER_CIVIC_PARTS,ALEXANDER_CIVIC_PRISM_IDS,MARIEN_TOWER as T,MARIEN_TOWER_PART_IDS,RATHAUS_TOWER_ID,RATHAUS_TOWER_PLATFORM,RATHAUS_TERMINAL,alexanderCivicTowerSolidAt,alexanderCivicPartRoofAt,alexanderCivicWalkableAt,isAlexanderCivicReplacementColumn,rathausTerminalSolidAt} from "../src/alexanderCivicProfile";
@@ -30,7 +30,7 @@ describe("Rotes Rathaus and St. Marien complete recognition architecture",()=>{
   const prior=JSON.stringify(source),root=native?createMinecraftAlexanderCivicArchitecture():createAlexanderCivicArchitecture();root.updateMatrixWorld(true);
   let instances=0,bytes=0,draws=0;
   root.traverse(o=>{if(!(o instanceof Mesh))return;draws++;for(const a of Object.values(o.geometry.attributes)){bytes+=a.array.byteLength;expect(Array.from(a.array).every(Number.isFinite)).toBeTrue();}bytes+=o.geometry.index?.array.byteLength??0;expect(o.matrixAutoUpdate).toBeFalse();for(const m of[o.userData.dayMaterial,o.userData.nightMaterial])expect(m.map).toBeNull();if(o instanceof InstancedMesh){instances+=o.count;bytes+=o.instanceMatrix.array.byteLength+(o.instanceColor?.array.byteLength??0);expect(Array.from(o.instanceMatrix.array).every(Number.isFinite)).toBeTrue();if(native)expect(o.geometry.attributes.position.count).toBe(24);}});
-  expect(draws).toBe(native?1:7);expect(instances).toBe(native?29175:32439);expect(bytes).toBe(native?2217948:2586204);
+  expect(draws).toBe(native?1:7);expect(instances).toBe(native?29467:32595);expect(bytes).toBe(native?2240140:2598060);
   const box=new Box3().setFromObject(root);expect(box.max.y).toBeCloseTo(97.46,2);expect(box.min.x).toBeGreaterThan(2388);expect(box.max.x).toBeLessThan(2585);
   const main=source.profiles.rathaus.parts.find(p=>p.holes.length===3)!;
   for(const court of main.holes){let x=court.reduce((n,p)=>n+p[0],0)/court.length,z=court.reduce((n,p)=>n+p[1],0)/court.length;expect(bebelplatzPartContains(main,x,z)).toBeFalse();const hits=new Raycaster(new Vector3(x,120,z),new Vector3(0,-1,0)).intersectObject(root,true);expect(hits).toHaveLength(0);}
@@ -41,6 +41,29 @@ describe("Rotes Rathaus and St. Marien complete recognition architecture",()=>{
   expect(new Raycaster(new Vector3(2499,79,100),new Vector3(0,1,0)).intersectObject(root,true)).toHaveLength(0);
   expect(JSON.stringify(source)).toBe(prior);
   console.log({native,draws,instances,bytes});
+ });
+ test("the four town hall dials carry twelve inset gilt cartouches each", () => {
+  for (const root of [createAlexanderCivicArchitecture(), createMinecraftAlexanderCivicArchitecture()]) {
+    const matrix = new Matrix4(), colour = new Color(), centres = new Set<string>();
+    let cartouches = 0, outerRims = 0;
+    root.traverse(mesh => {
+      if (!(mesh instanceof InstancedMesh) || !mesh.instanceColor) return;
+      for (let i = 0; i < mesh.count; i++) {
+        mesh.getColorAt(i, colour);
+        const tint = colour.getHex();
+        if (tint === 0xb7ac88) outerRims++;
+        if (tint !== 0xd8dfc7) continue;
+        cartouches++;
+        mesh.getMatrixAt(i, matrix);
+        const v = new Vector3().setFromMatrixPosition(matrix);
+        const dx = v.x - RATHAUS_TERMINAL.x, dz = v.z - RATHAUS_TERMINAL.z;
+        centres.add(Math.abs(dx) > Math.abs(dz) ? (dx < 0 ? "W" : "E") : (dz < 0 ? "N" : "S"));
+      }
+    });
+    expect(cartouches).toBe(48);
+    expect(outerRims).toBe(4 * 32);
+    expect(centres.size).toBe(4);
+  }
  });
  test("touch draws retain exactly the full desktop static detail",()=>{
   const full=createAlexanderCivicArchitecture(false),mobile=createAlexanderCivicArchitecture(true);
