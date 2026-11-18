@@ -1,3 +1,6 @@
+import { markKoepenickCourtWalls } from "./civicArchitecturalFinish";
+import { PackedArchitecturalFinish } from "./packedArchitecturalFinish";
+import { markHighRiseWalls } from "./highRiseWallFinish";
 import { bindGroundFinishV348, certifyPacketGroundFinishV348Steps, markPacketGroundFinishV348, type GroundFinishPartSpanV348 } from "./GroundFinishV348";
 import { certifyPackedRiverWaterV348, type PackedRiverSelectorV348 } from "./WaterRipplesV348";
 import { prepareTempelhoferFieldV345, applyTempelhoferFieldV345, bindTempelhoferFieldV345 } from "./TempelhoferFieldV345";
@@ -503,6 +506,7 @@ export function* buildCityChunkWithPaletteV362(
     let indices = vertexCount <= 65_535 ? new Uint16Array(indexCount) : new Uint32Array(indexCount);
     const colourOwners = chunk.meshes.some(part => part.kind === "city" && part.colorType !== "u16linear")
       ? yield* surroundingColourOwners(chunk.nav.buildings, chunk.nav.groundY, chunk.origin[1], chunk.origin[0], chunk.origin[2], undefined, refineOuterRoofsV230(id), refineOuterHousePaletteV262(id), refineOuterHousePaletteV262(id) ? primaryHousePaletteV273 : undefined) : undefined;
+    const surfaceFinish = minecraft ? undefined : new PackedArchitecturalFinish();
     let vertexOffset = 0, indexOffset = 0;
     let groundOverlayStart: number | undefined;
     let originalVertexWords = vertices.length, originalIndexCount = indices.length;
@@ -611,6 +615,16 @@ export function* buildCityChunkWithPaletteV362(
       const hillTransfer=yield* applyMauerparkTerrainTrianglesV298(chunk,meshIndex,indices,indexOffset);
       if(hillTransfer)root.userData.mauerparkTerrainTrianglesV298=(root.userData.mauerparkTerrainTrianglesV298??0)+hillTransfer;
       if (ownership.groundFinishV348 && !minecraft) groundSpansV348.push({kind:part.kind,indexStart:indexOffset,indexCount:written});
+      if (surfaceFinish) {
+        if (part.kind === "city") {
+          yield* markHighRiseWalls(vertices, indices, indexOffset, written, vertexOffset, count,
+            chunk.nav, chunk.origin[1], vertex => surfaceFinish.mark(vertex));
+        } else if (part.kind === "public-institutions-v326") {
+          markKoepenickCourtWalls(id, part, vertexOffset, vertex => surfaceFinish.mark(vertex));
+        } else {
+          yield* surfaceFinish.markPart(part.kind, vertices, vertexOffset, count, part.colorType === "u16linear");
+        }
+      }
       vertexOffset += count;
       indexOffset += written;
     }
@@ -679,6 +693,9 @@ export function* buildCityChunkWithPaletteV362(
           allotmentPart ? indices.subarray(0, originalIndexCount) : indices);
         if (river) ownership.riverFinishV348(body, river);
       }
+      const finishBytes = surfaceFinish?.attach(body) ?? 0;
+      geometryBytes += finishBytes;
+      if (finishBytes) bufferCount++;
       body.userData.surroundingCity = true;
       root.add(body);
       yield* geometryBounds(geometry);

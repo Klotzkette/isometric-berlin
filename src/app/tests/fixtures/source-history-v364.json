@@ -1,0 +1,31 @@
+{
+  "additions": {
+    "src/app/src/architecturalFinishTypes.ts": "4195f1505b2190d0526504e351dac090104c9b58489f4d976f73cd8578174226",
+    "src/app/src/civicArchitecturalFinish.ts": "79e7fdb8f4ddaaaf41a9a09bfff753f0de4497d33ba3a41e1c39a847c2c7b73f",
+    "src/app/src/highRiseWallFinish.ts": "33c864de3b57f6939139a53ee4e52d54fbd24e285b76e1e1a782aa4e65d6bbd0",
+    "src/app/src/packedArchitecturalFinish.ts": "3890d1a0aa46d2c7d136fc39f481d659482b4d844089f1740eca601512e02417",
+    "src/app/src/skylineFinishes.ts": "caadd9d2ffb88a31e67611bcd9bea1bae667e9cba585de0fe1cdae18cf99e710"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "40c7f11b5df07fdd2865d38f9ebfe0215a145add1ac33606a6360d03e0be0ed4",
+      "after": "f5550a9cf8361c51db1e80e240f9d91603e7e3aeefedda340e3b55a478f9d26a"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "12b2ff832b7952100c85902b14d8a744302eebbfe0644ff6c4c935b57f4f1cfb",
+      "after": "5501dc62832b851be0ccc1d7966e3c2bd8fba0417809b029da6dfa986a5df25d"
+    },
+    "src/app/src/SurroundingCityGeometry.ts": {
+      "before": "42b187e377fe1dd7d6684e50dd9eb2ae719028d639b1e0ca2524cacb89e13eba",
+      "after": "6d9d9bfd844a653602ac3c2f1885264e04ac6d7fd7ad8d6cfcdca9468978bcea"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "ccef002366d8bac294726c73810acb889c2bbfc6ed8246b0489692fcf0c469a0",
+      "after": "af7a8c2ee354d8bab833cea76c8ddc0ea85ddf364764d067bfabb91dd46ba334"
+    },
+    "src/app/src/architecturalSheen.ts": {
+      "before": "f7e2fd412cac06344552de1b58f4ea3f13bc8ee261008ccd1bd2e062ef246f70",
+      "after": "d4f572ab4bef99148b7adaa03811f0bf2ede1e1af67db05df347fe6868a7ee97"
+    }
+  }
+}

@@ -2120,6 +2120,7 @@ export function setIsoNightPresentation(
   // the mode active when they attach.
   city.traverse((object) => {
     if (!(object instanceof Mesh)) return;
+    presentArchitecturalSheen(object, mode);
     const dayMaterial = object.userData.dayMaterial;
     const nightMaterial = object.userData.nightMaterial;
     if (
@@ -2129,7 +2130,6 @@ export function setIsoNightPresentation(
       return;
     }
     const objectMode = schwellenraumObjektmodus(mode, object);
-    presentArchitecturalSheen(object, objectMode);
     const moonlitMaterial = object.userData.moonlitMaterial;
     const baseMaterial =
       objectMode === "night"

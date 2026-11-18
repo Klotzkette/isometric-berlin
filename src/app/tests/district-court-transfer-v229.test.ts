@@ -2,6 +2,8 @@ import { expect,test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import sports from '../../../geo_data/regierungsviertel/sports-surfaces-receipt.json';
 import { verifiedPriorPacketShaV193 } from './helpers/losslessPacketsV193';
 import receipt from '../src/data/districtCourtsV229Ownership.json';
 import { transferExactPacketTriangles,transferExactPacketLines } from '../src/exactPacketTransfer';
@@ -18,7 +20,20 @@ test('every packet transfer is exact, reversible, and safe across parked reloads
  for(const record of receipt.records){
   const desc=manifest.chunks.find((r:any)=>r.id===record.tile);
   const bytes=readFileSync(new URL(path+desc[record.mode].url,import.meta.url));
-  expect(verifiedPriorPacketShaV193(new URL(path+desc[record.mode].url,import.meta.url), bytes)).toBe(record.sha256);
+  const url = new URL(path + desc[record.mode].url, import.meta.url);
+  let courthouseSource = bytes;
+  // A sports surface was appended to this same tile after the courthouse
+  // survey. Verify both sides, then exercise the actual current mesh below.
+  if (record.tile === '-10_-3') {
+    const edit = sports[record.mode === 'drawn' ? 'drawn:-10_-3' : 'minecraft:-10_-3'];
+    expect(hash(bytes)).toBe(edit.after.sha256);
+    const filename = 'src/app/public/mesh/surrounding-berlin-v159/' + edit.before.url;
+    courthouseSource = execFileSync('git', ['show', '3d621f17f7f1eaf5fff27ad8ef3872e00c25bfbd:' + filename], {
+      cwd: new URL('../../../', import.meta.url),
+    });
+    expect(hash(courthouseSource)).toBe(edit.before.sha256);
+  }
+  expect(verifiedPriorPacketShaV193(url, courthouseSource)).toBe(record.sha256);
   const packet=JSON.parse(gunzipSync(bytes).toString());const mesh=packet.meshes.find((m:any)=>m.kind===record.kind);
   const raw=Buffer.from(mesh.indices,'base64');const original=new Uint32Array(raw.buffer,raw.byteOffset,raw.byteLength/4).slice();
   const result=original.slice();const n=finish(transferExactPacketTriangles(receipt.records,record.tile,record.mode==='minecraft',mesh,result,0));

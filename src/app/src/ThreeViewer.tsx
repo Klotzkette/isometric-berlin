@@ -2915,7 +2915,7 @@ export function applyLightingToRoot(
     if (!(object instanceof Mesh)) {
       return;
     }
-    presentArchitecturalSheen(object, objectMode);
+    presentArchitecturalSheen(object, mode);
     // Drawn accessory kits keep exact unlit paint for day/snow and a separate
     // lit material for night. Most of those kits live under isoWorld and are
     // switched there; expansion details are a sibling recognition layer, so

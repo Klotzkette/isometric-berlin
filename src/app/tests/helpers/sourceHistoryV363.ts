@@ -1,3 +1,4 @@
+import { assertSourceLayerV364, isSourceAdditionV364, projectSourceBeforeV364, sourceAtBeforeV364 } from "./sourceHistoryV364";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -24,9 +25,11 @@ function verifyPredecessor(path: string): Buffer {
   return raw;
 }
 export function isSourceAdditionV363(path: string): boolean {
-  return Object.hasOwn(receipt.additions, path);
+  return Object.hasOwn(receipt.additions, path) || isSourceAdditionV364(path);
 }
 export function sourceAtBeforeV363(path: string, bytes: Uint8Array): Uint8Array {
+  if (receipt.changes[path]?.before === digest(bytes)) return bytes;
+  bytes = sourceAtBeforeV364(path, bytes);
   const entry = receipt.changes[path];
   if (!entry) return bytes;
   const hash = digest(bytes);
@@ -35,18 +38,23 @@ export function sourceAtBeforeV363(path: string, bytes: Uint8Array): Uint8Array 
   return verifyPredecessor(path);
 }
 export function projectSourceBeforeV363(source: string): string {
+  source = projectSourceBeforeV364(source);
   const hash = digest(source);
   const path = Object.keys(receipt.changes).find(name => receipt.changes[name].after === hash);
   return path ? verifyPredecessor(path).toString() : source;
 }
 export function assertSourceLayerV363(before: Readonly<Record<string, string>>, files: readonly string[]): void {
+  const atV363: Record<string, string> = { ...before };
+  for (const [path, hash] of Object.entries(receipt.additions)) atV363[path] = hash;
+  for (const [path, entry] of Object.entries(receipt.changes)) atV363[path] = entry.after;
+  assertSourceLayerV364(atV363, files);
   for (const [path, entry] of Object.entries(receipt.changes)) {
     if (before[path] !== entry.before) throw new Error("Unexpected v363 source change: " + path);
     verifyPredecessor(path);
-    if (digest(readFileSync(resolve(repository, path))) !== entry.after) throw new Error("Changed v363 result: " + path);
+    if (digest(sourceAtBeforeV364(path, readFileSync(resolve(repository, path)))) !== entry.after) throw new Error("Changed v363 result: " + path);
   }
   for (const [path, hash] of Object.entries(receipt.additions)) {
-    if (Object.hasOwn(before, path) || (!path.endsWith(".json.gz") && !files.includes(path)) || digest(readFileSync(resolve(repository, path))) !== hash) {
+    if (Object.hasOwn(before, path) || (!path.endsWith(".json.gz") && !files.includes(path)) || digest(sourceAtBeforeV364(path, readFileSync(resolve(repository, path)))) !== hash) {
       throw new Error("Changed v363 addition: " + path);
     }
   }
