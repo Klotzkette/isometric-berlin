@@ -37,6 +37,13 @@ export type PresentationTone = {
   toneMapping: ToneMapping;
 };
 
+// The stronger directional key gives sunlit sides definition. The lower
+// hemisphere level keeps the total illumination on pale roofs close to unity.
+export const DRAWN_LIGHT = {
+  day: { ground: 0xdfe4e6, hemisphere: 2.60, sun: 0xfff7e9, key: 0.91, fill: 0.17 },
+  flood: { ground: 0xe4e6e0, hemisphere: 2.75, sun: 0xfff8ea, key: 0.62, fill: 0.12 },
+} as const;
+
 export const PRESENTATION_TONE: Record<VisualMode, PresentationTone> = {
   day: { exposure: 1, toneMapping: NoToneMapping },
   flood: { exposure: 1, toneMapping: NoToneMapping },

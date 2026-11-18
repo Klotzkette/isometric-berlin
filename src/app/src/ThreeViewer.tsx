@@ -1,3 +1,4 @@
+import { presentArchitecturalSheen } from "./architecturalSheen";
 import { bindHbfForecourtFinishV354 } from "./HbfForecourtFinishV354";
 import { bindGroundFinishV348 } from "./GroundFinishV348";
 import { createWaterRipplesV348, type WaterRipplesV348 } from "./WaterRipplesV348";
@@ -445,7 +446,7 @@ import {
 } from "./drawnBuildings";
 import { minecraftFogRange } from "./minecraftFog";
 import { setQuadrigaMode } from "./Quadriga";
-import { PRESENTATION_TONE } from "./presentationTone";
+import { DRAWN_LIGHT, PRESENTATION_TONE } from "./presentationTone";
 import {
   type PrismPayload,
   type PrismBuilding,
@@ -2914,6 +2915,7 @@ export function applyLightingToRoot(
     if (!(object instanceof Mesh)) {
       return;
     }
+    presentArchitecturalSheen(object, objectMode);
     // Drawn accessory kits keep exact unlit paint for day/snow and a separate
     // lit material for night. Most of those kits live under isoWorld and are
     // switched there; expansion details are a sibling recognition layer, so
@@ -3003,6 +3005,7 @@ function setSceneLighting(
   runtime.lightingMode = mode;
   runtime.nightLightsOn = lightsOn;
   runtime.surroundingCity?.setMode(mode);
+  const drawnLight = mode === "flood" ? DRAWN_LIGHT.flood : DRAWN_LIGHT.day;
   const isNight = mode === "night";
   const isMoonlit = isNight && !lightsOn;
   const isMinecraft = mode === "minecraft";
@@ -3072,7 +3075,7 @@ function setSceneLighting(
             ? 0xc8d1d4
             : isSchwellenraum
               ? 0x758378
-              : 0xe4e6e0,
+              : drawnLight.ground,
   );
   // Without a film curve the drawn modes need light levels that land BELOW
   // clipping on their own: the previous 2.52/2.72 rig relied on the ACES
@@ -3094,7 +3097,7 @@ function setSceneLighting(
           ? 2.45
           : isSchwellenraum
             ? 2.38
-            : 2.75;
+            : drawnLight.hemisphere;
   // A near-white key: the old amber 0xffdda3 crushed the blue channel of
   // every cream facade and turned the Chancellery lemon-yellow. Moonlight
   // pushes the key further into cool silver-blue — authored colour, not a
@@ -3110,12 +3113,10 @@ function setSceneLighting(
             ? 0xdce8ed
             : isSchwellenraum
               ? 0xf0cfb6
-              : 0xfff8ea,
+              : drawnLight.sun,
   );
-  // Day's key is deliberately gentle. With the ambient half carrying the
-  // brightness, the sun only has to supply the direction of the light —
-  // the same job `isoFaceShade` does for the unlit prisms. A strong key
-  // would reintroduce the blob shadows the owner rejected.
+  // Keep a readable distinction between sunny and shaded facets while the
+  // existing hemisphere and cool fill carry detail into the shadow sides.
   runtime.sun.intensity = isMoonlit
     ? 0.62
     : isNight
@@ -3126,7 +3127,7 @@ function setSceneLighting(
           ? 0.24
           : isSchwellenraum
             ? 0.46
-            : 0.62;
+            : drawnLight.key;
   runtime.skyFill.color.setHex(
     isMoonlit
       ? 0x53699a
@@ -3150,7 +3151,7 @@ function setSceneLighting(
           ? 0.28
           : isSchwellenraum
             ? 0.18
-            : 0.12;
+            : drawnLight.fill;
   runtime.sun.position.set(
     isMinecraft ? 760 : -760,
     980,
@@ -7669,9 +7670,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       // Day levels; setSceneLighting re-applies the per-mode rig on the
       // first frame. Kept in range on their own — no film curve compresses
       // an over-driven scene back down any more.
-      const hemisphere = new HemisphereLight(0xffffff, 0xe4e6e0, 2.75);
+      const hemisphere = new HemisphereLight(0xffffff, DRAWN_LIGHT.day.ground, DRAWN_LIGHT.day.hemisphere);
       scene.add(hemisphere);
-      const sun = new DirectionalLight(0xfff8ea, 0.62);
+      const sun = new DirectionalLight(DRAWN_LIGHT.day.sun, DRAWN_LIGHT.day.key);
       sun.position.set(-760, 980, 720);
       sun.castShadow = !coarsePointer;
       sun.shadow.mapSize.set(1536, 1536);
@@ -7682,7 +7683,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       sun.shadow.bias = -0.00035;
       sun.shadow.normalBias = 0.018;
       scene.add(sun);
-      const skyFill = new DirectionalLight(0xb6dcff, 0.24);
+      const skyFill = new DirectionalLight(0xb6dcff, DRAWN_LIGHT.day.fill);
       skyFill.position.set(620, 430, -680);
       scene.add(skyFill);
 

@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { ACESFilmicToneMapping, NoToneMapping } from "three";
 
 import { CRISPNESS_PROFILES } from "../src/crispnessProfile";
-import { PRESENTATION_TONE, isPaintFaithful } from "../src/presentationTone";
+import { DRAWN_LIGHT, PRESENTATION_TONE, isPaintFaithful } from "../src/presentationTone";
 
 /**
  * The drawn modes are a flat unlit drawing whose every tone is authored by
@@ -18,6 +18,18 @@ describe("presentation tone response", () => {
       expect(PRESENTATION_TONE[mode].exposure).toBe(1);
       expect(isPaintFaithful(mode)).toBe(true);
     }
+  });
+
+  test("daylight brings out facets without clipping a pale matte roof", () => {
+    const rig = DRAWN_LIGHT.day;
+    // Irradiance in the red channel on an upward Lambert face, using both
+    // production light directions. The cool fill contributes at most its power.
+    const sunY = 980 / Math.hypot(760, 980, 720);
+    const fillY = 430 / Math.hypot(620, 430, 680);
+    const roof = (rig.hemisphere + rig.key * sunY + rig.fill * fillY) / Math.PI;
+    expect(roof).toBeLessThan(1.07);
+    expect(roof).toBeGreaterThan(0.98);
+    expect(rig.key / rig.hemisphere).toBeGreaterThan(DRAWN_LIGHT.flood.key / DRAWN_LIGHT.flood.hemisphere);
   });
 
   test("Minecraft keeps a filmic curve — it is a genuinely lit world", () => {

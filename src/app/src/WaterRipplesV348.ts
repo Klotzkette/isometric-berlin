@@ -91,20 +91,30 @@ varying vec3 vRiverWorldV348;
 varying float vRiverEligibleV348;
 uniform float uRiverTimeV348;
 uniform float uRiverEnabledV348;
+uniform float uRiverDaylight;
 `;
 const RIPPLE_FRAGMENT = `
 if (uRiverEnabledV348 > 0.5 && vRiverEligibleV348 > 0.999) {
   vec2 riverP = vRiverWorldV348.xz;
-  float riverA = dot(riverP, vec2(0.72, 1.24)) - uRiverTimeV348 * 0.58
-    + 0.38 * sin(dot(riverP, vec2(0.11, -0.075)));
+  float riverSwell = sin(dot(riverP, vec2(0.11, -0.075)));
+  float riverA = dot(riverP, vec2(0.72, 1.24)) - uRiverTimeV348 * 0.58 + 0.38 * riverSwell;
   float riverB = dot(riverP, vec2(-0.93, 0.43)) - uRiverTimeV348 * 0.37;
-  float riverFilter = 1.0 - smoothstep(0.6, 2.0, max(fwidth(riverA), fwidth(riverB)));
+  float riverFootprint = max(fwidth(riverA), fwidth(riverB));
+  float riverFilter = 1.0 - smoothstep(0.6, 2.0, riverFootprint);
   vec3 riverFace = cross(dFdx(vRiverWorldV348), dFdy(vRiverWorldV348));
   float riverTop = step(0.98, abs(riverFace.y) / max(length(riverFace), 0.000001));
   float riverWave = 0.74 * sin(riverA) + 0.26 * sin(riverB);
-  // Broad, soft alternating bands. Multiplication preserves authored day/night
-  // colours; no additive glints, white foam, noise or simulated light source.
   outgoingLight *= 1.0 + riverTop * riverFilter * riverWave * 0.115;
+  if (uRiverDaylight > 0.5) {
+    // Only the broken, resolved crests catch light. The reflected direction
+    // follows the daytime sun at (-760, 980, 720) above a horizontal surface.
+    vec3 riverEye = normalize(cameraPosition - vRiverWorldV348);
+    float sunward = smoothstep(0.42, 0.95, dot(riverEye, vec3(0.530, 0.683, -0.502)));
+    float crest = smoothstep(0.58, 0.94, riverWave) * smoothstep(-0.6, 0.65, riverSwell);
+    float resolved = 1.0 - smoothstep(0.28, 1.2, riverFootprint);
+    vec3 reflection = mix(vec3(0.12, 0.16, 0.18), vec3(0.38, 0.35, 0.27), sunward);
+    outgoingLight += riverTop * smoothstep(0.0, 0.16, riverEye.y) * resolved * crest * reflection;
+  }
 }
 `;
 
@@ -129,7 +139,7 @@ export function patchRiverShaderV348(vertex: string, fragment: string, mixed: bo
 
 type Patch = { material: Material; undo: () => void };
 export function createWaterRipplesV348() {
-  const time = { value: 0 }, enabled = { value: 1 };
+  const time = { value: 0 }, enabled = { value: 1 }, daylight = { value: 0 };
   const patches = new Map<Material, Patch>();
   const frustum = new Frustum(), projection = new Matrix4(), worldBox = new Box3();
   let disposed = false, now = 0, previous: number | undefined, lastVisible = -Infinity, lastFrame = -Infinity;
@@ -150,6 +160,7 @@ export function createWaterRipplesV348() {
       const next = patchRiverShaderV348(shader.vertexShader, shader.fragmentShader, !!selector);
       shader.vertexShader = next.vertex; shader.fragmentShader = next.fragment;
       shader.uniforms.uRiverTimeV348 = time; shader.uniforms.uRiverEnabledV348 = enabled; shader.uniforms.uRiverSelectorV348 = cell;
+      shader.uniforms.uRiverDaylight = daylight;
     };
     const key = () => `${baselineKey}|ordinary-river-ripples-v348-${selector ? "mixed" : "pure"}`;
     const onRender: Material["onBeforeRender"] = function(this: Material, ...args) {
@@ -195,6 +206,7 @@ export function createWaterRipplesV348() {
       if (disposed || !Number.isFinite(timestamp)) return false;
       now = timestamp;
       enabled.value = mode === "minecraft" || mode === "flood" || mode === "schwellenraum" ? 0 : 1;
+      daylight.value = mode === "day" ? 1 : 0;
       if (hidden || reducedMotion || !enabled.value || lastVisible < timestamp - 150) { previous = undefined; return false; }
       if (previous === undefined) previous = timestamp;
       time.value += Math.min(.1, Math.max(0, (timestamp - previous) / 1000)); previous = timestamp;

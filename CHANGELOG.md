@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.243
+
+- Give the Berliner Dom’s copper cupolas and the Hauptbahnhof’s glass roofs different daylight reflections. Stone façades pick up a little warmth on their sunlit sides.
+- Catch sunlight on short wave crests along the Spree and canals. The highlights soften with distance and stay still when reduced motion is enabled.
+
 ## 1.0.242
 
 - Restore the detailed political façades that could disappear after city-wide recolouring, including the Federal Ministry of the Interior. Check the existing models of the Reichstag, Chancellery, Bellevue, Bundesrat and Berlin House of Representatives.

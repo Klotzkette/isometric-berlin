@@ -94,6 +94,23 @@ describe("V348 original material and shared frame lifetime", () => {
     expect(controller.update(20250, "day", false, false)).toBe(false);
     controller.dispose(); mesh.geometry.dispose(); mesh.material.dispose();
   });
+  test("daylight catches the same frozen crests on core and packed water when motion is reduced", () => {
+    const controller = createWaterRipplesV348();
+    const core = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    core.name = "smooth water surface";
+    const packed = new Mesh(new BoxGeometry(), new MeshBasicMaterial({ vertexColors: true }));
+    controller.bind(core); controller.bind(packed, certify());
+    const coreShader = compile(core.material), tileShader = compile(packed.material);
+    expect(coreShader.uniforms.uRiverDaylight).toBe(tileShader.uniforms.uRiverDaylight);
+    expect(coreShader.uniforms.uRiverDaylight.value).toBe(0);
+    for (const mode of ["day", "night", "snowstorm", "flood", "schwellenraum", "minecraft", "day"] as const) {
+      expect(controller.update(0, mode, true, false)).toBe(false);
+      expect(coreShader.uniforms.uRiverDaylight.value).toBe(mode === "day" ? 1 : 0);
+      expect(tileShader.uniforms.uRiverTimeV348.value).toBe(0);
+    }
+    controller.dispose();
+    for (const mesh of [core, packed]) { mesh.geometry.dispose(); mesh.material.dispose(); }
+  });
   test("mixed water bounds must meet camera frustum, not merely another part of the visible tile", () => {
     const controller = createWaterRipplesV348(), mesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial({ vertexColors: true }));
     mesh.scale.setScalar(.01); mesh.updateMatrixWorld();

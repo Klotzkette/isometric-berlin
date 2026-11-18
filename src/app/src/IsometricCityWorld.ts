@@ -1,3 +1,4 @@
+import { presentArchitecturalSheen } from "./architecturalSheen";
 import { markHbfForecourtFinishV354 } from "./HbfForecourtFinishV354";
 import { markGroundFinishV348 } from "./GroundFinishV348";
 import { isPotsdamerNorthPavilionSource } from "./PotsdamerPavilionOwnership";
@@ -2128,6 +2129,7 @@ export function setIsoNightPresentation(
       return;
     }
     const objectMode = schwellenraumObjektmodus(mode, object);
+    presentArchitecturalSheen(object, objectMode);
     const moonlitMaterial = object.userData.moonlitMaterial;
     const baseMaterial =
       objectMode === "night"

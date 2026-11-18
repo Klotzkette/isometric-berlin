@@ -1,0 +1,27 @@
+{
+  "additions": {
+    "src/app/src/architecturalSheen.ts": "f7e2fd412cac06344552de1b58f4ea3f13bc8ee261008ccd1bd2e062ef246f70"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "c714f67ae735c113b6a7f13bbbe1726138944a5e606768f19189fa3b5f1520dd",
+      "after": "40c7f11b5df07fdd2865d38f9ebfe0215a145add1ac33606a6360d03e0be0ed4"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "1d6c0678f16d8a8cb5552efd8ad38a4c1cde95cc864e543a218519f0a5ad15c9",
+      "after": "12b2ff832b7952100c85902b14d8a744302eebbfe0644ff6c4c935b57f4f1cfb"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "5e6e20000c4404180a9e465b27e0c30fd54078660921c4038e1d3fbd071058be",
+      "after": "ccef002366d8bac294726c73810acb889c2bbfc6ed8246b0489692fcf0c469a0"
+    },
+    "src/app/src/WaterRipplesV348.ts": {
+      "before": "b85499661afbfd0edbb42a326fd8c8ce37af698495a09832f3955aba17a5b73a",
+      "after": "fe1303335192365945955840a00a79b8dec6d521ad3257cfb8c8024eaca41bb1"
+    },
+    "src/app/src/presentationTone.ts": {
+      "before": "5a1ad212805ab2cec9ce930542f59c4ba30fb3a92999b3a81312a8e4ea7b02b5",
+      "after": "e80f88bc8e23b1941566ed143c777d5ccfca9ab5c08066de66de4b2bad72ed32"
+    }
+  }
+}
