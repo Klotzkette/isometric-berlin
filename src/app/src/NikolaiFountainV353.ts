@@ -5,7 +5,9 @@ import {
 
 export const NIKOLAI_FOUNTAIN_V353 = Object.freeze({
   id: "berlin:zierbrunnen:ZB-MI-17", name: "Wappenbrunnen", host: "4_0",
-  x: 2398.37, z: 298.91, radius: 2, height: 6, basinHeight: 1.7,
+  // Keep the register point for identity. The survey outlines the physical basin.
+  inventoryX: 2398.37, inventoryZ: 298.91,
+  x: 2395.20, z: 300.88, radius: 2, height: 6, basinHeight: 1.7,
   drawnSha256: "ef331382da9f41c0ef99013bda475a08214d6f926a936770e939f5259341968b",
   nativeSha256: "52085ae3efac701b41c278876569242f4b9c236171f71a2593d84cf9d41685f9",
   reference: "https://bildhauerei-in-berlin.de/bildwerk/wappenbrunnen-7845/",

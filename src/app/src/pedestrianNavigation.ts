@@ -1,3 +1,4 @@
+import { isLeopoldplatzFountainPad } from "./leopoldplatzFountainV367";
 import {treptowWaterfrontV317Solids} from "./treptowWaterfrontV317Navigation";
 import {neukoellnLandmarksV305Solids} from "./NeukoellnLandmarksV305Navigation";
 import { admitsMoabitMitteV300Core, isMoabitMitteV300OldCore } from "./MoabitMitteV300Ownership";
@@ -2465,6 +2466,7 @@ export function compilePedestrianWater(
   payload: Pick<SurfacePayload, "water">,
 ): PedestrianWaterRegion[] {
   return payload.water.flatMap((surface) => {
+    if (isLeopoldplatzFountainPad(surface)) return [];
     const ring = metricRing(surface.ring);
     if (ring.length < 3) {
       return [];

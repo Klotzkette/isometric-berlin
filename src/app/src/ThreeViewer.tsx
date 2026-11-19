@@ -452,6 +452,7 @@ import {
   type PrismPayload,
   type PrismBuilding,
   type SurfacePayload,
+  ISO_GROUND_SHADES,
   SURFACE_WORLD_FILE,
   PRISM_WORLD_FILE,
   createBridgeStructures,
@@ -4792,7 +4793,9 @@ function ensureIsoWorld(
       const stationPhotoAdmitted = canReplacePotsdamerSouthStationPhoto(prisms.buildings);
       const potsdamerNorthPavilion = stationPhotoAdmitted && Boolean(surfaces) &&
         canReplacePotsdamerNorthPavilion(prisms.buildings) && potsdamerPavilionTerrainAdmitted(ground);
-      const nordbahnhofModule = ground && surfaces ? await import("./NordbahnhofPublicAccess") : null;
+      const [nordbahnhofModule, mittePlazaEdgesV367] = ground && surfaces
+        ? await Promise.all([import("./NordbahnhofPublicAccess"), import("./MittePlazaEdgesV367")])
+        : [null, null];
       if (runtime.disposed || runtime.loadSignal.aborted || !isoWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
       const nordbahnhof = nordbahnhofModule?.prepareNordbahnhofDrawn(prisms.buildings, ground) ?? null;
       const hbfCirculationV291 = runtime.signatures.children.some(model => model.userData.hbfMotionFrameV291?.native === false);
@@ -4920,6 +4923,11 @@ function ensureIsoWorld(
               roadGroundV343.restoreRoadGroundV343(slabs, sourceGround, plaza);
               yield;
               if (surfaces) tiergartenPathsV345.restoreTiergartenPathsV345(slabs, sourceGround, surfaces);
+              if (mittePlazaEdgesV367) {
+                yield* mittePlazaEdgesV367.attachMittePlazaEdgesV367(slabs, sourceGround, ISO_GROUND_SHADES);
+                yield;
+                mittePlazaEdgesV367.attachMitteSquareStreetsV367(slabs, sourceGround);
+              }
             },
             retainRasterWater: runtime.coarsePointer && !surfaces,
             smoothSurfaces:

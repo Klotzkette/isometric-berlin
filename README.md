@@ -41,10 +41,9 @@ und die dargestellten Tunnel; **Schnitt schließen** stellt die Außenansicht wi
 Raumaufteilungen und Innenmaße sind [architektonische Modellnäherungen](docs/reichstag-section-v319.md).
 
 Im [Nikolaiviertel](docs/nikolaiviertel-v353.md) prägen Feldstein, Backstein,
-gotische Fenster und grüne Kupferhelme die Nikolaikirche. Individuelle
-Hausfronten und der Wappenbrunnen geben dem Kirchplatz seinen Maßstab.
-Die Ausarbeitung verbindet amtliche Gebäudeformen mit fotografisch
-abgeglichenen Details.
+gotische Fenster und grüne Kupferhelme die Nikolaikirche.
+Am [Nikolaikirchplatz](docs/nikolaikirchplatz-v367.md) führen Natursteinbänder durch die Gassen zum Wappenbrunnen und zum Westportal.
+Auch [Wege und Platzkanten in Mitte](docs/mitte-wege-v367.md) folgen dem kartierten Verlauf.
 
 - **Frei bewegen:** die Ansicht drehen und zoomen, zu Fuß durch Berlin gehen
   oder über die Dächer schweben. Maus, Tastatur und Touch werden unterstützt.
@@ -178,9 +177,9 @@ and adjoining rooms. **Basement** and **Connections** reveal the lower level
 and represented tunnels; **Close section** restores the exterior. Room layouts
 and interior dimensions are [architectural display estimates](docs/reichstag-section-v319.md).
 In the [Nikolaiviertel](docs/nikolaiviertel-v353.md), fieldstone, brick, Gothic
-windows and green copper spires define the Nikolaikirche. Individual house
-fronts and the Wappenbrunnen frame the square, combining official building
-forms with details checked against exterior photographs.
+windows and green copper spires define the Nikolaikirche. Natural-stone paving
+leads from the alleys onto the [Nikolaikirchplatz](docs/nikolaikirchplatz-v367.md),
+past the Wappenbrunnen to the church’s west portal.
 [50 selected building groups](docs/cluster-facades-v320.md) include local facade
 proportions, window frames and reveals, sills, plinths and eave details.
 [University campuses](docs/universities-v322.md),
@@ -322,8 +321,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.247** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.247/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.248** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.248/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

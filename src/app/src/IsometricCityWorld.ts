@@ -1,3 +1,6 @@
+import { isLeopoldplatzFountainPad } from "./leopoldplatzFountainV367";
+import pavementEdgesV367 from "./data/mittePavementEdgesV367.json";
+import { tiergartenPathSourceGuardV345 } from "./tiergartenPathSourceGuardV345";
 import { zilleEstateRoofV366 } from "./ZilleEstateRoofV366";
 import { LEHRTER_BRICK, LEHRTER_TILE, lehrterKulturhausOwnerV366, lehrterKulturhausRoofV366 } from "./lehrterKulturhausProfileV366";
 import { presentKerbStoneFinish } from "./kerbStoneFinish";
@@ -3840,14 +3843,14 @@ const KERB_PAIRS = new Set([
 ]);
 
 /**
- * Kerb ink: the surveyed run-length ground grid knows exactly where
- * roads meet lawns and plazas — draw those cell boundaries as thin ink
- * lines, the ligne-claire ground the buildings already live on.
+ * Cell-edge ink is a fallback. Where both sides and both ends fall inside
+ * a single continuous paved surface, the exact road and its own kerbs win.
  */
-function* createKerbLinesSteps(
+export function* createKerbLinesSteps(
   ground: VoxelPayload,
   skippedClasses: ReadonlySet<string> = new Set(),
   skipAtWorld?: (x: number, z: number) => boolean,
+  pavedInteriorEdges?: ReadonlySet<number>,
 ): Generator<void, LineSegments | null> {
   const cell = ground.cell_m;
   const { cols, min_x_idx, min_z_idx, rows } = ground.grid;
@@ -3913,10 +3916,11 @@ function* createKerbLinesSteps(
       if (!rightKerb && !belowKerb) continue;
       const worldX = (min_x_idx + x + 0.5) * cell;
       if (skipAtWorld?.(worldX, worldZ)) continue;
-      if (rightKerb && !skipAtWorld?.(worldX + cell, worldZ)) {
+      const edgeKey = 2 * (rowOffset + x);
+      if (rightKerb && !pavedInteriorEdges?.has(edgeKey) && !skipAtWorld?.(worldX + cell, worldZ)) {
         edge(x + 1, z, x + 1, z + 1, x, z);
       }
-      if (belowKerb && !skipAtWorld?.(worldX, worldZ + cell)) {
+      if (belowKerb && !pavedInteriorEdges?.has(edgeKey + 1) && !skipAtWorld?.(worldX, worldZ + cell)) {
         edge(x, z + 1, x + 1, z + 1, x, z);
       }
     }
@@ -11544,6 +11548,12 @@ function addBasinsAndSunkenWalls(
   const depthWallPositions: number[] = [];
   const rimInk: number[] = [];
   for (const basin of basins) {
+    // The rectangular Fontänenfeld at Leopoldplatz is walkable paving with
+    // flush outlets. Its OSM ring describes the pad, not a raised pool.
+    if (isLeopoldplatzFountainPad(basin)) {
+      replacedBasins.add(basin);
+      continue;
+    }
     if (basin.ring.length < 4) {
       continue;
     }
@@ -13517,10 +13527,17 @@ export function* createIsometricCityCoreStepsV309(
       group.add(surface);
       yield;
     }
+    // Production just checked this terrain and road fingerprint while admitting
+    // the Tiergarten cuts. Standalone construction can verify the same source.
+    const verifiedPavement = surfaces?.roads?.length && !options.retainRasterAsphalt && (
+      !!slabs.userData.tiergartenPathsV345 ||
+      (!options.restoreRoadGroundV343 && tiergartenPathSourceGuardV345(ground, surfaces) === pavementEdgesV367.sourceGuard)
+    );
     const kerbs = yield* createKerbLinesSteps(
       ground,
       surfaces ? new Set(["asphalt", "water", "basin"]) : undefined,
       (x, z) => pointInBrandenburgApproach(x, z) || pointInHbfNorthRailCut(x, z) || Boolean(insideTunnelApproach?.(x, z)),
+      verifiedPavement ? new Set(pavementEdgesV367.edges) : undefined,
     );
     if (kerbs) {
       group.add(kerbs);

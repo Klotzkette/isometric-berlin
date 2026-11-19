@@ -710,7 +710,7 @@ const PATH_TEXTURE_SIZE = 64;
 
 function pathTextureNoise(x: number, y: number, seed: number): number {
   let value = (x * 374761393 + y * 668265263 + seed * 69069) | 0;
-  value = (value ^ (value >>> 13)) * 1274126177;
+  value = Math.imul(value ^ (value >>> 13), 1274126177);
   return (value ^ (value >>> 16)) & 0xff;
 }
 
@@ -727,17 +727,17 @@ export function createParkPathSurfaceTexture(
       if (code === "a") {
         shade = 248 + (noise % 8);
       } else if (code === "c") {
-        const row = Math.floor(y / 13);
+        // Eight complete courses per repeating tile keep the half-bond continuous.
+        const row = Math.floor(y / 8);
         const shiftedX = (x + (row % 2) * 8) % 16;
-        const joint = shiftedX <= 1 || y % 13 <= 1;
+        const joint = shiftedX === 0 || y % 8 === 0;
         shade = joint ? 202 : 244 + (noise % 12);
       } else if (code === "e") {
-        shade = 235 + ((noise + Math.floor(8 * Math.sin((x + y) / 7))) % 20);
+        shade = 235 + (noise % 20);
       } else if (code === "f") {
         shade = noise < 24 ? 211 + (noise % 18) : 247 + (noise % 9);
       } else if (code === "g") {
-        const compactedBand = Math.abs(Math.sin((x + y * 0.36) / 8));
-        shade = 242 + Math.round(compactedBand * 9) + (noise % 5);
+        shade = 242 + (noise % 14);
       } else if (code === "m") {
         shade = x % 16 <= 1 || y % 16 <= 1 ? 210 : 249 + (noise % 7);
       } else if (code === "p") {
@@ -745,7 +745,7 @@ export function createParkPathSurfaceTexture(
         const shiftedX = (x + (row % 2) * 16) % 32;
         shade = shiftedX <= 1 || y % 16 <= 1 ? 224 : 250 + (noise % 6);
       } else if (code === "s") {
-        shade = 247 + ((noise + Math.round(5 * Math.sin((x - y) / 6))) % 9);
+        shade = 247 + (noise % 9);
       } else if (code === "w") {
         shade = x % 32 <= 1 ? 211 : 240 + ((noise + y) % 16);
       }
@@ -858,6 +858,26 @@ const CURVED_PARK_PATH_KINDS = new Set([
   "path",
 ]);
 
+/** Paved approaches often have surveyed elbows at the corner of a building or
+ * planting bed. A free spline through a long approach can sweep several metres
+ * outside the mapped footway. Compare directions in plan, independent of grade. */
+function pavedPathTurn(points: readonly Vector3[], i: number) {
+  const last = points.length - 1;
+  if ((i === 0 || i === last) && !points[0].equals(points[last])) return { corner: false, curvature: 0 };
+  const a = points[i === 0 ? last - 1 : i - 1], b = points[i], c = points[i === last ? 1 : i + 1];
+  const ux = b.x - a.x, uz = b.z - a.z, vx = c.x - b.x, vz = c.z - b.z;
+  const norm = Math.hypot(ux, uz) * Math.hypot(vx, vz);
+  if (!norm) return { corner: true, curvature: 0 };
+  const cosine = (ux * vx + uz * vz) / norm;
+  // Signed inverse circumradius of the three mapped points. Two similar
+  // successive values identify a traced arc even with unequal node spacing.
+  const chord = Math.hypot(c.x - a.x, c.z - a.z);
+  return {
+    corner: cosine <= Math.SQRT1_2,
+    curvature: cosine > .5 && chord > 0 ? 2 * (ux * vz - uz * vx) / (norm * chord) : 0,
+  };
+}
+
 /**
  * Preserve every exported OSM control point while replacing visible chord
  * breaks with a centripetal curve. Sampling is capped per source segment, so
@@ -870,6 +890,11 @@ export function smoothParkPathPoints(path: ParkPath): Vector3[] {
     return source;
   }
   const curve = new CatmullRomCurve3(source, false, "centripetal");
+  // The two separately photo-fitted Fritz-Schloß-Park running segments
+  // have their own continuous, measured curve and transition.
+  const paved = !isFritzCourseV366(path.id) && (path.m === "p" || path.m === "c" || path.m === "a");
+  const turns = paved ? source.map((_, i) => pavedPathTurn(source, i)) : null;
+  const closed = source[0].equals(source[source.length - 1]);
   const smoothed = [source[0].clone()];
   for (let segment = 0; segment < source.length - 1; segment += 1) {
     const segmentLength = source[segment].distanceTo(source[segment + 1]);
@@ -877,17 +902,43 @@ export function smoothParkPathPoints(path: ParkPath): Vector3[] {
       6,
       Math.max(1, Math.ceil(segmentLength / 1.75)),
     );
-    for (let step = 1; step <= subdivisions; step += 1) {
-      if (step === subdivisions) {
-        smoothed.push(source[segment + 1].clone());
-        continue;
+    const a = source[segment], b = source[segment + 1];
+    const first = smoothed.length;
+    // For an open endpoint, the next two surveyed turns establish whether
+    // its approach belongs to a smooth arc. A single bend cannot do so.
+    const arcStart = closed ? segment : Math.max(0, Math.min(Math.max(segment, 1), source.length - 3));
+    const k0 = turns?.[arcStart].curvature ?? 0, k1 = turns?.[arcStart + 1].curvature ?? 0;
+    const tracedArc = k0 * k1 > 0 && Math.abs(k0 - k1) <= .2 * Math.min(Math.abs(k0), Math.abs(k1));
+    const straight = turns && !tracedArc && (turns[segment].corner || turns[segment + 1].corner);
+    const dx = b.x - a.x, dz = b.z - a.z;
+    const chordLength = Math.hypot(dx, dz);
+    let deviation = 0;
+    for (let step = 1; step < subdivisions; step++) {
+      const t = step / subdivisions;
+      const point = straight ? a.clone().lerp(b, t) : curve.getPoint((segment + t) / (source.length - 1));
+      if (paved && !straight && !tracedArc && chordLength > 0) {
+        // Distance to the finite segment also catches a reversal past an end.
+        const along = Math.max(0, Math.min(1,
+          ((point.x - a.x) * dx + (point.z - a.z) * dz) / (chordLength * chordLength)));
+        deviation = Math.max(deviation,
+          Math.hypot(point.x - a.x - along * dx, point.z - a.z - along * dz));
       }
-      smoothed.push(
-        curve.getPoint(
-          (segment + step / subdivisions) / (source.length - 1),
-        ),
-      );
+      smoothed.push(point);
     }
+    // The retained road/pavement polygons use decimetre coordinates. Scale
+    // the whole bend uniformly to that tolerance; pointwise clipping makes
+    // new kinks at the threshold. All mapped nodes keep their source XYZ.
+    if (deviation > 0.1) {
+      const retain = 0.1 / deviation;
+      for (let j = first; j < smoothed.length; j++) {
+        const point = smoothed[j];
+        const along = Math.max(0, Math.min(1,
+          ((point.x - a.x) * dx + (point.z - a.z) * dz) / (chordLength * chordLength)));
+        point.x = (a.x + dx * along) * (1 - retain) + point.x * retain;
+        point.z = (a.z + dz * along) * (1 - retain) + point.z * retain;
+      }
+    }
+    smoothed.push(b.clone());
   }
   return smoothed;
 }
@@ -993,12 +1044,16 @@ function* createPathGeometrySteps(
     if (points.length < 2) continue;
     const offset = positions.length / 3;
     const halfWidth = resolvedWidth / 2;
+    const first = points[0], last = points[points.length - 1];
+    const closed = points.length > 3 && first.equals(last);
     let distanceAlong = 0;
     for (let index = 0; index < points.length; index += 1) {
       const point = points[index];
       const key = joins && (index === 0 || index === points.length - 1) ? `${point.x},${point.z}` : "";
-      const previous = index === 0 ? joins?.get("before:" + key) ?? point : points[index - 1];
-      const next = index === points.length - 1 ? joins?.get("after:" + key) ?? point : points[index + 1];
+      const previous = index > 0 ? points[index - 1]
+        : closed ? points[points.length - 2] : joins?.get("before:" + key) ?? point;
+      const next = index + 1 < points.length ? points[index + 1]
+        : closed ? points[1] : joins?.get("after:" + key) ?? point;
       if (index > 0) {
         distanceAlong += Math.hypot(
           point.x - previous.x,

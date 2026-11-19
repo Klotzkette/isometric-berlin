@@ -37,7 +37,7 @@ KIND = "nikolaikirche-v353"
 DATA = ROOT / "src/app/src/data"
 GEO = ROOT / "geo_data/regierungsviertel"
 BOUNDS = [2048, 0, 2560, 512]
-BRICK = (141, 79, 61)
+BRICK = (151, 94, 76)
 STONE = (111, 113, 103)
 MORTAR = (151, 147, 130)
 TERRA = (173, 127, 97)
@@ -240,6 +240,42 @@ def clock(f, u, y):
   f.rect(u + 0.19, y - 0.05, 0.42, 0.10, GLASS, "clock hand", 0.22)
 
 
+def westwork_stone(y, tone):
+  # The lighter upper stage is visible across the complete restored tower.
+  base = (151, 146, 131) if y >= 12.7 else (119, 118, 108)
+  return color_delta(base, tone)
+
+
+def west_portal(face):
+  center = face.length / 2
+  # Stepped stone jambs surround a recessed double door. The paired oculi
+  # above and the two narrow low openings are separate from the door itself.
+  face.arch(center, BASE, 3.35, 4.55, (169, 158, 140), "west portal outer stone", 0.10)
+  face.arch(center, BASE, 2.91, 4.25, (111, 102, 88), "west portal stepped jamb", 0.13)
+  face.arch(center, BASE, 2.53, 3.98, (73, 62, 53), "west portal recess", 0.16)
+  face.arch(center, BASE, 2.25, 3.76, (86, 62, 45), "west portal timber leaves", 0.18)
+  face.rect(center, BASE, 0.06, 3.60, (57, 49, 41), "west door meeting stile", 0.20)
+  for side in (-1, 1):
+    face.arch(
+      center + side * face.length * 0.29,
+      BASE + 1.05,
+      0.86,
+      1.9,
+      (181, 180, 163),
+      "westwork lower light",
+      0.15,
+    )
+    face.rect(
+      center + side * face.length * 0.39,
+      BASE + 1.45,
+      0.84,
+      0.99,
+      (85, 80, 73),
+      "westwork wall plaque",
+      0.15,
+    )
+
+
 def tower_facades(detail, tower, native):
   # The source west plane is split at an almost-collinear 2 cm seam. Use its
   # measured full-width rectangle for the two photographed facade groups.
@@ -253,13 +289,13 @@ def tower_facades(detail, tower, native):
         for col, u in enumerate(np.arange(-0.6 if row % 2 else 0, f.length, 1.0)):
           lo, hi = max(0, u + 0.035), min(f.length, u + 0.96)
           if hi > lo:
-            value = ((row * 13 + col * 29) % 17) - 8
+            value = ((row * 31 + col * 17 + row * col * 7) % 29) - 14
             f.rect(
               (lo + hi) / 2,
               y + 0.025,
               hi - lo,
               0.51,
-              color_delta(STONE, value),
+              westwork_stone(y, value),
               "fieldstone blocks",
               0.025,
             )
@@ -301,10 +337,19 @@ def tower_facades(detail, tower, native):
         f.circle(u + du, 32.9, 0.24, CREAM, "blind quatrefoil", 0.18)
         f.circle(u + du, 23.0, 0.38, TRACERY, "lower roundel", 0.16)
     if f.n[0] < -0.8 and f.length > 15:
+      f.rect(
+        f.length / 2,
+        20.3,
+        0.35,
+        20.64,
+        color_delta(BRICK, -18),
+        "central belfry pier reveal",
+        0.13,
+      )
       for u in centers:
         f.circle(u, 8.0, 1.1, MORTAR, "west oculus rim", 0.14)
         f.circle(u, 8.0, 0.84, GLASS, "west oculus", 0.17)
-      pointed_window(f, f.length / 2, BASE, 2.4, 3.9, "mapped west portal")
+      west_portal(f)
 
 
 def hall_parts(church):
@@ -557,9 +602,7 @@ def native_body(church):
 
   def colors(x, y, z, top):
     if kinds[x, z] == "tower":
-      return (
-        BRICK if y >= 20 else color_delta(STONE, ((x * 13 + z * 7 + y * 3) % 9) - 4)
-      )
+      return BRICK if y >= 20 else westwork_stone(y, ((x * 13 + z * 7 + y * 3) % 9) - 4)
     return TERRA if top or y >= 20 else BRICK
 
   detail = merge_native_faces(native_columns(columns, colors, "independent church"))

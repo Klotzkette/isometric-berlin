@@ -59,6 +59,9 @@ def test_specific_materials_and_independent_native_geometry(source):
   assert {
     "fieldstone blocks",
     "west oculus",
+    "west portal stepped jamb",
+    "west portal timber leaves",
+    "central belfry pier reveal",
     "clock dial",
     "pale blind tracery",
     "chapel stepped gable",

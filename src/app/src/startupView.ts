@@ -107,6 +107,11 @@ const MOABIT_VIEWS_V358: Record<string, (typeof GARDEN_VIEWS_V330)[string] & { f
   "Kulturfabrik Moabit": { position: [-812, 13, -1713], target: [-791, 15, -1723], fov: 55 },
 };
 
+const MITTE_PAVING_VIEWS: typeof MOABIT_VIEWS_V358 = {
+  "Nikolaikirchplatz": { position: [2368, 58, 337], target: [2415, 11, 291], fov: 58 },
+  "Leopoldplatz": { position: [-725, 74, -3072], target: [-757, 5, -3110], fov: 55 },
+};
+
 // Extra place links use the same focus control without adding tour stops.
 export const STARTUP_ONLY_SIGHTS = [
   "Kaiser-Wilhelm-Gedächtniskirche",
@@ -131,6 +136,7 @@ export const STARTUP_ONLY_SIGHTS = [
   ...Object.keys(CITY_DETAIL_VIEWS_V345),
   ...Object.keys(VENUE_VIEWS_V357),
   ...Object.keys(MOABIT_VIEWS_V358),
+  ...Object.keys(MITTE_PAVING_VIEWS),
 ].map(name => ({ name, role: "owner_added" }));
 
 export function startupOnlySight(name: string) {
@@ -143,8 +149,8 @@ export type StartupFlightView = Pick<NavigationSnapshot, "pose" | "fov"> & { lan
  * flight lens. No pedestrian state is created or enabled. */
 export function startupFlightView(name: string): StartupFlightView {
   if (name === GALLERY_FLIGHT_START_V223.landmarkName) return GALLERY_FLIGHT_START_V223;
-  const moabit = MOABIT_VIEWS_V358[name];
-  if (moabit) return { landmarkName: name, fov: moabit.fov, pose: { target: [...moabit.target], position: [...moabit.position] } };
+  const framed = MOABIT_VIEWS_V358[name] ?? MITTE_PAVING_VIEWS[name];
+  if (framed) return { landmarkName: name, fov: framed.fov, pose: { target: [...framed.target], position: [...framed.position] } };
   const extra = GARDEN_VIEWS_V330[name] ?? AMENITY_VIEWS_V332[name] ?? COURT_VIEWS_V333[name] ?? TRANSPORT_VIEWS_V334[name] ?? BRITZ_NEUKOELLN_VIEWS_V342[name] ?? STREET_VIEWS_V343[name] ?? MITTE_EXTERIOR_VIEWS_V344[name] ?? CITY_DETAIL_VIEWS_V345[name] ?? VENUE_VIEWS_V357[name];
   if (extra) return { landmarkName: name, fov: 16, pose: { target: [...extra.target], position: [...extra.position] } };
   const view = SIMULATION_START_VIEWS[name];

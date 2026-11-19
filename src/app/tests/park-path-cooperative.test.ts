@@ -28,16 +28,25 @@ const productionPathAuditV182 = {
 // The independent v183 receipts retain every v182 XZ anchor and inventory item.
 // Fritz-Schloss-Park adds 4,756 collinear path samples / 180,728 bytes, with
 // unchanged materials and draw calls; synchronous/cooperative output is exact.
-const originalProductionPathAudit = {
+const productionPathAuditV183 = {
   hash: "d58f1a97cb6cfacad63e88b39f42cf7f3622caa6aa80fcae59957f53e1478e1a",
   budget: { ...productionPathAuditV182.budget,
     bytes: productionPathAuditV182.budget.bytes + 180_728,
     vertices: productionPathAuditV182.budget.vertices + 4_756 },
 };
 
-test("synchronous and cooperative paths preserve the complete v183 production buffers", async () => {
+// Joining surveyed paving at its source corners changes the sampling length in
+// 18 terrain-following ribbons. Together they now use eight fewer cross-sections.
+const productionPathAuditV367 = {
+  hash: "b9a45124e732c56cc259e04f150d87f69a1cbcdd8e654de24236d92cb41e38f1",
+  budget: { ...productionPathAuditV183.budget,
+    bytes: productionPathAuditV183.budget.bytes - 8 * 76,
+    vertices: productionPathAuditV183.budget.vertices - 8 * 2 },
+};
+
+test("synchronous and cooperative paths match the surveyed v367 production buffers", async () => {
   const synchronous = createParkDetails(pathPayload, { pathTerrainAt: terrainAt });
-  expect(staticGeometryAudit(synchronous)).toEqual(originalProductionPathAudit);
+  expect(staticGeometryAudit(synchronous)).toEqual(productionPathAuditV367);
   let tasks = 0;
   const cooperative = await createParkDetailsCooperative(pathPayload, { pathTerrainAt: terrainAt }, {
     budgetMs: 0,
@@ -46,7 +55,7 @@ test("synchronous and cooperative paths preserve the complete v183 production bu
     onRoot: () => {},
   });
   expect(tasks).toBeGreaterThan(pathPayload.paths.length);
-  expect(staticGeometryAudit(cooperative)).toEqual(originalProductionPathAudit);
+  expect(staticGeometryAudit(cooperative)).toEqual(productionPathAuditV367);
   expect(cooperative.children.map(child => child.name))
     .toEqual(synchronous.children.map(child => child.name));
   expect(cooperative.userData).toEqual(synchronous.userData);

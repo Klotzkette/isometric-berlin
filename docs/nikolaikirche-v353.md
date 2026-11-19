@@ -6,7 +6,9 @@ generalized tower roof formed one large asymmetric gable beneath the two added
 spires. V353 replaces that exact church-owned geometry with a specific exterior.
 
 The westwork now has grey fieldstone courses and irregular stone colour variation,
-sparse lower openings and two oculi. The brick belfry has two dark Gothic window
+a darker lower stage, a lighter upper stage and two oculi. At the west entrance,
+the stepped stone surround frames the two timber door leaves. The low lights
+and plaques are separate from the entrance. The brick belfry has two dark Gothic window
 groups, clock faces, pale blind-lancet panels and cornices. Each copper helmet has
 its own flared base, narrowing profile, standing seams and gold terminal. The hall
 has a longitudinal terracotta roof and polygonal choir end; the southwest

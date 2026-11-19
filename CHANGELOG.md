@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.248
+
+- Fit the Nikolaikirchplatz, its alleys, planted beds and benches to Berlin’s street survey and orthophoto. Place the Wappenbrunnen in its surveyed basin and refine the west portal of the Nikolaikirche.
+- Follow the mapped edges of paved squares in Mitte. Keep straight paved path segments straight, preserve supported curves and remove raster kerbs inside continuous pavement.
+
 ## 1.0.247
 
 - Open the criminal court on Turmstraße from the public street with a view of its arched portal, two-storey bay window and gable.

@@ -1,0 +1,54 @@
+{
+  "additions": {
+    "src/app/src/MittePlazaEdgesV367.ts": "c35a57580523eeba96a0f168f147e073aa18eaea0e5de71d1b8e01c1f7edc9c2",
+    "src/app/src/NikolaikirchplatzV367.ts": "eae6e5b2f2478bcc5a9c17fee6d267158f1ae8480563f04e76368c2cefe60edd",
+    "src/app/src/data/mittePavementEdgesV367.json": "d7ab2b878c249be4bb5961ca03c3f1e84a0b9924ee419d737f15d444eadee6ef",
+    "src/app/src/data/mittePlazaEdgesV367.json": "5fbeb33633f9557a273a1ed3c2f09ded52a74a7214a24359a10f690a56c69da9",
+    "src/app/src/data/mitteSquareStreetsV367.json": "933cabcaaf37f71df75cc1c2fb95098f88170be7bb63366ea8998a7b1e602755",
+    "src/app/src/data/nikolaikirchplatzV367.json": "7dbd646c6f6a278100a42a5e438b15c098f29f6c353a6ef5c89f5783a1451daa",
+    "src/app/src/leopoldplatzFountainV367.ts": "716f72fc48bac4d5c39e64132600a55e6609a4a590cfc5a94cc56bcbe0c3196e",
+    "src/app/src/nikolaiSettFinish.ts": "9975a467629d1b2b37f21ad203d6d04222f8b86d9c447a8d32a921b1e44b4ad3"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "d5d90f1e01e1715ff24fd86d7a13c36558cd2c8f3e67b08d7076f14cdfd41e06",
+      "after": "2ff0068a659b2a6719b6da74560998388c0c678b1cc10b40d6fb528bd6aca04f"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "5c0a4a664fdaa24c1daa8c07484b417cb3987b7fa814c2d911b663df9fc69627",
+      "after": "e40437c7ba92c63ba08bf5035198a144acf3dc09f6782003aeb4f0c68396ef80"
+    },
+    "src/app/src/NikolaiFountainV353.ts": {
+      "before": "be48762244a45c24ab4a1571da040fe7097b3c43ce4c42b26f2a8a8240173231",
+      "after": "bd2d6ff427d95386c0d05ab79422d78d92fb2f3b716393251c37d7edd4c7cb56"
+    },
+    "src/app/src/ParkDetails.ts": {
+      "before": "4fdb79debaba12e4e98dd3b9409bf7766bbfb731ceb80c817e6ae36ccdda14db",
+      "after": "f4b4b35789788a634f55e14e5778870c98332b30dc531842bd6faf423983450f"
+    },
+    "src/app/src/SchlossEastStreets.ts": {
+      "before": "3b3dd724bb9ed4063fa6f85965981390cadea22f906128e2ff5a66ae9025a9df",
+      "after": "1b51383afc626a4ec01a064bdb409efb1837965165aeb0916866f4fc0dc49e59"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "f763daeb70791fd0427bb56e8296e4dcba8d1392994c0b5535c51d4e35b04e8b",
+      "after": "dfdab90a832451db48be930f5a2e60e2243d73ea35f3b06c80cdba8860352400"
+    },
+    "src/app/src/data/nikolaikircheV353Index.json": {
+      "before": "8abbad78a1fb3bb00e3916b40edf17016d4c73fc90889fdb28a2abcde8e98583",
+      "after": "f6b8ab7dc203b82c4aed8f47516f9fbe0dfdc6d36cfb0726e1bf8c6cefdcab30"
+    },
+    "src/app/src/data/nikolaikircheV353Packets.json.gz": {
+      "before": "3989bbcfbf2e118d81ffe7cd94c71f2e938458ecbe1d548ee1603347a1f6f83d",
+      "after": "2c4f268768bc8cf9c08eb7467ebc3d95e638997098a52f4df63a0c2b233bb1a8"
+    },
+    "src/app/src/pedestrianNavigation.ts": {
+      "before": "9761e5d09070e43a85364c9f5515968b24cce5e717457895221650ddc89a79d6",
+      "after": "227c0cd65f1a7b3a5232f38e893b6ad01ed91e24d12d6e540e907faa7691fb20"
+    },
+    "src/app/src/startupView.ts": {
+      "before": "516b8255dea3f4e6de2f3465c0541379c4e180aa2b38062a3fc8c9e5f41a53e2",
+      "after": "b0ccc859d0a82aa5eca4237980935890454e60b68d3a13fac7cb4e641f146600"
+    }
+  }
+}

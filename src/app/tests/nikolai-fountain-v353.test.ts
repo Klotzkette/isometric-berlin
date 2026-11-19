@@ -32,7 +32,7 @@ describe("V353 Wappenbrunnen has one exact public inventory owner",()=>{
   test("official identity, position and documented dimensions are literal, with no overlapping live memorial disk",()=>{
     const rows=Object.values(amenities.cells).flat().filter(row=>row[0]===site.id);
     expect(rows).toHaveLength(1);
-    expect(rows[0].slice(3,6)).toEqual([site.x,site.z,""]);
+    expect(rows[0].slice(3,6)).toEqual([site.inventoryX,site.inventoryZ,""]);
     expect([site.radius*2,site.height,site.basinHeight]).toEqual([4,6,1.7]);
     for(const memorial of [...NAMED_GRAVE_SITES_V347,...WALL_MARKER_SITES_V352])
       expect(Math.hypot(memorial.anchor[0]-site.x,memorial.anchor[1]-site.z)).toBeGreaterThan(360);
@@ -94,9 +94,10 @@ describe("V353 Wappenbrunnen has one exact public inventory owner",()=>{
       for(let j=-4;j<=4;j++)for(let i=-4;i<=4;i++) {
         const y=actual.ground(site.x+i*.5,site.z+j*.5);
         sampled.push(y);
-        if(!native)expect(y).toBe(capturedDrawnFinish[j+4][i+4]==="R"?3.09:3);
+        if(!native)expect(actual.ground(site.inventoryX+i*.5,site.inventoryZ+j*.5)).toBe(capturedDrawnFinish[j+4][i+4]==="R"?3.09:3);
       }
-      expect([...new Set(sampled)].sort()).toEqual([3,3.09]);
+      expect(sampled.every(y=>y===3||y===3.09)).toBeTrue();
+      expect(Math.min(...sampled.map(Number))).toBe(3);
       const {layer}=setup();
       expect(layer.refresh(site.x,site.z,native,actual)).toBeTrue();
       expect(layer.root.children).toHaveLength(1);

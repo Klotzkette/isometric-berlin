@@ -89,6 +89,14 @@ const FROZEN_FULL_BUDGET: ParkGeometryBudget = {
   vertices: FROZEN_FULL_BUDGET_BEFORE_V287.vertices + 24,
 };
 
+// The source-following paved approaches change the length of hill intervals.
+// Eighteen routes gain or lose intermediate samples, for eight fewer ribbon
+// sections in total. Each has two vertices, two triangles and 76 buffer bytes.
+function withSurveyedPavement(budget: ParkGeometryBudget): ParkGeometryBudget {
+  return { ...budget, vertices: budget.vertices - 16, triangles: budget.triangles - 16,
+    geometryBytes: budget.geometryBytes - 608 };
+}
+
 function geometryBudget(root: Object3D): ParkGeometryBudget {
   // Spatial batches share their original geometry; count resident resources,
   // not the same vertex/index buffer once again for every culled cell.
@@ -200,8 +208,8 @@ describe("coarse-pointer ParkDetails profile", () => {
       detailProfile: "full",
       settledDetail: false,
     });
-    expect(geometryBudget(implicit)).toEqual(FROZEN_FULL_BUDGET);
-    expect(geometryBudget(explicit)).toEqual(FROZEN_FULL_BUDGET);
+    expect(geometryBudget(implicit)).toEqual(withSurveyedPavement(FROZEN_FULL_BUDGET));
+    expect(geometryBudget(explicit)).toEqual(withSurveyedPavement(FROZEN_FULL_BUDGET));
     expect(explicit.userData).toEqual(implicit.userData);
     expect(explicit.children.map((child) => child.name)).toEqual(
       implicit.children.map((child) => child.name),
@@ -219,7 +227,7 @@ describe("coarse-pointer ParkDetails profile", () => {
     const forks = retained.getObjectByName("Chancellery Forum five retained-tree low forks v287")!;
     expect(forks.userData).toMatchObject({ treeCount: 5, memberCount: 50, originalGeometryRetained: true });
     retained.remove(forks);
-    expect(geometryBudget(retained)).toEqual(FROZEN_FULL_BUDGET_BEFORE_V286);
+    expect(geometryBudget(retained)).toEqual(withSurveyedPavement(FROZEN_FULL_BUDGET_BEFORE_V286));
     disposeStaticAudit(forks); disposeStaticAudit(retained);
   });
 
@@ -231,7 +239,7 @@ describe("coarse-pointer ParkDetails profile", () => {
     const fullMetadata = full.userData;
     disposeStaticAudit(full);
     const mobile = createParkDetails(payload, { detailProfile: "mobile", settledDetail: false });
-    expect(geometryBudget(mobile)).toEqual(FROZEN_FULL_BUDGET);
+    expect(geometryBudget(mobile)).toEqual(withSurveyedPavement(FROZEN_FULL_BUDGET));
     expect(staticGeometryAudit(mobile)).toEqual(fullAudit);
     expect(drawableCount(mobile)).toBe(fullDraws);
     expect(mobile.userData).toEqual(fullMetadata);
