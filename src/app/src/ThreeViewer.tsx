@@ -10685,6 +10685,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                     return;
                   }
                   const options = {
+                    fritzCourseV366: true,
                     pathTerrainAt: runtime.districtPathTerrainAt,
                     streetFurnitureTerrainAt: (x: number, z: number, sourceY: number) =>
                       runtime.pedestrian.environment?.groundAt(x, z) ?? sourceY,

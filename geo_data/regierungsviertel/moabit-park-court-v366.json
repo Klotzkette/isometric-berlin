@@ -1,0 +1,24 @@
+{
+  "court": {
+    "owner": "DEBE01YYK0002Nu1",
+    "part": "DEBE3DZuPJnvKibt",
+    "alignment": "Turmstraße façade axis and tower centres from retained Berlin LoD2.",
+    "interpretation": "Public street elevation. Arch, bay window, pilasters, gable and colours are scaled from photographs.",
+    "sources": [
+      "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050355",
+      "https://www.berlin.de/gerichte/amtsgericht-tiergarten/das-gericht/"
+    ]
+  },
+  "park": {
+    "course": ["way/157606017", "way/1299563542"],
+    "memorials": ["node/1014631343", "node/1698545931"],
+    "ground": "Viewer ground-context.json; source retained Geofabrik Berlin 2026-11-13, OpenStreetMap contributors ODbL.",
+    "interpretation": "The source records a red asphalt main route and a compacted connector. Colours, flush border width, memorial silhouettes and lettering marks are photo estimates. Monument positions and course centre lines are mapped.",
+    "sources": [
+      "https://www.nachhaltige-erneuerung.berlin.de/tiergarten-nordring-heidestrasse/sportpark-poststadion-neue-laufstrecke",
+      "https://sportparkpoststadion.de/anlagen",
+      "https://bildhauerei-in-berlin.de/bildwerk/denkmal-den-notstandsarbeitern-zum-dank-5296/",
+      "https://www.berlin.de/ba-mitte/ueber-den-bezirk/sehenswertes/denkmaeler/denkmaeler-suchen/index.php/detail/946"
+    ]
+  }
+}

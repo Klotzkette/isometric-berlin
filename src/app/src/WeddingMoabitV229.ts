@@ -1,3 +1,4 @@
+import { addFritzParkV366 } from "./FritzParkRecognisersV366";
 import { BufferGeometry, DoubleSide, Float32BufferAttribute, Mesh, MeshBasicMaterial, MeshStandardMaterial, Path, Shape, ShapeGeometry, Vector2, Color, Group, InstancedBufferAttribute, Matrix4, Quaternion, Vector3 } from "three";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
@@ -99,5 +100,6 @@ export function createWeddingMoabitV229(native=false):Group {
  }
  for(const entry of source.entrances){const[x,z]=entry.point;access.box(x,6.6,z,.12,2.8,.12,0,0x717c73);access.box(x,7.9,z,.7,.7,.14,0,0x3d8154);access.label("S",[x-.2,7.68,z+.09],1,0,.45,0xf0ecdb);}
  access.finish(root,"Wedding: mapped eastern and central access stairs and S portals v229");
+ addFritzParkV366(root,native);
  return freezeStaticSceneTransforms(root);
 }

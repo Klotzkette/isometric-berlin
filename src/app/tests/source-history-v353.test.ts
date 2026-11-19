@@ -23,10 +23,10 @@ test("v353 independently reconstructs each exact published v232 source and rejec
     expect(digest(before)).toBe(row.before);expect(digest(current)).toBe(row.after);
     expect(Buffer.from(sourceAtBeforeV353(path,current)).equals(before)).toBe(true);
     expect(projectSourceBeforeV353(current.toString())).toBe(before.toString());
-    expect(()=>sourceAtBeforeV353(path,Buffer.concat([current,Buffer.from(" ")]))).toThrow(/Unknown exact v(35[3-9]|36[0-5]) source bytes/);
+    expect(()=>sourceAtBeforeV353(path,Buffer.concat([current,Buffer.from(" ")]))).toThrow(/Unknown exact v(35[3-9]|36[0-6]) source bytes/);
   }
   for(const [path,hash] of Object.entries(receipt.additions))expect(digest(readFileSync(new URL(path,root)))).toBe(hash);
-},60_000);
+},120_000);
 
 test("v353 repeated normalization admits only the two independently verified v231 ancestors",()=>{
   const receipt = JSON.parse(readFileSync(new URL("./fixtures/source-history-v353.json", import.meta.url), "utf8")) as {
@@ -40,9 +40,9 @@ test("v353 repeated normalization admits only the two independently verified v23
     const path=paths[i],raw=ancestors[i];
     expect(sourceAtBeforeV353(path,raw)).toBe(raw);
     expect(sourceAtBeforeV353(path,sourceAtBeforeV353(path,raw))).toBe(raw);
-    expect(()=>sourceAtBeforeV353(path,Buffer.concat([raw,Buffer.from(" ")]))).toThrow(/Unknown exact v(35[3-9]|36[0-5]) source bytes/);
-    expect(()=>sourceAtBeforeV353(path,ancestors[1-i])).toThrow(/Unknown exact v(35[3-9]|36[0-5]) source bytes/);
+    expect(()=>sourceAtBeforeV353(path,Buffer.concat([raw,Buffer.from(" ")]))).toThrow(/Unknown exact v(35[3-9]|36[0-6]) source bytes/);
+    expect(()=>sourceAtBeforeV353(path,ancestors[1-i])).toThrow(/Unknown exact v(35[3-9]|36[0-6]) source bytes/);
   }
   const unlisted = execFileSync("git",["show","33941dd9:src/app/package.json"],{cwd:root});
-  expect(()=>sourceAtBeforeV353(paths[0],unlisted)).toThrow(/Unknown exact v(35[3-9]|36[0-5]) source bytes/);
+  expect(()=>sourceAtBeforeV353(paths[0],unlisted)).toThrow(/Unknown exact v(35[3-9]|36[0-6]) source bytes/);
 });

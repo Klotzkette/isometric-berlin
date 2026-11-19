@@ -8248,6 +8248,83 @@
       "credit": "Muns, 20 April 2013 / CC BY-SA 3.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "heinrich_zille_siedlung",
+      "title": "File:Heinrich-Zille-Siedlung-Bodo-Fleischer-Hanno-Huebscher-Otto-Dix-Str-Berlin-Moabit.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Heinrich-Zille-Siedlung-Bodo-Fleischer-Hanno-Huebscher-Otto-Dix-Str-Berlin-Moabit.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Gunnar Klack",
+      "credit": "Gunnar Klack / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "heinrich_zille_siedlung",
+      "title": "File:Moabit Otto-Dix-Straße-1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Moabit_Otto-Dix-Straße-1.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Fridolin freudenfett (Peter Kuley)",
+      "credit": "Fridolin freudenfett (Peter Kuley) / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "heinrich_zille_siedlung",
+      "title": "File:Moabit Otto-Dix-Straße-2.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Moabit_Otto-Dix-Straße-2.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Fridolin freudenfett (Peter Kuley)",
+      "credit": "Fridolin freudenfett (Peter Kuley) / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "heinrich_zille_siedlung",
+      "title": "File:Moabit Otto-Dix-Straße.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Moabit_Otto-Dix-Straße.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "Fridolin freudenfett (Peter Kuley)",
+      "credit": "Fridolin freudenfett (Peter Kuley) / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "moabit_wilsnacker_rathenower_fronts",
+      "title": "File:09050385 Berlin-Tiergarten Wilsnacker Straße 41 001.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:09050385_Berlin-Tiergarten_Wilsnacker_Stra%C3%9Fe_41_001.JPG",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Sekamor",
+      "credit": "Sekamor / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "moabit_wilsnacker_rathenower_fronts",
+      "title": "File:Moabit Rathenower52 1.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Moabit_Rathenower52_1.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "artist": "Elikross",
+      "credit": "Elikross / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "moabit_wilsnacker_rathenower_fronts",
+      "title": "File:Wilsnacker Straße 60 (Berlin-Moabit).JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Wilsnacker_Stra%C3%9Fe_60_(Berlin-Moabit).JPG",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "artist": "Bodo Kubrak",
+      "credit": "Bodo Kubrak / CC0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ],
   "atlas_path": "references/wikimedia/atlas.jpg"

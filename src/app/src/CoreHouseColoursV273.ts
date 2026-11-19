@@ -1,5 +1,7 @@
 import data from "./data/coreHouseColoursV273.json";
 
+import roofSamples from "./data/moabitRoofSamplesV366.json";
+
 export type CoreHousePartV273 = {
   id?: string;
   y0_dm?: number;
@@ -32,6 +34,14 @@ export function exactCoreHouseRow<T extends readonly number[]>(
   }
   feed(`;${part.tone?.join(",") ?? ""}`);
   return first[0] === a && first[1] === b ? first : alternatives?.find(row => row[0] === a && row[1] === b);
+}
+
+const observedRoofs: Readonly<Record<string, readonly number[]>> = roofSamples;
+
+/** Only a positively matched housing row may receive an orthophoto roof sample. */
+export function moabitRoofColourV366(id: string | undefined, paint: CoreHousePaintV273 | undefined) {
+  const sample = id && paint ? observedRoofs[id] : undefined;
+  return sample && paint && sample[0] === paint[0] && sample[1] === paint[1] ? sample[2] : undefined;
 }
 
 /** Exact existing source identity and complete geometry/sample guards. Never

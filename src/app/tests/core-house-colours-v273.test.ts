@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import before from "./fixtures/core-house-colours-v273-before.json";
+import { LEHRTER_BRICK, LEHRTER_TILE, lehrterKulturhausOwnerV366 } from "../src/lehrterKulturhausProfileV366";
 import paint from "../src/data/coreHouseColoursV273.json";
 import { coreHousePaintV273 } from "../src/CoreHouseColoursV273";
 import { coreResidentialFacadeTone } from "../src/coreFacadeAppearance";
@@ -93,12 +94,17 @@ test("actual early and detailed factories change only existing paint; mapped and
 test("all 29,818 native sample queries keep mapped caps and exact source ownership, with an unchanged colour complement", () => {
   const lookup = buildColumnToneLookup(coreSourceV211);
   const owners = paint.owners as unknown as Record<string, number[][]>;
-  let changed = 0, unchanged = 0;
+  const kulturhaus = new Set(coreSourceV211.buildings.filter(lehrterKulturhausOwnerV366).map(part => part.id));
+  let changed = 0, unchanged = 0, authored = 0;
   for (const [x, z, oldPaint, oldRoof, oldOwner] of before.native as [number,number,number|null,number|null,string|null][]) {
     expect(lookup.sourceIdAt!(x, z)).toBe(oldOwner);
     expect(lookup.roofToneAt!(x, z) ?? null).toBe(oldRoof);
     const current = lookup(x,z);
-    if (!oldOwner || !owners[oldOwner]) {
+    if (oldOwner && kulturhaus.has(oldOwner)) {
+      expect(current).toBe(LEHRTER_BRICK);
+      expect(lookup.illustrationRoofToneAt!(x,z)).toBe(LEHRTER_TILE);
+      authored++;
+    } else if (!oldOwner || !owners[oldOwner]) {
       expect(current).toBe(oldPaint);
       expect(lookup.illustrationRoofToneAt!(x,z)).toBeUndefined();
       unchanged++;
@@ -107,6 +113,7 @@ test("all 29,818 native sample queries keep mapped caps and exact source ownersh
       changed++;
     }
   }
+  expect(authored).toBeGreaterThan(0);
   expect(changed).toBeGreaterThan(5000);
   expect(unchanged).toBeGreaterThan(19000);
 });

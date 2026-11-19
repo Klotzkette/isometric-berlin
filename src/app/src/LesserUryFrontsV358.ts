@@ -4,6 +4,7 @@ import {
   GendarmenmarktFacadeBuilder, perimeterEdgeLength, type PerimeterFacadeEdge,
 } from "./GendarmenmarktFacadeBuilder";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { addZilleEstateV366 } from "./ZilleEstateFacesV366";
 import data from "./data/lesserUryV358.json";
 
 type Point = [x: number, z: number];
@@ -116,7 +117,9 @@ export function createLesserUryFrontsV358(prisms: readonly PrismBuilding[], voxe
       addresses.add(site.address);
     }
   }
+  const estate = addZilleEstateV366(builder, prisms, voxels);
   const group = builder.finish("Lesser-Ury-Weg Heinrich-Zille-Siedlung");
+  group.userData.estate = estate;
   group.userData.addresses = [...addresses];
   group.userData.textureFree = true;
   return freezeStaticSceneTransforms(group);

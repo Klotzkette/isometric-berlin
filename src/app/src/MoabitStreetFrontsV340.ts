@@ -1,3 +1,5 @@
+import { appendLehrterKulturhausV366, applyLehrterClinkerV366 } from "./LehrterKulturhausV366";
+import { appendMoabitWohnfrontenV366 } from "./MoabitWohnfrontenV366";
 import { Group } from "three";
 import data from "./data/moabitStreetFrontsV340.json";
 import { GendarmenmarktFacadeBuilder, perimeterEdgeLength, perimeterFacadePoint, type PerimeterFacadeEdge } from "./GendarmenmarktFacadeBuilder";
@@ -239,7 +241,7 @@ export function createMoabitStreetFrontsV340(buildings: readonly unknown[], nati
     occurrences.set(record.id, (occurrences.get(record.id) ?? 0) + 1);
     if (isSourceRecord(record)) ready.set(record.id, (ready.get(record.id) ?? 0) + 1);
   }
-  const builder = new GendarmenmarktFacadeBuilder(native);
+  const builder = new GendarmenmarktFacadeBuilder(native, false, 0);
   const addresses: string[] = [];
   const admittedIds: string[] = [];
   let faceCount = 0;
@@ -262,9 +264,12 @@ export function createMoabitStreetFrontsV340(buildings: readonly unknown[], nati
     addresses.push(site.address);
     admittedIds.push(id);
   }
-  if (!addresses.length) return null;
+  const residentialFronts = appendMoabitWohnfrontenV366(builder, buildings, native ? payload : undefined);
+  const lehrterKulturhaus = appendLehrterKulturhausV366(builder, buildings, native, payload);
+  if (!addresses.length && !residentialFronts.length && !lehrterKulturhaus.length) return null;
   const root = builder.finish("Moabit — individual historic street fronts");
   if (!root.children.length) return null;
-  root.userData = { ...root.userData, sourceAddresses: addresses, sourcePrismIds: admittedIds, sourceFaceCount: faceCount };
+  if (lehrterKulturhaus.length) applyLehrterClinkerV366(root);
+  root.userData = { ...root.userData, sourceAddresses: addresses, sourcePrismIds: admittedIds, sourceFaceCount: faceCount, residentialFronts, lehrterKulturhaus };
   return freezeStaticSceneTransforms(root);
 }

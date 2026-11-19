@@ -1,3 +1,4 @@
+import { isFritzCourseV366, paintFritzCourseV366 } from "./fritzCourseV366";
 import { createGovernmentStreetLampBatchV286, type GovernmentStreetFurnitureTerrainAtV286 } from "./GovernmentStreetLampBatchV286";
 import {createWilhelmStreetFurnitureV325,wilhelmStreetFurnitureReplacementSourceIdsV325} from "./WilhelmStreetFurnitureV325";
 import { createChancelleryTreeBranchesV287 } from "./ChancelleryTreesV287";
@@ -586,6 +587,8 @@ export type ParkDetailProfile = "full" | "mobile";
 export type ParkPathTerrainAt = (path: ParkPath, x: number, z: number, sourceY: number) => number;
 
 export type ParkDetailOptions = {
+  /** Apply the mapped Fritz-Schloß-Park course surface used by the current viewer. */
+  fritzCourseV366?: boolean;
   pathTerrainAt?: ParkPathTerrainAt;
   /** Footway ground for photo-estimated furniture; exact municipal datums stay unchanged. */
   streetFurnitureTerrainAt?: GovernmentStreetFurnitureTerrainAtV286;
@@ -972,6 +975,7 @@ function* createPathGeometrySteps(
   paths: ParkPath[],
   width: number | ((path: ParkPath) => number),
   terrainAt?: ParkPathTerrainAt,
+  joins?: Map<string, Vector3>,
 ): Generator<void, BufferGeometry> {
   const positions: number[] = [];
   const uvs: number[] = [];
@@ -992,8 +996,9 @@ function* createPathGeometrySteps(
     let distanceAlong = 0;
     for (let index = 0; index < points.length; index += 1) {
       const point = points[index];
-      const previous = points[Math.max(0, index - 1)];
-      const next = points[Math.min(points.length - 1, index + 1)];
+      const key = joins && (index === 0 || index === points.length - 1) ? `${point.x},${point.z}` : "";
+      const previous = index === 0 ? joins?.get("before:" + key) ?? point : points[index - 1];
+      const next = index === points.length - 1 ? joins?.get("after:" + key) ?? point : points[index + 1];
       if (index > 0) {
         distanceAlong += Math.hypot(
           point.x - previous.x,
@@ -1012,8 +1017,8 @@ function* createPathGeometrySteps(
         -(next.z - point.z) / nextLength,
         (next.x - point.x) / nextLength,
       ];
-      if (index === 0) previousNormal.splice(0, 2, ...nextNormal);
-      if (index === points.length - 1)
+      if (previous === point) previousNormal.splice(0, 2, ...nextNormal);
+      if (next === point)
         nextNormal.splice(0, 2, ...previousNormal);
       let mx = previousNormal[0] + nextNormal[0];
       let mz = previousNormal[1] + nextNormal[1];
@@ -1075,22 +1080,33 @@ function* addPathsSteps(
   encodedWidthScaleM: number,
   includeTextures = true,
   pathTerrainAt?: ParkPathTerrainAt,
+  fritzCourseV366 = false,
 ): Generator<void> {
   const byKind = new Map<string, ParkPath[]>();
+  const courseJoins = new Map<string, Vector3>();
   let grouped = 0;
   for (const path of paths) {
-    const kind = path.m ? `material:${path.m}` : pathCategory(path.kind);
+    const kind = fritzCourseV366 && isFritzCourseV366(path.id) ? path.id : path.m ? `material:${path.m}` : pathCategory(path.kind);
+    if (fritzCourseV366 && isFritzCourseV366(kind)) {
+      const route = smoothParkPathPoints(path);
+      if (route.length > 1) {
+        const first = route[0], last = route[route.length-1];
+        courseJoins.set(`after:${first.x},${first.z}`, route[1]);
+        courseJoins.set(`before:${last.x},${last.z}`, route[route.length-2]);
+      }
+    }
     const entries = byKind.get(kind);
     if (entries) entries.push(path);
     else byKind.set(kind, [path]);
     if (++grouped % 256 === 0) yield;
   }
+  const courseAnchor = byKind.get("157606017:0")?.[0];
   for (const [kind, entries] of byKind) {
     const materialCode = kind.startsWith("material:")
       ? (kind.slice(-1) as NonNullable<ParkPath["m"]>)
       : null;
     const resolvedCode =
-      materialCode ?? SEMANTIC_PATH_MATERIAL[kind] ?? "g";
+      materialCode ?? entries[0].m ?? SEMANTIC_PATH_MATERIAL[kind] ?? "g";
     const materialStyle = PATH_MATERIAL_STYLE[resolvedCode];
     const geometry = yield* createPathGeometrySteps(
       entries,
@@ -1098,13 +1114,23 @@ function* addPathsSteps(
         path.w
           ? path.w * encodedWidthScaleM
           : PATH_STYLE[pathCategory(path.kind)].width,
-      pathTerrainAt,
+      isFritzCourseV366(kind) && courseAnchor && pathTerrainAt
+        ? (_path, x, z, y) => pathTerrainAt(courseAnchor, x, z, y)
+        : pathTerrainAt,
+      isFritzCourseV366(kind) ? courseJoins : undefined,
     );
     // No yield between resource allocation and attaching the mesh: on
     // cancellation the caller owns every created resource through this root.
-    const mesh = new Mesh(geometry, parkPathMaterial(resolvedCode, includeTextures));
+    const surface = parkPathMaterial(resolvedCode, includeTextures);
+    if (isFritzCourseV366(kind)) {
+      paintFritzCourseV366(geometry, resolvedCode === "g");
+      surface.color.setHex(0xffffff);
+      surface.vertexColors = true;
+    }
+    const mesh = new Mesh(geometry, surface);
     mesh.name = `Berlin park ${materialStyle?.label ?? kind} batched path ribbons`;
     mesh.receiveShadow = true;
+    if (isFritzCourseV366(kind)) mesh.name = `Fritz-Schloß-Park Laufstrecke ${kind}`;
     group.add(mesh);
     yield;
   }
@@ -2902,6 +2928,7 @@ function* createParkDetailsSteps(
     payload.schema_version >= 7 ? 0.01 : 0.1,
     detailProfile === "full",
     options.pathTerrainAt,
+    options.fritzCourseV366,
   );
   yield;
   if (detailProfile === "mobile") {

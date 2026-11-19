@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.246
+
+- Restore the measured roofs and red brick street fronts of the former women’s prison at Lehrter Straße 61, including the open KUNST gateway and the adjoining former courthouse.
+- Model the external wall bays and rooflines of Moabit’s Heinrich-Zille-Siedlung. Give Wilsnacker Straße 40, 41 and 60 and Rathenower Straße 52 their photographed façades, and sample the roofs of 250 residential buildings and parts from Berlin’s 2026 orthophoto.
+- Trace the red running circuit in Fritz-Schloß-Park, place two mapped monuments and refine the central portal, bay window and gable of the criminal court on Turmstraße.
+
 ## 1.0.245
 
 - Carry the soft daylight finish onto mapped exterior walls of 124,399 additional buildings and building parts across all twelve Berlin boroughs. The finish follows their measured footprints and heights.

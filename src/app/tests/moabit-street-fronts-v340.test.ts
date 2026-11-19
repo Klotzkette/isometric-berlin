@@ -30,8 +30,9 @@ test("the eight historically documented address owners are distinct from earlier
 });
 
 for (const native of [false, true]) test(`address-specific relief is bounded and leaves source payload bytes intact (${native ? "Native" : "Drawn"})`, () => {
-  const before = JSON.stringify(source.buildings.filter(p => ids.has(p.id)));
-  const root = createMoabitStreetFrontsV340(source.buildings, native, voxels)!;
+  const historicOwners = source.buildings.filter(p => ids.has(p.id));
+  const before = JSON.stringify(historicOwners);
+  const root = createMoabitStreetFrontsV340(historicOwners, native, voxels)!;
   expect(root.userData.sourcePrismIds.length).toBe(8);
   expect(root.userData.sourceFaceCount).toBe(native ? 39 : 22);
   expect(root.children).toHaveLength(2);

@@ -1,3 +1,5 @@
+import { zilleEstateRoofV366 } from "./ZilleEstateRoofV366";
+import { LEHRTER_BRICK, LEHRTER_TILE, lehrterKulturhausOwnerV366, lehrterKulturhausRoofV366 } from "./lehrterKulturhausProfileV366";
 import { presentKerbStoneFinish } from "./kerbStoneFinish";
 import { presentArchitecturalSheen } from "./architecturalSheen";
 import { markHbfForecourtFinishV354 } from "./HbfForecourtFinishV354";
@@ -57,7 +59,7 @@ import { CENTRAL_SITES_V200_REPLACED_PRISM_IDS } from "./centralSitesV200Replace
 import { CENTRAL_SITES_V200_FALSE_PRISM_IDS } from "./centralSitesV200Profile";
 import { NATIONALGALERIE_V183_IDS } from "./neueNationalgalerieV183Profile";
 import { GENERIC_FACADE_SWATCHES, OFFICE_FACADE_SWATCHES_V362, genericFacadeTone } from "./cityColourV184";
-import { coreHousePaintV273 } from "./CoreHouseColoursV273";
+import { coreHousePaintV273, moabitRoofColourV366 } from "./CoreHouseColoursV273";
 import { coreResidentialFacadeTone, hasOfficePrismPaintV362 } from "./coreFacadeAppearance";
 import { refineCoreParkReliefSurface } from "./parkReliefSurfaceV182";
 import { BERLIN_WALL_MEMORIAL_V174_PRISM_IDS } from "./berlinWallMemorialV174Profile";
@@ -1731,6 +1733,7 @@ function facadeColorFor(
   classes: string[],
   target: Color,
 ): Color {
+  if (lehrterKulturhausOwnerV366(building)) return target.setHex(LEHRTER_BRICK);
   const panorama = potsdamerPanoramaMaterialFor(building.id);
   if (panorama) return target.setHex(panorama.facade);
   // Keep every official part inside the Reichstag footprint in the same
@@ -1831,13 +1834,15 @@ function districtOrdinaryRoofV225(building: PrismBuilding): boolean {
 }
 
 function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Color {
+  if (lehrterKulturhausOwnerV366(building)) return target.setHex(LEHRTER_TILE);
   const pinnedRoof = potsdamerPanoramaMaterialFor(building.id)?.roof ??
     HERO_PRISM_ROOF_TONES[building.id] ??
     (inReichstagRegion(building) ? HERO_PRISM_ROOF_TONES.K0002MCN : isScharounGoldPrism(building)
       ? 0xf6e0a7 : (urbanFacadeScope(building)
         ? urbanMappedRoofTone(buildingAttributes(building.id))
         : mappedRoofTone(buildingAttributes(building.id))));
-  const ordinaryRoof = coreHousePaintV273(building)?.[3];
+  const paint = coreHousePaintV273(building);
+  const ordinaryRoof = moabitRoofColourV366(building.id, paint) ?? paint?.[3];
   return pinnedRoof !== undefined ? target.setHex(pinnedRoof)
     : ordinaryRoof !== undefined && ordinaryRoof >= 0 ? target.setHex(ordinaryRoof)
     : districtOrdinaryRoofV225(building) ? target.setHex(DISTRICT_HOUSE_ROOF_HEX_V225)
@@ -1952,6 +1957,13 @@ export function createDistantBuildingShells(
         }
       }
     }
+    const lehrterRoof = lehrterKulturhausRoofV366(building);
+    const measuredRoof = lehrterRoof ?? zilleEstateRoofV366(building);
+    if (measuredRoof) {
+      bodyHeight = measuredRoof.wallHeight;
+      if (!roofTriangles) group.userData.pitchedRoofCount += 1;
+      roofTriangles = measuredRoof.triangles;
+    }
     const upperY = !isGlass && hasPotsdamerUpperStoreys(building.id, bodyHeight)
       ? y0 + POTSDAMER_UPPER_STOREYS.startM : undefined;
     const hbfCuts = isGlass ? hbfRetainedGlassOpeningsV291(building, options.hbfCirculationV291 === true) : [];
@@ -2003,7 +2015,7 @@ export function createDistantBuildingShells(
     }
     if (roofTriangles) {
       const attributes = buildingAttributes(building.id);
-      const roofTone = HISTORIC_CHARITE_IDS.has(building.id) || CHARITE_HISTORIC_FACADE_IDS.has(building.id) || BERLINER_ENSEMBLE_IDS.has(building.id) ||
+      const roofTone = lehrterRoof || HISTORIC_CHARITE_IDS.has(building.id) || CHARITE_HISTORIC_FACADE_IDS.has(building.id) || BERLINER_ENSEMBLE_IDS.has(building.id) ||
         REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS.has(building.id) || mappedRoofTone(attributes) !== undefined || districtOrdinaryRoofV225(building)
         ? capColor : color.clone().multiplyScalar(0.9);
       for (let offset = 0; offset < roofTriangles.length; offset += 9) {
@@ -12212,6 +12224,13 @@ export function* createIsometricCityCoreStepsV309(
         }
       }
     }
+    const lehrterRoof = lehrterKulturhausRoofV366(building);
+    const measuredRoof = lehrterRoof ?? zilleEstateRoofV366(building);
+    if (measuredRoof) {
+      bodyHeight = measuredRoof.wallHeight;
+      roofTriangles = measuredRoof.triangles;
+      roofRect = null;
+    }
     const hasUpperStoreys = !isGlass && hasPotsdamerUpperStoreys(building.id, bodyHeight);
     let geometry: BufferGeometry = new ExtrudeGeometry(
       shapeFromRings(building),
@@ -12873,7 +12892,7 @@ export function* createIsometricCityCoreStepsV309(
       // Pinned heritage roofs keep their documented slate tone on slopes;
       // unpinned roofs retain the established darker-facade convention.
       const pitchedRoofTone =
-        HISTORIC_CHARITE_IDS.has(building.id) ||
+        lehrterRoof || HISTORIC_CHARITE_IDS.has(building.id) ||
         CHARITE_HISTORIC_FACADE_IDS.has(building.id) ||
         BERLINER_ENSEMBLE_IDS.has(building.id) ||
         REICHSTAGSPRAESIDENTENPALAIS_ROOF_TONE_IDS.has(building.id) ||

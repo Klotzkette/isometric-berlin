@@ -1,3 +1,4 @@
+import {addMoabitCourtFrontV366} from './moabitCourtFrontV366';
 import {BoxGeometry,BufferAttribute,BufferGeometry,Color,DoubleSide,Group,InstancedBufferAttribute,InstancedMesh,Matrix4,Mesh,MeshBasicMaterial,MeshStandardMaterial,ShapeUtils,Vector2,Vector3} from 'three';
 import data from './data/courtsParkV293.json';
 import type { CourtPaneMasksV333 } from './DistrictCourtsV229';
@@ -117,7 +118,7 @@ function sourceUpperMesh():Mesh {
 }
 /** Bounded additive models, equal drawn mobile detail and independent cardinal native construction. */
 export function createCourtsParkV293(native=false,previousPanes?:CourtPaneMasksV333):Group {
- const root=new Group();root.name=`Courts and Kleiner Tiergarten v293${native?' independent native':''}`;const p=new Plan(native);courtFittings(p,previousPanes);neighbourBases(p);rolleracht(p);church(p);
+ const root=new Group();root.name=`Courts and Kleiner Tiergarten v293${native?' independent native':''}`;const p=new Plan(native);courtFittings(p,previousPanes);neighbourBases(p);rolleracht(p);church(p);addMoabitCourtFrontV366(p);
  const mesh=batch(p);mesh.name='Court stonework, public fronts, church recognition and open Rolleracht bridge';root.add(mesh);if(!native)root.add(sourceUpperMesh());
  root.userData={courtsParkV293:true,requiredBeforeNavigation:true,textureFree:true,sourceGeometryRetained:true,sourceSheetsRetained:true,fullStaticDetailOnTouch:true,blockNative:native,nativeMinecraft:native,keepInMinecraft:native,instanceCount:p.rows.length,roles:p.roles,estimateStatus:P.verticalStatus};
  return freezeStaticSceneTransforms(root);

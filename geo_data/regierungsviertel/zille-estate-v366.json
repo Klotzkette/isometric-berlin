@@ -1,0 +1,256 @@
+{
+  "place": "Heinrich-Zille-Siedlung, Moabit",
+  "addresses": "Land Berlin, ALKIS Gebäude, aog, namlag, uuid. EPSG:25833 bbox 388540,5820570,388920,5820900. Dated sample retrieved 2026-11-19.",
+  "roofGeometry": "LoD2_388_5820.zip; original leaf CityGML roof sheets and eaves. Exact retained prism is required for admission.",
+  "roofTileSHA256": "ca6a5af8d0537ac1dc1df307c5debc56794eb2ff9f69d7c9aaa6fc45a0f31157",
+  "roofFixtures": "Bright compact fittings observed in both spring 2025 DOP and 2026 TrueDOP. EPSG:25833 bbox 388530,5820545,388940,5820945. Centre, orientation and footprint are sampled. Their function and heights are unresolved.",
+  "facades": "Photo 2020 (Gunnar Klack) shows the painted red return at Otto-Dix-Straße 22. Kuley and Shisma show rendered panels, pale balcony parapets and partly lowered shutters. Pane layout, projection and intermediate tones are architectural estimates. Lower adjoining volumes are assigned fewer storeys than the parent when required. Independent 4 m cells provide external facade planes for block mode. Prior 1 m v166 justice / housing meshes are excluded.",
+  "sources": [
+    "https://gdi.berlin.de/services/wfs/alkis_gebaeude",
+    "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+    "https://gdi.berlin.de/services/wms/truedop_2026",
+    "https://www.berlin.de/sen/bauen/_assets/wettbewerbe/2022/ulap-quartier/a-ulap_quartier_aufgabenbeschreibung.pdf",
+    "https://commons.wikimedia.org/wiki/File:Heinrich-Zille-Siedlung-Bodo-Fleischer-Hanno-Huebscher-Otto-Dix-Str-Berlin-Moabit.jpg",
+    "https://commons.wikimedia.org/wiki/File:Moabit_Otto-Dix-Stra%C3%9Fe.jpg",
+    "https://commons.wikimedia.org/wiki/File:Lesser-Ury-Weg.jpg"
+  ],
+  "parents": {
+    "DEBE01YYK0002RXC": {
+      "address": "Otto-Dix-Straße 18",
+      "floors": 5,
+      "admitted": [
+        "TyFz8fse",
+        "xigswXGe"
+      ]
+    },
+    "DEBE01YYK0002Sai": {
+      "address": "Lesser-Ury-Weg 19, 21, 23; Seydlitzstraße 18",
+      "floors": 4,
+      "admitted": [
+        "K0002Sai"
+      ]
+    },
+    "DEBE01YYK0002Lr5": {
+      "address": "Otto-Dix-Straße 11, 13",
+      "floors": 5,
+      "admitted": [
+        "ycWjImCs"
+      ]
+    },
+    "DEBE01YYK0002MOO": {
+      "address": "Claire-Waldoff-Promenade 9, 11",
+      "floors": 5,
+      "admitted": [
+        "yLqNdTrA",
+        "PXB9QHME"
+      ]
+    },
+    "DEBE01YYK0002Loe": {
+      "address": "Otto-Dix-Straße 15",
+      "floors": 6,
+      "admitted": [
+        "zX4wFzKL",
+        "suhtvPGV"
+      ]
+    },
+    "DEBE01YYK0002Nt5": {
+      "address": "Otto-Dix-Straße 9",
+      "floors": 3,
+      "admitted": [
+        "K0002Nt5"
+      ]
+    },
+    "DEBE01YYK0002Rcc": {
+      "address": "Lesser-Ury-Weg",
+      "floors": 4,
+      "admitted": [
+        "K0002Rcc"
+      ]
+    },
+    "DEBE01YYK0002TfS": {
+      "address": "Otto-Dix-Straße 30",
+      "floors": 7,
+      "admitted": [
+        "79YiOXxJ"
+      ]
+    },
+    "DEBE01YYK0002MS7": {
+      "address": "Otto-Dix-Straße 22",
+      "floors": 5,
+      "admitted": [
+        "XZvQZInI",
+        "2m83p8vA",
+        "HBDQsHFT",
+        "BvHLM7z3",
+        "lwgWTdDX"
+      ]
+    },
+    "DEBE01YYK0002LC0": {
+      "address": "Otto-Dix-Straße 24",
+      "floors": 3,
+      "admitted": [
+        "K0002LC0"
+      ]
+    },
+    "DEBE01YYK0002NbH": {
+      "address": "Otto-Dix-Straße 20",
+      "floors": 5,
+      "admitted": [
+        "K0002NbH"
+      ]
+    },
+    "DEBE01YYK0002LJh": {
+      "address": "Otto-Dix-Straße 28",
+      "floors": 5,
+      "admitted": [
+        "ZXuso9nC"
+      ]
+    },
+    "DEBE01YYK0002Roo": {
+      "address": "Otto-Dix-Straße 26",
+      "floors": 5,
+      "admitted": [
+        "K0002Roo"
+      ]
+    },
+    "DEBE01YYK0002Lfc": {
+      "address": "Otto-Dix-Straße 12",
+      "floors": 5,
+      "admitted": [
+        "dCL9JyrP",
+        "AnZh5WjO"
+      ]
+    },
+    "DEBE01YYK0002LR5": {
+      "address": "Otto-Dix-Straße 5",
+      "floors": 5,
+      "admitted": [
+        "pDBpTy9V",
+        "utev1FRU"
+      ]
+    },
+    "DEBE01YYK0002MlM": {
+      "address": "Lesser-Ury-Weg 5; Otto-Dix-Straße 7",
+      "floors": 4,
+      "admitted": [
+        "K0002MlM"
+      ]
+    },
+    "DEBE01YYK0002PUo": {
+      "address": "Otto-Dix-Straße 6",
+      "floors": 5,
+      "admitted": [
+        "K0002PUo"
+      ]
+    },
+    "DEBE01YYK0002PUM": {
+      "address": "Claire-Waldoff-Promenade 19",
+      "floors": 5,
+      "admitted": [
+        "b7bFYtY9"
+      ]
+    },
+    "DEBE01YYK0002Udi": {
+      "address": "Claire-Waldoff-Promenade 21",
+      "floors": 5,
+      "admitted": [
+        "K0002Udi"
+      ]
+    },
+    "DEBE01YYK0002P2X": {
+      "address": "Lesser-Ury-Weg 13, 15, 17; Otto-Dix-Straße 8",
+      "floors": 4,
+      "admitted": [
+        "K0002P2X"
+      ]
+    },
+    "DEBE01YYK0002MDt": {
+      "address": "Invalidenstraße 56C; Lesser-Ury-Weg 3",
+      "floors": 4,
+      "admitted": [
+        "tagYXVPu",
+        "FHxlMaGG",
+        "9sib9t8Y"
+      ]
+    },
+    "DEBE01YYK0002KLk": {
+      "address": "Claire-Waldoff-Promenade 14A, 14B, 14C; Otto-Dix-Straße 10",
+      "floors": 3,
+      "admitted": [
+        "CKt2LD0d",
+        "AZWDyYEO"
+      ]
+    },
+    "DEBE01YYK0002L3E": {
+      "address": "Claire-Waldoff-Promenade 12, 14",
+      "floors": 6,
+      "admitted": [
+        "UuZIWNp5",
+        "XfTdjPgX",
+        "YgAvbaVS"
+      ]
+    },
+    "DEBE01YYK0002KI4": {
+      "address": "Claire-Waldoff-Promenade 2; Invalidenstraße 56F",
+      "floors": 6,
+      "admitted": [
+        "J28Q86N8",
+        "qUwWZvyw"
+      ]
+    },
+    "DEBE01YYK0002SwD": {
+      "address": "Claire-Waldoff-Promenade 16A, 16B, 16C; Seydlitzstraße 17C",
+      "floors": 3,
+      "admitted": [
+        "fh1acGTz"
+      ]
+    },
+    "DEBE01YYK0002NXe": {
+      "address": "Claire-Waldoff-Promenade 17; Seydlitzstraße 16",
+      "floors": 4,
+      "admitted": [
+        "fO9370xm"
+      ]
+    },
+    "DEBE01YYK0002Pji": {
+      "address": "Claire-Waldoff-Promenade 13, 15",
+      "floors": 4,
+      "admitted": [
+        "nmUIgQpA"
+      ]
+    },
+    "DEBE01YYK0002STZ": {
+      "address": "Claire-Waldoff-Promenade 8, 10",
+      "floors": 6,
+      "admitted": [
+        "I5Wfhp4X",
+        "i8jn57hW",
+        "aOokGmzM",
+        "F0xSNCyt"
+      ]
+    },
+    "DEBE01YYK0002Qso": {
+      "address": "Claire-Waldoff-Promenade 4, 6",
+      "floors": 6,
+      "admitted": [
+        "QOxO6QY5",
+        "KD9wBqdZ"
+      ]
+    },
+    "DEBE01YYK0002Qx7": {
+      "address": "Otto-Dix-Straße 14, 16",
+      "floors": 6,
+      "admitted": [
+        "KKtbeh42"
+      ]
+    },
+    "DEBE01YYK0002M19": {
+      "address": "Claire-Waldoff-Promenade 16, 18",
+      "floors": 6,
+      "admitted": [
+        "Nppn6m0M",
+        "OW0OPAMp"
+      ]
+    }
+  }
+}

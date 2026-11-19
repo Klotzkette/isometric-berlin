@@ -1,3 +1,4 @@
+import { LEHRTER_BRICK, LEHRTER_TILE, lehrterKulturhausOwnerV366 } from "./lehrterKulturhausProfileV366";
 import { markHbfForecourtFinishV354 } from "./HbfForecourtFinishV354";
 import type { NordbahnhofNativeCuts } from "./NordbahnhofPublicAccess";
 import {createNativeStateRepresentationsV321} from "./StateRepresentationsV321";
@@ -194,7 +195,7 @@ import { createMinecraftSchlossNaturkundeShells } from "./SchlossNaturkundeShell
 import { createMinecraftSchlossNaturkundeFacades } from "./SchlossNaturkundeFacades";
 import { isSchlossNaturkundeReplacementColumn } from "./schlossNaturkundeProfile";
 import { urbanFacadeScope, urbanMappedFacadeTone, urbanMappedRoofTone } from "./urbanFacadePresentation";
-import { coreHousePaintV273 } from "./CoreHouseColoursV273";
+import { coreHousePaintV273, moabitRoofColourV366 } from "./CoreHouseColoursV273";
 import { coreResidentialNativeTone } from "./ordinaryFacadeTones";
 import { GroundRunBuffer, type GroundRun } from "./groundRunBuffer";
 import { parkReliefGroundSlices } from "./parkReliefGroundRunsV182";
@@ -1027,6 +1028,7 @@ export function buildColumnToneLookup(prisms: {
     const wilhelmTones = building.id ? WILHELM_REFINEMENT_PRISM_TONES.get(building.id) : undefined;
     // Resolve retained CSS colours/materials for every core owner, after all
     // existing authored priorities. The bounded roof path below is unchanged.
+    const lehrter = lehrterKulturhausOwnerV366(building);
     const mappedTone = wilhelmTones?.[0] ?? chariteTone ?? corridorTone ?? urbanMappedFacadeTone(attributes);
     const ordinaryPaint = mappedTone === undefined ? coreHousePaintV273(building) : undefined;
     if ((!building.tone && !panorama && !attributes && corridorTone === undefined && chariteTone === undefined) || building.ring.length < 3) {
@@ -1040,13 +1042,14 @@ export function buildColumnToneLookup(prisms: {
     const toned: TonedPrism = {
       id: building.id,
       attributes,
-      illustrationRoofTone: ordinaryPaint && ordinaryPaint[5] >= 0 ? ordinaryPaint[5] : undefined,
+      illustrationRoofTone: lehrter ? LEHRTER_TILE : moabitRoofColourV366(building.id, ordinaryPaint)
+        ?? (ordinaryPaint && ordinaryPaint[5] >= 0 ? ordinaryPaint[5] : undefined),
       roofTone: wilhelmTones?.[1] ?? (building.id ? CHARITE_HISTORIC_FACADE_ROOF_TONES[building.id] ??
         (CHARITE_VIROLOGY_IDS.has(building.id) ? 0x77827d : undefined) : undefined) ??
         (urban ? urbanMappedRoofTone(attributes) : mappedRoofTone(attributes)),
       storeys: building.h_dm === undefined ? null : mappedStoreyProfile(attributes, building.h_dm / 10),
       holes: (building.holes ?? []).map((ring) => ring.map(([x, z]) => [x / 10, z / 10] as [number, number])),
-      hex: panorama?.facade ?? (
+      hex: lehrter ? LEHRTER_BRICK : panorama?.facade ?? (
         building.id && KOLLHOFF_TOWER_PAYLOAD_IDS.has(building.id)
           ? KOLLHOFF_TOWER_PROFILE.minecraftClinkerTone
           : mappedTone !== undefined

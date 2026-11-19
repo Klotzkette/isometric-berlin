@@ -1,0 +1,69 @@
+{
+  "additions": {
+    "src/app/src/FritzParkRecognisersV366.ts": "55054263280c391935b9333baf81e7a88ab8f5319d39fcda96b275ffc59f2a6d",
+    "src/app/src/LehrterKulturhausV366.ts": "e664d9ddb7ad865677b5369617cd839e90c958144370341aefd9baba5cc40eeb",
+    "src/app/src/MoabitWohnfrontenV366.ts": "7f21f04a0f281404513222fb8a2cda514cc3ec23ce6905ce11262fee024ab626",
+    "src/app/src/ZilleEstateFacesV366.ts": "b3e33783e5d2aa1d8314b3ee063cd4bc72d64ec0c1175a5a5a3a6fbacc4e9fac",
+    "src/app/src/ZilleEstateRoofV366.ts": "e4647951d7b89e0894452d5113f130f3eb823de9c7ff13e011817a2819c53b3d",
+    "src/app/src/data/fritzParkV366.json": "d9b3464cb620319dbb5d0b4e5e3e3930747f3d30eac1a982158ed89ac8939909",
+    "src/app/src/data/lehrterKulturhausFrontsV366.json": "fa28ebc1ee9197eace3b2cb7a70381a0d17a5c31205675a8fb67aa61681dfa9d",
+    "src/app/src/data/lehrterKulturhausOwnersV366.json": "dd1e6d2cdb13dd3ca00be6020496be055f511c8ebead3d63ae31cfa5da81581b",
+    "src/app/src/data/lehrterKulturhausRoofsV366.json": "bb672f03046a2a45a5b98f8ac7694f52bc9f59247a09f2d7b1b988a3ca6fb053",
+    "src/app/src/data/moabitRoofSamplesV366.json": "1527a6450052fe69b3d9b705eaf061d5dd88faad7499c77c70d3f93c5e8a4907",
+    "src/app/src/data/moabitWohnfrontenV366.json": "e6ca768801a07f9dbef372ddab3b7bcd5f785029eaaa6311d301348de15cfda7",
+    "src/app/src/data/zilleEstateCapsV366.json": "c523064d3869edc70b2ca768db70fe43f307e84f16ba88488f7a35487937b080",
+    "src/app/src/data/zilleEstateFacesV366.json": "f8104bcaf4530c54ba5f000e4e03a6439a3af4b0056f65bddd50cfe3cdb46afe",
+    "src/app/src/data/zilleEstateOwnersV366.json": "05bce3a1954da0d94ad00ea67c133acfddb2e1b068cb3918740908606d884218",
+    "src/app/src/data/zilleEstateRoofsV366.json": "ad772c35e99768773153072f3d160f5d7dfc87bc9569f3a54bf22c826fdddabc",
+    "src/app/src/fritzCourseV366.ts": "e16ca3b6f9ff97902a95312117518ad4e38e5a3e77486ec1afbdc86c2d657bab",
+    "src/app/src/lehrterClinkerV366.ts": "d58af140e1f909e4c288a3fe7aa9c3c07e4654c952d0aba5e3a18f3b26a1233d",
+    "src/app/src/lehrterKulturhausProfileV366.ts": "8b1f9de2f480f20203ca7bc4590033c3182c2d4e0800a938fcf61016865e01ca",
+    "src/app/src/moabitCourtFrontV366.ts": "a1d5e1979d6628de7ab9333dcf6145e2b6a4ab9c0580ee34dca851b014aa0d12"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "a2494f7db271558a1dd7a587af7d39a27968cf0a398077ccba3c52d1734fa061",
+      "after": "a7be621a216ac015ec546cc07777d63930d02d137e4b9e38264f75f5064046f7"
+    },
+    "src/app/src/CoreHouseColoursV273.ts": {
+      "before": "3d035264813fd9b9f49660806f1f330bf85d51faeeb5892f1f507a02d3f2807c",
+      "after": "34959da4657d8f5efbbb4b3ecaaee377519adcd3c8c12fef6b1f8ff320d8f072"
+    },
+    "src/app/src/CourtsParkV293.ts": {
+      "before": "bd46d0c5998503ee80a8c388ddd63412f14383150d556bcaf28d925d5491df43",
+      "after": "28d50a50021876e03dcd4280fb02e967e99b852d6aeb5251045918827aff4001"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "d2b6c732e47eb69114be091986216fd79b534bc176dac0c59928558cc9aefde6",
+      "after": "5c0a4a664fdaa24c1daa8c07484b417cb3987b7fa814c2d911b663df9fc69627"
+    },
+    "src/app/src/LesserUryFrontsV358.ts": {
+      "before": "1dff3ca790ab4db3ba5fd5e765020e0d4b149789244f80b4c5977ca5194c2aa7",
+      "after": "f21cf2530f856901b9c5c0cfe2f250e0bff2fd373ff597b1c26f29e3f508fcc0"
+    },
+    "src/app/src/MinecraftVoxelWorld.ts": {
+      "before": "ce28d93321e5d98220d33a40f7f4da5c4fd49e70cdd87da2b87a0518b8b4ff60",
+      "after": "89fa0620f9af5f185808dcd5d25e3160aaa552390c90ede0c88d66b91c3dbc5b"
+    },
+    "src/app/src/MoabitStreetFrontsV340.ts": {
+      "before": "05ead7147c30b112343c27235a6ff609105977d7e51f68edaad526ca0ad01b5a",
+      "after": "a553cdb733c9a3bd2c8ef34f2a224db3c4d35bc9e5f42e587892390e27f88e20"
+    },
+    "src/app/src/ParkDetails.ts": {
+      "before": "d724189c6daa9b967a08a99ea9952b540fb1e62dfba1afe0b13cb181611c9663",
+      "after": "4fdb79debaba12e4e98dd3b9409bf7766bbfb731ceb80c817e6ae36ccdda14db"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "b0c49ee3f1f01b70b3a58246aa697f4df3d3db73bd54bbe28a0c5ed8ff478b66",
+      "after": "f763daeb70791fd0427bb56e8296e4dcba8d1392994c0b5535c51d4e35b04e8b"
+    },
+    "src/app/src/WeddingMoabitV229.ts": {
+      "before": "6d589b35d64eccbf2c9baad7c45b825c04228d6c99679e0423df4612ea673440",
+      "after": "cf189c8c54590500b11f74c1251842989a3b412c770b538da851a9fe80816fce"
+    },
+    "src/app/src/startupView.ts": {
+      "before": "bbfb043d1b608596f24df191401e7931bf4c5db0c689431c3bb5717b36d95ced",
+      "after": "5304c2706bbee9c5420a755cc19ba82bffda9a371b56c66695254916fa20e753"
+    }
+  }
+}
