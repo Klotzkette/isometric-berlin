@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.247
+
+- Open the criminal court on Turmstraße from the public street with a view of its arched portal, two-storey bay window and gable.
+
 ## 1.0.246
 
 - Restore the measured roofs and red brick street fronts of the former women’s prison at Lehrter Straße 61, including the open KUNST gateway and the adjoining former courthouse.

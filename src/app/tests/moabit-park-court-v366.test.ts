@@ -74,3 +74,29 @@ for(const native of [false,true])test("Turmstraße portal, oriel, pilaster and g
     if(old)expect(old.distance-hit.distance).toBeGreaterThan(.2);
   }
 });
+
+test("Turmstraße arrival shows the portal and gable beyond the opposite street frontage", async () => {
+  const { startupFlightView } = await import("../src/startupView");
+  const { coreSourceV211, drawnV211, disposeV211 } = await import("./helpers/coreMaterialV211");
+  const { PerspectiveCamera } = await import("three");
+  const view = startupFlightView("Kriminalgericht Turmstraße");
+  const camera = new PerspectiveCamera(view.fov, 1.6, 0.05, 500);
+  camera.position.set(...view.pose.position);
+  camera.lookAt(new Vector3(...view.pose.target));
+  camera.updateMatrixWorld();
+  const opposite = coreSourceV211.buildings.find(part => part.id === "20437842")!;
+  const streetFront = drawnV211(opposite, "distant");
+  streetFront.updateMatrixWorld(true);
+  try {
+    for (const height of [6, 18, 31.5]) {
+      const feature = new Vector3(-1179, height, -866.5);
+      const line = feature.clone().sub(camera.position);
+      const distance = line.length();
+      const ray = new Raycaster(camera.position, line.normalize(), 0, distance);
+      expect(ray.intersectObject(streetFront).length).toBe(0);
+      const projected = feature.project(camera);
+      expect(Math.abs(projected.x)).toBeLessThan(.8);
+      expect(Math.abs(projected.y)).toBeLessThan(.83);
+    }
+  } finally { disposeV211(streetFront); }
+});

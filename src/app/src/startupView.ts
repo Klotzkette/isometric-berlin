@@ -99,7 +99,7 @@ const MOABIT_VIEWS_V358: Record<string, (typeof GARDEN_VIEWS_V330)[string] & { f
   "Landespolizeidirektion Moabit": { position: [-726, 35, -519], target: [-631, 16, -549], fov: 32 },
   "Kleingartenkolonie Lehrter Straße": { position: [-620, 156, -884], target: [-399, 6, -1026], fov: 38 },
   "Kulturhaus Lehrter Straße": { position: [-582, 13, -1278], target: [-602, 9.2, -1268], fov: 55 },
-  "Kriminalgericht Turmstraße": { position: [-1183, 18, -909], target: [-1179, 17, -863], fov: 51 },
+  "Kriminalgericht Turmstraße": { position: [-1181, 15, -892.5], target: [-1179, 18.5, -865], fov: 70 },
   "Fritz-Schloß-Park Laufstrecke": { position: [-987, 21, -1285], target: [-977, 12, -1276], fov: 52 },
   "Wilsnacker Straße 41": { position: [-1415, 14.7, -1418], target: [-1427.6, 12.2, -1406.6], fov: 58 },
   "Otto-Dix-Straße": { position: [-878, 10, -679], target: [-858, 12, -699], fov: 54 },
