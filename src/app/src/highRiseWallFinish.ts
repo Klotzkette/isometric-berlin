@@ -1,4 +1,3 @@
-import { isMappedCivicWallOwner } from "./civicArchitecturalFinish";
 import type { SurroundingNavigation } from "./SurroundingCityGeometry";
 
 // The navigation geometry is in metres. Both coordinates must fit an actual
@@ -15,10 +14,10 @@ function groundPoint(point: readonly number[]): number {
 }
 
 /** Mark absolute vertex indices belonging exclusively to drawn exterior walls
- * of measured buildings at least 22 m high and individually verified courts.
+ * with the same footprint edge and vertical extent as a mapped building.
  * Positions and indices are the decoder's existing interleaved, rebased arrays.
  * The edge index and usage flags live only during this part's admission. */
-export function* markHighRiseWalls(
+export function* markMappedBuildingWalls(
   vertices: Uint16Array, indices: Uint16Array | Uint32Array,
   indexStart: number, indexCount: number, vertexOffset: number, count: number,
   nav: SurroundingNavigation, originY: number, mark: (vertex: number) => void,
@@ -29,7 +28,7 @@ export function* markHighRiseWalls(
   let work = 0;
   for (const building of nav.buildings) {
     if (++work % 1024 === 0) yield;
-    if (building.ring.length < 3 || (building.height < 22 && !isMappedCivicWallOwner(building.sourceId))) continue;
+    if (building.ring.length < 3) continue;
     const base = nav.groundY + (building.groundOffset ?? 0) - originY;
     const bottom = centimetres(base + building.minHeight), top = centimetres(base + building.height);
     if (bottom < 0 || top > 65535 || top - bottom < 100) continue;

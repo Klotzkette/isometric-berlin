@@ -1,3 +1,4 @@
+import { kerbStoneCourses } from "./kerbStoneFinish";
 import { markGroundFinishV348, type GroundFinishKindV348 } from "./GroundFinishV348";
 import {
   BufferAttribute, BufferGeometry, DoubleSide, Float32BufferAttribute, Group,
@@ -122,7 +123,7 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
   group.name = name;
   group.userData.sourceGeometry = streets.source;
   const terrainAt = districtStreetTerrainSampler(ground);
-  const addSurface = (name: string, positions: Float32Array, day: number, night: number, indices?: StreetIndexArray, finish?: GroundFinishKindV348): void => {
+  const addSurface = (name: string, positions: Float32Array, day: number, night: number, indices?: StreetIndexArray, finish?: GroundFinishKindV348): Mesh | undefined => {
     if (!positions.length) return;
     const dayMaterial = new MeshBasicMaterial({ color: day, side: DoubleSide });
     const nightMaterial = new MeshBasicMaterial({ color: night, side: DoubleSide });
@@ -134,6 +135,7 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
     mesh.userData.staticAntiFlicker = true;
     if (finish) markGroundFinishV348(mesh, finish);
     group.add(mesh);
+    return mesh;
   };
   for (const surface of streets.surfaces) {
     const style = SURFACE_STYLES[surface.kind];
@@ -159,7 +161,8 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
   const curbs = new Float32Array(pointCount * 12);
   const curbIndices = maxCurbIndex >= 65535
     ? new Uint32Array(segmentCount * 18) : new Uint16Array(segmentCount * 18);
-  const ink = new Float32Array(segmentCount * 6);
+  const inkIndices = maxCurbIndex >= 65535
+    ? new Uint32Array(segmentCount * 2) : new Uint16Array(segmentCount * 2);
   let curbCursor = 0, indexCursor = 0, inkCursor = 0;
   const kerbOffset: [number, number] = [0, 0];
   // Four shared vertices per boundary point, instead of eighteen duplicated
@@ -168,7 +171,6 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
     const offset = curbCursor / 3;
     for (let i = 0; i < line.length; i += 1) {
       const [x, z] = line[i];
-      const [ax, az] = line[Math.max(0, i - 1)];
       const [nx, nz] = streetKerbJoinOffsetV276(line, i, KERB_HALF_WIDTH_M, kerbOffset);
       const base = terrainAt(x, z) + DISTRICT_STREET_LIFT_M;
       const top = base + DISTRICT_KERB_RISE_M;
@@ -180,25 +182,38 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
       curbIndices.set([a,b,b+2, a,b+2,a+2, a+3,b+3,b+1, a+3,b+1,a+1,
         a+2,b+2,b+3, a+2,b+3,a+3], indexCursor);
       indexCursor += 18;
-      ink.set([ax, terrainAt(ax, az) + DISTRICT_STREET_LIFT_M + DISTRICT_KERB_RISE_M + 0.008, az,
-        x, top + 0.008, z], inkCursor);
-      inkCursor += 6;
+      inkIndices[inkCursor++] = a + 3;
+      inkIndices[inkCursor++] = b + 3;
     }
   }
-  addSurface("District raised kerbstones", curbs, 0xd8d5c9, 0x30343b, curbIndices);
-  const addLines = (name: string, positions: number[] | Float32Array, day: number, night: number): void => {
-    if (!positions.length) return;
+  const kerbs = addSurface("District raised kerbstones", curbs, 0xd8d5c9, 0x30343b, curbIndices);
+  if (kerbs) {
+    const course = kerbStoneCourses(curbLines, pointCount);
+    kerbs.geometry.setAttribute("kerbStation", course.attribute);
+    kerbs.userData.kerbStoneScale = course.scale;
+  }
+  const addLines = (name: string, shape: BufferGeometry, day: number, night: number): LineSegments => {
     const dayMaterial = new LineBasicMaterial({ color: day });
     const nightMaterial = new LineBasicMaterial({ color: night });
-    const lines = new LineSegments(geometry(positions), dayMaterial);
+    const lines = new LineSegments(shape, dayMaterial);
     lines.name = name;
     lines.userData.dayMaterial = dayMaterial;
     lines.userData.nightMaterial = nightMaterial;
     lines.userData.staticAntiFlicker = true;
     lines.renderOrder = 2;
     group.add(lines);
+    return lines;
   };
-  addLines("District kerb ink", ink, 0x6d756b, 0x11171c);
+  if (kerbs && inkIndices.length) {
+    // Trace the actual top arris. Both drawings share its position buffer, so
+    // corners, repeated points and gaps match exactly, even on sloping ground.
+    const edge = new BufferGeometry();
+    edge.setAttribute("position", kerbs.geometry.getAttribute("position"));
+    edge.setIndex(new BufferAttribute(inkIndices, 1));
+    edge.boundingBox = kerbs.geometry.boundingBox;
+    edge.boundingSphere = kerbs.geometry.boundingSphere;
+    addLines("District kerb ink", edge, 0x6d756b, 0x11171c).position.y = 0.008;
+  }
   const markings: number[] = [];
   for (const [markingIndex, marking] of streets.markings_m.entries()) {
     if (excludedMarkings.has(markingIndex)) continue;
@@ -238,6 +253,6 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
       }
     }
   }
-  addLines("District lane markings", markings, 0xf2f0e8, 0x929793);
+  if (markings.length) addLines("District lane markings", geometry(markings), 0xf2f0e8, 0x929793);
   return freezeStaticSceneTransforms(group);
 }

@@ -1,3 +1,4 @@
+import { presentKerbStoneFinish } from "./kerbStoneFinish";
 import { presentArchitecturalSheen } from "./architecturalSheen";
 import { markHbfForecourtFinishV354 } from "./HbfForecourtFinishV354";
 import { markGroundFinishV348 } from "./GroundFinishV348";
@@ -2121,6 +2122,7 @@ export function setIsoNightPresentation(
   city.traverse((object) => {
     if (!(object instanceof Mesh)) return;
     presentArchitecturalSheen(object, mode);
+    presentKerbStoneFinish(object, mode);
     const dayMaterial = object.userData.dayMaterial;
     const nightMaterial = object.userData.nightMaterial;
     if (

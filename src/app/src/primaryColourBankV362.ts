@@ -1,5 +1,9 @@
+import kerbOwners from "./data/cityKerbCrossingOwnersV365.json";
+import type { CrossingKerbPlan } from "./cityKerbCrossingsV365";
 import index from "./data/primaryColoursV273Index.json";
 import type { GreyClusterColourSourceV263 } from "./greyClusterColoursV263";
+
+const kerbTiles = new Set<string>(kerbOwners);
 
 const locations: Readonly<Record<string, number>> = index;
 
@@ -18,6 +22,7 @@ import type { MauerparkTerrainEvidenceV298 } from "./MauerparkTerrainV298Packets
 import type { SurroundingOwnershipOptions } from "./SurroundingCityGeometry";
 
 export type SurroundingDetailSourcesV362 = {
+  crossingKerbs?: CrossingKerbPlan;
   primaryColours?: GreyClusterColourSourceV263;
   eastHousing?: NeighbourhoodSourceV300;
   mauerpark?: MauerparkTerrainEvidenceV298;
@@ -33,13 +38,15 @@ const mauerparkTiles = new Set(["3_-6", "3_-5", "4_-6", "4_-5"]);
 
 export async function loadSurroundingDetailSourcesV362(id: string, native: boolean, ownership: SurroundingOwnershipOptions): Promise<SurroundingDetailSourcesV362> {
   const bank = primaryColourBankIndexV362(id, native);
-  const [primaryColours, east, mauerpark] = await Promise.all([
+  const [primaryColours, east, mauerpark, kerbs] = await Promise.all([
     bank === undefined ? undefined : loadPrimaryColourBankV362(bank),
     ownership.neighbourhoodV300 && eastTiles.has(id) ? import("./eastHousingSourceV362") : undefined,
     ownership.wallGalleryV298 && mauerparkTiles.has(id) ? import("./mauerparkSourceV362") : undefined,
+    kerbTiles.has(id) ? import("./cityKerbCrossingSourceV365") : undefined,
   ]);
   return {
     primaryColours,
+    crossingKerbs: kerbs?.default[`${native ? "minecraft" : "drawn"}:${id}`],
     eastHousing: east?.default as unknown as NeighbourhoodSourceV300 | undefined,
     mauerpark: mauerpark?.default as unknown as MauerparkTerrainEvidenceV298 | undefined,
   };

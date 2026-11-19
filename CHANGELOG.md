@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.245
+
+- Carry the soft daylight finish onto mapped exterior walls of 124,399 additional buildings and building parts across all twelve Berlin boroughs. The finish follows their measured footprints and heights.
+- Trace the upper edges of existing kerbs through corners and slopes. Model stone joints for close views, preserve the previously detailed courses around the Hauptbahnhof and Reichstag, and give 16.9 km of boulevard kerbs the same daylight profile. Sharing edge vertices reduces street buffer storage.
+- Add 132 mapped lowered or flush kerb sections in eleven boroughs, including crossings in Spandau, Kreuzberg and Adlershof. The drawn and block-built versions follow their respective street surfaces.
+
 ## 1.0.244
 
 - Give court and ministry façades distinct daylight responses for sandstone, glazing and metalwork. The finish follows the existing window bays, portals and cornices.

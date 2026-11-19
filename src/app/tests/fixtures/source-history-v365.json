@@ -1,0 +1,55 @@
+{
+  "additions": {
+    "src/app/src/cityKerbCrossingSourceV365.ts": "af2f25de1b2eb4ed4d155cdc3b702f837e39410d3d7b53f19e04a3550e5c019c",
+    "src/app/src/cityKerbCrossingsV365.ts": "c65d2618c909616015d4ec4b497b93ddba91bfd6fc8d9ec43a499bffc087a821",
+    "src/app/src/data/cityKerbCrossingOwnersV365.json": "b624223a4ed469dd1805a1fe6bce86e2357b0e4743198476e71c7ad3afb50b49",
+    "src/app/src/data/cityKerbCrossingsV365.json": "518d4879179e17732b988210b2d043b6e57856fc446c4951256bc25f6790a5b3",
+    "src/app/src/kerbStoneFinish.ts": "5b9bad5b203b474d116aaeed089fbeeb0cb6e198885a159bbfa65d4463d8f76d"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "f5550a9cf8361c51db1e80e240f9d91603e7e3aeefedda340e3b55a478f9d26a",
+      "after": "a2494f7db271558a1dd7a587af7d39a27968cf0a398077ccba3c52d1734fa061"
+    },
+    "src/app/src/BoulevardTransportV210.ts": {
+      "before": "5d967a4409da125c3de5dcf5a2104255cdba40e388403b27248d7a59e46c24c8",
+      "after": "7e3573e6b0db3f89c55d02c2c8fd0cca68b9c9b542ec0160d01924ae348cc02f"
+    },
+    "src/app/src/DistrictStreets.ts": {
+      "before": "a5cf66eb590daa235ab5b8d4c4607a0a78a3b1831bcd86039e409e9f1f144ae7",
+      "after": "9820bbb94397297e6f6fdafe4a9adc270606a443622943e8095ee4dfc626f342"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "5501dc62832b851be0ccc1d7966e3c2bd8fba0417809b029da6dfa986a5df25d",
+      "after": "d2b6c732e47eb69114be091986216fd79b534bc176dac0c59928558cc9aefde6"
+    },
+    "src/app/src/SurroundingCityGeometry.ts": {
+      "before": "6d9d9bfd844a653602ac3c2f1885264e04ac6d7fd7ad8d6cfcdca9468978bcea",
+      "after": "b9b6fd9f68ce77ecf311630f5b155bc083b6755b19ff84d6d611b1d206080583"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "af7a8c2ee354d8bab833cea76c8ddc0ea85ddf364764d067bfabb91dd46ba334",
+      "after": "b0c49ee3f1f01b70b3a58246aa697f4df3d3db73bd54bbe28a0c5ed8ff478b66"
+    },
+    "src/app/src/civicArchitecturalFinish.ts": {
+      "before": "79e7fdb8f4ddaaaf41a9a09bfff753f0de4497d33ba3a41e1c39a847c2c7b73f",
+      "after": "2a28c5f21e8396a2bae2842531df0b31d7f2f651b42ee4efab57c777ae904dc7"
+    },
+    "src/app/src/highRiseWallFinish.ts": {
+      "before": "33c864de3b57f6939139a53ee4e52d54fbd24e285b76e1e1a782aa4e65d6bbd0",
+      "after": "e7d8141f219b5a3315209efd0ad0e9948b9a4f2288c1f8db3da2db594a506ed3"
+    },
+    "src/app/src/packedArchitecturalFinish.ts": {
+      "before": "3890d1a0aa46d2c7d136fc39f481d659482b4d844089f1740eca601512e02417",
+      "after": "70ebec4ef33d9b183e6fb071d8d0703a9e6d96a1cd0ac66af45a9f834e5d8996"
+    },
+    "src/app/src/primaryColourBankV362.ts": {
+      "before": "5f4936e753f7e3487e62e88490b826b527630f64f2734f8ee1e9630f744bfa31",
+      "after": "d8e86fd87a05bd94bd2a542a0f33bb1fb5cebab1f865806800cf947b208235dd"
+    },
+    "src/app/src/surroundingCityStandaloneV362.ts": {
+      "before": "06b359c800ee18b0a1feb1d3a3e84e8aa62b057f28e1daa0277828ede33201a6",
+      "after": "425538b3ce3181b1f071cca82f6fe5be912ed1ec1158b7f48c9e7cf8bcb62620"
+    }
+  }
+}

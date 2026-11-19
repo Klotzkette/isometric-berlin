@@ -50,8 +50,8 @@ export class PackedArchitecturalFinish {
     }
   }
 
-  /** Dense authored details use one byte per vertex. Report the actual
-   * allocation to the existing tile budget; ordinary walls use only uniforms. */
+  /** Sparse selections use uniforms. Dense selections use one byte per
+   * vertex and count against the existing tile budget. */
   attach(mesh: Mesh): number {
     if (!this.runs.length) return 0;
     if (this.runs.length <= maxUniformRuns && this.runs[this.runs.length - 1] <= 0xffffffff) {

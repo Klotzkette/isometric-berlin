@@ -115,17 +115,13 @@ describe("bounded District streets in the drawn city", () => {
     const ink = streets.getObjectByName("District kerb ink") as LineSegments;
     const [, roadTop] = groundClearance(asphalt.geometry);
     const [kerbBottom, kerbTop] = groundClearance(kerbs.geometry);
-    const [inkBottom, inkTop] = groundClearance(ink.geometry);
     expect(kerbBottom).toBeLessThanOrEqual(roadTop + 0.03);
     expect(kerbTop - roadTop).toBeGreaterThan(0.05);
     expect(kerbTop - roadTop).toBeLessThan(0.3);
     expect(kerbTop - kerbBottom).toBeGreaterThan(0.05);
-    // The upstand samples its centre grade; its two side faces are 11cm
-    // away and can differ over sloping surveyed terrain. Ink stays on the
-    // centre arris at road lift + 14cm + 8mm.
-    expect(inkBottom).toBeCloseTo(0.328, 4);
-    expect(inkTop).toBeCloseTo(0.328, 4);
-    expect(inkTop).toBeLessThan(kerbTop + 0.04);
+    expect(ink.geometry.getAttribute("position")).toBe(kerbs.geometry.getAttribute("position"));
+    expect(ink.geometry.index!.array.every(i => i % 4 === 3)).toBeTrue();
+    expect(ink.position.y).toBeCloseTo(0.008, 6);
   });
 
   test("keeps the street reading and bounded avenue infill in eight static, image-free batches", () => {

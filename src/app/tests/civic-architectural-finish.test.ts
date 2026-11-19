@@ -2,8 +2,8 @@ import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { Color, InstancedMesh, Mesh } from "three";
-import { civicArchitecturalFinish, civicPacketFinish, isMappedCivicWallOwner, markKoepenickCourtWalls } from "../src/civicArchitecturalFinish";
-import { markHighRiseWalls } from "../src/highRiseWallFinish";
+import { civicArchitecturalFinish, civicPacketFinish, markKoepenickCourtWalls } from "../src/civicArchitecturalFinish";
+import { markMappedBuildingWalls } from "../src/highRiseWallFinish";
 import { createSurroundingCityChunk, type SurroundingCityChunk } from "../src/SurroundingCityGeometry";
 import { courtPaneMasksV333 } from "../src/CourtsParkV293";
 import { createDistrictCourtEnvelopesV229 } from "../src/DistrictCourtEnvelopesV229";
@@ -169,7 +169,6 @@ test("low court buildings in their real borough packets expose verifiable exteri
     const buildings = packet.nav.buildings.filter(b => b.sourceId === owner);
     expect(buildings).toHaveLength(1);
     expect(buildings[0].height).toBeLessThan(22);
-    expect(isMappedCivicWallOwner(owner)).toBeTrue();
     const part = packet.meshes.find(m => m.kind === "city")!;
     const points = Buffer.from(part.positions, "base64"), faces = Buffer.from(part.indices, "base64");
     const count = points.length / 6, words = new Uint16Array(count * 6);
@@ -178,12 +177,11 @@ test("low court buildings in their real borough packets expose verifiable exteri
       words[i * 6 + axis] = points.readUInt16LE(i * 6 + axis * 2);
     }
     let marked = 0;
-    const work = markHighRiseWalls(words, indices, 0, indices.length, 0, count,
+    const work = markMappedBuildingWalls(words, indices, 0, indices.length, 0, count,
       {...packet.nav, buildings}, packet.origin[1], () => { marked++; });
     for (const _ of work) {}
     expect(marked, tile + " " + owner).toBeGreaterThan(0);
   }
-  expect(isMappedCivicWallOwner("OSM-way-24149119")).toBeFalse();
 });
 
 type SourceFamily = {

@@ -3,6 +3,7 @@ import {
 } from "./SurroundingCityGeometry";
 import { synchronousPrimaryColourBankV362 } from "./primaryColoursV273";
 
+import crossingKerbs from "./cityKerbCrossingSourceV365";
 import east from "./eastHousingSourceV362";
 import mauerpark from "./mauerparkSourceV362";
 import type { NeighbourhoodSourceV300 } from "./NeighbourhoodPacketV300";
@@ -25,7 +26,7 @@ export function* buildSurroundingCityChunk(
   ownership: SurroundingOwnershipOptions = {},
 ) {
   return yield* buildCityChunkWithPaletteV362(chunk, id, native, parkBacking, ownership,
-    { ...regionalSources, primaryColours: synchronousPrimaryColourBankV362(id, native) });
+    { ...regionalSources, crossingKerbs: crossingKerbs[`${native ? "minecraft" : "drawn"}:${id}`], primaryColours: synchronousPrimaryColourBankV362(id, native) });
 }
 
 export function createSurroundingCityChunk(

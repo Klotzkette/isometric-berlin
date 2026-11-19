@@ -1,3 +1,4 @@
+import { presentKerbStoneFinish } from "./kerbStoneFinish";
 import { presentArchitecturalSheen } from "./architecturalSheen";
 import { bindHbfForecourtFinishV354 } from "./HbfForecourtFinishV354";
 import { bindGroundFinishV348 } from "./GroundFinishV348";
@@ -2916,6 +2917,7 @@ export function applyLightingToRoot(
       return;
     }
     presentArchitecturalSheen(object, mode);
+    presentKerbStoneFinish(object, mode);
     // Drawn accessory kits keep exact unlit paint for day/snow and a separate
     // lit material for night. Most of those kits live under isoWorld and are
     // switched there; expansion details are a sibling recognition layer, so

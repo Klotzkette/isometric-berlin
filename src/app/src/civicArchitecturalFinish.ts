@@ -134,22 +134,6 @@ export function civicPacketFinish(kind: string): SurfaceFinish | undefined {
   return kind === "berlin-senate-v321" ? senatePacket : undefined;
 }
 
-// Public building identifiers carried by the primary city packet's navigation.
-// These court buildings fall below the general high-rise height cutoff.
-const mappedLowCourtOwners = new Set([
-  "DEBE07YY90002dn9",     // Low adjoining body, Tempelhofer Damm 12
-  "DEBE04YY500008YZ",      // Landgericht, Tegeler Weg (older wing)
-  "OSM-relation-4752291",  // Amtsgericht Neukölln
-  "OSM-way-59453998",      // Amtsgericht Pankow
-  "OSM-way-696007526",     // Familiengericht Pankow
-  "OSM-relation-311548",   // Amtsgericht Schöneberg, Zweigstelle Ringstraße
-  "OSM-way-24149118",      // Amtsgericht Spandau
-]);
-
-export function isMappedCivicWallOwner(sourceId: string): boolean {
-  return mappedLowCourtOwners.has(sourceId);
-}
-
 type CivicMeshPart = { kind: string; positions: string; colors: string; indices: string };
 
 function packetFieldHash(value: string): number {

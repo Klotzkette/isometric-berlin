@@ -131,7 +131,28 @@ describe("bounded exact street construction", () => {
       const publishedKerb = PUBLISHED_STREETS.find(p => p.name === "District raised kerbstones")!;
       expect(digest(old)).toBe(publishedKerb.positionHash);
       expect(actual.find(p => p.name === publishedKerb.name)!.positionHash).not.toBe(publishedKerb.positionHash);
-      expect(actual.map(p => p.name === publishedKerb.name ? { ...p, positionHash: digest(old) } : p)).toEqual(PUBLISHED_STREETS);
+      const ink = root.getObjectByName("District kerb ink") as Mesh;
+      const kerb = root.getObjectByName(publishedKerb.name) as Mesh;
+      expect(ink.geometry.getAttribute("position")).toBe(kerb.geometry.getAttribute("position"));
+      // Verify the old centre stroke against the original input as well as the
+      // exact new upper-edge index for every independent segment.
+      const publishedInk = PUBLISHED_STREETS.find(p => p.name === ink.name)!;
+      const centre = new Float32Array(publishedInk.vertices * 3);
+      const indices = ink.geometry.index!.array;
+      let endpoint = 0, vertex = 0;
+      for (const line of streetSource.curbs_m) {
+        for (let i = 1; i < line.length; i++) for (const j of [i - 1, i]) {
+          const [x,z] = line[j];
+          expect(indices[endpoint]).toBe(vertex + j * 4 + 3);
+          centre.set([x, terrainAt(x,z) + .18 + .14 + .008, z], endpoint++ * 3);
+        }
+        vertex += line.length * 4;
+      }
+      expect(indices.length).toBe(publishedInk.vertices);
+      expect(digest(centre)).toBe(publishedInk.positionHash);
+      expect(indices.byteLength + kerb.geometry.getAttribute("kerbStation").array.byteLength).toBeLessThan(centre.byteLength);
+      expect(actual.filter(p => p.name !== ink.name).map(p => p.name === publishedKerb.name
+        ? { ...p, positionHash: digest(old) } : p)).toEqual(PUBLISHED_STREETS.filter(p => p.name !== ink.name));
     } finally { release(root); }
   });
 
@@ -164,7 +185,7 @@ describe("bounded exact street construction", () => {
         4,8,10, 4,10,6, 7,11,9, 7,9,5, 6,10,11, 6,11,7,
       ]);
       const ink = root.getObjectByName("District kerb ink") as Mesh;
-      expect(ink.geometry.getAttribute("position").count).toBe(2);
+      expect(ink.geometry.index!.count).toBe(2);
     } finally { release(root); }
   });
 });

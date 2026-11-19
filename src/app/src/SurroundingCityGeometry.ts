@@ -1,6 +1,6 @@
 import { markKoepenickCourtWalls } from "./civicArchitecturalFinish";
 import { PackedArchitecturalFinish } from "./packedArchitecturalFinish";
-import { markHighRiseWalls } from "./highRiseWallFinish";
+import { markMappedBuildingWalls } from "./highRiseWallFinish";
 import { bindGroundFinishV348, certifyPacketGroundFinishV348Steps, markPacketGroundFinishV348, type GroundFinishPartSpanV348 } from "./GroundFinishV348";
 import { certifyPackedRiverWaterV348, type PackedRiverSelectorV348 } from "./WaterRipplesV348";
 import { prepareTempelhoferFieldV345, applyTempelhoferFieldV345, bindTempelhoferFieldV345 } from "./TempelhoferFieldV345";
@@ -54,6 +54,7 @@ import { applyOuterMaterialsV263 } from "./outerMaterialsV263";
 import { applyGreyClusterColoursV263 } from "./greyClusterColoursV263";
 import { prepareRoofHouseV233, applyRoofHouseV233Triangles, applyRoofHouseV233Lines } from "./roofHouseV233";
 import { prepareHouseDoorsV233 } from "./houseDoorsV233";
+import { crossingKerbPart } from "./cityKerbCrossingsV365";
 import { prepareHouseCurbsV233 } from "./houseCurbsV233";
 import { prepareBoulevardArchitectureV235 } from "./boulevardArchitectureV235";
 import { prepareWestShopfrontsV341 } from "./westShopfrontsV341";
@@ -409,6 +410,9 @@ export function* buildCityChunkWithPaletteV362(
       !validNavigation(chunk.nav)) {
     throw new Error("Invalid surrounding-city chunk");
   }
+  // Earlier owners can add real curved street margins to navigation. Check the
+  // surveyed fit against its source roads before those independent additions.
+  const kerbPart = crossingKerbPart(chunk, sources.crossingKerbs);
   const allotmentPlan = id === "3_-3" || id === "4_-3" ? undefined :
     yield* admitAllotmentDetailsV360(chunk, ownership.allotmentDetailsV360);
   let gardenTerrainV330: DataView | undefined;
@@ -461,9 +465,13 @@ export function* buildCityChunkWithPaletteV362(
   for (const ticket of groundOverlayTicketsV329) chunk = yield* prepareNeighbourhoodPacketV300(chunk, ticket);
   const allotmentPart = yield* packAllotmentDetailsV360(chunk, allotmentPlan, minecraft);
   // Keep the authenticated predecessor object and its weakly held ownership data.
-  const meshParts = allotmentPart ? [...chunk.meshes, allotmentPart] : chunk.meshes;
-
-  if (meshParts.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
+  const sourceParts = allotmentPart ? [...chunk.meshes, allotmentPart] : chunk.meshes;
+  if (sourceParts.length > 16) throw new Error("Surrounding-city mesh parts exceed the bounded tile budget");
+  // The authenticated kerb cap is internal vertex/index tail data, even when
+  // all sixteen source slots are occupied. It shares the existing allocation,
+  // draw call and byte/vertex/index limits of the assembled street mesh.
+  const meshParts = kerbPart ? [...sourceParts, kerbPart] : sourceParts;
+  const hasTail = !!(allotmentPart || kerbPart);
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
   root.position.fromArray(chunk.origin);
@@ -526,10 +534,14 @@ export function* buildCityChunkWithPaletteV362(
         written += source.length;
         yield;
       }
-      if (part === allotmentPart) {
-        originalVertexWords = vertexOffset * 6;
-        originalIndexCount = indexOffset;
-        break;
+      if (meshIndex >= chunk.meshes.length) {
+        if (meshIndex === chunk.meshes.length) {
+          originalVertexWords = vertexOffset * 6;
+          originalIndexCount = indexOffset;
+        }
+        vertexOffset += count;
+        indexOffset += written;
+        continue;
       }
       const panoramaTransferred = yield* replacePanoramaFacadeV202(id, minecraft, part, indices, indexOffset);
       if (panoramaTransferred) root.userData.panoramaTransferredTriangles = (root.userData.panoramaTransferredTriangles ?? 0) + panoramaTransferred;
@@ -616,8 +628,9 @@ export function* buildCityChunkWithPaletteV362(
       if(hillTransfer)root.userData.mauerparkTerrainTrianglesV298=(root.userData.mauerparkTerrainTrianglesV298??0)+hillTransfer;
       if (ownership.groundFinishV348 && !minecraft) groundSpansV348.push({kind:part.kind,indexStart:indexOffset,indexCount:written});
       if (surfaceFinish) {
-        if (part.kind === "city") {
-          yield* markHighRiseWalls(vertices, indices, indexOffset, written, vertexOffset, count,
+        // Köpenick's courthouse already identifies its masonry and glazing separately.
+        if (part.kind === "city" || (part.kind === "public-institutions-v326" && id !== "publicInstitutions326-27_14-p0")) {
+          yield* markMappedBuildingWalls(vertices, indices, indexOffset, written, vertexOffset, count,
             chunk.nav, chunk.origin[1], vertex => surfaceFinish.mark(vertex));
         } else if (part.kind === "public-institutions-v326") {
           markKoepenickCourtWalls(id, part, vertexOffset, vertex => surfaceFinish.mark(vertex));
@@ -683,14 +696,14 @@ export function* buildCityChunkWithPaletteV362(
       }
       if (ownership.groundFinishV348 && !minecraft && !apertures) {
         const ground = yield* certifyPacketGroundFinishV348Steps(chunk,
-          allotmentPart ? vertices.subarray(0, originalVertexWords) : vertices,
-          allotmentPart ? indices.subarray(0, originalIndexCount) : indices, groundSpansV348);
+          hasTail ? vertices.subarray(0, originalVertexWords) : vertices,
+          hasTail ? indices.subarray(0, originalIndexCount) : indices, groundSpansV348);
         if (ground && markPacketGroundFinishV348(body, ground)) bindGroundFinishV348(body);
       }
       if (ownership.riverFinishV348 && !minecraft) {
         const river = yield* certifyPackedRiverWaterV348(chunk.origin[1], chunk.nav,
-          allotmentPart ? vertices.subarray(0, originalVertexWords) : vertices,
-          allotmentPart ? indices.subarray(0, originalIndexCount) : indices);
+          hasTail ? vertices.subarray(0, originalVertexWords) : vertices,
+          hasTail ? indices.subarray(0, originalIndexCount) : indices);
         if (river) ownership.riverFinishV348(body, river);
       }
       const finishBytes = surfaceFinish?.attach(body) ?? 0;

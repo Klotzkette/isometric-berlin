@@ -98,6 +98,7 @@ export function createBoulevardTransportV210(native = false): Group {
     // Every curb has the same colour: a material colour avoids a redundant
     // instance colour buffer while preserving the previous linear colour.
     mesh.instanceColor = null;
+    if (!native) mesh.userData.kerbBoxProfile = true;
     mesh.userData.dayMaterial.color.setHex(0xd4d0c2);
     mesh.userData.nightMaterial.color.setHex(0xd4d0c2);
     mesh.userData.staticAntiFlicker = true;

@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
-import { markHighRiseWalls } from "../src/highRiseWallFinish";
+import { markMappedBuildingWalls } from "../src/highRiseWallFinish";
 import { createSurroundingCityChunk, type SurroundingNavigation } from "../src/SurroundingCityGeometry";
 
 const longRing = [[0, 0], [8, 0], [8, 8], [0, 8]];
@@ -28,12 +28,12 @@ test("only exact outer and courtyard wall vertices survive mixed index ownership
   for (const Index of [Uint16Array, Uint32Array]) {
     const inds = new Index([0,1,2,...faces.map(i => prefix + i)]);
     const seen: number[] = [];
-    for (const _ of markHighRiseWalls(words, inds, 3, faces.length, prefix, coords.length, nav, -1, v => seen.push(v))) {}
+    for (const _ of markMappedBuildingWalls(words, inds, 3, faces.length, prefix, coords.length, nav, -1, v => seen.push(v))) {}
     expect(seen).toEqual([0,1,3,4,5].map(i => prefix + i));
   }
 });
 
-test("an actual 22.56 m surveyed Berlin building has exactly its 24 exclusive wall vertices", () => {
+test("measured 22.56 m and 4.29 m buildings select their own exterior wall vertices", () => {
   const file = new URL("../public/mesh/surrounding-berlin-v159/-8_-4.drawn.json.gz", import.meta.url);
   const packet = JSON.parse(gunzipSync(readFileSync(file)).toString());
   const part = packet.meshes[0];
@@ -47,18 +47,49 @@ test("an actual 22.56 m surveyed Berlin building has exactly its 24 exclusive wa
   for (let i = 0; i < count; i++) words.set(positions.subarray(i*3, i*3 + 3), i*6);
   const seen: number[] = [];
   const collect = (v: number) => seen.push(v);
-  for (const _ of markHighRiseWalls(words, inds, 0, inds.length, 0, count, packet.nav, packet.origin[1], collect)) {}
+  for (const _ of markMappedBuildingWalls(words, inds, 0, inds.length, 0, count, {...packet.nav, buildings: qualifying}, packet.origin[1], collect)) {}
   expect(seen).toEqual(Array.from({length:24}, (_,i) => 2342 + i));
-  const low = { ...packet.nav, buildings: qualifying.map((b:object) => ({ ...b, height:21.99 })) };
-  expect(markHighRiseWalls(words, inds, 0, inds.length, 0, count, low, packet.origin[1], collect).next().done).toBe(true);
+  const lowRise = packet.nav.buildings.find((b: {sourceId: string}) => b.sourceId === "DEBE01YYK0003U83");
+  expect(lowRise.height).toBe(4.29);
+  seen.length = 0;
+  for (const _ of markMappedBuildingWalls(words, inds, 0, inds.length, 0, count,
+    {...packet.nav, buildings: [lowRise]}, packet.origin[1], collect)) {}
+  expect(seen).toEqual([963, 964, 966, 968, 970, 971, 972, 973, 974, 975, 976]);
+  const wrongHeight = { ...packet.nav, buildings: [{ ...lowRise, height: lowRise.height - 0.01 }] };
+  seen.length = 0;
+  for (const _ of markMappedBuildingWalls(words, inds, 0, inds.length, 0, count, wrongHeight, packet.origin[1], collect)) {}
+  expect(seen).toEqual([]);
 });
 
-test("the actual tile decoder attaches the one wall run to Drawn and keeps the paired Native tile separate", () => {
+test("the actual Drawn decoder marks both low and tall buildings and keeps Native separate", () => {
   for (const mode of ["drawn", "minecraft"] as const) {
     const file = new URL(`../public/mesh/surrounding-berlin-v159/-8_-4.${mode}.json.gz`, import.meta.url);
     const packet = JSON.parse(gunzipSync(readFileSync(file)).toString());
     const result = createSurroundingCityChunk(packet, "-8_-4", mode === "minecraft");
     const runs = result.root.children.flatMap(child => child.userData.architecturalRuns ?? []);
-    expect(runs).toEqual(mode === "drawn" ? [2342 * 8192 + (24 - 1) * 4] : []);
+    if (mode === "minecraft") {
+      expect(runs).toEqual([]);
+    } else {
+      expect(runs).toHaveLength(46);
+      expect(runs).toContain(961 * 8192 + (16 - 1) * 4);
+      expect(runs).toContain(2342 * 8192 + (24 - 1) * 4);
+      const count = runs.reduce((sum, code) => sum + ((code >>> 2) & 2047) + 1, 0);
+      expect(count).toBe(1017);
+    }
   }
+});
+
+test("the measured public-building packet in Reinickendorf exposes only its exclusive exterior wall vertices", () => {
+  const id = "publicInstitutions326--10_-16-p0";
+  const file = new URL(`../public/mesh/surrounding-berlin-v159/${id}.drawn.json.gz`, import.meta.url);
+  const packet = JSON.parse(gunzipSync(readFileSync(file)).toString());
+  const result = createSurroundingCityChunk(packet, id, false);
+  const codes: number[] = result.root.children.flatMap(child => child.userData.architecturalRuns ?? []);
+  const ranges = codes.map(code => {
+    const start = Math.floor(code / 8192);
+    const end = start + ((code >>> 2) & 2047) + 1;
+    return [start, end];
+  });
+  expect(ranges).toEqual([[49, 51], [112, 117], [138, 139], [140, 142],
+    [143, 144], [145, 148], [168, 169], [190, 192], [215, 217]]);
 });
