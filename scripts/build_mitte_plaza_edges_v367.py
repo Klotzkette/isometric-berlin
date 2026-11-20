@@ -41,7 +41,7 @@ PAVING = {
 }
 
 
-def build():
+def build(*, outer_districts=None, clip=None, output=None):
   ground = json.loads(GROUND.read_bytes())
   grid, cell = ground["grid"], ground["cell_m"]
   core = json.loads(CORE.read_bytes())["core"]
@@ -49,10 +49,17 @@ def build():
   districts = {
     f["properties"]["nam"]: to_world(shape(f["geometry"]))
     for f in json.loads(BOUNDARY.read_bytes())["features"]
-    if f["properties"]["sch"].startswith("11000001")
+    if (
+      f["properties"]["nam"] in outer_districts
+      if outer_districts is not None
+      else f["properties"]["sch"].startswith("11000001")
+    )
   }
-  assert len(districts) == 6
+  assert len(districts) == (len(outer_districts) if outer_districts is not None else 6)
   scope = scope.intersection(unary_union(list(districts.values())))
+
+  if clip is not None:
+    scope = scope.intersection(clip)
 
   roads = aboveground(pyogrio.read_dataframe(OSM, layer="roads"))
   # Only literal, at-grade pedestrian AREAS with a mapped hard surface qualify.
@@ -187,7 +194,7 @@ def build():
     "cells": sum(by_district.values()),
     "words": base64.b64encode(np.asarray(words, dtype="<u2").tobytes()).decode(),
   }
-  OUTPUT.write_text(json.dumps(data, separators=(",", ":")) + "\n")
+  (output or OUTPUT).write_text(json.dumps(data, separators=(",", ":")) + "\n")
   proof = {
     "sourceFiles": {
       str(f.relative_to(ROOT)): hashlib.sha256(f.read_bytes()).hexdigest()

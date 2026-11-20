@@ -4,6 +4,7 @@ import {attachMittePlazaEdgesV367, attachMitteSquareStreetsV367, MITTE_PLAZA_EDG
 import {createSmoothSurfaces, ISO_GROUND_SHADES, setIsoNightPresentation} from "../src/IsometricCityWorld";
 import {compilePedestrianWater, createPedestrianState, pedestrianPointIsWater, stepPedestrian} from "../src/pedestrianNavigation";
 import type {VoxelPayload} from "../src/terrainPayload";
+import innerCityEdges from "../src/data/innerCityPlazaEdgesV368.json";
 import source from "../src/data/mittePlazaEdgesV367.json";
 import raster from "../public/mesh/regierungsviertel/ground-context.json";
 
@@ -112,4 +113,64 @@ test("the flat Leopoldplatz fountain replaces the blue pool and spans its paved 
   attachMitteSquareStreetsV367(slabs, ground);
   for (const [x,z] of [[-749.4,-3091.2],[-758,-3099.9],[-746.97,-3152.46],[-754,-3154]])
     expect(new Raycaster(new Vector3(x, 20, z), new Vector3(0,-1,0)).intersectObject(slabs.children[0])).toHaveLength(1);
+});
+
+test("surveyed Wittenbergplatz has four distinct surface finishes; access, tracks and stairs remain open", () => {
+  const slabs = host();
+  attachMitteSquareStreetsV367(slabs, ground);
+  const surveyed = slabs.children[0] as Mesh;
+  const colors = surveyed.geometry.getAttribute("color");
+  const ray = (x: number, z: number) => new Raycaster(new Vector3(x, 80, z), new Vector3(0, -1, 0)).intersectObject(surveyed);
+  const samples = [[-2012.8,1892.82],[-2046.19,1884.72],[-2036.07,1905.13],[-2074.07,1950.29]];
+  const tones = samples.map(([x,z]) => {
+    const hits = ray(x,z);
+    expect(hits).toHaveLength(1);
+    const a = hits[0].face!.a;
+    return [colors.getX(a), colors.getY(a), colors.getZ(a)].join(",");
+  });
+  expect(new Set(tones).size).toBe(4);
+  // Neighbouring carriageway pixels in the 2026 orthophoto, on the red
+  // cycle crossing and immediately north of its painted edge.
+  const bike = ray(-1272.4, 2076.8), car = ray(-1272.4, 2073.2);
+  expect(bike).toHaveLength(1);
+  expect(car).toHaveLength(1);
+  expect(colors.getX(bike[0].face!.a)).toBeGreaterThan(colors.getX(car[0].face!.a));
+  // The plaza has light infill inside sett bands. Four mapped tree pits
+  // interrupt the paved court north of the cycle crossing.
+  const paintAt = (x: number, z: number) => {
+    const hits = ray(x,z);
+    expect(hits).toHaveLength(1);
+    const a = hits[0].face!.a;
+    return [colors.getX(a), colors.getY(a), colors.getZ(a)].join(",");
+  };
+  for (const [x,z] of [[-1263.261,2058.575],[-1279.079,2058.105]]) expect(paintAt(x,z)).toBe(tones[2]);
+  for (const [x,z] of [[-1261.79,2061.775],[-1276.203,2055.045],[-1267.668,2048.97],[-1286.956,2057.89]]) {
+    expect(paintAt(x,z)).toBe(tones[0]);
+  }
+  // Nollendorfplatz street-survey access .504 and track .804, George-Grosz-Platz steps .864.
+  for (const [x,z] of [[-1250.235,2116.325],[-1290.529,2108.565],[-3694.622,1840.055]]) {
+    expect(ray(x,z)).toHaveLength(0);
+  }
+});
+
+test("the inner-city subcell fragments retain their exact height and footprint", () => {
+  const data = Buffer.from(innerCityEdges.words, "base64");
+  const row = data.readUInt16LE(0), col = data.readUInt16LE(2), kind = data.readUInt16LE(4);
+  const x = (col + ground.grid.min_x_idx) * 4, z = (row + ground.grid.min_z_idx) * 4;
+  const slabs = host();
+  slabs.setMatrixAt(0, new Matrix4().makeScale(4, 3, 4).setPosition(x+2, 2.5, z+2));
+  slabs.setColorAt(0, new Color(ISO_GROUND_SHADES[ground.classes[kind]][0]));
+  // The first cell straddles the borough boundary. It has two disjoint
+  // fragments from the two releases, sharing the same ground host.
+  expect(attach(slabs)).toBe(2);
+  const fragment = slabs.children[0] as Mesh;
+  expect(fragment.userData.correctedMitteCells).toBe(1);
+  expect(fragment.userData.correctedInnerCityCellsV368).toBe(1);
+  const u = [8,12,16].map(offset => data.readUInt16LE(offset) / innerCityEdges.subunits);
+  const v = [10,14,18].map(offset => data.readUInt16LE(offset) / innerCityEdges.subunits);
+  const ray = (x: number, z: number) => new Raycaster(new Vector3(x, 80, z), new Vector3(0, -1, 0)).intersectObject(fragment);
+  const center = ray(x + (u[0]+u[1]+u[2])/3, z + (v[0]+v[1]+v[2])/3);
+  expect(center).toHaveLength(1);
+  expect(center[0].point.y).toBe(4);
+  expect(ray(x+4.1,z+2)).toHaveLength(0);
 });

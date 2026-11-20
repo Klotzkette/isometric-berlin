@@ -44,29 +44,47 @@ function byteView(values: ArrayBufferView, length = values.byteLength) {
   return Buffer.from(values.buffer, values.byteOffset, length);
 }
 
-test("the finite lazy catalogue admits every physical park path packet", async () => {
+test("the finite lazy catalogue indexes all 53 physical park path packets", () => {
   expect(index.sources).toEqual([{ file: "parkPathsV329Packets.json", keys: source.keys }]);
   expect(source.keys.length).toBe(53);
-  for (const key of source.keys) {
-    const [mode, id] = key.split(":"), native = mode === "minecraft";
-    const raw = loadRaw(id, native), loaded = await catalogue(id, native);
-    const entry = loaded.find(item => item.kind === kind);
-    expect(entry).toBeDefined();
-    expect(source.packets[key].retire).toEqual([]);
-    const current = drain(buildSurroundingCityChunk(raw, id, native, false, {
-      ...flags,
-      sourceQuarterSourcesV303: loaded.filter(item => !item.kind.endsWith("-v329") || item.kind === kind),
-    }));
-    try {
-      expect(current.root.userData.sourceKinds).toContain(kind);
-      expect(current.geometryBytes).toBeLessThan(24 * 1024 * 1024);
-      const ground = current.root.children[0] as Mesh;
-      expect(ground.geometry.groups).toHaveLength(2);
-      expect(ground.geometry.groups[1].count).toBe(Buffer.from(source.packets[key].append.indices, "base64").byteLength / 4);
-      expect((ground.material as Material[])[1].polygonOffset).toBe(true);
-    } finally {
-      disposeSurroundingCityRoot(current.root);
+});
+
+test.each(source.keys)("the physical park path packet renders in %s", async key => {
+  const [mode, id] = key.split(":"), native = mode === "minecraft";
+  const raw = loadRaw(id, native), loaded = await catalogue(id, native);
+  const entry = loaded.find(item => item.kind === kind);
+  expect(entry).toBeDefined();
+  expect(source.packets[key].retire).toEqual([]);
+  const current = drain(buildSurroundingCityChunk(raw, id, native, false, {
+    ...flags,
+    sourceQuarterSourcesV303: loaded.filter(item => !item.kind.endsWith("-v329") || item.kind === kind),
+  }));
+  try {
+    expect(current.root.userData.sourceKinds).toContain(kind);
+    expect(current.geometryBytes).toBeLessThan(24 * 1024 * 1024);
+    const ground = current.root.children[0] as Mesh;
+    expect(ground.geometry.groups).toHaveLength(2);
+    // Additional road finishes can share this group. Verify every path vertex
+    // and triangle against the survey at its actual offset in the combined buffer.
+    const path = source.packets[key].append;
+    const group = ground.geometry.groups[1];
+    const indices = Buffer.from(path.indices, "base64");
+    const positions = Buffer.from(path.positions, "base64");
+    const rendered = ground.geometry.index!.array;
+    const base = rendered[group.start] - indices.readUInt32LE(0);
+    const vertices = (ground.geometry.getAttribute("position") as InterleavedBufferAttribute).data;
+    const actualVertices = Buffer.alloc(positions.length);
+    for (let v = 0; v < positions.length / 6; v++) {
+      const start = (base + v) * vertices.stride;
+      for (let axis = 0; axis < 3; axis++) actualVertices.writeUInt16LE(vertices.array[start + axis], v * 6 + axis * 2);
     }
+    expect(actualVertices.equals(positions)).toBe(true);
+    expect(group.count).toBeGreaterThanOrEqual(indices.length / 4);
+    const expected = Array.from({ length: indices.length / 4 }, (_, i) => base + indices.readUInt32LE(i * 4));
+    expect(Array.from(rendered.subarray(group.start, group.start + expected.length))).toEqual(expected);
+    expect((ground.material as Material[])[1].polygonOffset).toBe(true);
+  } finally {
+    disposeSurroundingCityRoot(current.root);
   }
 }, 60_000);
 
@@ -83,15 +101,29 @@ for (const key of ["drawn:ring182-6_7", "minecraft:ring182-5_7", "drawn:-12_2", 
     }));
     try {
       expect(before.root.userData.sourceKinds).not.toContain(kind);
-      expect(after.root.userData.sourceKinds).toEqual([...before.root.userData.sourceKinds, kind]);
+      expect(after.root.userData.sourceKinds).toContain(kind);
+      expect(after.root.userData.sourceKinds.filter((entry: string) => entry !== kind))
+        .toEqual(before.root.userData.sourceKinds);
       expect(after.nav).toEqual(before.nav);
       const old = (before.root.children[0] as Mesh).geometry;
       const current = (after.root.children[0] as Mesh).geometry;
       const a = (old.getAttribute("position") as InterleavedBufferAttribute).data.array;
       const b = (current.getAttribute("position") as InterleavedBufferAttribute).data.array;
-      expect(byteView(a)).toEqual(byteView(b, a.byteLength));
-      expect(Array.from(current.index!.array.subarray(0, old.index!.count))).toEqual(Array.from(old.index!.array));
-      expect(current.groups[0]).toEqual({ start: 0, count: old.index!.count, materialIndex: 0 });
+      // Park paths precede the independently attached street finishes. Removing
+      // precisely their insertion must restore every old vertex and triangle.
+      const path = source.packets[key].append;
+      const pathCount = Buffer.from(path.positions, "base64").length / 6;
+      const pathIndex = Buffer.from(path.indices, "base64");
+      const start = current.groups[1].start;
+      const offset = current.index!.array[start] - pathIndex.readUInt32LE(0);
+      const stride = (old.getAttribute("position") as InterleavedBufferAttribute).data.stride;
+      expect(byteView(b.subarray(0, offset * stride))).toEqual(byteView(a.subarray(0, offset * stride)));
+      expect(byteView(b.subarray((offset + pathCount) * stride))).toEqual(byteView(a.subarray(offset * stride)));
+      const rendered = current.index!.array;
+      expect(Array.from(rendered.subarray(0, start))).toEqual(Array.from(old.index!.array.subarray(0, start)));
+      expect(Array.from(rendered.subarray(start + pathIndex.length / 4), value => value - pathCount))
+        .toEqual(Array.from(old.index!.array.subarray(start)));
+      expect(current.groups[0]).toEqual({ start: 0, count: start, materialIndex: 0 });
       if (!native && before.root.children[1] && after.root.children[1]) {
         const oldInk = ((before.root.children[1] as Mesh).geometry.getAttribute("position") as InterleavedBufferAttribute).data.array;
         const newInk = ((after.root.children[1] as Mesh).geometry.getAttribute("position") as InterleavedBufferAttribute).data.array;
@@ -144,4 +176,17 @@ test("foreign and altered source never prepare park paths", () => {
   const color = raw.meshes[0].colors;
   raw.meshes[0].colors = (color[0] === "A" ? "B" : "A") + color.slice(1);
   expect(drain(captureNeighbourhoodPacketV300(raw, id, false, true, source, kind))).toBeUndefined();
+});
+
+test("park paths reconcile only the surveyed sports append for the matching host", () => {
+  const id = "outer187--7_15";
+  const raw = loadRaw(id, false);
+  const capture = () => drain(captureNeighbourhoodPacketV300(raw, id, false, true, source, kind));
+  expect(capture()).toBeFunction();
+  const sports = raw.meshes.pop()!;
+  expect(capture()).toBeFunction();
+  raw.meshes.push({ ...sports, colors: (sports.colors[0] === "A" ? "B" : "A") + sports.colors.slice(1) });
+  expect(capture()).toBeUndefined();
+  raw.meshes.push(sports);
+  expect(capture()).toBeUndefined();
 });

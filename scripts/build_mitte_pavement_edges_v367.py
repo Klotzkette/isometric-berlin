@@ -23,7 +23,7 @@ DISTRICTS = ROOT / "geo_data/regierungsviertel/house-districts-v233.geojson"
 OUTPUT = DATA / "mittePavementEdgesV367.json"
 
 
-def build():
+def build(*, outer_districts=None, clip=None):
   ground = json.loads(GROUND.read_bytes())
   cell, grid = ground["cell_m"], ground["grid"]
   raster = np.full((grid["rows"], grid["cols"]), -1, dtype=np.int8)
@@ -36,9 +36,15 @@ def build():
       shape(f["geometry"]), [1, 0, 0, -1, -389500, 5820000]
     )
     for f in json.loads(DISTRICTS.read_bytes())["features"]
-    if f["properties"]["sch"][6:8] == "01"
+    if (
+      f["properties"]["nam"] in outer_districts
+      if outer_districts is not None
+      else f["properties"]["sch"][6:8] == "01"
+    )
   }
   district = shapely.union_all(list(districts.values()))
+  if clip is not None:
+    district = district.intersection(clip)
   shapely.prepare(district)
   grass, plaza = (ground["classes"].index(kind) for kind in ("grass", "plazaBrick"))
   codes, envelopes, midpoints = [], [], []

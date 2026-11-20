@@ -1,3 +1,4 @@
+import { surveyedPavingPart } from "./surveyedPavingV368";
 import { markKoepenickCourtWalls } from "./civicArchitecturalFinish";
 import { PackedArchitecturalFinish } from "./packedArchitecturalFinish";
 import { markMappedBuildingWalls } from "./highRiseWallFinish";
@@ -54,6 +55,7 @@ import { applyOuterMaterialsV263 } from "./outerMaterialsV263";
 import { applyGreyClusterColoursV263 } from "./greyClusterColoursV263";
 import { prepareRoofHouseV233, applyRoofHouseV233Triangles, applyRoofHouseV233Lines } from "./roofHouseV233";
 import { prepareHouseDoorsV233 } from "./houseDoorsV233";
+import { crossingPavingPart } from "./crossingPavingV368";
 import { crossingKerbPart } from "./cityKerbCrossingsV365";
 import { prepareHouseCurbsV233 } from "./houseCurbsV233";
 import { prepareBoulevardArchitectureV235 } from "./boulevardArchitectureV235";
@@ -412,7 +414,9 @@ export function* buildCityChunkWithPaletteV362(
   }
   // Earlier owners can add real curved street margins to navigation. Check the
   // surveyed fit against its source roads before those independent additions.
+  const crossingPaving = minecraft ? undefined : yield* crossingPavingPart(chunk, sources.crossingPaving);
   const kerbPart = crossingKerbPart(chunk, sources.crossingKerbs);
+  const surveyedPaving = minecraft ? undefined : yield* surveyedPavingPart(chunk, sources.surveyedPaving, ownership.southWestSitesV326);
   const allotmentPlan = id === "3_-3" || id === "4_-3" ? undefined :
     yield* admitAllotmentDetailsV360(chunk, ownership.allotmentDetailsV360);
   let gardenTerrainV330: DataView | undefined;
@@ -470,8 +474,10 @@ export function* buildCityChunkWithPaletteV362(
   // The authenticated kerb cap is internal vertex/index tail data, even when
   // all sixteen source slots are occupied. It shares the existing allocation,
   // draw call and byte/vertex/index limits of the assembled street mesh.
-  const meshParts = kerbPart ? [...sourceParts, kerbPart] : sourceParts;
-  const hasTail = !!(allotmentPart || kerbPart);
+  const kerbParts = kerbPart ? [...sourceParts, kerbPart] : sourceParts;
+  const roadParts = crossingPaving ? [...kerbParts, crossingPaving] : kerbParts;
+  const meshParts = surveyedPaving ? [...roadParts, surveyedPaving] : roadParts;
+  const hasTail = !!(allotmentPart || kerbPart || crossingPaving || surveyedPaving);
   const root = new Group();
   root.name = `Surrounding Berlin outline ${id}${minecraft ? " native Minecraft" : ""}`;
   root.position.fromArray(chunk.origin);

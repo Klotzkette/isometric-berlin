@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.249
+
+- Fit walkways, squares and planted strips to mapped surfaces inside and just outside the Ringbahn, in Steglitz and Wannsee, around Tempelhofer Feld, along the northern Schönhauser Allee corridor and around the western exhibition grounds and stadium.
+- Restore continuous asphalt at 3,071 mapped unmarked crossings and surveyed park paths in Hasenheide, Stadtpark Steglitz and Volkspark Prenzlauer Berg.
+
 ## 1.0.248
 
 - Fit the Nikolaikirchplatz, its alleys, planted beds and benches to Berlin’s street survey and orthophoto. Place the Wappenbrunnen in its surveyed basin and refine the west portal of the Nikolaikirche.

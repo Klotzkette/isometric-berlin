@@ -1,3 +1,4 @@
+import { expectPackedInsertion } from "./helpers/packedInsertion";
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
@@ -54,18 +55,20 @@ for (const mode of ["drawn", "minecraft"]) {
     });
     try {
       expect(baseline.root.userData.sourceKinds).toContain("network-fidelity-v326");
-      expect(improved.root.userData.sourceKinds).toEqual([...baseline.root.userData.sourceKinds, kind]);
-      expect(complete.root.userData.sourceKinds).toEqual([...improved.root.userData.sourceKinds, "cluster-facades-v320"]);
+      expect(improved.root.userData.sourceKinds).toContain(kind);
+      expect(improved.root.userData.sourceKinds.filter((item: string) => item !== kind)).toEqual(baseline.root.userData.sourceKinds);
+      expect(complete.root.userData.sourceKinds).toContain("cluster-facades-v320");
+      expect(complete.root.userData.sourceKinds.filter((item: string) => item !== "cluster-facades-v320")).toEqual(improved.root.userData.sourceKinds);
       expect(improved.nav).toEqual(baseline.nav);
       expect(complete.nav).toEqual(baseline.nav);
       expect(improved.bufferCount).toBe(baseline.bufferCount);
       expect(improved.geometryBytes - baseline.geometryBytes).toBeGreaterThan(0);
       expect(improved.geometryBytes - baseline.geometryBytes).toBeLessThan(256 * 1024);
       const a = baseline.root.children[0] as Mesh, b = improved.root.children[0] as Mesh;
-      const oldVertices = stream(a, "position"), nextVertices = stream(b, "position");
-      expect(bytes(nextVertices, oldVertices.byteLength)).toEqual(bytes(oldVertices));
+      const nextVertices = stream(b, "position");
+      expectPackedInsertion(a, b, plan.append);
       const oldIndices = a.geometry.index!.array, nextIndices = b.geometry.index!.array;
-      expect(Array.from(nextIndices.subarray(0, oldIndices.length))).toEqual(Array.from(oldIndices));
+
       if (!native) expect(bytes(stream(improved.root.children[1] as Mesh, "position"))).toEqual(bytes(stream(baseline.root.children[1] as Mesh, "position")));
       if (native) for (let i = oldIndices.length; i < nextIndices.length; i += 3) {
         const [a, b, c] = [nextIndices[i] * 6, nextIndices[i + 1] * 6, nextIndices[i + 2] * 6];

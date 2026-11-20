@@ -110,6 +110,10 @@ const MOABIT_VIEWS_V358: Record<string, (typeof GARDEN_VIEWS_V330)[string] & { f
 const MITTE_PAVING_VIEWS: typeof MOABIT_VIEWS_V358 = {
   "Nikolaikirchplatz": { position: [2368, 58, 337], target: [2415, 11, 291], fov: 58 },
   "Leopoldplatz": { position: [-725, 74, -3072], target: [-757, 5, -3110], fov: 55 },
+  "Friedrich-Hollaender-Platz": { position: [-2760, 65, 2088], target: [-2785, 5, 2020], fov: 52 },
+  "Nördlicher Uferweg Pfaueninsel": { position: [-17010, 62, 9037], target: [-17043, 8, 8999], fov: 50 },
+  "Inselstraße Schwanenwerder": { position: [-13854, 62, 7669], target: [-13885, 7, 7626], fov: 50 },
+  "Osttor Olympiastadion": { position: [-8641, 103, 322], target: [-8707, 34, 267], fov: 49 },
 };
 
 // Extra place links use the same focus control without adding tour stops.

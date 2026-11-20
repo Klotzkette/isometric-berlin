@@ -1,4 +1,5 @@
 import { isLeopoldplatzFountainPad } from "./leopoldplatzFountainV367";
+import pavementEdgesV368 from "./data/innerCityPavementEdgesV368.json";
 import pavementEdgesV367 from "./data/mittePavementEdgesV367.json";
 import { tiergartenPathSourceGuardV345 } from "./tiergartenPathSourceGuardV345";
 import { zilleEstateRoofV366 } from "./ZilleEstateRoofV366";
@@ -13537,7 +13538,7 @@ export function* createIsometricCityCoreStepsV309(
       ground,
       surfaces ? new Set(["asphalt", "water", "basin"]) : undefined,
       (x, z) => pointInBrandenburgApproach(x, z) || pointInHbfNorthRailCut(x, z) || Boolean(insideTunnelApproach?.(x, z)),
-      verifiedPavement ? new Set(pavementEdgesV367.edges) : undefined,
+      verifiedPavement ? new Set([...pavementEdgesV367.edges, ...pavementEdgesV368.edges]) : undefined,
     );
     if (kerbs) {
       group.add(kerbs);

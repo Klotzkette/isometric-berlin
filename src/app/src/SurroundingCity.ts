@@ -33,6 +33,8 @@ import { annotatePlaygroundPacketV255 } from "./playgroundsV255";
 import { littenStadthausPacketCandidateV297 } from "./LittenStadthausV297Packets";
 import { wallGalleryHillContainsV298 } from "./wallGalleryV298Profile";
 import southFidelityReceiptsV294 from "./data/southFidelityV294Packets.json";
+import surveyedIslandOwners from "./data/surveyedIslandOwnersV368.json";
+const surveyedIslandTilesV368: ReadonlySet<string> = new Set(surveyedIslandOwners);
 const SOUTH_RECEIPT_TILES_V294:ReadonlySet<string> = new Set(southFidelityReceiptsV294.keys);
 const MAUERPARK_TILES_V298:ReadonlySet<string>=new Set(["3_-6","3_-5","4_-6","4_-5"]);
 const mauerparkTileV298=(id:string)=>MAUERPARK_TILES_V298.has(id);
@@ -672,7 +674,10 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           const wilhelmCandidateV324=sourceQuarterSourcesV303?.some(entry=>entry.admission==="wilhelm-v324")===true;
           const wilhelmReadyV324=wilhelmCandidateV324&&options.wilhelmHousingV324?.(minecraft)===true;
           const wilhelmChangedV324=()=>wilhelmCandidateV324&&wilhelmReadyV324!==(options.wilhelmHousingV324?.(minecraft)===true);
-          const southwestCandidateV326=sourceQuarterSourcesV303?.some(e=>e.admission==="southwest-sites-v326")===true;
+          // The old replacement catalogue covers only island tiles with
+          // buildings. The full island path network also owns four path-only tiles.
+          const southwestCandidateV326 = (!minecraft && surveyedIslandTilesV368.has(descriptor.id)) ||
+            sourceQuarterSourcesV303?.some(e => e.admission === "southwest-sites-v326") === true;
           const southwestReadyV326=southwestCandidateV326&&options.southWestSitesV326?.(minecraft)===true;
           const southwestChangedV326=()=>southwestCandidateV326&&southwestReadyV326!==(options.southWestSitesV326?.(minecraft)===true);
           const wilhelmStreetCandidateV325=sourceQuarterSourcesV303?.some(entry=>entry.admission==="wilhelm-street-v325")===true;

@@ -110,7 +110,8 @@ test("the full Kreuzberg packet keeps its sixteen older source parts and the aut
     expect(kinds).toContain("ost-housing-v301");
     expect(kinds).toContain("venue-fronts-v357");
     expect(kinds).toContain("crossing-kerb-stones-v365");
-    expect(kinds).toHaveLength(17);
+    expect(kinds).toContain("unmarked-crossings-v368");
+    expect(kinds.filter((kind: string) => kind !== "unmarked-crossings-v368" && kind !== "surveyed-paving-v368")).toHaveLength(17);
   } finally {
     disposeSurroundingCityRoot(entry.root);
   }

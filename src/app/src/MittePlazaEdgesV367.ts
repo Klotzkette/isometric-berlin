@@ -3,6 +3,8 @@ import {
   type MeshStandardMaterial,
 } from "three";
 import source from "./data/mittePlazaEdgesV367.json";
+import extraEdges from "./data/innerCityPlazaEdgesV368.json";
+import extraStreets from "./data/innerCitySquareStreetsV368.json";
 import streets from "./data/mitteSquareStreetsV367.json";
 import { markGroundFinishV348 } from "./GroundFinishV348";
 import type { VoxelPayload } from "./terrainPayload";
@@ -23,28 +25,35 @@ export function* attachMittePlazaEdgesV367(
       ground.grid.rows !== grid.rows || ground.classes[classIds.grass] !== "grass" ||
       ground.classes[classIds.plazaBrick] !== "plazaBrick") return 0;
 
-  const raw = atob(source.words);
-  const words = new Uint16Array(raw.length / 2);
-  for (let i = 0; i < words.length; i++) words[i] = raw.charCodeAt(2*i) | raw.charCodeAt(2*i+1) << 8;
+  const mitte = atob(source.words), outer = atob(extraEdges.words);
+  const mitteWords = mitte.length / 2;
+  const words = new Uint16Array(mitteWords + outer.length / 2);
+  let word = 0;
+  for (const data of [mitte, outer]) {
+    for (let i = 0; i < data.length; i += 2) words[word++] = data.charCodeAt(i) | data.charCodeAt(i+1) << 8;
+  }
   const rows: number[][] = [];
   for (let at = 0; at < words.length; at += 4 + 6 * words[at + 3]) {
     (rows[words[at]] ??= []).push(at);
   }
+  for (const records of rows) records?.sort((a, b) => words[a + 1] - words[b + 1]);
+  const maxVertices = source.maxVertices + extraEdges.maxVertices;
+  const triangles = source.triangles + extraEdges.triangles;
   const palettes = new Map([
     [classIds.grass, shades.grass.map(hex => new Color(hex))],
     [classIds.plazaBrick, shades.plazaBrick.map(hex => new Color(hex))],
   ]);
-  const positions = new Float32Array(source.maxVertices * 3);
+  const positions = new Float32Array(maxVertices * 3);
   // The half-ULP quantisation error is below the ground-finish selector's
   // 0.000008 tolerance, including the sage and stone source swatches.
-  const colours = new Uint16Array(source.maxVertices * 3);
-  const indices = source.maxVertices <= 65535
-    ? new Uint16Array(source.triangles * 3) : new Uint32Array(source.triangles * 3);
+  const colours = new Uint16Array(maxVertices * 3);
+  const indices = maxVertices <= 65535
+    ? new Uint16Array(triangles * 3) : new Uint32Array(triangles * 3);
   let vertexCount = 0, indexCount = 0;
   const localKeys: number[] = [];
   const matrices = slabs.instanceMatrix.array;
   const hostColour = new Color();
-  let admitted = 0;
+  let admitted = 0, outerAdmitted = 0;
   for (let i = 0; i < slabs.count; i++) {
     if (i && i % 16384 === 0) yield;
     const m = i * 16;
@@ -97,6 +106,7 @@ export function* attachMittePlazaEdgesV367(
         indices[indexCount++] = base + index;
       }
       admitted++;
+      if (record >= mitteWords) outerAdmitted++;
     }
   }
   if (!admitted) return 0;
@@ -121,7 +131,8 @@ export function* attachMittePlazaEdgesV367(
   mesh.name = MITTE_PLAZA_EDGES_V367;
   mesh.userData.dayMaterial = day;
   mesh.userData.nightMaterial = night;
-  mesh.userData.correctedMitteCells = admitted;
+  mesh.userData.correctedMitteCells = admitted - outerAdmitted;
+  mesh.userData.correctedInnerCityCellsV368 = outerAdmitted;
   markGroundFinishV348(mesh, "core-drawn");
   slabs.add(mesh);
   applied.add(slabs);
@@ -144,22 +155,29 @@ export function attachMitteSquareStreetsV367(slabs: InstancedMesh, ground: Voxel
     cycle: new Color(0xd4a79f), joint: new Color(0xb9b7ad), nozzle: new Color(0x777b77),
     fountainStone: new Color(0xd4d2c8), setts: new Color(0xb9b8af), grass: new Color(0xb9d9aa), gravel: new Color(0xc9bfa9),
   };
-  const nVertices = streets.groups.reduce((n, part) => n + atob(part.xz).length / 8, 0);
-  const nIndices = streets.groups.reduce((n, part) => n + atob(part.index).length / 2, 0);
+  const groups: Array<{role: string; dm: number; xz: string; index: string; origin?: number[]}> =
+    [...streets.groups, ...extraStreets.groups];
+  const byteLength = (base64: string) =>
+    base64.length / 4 * 3 - (base64.endsWith("==") ? 2 : base64.endsWith("=") ? 1 : 0);
+  const nVertices = groups.reduce((n, part) => n + byteLength(part.xz) / (part.origin ? 4 : 8), 0);
+  const nIndices = groups.reduce((n, part) => n + byteLength(part.index) / 2, 0);
   const positions = new Float32Array(nVertices * 3), colors = new Uint16Array(nVertices * 3);
   const normals = new Int8Array(nVertices * 3);
   const indices = nVertices <= 65535 ? new Uint16Array(nIndices) : new Uint32Array(nIndices);
   let vertex = 0, index = 0;
-  for (const part of streets.groups) {
+  for (const part of groups) {
     const bytes = (s: string) => Uint8Array.from(atob(s), c => c.charCodeAt(0)).buffer;
-    const xz = new Int32Array(bytes(part.xz)), local = new Uint16Array(bytes(part.index));
+    const packed = bytes(part.xz);
+    const xz = part.origin ? new Int16Array(packed) : new Int32Array(packed);
+    const local = new Uint16Array(bytes(part.index));
+    const ox = part.origin?.[0] ?? 0, oz = part.origin?.[1] ?? 0;
     const base = vertex, colour = tones[part.role];
     // Above the initial 4m ground and below the authored paths, kerbs, road
     // markings and street furniture. Every admitted plateau is truly level.
     const height = part.dm / 10 + (part.role === "cycle" ? .155 : .085);
     for (let j = 0; j < xz.length; j+=2) {
       const off = vertex++ * 3;
-      positions[off] = xz[j] / 100; positions[off+1] = height; positions[off+2] = xz[j+1] / 100;
+      positions[off] = (xz[j]+ox) / 100; positions[off+1] = height; positions[off+2] = (xz[j+1]+oz) / 100;
       colors[off] = Math.round(colour.r * 65535); colors[off+1] = Math.round(colour.g * 65535); colors[off+2] = Math.round(colour.b * 65535);
       normals[off+1] = 127;
     }

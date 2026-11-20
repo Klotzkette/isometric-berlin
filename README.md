@@ -43,7 +43,7 @@ Raumaufteilungen und Innenmaße sind [architektonische Modellnäherungen](docs/r
 Im [Nikolaiviertel](docs/nikolaiviertel-v353.md) prägen Feldstein, Backstein,
 gotische Fenster und grüne Kupferhelme die Nikolaikirche.
 Am [Nikolaikirchplatz](docs/nikolaikirchplatz-v367.md) führen Natursteinbänder durch die Gassen zum Wappenbrunnen und zum Westportal.
-Auch [Wege und Platzkanten in Mitte](docs/mitte-wege-v367.md) folgen dem kartierten Verlauf.
+Die Platzkanten folgen der Berliner Straßenbefahrung, vom Leopoldplatz bis zum Friedrich-Hollaender-Platz. [Mitte](docs/mitte-wege-v367.md) · [Ringbahngebiet und Außenlagen](docs/wege-am-ring-v368.md)
 
 - **Frei bewegen:** die Ansicht drehen und zoomen, zu Fuß durch Berlin gehen
   oder über die Dächer schweben. Maus, Tastatur und Touch werden unterstützt.
@@ -179,7 +179,7 @@ and interior dimensions are [architectural display estimates](docs/reichstag-sec
 In the [Nikolaiviertel](docs/nikolaiviertel-v353.md), fieldstone, brick, Gothic
 windows and green copper spires define the Nikolaikirche. Natural-stone paving
 leads from the alleys onto the [Nikolaikirchplatz](docs/nikolaikirchplatz-v367.md),
-past the Wappenbrunnen to the church’s west portal.
+past the Wappenbrunnen to the church’s west portal. The street survey also defines the edges of squares from Leopoldplatz to Friedrich-Hollaender-Platz. [Coverage around the Ringbahn and in the outer districts](docs/wege-am-ring-v368.md)
 [50 selected building groups](docs/cluster-facades-v320.md) include local facade
 proportions, window frames and reveals, sills, plinths and eave details.
 [University campuses](docs/universities-v322.md),
@@ -321,8 +321,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.248** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.248/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.249** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.249/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

@@ -23,6 +23,29 @@ def encoded(values, dtype):
   return base64.b64encode(np.asarray(values, dtype=dtype).tobytes()).decode()
 
 
+def street_group(role, dm, surface, origin=None):
+  vertices = []
+  indices = []
+  lookup = {}
+  ox, oz = origin if origin is not None else (0, 0)
+  for tri in shapely.constrained_delaunay_triangles(surface).geoms:
+    points = list(shapely.orient_polygons(tri, exterior_cw=True).exterior.coords)[:3]
+    for x, z in points:
+      k = round(x * 100) - ox, round(z * 100) - oz
+      if k not in lookup:
+        lookup[k] = len(vertices)
+        vertices.append(k)
+      indices.append(lookup[k])
+  assert len(vertices) < 65536
+  group = {"role": role, "dm": dm}
+  if origin is not None:
+    assert all(-32768 <= n < 32768 for p in vertices for n in p)
+    group["origin"] = origin
+  group["xz"] = encoded(vertices, "<i2" if origin is not None else "<i4")
+  group["index"] = encoded(indices, "<u2")
+  return group, len(indices) // 3
+
+
 def leopold_junction():
   # Traced from Berlin TrueDOP 2026, 700x700, ETRS89 / UTM33N
   # bbox 388675,5823025,388815,5823165. Only the street interior is used:
@@ -130,8 +153,9 @@ def fountain_tiles(field):
   }
 
 
-def build(capture=None):
-  archive = GEO / "mitte-plaza-streets-v367.json.gz"
+def build(capture=None, *, archive=None, output=None):
+  output = output or OUTPUT
+  archive = archive or GEO / "mitte-plaza-streets-v367.json.gz"
   survey = json.loads(gzip.decompress(archive.read_bytes()))
   g = json.loads(GROUND.read_bytes())
   h = g["ground_height"]
@@ -160,7 +184,7 @@ def build(capture=None):
       if not all(float(v).is_integer() for v in (row, col, n)):
         continue
       existing[int(row), int(col) : int(col + n)] = m[13] + m[5] / 2
-  permitted_ids = survey["placeIds"]
+  permitted_ids = survey.get("placeIds", [])
   roads = pyogrio.read_dataframe(OSM, layer="roads")
   sites = roads[
     roads.id.astype(str).isin(permitted_ids)
@@ -172,6 +196,14 @@ def build(capture=None):
       for row in sites.itertuples()
     ]
   )
+  windows = survey.get("siteWindows", {})
+  if windows:
+    place_domain = unary_union(
+      [
+        to_world(box(x - radius, y - radius, x + radius, y + radius))
+        for x, y, radius in windows.values()
+      ]
+    )
   core = json.loads(CORE.read_bytes())["core"]
   domain = place_domain.intersection(Polygon(core["ring"], core["holes"]))
   originals = json.loads(
@@ -179,19 +211,31 @@ def build(capture=None):
   )
   protected = []
   field = None
-  leopold = to_world(sites[sites.id.astype(str) == "53163725"].iloc[0].geometry)
+  leopold = None
+  if not windows:
+    leopold = to_world(sites[sites.id.astype(str) == "53163725"].iloc[0].geometry)
   for w in originals["water"]:
     p = Polygon(
       np.asarray(w["ring"]) / 10, [np.asarray(h) / 10 for h in w.get("holes", [])]
     )
-    if w.get("name") == "Fontänenfeld" and leopold.buffer(1).covers(p):
+    if (
+      leopold is not None
+      and w.get("name") == "Fontänenfeld"
+      and leopold.buffer(1).covers(p)
+    ):
       field = p
       continue
     if p.intersects(domain):
       protected.append(shapely.make_valid(p))
-  assert field is not None
-  fountain_apron = field.buffer(8).intersection(Polygon(leopold.exterior))
-  crossing, bike_lane = leopold_junction()
+  if leopold is not None:
+    assert field is not None
+    fountain_apron = field.buffer(8).intersection(Polygon(leopold.exterior))
+    crossing, bike_lane = leopold_junction()
+  else:
+    field = fountain_apron = crossing = Polygon()
+    bike_lane = unary_union(
+      [to_world(shape(p)) for p in survey.get("cyclePaint", {}).get("areas", [])]
+    ).intersection(domain)
   layers = defaultdict(list)
   for f in survey["features"]:
     p = to_world(shape(f["geom"]))
@@ -278,7 +322,8 @@ def build(capture=None):
     coverage[key] = coverage[key].difference(bike_lane).difference(field)
   coverage["cycle"] = bike_lane
   coverage["paving"] = coverage["paving"].union(fountain_apron.difference(field))
-  coverage.update(fountain_tiles(field))
+  if not field.is_empty:
+    coverage.update(fountain_tiles(field))
   total = unary_union(list(coverage.values()))
   polys = [p for p in shapely.get_parts(total) if p.area > 0]
   candidate = set()
@@ -296,7 +341,9 @@ def build(capture=None):
     cls = classes[raw[row, col]] if raw[row, col] >= 0 else ""
     x, z = (col + mx) * cell, (row + mz) * cell
     tile = box(x, z, x + cell, z + cell)
-    surveyed_tile = fountain_apron.intersects(tile) or bike_lane.intersects(tile)
+    surveyed_tile = not windows and (
+      fountain_apron.intersects(tile) or bike_lane.intersects(tile)
+    )
     if cls not in ["asphalt", "grass", "plazaBrick"] and not surveyed_tile:
       continue
     if not total.intersects(tile):
@@ -331,44 +378,61 @@ def build(capture=None):
   groups = []
   count = 0
   areas = {}
+  panels = [
+    (to_world(box(x - r, y - r, x + r, y + r)), to_world(Point(x, y)))
+    for x, y, r in windows.values()
+  ]
   for dm, tiles in sorted(flat.items()):
     support = shapely.coverage_union_all(tiles)
-    for role, geometry in coverage.items():
-      final = shapely.set_precision(geometry.intersection(support), 0.01)
+    parts = {
+      role: shapely.set_precision(geometry.intersection(support), 0.01)
+      for role, geometry in coverage.items()
+    }
+    if windows:
+      # Node once after centimetre snapping. Independent snapping on an
+      # oblique kerb can leave coplanar slivers between neighbouring materials.
+      edges = shapely.union_all(
+        [
+          p.boundary
+          for part in parts.values()
+          for p in shapely.get_parts(part)
+          if p.area
+        ],
+        grid_size=0.01,
+      )
+      faces = shapely.get_parts(shapely.polygonize(shapely.get_parts(edges)))
+      samples = shapely.point_on_surface(faces)
+      for role, part in parts.items():
+        inside = shapely.covers(part, samples)
+        # Remove strictly collinear vertices left by the 4 m terrain support.
+        parts[role] = shapely.simplify(shapely.coverage_union_all(faces[inside]), 0)
+        faces, samples = faces[~inside], samples[~inside]
+    for role, final in parts.items():
       if final.area < 0.002:
         continue
-      vertices = []
-      indices = []
-      lookup = {}
-      for tri in shapely.constrained_delaunay_triangles(final).geoms:
-        points = list(shapely.orient_polygons(tri, exterior_cw=True).exterior.coords)[
-          :3
-        ]
-        for x, z in points:
-          k = (round(x * 100), round(z * 100))
-          if k not in lookup:
-            lookup[k] = len(vertices)
-            vertices.append(k)
-          indices.append(lookup[k])
-      assert len(vertices) < 65536
-      groups.append(
-        {
-          "role": role,
-          "dm": dm,
-          "xz": encoded(vertices, "<i4"),
-          "index": encoded(indices, "<u2"),
-        }
-      )
-      count += len(indices) // 3
+      if panels:
+        # Independent places fit losslessly in signed 16-bit local centimetres.
+        # Their projected centres restore the same 32-bit world coordinates.
+        chunks = []
+        for panel, centre in panels:
+          face = final.intersection(panel)
+          if face.area >= 0.002:
+            chunks.append((face, [round(centre.x * 100), round(centre.y * 100)]))
+      else:
+        chunks = [(final, None)]
+      for face, origin in chunks:
+        group, triangles = street_group(role, dm, face, origin)
+        groups.append(group)
+        count += triangles
       areas[role] = round(areas.get(role, 0) + final.area, 2)
   height_guard = 2166136261
   for dm in h["y_dm"]:
     height_guard = ((height_guard ^ dm) * 16777619) & 0xFFFFFFFF
-  OUTPUT.write_text(
+  output.write_text(
     json.dumps({"groups": groups, "heightGuard": height_guard}, separators=(",", ":"))
     + "\n"
   )
-  print(len(groups), count, areas, len(exclusion), OUTPUT.stat().st_size)
+  print(len(groups), count, areas, len(exclusion), output.stat().st_size)
 
 
 if __name__ == "__main__":

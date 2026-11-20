@@ -1,0 +1,110 @@
+{
+  "additions": {
+    "src/app/src/crossingPavingV368.ts": "8b53b37dcf68460e1c2683585a25a387aa6ea7f95bf671824f1cac56e8645919",
+    "src/app/src/data/crossingPavingOwnersV368.json": "50b5a2a4bfea56e3806fbbb32fc86d8580534a6d4aca1b626468e5569d5a023e",
+    "src/app/src/data/crossingPavingV368_0.json": "380b031c2ac74d15a8e43c150c95cc31237b0e0dcb19bd5a719f89097c51b7a9",
+    "src/app/src/data/crossingPavingV368_1.json": "508e53fe1155757c2b1dce57be6abbb1d816495809b480425a84f011953c5e63",
+    "src/app/src/data/crossingPavingV368_2.json": "6a7ae92705827a60c0f19d7a91bb38f4d18e8b043bc606526a7b1ce0fcb49a43",
+    "src/app/src/data/crossingPavingV368_3.json": "8081a6fb242be547e4dc794f39476050ba23938f38a0c51b2dfac35f82235bc5",
+    "src/app/src/data/crossingPavingV368_4.json": "e2c62b7231e9900ffccd9b7fa23f461f7180d5c548b8289ae5992d87dd483ccb",
+    "src/app/src/data/crossingPavingV368_5.json": "3b3ea41b1f3431261f4bfabfbe1e41d6797579c23511f68b7aefc88b4997994d",
+    "src/app/src/data/crossingPavingV368_6.json": "9fe7a5df0cec0725d2360a82800f2f6b6d5487213983129c73e6daeae3ecabbc",
+    "src/app/src/data/crossingPavingV368_7.json": "aabfc1e9330c906baa012b904bdfded259c65a4fc4849d0771695176d58fc20c",
+    "src/app/src/data/innerCityPavementEdgesV368.json": "97b564348bb3835fcd6f1ab90cf9878370045d299c8f6708f7e10ace5f19e376",
+    "src/app/src/data/innerCityPlazaEdgesV368.json": "2398dc5f56983ddd460bd56dcf096ecdde0da7290e0ddb8bb9a9e2a7641c496d",
+    "src/app/src/data/innerCitySquareStreetsV368.json": "45d8af635485bc490a11a59d872a87c0007a740e94b2688b8c55a9d2dc350847",
+    "src/app/src/data/parkPathSportsHostsV368.json": "914a29d88205993d2b27e57e692ed66a03674f607ceca0b2826e6a9317b4c4b4",
+    "src/app/src/data/surveyedIslandOwnersV368.json": "7316b225c15ea18c651330da16cd55e5c3ed2ae990bcc3739a9eefcc283dc719",
+    "src/app/src/data/surveyedPavingOwnersV368.json": "1d3c2d01cd942edb0f95785f58445bcee657245bc3d7931b070719bf3b5612c0",
+    "src/app/src/data/surveyedPavingPaletteV368.json": "04024b0e9278bbce9501acfccbec32707ac6b771483c9c48a146ec9115a6c4a3",
+    "src/app/src/data/surveyedPavingV368_-1_-1.json": "6dc78b773d28418b48314505e35c7813151867caa7be7b2e383fe7f5607bda46",
+    "src/app/src/data/surveyedPavingV368_-1_-2.json": "919beaf9cfdfadc43e6f1a0efbfff7d23aa2d84987c3254feac6e2c26406bcea",
+    "src/app/src/data/surveyedPavingV368_-1_1.json": "5a564e7563ea5407227ee5f6948ef43493b2831d44f65f2becdbc8cc89d1be3d",
+    "src/app/src/data/surveyedPavingV368_-1_2.json": "83640ac3fe93aa6faec1b2b817441cbb8372bc884b1db3512d755d6da6562d5d",
+    "src/app/src/data/surveyedPavingV368_-1_3.json": "dcebc7d0bd9834a218c98a888ee937a120412e0baa5d76dd2bedfd0877bd52b7",
+    "src/app/src/data/surveyedPavingV368_-2_-1.json": "49bf63946dc9ff6d9fa3c0f009f28d3fcaa7efd6ca45aeacdf488062699b6bd3",
+    "src/app/src/data/surveyedPavingV368_-2_-2.json": "5d070ce8eeec83d5c3dcb72136156c47a529aed63931d1ebe1dd79de101ef439",
+    "src/app/src/data/surveyedPavingV368_-2_0.json": "7c71bf75f7708510a2bdb31549d3054966f0c2aee6ce5d27a297044b701f2291",
+    "src/app/src/data/surveyedPavingV368_-2_1.json": "2924599ad7593ef44483c76ba0ac06859d4efae2cb5ad719cff2c798d90b0ac0",
+    "src/app/src/data/surveyedPavingV368_-2_2.json": "d3fcfccbf2951f7bcab94e2cb6c6f2ca4cbf1caa7909da04ed9051b9270ec407",
+    "src/app/src/data/surveyedPavingV368_-2_3.json": "b5e9a64dfa800de975eba78487e30aaa8ad697b53c519d034ea13d8045ae2f3d",
+    "src/app/src/data/surveyedPavingV368_-2_4.json": "b50e60e8a482c423ee1323c9066f38b00b5d4ddb1edd81d3b8af6204621fbda0",
+    "src/app/src/data/surveyedPavingV368_-3_-1.json": "a5106e74d14c0cae4e0ae12d7abef39ad162823dc053cef5d5753b6d6f8ee305",
+    "src/app/src/data/surveyedPavingV368_-3_0.json": "f3e1d856caacdabc53d8b65ded95de89a041bc8d3984af17477b2b934d3dda6b",
+    "src/app/src/data/surveyedPavingV368_-3_1.json": "3ccffc77f61e6449de5b0b7ddc9e5f10b685b8f4cc961bf45c6880e9665fb95f",
+    "src/app/src/data/surveyedPavingV368_-3_2.json": "4aa6aa2c38773e89a173e3e15d4d75c58958193cc555273a9ee16e4fc40de29a",
+    "src/app/src/data/surveyedPavingV368_-3_3.json": "28b64633dd6e036e78e6a8eb735ceb3de05d1640574b41d4234ae3a739479d1e",
+    "src/app/src/data/surveyedPavingV368_-4_-1.json": "7e5fc1a82665e3b092f475b91a2c0f4855f9525548fbbd13692aa7fccb26878a",
+    "src/app/src/data/surveyedPavingV368_-4_0.json": "cb84c40e7752ad4429718323d5a77da9fa497a9c9d7953e648a25baecf42a832",
+    "src/app/src/data/surveyedPavingV368_-4_1.json": "c4467f3cf80ad513610f7f13448ff9afad01535663872301607c0bf4bcce65df",
+    "src/app/src/data/surveyedPavingV368_-5_-1.json": "c0f0e96b43210ded8a55ea2f05567815b9d6515be70c7be43c47f5f68e7336ff",
+    "src/app/src/data/surveyedPavingV368_-5_0.json": "4bbe505ce62d6cec465198df49952eb7843c266076e0a9cdf4d08bc3a4419b12",
+    "src/app/src/data/surveyedPavingV368_-7_3.json": "f8795b63628048a6a773dc626a479f47d6f500df9b103133f5e535d6ffa08675",
+    "src/app/src/data/surveyedPavingV368_-7_4.json": "262f23c5588f5ca0cfcb5b481e097e4eb72776587d01bf2d9db0af7ec3993dde",
+    "src/app/src/data/surveyedPavingV368_-7_5.json": "5b92047c6a1feb67f6985b09bc812fc3fc8205cc7d44dcc7452321d39eb6a25d",
+    "src/app/src/data/surveyedPavingV368_-8_4.json": "a84c9fac9a5d3eb730fb11f6e49e798ed18c54d7fa705c7d207ddf60fcaf3d96",
+    "src/app/src/data/surveyedPavingV368_-8_5.json": "e927bf465bc4fed32327924a7bc20572596372da860bc69fc2173efdef427a2a",
+    "src/app/src/data/surveyedPavingV368_-9_4.json": "6bdcc0b6387c35a41d4f6cd068d7e3a2c449779acb86f0e5144d1c5de31e84a9",
+    "src/app/src/data/surveyedPavingV368_-9_5.json": "c99e6b3fd84b43159d4525f284b645e43324ff68ca26cbd83687949826ff1763",
+    "src/app/src/data/surveyedPavingV368_0_-1.json": "e5a7dec239f113a10b1336f1df122523d51f99bceb6dbaf9d9ebff18951cc9fe",
+    "src/app/src/data/surveyedPavingV368_0_-2.json": "61f1220aa015e08a7d983ea3da78749d9750a7e5d651a41101d5002927236e1f",
+    "src/app/src/data/surveyedPavingV368_0_-3.json": "569a5a21e7130c50972edd9baeaa0a6471c0f272f1f2b2a5f449b29bc6d0c6e1",
+    "src/app/src/data/surveyedPavingV368_0_1.json": "deae89edcaee2666e8d47f4bbca5494bcfa4c3535e3df1287461b3929a3230ad",
+    "src/app/src/data/surveyedPavingV368_0_2.json": "3d077ce337d93f39171b74a9ad18d978d138a01364d0d0c95a7daf620c87dd9c",
+    "src/app/src/data/surveyedPavingV368_1_-1.json": "f928454b2b43bfc8712cc8d3c231084550d374963ea84c09c4d8dae76ddaa1d2",
+    "src/app/src/data/surveyedPavingV368_1_-2.json": "b474593f7b80854bc70978ef62d18b4f6702f83cb2450ecbecbde8787eabbb37",
+    "src/app/src/data/surveyedPavingV368_1_-3.json": "4c6d2fedc21c74d06e8e182bee0ee047cb9edf853c75e12ad228ae58c1c35df7",
+    "src/app/src/data/surveyedPavingV368_1_-4.json": "2c4f978d912aca78e97f811950638d18ae6a5bed2441102ed6dab2539c47cb12",
+    "src/app/src/data/surveyedPavingV368_1_0.json": "8a5c011bb9bfba6f46298a36566c14d2d3e3f52cc22dce889b23c0b7cf0fc0e0",
+    "src/app/src/data/surveyedPavingV368_1_1.json": "1a95c319acb66d0af740caa5ee08dedbcb0966f17cf1744cfb91a333228dfa65",
+    "src/app/src/data/surveyedPavingV368_1_2.json": "9faf4daa5aa6aa29542feb5e5101fc0dc6ed90d2d29986930ff73448f420c72b",
+    "src/app/src/data/surveyedPavingV368_2_-1.json": "067649c7961488770e6199babfb79e638cf0533f2b520253194a0767f6097f48",
+    "src/app/src/data/surveyedPavingV368_2_-2.json": "f117a964ffe169a4cdfc36ebc38f2278ca5fde23ea146c596eed5157ce0065a1",
+    "src/app/src/data/surveyedPavingV368_2_0.json": "6814ba2df690b002aebb87f79b8edc0dcfbbbeb695f91018ae30c4ad30da3b7a",
+    "src/app/src/data/surveyedPavingV368_2_1.json": "7e8e7f416893621fadfaaf39df8b59f56aa7c65a2f095ef6ab5276373615988c",
+    "src/app/src/data/surveyedPavingV368_2_2.json": "16921f2718bc766385a9a9d9ca8e8c9a4c974f4e03b76199de42009a606f721c",
+    "src/app/src/data/surveyedPavingV368_3_-1.json": "37974c4aaf6f140c67840ab7c63f1d926fc27b97d6a1de8b12194e8c3480b1c6",
+    "src/app/src/data/surveyedPavingV368_3_0.json": "e37bc35d039258dfbf86e0014d2a547abdd5e75dc4c202a841a9ffaf09900f76",
+    "src/app/src/data/surveyedPavingV368_3_1.json": "dca1c1fbf1df595d6a87268235e844ae624d28cf0f1a7cc55bfa2c5be84cc212",
+    "src/app/src/surveyedPavingV368.ts": "bee6c3fbfe2ceec5f715d65973015b04f16519cc212c77d5304fa0e331d29ffe",
+    "src/app/src/synchronousSurveyedPavingV368.ts": "33dbdc447dee82380376c3f609d2576205bbec86fa526a1bb5248c7ac872a124"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "2ff0068a659b2a6719b6da74560998388c0c678b1cc10b40d6fb528bd6aca04f",
+      "after": "126b9cb4cbb038351fd57878cd843f82190ebcc97d396c8c80575a65a4889731"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "e40437c7ba92c63ba08bf5035198a144acf3dc09f6782003aeb4f0c68396ef80",
+      "after": "1a6b36fd942786e0bd3b0e22deeaa6e95dd000f66f22f988e7f7f4dab4aad588"
+    },
+    "src/app/src/MittePlazaEdgesV367.ts": {
+      "before": "c35a57580523eeba96a0f168f147e073aa18eaea0e5de71d1b8e01c1f7edc9c2",
+      "after": "f4b3fbcbc0fcbfe4210dd6b65cc828c576038faf5f55c1ac6159c55057bf2085"
+    },
+    "src/app/src/NeighbourhoodPacketV300.ts": {
+      "before": "d6f9a046e41759f0ac44fca524da44d7b17ad958b14c8dd4851e8f2bff906e41",
+      "after": "bfcc7004d96749f4103284e25abf646d3e6d7a80769a47c54d073b7fbdc056b9"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "before": "2fc441dd8af9b027bddc91730b4c0b8c228249a91109191d1c248e9260ddb743",
+      "after": "41ece96700132d98d6e5a72a82bbea67d1fa80f6c999575ef1e6af125cf61349"
+    },
+    "src/app/src/SurroundingCityGeometry.ts": {
+      "before": "b9b6fd9f68ce77ecf311630f5b155bc083b6755b19ff84d6d611b1d206080583",
+      "after": "686b1338ec20866408d2d7ef784f9b731e716b10584bc3deb5d033e4a1ab6806"
+    },
+    "src/app/src/primaryColourBankV362.ts": {
+      "before": "d8e86fd87a05bd94bd2a542a0f33bb1fb5cebab1f865806800cf947b208235dd",
+      "after": "7c9c3f46d4527f17f0f535d556853c8919d264dc72f24770103b6a66f60e7516"
+    },
+    "src/app/src/startupView.ts": {
+      "before": "b0ccc859d0a82aa5eca4237980935890454e60b68d3a13fac7cb4e641f146600",
+      "after": "e202b8ecd1dfc5fc46d75c5dbdfc47836676a8b4852a1bcc503ee9eda6d45bc5"
+    },
+    "src/app/src/surroundingCityStandaloneV362.ts": {
+      "before": "425538b3ce3181b1f071cca82f6fe5be912ed1ec1158b7f48c9e7cf8bcb62620",
+      "after": "0b1274abab00a53c42411da0204bf9d2f31ace60b89e3dcd38f9d8695664696c"
+    }
+  }
+}

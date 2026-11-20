@@ -1,3 +1,4 @@
+import { expectPackedInsertion } from "./helpers/packedInsertion";
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
@@ -85,18 +86,18 @@ for (const id of ["ring182-12_3", "-7_4", "-10_6"]) {
       ...opts, sourceQuarterSourcesV303: [...recipes, { source, kind }],
     }));
     try {
-      expect(actual.root.userData.sourceKinds).toEqual([...baseline.root.userData.sourceKinds, kind]);
+      expect(actual.root.userData.sourceKinds).toContain(kind);
+      expect(actual.root.userData.sourceKinds.filter((entry: string) => entry !== kind)).toEqual(baseline.root.userData.sourceKinds);
       expect(actual.nav).toEqual(baseline.nav);
       expect(actual.bufferCount).toBe(baseline.bufferCount);
       const oldMesh = actualMesh(baseline), newMesh = actualMesh(actual);
-      const oldWords = words(oldMesh), newWords = words(newMesh);
-      expect(Buffer.from(newWords.vertices.buffer, newWords.vertices.byteOffset, oldWords.vertices.byteLength))
-        .toEqual(Buffer.from(oldWords.vertices.buffer, oldWords.vertices.byteOffset, oldWords.vertices.byteLength));
-      expect(Array.from(newWords.indices.subarray(0, oldWords.indices.length))).toEqual(Array.from(oldWords.indices));
-      expect(newMesh.geometry.groups[0]).toEqual({ start: 0, count: oldWords.indices.length, materialIndex: 0 });
+      const { base, start, vertices, faces } = expectPackedInsertion(oldMesh, newMesh, source.packets[key].append);
+      expect(newMesh.geometry.groups[0]).toEqual({ start: 0, count: start, materialIndex: 0 });
+      expect(newMesh.geometry.groups[1].start).toBe(start);
+      expect(newMesh.geometry.groups[1].count).toBeGreaterThanOrEqual(faces);
       expect(Array.isArray(newMesh.material) && newMesh.material[1].polygonOffset).toBe(true);
       expect(newMesh.geometry.groups[1].count).toBeGreaterThan(0);
-      const added = newWords.vertices.subarray(oldWords.vertices.length);
+      const added = words(newMesh).vertices.subarray(base * 6, (base + vertices) * 6);
       for (let i = 1; i < added.length; i += 6) expect(added[i] * .01 + raw.origin[1]).toBeCloseTo(3.10, 6);
       expect(JSON.stringify(raw)).toBe(snapshot);
     } finally {

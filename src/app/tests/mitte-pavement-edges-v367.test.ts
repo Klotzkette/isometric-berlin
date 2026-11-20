@@ -5,6 +5,7 @@ import { createKerbLinesSteps } from "../src/IsometricCityWorld";
 import type { VoxelPayload } from "../src/terrainPayload";
 import ground from "../public/mesh/regierungsviertel/ground-context.json";
 import paths from "../public/mesh/regierungsviertel/park-details.json";
+import innerCityPavement from "../src/data/innerCityPavementEdgesV368.json";
 import pavement from "../src/data/mittePavementEdgesV367.json";
 
 const byId = new Map((paths.paths as ParkPath[]).map(p => [p.id, p]));
@@ -86,4 +87,14 @@ test("only grid ink completely inside vector paving is removed from the real cor
   expect([...original].filter(k => !corrected.has(k)).sort((a, b) => a - b)).toEqual(pavement.edges);
   expect([...corrected].every(k => original.has(k))).toBeTrue();
   expect(pavement.edges.length).toBe(194);
+});
+
+
+test("the core extension removes only the 33 additional verified grid edges", () => {
+  const previous = kerbKeys(new Set(pavement.edges));
+  const updated = kerbKeys(new Set([...pavement.edges, ...innerCityPavement.edges]));
+  const removed = [...previous].filter(edge => !updated.has(edge)).sort((a, b) => a - b);
+  expect(removed).toEqual(innerCityPavement.edges);
+  expect(removed).toHaveLength(33);
+  expect(updated.size).toBe(previous.size - removed.length);
 });

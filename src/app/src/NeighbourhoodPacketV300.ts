@@ -1,3 +1,4 @@
+import parkPathSportsHosts from "./data/parkPathSportsHostsV368.json";
 import { surroundingPacketFingerprint } from "./surroundingPacketFingerprint";
 import type { SurroundingCityChunk, SurroundingPackedMesh } from "./SurroundingCityGeometry";
 
@@ -68,19 +69,30 @@ export function* captureNeighbourhoodPacketV300(
   const plan = source.packets[key];
   if (!plan || original.schemaVersion !== 1 || !Array.isArray(plan.origin) || plan.origin.length !== 3 ||
     original.origin.some((v, i) => !Number.isFinite(v) || v !== plan.origin[i]) ||
-    !Array.isArray(plan.records) || plan.records.length !== original.meshes.length || original.meshes.length > 16 ||
+    !Array.isArray(plan.records) || original.meshes.length > 16 ||
     !Array.isArray(plan.owners) || !plan.owners.length || plan.owners.length > 512 || plan.owners.some(o => typeof o !== "string" || !o) ||
     !validPart(plan.append) || plan.append.kind !== kind || !bytes(plan.append.indices) ||
     !Array.isArray(plan.retire) || plan.retire.length > original.meshes.length) return undefined;
+  let records = plan.records;
+  // Sport surfaces were added to nine park tiles after their path surveys.
+  // Bind the second part as strictly as every part of the original survey.
+  if (kind === "park-paths-v329" && records.length === 1 && original.meshes.length === 2 &&
+    Object.hasOwn(parkPathSportsHosts, key)) {
+    records = [...records, {
+      mesh: 1, kind: "mapped-sports-surfaces",
+      fingerprint: parkPathSportsHosts[key as keyof typeof parkPathSportsHosts],
+    }];
+  }
+  if (records.length !== original.meshes.length) return undefined;
   let vertices = bytes(plan.append.positions) / 6, indices = bytes(plan.append.indices) / 4;
   for (let i = 0; i < original.meshes.length; i++) {
-    const part = original.meshes[i], record = plan.records[i];
+    const part = original.meshes[i], record = records[i];
     if (!validPart(part) || !record || record.mesh !== i || record.kind !== part.kind) return undefined;
     vertices += bytes(part.positions) / 6; indices += bytes(part.indices) / 4;
   }
   if (vertices > 400000 || indices > 2400000 ||
     (yield* fingerprint([JSON.stringify(original.nav)])) !== plan.navGuard) return undefined;
-  for (const record of plan.records) if ((yield* surroundingPacketFingerprint(original.meshes[record.mesh])) !== record.fingerprint) return undefined;
+  for (const record of records) if ((yield* surroundingPacketFingerprint(original.meshes[record.mesh])) !== record.fingerprint) return undefined;
   if (plan.lineGuard === null ? !!original.lines : !original.lines || !encoded(original.lines.positions) ||
     !encoded(original.lines.colors ?? "") || (yield* fingerprint([original.lines.positions, original.lines.colors ?? ""])) !== plan.lineGuard) return undefined;
   if ((yield* surroundingPacketFingerprint(plan.append)) !== plan.appendFingerprint) return undefined;
