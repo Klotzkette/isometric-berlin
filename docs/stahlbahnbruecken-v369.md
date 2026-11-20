@@ -1,0 +1,19 @@
+# Berliner Bahnbrücken aus der Nähe
+
+Unter der Hochbahn der Skalitzer Straße erkennt man die Querträger am breiten Untergurt und die paarigen Stützen an den freien Durchfahrten dazwischen. Am Hauptbahnhof spreizen sich die Gleise über dem Humboldthafen auf. Dort übernehmen Stahlrohrbögen unter der Fahrbahn die Last. Bei der Ringbahnbrücke Oberspree prägen dagegen die Fachwerkträger über der Schifffahrtsöffnung das Bild. [Skalitzer Straße und Radbahn](skalitzer-hochbahn-v369.md) · [Schlaich Bergermann Partner, Humboldthafenbrücke](https://www.sbp.de/projekt/humboldthafenbruecke/) · [Landesdenkmalamt, Ringbahnbrücke Oberspree](https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09095002%2CT)
+
+## Was die Quellen hergeben
+
+Die Bestandsaufnahme umfasst das Land Berlin. Der DB-Datensatz enthält 786 zugeschnittene Brückenachsen. Mehrere Strecken oder Richtungen können am gleichen Bauwerk eigene Datensätze haben. Für BVG-, S-Bahn- und andere Eisenbahnstrecken ergänzt OpenStreetMap die Gleislage, Umrisse und bekannte Bauformen. Oben liegende Gleise werden getrennt von kreuzenden Gleisen unter der Brücke ausgewertet. [DB InfraGO, Infrastrukturdaten vom Mai 2026](https://data.gov.de/suche/daten/infrastrukturdaten-der-db-infrago) · [OpenStreetMap](https://www.openstreetmap.org/copyright)
+
+Das Berliner Liegenschaftskataster liefert die Lage zahlreicher Überbauten, Pfeiler und Widerlager. Die Differenz zwischen Gelände- und Oberflächenmodell hilft bei der Höhenanpassung. Für einzelne Bauwerke liefern Ingenieurbüros, Denkmalpflege, Lagepläne und Außenaufnahmen zusätzliche Hinweise auf Querschnitt, Stützenform und Verbindungen. Farbtöne, Blechstärken und nicht bemaßte Anschlussdetails sind angenähert. Bei 19 Überführungen mit unbekannter Bauart sind Gleislage, Katasterumriss und Höhe hinreichend belegt, um die Gleise aus der bisherigen Bodenfläche auf die Überführung zu heben. Das Tragwerksmaterial bleibt dort offen. Am Sachsendamm und an der Leibnizstraße setzt sich die Fahrbahn so auch unter den Gleisen fort. [ALKIS Berlin](https://gdi.berlin.de/services/wfs/alkis?SERVICE=WFS&REQUEST=GetCapabilities) · [Bildnachweise einzelner Überführungen](rail-photo-sources-v369.md) · [Kreuzungsbauwerk Kietz](https://kl-ing.de/news/detail/kreuzungsbauwerk-kietz-einschub-in-endlage-erfolgt/)
+
+## Umfang dieser Modellfassung
+
+Der räumliche Abgleich umfasst 1.525 als erhöht erfasste Gleisabschnitte. Im stadtweiten Modell sind 115 Teilstücke mit eigener Geometrie belegt, darunter 41 Abschnitte der südlichen Hochbahn und 23 Abschnitte an der Schönhauser Allee. Hinzu kommen das gesondert modellierte Radbahn-Testfeld und die Humboldthafenbrücke. Für Feldteilungen und einzelne Verbindungsmittel ist die Genauigkeit der verfügbaren Unterlagen unterschiedlich. Bei fehlender Bauwerkszuordnung oder unklarer Höhe bleibt der Standort offen.
+
+Am Humboldthafen verteilen sich acht Bogenrippen auf 16 Lagerpunkte. Auf dem Wasser lassen sich beide Ufer unter den Gleisen hindurch erreichen. Für die beiden Überbauten der Spanischen Allee beschreiben die Ingenieure geschweißte offene I-Profile. Am Bahnhof Zoo zeigen die Aufnahmen genietete Blechträger. [Humboldthafenbrücke](https://www.sbp.de/projekt/humboldthafenbruecke/) · [Spanische Allee](https://kl-ing.de/projekte/projekt/eue-spanische-allee-berlin/) · [Fotoquellen zur Stadtbahn](rail-photo-sources-v369.md)
+
+## Nachvollziehbarkeit
+
+Die Quelldaten und die Entscheidungen je Umriss liegen im Repository. Die Skripte zur Erfassung von Gleislagen, Kataster und Höhen sind vom Viewer getrennt. Das Modell lädt fertige lokale Daten mit den sichtbaren Abschnitten. Alle Pfade im Browserpaket funktionieren auch im Offline-Download. [Bestandsaufnahme](../geo_data/regierungsviertel/steel-rail-catalogue-v369.json.gz) · [Modellaufbereitung](../scripts/build_steel_rail_catalogue_v369.py) · [Lizenzen](../NOTICE.md)

@@ -1,3 +1,4 @@
+import { createHumboldthafenRailV369, hasDrawnHumboldthafenV369, isReplacedHumboldthafenPierV369 } from "./HumboldthafenRailV369";
 import { HBF_NORTH_APPROACH_SOURCE } from './HbfNorthApproachProfile';
 import { HBF_BEARING_SUPPORT_PROFILE, isHbfBearingSupport, planHbfBearingSupport } from "./HauptbahnhofBearingSupports";
 /**
@@ -339,6 +340,7 @@ export function createRailNetwork(
   const deckTop = payload.deck_top_y_m;
   const deckBottom = deckTop - DECK_THICKNESS_M;
   let hbfEastSteelSupportCount = 0;
+  const surveyedHarbour = hasDrawnHumboldthafenV369(payload);
 
   for (const surface of payload.viaduct) {
     addPlate(builder, surface, DECK_TONE, deckTop);
@@ -360,6 +362,7 @@ export function createRailNetwork(
   }
 
   for (const [xDm, zDm] of payload.piers) {
+    if (surveyedHarbour && isReplacedHumboldthafenPierV369(xDm, zDm)) continue;
     const x = xDm / 10;
     const z = zDm / 10;
     const foot = sample(x, z);
@@ -452,5 +455,6 @@ export function createRailNetwork(
     edge.dispose();
   }
 
+  if (surveyedHarbour) group.add(createHumboldthafenRailV369(deckTop, ground.water_top_y_m));
   return group;
 }

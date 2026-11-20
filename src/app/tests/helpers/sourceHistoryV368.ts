@@ -1,3 +1,4 @@
+import { assertSourceLayerV369, isSourceAdditionV369, projectSourceBeforeV369, sourceAtBeforeV369 } from "./sourceHistoryV369";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -24,29 +25,40 @@ function verifyPredecessor(path: string): Buffer {
   return raw;
 }
 export function isSourceAdditionV368(path: string): boolean {
-  return Object.hasOwn(receipt.additions, path);
+  return Object.hasOwn(receipt.additions, path) || isSourceAdditionV369(path);
 }
 export function sourceAtBeforeV368(path: string, bytes: Uint8Array): Uint8Array {
   const entry = receipt.changes[path];
-  if (!entry) return bytes;
+  if (!entry) return sourceAtBeforeV369(path, bytes);
+  if (entry.before === digest(bytes)) return bytes;
+  bytes = sourceAtBeforeV369(path, bytes);
   const hash = digest(bytes);
   if (hash === entry.before) return bytes;
   if (hash !== entry.after) throw new Error("Unknown exact v368 source bytes: " + path);
   return verifyPredecessor(path);
 }
 export function projectSourceBeforeV368(source: string): string {
+  source = projectSourceBeforeV369(source);
   const hash = digest(source);
   const path = Object.keys(receipt.changes).find(name => receipt.changes[name].after === hash);
   return path ? verifyPredecessor(path).toString() : source;
 }
 export function assertSourceLayerV368(before: Readonly<Record<string, string>>, files: readonly string[]): void {
+  const atV368: Record<string, string> = { ...before };
+  for (const [path, hash] of Object.entries(receipt.additions)) atV368[path] = hash;
+  for (const [path, entry] of Object.entries(receipt.changes)) atV368[path] = entry.after;
+  assertSourceLayerV369(atV368, files);
   for (const [path, entry] of Object.entries(receipt.changes)) {
-    if (before[path] !== entry.before) throw new Error("Unexpected v368 source change: " + path);
+    // The original source inventory indexed the church JSON header only.
+    // Verify its paired binary independently against the released Git blob.
+    const original = path === "src/app/src/data/nikolaikircheV353Packets.json.gz" && before[path] === undefined
+      ? digest(verifyPredecessor(path)) : before[path];
+    if (original !== entry.before) throw new Error("Unexpected v368 source change: " + path);
     verifyPredecessor(path);
-    if (digest(readFileSync(resolve(repository, path))) !== entry.after) throw new Error("Changed v368 result: " + path);
+    if (digest(sourceAtBeforeV369(path, readFileSync(resolve(repository, path)))) !== entry.after) throw new Error("Changed v368 result: " + path);
   }
   for (const [path, hash] of Object.entries(receipt.additions)) {
-    if (Object.hasOwn(before, path) || (!path.endsWith(".json.gz") && !files.includes(path)) || digest(readFileSync(resolve(repository, path))) !== hash) {
+    if (Object.hasOwn(before, path) || (!path.endsWith(".json.gz") && !files.includes(path)) || digest(sourceAtBeforeV369(path, readFileSync(resolve(repository, path)))) !== hash) {
       throw new Error("Changed v368 addition: " + path);
     }
   }

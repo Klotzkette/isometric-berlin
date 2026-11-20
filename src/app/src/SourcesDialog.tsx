@@ -36,6 +36,13 @@ export function SourcesDialog({ language, onClose }: {
       <div className="sources-content">
         <p className="sources-attribution">{ATTRIBUTION}</p>
         <p>{language === "de"
+          ? "Bahnbrücken · DB InfraGO AG / Deutsche Bahn AG, Mai 2026 (CC BY 4.0). Streckenachsen auf Berlin zugeschnitten und umgerechnet. Gleise und Bauwerksumrisse nach OpenStreetMap. Höhenprofile aus bDOM und DGM von GeoBasis-DE/LGB (dl-de/by-2-0). Pfeilergrundrisse nach Geoportal Berlin, ALKIS."
+          : "Railway bridges · DB InfraGO AG / Deutsche Bahn AG, May 2026 (CC BY 4.0). Route axes clipped to Berlin and reprojected. Tracks and bridge outlines from OpenStreetMap. Elevation profiles from GeoBasis-DE/LGB bDOM and DGM (dl-de/by-2-0). Pier footprints from Geoportal Berlin, ALKIS."}{" "}
+          <a href="https://data.gov.de/suche/daten/infrastrukturdaten-der-db-infrago" target="_blank" rel="noreferrer">DB InfraGO</a>
+          {" · "}<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>
+          {" · "}<a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noreferrer">dl-de/by-2-0</a>
+        </p>
+        <p>{language === "de"
           ? "Verkehrsministerium am Invalidenpark: amtliche Gebäudeformen, aktuelle BMV-Adresse und Architekturangaben von Max Dudler und BMH IBW Architekten. Fotos der Max-Dudler-Projektgalerie dienen nur als Referenz. Heizkraftwerk Scharnhorststraße: zwei 35 Meter hohe Stahlschornsteine nach BEW, LAGetSi-Genehmigung und kartierten OpenStreetMap-Standorten. Kleine Fassaden- und Treppendetails sind angenähert; keine Fototexturen. "
           : "Transport ministry at Invalidenpark: official building geometry, current BMV address and architectural references from Max Dudler and BMH IBW Architekten. Max Dudler project-gallery photographs are reference-only. Scharnhorststraße heating plant: two 35-metre steel stacks following BEW, the LAGetSi permit and mapped OpenStreetMap positions. Small facade and stair details are estimates; no photo textures. "}
           <a href="https://www.maxdudler.de/de/projekte/bundesministerium-fuer-verkehr-bau-und-stadtentwicklung/" target="_blank" rel="noreferrer">Max Dudler</a>

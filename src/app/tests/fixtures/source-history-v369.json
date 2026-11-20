@@ -1,0 +1,49 @@
+{
+  "additions": {
+    "src/app/src/HumboldthafenRailV369.ts": "2b2f2ac05dcda1730e6924a49c47a502702b78122d616eac5ae5e0432d7685f5",
+    "src/app/src/RailSteelPacketV369.ts": "8d8c5346928fd27875207ef4f2096fd4432490e7855d08772074e4502164ed01",
+    "src/app/src/RailUnderpassFloorsV369.ts": "150d8343f3158cbfe81e70e0ec3d94d3a0a5b7984d3c5f10f84f990bd447099d",
+    "src/app/src/SkalitzerSteelV369.ts": "346f071ec7bb3064b43767561a727607cec179ab459454fc14b071ecbe191d4f",
+    "src/app/src/SteelRailBridgesV369.ts": "637bf5c6b39596e2090b599897541bf49f4cc8f6d60186ad5284e38a7de9667c",
+    "src/app/src/data/humboldthafenRailV369.json": "399e29b1d36bc878cd6851bb3c1996c49eae41666b1df83b45397f7c162f5de4",
+    "src/app/src/data/railUnderpassFloorsV369.json": "df69107e7065093a2a1aa11d5a6dfa1bbf117eb031f520378054ae7727e1b8d5",
+    "src/app/src/data/steelRailExteriorV369.json": "531b9b15e0a02c3c0a99b6bcd1bd6786a40f47df46ac3e3908a7040677d7f151",
+    "src/app/src/data/steelRailHostIdsV369.json": "2829e29535c7654e2d117f194e8f16155fe8100453d61549ea11ade3e26fe7dd",
+    "src/app/src/data/steelRailSpansV369.json": "3222a70689bf4ab2fa5bff43345a0027cc09133f0151a37016a39537401bd10a",
+    "src/app/src/skalitzerStructureV369.ts": "cf9c5ebf24c4d02d2ac85a4435728bb1be1d50844e3e5c2d4e7d28bafcf991cd"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "126b9cb4cbb038351fd57878cd843f82190ebcc97d396c8c80575a65a4889731",
+      "after": "b56f37651dd56389b95969b2141fce839664a3d3697644a71e463c1de51b652f"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "1a6b36fd942786e0bd3b0e22deeaa6e95dd000f66f22f988e7f7f4dab4aad588",
+      "after": "f1ebd076a61ec6cfd13acb5dc0c6dbf160751ce7165235e301b9bf3883ee1434"
+    },
+    "src/app/src/MinecraftVoxelWorld.ts": {
+      "before": "89fa0620f9af5f185808dcd5d25e3160aaa552390c90ede0c88d66b91c3dbc5b",
+      "after": "0115b1bf15e629465dd9f74b7fee2084aec95ec2a56565db3141110d9abaea19"
+    },
+    "src/app/src/RailNetwork.ts": {
+      "before": "6791d208ca6f7f0b9bcf4fb9606158d194fbea9900ce72ef3c98a17d8b89ab94",
+      "after": "b2209d8ad104aaa33b70147a8ed3ebc6bcf74ab0f4d11bdd096050920c5265f4"
+    },
+    "src/app/src/SourcesDialog.tsx": {
+      "before": "b7ed05db5c3b217a6770ac8dbb9fcc6eec152a0b3ccf29d821af723888d9ca55",
+      "after": "b2eb8e4d0df7f569393d510347985a43a04ccbbbbeaacd24760369478c3cdfd9"
+    },
+    "src/app/src/SouthFidelityV294.ts": {
+      "before": "0e7d2a5fbd02839f1539b99b1641ee19ac224456be33d556d50b744288af3abc",
+      "after": "073fb8bc7ea8b635ee9feaf5e751622c3b4a96583a46618a6595c9389eeda328"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "before": "41ece96700132d98d6e5a72a82bbea67d1fa80f6c999575ef1e6af125cf61349",
+      "after": "ff9f4350376c9f6cc3998c70abf3d6afe292952d90f02ae50480645a34e8e3e5"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "dfdab90a832451db48be930f5a2e60e2243d73ea35f3b06c80cdba8860352400",
+      "after": "2c2f97e4e4ec8ae18765b16da29b1ddef3a58b2891ecd046d1306ef765956ef0"
+    }
+  }
+}

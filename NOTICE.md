@@ -3367,3 +3367,10 @@ evidence, with no image pixels, inscriptions or textures redistributed.
 Photograph-derived fitting dimensions and ornamental interpretations are
 explicit display approximations. Complete per-reference credits are retained
 in the packaged visual-reference manifest and viewer source panel.
+
+
+### Berliner Bahnbrücken
+
+DB InfraGO AG / Deutsche Bahn AG, Infrastrukturdaten, Mai 2026. Die Streckenachsen der Eisenbahnbrücken wurden auf das Berliner Landesgebiet zugeschnitten und in lokale Modellkoordinaten umgerechnet. [Datensatz](https://data.gov.de/suche/daten/infrastrukturdaten-der-db-infrago) · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
+Gleise und Bauwerksumrisse © OpenStreetMap-Mitwirkende, extrahiert und den Tragwerken räumlich zugeordnet. Grundrisse von Pfeilern und Widerlagern nach Geoportal Berlin, ALKIS. GeoBasis-DE/LGB, bildbasiertes digitales Oberflächenmodell und digitales Geländemodell im Meterraster, als Höhenprofile ausgewertet. [OpenStreetMap, ODbL](https://www.openstreetmap.org/copyright) · [WCS bDOM](https://isk.geobasis-bb.de/ows/bdom_wcs) · [WCS DGM](https://isk.geobasis-bb.de/ows/dgm_wcs) · [Datenlizenz Deutschland – Namensnennung 2.0](https://www.govdata.de/dl-de/by-2-0) · [Bauwerks- und Bildnachweise](docs/stahlbahnbruecken-v369.md)

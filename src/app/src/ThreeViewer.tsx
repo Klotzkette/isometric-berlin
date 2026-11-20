@@ -523,6 +523,7 @@ import {
   setMinecraftLootBoxesVisible,
   updateMinecraftLootBoxes,
 } from "./MinecraftLootBoxes";
+import { hasDrawnHumboldthafenV369, restoreHumboldthafenWaterV369 } from "./HumboldthafenRailV369";
 import {
   RAIL_LINES_FILE,
   type RailPayload,
@@ -2146,6 +2147,7 @@ function startSurroundingCity(runtime: Runtime): void {
   if (runtime.disposed || runtime.loadSignal.aborted) return;
   const city = createSurroundingCity({
     allotmentDetailsV360: true,
+    steelRailBridgesV369: true,
     groundFinishV348:true,
     riverFinishV348:(mesh,selector)=>(runtime.riverRipplesV348??=createWaterRipplesV348()).bind(mesh,selector),
     manifestUrl: new URL("../surrounding-berlin-v159/manifest.json", runtime.sceneRootUrl),
@@ -4916,6 +4918,7 @@ function ensureIsoWorld(
             includeAltMitteCoreV169: false,
             detailProfile: runtime.coarsePointer ? "mobile" : "full",
             bridgeStructures: !runtime.signatures.getObjectByName("drawn bridge structures"),
+            bridgeStructureGroundV369: rail && ground && hasDrawnHumboldthafenV369(rail) ? restoreHumboldthafenWaterV369(ground, false) : undefined,
             coreSpreeBridgeFactoryV242: createCoreSpreeBridgesV242,
             retainRasterAsphalt: false,
             restoreRoadGroundV343: function* (slabs, sourceGround) {
@@ -6007,7 +6010,7 @@ function ensureVoxelWorld(
         // A cold Minecraft visit needs the same public bridge decks as a
         // warm visit. Their source geometry must exist before walking starts.
         provisionalBridges = createBridgeStructures(
-          payload, runtime.coarsePointer ? "mobile" : "full", true, createCoreSpreeBridgesV242,
+          restoreHumboldthafenWaterV369(payload), runtime.coarsePointer ? "mobile" : "full", true, createCoreSpreeBridgesV242,
         );
       }
       runtime.voxelWorld = provisionalVoxelWorld;

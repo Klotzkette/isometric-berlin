@@ -445,6 +445,8 @@ export type IsometricCityBuildOptions = {
   moabitMitteV300?: boolean; westKiezV302?: boolean; historicDomV288?: boolean; potsdamerCorridorV288?: boolean; chancelleryCanopySourceV289?: boolean;
   /** The shared bridge root may already have been installed by cold Minecraft. */
   bridgeStructures?: boolean;
+  /** Terrain for the raster bridge builder when a railway owns the harbour crossing. */
+  bridgeStructureGroundV369?: VoxelPayload;
   /** Required main-thread source bridge transaction; never imported by the geometry Worker. */
   coreSpreeBridgeFactoryV242?: typeof createCoreSpreeBridgesV242;
   /** v207 replaces only the inferred tower facade; source shells/ink remain. */
@@ -13587,7 +13589,7 @@ export function* createIsometricCityCoreStepsV309(
     yield;
     if (options.bridgeStructures !== false) {
       const bridges = createBridgeStructures(
-        ground,
+        options.bridgeStructureGroundV369 ?? ground,
         options.retainRasterAsphalt ? "mobile" : "full",
         options.includeLegacyMonbijou === false,
         options.coreSpreeBridgeFactoryV242,

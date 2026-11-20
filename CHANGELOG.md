@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.250
+
+- Follow Berlin’s mapped rail bridge decks with locally fitted structural members in the drawn and block-built views. See the [coverage and survey sources](docs/stahlbahnbruecken-v369.md).
+- Model paired columns and crossbeams beneath the Kreuzberg elevated line and the tubular steel arches of the Humboldthafen crossing.
+
 ## 1.0.249
 
 - Fit walkways, squares and planted strips to mapped surfaces inside and just outside the Ringbahn, in Steglitz and Wannsee, around Tempelhofer Feld, along the northern Schönhauser Allee corridor and around the western exhibition grounds and stadium.

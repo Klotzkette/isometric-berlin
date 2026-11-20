@@ -6,6 +6,7 @@ import {
 import data from "./data/southFidelityV294.json";
 import concert from "./data/concertHallsSource.json";
 import station from "./data/schlesischesTorV267.json";
+import { SKALITZER_PILOT_V369, skalitzerSectionV369 } from "./skalitzerStructureV369";
 import { createMauerContextV294 } from "./MauerContextV294";
 import { letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
@@ -125,22 +126,53 @@ export function southFidelityGeometryV294(native = false) {
       if (f.len < .01) continue;
       box(f.at(f.len / 2, 8.72), [f.len, .42, 2.85], DARK, "u1-source-course-elevated-deck", f.yaw);
       for (const v of [-.7175, .7175]) line(f.at(0, 9.04, v), f.at(f.len, 9.04, v), .09, 0x9aa69f, "u1-1435mm-elevated-rail");
-      for (const v of [-1.48, 1.48]) {
-        line(f.at(0, 8.12, v), f.at(f.len, 8.12, v), .14, DARK, "u1-bottom-lattice-chord");
-        line(f.at(0, 8.89, v), f.at(f.len, 8.89, v), .14, DARK, "u1-top-lattice-chord");
-        for (let u = 0; u < f.len - 4; u += 4) {
-          line(f.at(u, 8.15, v), f.at(u + 4, 8.86, v), .11, DARK, "u1-lattice-cross-brace");
-          line(f.at(u, 8.86, v), f.at(u + 4, 8.15, v), .11, DARK, "u1-lattice-cross-brace");
+      const splits = [0, f.len];
+      for (const bound of [SKALITZER_PILOT_V369.west, SKALITZER_PILOT_V369.east]) {
+        const u = (bound - a[0]) / f.dx;
+        if (u > 0 && u < f.len) splits.push(u);
+      }
+      splits.sort((left, right) => left - right);
+      for (let span = 1; span < splits.length; span++) {
+        const from = splits[span - 1], to = splits[span], mid = (from + to) / 2;
+        const x = a[0] + f.dx * mid;
+        if (x >= SKALITZER_PILOT_V369.west && x < SKALITZER_PILOT_V369.east) {
+          // Both western track ways are oppositely directed, with the outer
+          // face on their positive local side. Photos show solid plate webs.
+          box(f.at(mid, 8.49, 1.48), [to - from, .80, .12], 0x4b504e, "u1-skalitzer-plate-girder", f.yaw);
+          continue;
+        }
+        for (const v of [-1.48, 1.48]) {
+          line(f.at(from, 8.12, v), f.at(to, 8.12, v), .14, DARK, "u1-bottom-lattice-chord");
+          line(f.at(from, 8.89, v), f.at(to, 8.89, v), .14, DARK, "u1-top-lattice-chord");
+          for (let u = from; u < to - 4; u += 4) {
+            line(f.at(u, 8.15, v), f.at(u + 4, 8.86, v), .11, DARK, "u1-lattice-cross-brace");
+            line(f.at(u, 8.86, v), f.at(u + 4, 8.15, v), .11, DARK, "u1-lattice-cross-brace");
+          }
         }
       }
       while (nextSupport < walked + f.len) {
-        const u = nextSupport - walked;
-        raw(f.at(u, 5.47), [.25, 4.94, .25], DARK, "u1-slender-median-pier");
-        box(f.at(u, 8.15), [.50, .44, 2.8], DARK, "u1-pier-crosshead", f.yaw);
+        const u = nextSupport - walked, x = a[0] + f.dx * u;
+        if (x < SKALITZER_PILOT_V369.west || x > SKALITZER_PILOT_V369.east) {
+          raw(f.at(u, 5.47), [.25, 4.94, .25], DARK, "u1-slender-median-pier");
+          box(f.at(u, 8.15), [.50, .44, 2.8], DARK, "u1-pier-crosshead", f.yaw);
+        }
         nextSupport += 36;
       }
       walked += f.len;
     }
+  }
+  // The two rows of columns share transverse axes. Their navigation solids
+  // use these same rows, leaving the central Radbahn passage open.
+  for (const [x, gauge] of SKALITZER_PILOT_V369.pierPairs) {
+    const axis = skalitzerSectionV369(data.tracks, x);
+    if (!axis) continue;
+    for (const side of [-1, 1]) {
+      const v = side * gauge / 2;
+      raw([x - axis.dz * v, 5.50, axis.z + axis.dx * v],
+        [.43, 5.0, .43], 0x565956, "u1-slender-median-pier");
+    }
+    box([x, 8.17, axis.z], [.40, .38, axis.separation + 3.0], 0x454b48,
+      "u1-pier-crosshead", -Math.atan2(axis.dz, axis.dx));
   }
   // Small joint plates/cap bolts articulate the already retained station arches
   // and western truss, with no repeated second facade or changed source roofs.

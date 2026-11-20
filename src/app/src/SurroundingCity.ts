@@ -1,3 +1,5 @@
+import steelRailHostIdsV369 from "./data/steelRailHostIdsV369.json";
+import steelRailExteriorV369 from "./data/steelRailExteriorV369.json";
 import { tempelhoferFieldGroundAtV345 } from "./TempelhoferFieldV345";
 import { gardenTerrainGroundAtV330 } from "./GardenTerrainV330";
 import {hasUbahnGroundApproachSourceV326,ubahnGroundApproachAtV326} from "./UbahnGroundApproachesV326";
@@ -81,6 +83,14 @@ const allotmentExteriorDescriptorsV360: SurroundingChunkDescriptor[] = allotment
   ...tile, drawn: EXTERIOR_ALLOTMENT_ASSET, minecraft: EXTERIOR_ALLOTMENT_ASSET,
 }));
 const exteriorDescriptorsV360 = new WeakSet(allotmentExteriorDescriptorsV360);
+const railHostIds = new Set(steelRailHostIdsV369 as string[]);
+const skalitzerIds = new Set(["6_4", "7_4", "8_4", "9_4"]);
+const steelDescriptors: SurroundingChunkDescriptor[] = steelRailExteriorV369.map(tile => ({
+  id: tile.id, bounds: tile.bounds as [number, number, number, number],
+  drawn: EXTERIOR_ALLOTMENT_ASSET, minecraft: EXTERIOR_ALLOTMENT_ASSET,
+}));
+const exteriorSteel = new Set(steelDescriptors);
+
 type Resident = SurroundingChunkGeometry & { descriptor: SurroundingChunkDescriptor; lastWanted: number; southOwnersReadyV294: boolean; littenReadyV297:boolean; wallReadyV298:boolean;westReadyV302:boolean;neukoellnReadyV305:boolean;northCandidateV309:boolean;northReadyV309:boolean;treptowCandidateV317:boolean;treptowReadyV317:boolean;governmentCandidateV321:boolean;governmentReadyV321:boolean;universitiesCandidateV322:boolean;universitiesReadyV322:boolean;wilhelmCandidateV324:boolean;wilhelmReadyV324:boolean;wilhelmStreetCandidateV325:boolean;wilhelmStreetReadyV325:boolean;southwestCandidateV326:boolean;southwestReadyV326:boolean };
 export type SurroundingNavigationTile = {
   origin: readonly [number, number, number];
@@ -88,6 +98,7 @@ export type SurroundingNavigationTile = {
   nav: SurroundingNavigation;
 };
 export type SurroundingCityOptions = {
+  steelRailBridgesV369?: boolean;
   allotmentDetailsV360?: boolean;
   groundFinishV348?: boolean;
   riverFinishV348?: SurroundingOwnershipOptions["riverFinishV348"];
@@ -581,7 +592,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   };
   const updateNavigation = (): void => {
     options.onQuarterResidentsV303?.(new Set([...residents].filter(([,e])=>e.root.userData.sourceQuarterOwnersV303?.length>0).map(([id,e])=>`${e.root.userData.sourceQuarterNativeV303?"minecraft":"drawn"}:${id}`)));
-    navigationTiles = Array.from(residents.values()).filter(entry => !entry.descriptor.detailCompanionOf).map(entry => ({
+    navigationTiles = Array.from(residents.values()).filter(entry => !entry.descriptor.detailCompanionOf && !exteriorSteel.has(entry.descriptor)).map(entry => ({
       origin: entry.origin, bounds: entry.descriptor.bounds, nav: entry.nav,
     }));
   };
@@ -614,7 +625,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     const minecraft = mode === "minecraft";
     for (const descriptor of queue) {
       if (prefetches.size >= SURROUNDING_CITY_PREFETCH_COUNT) break;
-      if (exteriorDescriptorsV360.has(descriptor) || descriptor.id === active?.id || residents.has(descriptor.id) || prefetches.has(descriptor.id) ||
+      if (exteriorDescriptorsV360.has(descriptor) || exteriorSteel.has(descriptor) || descriptor.id === active?.id || residents.has(descriptor.id) || prefetches.has(descriptor.id) ||
           (previousDesired && !previousDesired.has(descriptor.id)) ||
           !desired.has(descriptor.id) || now() - (failedAt.get(descriptor.id) ?? -Infinity) < 30_000) continue;
       const asset = minecraft ? descriptor.minecraft : descriptor.drawn;
@@ -640,22 +651,24 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
         const familyRevision = revision;
         const minecraft = mode === "minecraft";
         const allotmentExterior = exteriorDescriptorsV360.has(descriptor);
+        const steelExterior = exteriorSteel.has(descriptor);
+        const localOnly = allotmentExterior || steelExterior;
         const asset = minecraft ? descriptor.minecraft : descriptor.drawn;
         const prefetched = takePrefetch(descriptor.id);
         const task = prefetched?.controller ?? new AbortController();
         active = { id: descriptor.id, controller: task };
         let unpublished: Group | null = null;
         try {
-          const loading = allotmentExterior ? Promise.resolve(undefined) : prefetched ? consumePrefetch(prefetched, task.signal, asset)
+          const loading = localOnly ? Promise.resolve(undefined) : prefetched ? consumePrefetch(prefetched, task.signal, asset)
             : fetchJsonBounded(fetcher, surroundingPacketUrl(descriptor, minecraft, options.manifestUrl), task.signal, asset.bytes + 64, asset, transportIdleMs);
-          const recipes=!allotmentExterior&&options.sourceQuartersV303===true&&options.loadSourceQuarterSourcesV309
+          const recipes=!localOnly&&options.sourceQuartersV303===true&&options.loadSourceQuarterSourcesV309
             ?Promise.resolve().then(()=>options.loadSourceQuarterSourcesV309!(descriptor.id,minecraft))
             :Promise.resolve(options.sourceQuarterSourcesV303);
           fillPrefetches();
           const [data,sourceQuarterSourcesV303] = await awaitPacketAndRecipesV309(loading,recipes,task.signal);
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id)) continue;
           // Reuse the foreground slot once the ordinary tile has finished transferring.
-          const hasAllotmentPlan = options.allotmentDetailsV360 === true && !descriptor.detailCompanionOf &&
+          const hasAllotmentPlan = !steelExterior && options.allotmentDetailsV360 === true && !descriptor.detailCompanionOf &&
             hasAllotmentDetailPlanV360(descriptor.id) &&
             descriptor.id !== "3_-3" && descriptor.id !== "4_-3" &&
             (options.publicSitesV326 !== true || ubahnCandidatesV326(descriptor.bounds).length === 0);
@@ -669,7 +682,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           const packet = allotmentExterior
             ? await finishV326(createAllotmentExteriorChunkV360(allotmentDetailsV360, descriptor.bounds, minecraft), task.signal)
             : data as SurroundingCityChunk;
-          if (!packet) throw Error("Invalid exterior allotment tile");
+          if (!packet && !steelExterior) throw Error("Invalid exterior allotment tile");
           const littenReadyV297=options.littenStadthausV297?.(minecraft)===true,wallReadyV298=options.wallGalleryV298?.(minecraft)===true;
           const wilhelmCandidateV324=sourceQuarterSourcesV303?.some(entry=>entry.admission==="wilhelm-v324")===true;
           const wilhelmReadyV324=wilhelmCandidateV324&&options.wilhelmHousingV324?.(minecraft)===true;
@@ -701,18 +714,28 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           const westAdmissionChangedV302=()=>westKiezPacketCandidateV302(descriptor.id,minecraft)&&westReadyV302!==(options.westKiezV302?.(minecraft)===true);
           const admissionChangedV298=()=>littenStadthausPacketCandidateV297(descriptor.id,minecraft)&&littenReadyV297!==(options.littenStadthausV297?.(minecraft)===true)||mauerparkTileV298(descriptor.id)&&wallReadyV298!==(options.wallGalleryV298?.(minecraft)===true);
           const southOwnersReady = options.southFidelityV294?.(minecraft) === true;
-          const southReceiptTile = SOUTH_RECEIPT_TILES_V294.has(`${minecraft ? "minecraft" : "drawn"}:${descriptor.id}`);
+          const southReceiptTile = (options.steelRailBridgesV369 && skalitzerIds.has(descriptor.id)) || SOUTH_RECEIPT_TILES_V294.has(`${minecraft ? "minecraft" : "drawn"}:${descriptor.id}`);
           const southAdmissionChanged = (): boolean => southReceiptTile && southOwnersReady !== (options.southFidelityV294?.(minecraft) === true);
           // Aperture hosts require one authenticated material for their full lifetime.
           const groundOverlaysV329 = options.publicSitesV326 !== true || !!descriptor.detailCompanionOf ||
             !sourceQuarterSourcesV303?.some(({kind}) => groundOverlayKindsV329.has(kind)) ||
             ubahnCandidatesV326(descriptor.bounds).length === 0;
-          const entry = await createStreamedSurroundingCityChunkV255(
-            packet, descriptor.id, minecraft, { signal: task.signal },
+          const entry: SurroundingChunkGeometry = steelExterior ? {
+            root: new Group(), origin: [0, 0, 0], geometryBytes: 0, bufferCount: 0,
+            nav: { groundY: 0, ground: [], buildings: [], water: [] },
+          } : await createStreamedSurroundingCityChunkV255(
+            packet!, descriptor.id, minecraft, { signal: task.signal },
             { groundFinishV348:options.groundFinishV348, riverFinishV348:options.riverFinishV348, operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,clusterFacadesV320:options.clusterFacadesV320,berlinSenateV321:options.berlinSenateV321,governmentOfficesV321:governmentReadyV321,universitiesV322:universitiesReadyV322,wilhelmHousingV324:wilhelmReadyV324,wilhelmStreetFrontsV325:wilhelmStreetReadyV325,southWestSitesV326:southwestReadyV326,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,groundOverlaysV329,transportDetailsV334:options.transportDetailsV334,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317,allotmentDetailsV360 },
           );
           unpublished = entry.root;
-          if(options.publicSitesV326===true&&!allotmentExterior&&!descriptor.detailCompanionOf&&!entry.gardenTerrainV330){
+          if (options.steelRailBridgesV369 && (railHostIds.has(descriptor.id) ||
+              (southOwnersReady && skalitzerIds.has(descriptor.id)) || steelExterior)) {
+            const { attachRailSteelV369 } = await import("./RailSteelPacketV369");
+            await attachRailSteelV369(entry, descriptor.id, minecraft, task.signal,
+              railHostIds.has(descriptor.id) || steelExterior, southOwnersReady && skalitzerIds.has(descriptor.id),
+              steelExterior ? undefined : packet ?? undefined, asset.sha256);
+          }
+          if(options.publicSitesV326===true&&!localOnly&&!descriptor.detailCompanionOf&&!entry.gardenTerrainV330){
             const originalHostsV326=entry.root.children.filter((o):o is Mesh=>o instanceof Mesh);
             const access=await finishV326(attachPacketUbahnAccessV326Steps(entry,minecraft,hasUbahnGroundApproachSourceV326(descriptor.id,minecraft,descriptor[minecraft?"minecraft":"drawn"])?(x,z)=>ubahnGroundApproachAtV326(x,z,minecraft):undefined,hasUbahnGroundApproachSourceV326(descriptor.id,minecraft,descriptor[minecraft?"minecraft":"drawn"])),task.signal);
             if(access){publicAccessV326.set(entry.root,access);entry.geometryBytes+=access.geometryBytes;entry.bufferCount+=access.bufferCount;}
@@ -771,10 +794,10 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       southAdmissionV294 = southReadyNow;
       const family = mode === "minecraft" ? "minecraft" : "drawn";
       let changed = false;
-      for (const [id, entry] of residents) if (SOUTH_RECEIPT_TILES_V294.has(`${family}:${id}`) && entry.southOwnersReadyV294 !== southReadyNow) {
+      for (const [id, entry] of residents) if ((SOUTH_RECEIPT_TILES_V294.has(`${family}:${id}`) || (options.steelRailBridgesV369 && skalitzerIds.has(id))) && entry.southOwnersReadyV294 !== southReadyNow) {
         evict(id); failedAt.delete(id); changed = true;
       }
-      if (active && SOUTH_RECEIPT_TILES_V294.has(`${family}:${active.id}`)) active.controller.abort();
+      if (active && (SOUTH_RECEIPT_TILES_V294.has(`${family}:${active.id}`) || (options.steelRailBridgesV369 && skalitzerIds.has(active.id)))) active.controller.abort();
       lastScan = -Infinity;
       if (changed) options.onChange?.();
     }
@@ -923,6 +946,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           manifest = options.allotmentDetailsV360 === true && allotmentExteriorDescriptorsV360.length
             ? { ...source, chunks: [...source.chunks, ...allotmentExteriorDescriptorsV360] }
             : source;
+          if (options.steelRailBridgesV369 && steelDescriptors.length) {
+            manifest = { ...manifest, chunks: [...manifest.chunks, ...steelDescriptors] };
+          }
           refresh();
         }
         return;
@@ -941,7 +967,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     for (const entry of residents.values()) {
       // A detail companion can finish before a failed primary retries. Its
       // intentionally empty navigation must never mask the later ground/water.
-      if (entry.descriptor.detailCompanionOf) continue;
+      if (entry.descriptor.detailCompanionOf || exteriorSteel.has(entry.descriptor)) continue;
       const b = entry.descriptor.bounds;
       if (x < b[0] || z < b[1] || x >= b[2] || z >= b[3]) continue;
       // Additive scopes can share a tile rectangle while owning disjoint land.

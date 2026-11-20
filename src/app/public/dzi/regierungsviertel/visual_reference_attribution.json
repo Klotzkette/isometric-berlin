@@ -5475,6 +5475,46 @@
       "credit": "Atelier LOIDL Landschaftsarchitekten",
       "role": "Public exterior reference",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "hochbahn_skalitzer_radbahn",
+      "title": "Görlitzer Bahnhof, Denkmal 09031019",
+      "page_url": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09031019",
+      "credit": "Landesdenkmalamt Berlin",
+      "role": "Hochbahnhof, Hallenprofil und Binder",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "hochbahn_skalitzer_radbahn",
+      "title": "Testfeld Skalitzer Straße, Genehmigungsplanung",
+      "page_url": "https://www.radbahn.berlin/media/pages/documents/00db98a70c-1773186503/testfeld_genehmigungsplanung_auszug-entwurfsbericht.pdf",
+      "credit": "fabulism + Lysann Schmidt / Reallabor Radbahn",
+      "role": "Lage der Bestandsstützen an der Mariannenstraße",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "hochbahn_skalitzer_radbahn",
+      "title": "Reallabor Radbahn, Abschlusspublikation 2024",
+      "page_url": "https://www.radbahn.berlin/media/pages/documents/b310e1636c-1726758488/abschlusspublikation-reallabor-radbahn-september-2024.pdf",
+      "credit": "Reallabor Radbahn",
+      "role": "Äußeres Erscheinungsbild der Querträger, Stützen und Randstege",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "eisenbahn_humboldthafen",
+      "title": "Humboldthafenbrücke",
+      "page_url": "https://www.sbp.de/projekt/humboldthafenbruecke/",
+      "credit": "schlaich bergermann partner; Projektverantwortlicher Hans Schober, Fotografien © Jürgen Schmidt",
+      "role": "Projektfotos und Tragwerksmaße",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "eisenbahn_humboldthafen",
+      "title": "Rohrknoten aus Stahlguss, Der Prüfingenieur 17, Oktober 2000",
+      "page_url": "https://www.bvpi.de/bvpi/downloads/der-pruefingenieur/Pruefingenieur_17.pdf",
+      "credit": "Hans Schober / Bundesvereinigung der Prüfingenieure für Bautechnik",
+      "role": "Lagepläne, Querschnitte und Gussknoten der Humboldthafenbrücke",
+      "photo_bundled": false
     }
   ]
 }

@@ -253,6 +253,7 @@ import { kulturforumMuseumReplacementColumn } from "./kulturforumMuseumsProfile"
 import { kulturforumPiazzettaReplacementColumn } from "./kulturforumPiazzettaV246Profile";
 import { createMinecraftNordicAndKasV246 } from "./NordicAndKasV246";
 import { createNativeRobertKochV246 } from "./NativeRobertKochV246";
+import { createHumboldthafenRailV369, hasNativeHumboldthafenV369, restoreHumboldthafenWaterV369 } from "./HumboldthafenRailV369";
 import { createMinecraftHbfBearingSupports } from "./HauptbahnhofBearingSupports";
 import { PARLIAMENT_ARCHITECTURE_IDS } from "./parliamentArchitectureProfile";
 import { createMinecraftParliamentArchitecture } from "./ParliamentArchitecture";
@@ -2461,7 +2462,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   const monbijouGroundCell = options.includeLegacyMonbijou === false
     ? createMonbijouGroundCellTesterV231(payload) : () => false;
-  const groundSlabs = yield* createGroundSlabsSteps(payload, "Voxel ground runs", CLASS_SHADES, {
+  const groundSlabs = yield* createGroundSlabsSteps(restoreHumboldthafenWaterV369(payload), "Voxel ground runs", CLASS_SHADES, {
       parkRelief: "native",
       terrainOverride: {
         bounds: SPREEBOGEN_BANK_BOUNDS,
@@ -2717,6 +2718,10 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
 
   group.add(createMinecraftHbfBearingSupports(worldGroundSampler(payload)));
+  if (hasNativeHumboldthafenV369(payload)) {
+    group.add(createHumboldthafenRailV369(HBF_CIRCULATION_V291.frame.anchorWorld[1] + 10.35, payload.water_top_y_m, true));
+    yield;
+  }
   group.add(createMinecraftMuseumLenneArchitecture(options.sourcePrisms ? { buildings: options.sourcePrisms.map(p => ({...p,class:0})) } : undefined, {voxels:payload,mobileLike:options.detailProfile === "mobile"}));
   yield;
   group.add(createMinecraftConcertHalls());
