@@ -39,10 +39,17 @@ export function assertSourceLayerV354(previous:Readonly<Record<string,string>>,f
 }
 export function isSourceAdditionV354(path:string):boolean{return Object.hasOwn(receipt.additions,path)||isSourceAdditionV355(path);}
 export function sourceAtBeforeV354(path:string,raw:Uint8Array):Uint8Array{
- raw=sourceAtBeforeV355(path,raw);
- const row=receipt.changes[path];if(!row)return raw;const hash=digest(raw);
- if(hash===row.before||(ancestors.get(path)??[]).some(a=>a.equals(raw)))return raw;
- const old=predecessors.get(path);if(hash!==row.after||!old)throw Error('Unknown exact v354 source bytes: '+path);return old;
+ const row = receipt.changes[path];
+ if (!row) return sourceAtBeforeV355(path, raw);
+ // Callers may already have reconstructed the exact v354 result. A later
+ // generation has no authority over those bytes or a verified predecessor.
+ const old = predecessors.get(path);
+ if (old && digest(raw) === row.after) return old;
+ if (digest(raw) === row.before || (ancestors.get(path) ?? []).some(a => a.equals(raw))) return raw;
+ const projected = sourceAtBeforeV355(path, raw);
+ if (digest(projected) === row.before || (ancestors.get(path) ?? []).some(a => a.equals(projected))) return projected;
+ if (!old || digest(projected) !== row.after) throw Error('Unknown exact v354 source bytes: '+path);
+ return old;
 }
 export function projectSourceBeforeV354(source:string):string{
  source=projectSourceBeforeV355(source);
