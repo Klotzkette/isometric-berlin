@@ -5515,6 +5515,54 @@
       "credit": "Hans Schober / Bundesvereinigung der Prüfingenieure für Bautechnik",
       "role": "Lagepläne, Querschnitte und Gussknoten der Humboldthafenbrücke",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "panke_walter_roeber",
+      "title": "Panke, Walter-Röber-Brücke und Bürgerpark",
+      "page_url": "https://www.berlin.de/sen/uvk/mobilitaet-und-verkehr/infrastruktur/wasserbau/ausbau-von-gewaessern/panke/",
+      "credit": "Senatsverwaltung für Mobilität, Verkehr, Klimaschutz und Umwelt",
+      "role": "Ziegel, begrünte Absätze und Böschungen",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "humboldthafen_ufereinfassung",
+      "title": "Uferwände am Humboldthafen",
+      "page_url": "https://www.berlin.de/sen/uvk/mobilitaet-und-verkehr/infrastruktur/wasserbau/uferwaende/humboldthafen/",
+      "credit": "Land Berlin",
+      "role": "Oberflächen und Materialwechsel am Hafenhals",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "spree_helgolaender_ufer",
+      "title": "Massive Uferwand am Helgoländer Ufer",
+      "page_url": "https://www.berlin.de/sen/uvk/_assets/verkehr/infrastruktur/wasserbau/uferwaende/spree-oder-wasserstrasse/sow03-massive-uferwand.jpg",
+      "credit": "Land Berlin",
+      "role": "Anordnung und Neigung des Steinmauerwerks",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "spree_rungestrasse",
+      "title": "Machbarkeitsstudie Spreeuferweg im Rungestraßenblock",
+      "page_url": "https://www.berlin.de/ba-mitte/politik-und-verwaltung/bezirksamt/beschluesse-des-bezirksamts/2024/619_2024_machbarkeitsstudie_prov-spreeuferweg-im-rungestrassenblockpdf_2.pdf",
+      "credit": "Bezirksamt Mitte von Berlin, Bestandsaufnahme nach Dorsch",
+      "role": "Materialabschnitte zwischen Jannowitz- und Michaelbrücke, S. 23–24",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "kanal_kornversuchsspeicher",
+      "title": "Kornversuchsspeicher, Blick vom Kanal",
+      "page_url": "https://ticket-b.de/wp-content/uploads/2023/06/F_E_Europacity_2_LidiaTirri_1168x762.jpg",
+      "credit": "Lidia Tirri / TICKET B",
+      "role": "Böschung und anschließende Steinverkleidung",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "kanal_kanaluferpark",
+      "title": "Vertical Wetlands",
+      "page_url": "https://www.igb-berlin.de/sites/default/files/media-files/download-files/igb_manual_vertical_wetlands.pdf",
+      "credit": "Leibniz-Institut für Gewässerökologie und Binnenfischerei / WITE",
+      "role": "Anordnung der Pflanzmodule an der Stahlspundwand am Golda-Meir-Steg",
+      "photo_bundled": false
     }
   ]
 }

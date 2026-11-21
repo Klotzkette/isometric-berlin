@@ -1,5 +1,4 @@
-import { Group, InstancedMesh, Mesh, type BufferGeometry, type Object3D } from "three";
-import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
+import { attachWorldSpaceDetail } from "./attachWorldSpaceDetail";
 import type { SteelRailSpanV369 } from "./SteelRailBridgesV369";
 import type { SurroundingCityChunk, SurroundingChunkGeometry } from "./SurroundingCityGeometry";
 
@@ -25,30 +24,6 @@ async function matchesRailHost(
   return Array.from(hash, byte => byte.toString(16).padStart(2, "0")).join("") === digest;
 }
 
-/** All parts are owned by this exact stream entry. Account for shared meshes
- * once, including instance transforms and colours as well as the deck caps. */
-function attach(entry: SurroundingChunkGeometry, part: Object3D) {
-  const anchor = new Group();
-  anchor.position.set(-entry.origin[0], -entry.origin[1], -entry.origin[2]);
-  anchor.add(part);
-  const arrays = new Set<ArrayBufferView>();
-  part.traverse(object => {
-    if (!(object instanceof Mesh)) return;
-    const geometry: BufferGeometry = object.geometry;
-    for (const attr of Object.values(geometry.attributes)) {
-      if ("array" in attr) arrays.add(attr.array);
-    }
-    if (object.geometry.index) arrays.add(object.geometry.index.array);
-    if (object instanceof InstancedMesh) {
-      arrays.add(object.instanceMatrix.array);
-      if (object.instanceColor) arrays.add(object.instanceColor.array);
-    }
-  });
-  entry.geometryBytes += [...arrays].reduce((bytes, array) => bytes + array.byteLength, 0);
-  entry.bufferCount += arrays.size;
-  entry.root.add(freezeStaticSceneTransforms(anchor));
-}
-
 export async function attachRailSteelV369(
   entry: SurroundingChunkGeometry, id: string, native: boolean, signal: AbortSignal,
   citywide: boolean, skalitzer: boolean, packet?: SurroundingCityChunk, wireHash?: string,
@@ -65,7 +40,7 @@ export async function attachRailSteelV369(
       signal.throwIfAborted();
       const members = createSteelRailBridgesV369(tile[family], native);
       if (members) {
-        attach(entry, members);
+        attachWorldSpaceDetail(entry, members);
         if (packet && tile[family].some(span => span.deck)) {
           const { restoreRailUnderpassFloorV369 } = await import("./RailUnderpassFloorsV369");
           signal.throwIfAborted();
@@ -78,6 +53,6 @@ export async function attachRailSteelV369(
     const { createSkalitzerSteelV369 } = await import("./SkalitzerSteelV369");
     signal.throwIfAborted();
     const members = createSkalitzerSteelV369(id, native);
-    if (members) attach(entry, members);
+    if (members) attachWorldSpaceDetail(entry, members);
   }
 }

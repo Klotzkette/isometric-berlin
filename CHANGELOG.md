@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.251
+
+- Model the folded steel sheet piles west of the Humboldthafen rail bridge, the masonry on its eastern bank and surveyed changes of material along the Spree, Berlin-Spandau shipping canal and Landwehrkanal.
+- Fit brick faces to documented sections of the Panke. At Tegeler See, distinguish the paved Greenwichpromenade, mapped reed beds and sandy bathing places. Both viewer styles follow their own existing shorelines. [Reaches and sources](docs/berliner-ufer-v370.md)
+
 ## 1.0.250
 
 - Follow Berlin’s mapped rail bridge decks with locally fitted structural members in the drawn and block-built views. See the [coverage and survey sources](docs/stahlbahnbruecken-v369.md).

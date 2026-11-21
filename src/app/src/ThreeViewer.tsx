@@ -2148,6 +2148,7 @@ function startSurroundingCity(runtime: Runtime): void {
   const city = createSurroundingCity({
     allotmentDetailsV360: true,
     steelRailBridgesV369: true,
+    waterwayBanksV370: true,
     groundFinishV348:true,
     riverFinishV348:(mesh,selector)=>(runtime.riverRipplesV348??=createWaterRipplesV348()).bind(mesh,selector),
     manifestUrl: new URL("../surrounding-berlin-v159/manifest.json", runtime.sceneRootUrl),

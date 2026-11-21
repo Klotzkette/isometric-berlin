@@ -47,6 +47,8 @@ Die Platzkanten folgen der Berliner Straßenbefahrung, vom Leopoldplatz bis zum 
 
 Unter der Kreuzberger Hochbahn lassen sich die paarigen Stützen, Querträger und ihre Anschlüsse aus der Nähe betrachten. Am Humboldthafen tragen silbergraue Stahlrohrbögen die Gleise am Hauptbahnhof. [Berliner Bahnbrücken](docs/stahlbahnbruecken-v369.md)
 
+Vom Wasser aus sieht man die gefalteten Stahlprofile am Humboldthafen, rote Ziegel an der Weddinger Panke und die gepflasterte Böschung an der Greenwichpromenade. [Ufer und Quellen](docs/berliner-ufer-v370.md)
+
 - **Frei bewegen:** die Ansicht drehen und zoomen, zu Fuß durch Berlin gehen
   oder über die Dächer schweben. Maus, Tastatur und Touch werden unterstützt.
 - **93 Tourstationen:** bekannte Wahrzeichen und kleinere Entdeckungen direkt
@@ -205,6 +207,8 @@ markers from historical border lines and records unresolved sites explicitly.
 
 Walk beneath the Kreuzberg elevated line to see its paired columns, crossbeams and connections. Silver-grey tubular arches carry the tracks at the Hauptbahnhof across Humboldthafen. [Berlin railway bridges](docs/stahlbahnbruecken-v369.md)
 
+From the water, look for folded steel piles at Humboldthafen, red brick along the Panke in Wedding and the slope of stone setts at Greenwichpromenade. [Waterfronts and sources](docs/berliner-ufer-v370.md)
+
 - **Move freely:** orbit, zoom, walk through the streets or fly above the
   rooftops, using a mouse, keyboard or touch controls.
 - **Follow 93 tour stops:** jump to major landmarks and smaller discoveries,
@@ -325,8 +329,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.250** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.250/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.251** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.251/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

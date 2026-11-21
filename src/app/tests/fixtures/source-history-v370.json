@@ -1,0 +1,34 @@
+{
+  "additions": {
+    "src/app/src/WaterwayBankPacketV370.ts": "adcfccd129a0ebd4ccb9f452e44f83f917963d44df4942ef767607b16afb2e1e",
+    "src/app/src/WaterwayBanksV370.ts": "b76a9c9a28e4bae6c02eb7ff481ec2499e35bae4f9e42c192e72f1e4f7e5ed57",
+    "src/app/src/attachWorldSpaceDetail.ts": "69ead45631a1e87b9ae964904feb6c6e04545207c390b65a291298a40c7e4b4b",
+    "src/app/src/data/waterwayBankHostsV370.json": "2c3a796c7e8a29f6a80a9496315ca46fc274d828ea2c568df45449b4a2ada367",
+    "src/app/src/data/waterwayBanksV370Central.json": "34539174e839bc43e6d91ff646b93eeea5761034b5633dc50a4882b9e64492a5",
+    "src/app/src/data/waterwayBanksV370North.json": "1448351557e217b87564991687bc1f16a77bd4247c212c387258496c66bac645",
+    "src/app/src/data/waterwayBanksV370Spree.json": "26e69e8cb26b3edb74f865dbbe20a5ea10fdc29b44ee565b29e79fb6fdf8b77a",
+    "src/app/src/waterwayMasonryV370.ts": "4641573c11ec100c989bb7761edc60371db663a223d5ed9aaf393fa9de597f25"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "b56f37651dd56389b95969b2141fce839664a3d3697644a71e463c1de51b652f",
+      "after": "f3b8b65b59f98386c6b4763e755d44d380d8d77aaa829387bf7c41fd8ccb2e4d"
+    },
+    "src/app/src/RailSteelPacketV369.ts": {
+      "before": "8d8c5346928fd27875207ef4f2096fd4432490e7855d08772074e4502164ed01",
+      "after": "4cbd15536f0e437a5b2e7fb359dbb5365bb058033b7a06366b6beb53d6751f6c"
+    },
+    "src/app/src/SourcesDialog.tsx": {
+      "before": "b2eb8e4d0df7f569393d510347985a43a04ccbbbbeaacd24760369478c3cdfd9",
+      "after": "f4a60f2d86973731a8cc2cc7960b0091c53573c6bf258459a91d12137ef513d1"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "before": "ff9f4350376c9f6cc3998c70abf3d6afe292952d90f02ae50480645a34e8e3e5",
+      "after": "706495c39272f49311c408f47d701c2fc620a1fa4793b7996db0f0d85666d4cc"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "2c2f97e4e4ec8ae18765b16da29b1ddef3a58b2891ecd046d1306ef765956ef0",
+      "after": "5116a4ee0117bcaefc9ddb42e781f3d8a9771ba850caefe77345bcf0353eff52"
+    }
+  }
+}

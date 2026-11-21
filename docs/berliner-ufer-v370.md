@@ -1,0 +1,11 @@
+# Berliner Ufer vom Wasser aus
+
+Die bearbeiteten Abschnitte ergeben zusammen rund 4,93 km Uferkante in der gezeichneten Ansicht. Gemessen ist die Länge der einzelnen Uferseiten.
+
+Am Humboldthafen haben die beiden Seiten unter der Stadtbahn unterschiedliche Gesichter. Westlich des Hafenhalses wirft jede Falte der Stahlspundwand eine schmale dunkle Kante. Gegenüber liegt die mit Stein verkleidete Wand. Am Berlin-Spandauer Schifffahrtskanal wechseln am Kornversuchsspeicher bewachsene Böschung, Stein und Stahl. Am Landwehrkanal folgen die Steine dem Gefälle des Lützowufers und des Schöneberger Ufers. [Abschnitte, Kataster und Bildvergleiche](berliner-ufer-zentrum-v370.md)
+
+Zwischen Jannowitzbrücke und Michaelbrücke wechselt die Einfassung innerhalb weniger hundert Meter. Die Bestandsaufnahme des Bezirksamts weist Stahl an den Abschnitten 1, 3 und 5 sowie Beton in den Abschnitten 4a und 4b aus. Das Modell zeichnet innenliegende Teile dieser fünf Abschnitte auf der bestehenden südlichen Uferkante nach. Die Materialwechsel an Treppen, Vorsprüngen und Übergängen sind nur ungefähr lokalisierbar. Der dazwischenliegende Holz- und Stahlbetonabschnitt 2 behält die bisherige Darstellung. Für die Einzelmaße der sichtbaren Profile, Fugen, Gurte und Abdeckungen verwendet das Modell Näherungen. [Machbarkeitsstudie des Bezirksamts Mitte, Bestandsplan und Tabelle auf S. 23–24](https://www.berlin.de/ba-mitte/politik-und-verwaltung/bezirksamt/beschluesse-des-bezirksamts/2024/619_2024_machbarkeitsstudie_prov-spreeuferweg-im-rungestrassenblockpdf_2.pdf)
+
+An der Weddinger Panke sind Ziegel in versetzten Reihen zu sehen. Im Bürgerpark geht das Ufer in eine bewachsene Böschung über. Am Tegeler See unterscheidet das Modell das Steinpflaster am Anleger der Greenwichpromenade von Sand an vier Badestellen und Röhricht an fünf kartierten Uferbereichen. [Ortsnachweise zu Panke und Tegeler See](berliner-ufer-nord-v370.md)
+
+Die Uferprofile sitzen direkt an den jeweiligen Wasserflächen. Die gezeichnete Ansicht folgt geschwungenen Linien, die Blockansicht den Stufen des vorhandenen Geländes. Beide nutzen den Wasserstand ihrer jeweiligen Karte. Die Daten für diese Abschnitte sind im öffentlichen Viewer und in den Offlinepaketen enthalten. [Verzeichnis der Modellabschnitte](../src/app/src/data/waterwayBankHostsV370.json)

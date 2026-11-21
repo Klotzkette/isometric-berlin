@@ -7162,6 +7162,17 @@
       "credit": "Андрей Бобровский / CC BY 3.0",
       "role": "external_visual_QA_reference_attribution_only",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "tegeler_see_greenwichpromenade",
+      "title": "File:Tegel Greenwichpromenade Anlegestelle.JPG",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Tegel_Greenwichpromenade_Anlegestelle.JPG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Fridolin freudenfett",
+      "credit": "Fridolin freudenfett / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
     }
   ]
 }
