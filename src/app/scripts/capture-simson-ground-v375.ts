@@ -21,7 +21,7 @@ const surfaces = await Bun.file(base + "surface-polygons.json").json() as Surfac
 const scene = await Bun.file(base + "scene.json").json();
 const prisms = await Bun.file(base + "lod2-prisms.json").json();
 
-const xmin = 120, zmin = 107, xmax = 390, zmax = 304;
+const [xmin,zmin,xmax,zmax] = process.argv.includes("--woods") ? [100,105,390,312] : [120,107,390,304];
 const rows: number[][] = [];
 const tris: [string, string, number, number[], number[]][] = [];
 const terrain = districtStreetTerrainSampler(ground);

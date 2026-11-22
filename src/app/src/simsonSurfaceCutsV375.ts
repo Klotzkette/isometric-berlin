@@ -1,9 +1,9 @@
-import { BufferAttribute, BufferGeometry, Vector3, type Group, type Mesh, type TypedArrayConstructor } from "three";
+import { BufferAttribute, BufferGeometry, Vector3, type Object3D, type Mesh, type TypedArrayConstructor } from "three";
 import { gunzipSync } from "three/examples/jsm/libs/fflate.module.js";
 import { decodeBase64Bytes } from "./decodeBase64Bytes";
 import cuts from "./data/simsonCutsV375.json";
 
-type Cut = {records: string; fragments: string};
+type Cut = {records: string; fragments: string; xzGuard?: number; preCut?: readonly number[]};
 const batches: Record<string, Record<string, Cut>> = cuts;
 
 function unpack(text: string): Int32Array {
@@ -15,11 +15,49 @@ function unpack(text: string): Int32Array {
 /** Replace only the listed original faces. The source can belong to other meshes. */
 export function cutSimsonGeometryV375(source: BufferGeometry, cut: Cut): BufferGeometry {
   if (source.userData.simsonCutsV375) return source;
-  const rows = unpack(cut.records), pieces = unpack(cut.fragments);
+  let rows = unpack(cut.records), pieces = unpack(cut.fragments);
   const position = source.getAttribute("position"), original = source.getIndex();
   const oldCount = original?.count ?? position?.count;
   if (!position || position.itemSize !== 3 || rows.length === 0 || rows.length % 5 ||
       pieces.length % 6 || oldCount % 3 || Object.keys(source.morphAttributes).length) return source;
+
+  if (cut.xzGuard !== undefined) {
+    const scratch = new Float32Array(1), bits = new Uint32Array(scratch.buffer);
+    let hash = 2166136261;
+    for (let i = 0; i < rows.length; i += 5) {
+      for (let k = 1; k < 4; k++) {
+        const v = rows[i+k];
+        if (v < 0 || v >= position.count) return source;
+        hash = Math.imul(hash ^ v,16777619);
+        scratch[0] = position.getX(v) || 0;
+        hash = Math.imul(hash ^ bits[0],16777619);
+        scratch[0] = position.getZ(v) || 0;
+        hash = Math.imul(hash ^ bits[0],16777619);
+      }
+    }
+    if ((hash >>> 0) !== cut.xzGuard) return source;
+  }
+  // An earlier exact city-wide lawn cut can already own two crossing faces.
+  // It preserves their indices as (A,A,A) and a separate retained child. In
+  // that case the child has its own packet below. A missing optional city
+  // packet leaves the original (A,B,C) intact, and its normal cut applies.
+  if (original && source.userData.mittePathLawnV375 && cut.preCut?.length) {
+    const accepted: number[] = [], corners: number[] = [];
+    let start = 0;
+    for (let i = 0; i < rows.length; i += 5) {
+      const face = rows[i], end = start + rows[i+4] * 6;
+      if (cut.preCut.includes(face)) {
+        const a = rows[i+1];
+        if (original.getX(face*3) !== a || original.getX(face*3+1) !== a || original.getX(face*3+2) !== a) return source;
+      } else {
+        accepted.push(...rows.subarray(i,i+5));
+        for (let j = start; j < end; j++) corners.push(pieces[j]);
+      }
+      start = end;
+    }
+    rows = Int32Array.from(accepted);
+    pieces = Int32Array.from(corners);
+  }
 
   // Check the complete patch before allocating or changing any draw buffers.
   let previous = -1, triangles = 0;
@@ -124,7 +162,7 @@ export function cutSimsonGeometryV375(source: BufferGeometry, cut: Cut): BufferG
   return result;
 }
 
-export function applySimsonCutsV375(root: Group, batchId: string): void {
+export function applySimsonCutsV375(root: Object3D, batchId: string): void {
   if (!Object.hasOwn(batches, batchId)) return;
   const batch = batches[batchId];
   root.traverse(object => {

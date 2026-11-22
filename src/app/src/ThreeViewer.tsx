@@ -125,6 +125,9 @@ import { createRosengarten, createRosengartenMinecraft } from "./Rosengarten";
 import { createTunnelPortalApproachTester } from "./TunnelPortals";
 import { pointInDistrictStreetScope } from "./districtStreetScope";
 import { gateGardenLawnV374, gateGroundInkV374, gateSurveyAdmitsV374 } from "./GateForecourtsV374";
+import { cutSimsonWoodGroundV375 } from "./SimsonWoodGroundV375";
+import { applySimsonCutsV375 } from "./simsonSurfaceCutsV375";
+import { admitsSimsonGroundV375 } from "./simsonGroundGuardV375";
 import { createDistrictStreets, districtStreetTerrainSampler, districtPathMayFollowTerrain } from "./DistrictStreets";
 import { simulationStartCamera } from "./simulationStartViews";
 import { StartupPresentation } from "./StartupPresentation";
@@ -4963,6 +4966,10 @@ function ensureIsoWorld(
                 mittePlazaEdgesV367.attachMitteSquareStreetsV367(slabs, sourceGround);
                 yield;
                 mittePlazaEdgesV367.restoreMittePathGroundV375(slabs, sourceGround, ISO_GROUND_SHADES.grass);
+                if (admitsSimsonGroundV375(sourceGround)) {
+                  applySimsonCutsV375(slabs,"woodRaster");
+                  cutSimsonWoodGroundV375(slabs,sourceGround);
+                }
               }
               if (invalidenGround && invalidenPark) {
                 const sample = smoothGroundTopSampler(sourceGround);

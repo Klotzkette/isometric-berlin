@@ -1,3 +1,4 @@
+import { createSimsonWoodsV375 } from "./SimsonWoodsV375";
 import { createSimsonPathsV375 } from "./SimsonPathsV375";
 import { admitsSimsonGroundV375 } from "./simsonGroundGuardV375";
 import { applySimsonCutsV375 } from "./simsonSurfaceCutsV375";
@@ -116,7 +117,8 @@ export function createDistrictStreets(ground: VoxelPayload, excludedMarkings: Re
   const group = createSourceStreetSurfaces(ground, streets, "District streets and roadside paths", excludedMarkings, transaction, gate);
   if (gate && surveyedSimson && admitsSimsonGroundV375(ground)) {
     applySimsonCutsV375(group,"district");
-    group.add(createSimsonPathsV375(districtStreetTerrainSampler(ground)));
+    const terrainAt = districtStreetTerrainSampler(ground);
+    group.add(createSimsonPathsV375(terrainAt),createSimsonWoodsV375(terrainAt));
   }
   if (gate) group.add(createGateForecourtsV374(districtStreetTerrainSampler(ground)));
   if (transaction) {

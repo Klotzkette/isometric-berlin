@@ -3,6 +3,7 @@ import { Color, LinearSRGBColorSpace, Mesh, Raycaster, Vector3 } from "three";
 import raw from "../public/mesh/regierungsviertel/ground-context.json";
 import { createDistrictStreets, districtStreetTerrainSampler } from "../src/DistrictStreets";
 import { GATE_FORECOURTS_V374 } from "../src/GateForecourtsV374";
+import { SIMSON_WOODS_V375 } from "../src/SimsonWoodsV375";
 import { SIMSON_PATHS_V375 } from "../src/SimsonPathsV375";
 import { admitsSimsonGroundV375 } from "../src/simsonGroundGuardV375";
 import type { VoxelPayload } from "../src/terrainPayload";
@@ -42,6 +43,17 @@ test("the first published street group owns the surveyed mosaic and gravel cours
   }
   expect(path.geometry.getAttribute("position").count).toBeLessThan(4000);
   expect(path.userData.nightMaterial).toBeDefined();
+  const woods = root.getObjectByName(SIMSON_WOODS_V375) as Mesh;
+  // In v254/v255 these four real camera pixels alternatingly hit a 4 m slab
+  // or one of two overlapping park plates. Two are above cadastral tunnels.
+  for (const [x,z] of [[161.17,250.896],[175.599,249.508],[342.109,228.251],[343.932,211.77]]) {
+    const hit = ray(x,z).intersectObject(root,true)[0];
+    expect(hit.object).toBe(woods);
+    expect(Math.abs(hit.point.y - dgm(x,z) - .06)).toBeLessThan(.017);
+  }
+  for (const [x,z] of [[310.207,185.92],[113.062,261.611],[303.47,223.16],[338,253]]) {
+    expect(ray(x,z).intersectObject(woods)).toHaveLength(0);
+  }
 });
 
 test("the correction is guarded against a different ground survey and keeps historical options", () => {
@@ -71,10 +83,21 @@ test("all six arriving production batches retire their captured faces before tra
     expect(actual).not.toBe(old);
     expect(actual.userData.simsonCutsV375).toBeTrue();
   };
+  const {applyMittePathLawnV375} = await import("../src/MittePathLawnV375");
+  const general = await Bun.file(import.meta.dir+"/../src/data/mittePathLawnV375.json").json();
   const parks = splitParkSurfaceFamily(surfaces);
   for (const [n, payload] of parks.slice(0,3).entries()) {
     const root = createSmoothSurfaces(payload,0,5.35,terrain,options);
+    applyMittePathLawnV375(root,general);
     check(root,"surface-parks-"+(n+1),"smooth parkland lawns");
+    if (n===0) {
+      const complement = root.getObjectByName("Retained park lawn beside mapped paths in Mitte v375") as Mesh;
+      expect(complement.geometry.userData.simsonCutsV375).toBeTrue();
+    }
+    const lawn = root.getObjectByName("smooth parkland lawns") as Mesh;
+    for (const [x,z] of [[161.17,250.896],[342.109,228.251]]) {
+      expect(ray(x,z).intersectObject(lawn,true)).toHaveLength(0);
+    }
   }
   for (const kind of ["sand","earth"] as const) {
     const root = createSmoothSurfaces(surfaceFamilyPayload(surfaces,kind),0,5.35,terrain,options);

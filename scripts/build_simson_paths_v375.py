@@ -12,6 +12,8 @@ import shapely as sh
 from build_exterior_street_margins_v373 import MESH, dm_polygon, polygon_only, world
 from build_gate_forecourts_v374 import encode, faces, merged
 from shapely.geometry import Polygon, box, shape
+from simson_woods_v375 import load as read_wood_source
+from simson_woods_v375 import retained_lawns, wood_cover
 
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "geo_data/regierungsviertel"
@@ -289,40 +291,79 @@ def bake(source):
     "indices": encode(idx, "<u2"),
     "areas": {k: round(p.area, 2) for k, p in styles.items()},
   }
-  batches = defaultdict(lambda: defaultdict(lambda: [[], []]))
-  for group, name, face, orig, coords in source["baseline"]["tris"]:
-    if (
-      group == "rasterComplement"
-      or group == "district"
-      and name != "District mapped paved walkways"
-    ):
+  # All of these cuts must use the same original index space. Join the
+  # measured walk and the positive woodland for the arriving park faces;
+  # preserve the pre-existing paths inside the park by working on their
+  # separate source surface and by respecting the prior city-wide lawn cut.
+  woods = read_wood_source()
+  woodland = wood_cover(woods, source, cover, gate_ownership())
+  park_coverage = merged([cover, woodland])
+  remainder, prior_retired = retained_lawns(park_coverage)
+  receipts = {
+    (group, name, face): (indices, coords)
+    for group, name, face, indices, coords in source["baseline"]["tris"]
+    if group != "rasterComplement"
+  }
+  for group, name, face, indices, coords in [*woods["tris"], *remainder]:
+    if group == "rasterComplement" and max(coords[1::3]) < 3:
       continue
-    p = np.array(coords).reshape(3, 3)[:, [0, 2]]
+    receipts[group, name, face] = (indices, coords)
+  batches = defaultdict(lambda: defaultdict(lambda: [[], []]))
+  allow_degenerate = defaultdict(list)
+  signatures = {}
+  for (group, name, face), (orig, coords) in sorted(receipts.items()):
+    if group == "district" and name != "District mapped paved walkways":
+      continue
+    p = np.asarray(coords).reshape(3, 3)[:, [0, 2]]
     tri = Polygon(p)
-    if tri.intersection(cover).area < 0.00005:
+    cut = (
+      park_coverage
+      if group.startswith("parks-")
+      else woodland
+      if group == "rasterComplement"
+      else cover
+    )
+    if tri.intersection(cut).area < 0.00005:
       continue
     batchid = (
       group.removeprefix("restored-")
       if group.startswith("restored-")
+      else "woodRaster"
+      if group == "rasterComplement"
       else "surface-" + group
       if group != "district"
       else group
     )
+    if name == "smooth parkland lawns" and face in prior_retired.get(group, set()):
+      allow_degenerate[batchid].append(face)
     records, fragments = batches[batchid][name]
-    outside = list(faces(tri.difference(cover)))
+    signature = signatures.get((batchid, name), 2166136261)
+    # Raster complements from different legacy cuts can have the same tile
+    # name. Attest to their actual projected Float32 vertices as well as IDs.
+    for vertex, (xx, zz) in zip(orig, p):
+      words = np.asarray([xx or 0, zz or 0], dtype="<f4").view("<u4")
+      for word in [vertex, *words]:
+        signature = ((signature ^ int(word)) * 16777619) & 0xFFFFFFFF
+    signatures[batchid, name] = signature
+    outside = list(faces(tri.difference(cut)))
     for t in outside:
-      # faces() emits upward-facing Three.js triangles. Preserve legacy order.
       fragments.extend(
         np.ravel(t if not tri.exterior.is_ccw else list(reversed(t))).tolist()
       )
     records.extend([face, *orig, len(outside)])
   cuts = {
     k: {
-      n: {"records": encode(rr, "<u4"), "fragments": encode(f, "<i4")}
+      n: {
+        "records": encode(rr, "<u4"),
+        "fragments": encode(f, "<i4"),
+        "xzGuard": signatures[k, n],
+      }
       for n, (rr, f) in group.items()
     }
     for k, group in batches.items()
   }
+  for key, ids in allow_degenerate.items():
+    cuts[key]["smooth parkland lawns"]["preCut"] = sorted(ids)
   return geometry, cuts
 
 
