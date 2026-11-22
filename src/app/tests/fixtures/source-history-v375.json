@@ -1,0 +1,64 @@
+{
+  "additions": {
+    "src/app/src/MittePathDepthV375.ts": "514a2f65a07b124bba4974644f2b1f2309378035b06e750ce6007e5bc4cac16b",
+    "src/app/src/MittePathLawnV375.ts": "242b1074f116616b790ed3396577ad40e18cf0965e760ebe1d74c5d2728c8223",
+    "src/app/src/MitteTreesV375.ts": "fdb7f8e89bc5466547704fd193661a8ea38e3c3b9ff4754b194d7f5bd6b79daf",
+    "src/app/src/SimsonPathsV375.ts": "0e944912b6349402c24a0e635123c5940541124b9e1c6f59b08c9ecf397a7ad5",
+    "src/app/src/SimsonWoodGroundV375.ts": "b5cb700fd643592dbe6bd41d36995b4f911bb0e5d16c7a73e2fb700eda5491a1",
+    "src/app/src/SimsonWoodsV375.ts": "5db9ab12d9472b20c9cc576d0d3ebf858c8441099ede95a6a8f77864ee1de0d8",
+    "src/app/src/SintiRomaApronV375.ts": "d0d6010414abdee82aa59d561d92a23e2709cd13f3a996bdf4deec3cf0764cc3",
+    "src/app/src/data/mittePathDepthV375.json": "b84b88cb25969126ecd524bd2ccbc8a75daa0023bd06b04383fd89afc2bb69c3",
+    "src/app/src/data/mittePathLawnV375.json": "a3fa54801ccf9daa8f38d698645d9eb87272ee1d0efdd6c507f7f41b3d992005",
+    "src/app/src/data/mitteTreesV375.json": "df38544b7e27bf846154f437ee9c6a13d0a25de2be90b53ddd1299e8a21fbf18",
+    "src/app/src/data/simsonCutsV375.json": "a91b32c0b0cbed64bc5819bf074ee2eba3acb6b67a33fa1e7a1e07e00f1b807f",
+    "src/app/src/data/simsonPathsV375.json": "725421696bcfea1e7dc9dc81db4f5b1324bb54217e19f02a8c19c8ea18317dbc",
+    "src/app/src/data/simsonWoodRasterV375.json": "6469da4462ef04ea9dd5a31a76999e8617564b0b7f78091d5781abbcbb6836be",
+    "src/app/src/data/simsonWoodsV375.json": "5bc3ce3bf42c8dadda857c491153d9fadb8b6f4f5e1a536ae7ea0c05863578ee",
+    "src/app/src/data/sintiRomaApronV375.json": "2fa46b7aa978e07c0b5d38e166b49ca44896f70f6c7cba8b77a7cfa2fd45c228",
+    "src/app/src/mittePathArrivalV375.ts": "bc0bf6a00703b2e7983bae674cdb9023c6411d794399968a5cbdcec438571c5b",
+    "src/app/src/simsonGroundGuardV375.ts": "9797b1b23aa599e5c849cd7489c2ef0560815dae61045d65dbaa40d0a15e5eba",
+    "src/app/src/simsonSurfaceCutsV375.ts": "9a7d095b6c9c94dd1d87a128b21c1dd230cb3fef3d425075500d73c68b64eb28"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "after": "0128f1df1d4ff31bc2a68cd5eb04b459c5e0446d801e96963a75992e4c09e06d",
+      "before": "e616d41cfd1fa98f26c7fef5209881d4fab876c839e0ea902662ad272a3f4455"
+    },
+    "src/app/src/DistrictStreets.ts": {
+      "after": "49d007154ee66d411e854a903b44453ca72bb128d8d79734284b961f1689ea65",
+      "before": "b90924ef78b7298161c85d5b6e583893f01eea6045f210747de0252eb8557875"
+    },
+    "src/app/src/GateForecourtsV374.ts": {
+      "after": "62f2d89dd637a066008a6ed5857aa0e9b08bbf468e3daa08fbf0e17cd1cb0bd6",
+      "before": "1d4bc1d5ec77b9f80f886ef1fc305a7acffd8fd9b3748d7b97044cabba421c8a"
+    },
+    "src/app/src/MittePlazaEdgesV367.ts": {
+      "after": "9b66e091de0d4543229a781f99a3e4ed51785c6240925667a4c480bffac0b1cc",
+      "before": "f79675b53ff6f87548815312636e91b6124bb56fbf4b49c6df9f18a135f088f3"
+    },
+    "src/app/src/ParkDetails.ts": {
+      "after": "5dbfdde3585ff7e9166fba7a1902bca96413916a8fa726f67e5841270992268a",
+      "before": "9574acab06600b1991df25ea040dd79541607f7860bf5bf0d0f3bfe5feda4420"
+    },
+    "src/app/src/SourcesDialog.tsx": {
+      "after": "227f44d1dc97d3e773fb2015f2b96cb46f3f7773b533e1b5bb4d666745b8e780",
+      "before": "f4a60f2d86973731a8cc2cc7960b0091c53573c6bf258459a91d12137ef513d1"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "after": "16a08342642dec9ff9010be8ebacb966f6faec7080653687e02be6f72a14673b",
+      "before": "c263316d6fd266abfcd170ca58122dbf8331e7e2f7a7eed121e83933ee5a11de"
+    },
+    "src/app/src/drawnWaterBoundary.ts": {
+      "after": "1b4955cd533f560cd471837c7f23e07d75ca6e59456314bfd57cac92c33d9183",
+      "before": "ea3a6a757568eff5c4fa98cae1cbdb0a55099410142db0f07a81708df8c0424b"
+    },
+    "src/app/src/pedestrianNavigation.ts": {
+      "after": "95bb56eda70342b07e2b0f8c069f2e8e14c8f335ff56a8858f4ffe624ba3f7f3",
+      "before": "227c0cd65f1a7b3a5232f38e893b6ad01ed91e24d12d6e540e907faa7691fb20"
+    },
+    "src/app/src/progressiveWorld.worker.ts": {
+      "after": "a45ff9934297cf1348c666745390e87523f8bee29dbf0a2ec85283b1dc33e287",
+      "before": "4f81efe85a3132e10d3e60a4733caed9adc0bc0f065060a374a9dddd6973233b"
+    }
+  }
+}
