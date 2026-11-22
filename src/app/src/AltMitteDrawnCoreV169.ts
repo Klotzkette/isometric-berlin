@@ -13,7 +13,7 @@ import {
 const payload = /*#__PURE__*/ (() => ({ ...source, hospitalCorrection, springerCorrection, eastCinemasCorrection }))() as unknown as AltMitteCoreV169Source;
 /** All drawn modes and input profiles use the identical measured envelope. */
 export function createAltMitteCoreV169(
-  options: { mobileLike?: boolean } & BndArtCourtOptionsV314 = {},
+  options: { mobileLike?: boolean; gateWingsV374?: boolean } & BndArtCourtOptionsV314 = {},
 ) {
   return finishPariserNeighboursV374(createAltMitteCoreV169FromSource(payload, false, bndArtCourtOwnershipV314(options)));
 }
