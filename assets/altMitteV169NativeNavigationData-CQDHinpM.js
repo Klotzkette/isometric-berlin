@@ -1,1 +1,0 @@
-import{t as e}from"./alt-mitte-v169-navigation-packet-000-Bn9v701Z.js";import{t}from"./alt-mitte-v169-navigation-packet-006-DLG972R7.js";import{t as n}from"./alt-mitte-v169-navigation-packet-007-C60ClC06.js";var r={legacyPrisms:e,nativeRoofCells:[],nativeRoofSpans:[...t,...n]};export{r as default};
