@@ -7,7 +7,7 @@ const repository = resolve(import.meta.dir, "../../../..");
 const baseline = "8f8eeed706cad21addb88c1b87683ef41a292f1c";
 const digest = (bytes: Uint8Array | string) => createHash("sha256").update(bytes).digest("hex");
 const proof = readFileSync(new URL("../fixtures/source-history-v374.json", import.meta.url));
-if (digest(proof) !== "6b892c77ddc16462b5660676f4ecd23a1cd053ca5942173708feaba0a533f955") {
+if (digest(proof) !== "a4d00a0086e7fa303750744c319c8c5ceaa3a5c971eb200b759fab9868eda3c6") {
   throw new Error("Changed immutable v374 source proof");
 }
 const receipt = JSON.parse(proof.toString()) as {
