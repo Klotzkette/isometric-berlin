@@ -62,11 +62,13 @@ function renderable(object: Object3D): object is Renderable {
 
 /** WebGLAttributes keys interleaved fields by their common data object. */
 function geometryStorage(geometry: BufferGeometry): AttributeStorage[] {
-  const attributes = Object.values(geometry.attributes);
-  if (geometry.index) attributes.push(geometry.index);
-  return [...new Set(attributes.map(attribute =>
-    "isInterleavedBufferAttribute" in attribute ? attribute.data : attribute,
-  ))];
+  const storages: AttributeStorage[] = [];
+  for (const attribute of Object.values(geometry.attributes)) {
+    const storage = "isInterleavedBufferAttribute" in attribute ? attribute.data : attribute;
+    if (!storages.includes(storage)) storages.push(storage);
+  }
+  if (geometry.index && !storages.includes(geometry.index)) storages.push(geometry.index);
+  return storages;
 }
 
 /**
@@ -110,7 +112,9 @@ export function createSceneGeometryGpuResidency(
   const clock = options.now ?? (() => performance.now());
   const owners = new Map<Renderable, Owner>();
   const geometries = new Map<BufferGeometry, GeometryEntry>();
-  const attributeOwners = new Map<AttributeStorage, Set<GeometryEntry>>();
+  // Each entry registers its deduplicated attribute storage once. Eviction
+  // only needs the number of geometries sharing a handle.
+  const attributeOwnerCounts = new Map<AttributeStorage, number>();
   const residentAttributes = new Map<AttributeStorage, number>();
   const residentSizes = new Map<AttributeStorage, number>();
   const scan: GeometryEntry[] = [];
@@ -156,25 +160,26 @@ export function createSceneGeometryGpuResidency(
     }
     residentAttributes.set(attribute, count + 1);
   };
-  const registerAttribute = (entry: GeometryEntry, attribute: AttributeStorage): void => {
-    let sharing = attributeOwners.get(attribute);
-    if (!sharing) attributeOwners.set(attribute, sharing = new Set());
-    sharing.add(entry);
+  const registerAttribute = (attribute: AttributeStorage): void => {
+    attributeOwnerCounts.set(attribute, (attributeOwnerCounts.get(attribute) ?? 0) + 1);
   };
   const unregisterAttributes = (entry: GeometryEntry): void => {
     for (const attribute of entry.attributes) {
-      const sharing = attributeOwners.get(attribute);
-      sharing?.delete(entry);
-      if (sharing?.size === 0) attributeOwners.delete(attribute);
+      const count = attributeOwnerCounts.get(attribute)!;
+      if (count === 1) attributeOwnerCounts.delete(attribute);
+      else attributeOwnerCounts.set(attribute, count - 1);
     }
   };
   const observedUpload = (entry: GeometryEntry, wireframe: boolean): void => {
     if (!entry.resident) {
       const current = geometryStorage(entry.geometry);
       // Preparation may interleave storage between registration and first draw.
-      unregisterAttributes(entry);
-      entry.attributes = current;
-      for (const attribute of current) registerAttribute(entry, attribute);
+      if (current.length !== entry.attributes.length ||
+          current.some(attribute => !entry.attributes.includes(attribute))) {
+        unregisterAttributes(entry);
+        entry.attributes = current;
+        for (const attribute of current) registerAttribute(attribute);
+      }
       entry.resident = true;
       entry.mutable = false;
       for (const attribute of current) {
@@ -195,7 +200,7 @@ export function createSceneGeometryGpuResidency(
     for (const attribute of current) {
       if (entry.attributes.includes(attribute)) continue;
       entry.attributes.push(attribute);
-      registerAttribute(entry, attribute);
+      registerAttribute(attribute);
       countUpload(attribute);
     }
     return false;
@@ -216,6 +221,9 @@ export function createSceneGeometryGpuResidency(
     geometries.delete(entry.geometry);
   };
   const compactScan = (): void => {
+    // One live scan entry per registered geometry. An append-only enqueue
+    // leaves the scan packed even when many earlier districts are registered.
+    if (scan.length === geometries.size) return;
     let retained = 0;
     for (const entry of scan) if (entry.owners.size) scan[retained++] = entry;
     scan.length = retained;
@@ -236,7 +244,7 @@ export function createSceneGeometryGpuResidency(
           onDispose: () => forgetUpload(entry!),
         };
         geometries.set(object.geometry, entry);
-        for (const attribute of entry.attributes) registerAttribute(entry, attribute);
+        for (const attribute of entry.attributes) registerAttribute(attribute);
         object.geometry.addEventListener("dispose", entry.onDispose);
         scan.push(entry);
       }
@@ -273,7 +281,7 @@ export function createSceneGeometryGpuResidency(
     if(disposed)return false;if(!renderable(object))return true;const owner=owners.get(object);if(!owner)return true;
     const entry=owner.entry;if(object.geometry!==entry.geometry)return false;
     if(entry.owners.size===1){
-      if(entry.mutable||!unchangedStorage(entry)||entry.attributes.some(a=>(attributeOwners.get(a)?.size??0)!==1))return false;
+      if(entry.mutable||!unchangedStorage(entry)||entry.attributes.some(a=>(attributeOwnerCounts.get(a)??0)!==1))return false;
       if(entry.resident){retainedGpuGeometryRetirementsV309.add(entry.geometry);try{entry.geometry.dispose();}finally{retainedGpuGeometryRetirementsV309.delete(entry.geometry);}options.onEvict?.(entry.geometry);}
     }
     // Other owners of this same geometry keep its original handles alive.
@@ -318,14 +326,17 @@ export function createSceneGeometryGpuResidency(
     // A wide visible view may legitimately exceed the soft budget. Do not scan
     // the entire protected scene again each frame: only fresh handle growth
     // earns another pressure-only full sweep. Falling residency rearms it.
+    // The texture reservation walks loaded districts. Read it once for this
+    // synchronous decision, then recheck after evictions can release storage.
+    const bytesBeforeScan = measuredBytes();
     lastFullSweepBuffers = Math.min(lastFullSweepBuffers, Math.max(budget, residentBuffers));
-    lastFullSweepBytes = Math.min(lastFullSweepBytes, Math.max(byteBudget, measuredBytes()));
-    const bytePressure = measuredBytes() > byteBudget;
-    const byteGrowth = measuredBytes() >= lastFullSweepBytes + Math.max(1, byteHeadroom);
+    lastFullSweepBytes = Math.min(lastFullSweepBytes, Math.max(byteBudget, bytesBeforeScan));
+    const bytePressure = bytesBeforeScan > byteBudget;
+    const byteGrowth = bytesBeforeScan >= lastFullSweepBytes + Math.max(1, byteHeadroom);
     const pressureGrowth = residentBuffers >= lastFullSweepBuffers + Math.max(1, emergencyHeadroom);
     const urgent = immediate || jumped ||
       (residentBuffers > budget + emergencyHeadroom && pressureGrowth) ||
-      (measuredBytes() > byteBudget + byteHeadroom && byteGrowth);
+      (bytesBeforeScan > byteBudget + byteHeadroom && byteGrowth);
     const shouldScan = scan.length > 0 &&
       (urgent || ((residentBuffers > budget || bytePressure) && now - lastScan >= scanInterval));
     if (!initializedView || shouldScan) {
@@ -349,7 +360,7 @@ export function createSceneGeometryGpuResidency(
       const entry = scan[cursor]; cursor = (cursor + 1) % scan.length;
       if (!entry.resident || entry.mutable || (!urgent && now - entry.lastUse < grace)) continue;
       if (!unchangedStorage(entry)) continue;
-      if (entry.attributes.some(attribute => (attributeOwners.get(attribute)?.size ?? 0) !== 1)) continue;
+      if (entry.attributes.some(attribute => (attributeOwnerCounts.get(attribute) ?? 0) !== 1)) continue;
       let protectedGeometry = false;
       for (const owner of entry.owners) {
         if (protectedOwner(owner)) { protectedGeometry = true; break; }
@@ -387,7 +398,7 @@ export function createSceneGeometryGpuResidency(
       disposed = true;
       for (const owner of owners.values()) removeOwner(owner);
       scan.length = 0; candidates.length = 0;
-      attributeOwners.clear(); residentAttributes.clear(); residentSizes.clear();
+      attributeOwnerCounts.clear(); residentAttributes.clear(); residentSizes.clear();
       renderer.domElement?.removeEventListener("webglcontextlost", contextLost);
     },
   };

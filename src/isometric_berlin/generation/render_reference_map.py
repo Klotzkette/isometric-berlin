@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import geopandas as gpd
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFont
 from shapely.geometry.base import BaseGeometry
 
 from isometric_berlin.data.common import load_bounds_polygon, project_geometry
@@ -373,6 +373,16 @@ def draw_map_furniture(draw: ImageDraw.ImageDraw, transform: MapTransform) -> No
   draw.text((x0, y0 + 10), label, fill=OUTLINE, font=text_font)
 
 
+def exact_minimap_palette(crop: Image.Image) -> Image.Image:
+  """Use PNG palette indices only when they reproduce every RGB pixel."""
+  colors = crop.getcolors(256)
+  if colors is not None:
+    indexed = crop.quantize(colors=len(colors), dither=Image.Dither.NONE)
+    if ImageChops.difference(crop, indexed.convert("RGB")).getbbox() is None:
+      return indexed
+  return crop
+
+
 def render_reference_map(
   *,
   bounds_path: Path,
@@ -429,10 +439,8 @@ def render_reference_map(
     # before landmark circles and the numbered reference legend are drawn,
     # and omit the unused legend-width pixels to reduce decoded image memory.
     mini_map_out_path.parent.mkdir(parents=True, exist_ok=True)
-    image.crop((0, 0, transform.map_width, height)).save(
-      mini_map_out_path,
-      optimize=True,
-    )
+    crop = image.crop((0, 0, transform.map_width, height))
+    exact_minimap_palette(crop).save(mini_map_out_path, optimize=True)
   draw_landmarks(draw, landmarks, transform)
   draw_legend(draw, landmarks, width=width, height=height, legend_width=legend_width)
 

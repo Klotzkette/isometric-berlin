@@ -10,6 +10,7 @@ import math
 import re
 import stat
 import struct
+import subprocess
 import tarfile
 import tomllib
 import zipfile
@@ -1977,6 +1978,18 @@ def tunnel_payload_failures(payload: dict[str, object], *, label: str) -> list[s
   return failures
 
 
+def tile_field_bytes(field: str, *, delta: bool) -> int:
+  if not isinstance(field, str):
+    raise ValueError("invalid tile field")
+  if delta and field.startswith("~"):
+    # The production inverse independently verifies every reconstructed byte.
+    length, separator, _ = field[1:].partition(":")
+    if not separator or not re.fullmatch(r"[1-9][0-9]{0,7}", length):
+      raise ValueError("invalid delta field size")
+    return int(length)
+  return len(base64.b64decode(field, validate=True))
+
+
 def surrounding_city_failures(site: Path) -> list[str]:
   """Every external outline chunk must be delivered, in both world families."""
   folder = site / "mesh/surrounding-berlin-v159"
@@ -1984,6 +1997,7 @@ def surrounding_city_failures(site: Path) -> list[str]:
   try:
     manifest = json.loads((folder / "manifest.json").read_text())
     assert manifest["schemaVersion"] == 1 and manifest["chunks"]
+    has_delta = False
     for chunk in manifest["chunks"]:
       for family in ("drawn", "minecraft"):
         asset = chunk[family]
@@ -2014,14 +2028,17 @@ def surrounding_city_failures(site: Path) -> list[str]:
           or len(raw) > 12 * 1024 * 1024
         ):
           failures.append(f"Invalid losslessly packed outline chunk: {path}")
+        delta = "deltaDecodedBytes" in asset
+        if delta:
+          has_delta = True
+          if not len(raw) < asset["deltaDecodedBytes"] <= 12 * 1024 * 1024:
+            raise ValueError("invalid decoded tile budget")
         payload = json.loads(raw)
         vertices = sum(
-          len(base64.b64decode(m["positions"], validate=True)) // 6
-          for m in payload["meshes"]
+          tile_field_bytes(m["positions"], delta=delta) // 6 for m in payload["meshes"]
         )
         indices = sum(
-          len(base64.b64decode(m["indices"], validate=True)) // 4
-          for m in payload["meshes"]
+          tile_field_bytes(m["indices"], delta=delta) // 4 for m in payload["meshes"]
         )
         line_vertices = (
           len(
@@ -2038,6 +2055,17 @@ def surrounding_city_failures(site: Path) -> list[str]:
           or len(payload["meshes"]) > 16
         ):
           failures.append(f"Outline chunk exceeds renderer geometry budget: {path}")
+    if has_delta and not failures:
+      subprocess.run(
+        [
+          "bun",
+          str(ROOT / "src/app/scripts/compact-offline-tiles.ts"),
+          "verify",
+          str(ROOT / "src/app/public/mesh/surrounding-berlin-v159"),
+          str(folder),
+        ],
+        check=True,
+      )
   except (
     OSError,
     EOFError,
@@ -2046,6 +2074,7 @@ def surrounding_city_failures(site: Path) -> list[str]:
     KeyError,
     AssertionError,
     zlib.error,
+    subprocess.CalledProcessError,
   ) as exc:
     failures.append(f"Incomplete surrounding-city package {folder}: {exc}")
   return failures

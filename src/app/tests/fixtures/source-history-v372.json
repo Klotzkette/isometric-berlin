@@ -1,0 +1,17 @@
+{
+  "additions": {},
+  "changes": {
+    "src/app/src/exactGeometryIndex.ts": {
+      "after": "3f72d9b98bed5ef2e62d106aba1423940fc1e5a6ea9f75fed6899c6c218b4e55",
+      "before": "43dd7cd0a251cf3ec0136029f3274a0efbfa83f51184dd6e2cb3d61de3f0a9b8"
+    },
+    "src/app/src/losslessGzipBase85.ts": {
+      "after": "7d58d1da0581a113c966b98dfbf35a87cc6f581cce68ebd8d2a815758848d4cb",
+      "before": "9d8c0674aa3b9edc64f32cdf070459834ec54e993806ea5e15110374237bc0ec"
+    },
+    "src/app/src/sceneGeometryGpuResidency.ts": {
+      "after": "d7d6a6065dbb64418e7bdc3272426f843a7fe7241060fc2b1d0c41c4dee87602",
+      "before": "2f57ad4ab92f0df5152a6f60fbe46d8179f061bf31a7bc0dd04d82ab3f16a1ca"
+    }
+  }
+}

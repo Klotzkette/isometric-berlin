@@ -25,6 +25,22 @@ export function encodeLosslessBase85(bytes: Uint8Array): string {
   return chunks.join("");
 }
 
+function decodeWord(encoded: string, at: number): number {
+  const a = DECODE[encoded.charCodeAt(at)];
+  const b = DECODE[encoded.charCodeAt(at + 1)];
+  const c = DECODE[encoded.charCodeAt(at + 2)];
+  const d = DECODE[encoded.charCodeAt(at + 3)];
+  const e = DECODE[encoded.charCodeAt(at + 4)];
+  const word = (((a * 85 + b) * 85 + c) * 85 + d) * 85 + e;
+  // Invalid ASCII digits are -1. A non-ASCII lookup is undefined and
+  // propagates NaN through the calculation.
+  if ((a | b | c | d | e) < 0 || Number.isNaN(word)) {
+    throw new Error("Invalid lossless base85 alphabet");
+  }
+  if (word > 0xffffffff) throw new Error("Invalid lossless base85 word");
+  return word;
+}
+
 /** Strict canonical inverse, allocating only the final gzip byte buffer. */
 export function decodeLosslessBase85(encoded: string): Uint8Array<ArrayBuffer> {
   const padding = encoded.charCodeAt(0) - 48;
@@ -32,17 +48,16 @@ export function decodeLosslessBase85(encoded: string): Uint8Array<ArrayBuffer> {
       (encoded.length === 1 && padding !== 0)) throw new Error("Invalid lossless base85 length");
   const length = (encoded.length - 1) / 5 * 4 - padding;
   const bytes = new Uint8Array(length);
-  let to = 0;
+  const view = new DataView(bytes.buffer);
+  const fullWordEnd = encoded.length - (padding > 0 ? 5 : 0);
   try {
-    for (let at = 1; at < encoded.length; at += 5) {
-      let word = 0;
-      for (let i = 0; i < 5; i++) {
-        const code = encoded.charCodeAt(at + i);
-        const value = code < DECODE.length ? DECODE[code] : -1;
-        if (value < 0) throw new Error("Invalid lossless base85 alphabet");
-        word = word * 85 + value;
-      }
-      if (word > 0xffffffff) throw new Error("Invalid lossless base85 word");
+    let to = 0;
+    for (let at = 1; at < fullWordEnd; at += 5) {
+      view.setUint32(to, decodeWord(encoded, at), false);
+      to += 4;
+    }
+    if (padding > 0) {
+      const word = decodeWord(encoded, fullWordEnd);
       for (let shift = 24; shift >= 0; shift -= 8) {
         const value = (word >>> shift) & 255;
         if (to < length) bytes[to++] = value;
@@ -62,6 +77,7 @@ export function decodeLosslessGzipJson(encoded: string, maxDecodedBytes?: number
   const bytes = decodeLosslessBase85(encoded);
   let decoded: Uint8Array<ArrayBuffer> | undefined;
   let boundedOutput: Uint8Array<ArrayBuffer> | undefined;
+  let text: string;
   try {
     if (maxDecodedBytes === undefined) decoded = gunzipSync(bytes) as Uint8Array<ArrayBuffer>;
     else {
@@ -74,9 +90,12 @@ export function decodeLosslessGzipJson(encoded: string, maxDecodedBytes?: number
       decoded = gunzipSync(bytes, { out: boundedOutput }) as Uint8Array<ArrayBuffer>;
       if (decoded.length !== expected) throw new Error("Invalid bounded gzip decoded size");
     }
-    return JSON.parse(new TextDecoder().decode(decoded));
+    text = new TextDecoder().decode(decoded);
   } finally {
     releaseScratchBuffer(bytes.buffer);
     releaseScratchBuffer(boundedOutput?.buffer ?? decoded?.buffer);
   }
+  // Parsing the owned string can allocate a large object graph. Retire the
+  // byte buffers first so their backing stores need not overlap that graph.
+  return JSON.parse(text);
 }

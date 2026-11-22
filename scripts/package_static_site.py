@@ -15,6 +15,7 @@ import json
 import re
 import shutil
 import stat
+import subprocess
 import tarfile
 import zipfile
 from pathlib import Path
@@ -733,7 +734,9 @@ def tar_static_site(source: Path, tar_path: Path) -> None:
             archive.addfile(info, handle)
 
 
-def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
+def package_static_site(
+  root: Path, out_dir: Path, *, compact_tiles: bool = False
+) -> tuple[Path, Path, Path]:
   source = root / "src" / "app" / "dist"
   public_source = root / "src" / "app" / "public"
   required_build_files = ("index.html", "favicon.svg")
@@ -751,6 +754,20 @@ def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
   write_start_here(package_dir)
   write_launchers(package_dir)
   write_readme(package_dir)
+  if shutil.which("bun"):
+    relative_tiles = Path("mesh/surrounding-berlin-v159")
+    subprocess.run(
+      [
+        "bun",
+        str(repo_root() / "src/app/scripts/compact-offline-tiles.ts"),
+        "compact" if compact_tiles else "gzip",
+        str(source / relative_tiles),
+        str(package_dir / relative_tiles),
+      ],
+      check=True,
+    )
+  elif compact_tiles:
+    raise SystemExit("--compact-tiles requires Bun for encoding and verification")
   write_package_manifest(package_dir)
   remove_unwanted_package_paths(package_dir)
   zip_path = out_dir / f"{PACKAGE_NAME}.zip"
@@ -763,9 +780,18 @@ def package_static_site(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
 def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument("--out-dir", type=Path, default=Path("releases"))
+  parser.add_argument(
+    "--compact-tiles",
+    action="store_true",
+    help="Store audited outer-city tiles in the smaller Pages delta format (requires Bun).",
+  )
   args = parser.parse_args()
+  if args.compact_tiles and not shutil.which("bun"):
+    parser.error("--compact-tiles requires Bun for encoding and verification")
 
-  package_dir, zip_path, static_archive = package_static_site(repo_root(), args.out_dir)
+  package_dir, zip_path, static_archive = package_static_site(
+    repo_root(), args.out_dir, compact_tiles=args.compact_tiles
+  )
   print(f"Wrote local website folder: {package_dir}")
   print(f"Wrote downloadable ZIP: {zip_path}")
   print(f"Wrote static viewer archive: {static_archive}")

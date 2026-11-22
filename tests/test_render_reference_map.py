@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -11,6 +12,7 @@ from PIL import Image
 from isometric_berlin.generation.render_reference_map import (
   REFERENCE_RED,
   MapTransform,
+  exact_minimap_palette,
   legend_grid,
   render_reference_map,
   sort_landmarks_for_reference,
@@ -109,8 +111,9 @@ def test_archival_reference_export_keeps_markers_out_of_walking_crop(
     assert any(pixel == REFERENCE_RED for pixel in image.get_flattened_data())
   with Image.open(minimap) as image:
     assert image.size == (500, 450)
-    assert image.mode == "RGB"
-    assert all(pixel != REFERENCE_RED for pixel in image.get_flattened_data())
+    assert all(
+      pixel != REFERENCE_RED for pixel in image.convert("RGB").get_flattened_data()
+    )
 
 
 def test_pedestrian_map_omits_numbered_landmark_markers_and_legend() -> None:
@@ -118,8 +121,19 @@ def test_pedestrian_map_omits_numbered_landmark_markers_and_legend() -> None:
   assert PEDESTRIAN_MAP.stat().st_size > 100_000
   with Image.open(PEDESTRIAN_MAP) as image:
     assert image.size == (1400, 1300)
-    assert image.mode == "RGB"
-    assert all(pixel != REFERENCE_RED for pixel in image.get_flattened_data())
+    assert image.mode == "P"
+    rgb = image.convert("RGB")
+    # Complete RGB raster of the original truecolor minimap.
+    assert hashlib.sha256(rgb.tobytes()).hexdigest() == (
+      "2655a6837d8163c833de36af318b40c8d7a60ba14bc03dc4d215d1f2deb222db"
+    )
+    assert all(pixel != REFERENCE_RED for pixel in rgb.get_flattened_data())
+
+
+def test_minimap_preserves_images_with_more_than_256_colors() -> None:
+  crop = Image.new("RGB", (257, 1))
+  crop.putdata([(i % 256, i // 256, 0) for i in range(257)])
+  assert exact_minimap_palette(crop) is crop
 
 
 def test_legend_grid_uses_two_columns_for_full_landmark_inventory() -> None:

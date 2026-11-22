@@ -24,6 +24,23 @@ test("base85 is canonical and byte-exact across word and scratch-buffer boundari
   }
 });
 
+test("base85 validates every digit of full and final words before storing them", () => {
+  for (const prefix of ["0", "200000"]) {
+    for (const invalid of ['"', "é", "\ud800"]) {
+      for (let offset = 0; offset < 5; offset++) {
+        const word = "0".repeat(offset) + invalid + "0".repeat(4 - offset);
+        expect(() => decodeLosslessBase85(prefix + word)).toThrow("alphabet");
+      }
+    }
+    expect(() => decodeLosslessBase85(prefix + "#####")).toThrow("word");
+  }
+  for (const padding of [1, 2, 3]) {
+    expect(() => decodeLosslessBase85(padding + "0000000001")).toThrow("padding");
+  }
+  const max = new Uint8Array([255, 255, 255, 255]);
+  expect(decodeLosslessBase85(encodeLosslessBase85(max))).toEqual(max);
+});
+
 test("gzip values preserve exact JSON numbers, strings, own properties and ordinary parse errors", () => {
   const source = '{"zero":-0,"max":1.7976931348623157e308,"min":5e-324,"large":1e400,"small":-1e400,"__proto__":{"own":true},"text":"Grün\\n\\\"\\\\"}';
   const parsed = decodeLosslessGzipJson(encodeLosslessBase85(gzipSync(source))) as Record<string, unknown>;

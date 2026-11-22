@@ -95,7 +95,7 @@ signs. The browser gate also reproduces the failure on the earlier public build.
 `isometric-berlin-viewer-v<version>.tar.gz`. Do not recreate the tarball with
 the macOS system `tar`: it can inject AppleDouble `._…` metadata files. The
 Python packager normalizes timestamps and ownership, excludes source maps and
-produces byte-identical output for identical builds.
+produces byte-identical output for identical builds and compressor versions.
 
 The package has one viewer and a launch guide:
 
@@ -158,8 +158,30 @@ physical iOS-device validation.
 
 The full v1.0.216 Pages tree serves both visual families and every tile from
 the viewer's own path. The Pages build stores selected surrounding tiles
-outside the central 3 km in a smaller lossless gzip representation. The ZIP
-and TAR retain the original packet representation.
+outside the central 3 km in a smaller lossless gzip representation.
+
+The standard offline ZIP and TAR use ordinary gzip for fast local decoding.
+When Bun and the system libdeflate shared library are available on the build
+machine, selected outer-city tiles use stronger gzip compression if it saves
+bytes. Packaging checks every decompressed byte before updating the descriptor.
+Without these build tools, the packager copies the original packets. The
+downloaded viewer runs with the same local Python launcher in either case.
+
+To create the smaller delta archives, run
+`uv run python scripts/package_static_site.py --compact-tiles --out-dir releases-compact`.
+This uses Bun to rebuild the audited outer-city tiles in the Pages delta format.
+When available, libdeflate can further reduce the same delta gzip files.
+The viewer spends extra CPU time restoring those tiles when exploring the
+outskirts. Packaging checks the complete original JSON bytes and parsed objects with the
+production decoder and records the new wire sizes and hashes in the manifest.
+
+The small selection receipt in `src/app/scripts/offline-delta-selection.json`
+comes from the pinned Pages manifest. Each bit is set exactly when the
+descriptor has `deltaDecodedBytes`, in chunk order, drawn then Minecraft.
+The SHA-256 pins the selected source identities, bounds, paths, original sizes
+and hashes. A changed selection retains the original local representations
+until the new inventory is audited. For a delta package, release readiness also restores each staged delta tile
+and compares it with the source copy.
 
 A delta packet's descriptor retains its relative URL and carries the packed
 gzip size, decompressed JSON size and gzip SHA-256 for that representation.

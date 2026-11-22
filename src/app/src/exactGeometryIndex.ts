@@ -159,11 +159,26 @@ export function indexGeometryExactly(geometry: BufferGeometry): ExactGeometryInd
       const ArrayType = original.array.constructor as { new(length: number): BufferAttribute["array"] };
       const values = new ArrayType(uniqueCount * original.itemSize);
       const bytes = new Uint8Array(values.buffer, values.byteOffset, values.byteLength);
-      let next = 0;
-      for (let vertex = 0; vertex < originalVertexCount; vertex++) {
-        if (remap[vertex] !== next) continue;
-        bytes.set(entry.bytes.subarray(vertex * entry.stride, (vertex + 1) * entry.stride), next * entry.stride);
-        next++;
+      // First occurrences are numbered in input order. Copy contiguous runs of
+      // those vertices together, including the common all-unique indexed mesh.
+      // Byte copies retain arbitrary attribute formats and NaN payloads.
+      if (uniqueCount === originalVertexCount) {
+        bytes.set(entry.bytes);
+      } else {
+        let next = 0;
+        for (let vertex = 0; next < uniqueCount;) {
+          if (remap[vertex] !== next) {
+            vertex++;
+            continue;
+          }
+          const start = vertex;
+          const destination = next * entry.stride;
+          do {
+            vertex++;
+            next++;
+          } while (next < uniqueCount && remap[vertex] === next);
+          bytes.set(entry.bytes.subarray(start * entry.stride, vertex * entry.stride), destination);
+        }
       }
       const attribute = new BufferAttribute(values, original.itemSize, original.normalized);
       attribute.name = original.name;
