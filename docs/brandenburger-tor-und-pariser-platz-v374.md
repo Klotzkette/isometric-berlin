@@ -13,3 +13,9 @@ Die Säulen und das Gebälk des Haupttors bestehen aus Sandstein. Besonders gut 
 ## Die beiden Häuser auf der Südseite
 
 **Haus Sommer, Pariser Platz 1**, steht zwischen dem südlichen Torhaus und der amerikanischen Botschaft. Josef Paul Kleihues entwarf es zusammen mit seinem nördlichen Gegenstück, dem Haus Liebermann. **Die DZ Bank, Pariser Platz 3**, schließt die Lücke im Fassadenbild zwischen Botschaft und Akademie der Künste. Die zurückgesetzten Fenster geben der steinernen Platzfassade ihre Tiefe. Aus der erhöhten Ansicht unterscheidet auch das gewölbte Glasdach das Gebäude von seinen Nachbarn. [Häuser Sommer und Liebermann bei Kleihues + Kleihues](https://kleihues.com/haeuser-sommer-und-liebermann-berlin/) · [DZ Bank bei Berlin.de](https://www.berlin.de/sehenswuerdigkeiten/3561052-3558930-dz-bank-ehemals-dg-bank.html) · [Architektur bei der DZ Bank](https://www.dzbank.de/content/dzbank/de/home/die-dz-bank/profil/standorte/standort-berlin.html)
+
+## Prüfung im Modell
+
+Die fünf westlichen Platzflächen umfassen rund 3.979 m². Die beiden Vorplätze, ihre Straßenanschlüsse und Beete umfassen zusammen rund 25.053 m² neu abgegrenzten Boden. An 18 unabhängig aus der Straßenbefahrung gewählten Stellen trifft die Sichtlinie von oben den zugehörigen Belag. Dieselben 18 Stellen wurden mit nachgeladenen Straßenpaketen erneut geprüft. Die vorhandenen Brunnen besitzen eigene Aussparungen.
+
+Die seitlichen Hallen teilen sich ein Säulenmodell für 56 Instanzen. Das gesamte Tor einschließlich Quadriga benötigt 143 statt 176 Zeichenaufrufe. Seine detaillierteren Säulen erhöhen die Zahl der gezeichneten Dreiecke von 67.388 auf 124.877. Die belegten Gebäudekörper und Dachkanten bilden das Gerüst der beiden Platzfassaden. Fensterteilungen, Farbtöne, Pflasterfugen und die Streben des Glasdachs sind aus öffentlichen Ansichten angenähert.
