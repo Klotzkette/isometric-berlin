@@ -136,10 +136,7 @@ def build():
 
   ground_receipt = json.loads(gzip.decompress(CONTACTS.read_bytes()))
   first_ground = {(x, z): y for x, z, y, _ in ground_receipt["firstGround"]}
-  contacts = {
-    (x, before, z): top
-    for x, z, before, top, _ in ground_receipt["rows"]
-  }
+  contacts = {(x, before, z): top for x, z, before, top, _ in ground_receipt["rows"]}
   focus = [[] for _ in FOCUS]
   points = []
   for i, t in enumerate(park["trees"]):
