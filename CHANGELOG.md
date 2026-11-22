@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.255
+
+- Rebuild the Simsonweg from the Platz des 18. März to Scheidemannstraße and connect its Tiergarten branches. Fit the mosaic, gravel and stone courses to the Berlin survey and preserve the memorial basin.
+- Show 483 existing trees in the eastern Tiergarten and 39 around Robert-Koch-Platz in the first drawn city view. Add 141 measured tree locations in central Mitte, including the water playground on Eichendorffstraße. Fit 513 existing stems to the ground and reuse the city’s park trees when the complete park loads.
+- Restore mapped sand, earth and paved paths in the district of Mitte where grass had covered them. The mobile viewer and the offline packages use the same path and tree data. [Extent, sources and checks](docs/mitte-simsonweg-und-baeume-v375.md)
+
 ## 1.0.254
 
 - Restore the paved Platz des 18. März west of the Brandenburg Gate, its kerbs and the transition to Ebertstraße. Fit the two Pariser Platz gardens, fountains and central paving band to the Berlin street survey.
