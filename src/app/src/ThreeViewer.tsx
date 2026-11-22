@@ -1,3 +1,4 @@
+import { takeMittePathPreviewV375 } from "./mittePathArrivalV375";
 import { createQuadrigaInkTarget, updateQuadrigaInkProjection } from "./quadrigaInk";
 import { presentKerbStoneFinish } from "./kerbStoneFinish";
 import { presentArchitecturalSheen } from "./architecturalSheen";
@@ -4041,6 +4042,8 @@ async function attachProgressiveWorldMessage(
   object.userData.progressiveWorldBatchId = message.id;
   runtime.progressiveWorldBatches.push(object);
   runtime.isoWorld.add(object);
+  const pathPreview = takeMittePathPreviewV375(runtime.isoWorld, message.id);
+  if (pathPreview) disposeObject3D(runtime, pathPreview);
   if(governmentForBatchV321&&!governmentForBatchV321.activateFamily(object))governmentForBatchV321.releaseFamily(object);
   const backingReady = parkCompletedGeometry(runtime, object);
   hideReplacedBuildingPreview(runtime.isoWorld, message.replaces);
@@ -4958,6 +4961,8 @@ function ensureIsoWorld(
                 yield* mittePlazaEdgesV367.attachMittePlazaEdgesV367(slabs, sourceGround, ISO_GROUND_SHADES);
                 yield;
                 mittePlazaEdgesV367.attachMitteSquareStreetsV367(slabs, sourceGround);
+                yield;
+                mittePlazaEdgesV367.restoreMittePathGroundV375(slabs, sourceGround, ISO_GROUND_SHADES.grass);
               }
               if (invalidenGround && invalidenPark) {
                 const sample = smoothGroundTopSampler(sourceGround);

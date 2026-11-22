@@ -7,15 +7,16 @@ export type DrawnWaterBoundaryData = {
   format: string; version: number; cell_m: number;
   grid: { min_x_idx: number; min_z_idx: number; cols: number; rows: number };
   source_sha256: string; ground_sha256: string;
-  cells_u32: string; triangles_f32: string; edges_f32: string;
+  cells_u32: string | ArrayBuffer; triangles_f32: string | ArrayBuffer; edges_f32: string | ArrayBuffer;
   /** Optional exact source-run spans; legacy water/foundation records stay 1 cell. */
-  spans_u32?: string; tops_f32?: string;
+  spans_u32?: string | ArrayBuffer; tops_f32?: string | ArrayBuffer;
   /** Optional audited depth; legacy water/foundation owners retain their own depths. */
   depth_m?: number;
 };
 const RECORD_SIZE = 6;
 
-function decode(value: string): ArrayBuffer {
+function decode(value: string | ArrayBuffer): ArrayBuffer {
+  if (typeof value !== "string") return value;
   const text = atob(value), bytes = new Uint8Array(text.length);
   for (let i = 0; i < text.length; i++) bytes[i] = text.charCodeAt(i);
   return bytes.buffer;

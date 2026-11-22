@@ -1,3 +1,4 @@
+export { restoreMittePathGroundV375 } from "./MittePathDepthV375";
 import {
   BufferAttribute, BufferGeometry, Color, InstancedMesh, Mesh, MeshBasicMaterial,
   type MeshStandardMaterial,
