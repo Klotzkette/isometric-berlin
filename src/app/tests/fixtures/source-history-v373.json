@@ -1,0 +1,35 @@
+{
+  "additions": {
+    "src/app/src/ExteriorStreetMarginsV373.ts": "c0f741001a985eac2e1f7f6d4044eda76365e223a91bc38e732a3cfd4c42cbc3",
+    "src/app/src/ParkPathAccessV373.ts": "3253ea339edf0a62fe3f954424a9902f353cfe6f13c566f3b8a8c31dabc2f444",
+    "src/app/src/data/exteriorStreetMarginsV373.json": "3348e809327c798db1b8f8d33cf99530a8b7b8844b4edaca5148d375f33df5cf",
+    "src/app/src/data/pathEdgesV373.json": "44887eef6fd4f48a97c3bf083de37821e67fdc35a83e2dbdaed9bf4679582fed",
+    "src/app/src/pathEdgeInkV373.ts": "4b47d068f34065a19f28cb8d3af1caba9667e60dd27094946f679dd552504862"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "after": "672cd950b12763d2569f4d59a4e70807f12789a2e259faa2fac84ea7e3fb5213",
+      "before": "8fef9653b9361d5dce2d1d1897eaf9e05bc40f400c9f468e37543e197cde1a66"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "after": "b0b340ceb823b5276320cfc3887108ec9c0363f5a0ae27ff3e23657d28f74e0d",
+      "before": "92f093bf0da5b6bd092791dddf269c65e66ee1b99e046727a935d7f5cd99c851"
+    },
+    "src/app/src/MittePlazaEdgesV367.ts": {
+      "after": "f79675b53ff6f87548815312636e91b6124bb56fbf4b49c6df9f18a135f088f3",
+      "before": "f4b3fbcbc0fcbfe4210dd6b65cc828c576038faf5f55c1ac6159c55057bf2085"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "after": "a05c580ba76ff202d466ff2f7f208b745b34f7161c12aae875df6a6da47bd3f1",
+      "before": "706495c39272f49311c408f47d701c2fc620a1fa4793b7996db0f0d85666d4cc"
+    },
+    "src/app/src/SurroundingCityGeometry.ts": {
+      "after": "d5db8811e83fa494b8fa265685901bdd732d4d8c88b699c443f35474c32f2ae6",
+      "before": "686b1338ec20866408d2d7ef784f9b731e716b10584bc3deb5d033e4a1ab6806"
+    },
+    "src/app/src/UbahnGroundRuntimeV326.ts": {
+      "after": "1381c6009a09f71c8c44be316c2357c0071a1eef0b728d7cea50514c67830703",
+      "before": "989bf9f998047be1638a0e7439fdb34d17016687be84add1c50df65fea9a2d72"
+    }
+  }
+}

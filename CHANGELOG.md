@@ -2,6 +2,8 @@
 
 ## 1.0.253
 
+- Restore mapped park paths in the Lietzenseepark and Hasenheide tiles that also host underground station entrances. Fit drawn paving, planted edges and surveyed street margins in Charlottenburg, Kreuzberg, Schöneberg and Wilmersdorf. [Extent, checks and sources](docs/wege-ausserhalb-mitte-v373.md)
+
 - Reduce repeated geometry bookkeeping during navigation and speed up decoding of compressed building data. Store the walking minimap in a smaller PNG with identical pixels.
 - Reduce offline tile storage with lossless gzip. The additional compact download uses the Pages tile format and trades extra decoding time in the outskirts for a smaller installation. Both downloads retain the complete city and work with the existing Windows and macOS launchers.
 

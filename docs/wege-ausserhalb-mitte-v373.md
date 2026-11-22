@@ -1,0 +1,17 @@
+# Wege und Straßenränder außerhalb von Mitte
+
+## Gehwege im Kernmodell
+
+Am Deutschen Technikmuseum in Kreuzberg queren die Kanten zweier kartierter Kopfsteinpflasterflächen das Vier-Meter-Raster schräg. Der gezeichnete Boden übernimmt hier den Verlauf der erfassten Polygone. In Charlottenburg, Kreuzberg und Schöneberg enthält der Datensatz 156 Zellen mit 245 ergänzenden Dreiecken und 189 mögliche Kantenanpassungen. Der vollständige Szenenaufbau lässt 155 Zellen und 186 Kanten zu. An abweichenden Höhen oder bereits belegten Flächen greift der Schutz des bestehenden Bodens. Die vorbereitete Geometrie umfasst rund 260 m² kartierten Gehwegbelag und 35 m² separat belegte Grünfläche. Bestehende Straßen, Gebäude, U-Bahn-Zugänge und separat modellierte Platzflächen besitzen eigene Ausschlussflächen. Am Walter-Benjamin-Platz bleibt dadurch die Fahrbahn neben der kartierten Fußgängerfläche erhalten. [Kopfsteinpflaster am Technikmuseum](https://www.openstreetmap.org/way/55500825) · [Zweiter Fußweg am Technikmuseum](https://www.openstreetmap.org/way/57732140)
+
+## Zwischen Fahrbahn und Rasterboden
+
+Zwischen einer ausgesparten Asphaltzelle und der vorhandenen Vektorfahrbahn konnte ein keilförmiger Spalt sichtbar bleiben. Für Charlottenburg, Schöneberg, Wilmersdorf und Kreuzberg werden die betroffenen Flächen mit der Berliner Straßenbefahrung von 2014/15 verschnitten. Die Materialangaben unterscheiden unter anderem Asphalt, Gehwegplatten, Pflaster und Grün. Der Generator berücksichtigt die beanspruchten Flächen von Bauwerken, Gewässern, Bahnstrecken und vermessenen Plätzen. Für einen neuen Randstreifen ist ein positiver Materialnachweis erforderlich. Über die vier Ortsteile kommen rund 61.155 m² vermessener Oberfläche hinzu. Geometrische Stichproben liegen an der Bismarckstraße, der Hedemannstraße, der Straße An der Apostelkirche und am Olivaer Platz. Die hierfür verwendeten amtlichen Quelldaten sind im Repository archiviert. [Straßenbefahrung Berlin](https://gdi.berlin.de/services/wfs/strassenbefahrung?SERVICE=WFS&REQUEST=GetCapabilities) · [Generator der Straßenränder](../scripts/build_exterior_street_margins_v373.py)
+
+## Lietzenseepark und Hasenheide
+
+Beim gemeinsamen Laden von U-Bahn-Eingängen und Parkwegen konnte die Materialprüfung einer Kachel auch weit entfernte Wegflächen ausblenden. Das betraf zwei Kacheln am Lietzensee und drei in der Hasenheide. Die fünf gezeichneten Wegpakete umfassen rund 13.694 m². Ihre vorhandenen Dreiecke werden wieder sichtbar. Die zugehörigen Blockmodelle verwenden ihre eigene Weggeometrie. Der kleinste gemessene Abstand der betroffenen Wege zu einem erfassten Treppengrundriss beträgt mehr als 74 m. Die Prüfung verwendet den vollständigen geladenen Katalog einschließlich der Stationen. [Quellen für die sieben kartierten Parks](park-paths-v329.md)
+
+## Räumlicher Umfang
+
+Die 3.087 gezeichneten Außenkacheln wurden auf regelmäßige Treppenfolgen entlang ihrer Navigationspolygone geprüft. 1.692 Kacheln enthalten solche Straßen- oder Wegepolygone. In diesen Ringen fand die Prüfung keine durchgehende Folge von acht abwechselnd waagerechten und senkrechten Segmenten auf dem Zwei-Meter-Raster. Der Test beschreibt die Geometrie im Datenbestand. Sichtbare Überlagerungen, zwischenzeitlich fehlende Wege und örtlich nicht kartierte Beläge erfordern eine eigene Prüfung. Die kantige Darstellung der Minecraft-Welt gehört zum gewählten Modellstil.
