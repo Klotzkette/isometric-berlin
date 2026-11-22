@@ -1,4 +1,7 @@
 import { expect, test } from "bun:test";
+import entrances from "../src/data/ubahnAccessV326.json";
+import { attachPacketUbahnAccessV326Steps, ubahnCandidatesV326 } from "../src/UbahnGroundRuntimeV326";
+import { isParkPathAccessSourceV373 } from "../src/ParkPathAccessV373";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import type { InterleavedBufferAttribute, Material, Mesh } from "three";
@@ -190,3 +193,93 @@ test("park paths reconcile only the surveyed sports append for the matching host
   raw.meshes.push(sports);
   expect(capture()).toBeUndefined();
 });
+
+const accessTiles = source.keys.filter(key => ubahnCandidatesV326(descriptors.get(key.split(":")[1])!.bounds).length);
+
+test("all physical park surfaces render with the complete catalogue and live entrance exclusions", async () => {
+  for (const key of source.keys) {
+    const [mode, id] = key.split(":"), native = mode === "minecraft";
+    const descriptor = descriptors.get(id)!;
+    const overlay = ("detailCompanionOf" in descriptor && !!descriptor.detailCompanionOf) ||
+      !ubahnCandidatesV326(descriptor.bounds).length;
+    const chunk = drain(buildSurroundingCityChunk(loadRaw(id, native), id, native, false, {
+      ...flags, sourceQuarterSourcesV303: await catalogue(id, native), groundOverlaysV329: overlay,
+      separateParkPathAccessV373: !overlay, transportDetailsV334: true,
+    }));
+    try {
+      expect(chunk.root.userData.sourceKinds.filter((id: string) => id === kind)).toEqual([kind]);
+    } finally {
+      disposeSurroundingCityRoot(chunk.root);
+    }
+  }
+}, 60_000);
+
+test.each(accessTiles)("the complete catalogue preserves the park and the active U-Bahn accesses in %s", async key => {
+  const [mode, id] = key.split(":"), native = mode === "minecraft";
+  const raw = loadRaw(id, native), recipes = await catalogue(id, native);
+  const options = {...flags, sourceQuarterSourcesV303: recipes, groundOverlaysV329: false, transportDetailsV334: true};
+  const before = drain(buildSurroundingCityChunk(raw, id, native, false, options));
+  const after = drain(buildSurroundingCityChunk(raw, id, native, false, {...options, separateParkPathAccessV373: true}));
+  const oldAccess = drain(attachPacketUbahnAccessV326Steps(before, native));
+  const access = drain(attachPacketUbahnAccessV326Steps(after, native));
+  try {
+    expect(accessTiles.length).toBe(10);
+    expect(before.root.userData.sourceKinds).not.toContain(kind);
+    expect(after.root.userData.sourceKinds).toEqual([...before.root.userData.sourceKinds, kind]);
+    expect(after.nav).toEqual(before.nav);
+    expect(oldAccess?.complete()).toBe(true);
+    expect(access?.complete()).toBe(true);
+    expect(access!.openings).toEqual(oldAccess!.openings);
+    const path = after.root.getObjectByName(kind) as Mesh;
+    const plan = source.packets[key], part = plan.append;
+    const positions = path.geometry.getAttribute("position").array;
+    expect(byteView(positions)).toEqual(Buffer.from(part.positions, "base64"));
+    expect(byteView(path.geometry.getAttribute("color").array)).toEqual(Buffer.from(part.colors, "base64"));
+    expect(byteView(path.geometry.index!.array)).toEqual(Buffer.from(part.indices, "base64"));
+    expect(isParkPathAccessSourceV373(id, native, plan.origin, plan.appendFingerprint ^ 1)).toBe(false);
+    expect(isParkPathAccessSourceV373(id, native, [0, 0, 0], plan.appendFingerprint)).toBe(false);
+    expect((path.material as Material).polygonOffset).toBe(true);
+    expect(path.geometry.hasAttribute("ubahnGroundEligibleV326")).toBe(false);
+    expect(access!.geometryBytes).toBe(oldAccess!.geometryBytes);
+    expect(access!.bufferCount).toBe(oldAccess!.bufferCount);
+    // Every path triangle clears the complete surveyed footprint (the opening
+    // ring, centreline and sign anchor), including entrances in neighbouring tiles.
+    const boxes = entrances.entries.map(entry => {
+      const pts = [entry.point, ...entry.stair?.points ?? [], ...entry.stair?.ring ?? []];
+      const xs = pts.map(p => p[0]), zs = pts.map(p => p[1]);
+      return [Math.min(...xs), Math.min(...zs), Math.max(...xs), Math.max(...zs)];
+    }).filter(([x0, z0, x1, z1]) => x1 + 70 >= plan.origin[0] && z1 + 70 >= plan.origin[2] &&
+      x0 - 70 <= plan.origin[0] + 512 && z0 - 70 <= plan.origin[2] + 512);
+    const indices = path.geometry.index!.array;
+    let clearance = Infinity;
+    for (let i = 0; i < indices.length; i += 3) {
+      const verts = [indices[i], indices[i+1], indices[i+2]];
+      const xs = verts.map(v => plan.origin[0] + positions[v*3]/100);
+      const zs = verts.map(v => plan.origin[2] + positions[v*3+2]/100);
+      for (const [x0, z0, x1, z1] of boxes) {
+        const dx = Math.max(0, Math.min(...xs)-x1, x0-Math.max(...xs));
+        const dz = Math.max(0, Math.min(...zs)-z1, z0-Math.max(...zs));
+        clearance = Math.min(clearance, Math.hypot(dx, dz));
+      }
+    }
+    expect(clearance).toBeGreaterThan(70);
+    if (native) {
+      const state = createMinecraftMaterialState();
+      try {
+        setMinecraftMaterialPresentation(after.root, state, true);
+        expect(access!.complete()).toBe(true);
+        expect((path.material as Material).polygonOffset).toBe(true);
+        setMinecraftMaterialPresentation(after.root, state, false);
+      } finally { disposeMinecraftMaterialState(state); }
+    } else {
+      for (const mode of ["night", "schwellenraum", "day"] as const) {
+        setIsoNightPresentation(after.root, mode === "night", true, mode);
+        expect(access!.complete()).toBe(true);
+        expect((path.material as Material).polygonOffset).toBe(true);
+      }
+    }
+  } finally {
+    access?.dispose(); oldAccess?.dispose();
+    disposeSurroundingCityRoot(after.root); disposeSurroundingCityRoot(before.root);
+  }
+}, 60_000);

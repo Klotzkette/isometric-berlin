@@ -1,3 +1,4 @@
+import { createParkPathAccessMeshV373, isParkPathAccessSourceV373 } from "./ParkPathAccessV373";
 import { surveyedPavingPart } from "./surveyedPavingV368";
 import { markKoepenickCourtWalls } from "./civicArchitecturalFinish";
 import { PackedArchitecturalFinish } from "./packedArchitecturalFinish";
@@ -301,6 +302,7 @@ export type SurroundingOwnershipOptions = {
   riverFinishV348?: (mesh: Mesh, selector: PackedRiverSelectorV348) => void;
   neukoellnBuildingsV342?: SourceQuarterSourceV303;
   groundOverlaysV329?: boolean;
+  separateParkPathAccessV373?: boolean;
   allotmentDetailsV360?: AllotmentDetailPlanV360;
   transportDetailsV334?: boolean;
   namedTransportSourceV334?: NamedSiteSourceV238;
@@ -435,6 +437,7 @@ export function* buildCityChunkWithPaletteV362(
     ? yield* captureNeighbourhoodPacketV300(chunk, id, minecraft, true, ownership.clusterFacadesV320, "cluster-facades-v320")
     : undefined;
   const quarterTicketsV303:SourceQuarterTicketV303[]=[];
+  let separateParkTicket: SourceQuarterTicketV303 | undefined;
   const groundOverlayTicketsV329: SourceQuarterTicketV303[] = [];
   if(ownership.sourceQuartersV303===true)for(const entry of ownership.sourceQuarterSourcesV303??[]){
     if(entry.admission==="southwest-sites-v326"?ownership.southWestSitesV326!==true:
@@ -448,14 +451,18 @@ export function* buildCityChunkWithPaletteV362(
     if(!neighbourhoodPacketCandidateV300(entry.source as unknown as NeighbourhoodSourceV300,id,minecraft))continue;
     const plan=entry.source.packets[`${minecraft?"minecraft":"drawn"}:${id}`];
     const overlay = groundOverlayKindsV329.has(entry.kind);
+    const separatePark = ownership.separateParkPathAccessV373 === true && ownership.groundOverlaysV329 === false &&
+      entry.kind === "park-paths-v329" && plan?.append?.positionType === "u16cm" && !plan.append.colorType &&
+      isParkPathAccessSourceV373(id, minecraft, chunk.origin, plan.appendFingerprint);
     // The older Rosenthaler aperture validates the complete decoded lengths.
     // Admit only ordinary additive ground recipes, after the older owners.
-    if (overlay && (ownership.groundOverlaysV329 === false || id === "3_-3" || id === "4_-3" ||
+    if (overlay && ((!separatePark && ownership.groundOverlaysV329 === false) || id === "3_-3" || id === "4_-3" ||
         !plan || plan.preparedRecords || plan.retire?.length !== 0)) continue;
     const ticket=plan?.preparedRecords
       ?yield*captureSourceQuarterPacketV303(chunk,id,minecraft,true,entry.source,entry.kind,entry.requiredReplacement)
       :yield*captureNeighbourhoodPacketV300(chunk,id,minecraft,true,entry.source as unknown as NeighbourhoodSourceV300,entry.kind);
-    if (ticket) (overlay ? groundOverlayTicketsV329 : quarterTicketsV303).push(ticket);
+    if (ticket && separatePark) separateParkTicket = ticket;
+    else if (ticket) (overlay ? groundOverlayTicketsV329 : quarterTicketsV303).push(ticket);
   }
   chunk = yield* prepareSurroundingQuarterFromSourcesV362(chunk,id,minecraft,ownership,sources);
   for(const ticket of quarterTicketsV303)chunk=yield*prepareSourceQuarterPacketV303(chunk,ticket);
@@ -467,6 +474,11 @@ export function* buildCityChunkWithPaletteV362(
   chunk = yield* prepareNeukoellnBuildingsV342(chunk, id, minecraft, ownership.neukoellnBuildingsV342);
   const firstGroundOverlayPart = chunk.meshes.length;
   for (const ticket of groundOverlayTicketsV329) chunk = yield* prepareNeighbourhoodPacketV300(chunk, ticket);
+  let separatePath: SurroundingPackedMesh | undefined;
+  if (separateParkTicket) {
+    const checked = yield* prepareNeighbourhoodPacketV300(chunk, separateParkTicket);
+    if (checked.meshes.length === chunk.meshes.length + 1) separatePath = checked.meshes[chunk.meshes.length];
+  }
   const allotmentPart = yield* packAllotmentDetailsV360(chunk, allotmentPlan, minecraft);
   // Keep the authenticated predecessor object and its weakly held ownership data.
   const sourceParts = allotmentPart ? [...chunk.meshes, allotmentPart] : chunk.meshes;
@@ -759,6 +771,19 @@ export function* buildCityChunkWithPaletteV362(
       bufferCount++;
     }
     // These fresh per-tile arrays are owned only by this unpublished root.
+    if (separatePath && sourceParts.length < 16 &&
+        vertexCount + encodedBytes(separatePath.positions, 6) / 6 <= MAX_VERTEX_COUNT &&
+        indexCount + encodedBytes(separatePath.indices, 12) / 4 <= MAX_INDEX_COUNT) {
+      const path = createParkPathAccessMeshV373(separatePath, minecraft);
+      // Only the original direct terrain carriers own the station openings.
+      // This separately surveyed surface is disjoint from all of their mouths.
+      const paths = new Group();
+      paths.add(path.mesh);
+      root.add(paths);
+      root.userData.sourceKinds.push(separatePath.kind);
+      geometryBytes += path.bytes;
+      bufferCount += 3;
+    }
     if (parkBacking) yield* parkStaticGeometrySteps(root, true);
     root.userData.sourceQuarterOwnersV303=sourceQuarterOwnersV303(chunk);
     root.userData.sourceQuarterNativeV303=minecraft;
