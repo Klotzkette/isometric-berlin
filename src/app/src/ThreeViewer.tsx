@@ -1,3 +1,4 @@
+import { createQuadrigaInkTarget, updateQuadrigaInkProjection } from "./quadrigaInk";
 import { presentKerbStoneFinish } from "./kerbStoneFinish";
 import { presentArchitecturalSheen } from "./architecturalSheen";
 import { bindHbfForecourtFinishV354 } from "./HbfForecourtFinishV354";
@@ -968,6 +969,7 @@ type Runtime = {
   // once per isoWorld (re)build, so its opacity can be dampened by
   // projected pixel width every frame without re-walking the scene graph.
   inkLineMaterials: Set<LineBasicMaterial>;
+  quadrigaInk?: ReturnType<typeof createQuadrigaInkTarget>;
   inkLineObjects: Array<LineSegments<BufferGeometry, LineBasicMaterial>>;
   // Small ornament only, with cached world bounds. Complete architecture and
   // street furniture never participate in distance-dependent visibility.
@@ -2588,6 +2590,7 @@ function collectFarZoomAntiFlickerTargets(runtime: Runtime): void {
   restoreFarZoomDetailVisibility(runtime);
   invalidateFarZoomAntiFlickerCache(runtime);
   runtime.inkLineMaterials.clear();
+  runtime.quadrigaInk = undefined;
   runtime.fineDetailObjects = [];
   runtime.microDetailObjects = [];
   runtime.berlinerEnsembleRoofSignTargets = [];
@@ -2639,6 +2642,9 @@ function appendFarZoomAntiFlickerTargets(runtime: Runtime, root: Object3D): void
       registerInkDrawObject(object);
       runtime.inkLineMaterials.add(object.material);
       runtime.inkLineObjects.push(object);
+      if (object.name === "Quadriga ink lines" && object.parent?.name === "Quadriga mit Victoria") {
+        runtime.quadrigaInk = createQuadrigaInkTarget(object);
+      }
     }
     if (fineDetailNames.has(object.name)) {
       runtime.fineDetailObjects.push(
@@ -2674,6 +2680,7 @@ function appendFarZoomAntiFlickerTargets(runtime: Runtime, root: Object3D): void
 function forgetFarZoomAntiFlickerTargets(runtime: Runtime, root: Object3D): void {
   const retired = new Set<Object3D>();
   root.traverse((object) => retired.add(object));
+  if (runtime.quadrigaInk && retired.has(runtime.quadrigaInk.line)) runtime.quadrigaInk = undefined;
   runtime.inkLineObjects = runtime.inkLineObjects.filter((object) => !retired.has(object));
   runtime.inkLineMaterials = new Set(runtime.inkLineObjects.map((object) => object.material));
   runtime.fineDetailObjects = runtime.fineDetailObjects.filter((target) => !retired.has(target.object));
@@ -2801,7 +2808,9 @@ function updateFarZoomAntiFlicker(
     runtime.farZoomAntiFlickerViewportHeightPx === viewportHeightPx &&
     runtime.farZoomAntiFlickerFovDegrees === fovDegrees
   );
-  if (!projectionChanged &&
+  const quadriga = runtime.quadrigaInk;
+  const quadrigaChanged = quadriga && updateQuadrigaInkProjection(quadriga, runtime.camera, runtime.renderer.domElement.height);
+  if (!projectionChanged && !quadrigaChanged &&
       runtime.farZoomAntiFlickerCameraPosition.equals(runtime.camera.position)) {
     return false;
   }
@@ -2810,7 +2819,7 @@ function updateFarZoomAntiFlicker(
   runtime.farZoomAntiFlickerFovDegrees = fovDegrees;
   runtime.farZoomAntiFlickerCameraPosition.copy(runtime.camera.position);
   let changed = false;
-  if (projectionChanged) {
+  if (projectionChanged || quadrigaChanged) {
     const px = projectedPixelSize(
       INK_LINE_REFERENCE_FEATURE_M,
       distanceM,
@@ -2818,11 +2827,12 @@ function updateFarZoomAntiFlicker(
       fovDegrees,
     );
     const opacity = inkLineFadeOpacity(px);
-    for (const material of runtime.inkLineMaterials) {
+    const materials = projectionChanged ? runtime.inkLineMaterials : [quadriga!.line.material];
+    for (const material of materials) {
       const state = nextInkLineFadeState({
         authoredOpacity: material.userData.stableInkAuthoredOpacity as number,
         currentOpacity: material.opacity,
-        fadeOpacity: opacity,
+        fadeOpacity: quadriga && material === quadriga.line.material ? quadriga.opacity : opacity,
         lastAppliedOpacity:
           typeof material.userData.stableInkAppliedOpacity === "number"
             ? material.userData.stableInkAppliedOpacity

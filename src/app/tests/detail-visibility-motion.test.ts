@@ -5,6 +5,8 @@ import {
   Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Vector3,
 } from "three";
 import * as inkDrawVisibility from "../src/inkDrawVisibility";
+import * as quadrigaInk from "../src/quadrigaInk";
+import { createQuadriga } from "../src/Quadriga";
 import * as fade from "../src/fineDetailFade";
 import * as visibility from "../src/detailVisibility";
 import {
@@ -44,7 +46,7 @@ const compiled = ts.transpileModule(declarations.join("\n"), {
   compilerOptions: { target: ts.ScriptTarget.ES2022 },
 }).outputText;
 const bindings = {
-  ...fade, ...visibility, ...inkDrawVisibility, LineSegments, LineBasicMaterial, minecraftOwnsVisibility,
+  ...fade, ...visibility, ...inkDrawVisibility, ...quadrigaInk, LineSegments, LineBasicMaterial, minecraftOwnsVisibility,
   // Sign animation and material shader installation are independent of the
   // object-visibility contract; collection and frame decisions run unchanged.
   isBerlinerEnsembleRoofSignTarget: () => false,
@@ -65,6 +67,7 @@ const production = new Function(...Object.keys(bindings), `${compiled}; return {
 function host() {
   const runtime = {
     camera: new PerspectiveCamera(16, 1, 0.05, 18_000),
+    renderer: { domElement: { height: 900 } },
     isoWorld: new Group(), voxelWorld: new Group(), signatures: new Group(),
     civicDetails: new Group(), centralDetails: new Group(), cityStaffage: new Group(),
     fineDetailObjects: [] as visibility.DistanceDetailTarget[],
@@ -336,4 +339,44 @@ describe("far ink submission during real viewer updates", () => {
     expect(object.visible).toBeTrue();
     delete (materials as unknown as Record<symbol, unknown>)[Symbol.iterator];
   });
+});
+
+test("only the Quadriga engraving follows its own projected size during a pan or a buffer resize", () => {
+  const run = host(), camera = run.runtime.camera;
+  camera.fov = 39;
+  camera.updateProjectionMatrix();
+  const model = createQuadriga();
+  const ink = model.getObjectByName("Quadriga ink lines") as LineSegments<BufferGeometry, LineBasicMaterial>;
+  const bronze = model.children.filter(object => object instanceof Mesh);
+  const original = bronze.map(object => ({ geometry: object.geometry, material: object.material, visible: object.visible }));
+  const city = new LineSegments(new BufferGeometry(), new LineBasicMaterial());
+  run.runtime.signatures.add(model, city);
+  run.collect();
+  const centre = ink.localToWorld(ink.geometry.boundingSphere!.center.clone());
+  camera.position.copy(centre).add(new Vector3(0, 0, 470));
+  camera.lookAt(centre);
+  const target = camera.position.clone().add(new Vector3(0, 0, -5));
+  run.update(target);
+  expect(ink.material.opacity).toBeGreaterThan(0);
+  expect(ink.material.opacity).toBeLessThan(.2);
+  expect(city.material.opacity).toBe(1);
+  run.runtime.renderer.domElement.height = 450;
+  run.update(target);
+  expect(ink.material.opacity).toBe(0);
+  run.runtime.renderer.domElement.height = 1800;
+  run.update(target);
+  expect(ink.material.opacity).toBe(1);
+  run.runtime.renderer.domElement.height = 450;
+  camera.position.z = centre.z + 50;
+  target.z = camera.position.z - 5;
+  run.update(target);
+  expect(ink.material.opacity).toBe(1);
+  expect(city.material.opacity).toBe(1);
+  for (const [i, mesh] of bronze.entries()) {
+    expect(mesh.geometry).toBe(original[i].geometry);
+    expect(mesh.material).toBe(original[i].material);
+    expect(mesh.visible).toBe(original[i].visible);
+  }
+  run.forget(model);
+  expect(run.runtime.inkLineMaterials.has(ink.material)).toBe(false);
 });
