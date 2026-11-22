@@ -5563,6 +5563,64 @@
       "credit": "Leibniz-Institut für Gewässerökologie und Binnenfischerei / WITE",
       "role": "Anordnung der Pflanzmodule an der Stahlspundwand am Golda-Meir-Steg",
       "photo_bundled": false
+    },
+    {
+      "landmark_id": "invalidenpark_sinkende_mauer",
+      "title": "Invalidenpark – Entwurf von Christophe Girot",
+      "page_url": "https://www.girot.ch/wp-content/uploads/2013/04/Invaliden-Park-portfolioE.pdf",
+      "credit": "Atelier Girot",
+      "role": "Gestaltung des Platzes, Übergang von Granit zu Rasen und Zugang zum Becken",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "invalidenpark_sinkende_mauer",
+      "title": "Invalidenpark – Grünanlagenbestand",
+      "page_url": "https://gdi.berlin.de/services/wfs/gruenanlagen",
+      "credit": "Geoportal Berlin / GRIS",
+      "role": "Amtliche Grenze der Grünanlage 131110 in Berlin-Mitte",
+      "photo_bundled": false,
+      "license": "Datenlizenz Deutschland – Zero – Version 2.0",
+      "license_url": "https://www.govdata.de/dl-de/zero-2-0"
+    },
+    {
+      "landmark_id": "invalidenpark_sinkende_mauer",
+      "title": "Invalidenpark – digitale Orthophotos, Frühjahr 2025",
+      "page_url": "https://gdi.berlin.de/services/wms/dop_2025_fruehjahr",
+      "credit": "Geoportal Berlin",
+      "role": "Verlauf der Granitbänder, Randwege und Pflanzflächen",
+      "photo_bundled": false,
+      "license": "Datenlizenz Deutschland – Zero – Version 2.0",
+      "license_url": "https://www.govdata.de/dl-de/zero-2-0"
+    },
+    {
+      "landmark_id": "invalidenpark_sinkende_mauer",
+      "title": "Invalidenpark – TrueDOP 2026",
+      "page_url": "https://gdi.berlin.de/services/wms/truedop_2026",
+      "credit": "Geoportal Berlin",
+      "role": "Lageabgleich von Becken, Platzbelägen und Straßenrändern",
+      "photo_bundled": false,
+      "license": "Datenlizenz Deutschland – Zero – Version 2.0",
+      "license_url": "https://www.govdata.de/dl-de/zero-2-0"
+    },
+    {
+      "landmark_id": "invalidenpark_sinkende_mauer",
+      "title": "Straßenbefahrung Berlin",
+      "page_url": "https://gdi.berlin.de/services/wfs/strassenbefahrung",
+      "credit": "Geoportal Berlin",
+      "role": "Fahrbahnen und Gehwege in der Umgebung des Invalidenparks und der Hannoverschen Straße",
+      "photo_bundled": false,
+      "license": "Datenlizenz Deutschland – Zero – Version 2.0",
+      "license_url": "https://www.govdata.de/dl-de/zero-2-0"
+    },
+    {
+      "landmark_id": "invalidenpark_sinkende_mauer",
+      "title": "ALKIS Berlin",
+      "page_url": "https://gdi.berlin.de/services/wfs/alkis",
+      "credit": "Geoportal Berlin",
+      "role": "Aktuelle Fahrbahnbegrenzungen und Wege in den Lücken der Straßenbefahrung, insbesondere entlang der Invalidenstraße",
+      "photo_bundled": false,
+      "license": "Datenlizenz Deutschland – Zero – Version 2.0",
+      "license_url": "https://www.govdata.de/dl-de/zero-2-0"
     }
   ]
 }
