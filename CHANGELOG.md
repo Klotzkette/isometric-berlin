@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.253
+
+- Reduce repeated geometry bookkeeping during navigation and speed up decoding of compressed building data. Store the walking minimap in a smaller PNG with identical pixels.
+- Reduce offline tile storage with lossless gzip. The additional compact download uses the Pages tile format and trades extra decoding time in the outskirts for a smaller installation. Both downloads retain the complete city and work with the existing Windows and macOS launchers.
+
 ## 1.0.252
 
 - Fit carriageways, sidewalks and planted areas around Invalidenstraße, the Charité and Hannoversche Straße to the Berlin street survey. The drawn view now covers the ground from the first frame.

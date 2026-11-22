@@ -148,6 +148,9 @@ Die vollständige gezeichnete Detailstufe steht auch auf Touchgeräten bereit.
 Der [ZIP-Download](https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip)
 enthält den vollständigen statischen Viewer mit seinen Stadtdateien.
 Voraussetzungen sind **Python 3** und ein moderner Browser mit WebGL.
+Bei wenig Speicherplatz enthält das kompakte ZIP alle Stadtdateien in kleinerer Form.
+Beim Erkunden der Außenbezirke benötigt der Browser zusätzliche Zeit zum Dekodieren.
+[Kompaktes ZIP herunterladen](https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local-compact.zip)
 
 1. Das gesamte ZIP entpacken.
 2. Den passenden Starter öffnen:
@@ -268,7 +271,9 @@ current view. Touch devices retain the full drawn detail.
 
 The [ZIP download](https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip)
 contains the complete static viewer and city assets. You need **Python 3**
-and a modern WebGL browser.
+and a modern WebGL browser. The compact ZIP includes the complete city in a smaller
+download and installation. The browser spends extra time decoding outer-city tiles.
+[Download the compact ZIP](https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local-compact.zip)
 
 1. Extract the entire ZIP.
 2. On Windows, open `OPEN-3D-WINDOWS.bat`; on macOS, open
@@ -329,8 +334,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.252** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.252/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.253** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.253/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits
