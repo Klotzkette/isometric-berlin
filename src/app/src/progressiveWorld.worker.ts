@@ -1,3 +1,4 @@
+import { applyMittePathLawnV375, loadMittePathLawnsV375 } from "./MittePathLawnV375";
 import { admitsSimsonGroundV375 } from "./simsonGroundGuardV375";
 import { applySimsonCutsV375 } from "./simsonSurfaceCutsV375";
 import { correctGardenPrismsV358 } from "./LehrterGardenPayloadV358";
@@ -182,6 +183,9 @@ async function buildSurfaceFamilies(
       terrainAt,
       { excludeDistrictMarkings: true, invalidenGroundV371: input.invalidenGroundV371, parliamentaryDiningV296:input.parliamentaryDiningV296, waterfrontV296:input.waterfrontV296 },
     );
+    if (simson && id.startsWith("surface-parks-")) {
+      applyMittePathLawnV375(root, await loadMittePathLawnsV375());
+    }
     if (simson) applySimsonCutsV375(root,id);
     await postBatch(root, "surfaces", id, startedAt);
   };
