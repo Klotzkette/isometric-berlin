@@ -80,27 +80,43 @@ test("native or partial floor cells do not acquire the source edge or retire the
   }
 });
 
-test("the straight edge of OSM way 5748424 replaces the four-metre kerb only after both slabs survive", () => {
-  // OSM at this location crosses x = -1984 and -1980 at the street coordinates below.
-  // The original terrain line is vertical at x = -1980.
-  const first = [-1984, 1784] as const, second = [-1980, 1784] as const;
-  const skipOtherCells = (x: number, z: number) => z !== 1786 || (x !== -1982 && x !== -1978);
-  function endpoints(owners: readonly Point[]): number[] {
-    const slabs = host(owners);
-    attach(slabs);
-    const steps = createKerbLinesSteps(ground, new Set(["asphalt", "water", "basin"]),
-      skipOtherCells, undefined, getPathEdgeInkV373(slabs));
-    let result = steps.next();
-    while (!result.done) result = steps.next();
-    const geometry = result.value!.geometry;
-    const positions = geometry.getAttribute("position");
-    expect(positions.count).toBe(2);
-    const endpoints = [positions.getX(0), positions.getZ(0), positions.getX(1), positions.getZ(1)];
-    geometry.dispose();
-    return endpoints;
+function kerbEndpoints(slabs: InstancedMesh, include: (x: number, z: number) => boolean, expectedY?: number): number[] {
+  attach(slabs);
+  const steps = createKerbLinesSteps(ground, new Set(["asphalt", "water", "basin"]),
+    (x, z) => !include(x, z), undefined, getPathEdgeInkV373(slabs));
+  let result = steps.next();
+  while (!result.done) result = steps.next();
+  const geometry = result.value!.geometry;
+  const positions = geometry.getAttribute("position");
+  const endpoints: number[] = [];
+  for (let i = 0; i < positions.count; i++) {
+    endpoints.push(positions.getX(i), positions.getZ(i));
+    if (expectedY !== undefined) expect(positions.getY(i)).toBeCloseTo(expectedY, 4);
   }
-  expect(endpoints([first])).toEqual([-1980, 1784, -1980, 1788]);
-  const actual = endpoints([first, second]);
-  const expected = [-1984, 1784.715, -1980, 1786.369];
+  geometry.dispose();
+  return endpoints;
+}
+
+test("two level neighbouring slabs replace their raster kerb with the straight edge of OSM way 57732140", () => {
+  const first = [180, 2528] as const, second = [180, 2532] as const;
+  const include = (x: number, z: number) => x === 182 && (z === 2530 || z === 2534);
+  const original = [180, 2532, 184, 2532];
+  expect(kerbEndpoints(host([first]), include)).toEqual(original);
+  const uneven = host([first, second]);
+  const matrix = new Matrix4();
+  uneven.getMatrixAt(1, matrix);
+  matrix.elements[13] += 1;
+  uneven.setMatrixAt(1, matrix);
+  expect(kerbEndpoints(uneven, include)).toEqual(original);
+  const actual = kerbEndpoints(host([first, second]), include, 6.22);
+  // Intersections with x = 180 and 184 measured against the original OSM polygon.
+  const expected = [180, 2532.851143, 184, 2534.170065];
+  expect(actual).toHaveLength(expected.length);
   expected.forEach((value, i) => expect(actual[i]).toBeCloseTo(value, 3));
+});
+
+test("a raster kerb adjoining OSM way 5748424 retains its unconfirmed stretch", () => {
+  const slabs = host([[-1984, 1784], [-1980, 1784]]);
+  const include = (x: number, z: number) => z === 1786 && (x === -1982 || x === -1978);
+  expect(kerbEndpoints(slabs, include)).toEqual([-1980, 1784, -1980, 1788]);
 });
