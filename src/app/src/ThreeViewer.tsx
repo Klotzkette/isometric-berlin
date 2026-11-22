@@ -5139,7 +5139,7 @@ function ensureIsoWorld(
         yield;
         // Complete source envelopes stay resident before the first interactive
         // frame. Only additional facade detail uses camera-following residency.
-        isoWorld.add(yield* altMitteCoreV169.buildAltMitteCoreV169Steps({ bndPublicArtV314: true, neighbourhoodV300:true,westKiezV302:fidelityV288.westKiez, golgathaV270: true, tachelesFrontsV270: true, northernSitesV266: true, chariteBridgesV265: true, schlossplatzV239: true, staatsoperV240: true, architectureV241: true }));
+        isoWorld.add(yield* altMitteCoreV169.buildAltMitteCoreV169Steps({ gateWingsV374: true, bndPublicArtV314: true, neighbourhoodV300:true,westKiezV302:fidelityV288.westKiez, golgathaV270: true, tachelesFrontsV270: true, northernSitesV266: true, chariteBridgesV265: true, schlossplatzV239: true, staatsoperV240: true, architectureV241: true }));
         isoWorld.add(gendarmenV344.createGendarmenSecondRowV344(isoWorld));
         isoWorld.add(schlossplatzV344.createSchlossplatzContextV344(isoWorld, false));
         isoWorld.add(nordbahnhofV345.createNordbahnhofFrontsV345(isoWorld, false));

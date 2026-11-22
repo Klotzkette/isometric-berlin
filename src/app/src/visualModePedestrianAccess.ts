@@ -1,3 +1,4 @@
+import { gateHallWalkableV374 } from "./BrandenburgGatehouseSourceV374";
 import { eastCivicWalkableAt } from "./eastCivicProfile";
 import { dhmWalkableAt } from "./dhmProfile";
 import { alexanderCivicWalkableAt } from "./alexanderCivicProfile";
@@ -47,6 +48,7 @@ export function visualModeWalkableInteriorAt(
   if (invalidenfriedhofWalkableInteriorAt(x, y, z, sourceBuildingId)) {
     return true;
   }
+  if (mode !== "minecraft" && gateHallWalkableV374(x,y,z,sourceBuildingId)) return true;
   if (brandenburgGateWalkableAt(x, y, z, sourceBuildingId)) return true;
   if (hauptbahnhofWalkableInteriorAt(x, y, z, sourceBuildingId)) return true;
   if (mode === "schwellenraum") {

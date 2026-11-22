@@ -3,7 +3,6 @@ import {
   Box3,
   CylinderGeometry,
   InstancedMesh,
-  LineBasicMaterial,
   LineSegments,
   Matrix4,
   Mesh,
@@ -122,9 +121,11 @@ describe("metre-scale architectural recognition models", () => {
         (child) => child.name === "Brandenburg Gate shaded passage interior",
       ),
     ).toHaveLength(0);
-    expect(bounds.max.z - bounds.min.z).toBeCloseTo(62.5, 1);
-    // Thin reliefs project from the unchanged 11 m architectural body.
-    expect(bounds.max.x - bounds.min.x).toBeCloseTo(11.45, 2);
+    expect(bounds.min.z).toBeCloseTo(-31.28, 1);
+    expect(bounds.max.z).toBeCloseTo(33.27, 1);
+    // The 11 m central order is flanked by the deeper, independently mapped east guard houses.
+    expect(bounds.min.x).toBeCloseTo(-5.725, 2);
+    expect(bounds.max.x).toBeCloseTo(22.95, 1);
     expect(bounds.max.y).toBeGreaterThan(25);
     expect(bounds.max.y).toBeLessThan(27);
     // The Quadriga is its own module now (Quadriga.ts), merged into a
@@ -136,30 +137,18 @@ describe("metre-scale architectural recognition models", () => {
     const quadrigaBounds = new Box3().setFromObject(quadriga);
     expect(quadrigaBounds.min.y).toBeCloseTo(signature.gate_height_m, 1);
     expect(quadrigaBounds.max.y).toBeCloseTo(signature.total_height_m, 1);
-    const fluting = gate!.getObjectByName(
-      "Brandenburg Gate batched Doric column fluting",
-    );
-    expect(fluting).toBeInstanceOf(LineSegments);
-    expect(
-      ((fluting as LineSegments).material as LineBasicMaterial).userData
-        .architecturalInkRole,
-    ).toBe("micro");
-    const fluteGrooves = gate!.getObjectByName(
-      "Brandenburg Gate recessed Doric flute grooves",
-    ) as InstancedMesh;
-    expect(fluteGrooves).toBeInstanceOf(InstancedMesh);
-    expect(fluteGrooves.count).toBe(
-      12 *
-        BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnFluteCount *
-        BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnFluteGeometrySegmentCount,
-    );
-    expect(
-      gate!.getObjectByName("Brandenburg Gate batched pavilion masonry joints"),
-    ).toBeInstanceOf(LineSegments);
+    const shaftGeometry = westFaceColumns[0].geometry;
+    const pos = shaftGeometry.getAttribute("position");
+    const sectors = BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnFluteCount *
+      BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnFluteProfileSegments;
+    const radii = Array.from({length:sectors}, (_, i) => Math.hypot(pos.getX(i), pos.getZ(i)));
+    expect(radii.filter((r, i) => r > radii[(i+1)%sectors] && r > radii[(i+sectors-1)%sectors])).toHaveLength(20);
+    expect(Math.max(...radii) - Math.min(...radii)).toBeGreaterThan(.04);
     const gateStone = gate!.getObjectByName(
       "Brandenburg Gate Doric column 1:1",
     ) as Mesh;
-    expect(gateStone.material.color.getHex()).toBe(0xc7bba6);
+    expect(gateStone.material.color.getHex()).toBe(0xcac5b9);
+    expect(gateStone.material.metalness).toBe(0);
     expect(gateStone.material.userData.nightEmissive).toBe(0xf0c184);
     expect(gateStone.material.userData.nightEmissiveIntensity).toBe(0.72);
     expect(BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.sourceViewCount).toBe(6);
@@ -180,10 +169,6 @@ describe("metre-scale architectural recognition models", () => {
       BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.mainBodyWidthM + 0.7,
       2,
     );
-    const pavilionRecess = gate!.getObjectByName(
-      "Brandenburg Gate pavilion facade recess",
-    ) as Mesh;
-    expect(pavilionRecess.material.color.getHex()).toBe(0x716c63);
     const triglyphs = gate!.getObjectByName(
       "Brandenburg Gate instanced frieze triglyphs",
     );
@@ -233,53 +218,10 @@ describe("metre-scale architectural recognition models", () => {
         ) as InstancedMesh
       ).count,
     ).toBe(BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.passageMedallionCount);
-    expect(
-      photoDetails!.children
-        .filter(
-          (child) => child.name === "Brandenburg Gate pavilion portico columns",
-        )
-        .reduce((sum, child) => sum + (child as InstancedMesh).count, 0),
-    ).toBe(BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.pavilionPorticoColumnCount);
-    const pavilionColumns = photoDetails!.children.filter(
-      (child) => child.name === "Brandenburg Gate pavilion portico columns",
-    ) as InstancedMesh[];
-    const pavilionColumnBounds = new Box3();
-    for (const columns of pavilionColumns) {
-      pavilionColumnBounds.union(new Box3().setFromObject(columns));
-    }
-    expect(pavilionColumnBounds.min.y).toBeCloseTo(0, 2);
-    expect(pavilionColumnBounds.max.y).toBeCloseTo(6.6, 2);
-    const pavilionRoofs = photoDetails!.children.filter(
-      (child) =>
-        child.name === "Brandenburg Gate pavilion patinated gable roof",
-    ) as Mesh[];
-    expect(pavilionRoofs).toHaveLength(2);
-    const pavilionRoofBounds = new Box3();
-    for (const roof of pavilionRoofs) {
-      pavilionRoofBounds.union(new Box3().setFromObject(roof));
-    }
-    expect(pavilionRoofBounds.max.y).toBeCloseTo(
-      BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.pavilionHeightM,
-      2,
-    );
-    const pavilionPediments = photoDetails!.children.filter(
-      (child) => child.name === "Brandenburg Gate pavilion triangular pediment",
-    ) as Mesh[];
-    expect(pavilionPediments).toHaveLength(4);
-    for (const pediment of pavilionPediments) {
-      const pedimentBounds = new Box3().setFromObject(pediment);
-      expect(pedimentBounds.max.x - pedimentBounds.min.x).toBeCloseTo(0.2, 2);
-      expect(pedimentBounds.max.y - pedimentBounds.min.y).toBeCloseTo(2.03, 2);
-    }
-    expect(
-      photoDetails!.children.filter(
-        (child) =>
-          child.name ===
-          "Brandenburg Gate pavilion recessed triangular pediment relief",
-      ),
-    ).toHaveLength(
-      BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.pavilionPedimentReliefCount,
-    );
+    const sideColumns = gate!.getObjectByName("Brandenburg Gate open hall fluted sandstone columns") as InstancedMesh;
+    expect(sideColumns.count).toBe(BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.pavilionPorticoColumnCount);
+    expect(gate!.getObjectByName("Brandenburg Gate measured guard rooms and open sandstone entablatures")).toBeInstanceOf(Mesh);
+    expect(gate!.getObjectByName("Brandenburg Gate crossed standing-seam copper roofs")).toBeInstanceOf(Mesh);
     expect(
       photoDetails!.children.filter(
         (child) =>

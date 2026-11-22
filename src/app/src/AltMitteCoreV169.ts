@@ -1,3 +1,4 @@
+import { transferGatehouseCoresV374 } from "./BrandenburgGatehouseSourceV374";
 import { Group } from "three";
 import {
   buildCityChunkWithPaletteV362,
@@ -29,7 +30,7 @@ export type AltMitteCoreV169Source = {
 export function* buildAltMitteCoreV169Steps(
   payload: AltMitteCoreV169Source,
   native = false,
-  ownership: SurroundingOwnershipOptions = {},
+  ownership: SurroundingOwnershipOptions & { gateWingsV374?: boolean } = {},
 ): Generator<void, Group> {
   if (payload.schemaVersion !== 1 || !Array.isArray(payload.sourceParents))
     throw new Error("Invalid Alt-Mitte core source");
@@ -62,6 +63,7 @@ export function* buildAltMitteCoreV169Steps(
         false,
         ownership,
       );
+      if (!native && ownership.gateWingsV374) transferGatehouseCoresV374(decoded.root, chunk.id);
       decoded.root.name = `${root.name}: ${chunk.id}`;
       decoded.root.userData.sourceGeometry =
         "Geoportal Berlin LoD2; complete measured Alt-Mitte source envelopes";
@@ -129,7 +131,7 @@ export function* buildAltMitteCoreV169Steps(
 export function createAltMitteCoreV169FromSource(
   payload: AltMitteCoreV169Source,
   native = false,
-  ownership: SurroundingOwnershipOptions = {},
+  ownership: SurroundingOwnershipOptions & { gateWingsV374?: boolean } = {},
 ): Group {
   const steps = buildAltMitteCoreV169Steps(payload, native, ownership);
   let next = steps.next();

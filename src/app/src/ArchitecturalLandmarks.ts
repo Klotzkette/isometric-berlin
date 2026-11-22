@@ -1,3 +1,4 @@
+import { addBrandenburgGateWingsV374, gateDoricShaftV374 } from "./BrandenburgGateWingsV374";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -153,15 +154,15 @@ export const BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE = {
   centralPassageWidthM: 5.65,
   columnBaseDiameterM: 1.73,
   columnFluteCount: 20,
-  columnFluteGeometrySegmentCount: 3,
+  columnFluteProfileSegments: 4,
   guttaCount: 204,
   mainBodyWidthM: 33.2,
   metopePanelCount: GATE_RELIEFS.metopeCount,
   passageDividerCount: 4,
   passageMedallionCount: 8,
   pavilionHeightM: 10.8,
-  pavilionPedimentReliefCount: 4,
-  pavilionPorticoColumnCount: 16,
+  pavilionExposedGableCount: 4,
+  pavilionPorticoColumnCount: 56,
   sidePassageWidthM: 3.8,
   sourceViewCount: 6,
   stylobateStepCount: 3,
@@ -7349,26 +7350,24 @@ function createBrandenburgGateModel(
   placeMetricGroup(group, signature);
 
   const sandstone = nightEmitter(
-    modelMaterial(0xc7bba6, { roughness: 0.92 }),
+    modelMaterial(0xcac5b9, { metalness: 0, roughness: 0.92 }),
     0xf0c184,
     0.72,
   );
   const sandstoneShadow = nightEmitter(
-    modelMaterial(0xb3a58f, { roughness: 0.94 }),
+    modelMaterial(0xb3ac9f, { metalness: 0, roughness: 0.94 }),
     0x9a7650,
     0.46,
   );
   const sandstoneRelief = nightEmitter(
-    modelMaterial(0xa0927e, { roughness: 0.95 }),
+    modelMaterial(0x9f9688, { metalness: 0, roughness: 0.95 }),
     0x8d6d4b,
     0.38,
   );
   const recess = modelMaterial(0x716c63, { opacity: 0.82, roughness: 0.92 });
   const paving = modelMaterial(0xb6b6b1, { roughness: 0.96 });
-  const patinatedCopper = modelMaterial(0x61796b, {
-    metalness: 0.36,
-    roughness: 0.56,
-  });
+  const shaftStone = sandstone.clone();
+  shaftStone.vertexColors = true;
   const mainBodyWidth = BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.mainBodyWidthM;
   const columnBaseRadius =
     BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnBaseDiameterM / 2;
@@ -7419,20 +7418,13 @@ function createBrandenburgGateModel(
     );
   }
 
+  const shaft = gateDoricShaftV374(columnBaseRadius, columnTopRadius, signature.column_height_m);
   for (let row = 0; row < rowX.length; row += 1) {
     const x = rowX[row];
     for (let index = 0; index < columnAxes.length; index += 1) {
       const z = columnAxes[index];
       columnCenters.push([x, z]);
-      const column = new Mesh(
-        new CylinderGeometry(
-          columnTopRadius,
-          columnBaseRadius,
-          signature.column_height_m,
-          40,
-        ),
-        sandstone,
-      );
+      const column = new Mesh(shaft, shaftStone);
       column.name = `Brandenburg Gate Doric column ${row + 1}:${index + 1}`;
       column.position.set(x, signature.column_height_m / 2, z);
       column.castShadow = true;
@@ -7466,87 +7458,6 @@ function createBrandenburgGateModel(
       position: [x, signature.column_height_m + 0.13, z],
     })),
   );
-  const flutingSegments: VectorSegment[] = [];
-  for (const [columnX, columnZ] of columnCenters) {
-    for (
-      let flute = 0;
-      flute < BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnFluteCount;
-      flute += 1
-    ) {
-      const angle =
-        (flute / BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnFluteCount) *
-        Math.PI *
-        2;
-      flutingSegments.push([
-        [
-          columnX + Math.cos(angle) * (columnBaseRadius - 0.035),
-          0.72,
-          columnZ + Math.sin(angle) * (columnBaseRadius - 0.035),
-        ],
-        [
-          columnX + Math.cos(angle) * (columnTopRadius - 0.025),
-          signature.column_height_m - 0.7,
-          columnZ + Math.sin(angle) * (columnTopRadius - 0.025),
-        ],
-      ]);
-    }
-  }
-  addVectorSegments(
-    group,
-    "Brandenburg Gate batched Doric column fluting",
-    flutingSegments,
-    0x887b62,
-    0.58,
-  );
-
-  // WebGL line width is effectively one device pixel in most browsers, so
-  // the old flute strokes vanished as soon as the gate was viewed at normal
-  // map distance. These shallow, tapered groove inserts make all twenty
-  // Doric flutes per column actual geometry while retaining the thin ink line
-  // above for close-up definition. Three vertical segments follow the shaft's
-  // taper without turning 240 flutes into 240 draw calls.
-  const fluteGrooves: InstanceTransform[] = [];
-  const fluteSegmentCount =
-    BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnFluteGeometrySegmentCount;
-  const fluteBottom = 0.72;
-  const fluteTop = signature.column_height_m - 0.7;
-  const fluteSegmentHeight = (fluteTop - fluteBottom) / fluteSegmentCount;
-  for (const [columnX, columnZ] of columnCenters) {
-    for (
-      let flute = 0;
-      flute < BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnFluteCount;
-      flute += 1
-    ) {
-      const angle =
-        (flute / BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.columnFluteCount) *
-        Math.PI *
-        2;
-      for (let segment = 0; segment < fluteSegmentCount; segment += 1) {
-        const progress = (segment + 0.5) / fluteSegmentCount;
-        const radius =
-          columnBaseRadius -
-          0.035 +
-          (columnTopRadius - columnBaseRadius + 0.01) * progress;
-        fluteGrooves.push({
-          position: [
-            columnX + Math.cos(angle) * radius,
-            fluteBottom + (segment + 0.5) * fluteSegmentHeight,
-            columnZ + Math.sin(angle) * radius,
-          ],
-          rotation: [0, Math.PI / 2 - angle, 0],
-          scale: [1, fluteSegmentHeight - 0.035, 1],
-        });
-      }
-    }
-  }
-  addInstancedGeometry(
-    group,
-    "Brandenburg Gate recessed Doric flute grooves",
-    new BoxGeometry(0.075, 1, 0.045),
-    sandstoneShadow,
-    fluteGrooves,
-  );
-
   const photoDetails = new Group();
   photoDetails.name = "Brandenburg Gate photo-bounded fine detail";
   photoDetails.userData = {
@@ -7637,7 +7548,7 @@ function createBrandenburgGateModel(
       "Brandenburg Gate passage masonry divider",
       [8.2, 13.18, 1.42],
       [0, 6.59, dividerZ],
-      sandstone,
+      sandstoneShadow,
       0.7,
     );
     for (const passageSide of [-1, 1]) {
@@ -7684,190 +7595,7 @@ function createBrandenburgGateModel(
     ceilingCoffers,
   );
 
-  const pavilionWidth = (signature.width_m - mainBodyWidth) / 2;
-  const pavilionHeight = BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.pavilionHeightM;
-  const pavilionBodyHeight = 7.75;
-  const pavilionMasonry: VectorSegment[] = [];
-  for (const z of [-1, 1]) {
-    const pavilionZ = z * (signature.width_m / 2 - pavilionWidth / 2);
-    addBox(
-      group,
-      "Brandenburg Gate side pavilion",
-      [9.75, pavilionBodyHeight, pavilionWidth],
-      [0, pavilionBodyHeight / 2, pavilionZ],
-      sandstone,
-      0.88,
-    );
-    for (const x of [-1, 1]) {
-      addBox(
-        group,
-        "Brandenburg Gate pavilion facade recess",
-        [0.08, 6.15, pavilionWidth - 2.7],
-        [x * 4.92, 3.72, pavilionZ],
-        recess,
-      );
-    }
-    const porticoColumns: InstanceTransform[] = [];
-    for (const x of [-1, 1]) {
-      for (const offsetZ of [-0.34, -0.115, 0.115, 0.34]) {
-        porticoColumns.push({
-          position: [x * 5, 3.3, pavilionZ + offsetZ * pavilionWidth],
-        });
-      }
-      const faceX = x * 5.38;
-      const pedimentHalfWidth = pavilionWidth / 2 - 0.85;
-      const pediment = new Mesh(
-        triangularPrism(pedimentHalfWidth * 2, 2.03, 0.2),
-        sandstone,
-      );
-      pediment.name = "Brandenburg Gate pavilion triangular pediment";
-      pediment.position.set(faceX, 7.55, pavilionZ);
-      photoDetails.add(pediment);
-      addEdges(photoDetails, pediment, 0.62);
-
-      const pedimentRelief = new Mesh(
-        triangularPrism(pedimentHalfWidth * 1.55, 1.28, 0.055),
-        sandstoneRelief,
-      );
-      pedimentRelief.name =
-        "Brandenburg Gate pavilion recessed triangular pediment relief";
-      pedimentRelief.position.set(x * 5.49, 7.78, pavilionZ);
-      photoDetails.add(pedimentRelief);
-    }
-    addInstancedGeometry(
-      photoDetails,
-      "Brandenburg Gate pavilion portico columns",
-      new CylinderGeometry(0.28, 0.34, 6.6, 24),
-      sandstone,
-      porticoColumns,
-    );
-    addInstancedGeometry(
-      photoDetails,
-      "Brandenburg Gate pavilion portico bases",
-      new CylinderGeometry(0.42, 0.45, 0.2, 24),
-      sandstone,
-      porticoColumns.map((column) => ({
-        position: [column.position[0], 0.1, column.position[2]],
-      })),
-    );
-    addInstancedGeometry(
-      photoDetails,
-      "Brandenburg Gate pavilion portico capitals",
-      new CylinderGeometry(0.44, 0.3, 0.28, 24),
-      sandstone,
-      porticoColumns.map((column) => ({
-        position: [column.position[0], 6.72, column.position[2]],
-      })),
-    );
-    addBox(
-      group,
-      "Brandenburg Gate pavilion cornice",
-      [signature.depth_m, 0.62, pavilionWidth],
-      [0, 7.35, pavilionZ],
-      sandstone,
-      0.78,
-    );
-    const roofHalfDepth = signature.depth_m / 2 - 0.16;
-    const roofHalfWidth = pavilionWidth / 2 - 0.2;
-    const roofEaveY = 9.48;
-    const roofRidgeY = pavilionHeight;
-    const roofZMin = pavilionZ - roofHalfWidth;
-    const roofZMax = pavilionZ + roofHalfWidth;
-    const roofGeometry = new BufferGeometry();
-    roofGeometry.setAttribute(
-      "position",
-      new Float32BufferAttribute(
-        [
-          -roofHalfDepth,
-          roofEaveY,
-          roofZMin,
-          roofHalfDepth,
-          roofEaveY,
-          roofZMin,
-          roofHalfDepth,
-          roofRidgeY,
-          pavilionZ,
-          -roofHalfDepth,
-          roofEaveY,
-          roofZMin,
-          roofHalfDepth,
-          roofRidgeY,
-          pavilionZ,
-          -roofHalfDepth,
-          roofRidgeY,
-          pavilionZ,
-          -roofHalfDepth,
-          roofRidgeY,
-          pavilionZ,
-          roofHalfDepth,
-          roofRidgeY,
-          pavilionZ,
-          roofHalfDepth,
-          roofEaveY,
-          roofZMax,
-          -roofHalfDepth,
-          roofRidgeY,
-          pavilionZ,
-          roofHalfDepth,
-          roofEaveY,
-          roofZMax,
-          -roofHalfDepth,
-          roofEaveY,
-          roofZMax,
-        ],
-        3,
-      ),
-    );
-    roofGeometry.computeVertexNormals();
-    const roof = new Mesh(roofGeometry, patinatedCopper);
-    roof.name = "Brandenburg Gate pavilion patinated gable roof";
-    photoDetails.add(roof);
-    addEdges(photoDetails, roof, 0.58);
-    const courseHeight = 1.3;
-    for (const xSide of [-1, 1]) {
-      const faceX = xSide * (signature.depth_m / 2 - 0.01);
-      for (
-        let course = 1;
-        course * courseHeight < pavilionBodyHeight;
-        course += 1
-      ) {
-        const y = course * courseHeight;
-        pavilionMasonry.push([
-          [faceX, y, pavilionZ - pavilionWidth / 2 + 0.3],
-          [faceX, y, pavilionZ + pavilionWidth / 2 - 0.3],
-        ]);
-      }
-      for (
-        let course = 0;
-        course * courseHeight < pavilionBodyHeight;
-        course += 1
-      ) {
-        const yStart = course * courseHeight;
-        const offset = course % 2 === 0 ? 0 : 1.05;
-        for (
-          let jointZ = pavilionZ - pavilionWidth / 2 + 0.9 + offset;
-          jointZ < pavilionZ + pavilionWidth / 2 - 0.5;
-          jointZ += 2.1
-        ) {
-          pavilionMasonry.push([
-            [faceX, yStart, jointZ],
-            [
-              faceX,
-              Math.min(pavilionBodyHeight, yStart + courseHeight),
-              jointZ,
-            ],
-          ]);
-        }
-      }
-    }
-  }
-  addVectorSegments(
-    group,
-    "Brandenburg Gate batched pavilion masonry joints",
-    pavilionMasonry,
-    0x9c8c6f,
-    0.38,
-  );
+  addBrandenburgGateWingsV374(group);
   addBox(
     group,
     "Brandenburg Gate entablature",
@@ -7917,8 +7645,8 @@ function createBrandenburgGateModel(
       addBox(
         photoDetails,
         `Brandenburg Gate facade architrave course ${xSide}:${index + 1}`,
-        [0.1, height, width],
-        [xSide * (signature.depth_m / 2 - 0.05), y, 0],
+        [0.14, height, width],
+        [xSide * (signature.depth_m / 2 + 0.045), y, 0],
         material,
         0.5,
       );

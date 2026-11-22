@@ -1,3 +1,4 @@
+import { GATE_COLONNADE_PRISMS_V374 } from "./BrandenburgGatehouseSourceV374";
 import { getPathEdgeInkV373, releasePathEdgeInkV373 } from "./pathEdgeInkV373";
 import { isLeopoldplatzFountainPad } from "./leopoldplatzFountainV367";
 import pavementEdgesV368 from "./data/innerCityPavementEdgesV368.json";
@@ -491,6 +492,8 @@ export type IsometricCityBuildOptions = {
   includeOranienV167?: boolean;
   includeUniversitiesV168?: boolean;
   includeAltMitteCoreV169?: boolean;
+  /** A separately installed gate signature carries both measured guard rooms. */
+  gateWingsV374?: boolean;
   /**
    * Keep the 4 m raster asphalt in the preview instead of waiting for the
    * memory-heavy exact road plate. Used only by the coarse-pointer profile.
@@ -1218,6 +1221,7 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   "K0001xqy",
   "QDYNK7dL",
   "VpZW4Luf",
+  ...GATE_COLONNADE_PRISMS_V374,
   // Invalidenfriedhof memorial structures. Their LoD2 footprints are useful
   // metric anchors, but prism extrusion closes the Auguste-Viktoria bell
   // frame and turns the three-metre-base Litfin watchtower into one opaque
@@ -13708,7 +13712,8 @@ export function createIsometricCityStepsV309(
   onProgress?: (progress: CityBuildProgressV309) => void,
 ): Generator<void, Group> {
   return createIsometricCityRuntimeStepsV359(
-    prisms, ground, tunnel, surfaces, options, onCreate, onProgress, createAltMitteCoreV169,
+    prisms, ground, tunnel, surfaces, options, onCreate, onProgress,
+    () => createAltMitteCoreV169({ gateWingsV374: options.gateWingsV374 }),
   );
 }
 

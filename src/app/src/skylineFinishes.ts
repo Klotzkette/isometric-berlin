@@ -183,6 +183,10 @@ const facade = new Map<string, SurfaceFinish>([
   ["Reisens thin aluminium grid and concave shell members", {
     glass: [0x668594], metal: [0xcacac1, 0xdddcd1], masonry: [0xdbd9ca],
   }],
+  ["Brandenburg Gate measured guard rooms and open sandstone entablatures", "masonry"],
+  ["Brandenburg Gate crossed standing-seam copper roofs", "patina"],
+  ["Brandenburg Gate guardroom portals and divided upper lights", { glass: [0x414b49] }],
+  ["Brandenburg Gate open hall fluted sandstone columns", "masonry"],
   ["Brandenburg Gate instanced Doric capital abaci", "masonry"],
   ["Brandenburg Gate pavilion portico columns", "masonry"],
   ["Brandenburg Gate entablature", "masonry"],
