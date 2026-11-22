@@ -1,0 +1,17 @@
+# Straßen und Wege am Invalidenpark
+
+Die gezeichnete Ansicht stellt rund 0,76 km² zwischen dem Berlin-Spandauer Schifffahrtskanal und der Chausseestraße mit durchgehenden Bodenflächen dar. Der Ausschnitt umfasst den Invalidenpark, die Front des Wirtschaftsministeriums, die Invalidenstraße, den nördlichen Charité-Campus und die Hannoversche Straße. [Im Viewer zum Becken der Sinkenden Mauer](https://klotzkette.github.io/isometric-berlin/?lang=de&theme=day#landmark=invalidenpark-sinkende-mauer)
+
+## Straßen und Campus
+
+Die amtliche Straßenbefahrung von 2014/15 liefert die Umrisse von Fahrbahnen, Gehwegen, Bordsteinen und weiteren Verkehrsflächen. Wo diese Erfassung Lücken hat, liefern die aktuellen ALKIS-Daten zusätzliche Fahrbahnbegrenzungen und Wegeflächen. Die jüngere Gleistrasse der Invalidenstraße und die Platzgestaltung wurden mit den Berliner Orthofotos abgeglichen. Für Wege auf dem Charité-Gelände und in den Höfen ergänzen OpenStreetMap-Daten die öffentliche Straßenvermessung. Wo nur eine Wegmittellinie kartiert ist, folgt das Modell ihrem Verlauf und verwendet eine angenäherte Breite. [Straßenbefahrung Berlin](https://www.geoportal.de/info/d4c0abae-dabe-34ec-9fb1-851b1f4af986) · [ALKIS Berlin](https://gdi.berlin.de/services/wfs/alkis?service=WFS&request=GetCapabilities) · [TrueDOP 2026](https://gdi.berlin.de/services/wms/truedop_2026?service=WMS&request=GetCapabilities) · [OpenStreetMap](https://www.openstreetmap.org/copyright)
+
+## Park und Denkmal
+
+Der südliche Vorplatz geht in schrägen Bändern von Granit in Rasen über. Am Becken sind außerdem die steinerne Einfassung und die schmale Fortsetzung der Mauerachse nach Norden erkennbar. Die Grenze der rund 19.632 m² großen Grünanlage stammt aus dem Berliner Grünanlagenbestand. Die Kanten der Bänder, die Randwege und ein Pflanzbeet wurden aus zwei georeferenzierten Luftbildern nachgezeichnet. Einzelne Pflastersteine und Farbtöne sind im Modell vereinfacht. Die Grundfläche hält das vorhandene Wasserbecken und die Skulptur frei. [Grün Berlin](https://gruen-berlin.de/projekte/parks/invalidenpark/) · [Projektportfolio des Ateliers Girot](https://www.girot.ch/wp-content/uploads/2013/04/Invaliden-Park-portfolioE.pdf) · [Grünanlagenbestand](https://gdi.berlin.de/services/wfs/gruenanlagen?service=WFS&request=GetCapabilities) · [Orthofotos Frühjahr 2025](https://gdi.berlin.de/services/wms/dop_2025_fruehjahr?service=WMS&request=GetCapabilities)
+
+## Darstellung und Prüfung
+
+Im vorherigen mobilen Stand fehlten die Asphaltzellen im Vier-Meter-Raster bereits beim ersten Bild. Solange die nachgeladenen Flächen die Aussparungen nicht vollständig füllten, war der helle Szenenhintergrund in treppenförmigen Streifen sichtbar. In der Korrektur teilen sich Fahrbahn, Gehweg und Grünflächen eine Grenze. Der Viewer setzt den Boden vor dem ersten Bild ein und schneidet später geladene Flächen an derselben Grenze ab. Becken und Skulptur stehen auch beim direkten Einstieg am Desktop von Anfang an gemeinsam im Bild.
+
+Die archivierten Eingaben lassen sich mit `uv run python scripts/build_invaliden_ground_v371.py` und `uv run python scripts/build_invaliden_park_v371.py` offline erneut in die beiden Darstellungsebenen umwandeln. Die Weltkoordinaten reichen von X 112 bis 1120 und Z −1440 bis −688 Meter. X entspricht dem UTM-Ostwert minus 389500, Z dem Wert 5820000 minus dem UTM-Nordwert in EPSG:25833. [Straßendaten](../geo_data/regierungsviertel/invaliden-ground-v371-source.geojson.gz) · [Parkgeometrie](../geo_data/regierungsviertel/invalidenpark-v371-survey.json)

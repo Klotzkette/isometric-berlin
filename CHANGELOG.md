@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.252
+
+- Fit carriageways, sidewalks and planted areas around Invalidenstraße, the Charité and Hannoversche Straße to the Berlin street survey. The drawn view now covers the ground from the first frame.
+- Follow the bands of granite and grass in the Invalidenpark forecourt, with a continuous border around the existing pool and sinking wall. [Extent and sources](docs/invalidenpark-wege-v371.md)
+
 ## 1.0.251
 
 - Model the folded steel sheet piles west of the Humboldthafen rail bridge, the masonry on its eastern bank and surveyed changes of material along the Spree, Berlin-Spandau shipping canal and Landwehrkanal.

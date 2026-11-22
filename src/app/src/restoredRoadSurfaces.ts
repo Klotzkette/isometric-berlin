@@ -1,4 +1,5 @@
 import { BufferAttribute, BufferGeometry, DoubleSide, Group, LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial } from "three";
+import { trimInvalidenSurfaceV371 } from "./invalidenGroundOwnershipV371";
 import roadDataUrl from "./data/restoredRoadSurfaces.ndjson.txt?url";
 import { markArchitecturalInk } from "./architecturalInk";
 import { cutGrosserSternGatehouseGroundSurface, smoothGroundTopSampler, type VoxelPayload } from "./terrainPayload";
@@ -23,7 +24,7 @@ function bytes(encoded: string | ArrayBuffer): ArrayBuffer {
 }
 
 /** No triangulation, smoothing or giant temporary number arrays at startup. */
-export function createRestoredRoadBatch(batch: RestoredRoadBatch | RoadWordBatch, terrainAt: (x: number, z: number) => number): Group {
+export function createRestoredRoadBatch(batch: RestoredRoadBatch | RoadWordBatch, terrainAt: (x: number, z: number) => number, invalidenGroundV371 = false): Group {
   const xz = new Float32Array(bytes(batch.xz));
   const root = new Group();
   root.name = batch.id;
@@ -84,6 +85,11 @@ export function createRestoredRoadBatch(batch: RestoredRoadBatch | RoadWordBatch
     edge.name = "smooth kerb ink"; edge.renderOrder = 2;
     root.add(edge);
   }
+  if (invalidenGroundV371) {
+    for (const surface of root.children) {
+      if (surface instanceof Mesh || surface instanceof LineSegments) trimInvalidenSurfaceV371(surface);
+    }
+  }
   return freezeStaticSceneTransforms(root);
 }
 
@@ -124,7 +130,7 @@ async function* roadLines(body: ReadableStream<Uint8Array>): AsyncGenerator<stri
 
 /** Read the next batch only after the caller acknowledges the previous geometry. */
 export async function* createRestoredRoadSurfaceBatches(
-  ground: VoxelPayload, completed: ReadonlySet<string> = new Set(),
+  ground: VoxelPayload, completed: ReadonlySet<string> = new Set(), invalidenGroundV371 = false,
 ): AsyncGenerator<{ id: string; root: Group }> {
   const response = await fetch(roadDataUrl);
   if (!response.ok) throw new Error(`Exact street data failed with HTTP ${response.status}`);
@@ -158,7 +164,7 @@ export async function* createRestoredRoadSurfaceBatches(
     if (ids.has(id) || ++count > manifest.batch_count) throw new Error("Exact street data contains an invalid batch");
     ids.add(id);
     if (completed.has(id)) continue;
-    yield { id, root: createRestoredRoadBatch(packed ? readRoadWordBatch(packed) : plain, terrainAt) };
+    yield { id, root: createRestoredRoadBatch(packed ? readRoadWordBatch(packed) : plain, terrainAt, invalidenGroundV371) };
   }
   if (!manifest || count !== manifest.batch_count) throw new Error("Exact street data is incomplete");
 }

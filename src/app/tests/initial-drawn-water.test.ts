@@ -43,6 +43,23 @@ describe("complete initial mobile water", () => {
     expect(mobile.getObjectByName("smooth asphalt streets")).toBeUndefined();
   });
 
+  test("first desktop frame owns only the Invalidenpark basin and sculpture when survey ground is active", () => {
+    const local = createInitialDrawnWater(ground, surfaces, false, true)!;
+    expect(local.userData.waterPolygonCount).toBe(1);
+    expect(local.userData.basinCount).toBe(1);
+    expect(local.userData.sunkenWallCount).toBe(1);
+    expect(local.getObjectByName("basin water")).toBeDefined();
+    expect(local.getObjectByName("sunken walls")).toBeDefined();
+    expect(local.getObjectByName("basin floors")).toBeUndefined();
+    expect(local.getObjectByName("natural pond water")).toBeUndefined();
+    const floor = local.getObjectByName("Invalidenpark basin floor") as Mesh;
+    for (const material of [floor.userData.dayMaterial, floor.userData.nightMaterial] as Material[]) {
+      expect(material.polygonOffset).toBeTrue();
+      expect(material.polygonOffsetFactor).toBe(0);
+      expect(material.polygonOffsetUnits).toBe(2);
+    }
+  });
+
   test("is byte-identical to the desktop water family on the same surveyed terrain", () => {
     const sample = smoothGroundTopSampler(ground);
     const waterTop = ground.water_top_y_m ?? WATER_TOP_Y;

@@ -549,6 +549,7 @@ import { createRiversideVenues } from "./RiversideVenues";
 import { createSpreebogenOffice } from "./SpreebogenOffice";
 import { createVessels } from "./Vessels";
 import { createTiergartenMonuments, setFechterFallbackHiddenV352 } from "./TiergartenMonuments";
+import { cutInvalidenGroundRunsV371, trimInvalidenSurfaceV371 } from "./invalidenGroundOwnershipV371";
 import { createInitialDrawnWater, drawnWaterMonumentKeys } from "./initialDrawnWater";
 import {
   ACTIVE_MOTION_FRAME_INTERVAL_MS,
@@ -4796,9 +4797,15 @@ function ensureIsoWorld(
       const stationPhotoAdmitted = canReplacePotsdamerSouthStationPhoto(prisms.buildings);
       const potsdamerNorthPavilion = stationPhotoAdmitted && Boolean(surfaces) &&
         canReplacePotsdamerNorthPavilion(prisms.buildings) && potsdamerPavilionTerrainAdmitted(ground);
-      const [nordbahnhofModule, mittePlazaEdgesV367] = ground && surfaces
-        ? await Promise.all([import("./NordbahnhofPublicAccess"), import("./MittePlazaEdgesV367")])
-        : [null, null];
+      const invalidenSurveyAvailable = ground?.cell_m === 4 && ground.grid.min_x_idx === -975 &&
+        ground.grid.min_z_idx === -905 && ground.grid.cols === 1578 && ground.grid.rows === 1633;
+      const [nordbahnhofModule, mittePlazaEdgesV367, invalidenGround, invalidenPark] = ground && surfaces
+        ? await Promise.all([
+            import("./NordbahnhofPublicAccess"), import("./MittePlazaEdgesV367"),
+            invalidenSurveyAvailable ? import("./InvalidenGroundV371") : null,
+            invalidenSurveyAvailable ? import("./InvalidenParkGroundV371") : null,
+          ])
+        : [null, null, null, null];
       if (runtime.disposed || runtime.loadSignal.aborted || !isoWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
       const nordbahnhof = nordbahnhofModule?.prepareNordbahnhofDrawn(prisms.buildings, ground) ?? null;
       const hbfCirculationV291 = runtime.signatures.children.some(model => model.userData.hbfMotionFrameV291?.native === false);
@@ -4888,6 +4895,7 @@ function ensureIsoWorld(
                 type: "build",
               }
             : null;
+      if (progressiveInput && invalidenGround) progressiveInput.invalidenGroundV371 = true;
       // Keep the old scene intact until every exact layer is ready. Task
       // boundaries release constructor scratch space and let context loss or
       // a mode switch cancel remaining work before it allocates.
@@ -4922,6 +4930,7 @@ function ensureIsoWorld(
             bridgeStructureGroundV369: rail && ground && hasDrawnHumboldthafenV369(rail) ? restoreHumboldthafenWaterV369(ground, false) : undefined,
             coreSpreeBridgeFactoryV242: createCoreSpreeBridgesV242,
             retainRasterAsphalt: false,
+            invalidenGroundV371: Boolean(invalidenGround),
             restoreRoadGroundV343: function* (slabs, sourceGround) {
               const plaza = kulturforumPlazaV343.createKulturforumPlazaV343(sourceGround);
               roadGroundV343.restoreRoadGroundV343(slabs, sourceGround, plaza);
@@ -4931,6 +4940,24 @@ function ensureIsoWorld(
                 yield* mittePlazaEdgesV367.attachMittePlazaEdgesV367(slabs, sourceGround, ISO_GROUND_SHADES);
                 yield;
                 mittePlazaEdgesV367.attachMitteSquareStreetsV367(slabs, sourceGround);
+              }
+              if (invalidenGround && invalidenPark) {
+                const sample = smoothGroundTopSampler(sourceGround);
+                const {cell_m: cell, grid} = sourceGround;
+                const height = (x: number, z: number) => sample(x / cell - grid.min_x_idx, z / cell - grid.min_z_idx);
+                const streets = invalidenGround.createInvalidenGroundV371(height);
+                const park = invalidenPark.createInvalidenParkGroundV371(height);
+                cutInvalidenGroundRunsV371(slabs);
+                slabs.traverse(o => {
+                  if (!(o instanceof Mesh) || o instanceof InstancedMesh) return;
+                  if (o.userData.roadGroundV343 || o.userData.tiergartenPathsV345 ||
+                      o.name.startsWith("Alt-Mitte retained grass complement") ||
+                      // This tile holds only the 36 former land cells along the basin.
+                      (o.userData.exactWaterBoundaryLand && o.name === "Exact water-edge land 1:-5") ||
+                      o.name === mittePlazaEdgesV367?.MITTE_PLAZA_EDGES_V367 ||
+                      o.name === "Measured Mitte sidewalks, verges and roads at squares v367") trimInvalidenSurfaceV371(o);
+                });
+                slabs.add(streets, park);
               }
             },
             retainRasterWater: runtime.coarsePointer && !surfaces,
@@ -4944,6 +4971,7 @@ function ensureIsoWorld(
         );
         reportDetailStep(0);
         provisionalIsoWorld = isoWorld;
+        isoWorld.userData.invalidenGroundV371 = Boolean(invalidenGround);
         isoWorld.add(fidelityV288.root);
         const mustafaFront = createMustafaFrontV356(prisms.buildings);
         if (mustafaFront) isoWorld.add(mustafaFront);
@@ -5016,7 +5044,8 @@ function ensureIsoWorld(
         neukoellnAdmissionV305=applyNeukoellnLegacyV227V305(isoWorld,false,true,fidelityV288.neukoellnModel);
         if (provisionalPedestrianEnvironment) provisionalPedestrianEnvironment.requiredSitesV281 = true;
         yield* compactStaticGeometrySteps(isoWorld);
-        const initialWater = createInitialDrawnWater(ground, surfaces, runtime.coarsePointer);
+        const initialWater = createInitialDrawnWater(ground, surfaces, runtime.coarsePointer,
+          Boolean(invalidenGround && (runtime.coarsePointer || progressiveInput)));
         if (initialWater) isoWorld.add(initialWater);
         reportDetailStep(1);
         yield;
@@ -5152,7 +5181,22 @@ function ensureIsoWorld(
         reportDetailStep(3);
         yield;
         if (ground) {
-          isoWorld.add(createDistrictStreets(ground, new Set(altMitteTransportCorrectionsV206.suppressedMarkingIndices)));
+          const streets = createDistrictStreets(ground, new Set(altMitteTransportCorrectionsV206.suppressedMarkingIndices));
+          isoWorld.add(streets);
+          if (invalidenGround) {
+            const oldSurfaces: Array<Mesh | LineSegments> = [];
+            streets.traverse(o => {
+              if ((o instanceof Mesh || o instanceof LineSegments) && (
+                o.name === "District asphalt carriageways" || o.name === "District mapped paved walkways" ||
+                o.name === "District raised kerbstones" || o.name === "District kerb ink"
+              )) oldSurfaces.push(o);
+            });
+            // This root remains staged through each cooperative checkpoint.
+            for (const surface of oldSurfaces) {
+              trimInvalidenSurfaceV371(surface);
+              yield;
+            }
+          }
           cutUbahnPresentationV261(isoWorld, false);
           cutUbahnPresentationV281(isoWorld, false);
           if (potsdamerNorthPavilion) attachPotsdamerPavilions(isoWorld, false);
@@ -10699,6 +10743,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   const options = {
                     fritzCourseV366: true,
                     pathTerrainAt: runtime.districtPathTerrainAt,
+                    invalidenGroundV371: runtime.isoWorld?.userData.invalidenGroundV371 === true,
                     streetFurnitureTerrainAt: (x: number, z: number, sourceY: number) =>
                       runtime.pedestrian.environment?.groundAt(x, z) ?? sourceY,
                     detailProfile: runtime.coarsePointer ? "mobile" as const : "full" as const,

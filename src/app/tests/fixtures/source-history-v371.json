@@ -1,0 +1,44 @@
+{
+  "additions": {
+    "src/app/src/InvalidenGroundV371.ts": "82ba78b328a9f1c2fbf3748a06b4b8725e6b397f879f7ac8b9f85864f9c8bbdc",
+    "src/app/src/InvalidenParkGroundV371.ts": "2aef4f4f6e422853d0a89b44d860001261c98afbdacc2994def86d5deac3b9e6",
+    "src/app/src/data/invalidenGroundV371.json": "14fae4e679706aa24e3f73d4cd12a49d5e8776b1f474f08f62aad3e8c5148620",
+    "src/app/src/data/invalidenParkGroundV371.json": "da6c67eb87db5c3e3af4ba39c798ae32ea4246df35632f6e19d313e9bee2fa3c",
+    "src/app/src/invalidenBoundsV371.ts": "0ab448cfdc3b612d7a17d5719c30fd808b89bff75ced0a9b9fa274196e7c53ac",
+    "src/app/src/invalidenGroundOwnershipV371.ts": "8761579ada625662cd65f7e9870bde6104bd36eb88b11e089af56ef3e411b15b"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "before": "f3b8b65b59f98386c6b4763e755d44d380d8d77aaa829387bf7c41fd8ccb2e4d",
+      "after": "8fef9653b9361d5dce2d1d1897eaf9e05bc40f400c9f468e37543e197cde1a66"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "before": "f1ebd076a61ec6cfd13acb5dc0c6dbf160751ce7165235e301b9bf3883ee1434",
+      "after": "92f093bf0da5b6bd092791dddf269c65e66ee1b99e046727a935d7f5cd99c851"
+    },
+    "src/app/src/ParkDetails.ts": {
+      "before": "f4b4b35789788a634f55e14e5778870c98332b30dc531842bd6faf423983450f",
+      "after": "9574acab06600b1991df25ea040dd79541607f7860bf5bf0d0f3bfe5feda4420"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "before": "5116a4ee0117bcaefc9ddb42e781f3d8a9771ba850caefe77345bcf0353eff52",
+      "after": "dc9f4e6c9b560a7e62d02c5149b4993a68a9b9e09f826f449cc7b18126fc5e3d"
+    },
+    "src/app/src/initialDrawnWater.ts": {
+      "before": "68bbafe05a12324c49f6470fcbfc1b772a0142a876df195c45f2bff12cab4b26",
+      "after": "58053e4beca144d16488ad8ed20fd18e2fcc94affd6a533be86b9dea401c05d3"
+    },
+    "src/app/src/progressiveWorld.ts": {
+      "before": "d93d67fdce535907e5d28d7735b2402a137b66e6be118dc820fa9349f7ebf0bf",
+      "after": "f277838cb25d0391d478984f820d9be8eaa95a58f0a12f0f53f9dcfa208e05a5"
+    },
+    "src/app/src/progressiveWorld.worker.ts": {
+      "before": "a7ddd789bc91ce840c5a8396b16b355969cca160d4a93fc0fca9708518b54a36",
+      "after": "4f81efe85a3132e10d3e60a4733caed9adc0bc0f065060a374a9dddd6973233b"
+    },
+    "src/app/src/restoredRoadSurfaces.ts": {
+      "before": "cba639b61a253d1c1d7f7a3b50222964e4ba8bb9990842154cf76bfaf628d0a6",
+      "after": "309f137af749e6dbe83b819d4aae9f7dcae82ba7820503db984026105d990002"
+    }
+  }
+}

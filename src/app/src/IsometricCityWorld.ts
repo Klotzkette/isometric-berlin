@@ -12,6 +12,7 @@ import { isPotsdamerNorthPavilionSource } from "./PotsdamerPavilionOwnership";
 import type { NordbahnhofDrawnCuts } from "./NordbahnhofPublicAccess";
 import { prepareMoabitMitteV300CoreFittingRetirement } from "./MoabitMitteV300CoreFittings";
 import { diningSourceOpeningsV296 } from "./parliamentaryDiningV296Profile";
+import { insideInvalidenGroundV371, trimInvalidenSurfaceV371 } from "./invalidenGroundOwnershipV371";
 import { clipFidelityGroundSurfaceV296, restoreFidelityGroundSlabsV296 } from "./FidelityGroundOpeningsV296";
 import { parliamentRetainedOpeningsV295, parliamentClipGeometryV295, parliamentClipInkV295 } from "./ParliamentRetainedEnvelopeV295";
 import { isChancelleryCanopyOldPrismV289 } from "./ChancelleryCanopySourceV289Ownership";
@@ -430,6 +431,7 @@ export type PrismPayload = {
  */
 export type IsometricCityBuildOptions = {
   /** Main-thread ground ownership only; its source table must never enter the building Worker. */
+  invalidenGroundV371?: boolean;
   restoreRoadGroundV343?: (slabs: InstancedMesh, ground: VoxelPayload) => Generator<void>;
   federalStateFittingsV321?: import("./FederalStateRepresentations").FederalStateRepresentationOptions["fittingsFactoryV321"];
   /** Only the completed required Hauptbahnhof model may open its retained source glazing. */
@@ -587,6 +589,12 @@ export type SurfacePolygon = {
   ring: number[][];
 };
 
+/** The mapped reflection basin immediately around the Sinkende Mauer. */
+export function isInvalidenParkBasinV371(surface: SurfacePolygon): boolean {
+  return surface.kind === "basin" && surface.area_m2 > 2200 && surface.area_m2 < 2400 &&
+    surface.ring.length >= 4 && surface.ring.every(([x,z]) => x > 3300 && x < 3850 && z > -11850 && z < -11150);
+}
+
 /** OSM way/1313858079, the darker decorative basin on Otto-Weidt-Platz. */
 export const OTTO_WEIDT_FOUNTAIN_WORLD = [-278.45, -1611.02] as const;
 
@@ -651,6 +659,7 @@ export type SurfacePayload = {
 export type PretriangulatedSurfaceKind = "asphalt" | "paving";
 
 export type SmoothSurfaceBuildOptions = {
+  invalidenGroundV371?: boolean;
   parliamentaryDiningV296?: boolean;
   waterfrontV296?: boolean;
   /** First-frame district layer already owns these source lane markings. */
@@ -10978,6 +10987,7 @@ export function createSmoothSurfaces(
     bankY,
     terrainAt,
     replacedBasins,
+    options.invalidenGroundV371,
   );
   const localLevels = new Map([...pondLevels, ...basinLevels]);
   addStaticWaterRipples(
@@ -10988,6 +10998,15 @@ export function createSmoothSurfaces(
     waterTopY,
     replacedBasins,
   );
+  if (options.invalidenGroundV371) {
+    for (const surface of group.children) {
+      if ((surface instanceof Mesh || surface instanceof LineSegments) && (
+        surface.name === "smooth parkland lawns" || surface.name === "smooth garden beds" ||
+        surface.name === "garden bed outlines" || surface.name === "smooth kerb upstands" ||
+        surface.name === "smooth kerb ink" || ROAD_SURFACES.some(road => road.name === surface.name)
+      )) trimInvalidenSurfaceV371(surface);
+    }
+  }
   addBeaverEasterEggs(group, ponds, pondLevels);
   return freezeStaticSceneTransforms(group);
 }
@@ -11527,6 +11546,7 @@ function addBasinsAndSunkenWalls(
   bankY: number,
   terrainAt: ((x: number, z: number) => number) | undefined,
   replacedBasins: Set<SurfacePolygon>,
+  invalidenGroundV371 = false,
 ): Map<SurfacePolygon, number> {
   if (basins.length === 0) {
     return new Map();
@@ -11546,6 +11566,7 @@ function addBasinsAndSunkenWalls(
   const levelOf = new Map<SurfacePolygon, number>();
   const bedParts: BufferGeometry[] = [];
   const waterParts: BufferGeometry[] = [];
+  const invalidenBedParts: BufferGeometry[] = [];
   const ottoBedParts: BufferGeometry[] = [];
   const ottoWaterParts: BufferGeometry[] = [];
   const depthWallPositions: number[] = [];
@@ -11585,8 +11606,10 @@ function addBasinsAndSunkenWalls(
         basinCx - OTTO_WEIDT_FOUNTAIN_WORLD[0],
         basinCz - OTTO_WEIDT_FOUNTAIN_WORLD[1],
       ) < 8;
+    const floor = invalidenGroundV371 && isInvalidenParkBasinV371(basin) ? invalidenBedParts
+      : isOttoWeidtFountain ? ottoBedParts : bedParts;
     for (const [y, target] of [
-      [level - DISPLAY_DEPTH_M, isOttoWeidtFountain ? ottoBedParts : bedParts],
+      [level - DISPLAY_DEPTH_M, floor],
       [level, isOttoWeidtFountain ? ottoWaterParts : waterParts],
     ] as const) {
       let geometry: ShapeGeometry;
@@ -11659,6 +11682,14 @@ function addBasinsAndSunkenWalls(
     new MeshBasicMaterial({ color: 0xcfd9d3 }),
     new MeshBasicMaterial({ color: 0x1a232b }),
   );
+  if (invalidenBedParts.length) {
+    // At city zoom the water and its floor can quantize to the same depth
+    // sample. Offset only the floor; water, sculpture and picking stay exact.
+    const depth = { polygonOffset: true, polygonOffsetFactor: 0, polygonOffsetUnits: 2 };
+    addPlate(invalidenBedParts, "Invalidenpark basin floor",
+      new MeshBasicMaterial({ color: 0xcfd9d3, ...depth }),
+      new MeshBasicMaterial({ color: 0x1a232b, ...depth }));
+  }
   addPlate(
     waterParts,
     "basin water",
@@ -13539,7 +13570,7 @@ export function* createIsometricCityCoreStepsV309(
     const kerbs = yield* createKerbLinesSteps(
       ground,
       surfaces ? new Set(["asphalt", "water", "basin"]) : undefined,
-      (x, z) => pointInBrandenburgApproach(x, z) || pointInHbfNorthRailCut(x, z) || Boolean(insideTunnelApproach?.(x, z)),
+      (x, z) => Boolean(options.invalidenGroundV371 && insideInvalidenGroundV371(x, z)) || pointInBrandenburgApproach(x, z) || pointInHbfNorthRailCut(x, z) || Boolean(insideTunnelApproach?.(x, z)),
       verifiedPavement ? new Set([...pavementEdgesV367.edges, ...pavementEdgesV368.edges]) : undefined,
     );
     if (kerbs) {
@@ -13570,7 +13601,7 @@ export function* createIsometricCityCoreStepsV309(
           ground.water_top_y_m ?? WATER_TOP_Y,
           bankY,
           terrainAt,
-          {parliamentaryDiningV296:options.parliamentaryDiningV296,waterfrontV296:options.waterfrontV296},
+          {parliamentaryDiningV296:options.parliamentaryDiningV296,waterfrontV296:options.waterfrontV296,invalidenGroundV371:options.invalidenGroundV371},
         ),
       );
     } else if (!surfaces || options.retainRasterWater === true) {

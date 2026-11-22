@@ -1,5 +1,5 @@
 import type { Group } from "three";
-import { createSmoothSurfaces, type SurfacePayload } from "./IsometricCityWorld";
+import { createSmoothSurfaces, isInvalidenParkBasinV371, type SurfacePayload } from "./IsometricCityWorld";
 import { smoothGroundTopSampler, WATER_TOP_Y, type VoxelPayload } from "./terrainPayload";
 import { surfaceFamilyPayload } from "./progressiveWorld";
 
@@ -24,19 +24,28 @@ export function createInitialDrawnWater(
   ground: VoxelPayload | null,
   surfaces: SurfacePayload | null,
   coarsePointer: boolean,
+  invalidenGroundV371 = false,
 ): Group | null {
-  if (!coarsePointer || !ground || !surfaces) return null;
+  if ((!coarsePointer && !invalidenGroundV371) || !ground || !surfaces) return null;
+  const payload = surfaceFamilyPayload(surfaces, "water");
+  if (!coarsePointer) {
+    // This is the sole owner of this basin on desktop. The progressive worker
+    // still streams all remaining city water when its normal turn arrives.
+    payload.water = payload.water.filter(isInvalidenParkBasinV371);
+    if (!payload.water.length) return null;
+    payload.sunken_walls = payload.sunken_walls?.filter(wall => wall.name === "Sinkende Mauer");
+  }
   const sample = smoothGroundTopSampler(ground);
   const { cell_m: cell, grid: { min_x_idx: minX, min_z_idx: minZ } } = ground;
   const terrainAt = (x: number, z: number): number => sample(x / cell - minX, z / cell - minZ);
   const waterTop = ground.water_top_y_m ?? WATER_TOP_Y;
   const root = createSmoothSurfaces(
-    surfaceFamilyPayload(surfaces, "water"), waterTop, waterTop + 5.35, terrainAt,
-    { excludeDistrictMarkings: true },
+    payload, waterTop, waterTop + 5.35, terrainAt,
+    { excludeDistrictMarkings: true, invalidenGroundV371 },
   );
-  root.name = INITIAL_DRAWN_WATER_NAME;
-  root.userData.waterPolygonCount = surfaces.water.length;
-  root.userData.basinCount = surfaces.water.filter((entry) => entry.kind === "basin").length;
-  root.userData.sunkenWallCount = surfaces.sunken_walls?.length ?? 0;
+  root.name = coarsePointer ? INITIAL_DRAWN_WATER_NAME : "Invalidenpark basin and Sinkende Mauer";
+  root.userData.waterPolygonCount = payload.water.length;
+  root.userData.basinCount = payload.water.filter((entry) => entry.kind === "basin").length;
+  root.userData.sunkenWallCount = payload.sunken_walls?.length ?? 0;
   return root;
 }

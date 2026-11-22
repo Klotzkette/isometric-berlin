@@ -126,6 +126,7 @@ type ProgressiveWorldWorkerInputBase = {
   completedBatchIds?: readonly string[];
   /** A settled receipt confirms all surfaces are attached to this retained world. */
   surfacesComplete?: boolean;
+  invalidenGroundV371?: boolean;
   initialBuildingCount: number;
   groundUrl: string;
   surfacesUrl: string;

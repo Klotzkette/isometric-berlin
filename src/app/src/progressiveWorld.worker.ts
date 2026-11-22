@@ -11,6 +11,7 @@ import { createRestoredRoadSurfaceBatches } from "./restoredRoadSurfaces";
 import {
   createIsometricCityCore,
   createSmoothSurfaces,
+  isInvalidenParkBasinV371,
   type PrismPayload,
   type SurfacePayload,
 } from "./IsometricCityWorld";
@@ -176,7 +177,7 @@ async function buildSurfaceFamilies(
       waterTop,
       bankY,
       terrainAt,
-      { excludeDistrictMarkings: true, parliamentaryDiningV296:input.parliamentaryDiningV296, waterfrontV296:input.waterfrontV296 },
+      { excludeDistrictMarkings: true, invalidenGroundV371: input.invalidenGroundV371, parliamentaryDiningV296:input.parliamentaryDiningV296, waterfrontV296:input.waterfrontV296 },
     );
     await postBatch(root, "surfaces", id, startedAt);
   };
@@ -184,6 +185,10 @@ async function buildSurfaceFamilies(
     family: Parameters<typeof surfaceFamilyPayload>[1],
   ): Promise<void> => {
     const payload = surfaceFamilyPayload(surfaces, family);
+    if (family === "water" && input.invalidenGroundV371) {
+      payload.water = payload.water.filter(surface => !isInvalidenParkBasinV371(surface));
+      payload.sunken_walls = payload.sunken_walls?.filter(wall => wall.name !== "Sinkende Mauer");
+    }
     const roadBatch = roadsByKind.get(family);
     if (roadBatch) payload.roads = roadBatch;
     await postSurfacePayload(payload, `surface-${family}`);
@@ -217,7 +222,7 @@ async function buildSurfaceFamilies(
   surfaces.lane_markings = [];
   await yieldWorker();
   let roadStartedAt = performance.now();
-  for await (const { id, root } of createRestoredRoadSurfaceBatches(ground, completedBatchIds)) {
+  for await (const { id, root } of createRestoredRoadSurfaceBatches(ground, completedBatchIds, input.invalidenGroundV371)) {
     await postBatch(root, "surfaces", id, roadStartedAt);
     await yieldWorker();
     roadStartedAt = performance.now();

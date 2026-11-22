@@ -1,3 +1,4 @@
+import { cutInvalidenGeometryV371 } from "./invalidenGroundOwnershipV371";
 import { isFritzCourseV366, paintFritzCourseV366 } from "./fritzCourseV366";
 import { createGovernmentStreetLampBatchV286, type GovernmentStreetFurnitureTerrainAtV286 } from "./GovernmentStreetLampBatchV286";
 import {createWilhelmStreetFurnitureV325,wilhelmStreetFurnitureReplacementSourceIdsV325} from "./WilhelmStreetFurnitureV325";
@@ -587,6 +588,7 @@ export type ParkDetailProfile = "full" | "mobile";
 export type ParkPathTerrainAt = (path: ParkPath, x: number, z: number, sourceY: number) => number;
 
 export type ParkDetailOptions = {
+  invalidenGroundV371?: boolean;
   /** Apply the mapped Fritz-Schloß-Park course surface used by the current viewer. */
   fritzCourseV366?: boolean;
   pathTerrainAt?: ParkPathTerrainAt;
@@ -1027,10 +1029,12 @@ function* createPathGeometrySteps(
   width: number | ((path: ParkPath) => number),
   terrainAt?: ParkPathTerrainAt,
   joins?: Map<string, Vector3>,
+  invalidenGroundV371 = false,
 ): Generator<void, BufferGeometry> {
   const positions: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
+  const retainedSteps: [number, number][] = [];
   for (const path of paths) {
     const resolvedWidth = typeof width === "number" ? width : width(path);
     const points = refineCoreParkPathPoints(smoothParkPathPoints(path).filter(
@@ -1043,6 +1047,7 @@ function* createPathGeometrySteps(
     ));
     if (points.length < 2) continue;
     const offset = positions.length / 3;
+    if (invalidenGroundV371 && path.kind === "steps") retainedSteps.push([offset, offset + points.length*2]);
     const halfWidth = resolvedWidth / 2;
     const first = points[0], last = points[points.length - 1];
     const closed = points.length > 3 && first.equals(last);
@@ -1126,6 +1131,10 @@ function* createPathGeometrySteps(
   geometry.computeVertexNormals();
   geometry.computeBoundingBox();
   geometry.computeBoundingSphere();
+  if (invalidenGroundV371) {
+    const trimmed = cutInvalidenGeometryV371(geometry, false, retainedSteps);
+    if (trimmed !== geometry) { geometry.dispose(); return trimmed; }
+  }
   return geometry;
 }
 
@@ -1136,6 +1145,7 @@ function* addPathsSteps(
   includeTextures = true,
   pathTerrainAt?: ParkPathTerrainAt,
   fritzCourseV366 = false,
+  invalidenGroundV371 = false,
 ): Generator<void> {
   const byKind = new Map<string, ParkPath[]>();
   const courseJoins = new Map<string, Vector3>();
@@ -1173,6 +1183,7 @@ function* addPathsSteps(
         ? (_path, x, z, y) => pathTerrainAt(courseAnchor, x, z, y)
         : pathTerrainAt,
       isFritzCourseV366(kind) ? courseJoins : undefined,
+      invalidenGroundV371,
     );
     // No yield between resource allocation and attaching the mesh: on
     // cancellation the caller owns every created resource through this root.
@@ -2984,6 +2995,7 @@ function* createParkDetailsSteps(
     detailProfile === "full",
     options.pathTerrainAt,
     options.fritzCourseV366,
+    options.invalidenGroundV371,
   );
   yield;
   if (detailProfile === "mobile") {
