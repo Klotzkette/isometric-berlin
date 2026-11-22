@@ -1,3 +1,5 @@
+import { admitsSimsonGroundV375 } from "./simsonGroundGuardV375";
+import { applySimsonCutsV375 } from "./simsonSurfaceCutsV375";
 import { correctGardenPrismsV358 } from "./LehrterGardenPayloadV358";
 import { canReplacePotsdamerNorthPavilion } from "./PotsdamerPavilionOwnership";
 import { admitsChancelleryCanopySourceV289 } from "./ChancelleryCanopySourceV289Ownership";
@@ -143,6 +145,7 @@ async function buildSurfaceFamilies(
   const ground = (await groundResponse.json()) as VoxelPayload;
   // Smooth surfaces and restored roads need only the height grid. Retire this
   // worker-owned raster graph before parsing surfaces or waiting for uploads.
+  const simson = admitsSimsonGroundV375(ground);
   ground.ground_rows = [];
   const surfaces = (await surfacesResponse.json()) as SurfacePayload;
   const terrainSample = smoothGroundTopSampler(ground);
@@ -179,6 +182,7 @@ async function buildSurfaceFamilies(
       terrainAt,
       { excludeDistrictMarkings: true, invalidenGroundV371: input.invalidenGroundV371, parliamentaryDiningV296:input.parliamentaryDiningV296, waterfrontV296:input.waterfrontV296 },
     );
+    if (simson) applySimsonCutsV375(root,id);
     await postBatch(root, "surfaces", id, startedAt);
   };
   const postSurface = async (
@@ -223,6 +227,7 @@ async function buildSurfaceFamilies(
   await yieldWorker();
   let roadStartedAt = performance.now();
   for await (const { id, root } of createRestoredRoadSurfaceBatches(ground, completedBatchIds, input.invalidenGroundV371)) {
+    if (simson) applySimsonCutsV375(root,id);
     await postBatch(root, "surfaces", id, roadStartedAt);
     await yieldWorker();
     roadStartedAt = performance.now();

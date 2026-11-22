@@ -178,3 +178,5 @@ export function keepGateLaneMarkingsV374(output: number[], excluded: ReadonlySet
     if (!excluded.has(id)) output.push(ax/100,height(ax/100,az/100)+.285,az/100,bx/100,height(bx/100,bz/100)+.285,bz/100);
   }
 }
+
+export { stoneFinish as applyGateStoneFinishV374 };

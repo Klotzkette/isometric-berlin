@@ -1,0 +1,56 @@
+import { expect, test } from "bun:test";
+import { Color, LinearSRGBColorSpace, Mesh, Raycaster, Vector3 } from "three";
+import raw from "../public/mesh/regierungsviertel/ground-context.json";
+import { createDistrictStreets, districtStreetTerrainSampler } from "../src/DistrictStreets";
+import { GATE_FORECOURTS_V374 } from "../src/GateForecourtsV374";
+import { SIMSON_PATHS_V375 } from "../src/SimsonPathsV375";
+import { admitsSimsonGroundV375 } from "../src/simsonGroundGuardV375";
+import type { VoxelPayload } from "../src/terrainPayload";
+
+const ground = raw as unknown as VoxelPayload;
+const ray = (x:number,z:number) => new Raycaster(new Vector3(x,20,z), new Vector3(0,-1,0));
+
+test("the first published street group owns the surveyed mosaic and gravel courses and the cadastral branches", () => {
+  const root = createDistrictStreets(ground,new Set(),true,true);
+  const path = root.getObjectByName(SIMSON_PATHS_V375) as Mesh;
+  const oldSquare = root.getObjectByName(GATE_FORECOURTS_V374) as Mesh;
+  const dgm = districtStreetTerrainSampler(ground);
+  const samples = [
+    [269,190,0xbab2a5], [266,193,0xb3aea8], [276,189,0xb3aea8],
+    [258,194,0xbab2a5], [338,253,0xbab2a5], [211,139,0xb3aea8],
+    [157,138,0xb3aea8], [186,258,0xb0a99e], [336.21,250.92,0xbab2a5],
+    [344.21,245.95,0xbab2a5], [348.05,253.70,0xbab2a5],
+  ];
+  for (const [x,z,hex] of samples) {
+    const hit = ray(x,z).intersectObject(root,true)[0];
+    expect(hit.object).toBe(path);
+    const color = new Color().fromBufferAttribute(path.geometry.getAttribute("color"),hit.face!.a);
+    expect(color.getHex(LinearSRGBColorSpace)).toBe(hex);
+    expect(Math.abs(hit.point.y-dgm(x,z)-.32)).toBeLessThan(.018);
+  }
+  // These foreground pixels in the original phone view belong to genuine
+  // survey mosaic already supplied by the v374 square. They appear contiguous
+  // with the new end of that very same mosaic course.
+  for (const [x,z] of [[296,226.65],[315.63,241.90],[303.47,223.16],[313.66,227.3]]) {
+    expect(ray(x,z).intersectObject(root,true)[0].object).toBe(oldSquare);
+    expect(ray(x,z).intersectObject(path)).toHaveLength(0);
+  }
+  // Preserve the memorial pool, its paving apron, the enclosed planted
+  // ground, the road carriageway, and the lawn between the route branches.
+  for (const [x,z] of [[307.7,186.23],[313,187],[302,187],[304.32,204.49],[220,128],[240,245]]) {
+    expect(ray(x,z).intersectObject(path)).toHaveLength(0);
+  }
+  expect(path.geometry.getAttribute("position").count).toBeLessThan(4000);
+  expect(path.userData.nightMaterial).toBeDefined();
+});
+
+test("the correction is guarded against a different ground survey and keeps historical options", () => {
+  expect(admitsSimsonGroundV375(ground)).toBeTrue();
+  const h=ground.ground_height;
+  const changed={...h,y_dm:Array.from(h.y_dm)};
+  changed.y_dm[239*h.cols+254]++;
+  const revised={...ground,ground_height:changed};
+  expect(admitsSimsonGroundV375(revised)).toBeFalse();
+  expect(createDistrictStreets(revised,new Set(),true,true).getObjectByName(SIMSON_PATHS_V375)).toBeUndefined();
+  expect(createDistrictStreets(ground,new Set(),true).getObjectByName(SIMSON_PATHS_V375)).toBeUndefined();
+});

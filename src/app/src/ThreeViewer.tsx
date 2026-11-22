@@ -5195,7 +5195,7 @@ function ensureIsoWorld(
         reportDetailStep(3);
         yield;
         if (ground) {
-          const streets = createDistrictStreets(ground, new Set(altMitteTransportCorrectionsV206.suppressedMarkingIndices), true);
+          const streets = createDistrictStreets(ground, new Set(altMitteTransportCorrectionsV206.suppressedMarkingIndices), true, true);
           isoWorld.add(streets);
           if (invalidenGround) {
             const oldSurfaces: Array<Mesh | LineSegments> = [];

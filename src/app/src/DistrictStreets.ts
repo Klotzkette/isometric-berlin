@@ -1,3 +1,6 @@
+import { createSimsonPathsV375 } from "./SimsonPathsV375";
+import { admitsSimsonGroundV375 } from "./simsonGroundGuardV375";
+import { applySimsonCutsV375 } from "./simsonSurfaceCutsV375";
 import { createGateForecourtsV374, gateDistrictKerbsV374, gateRemovedFacesV374, keepGateLaneMarkingsV374, gateSurveyAdmitsV374, retainGateDistrictEdgesV374 } from "./GateForecourtsV374";
 import { kerbStoneCourses } from "./kerbStoneFinish";
 import { markGroundFinishV348, type GroundFinishKindV348 } from "./GroundFinishV348";
@@ -107,10 +110,14 @@ function geometry(positions: number[] | Float32Array): BufferGeometry {
  * on both pointer profiles. No whole-city polygon union, Worker round trip,
  * lower-detail replacement or camera-dependent disappearance is necessary.
  */
-export function createDistrictStreets(ground: VoxelPayload, excludedMarkings: ReadonlySet<number> = new Set(), surveyedGate = false): Group {
+export function createDistrictStreets(ground: VoxelPayload, excludedMarkings: ReadonlySet<number> = new Set(), surveyedGate = false, surveyedSimson = false): Group {
   const transaction = canonicalMitteRoadTransactionV343();
   const gate = surveyedGate && gateSurveyAdmitsV374(ground);
   const group = createSourceStreetSurfaces(ground, streets, "District streets and roadside paths", excludedMarkings, transaction, gate);
+  if (gate && surveyedSimson && admitsSimsonGroundV375(ground)) {
+    applySimsonCutsV375(group,"district");
+    group.add(createSimsonPathsV375(districtStreetTerrainSampler(ground)));
+  }
   if (gate) group.add(createGateForecourtsV374(districtStreetTerrainSampler(ground)));
   if (transaction) {
     group.add(createSourceStreetSurfaces(ground, transaction.supplement,
