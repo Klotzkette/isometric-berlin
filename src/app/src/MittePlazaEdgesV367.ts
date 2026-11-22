@@ -2,12 +2,47 @@ import {
   BufferAttribute, BufferGeometry, Color, InstancedMesh, Mesh, MeshBasicMaterial,
   type MeshStandardMaterial,
 } from "three";
+import { gunzipSync } from "three/examples/jsm/libs/fflate.module.js";
+import { decodeBase64Bytes } from "./decodeBase64Bytes";
+import { attachExteriorStreetMarginsV373 } from "./ExteriorStreetMarginsV373";
+import { setPathEdgeInkV373 } from "./pathEdgeInkV373";
+import paths from "./data/pathEdgesV373.json";
 import source from "./data/mittePlazaEdgesV367.json";
 import extraEdges from "./data/innerCityPlazaEdgesV368.json";
 import extraStreets from "./data/innerCitySquareStreetsV368.json";
 import streets from "./data/mitteSquareStreetsV367.json";
 import { markGroundFinishV348 } from "./GroundFinishV348";
 import type { VoxelPayload } from "./terrainPayload";
+
+function pathWords(encoded: string): Uint16Array {
+  const decoded = gunzipSync(decodeBase64Bytes(encoded));
+  const words = new Uint16Array(decoded.length / 2);
+  for (let i = 0; i < words.length; i++) words[i] = decoded[2 * i] | decoded[2 * i + 1] << 8;
+  return words;
+}
+
+function attachPathInk(slabs: InstancedMesh, admittedCells: Map<number, number>): void {
+  const words = pathWords(paths.ink);
+  const lines = new Map<number, number[]>();
+  const { cellM, subunits, grid } = paths;
+  for (let at = 0; at < words.length;) {
+    const row = words[at++], col = words[at++], direction = words[at++], count = words[at++];
+    const cell = row * grid.cols + col;
+    const end = at + 4 * count;
+    const height = admittedCells.get(cell);
+    if (height !== undefined && height === admittedCells.get(cell + (direction ? grid.cols : 1))) {
+      const x = (col + grid.min_x_idx - 1) * cellM;
+      const z = (row + grid.min_z_idx - 1) * cellM;
+      const points: number[] = [];
+      for (let i = at; i < end; i += 2) {
+        points.push(x + words[i] / subunits, height + 0.22, z + words[i + 1] / subunits);
+      }
+      lines.set(2 * cell + direction, points);
+    }
+    at = end;
+  }
+  setPathEdgeInkV373(slabs, lines);
+}
 
 const applied = new WeakSet<InstancedMesh>();
 export const MITTE_PLAZA_EDGES_V367 = "Mapped paving and planted edges in Mitte v367";
@@ -25,20 +60,25 @@ export function* attachMittePlazaEdgesV367(
       ground.grid.rows !== grid.rows || ground.classes[classIds.grass] !== "grass" ||
       ground.classes[classIds.plazaBrick] !== "plazaBrick") return 0;
 
+  if (slabs.userData.tiergartenPathsV345) yield* attachExteriorStreetMarginsV373(slabs, ground);
+
   const mitte = atob(source.words), outer = atob(extraEdges.words);
   const mitteWords = mitte.length / 2;
-  const words = new Uint16Array(mitteWords + outer.length / 2);
+  const pathStart = mitteWords + outer.length / 2;
+  const pathData = pathWords(paths.words);
+  const words = new Uint16Array(pathStart + pathData.length);
   let word = 0;
   for (const data of [mitte, outer]) {
     for (let i = 0; i < data.length; i += 2) words[word++] = data.charCodeAt(i) | data.charCodeAt(i+1) << 8;
   }
+  words.set(pathData, pathStart);
   const rows: number[][] = [];
   for (let at = 0; at < words.length; at += 4 + 6 * words[at + 3]) {
     (rows[words[at]] ??= []).push(at);
   }
   for (const records of rows) records?.sort((a, b) => words[a + 1] - words[b + 1]);
-  const maxVertices = source.maxVertices + extraEdges.maxVertices;
-  const triangles = source.triangles + extraEdges.triangles;
+  const maxVertices = source.maxVertices + extraEdges.maxVertices + paths.maxVertices;
+  const triangles = source.triangles + extraEdges.triangles + paths.triangles;
   const palettes = new Map([
     [classIds.grass, shades.grass.map(hex => new Color(hex))],
     [classIds.plazaBrick, shades.plazaBrick.map(hex => new Color(hex))],
@@ -53,7 +93,8 @@ export function* attachMittePlazaEdgesV367(
   const localKeys: number[] = [];
   const matrices = slabs.instanceMatrix.array;
   const hostColour = new Color();
-  let admitted = 0, outerAdmitted = 0;
+  let admitted = 0, outerAdmitted = 0, pathAdmitted = 0;
+  const pathCells = new Map<number, number>();
   for (let i = 0; i < slabs.count; i++) {
     if (i && i % 16384 === 0) yield;
     const m = i * 16;
@@ -84,6 +125,13 @@ export function* attachMittePlazaEdgesV367(
           Math.abs(c.g-hostColour.g) < 1e-6 && Math.abs(c.b-hostColour.b) < 1e-6)) continue;
       const sourceRun = ground.ground_rows[row].find(([s,n]) => col >= s && col < s+n);
       if (sourceRun?.[2] !== kind) continue;
+      if (record >= pathStart) {
+        pathCells.set(row * grid.cols + col, y);
+        if (!words[record + 3]) continue;
+        pathAdmitted++;
+      } else if (record >= mitteWords) {
+        outerAdmitted++;
+      }
       const paint = palettes.get(kind === classIds.grass ? classIds.plazaBrick : classIds.grass)![0];
       const x = (col + grid.min_x_idx) * cellM, z = (row + grid.min_z_idx) * cellM;
       localKeys.length = 0;
@@ -106,9 +154,9 @@ export function* attachMittePlazaEdgesV367(
         indices[indexCount++] = base + index;
       }
       admitted++;
-      if (record >= mitteWords) outerAdmitted++;
     }
   }
+  if (pathCells.size) attachPathInk(slabs, pathCells);
   if (!admitted) return 0;
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", new BufferAttribute(positions.subarray(0, vertexCount * 3), 3));
@@ -131,8 +179,9 @@ export function* attachMittePlazaEdgesV367(
   mesh.name = MITTE_PLAZA_EDGES_V367;
   mesh.userData.dayMaterial = day;
   mesh.userData.nightMaterial = night;
-  mesh.userData.correctedMitteCells = admitted - outerAdmitted;
+  mesh.userData.correctedMitteCells = admitted - outerAdmitted - pathAdmitted;
   mesh.userData.correctedInnerCityCellsV368 = outerAdmitted;
+  mesh.userData.correctedPathCellsV373 = pathAdmitted;
   markGroundFinishV348(mesh, "core-drawn");
   slabs.add(mesh);
   applied.add(slabs);

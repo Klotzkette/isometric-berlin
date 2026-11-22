@@ -1,3 +1,4 @@
+import { getPathEdgeInkV373, releasePathEdgeInkV373 } from "./pathEdgeInkV373";
 import { isLeopoldplatzFountainPad } from "./leopoldplatzFountainV367";
 import pavementEdgesV368 from "./data/innerCityPavementEdgesV368.json";
 import pavementEdgesV367 from "./data/mittePavementEdgesV367.json";
@@ -3863,6 +3864,7 @@ export function* createKerbLinesSteps(
   skippedClasses: ReadonlySet<string> = new Set(),
   skipAtWorld?: (x: number, z: number) => boolean,
   pavedInteriorEdges?: ReadonlySet<number>,
+  mappedPathEdges?: ReadonlyMap<number, readonly number[]>,
 ): Generator<void, LineSegments | null> {
   const cell = ground.cell_m;
   const { cols, min_x_idx, min_z_idx, rows } = ground.grid;
@@ -3903,7 +3905,13 @@ export function* createKerbLinesSteps(
     z2: number,
     xOffset: number,
     zOffset: number,
+    key: number,
   ): void => {
+    const mapped = mappedPathEdges?.get(key);
+    if (mapped) {
+      for (const coordinate of mapped) positions.push(coordinate);
+      return;
+    }
     const y = sample(xOffset, zOffset) + 0.22;
     positions.push(
       (min_x_idx + x1) * cell,
@@ -3930,10 +3938,10 @@ export function* createKerbLinesSteps(
       if (skipAtWorld?.(worldX, worldZ)) continue;
       const edgeKey = 2 * (rowOffset + x);
       if (rightKerb && !pavedInteriorEdges?.has(edgeKey) && !skipAtWorld?.(worldX + cell, worldZ)) {
-        edge(x + 1, z, x + 1, z + 1, x, z);
+        edge(x + 1, z, x + 1, z + 1, x, z, edgeKey);
       }
       if (belowKerb && !pavedInteriorEdges?.has(edgeKey + 1) && !skipAtWorld?.(worldX, worldZ + cell)) {
-        edge(x, z + 1, x + 1, z + 1, x, z);
+        edge(x, z + 1, x + 1, z + 1, x, z, edgeKey + 1);
       }
     }
   }
@@ -13572,7 +13580,9 @@ export function* createIsometricCityCoreStepsV309(
       surfaces ? new Set(["asphalt", "water", "basin"]) : undefined,
       (x, z) => Boolean(options.invalidenGroundV371 && insideInvalidenGroundV371(x, z)) || pointInBrandenburgApproach(x, z) || pointInHbfNorthRailCut(x, z) || Boolean(insideTunnelApproach?.(x, z)),
       verifiedPavement ? new Set([...pavementEdgesV367.edges, ...pavementEdgesV368.edges]) : undefined,
+      getPathEdgeInkV373(slabs),
     );
+    releasePathEdgeInkV373(slabs);
     if (kerbs) {
       group.add(kerbs);
     }
