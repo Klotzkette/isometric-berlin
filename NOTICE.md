@@ -3390,3 +3390,7 @@ Die Weg- und Platzumrisse dieser Korrektur verwenden Daten © OpenStreetMap-Mitw
 ## Brandenburger Tor und Pariser Platz (v1.0.254)
 
 Die Platzflächen, Bordsteine und Gebäudekörper verwenden die Berliner Straßenbefahrung und die amtlichen 3D-Gebäudemodelle. Die True-Orthofotos des Geoportals Berlin dienen dem visuellen Vergleich der Platz- und Dachformen. Die Verweise auf Architekten und Baudenkmal dokumentieren die Ausgestaltung. [Geoportal Berlin, Straßenbefahrung](https://gdi.berlin.de/services/wfs/strassenbefahrung?SERVICE=WFS&REQUEST=GetCapabilities) · [Geoportal Berlin, TrueDOP 2026](https://gdi.berlin.de/services/wms/truedop_2026?SERVICE=WMS&REQUEST=GetCapabilities) · [Datenlizenz Deutschland – Zero – Version 2.0](https://www.govdata.de/dl-de/zero-2-0) · [Quellen und geänderte Ansichten](docs/brandenburger-tor-und-pariser-platz-v374.md)
+
+## Simsonweg, Parkwege und Baumbestand in Mitte (v1.0.255)
+
+Die Wegeflächen beruhen auf Daten des Geoportals Berlin aus ALKIS und der Straßenbefahrung sowie auf Daten © OpenStreetMap-Mitwirkende, ODbL 1.0. Die Standorte und Maße der amtlich erfassten Bäume stammen aus den Berliner Anlagenbaum- und Straßenbaumkatastern. Für die amtlichen Daten gilt die Datenlizenz Deutschland – Zero – Version 2.0. [Geoportal Berlin](https://gdi.berlin.de/) · [Datenlizenz](https://www.govdata.de/dl-de/zero-2-0) · [OpenStreetMap](https://www.openstreetmap.org/copyright) · [Gebiet und Quellen](docs/mitte-simsonweg-und-baeume-v375.md)

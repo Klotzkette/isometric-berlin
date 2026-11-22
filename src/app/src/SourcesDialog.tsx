@@ -36,6 +36,13 @@ export function SourcesDialog({ language, onClose }: {
       <div className="sources-content">
         <p className="sources-attribution">{ATTRIBUTION}</p>
         <p>{language === "de"
+          ? "Die Beläge am Simsonweg folgen der Berliner Straßenbefahrung, dem Liegenschaftskataster und OpenStreetMap. Standorte, Baumhöhen und Kronendurchmesser in Mitte stammen aus dem Berliner Baumkataster."
+          : "Simsonweg paving follows the Berlin street survey, the cadastral map and OpenStreetMap. Berlin’s tree inventory supplies tree locations, heights and crown diameters in Mitte."}{" "}
+          <a href="https://gdi.berlin.de/services/wfs/strassenbefahrung?SERVICE=WFS&REQUEST=GetCapabilities" target="_blank" rel="noreferrer">Geoportal Berlin</a>
+          {" · "}<a href="https://gdi.berlin.de/services/wfs/baumbestand?SERVICE=WFS&REQUEST=GetCapabilities" target="_blank" rel="noreferrer">{language === "de" ? "Baumkataster" : "Tree inventory"}</a>
+          {" · "}<a href="https://www.govdata.de/dl-de/zero-2-0" target="_blank" rel="noreferrer">dl-de/zero-2-0</a>
+        </p>
+        <p>{language === "de"
           ? "Bahnbrücken · DB InfraGO AG / Deutsche Bahn AG, Mai 2026 (CC BY 4.0). Streckenachsen auf Berlin zugeschnitten und umgerechnet. Gleise und Bauwerksumrisse nach OpenStreetMap. Höhenprofile aus bDOM und DGM von GeoBasis-DE/LGB (dl-de/by-2-0). Pfeilergrundrisse nach Geoportal Berlin, ALKIS."
           : "Railway bridges · DB InfraGO AG / Deutsche Bahn AG, May 2026 (CC BY 4.0). Route axes clipped to Berlin and reprojected. Tracks and bridge outlines from OpenStreetMap. Elevation profiles from GeoBasis-DE/LGB bDOM and DGM (dl-de/by-2-0). Pier footprints from Geoportal Berlin, ALKIS."}{" "}
           <a href="https://data.gov.de/suche/daten/infrastrukturdaten-der-db-infrago" target="_blank" rel="noreferrer">DB InfraGO</a>
