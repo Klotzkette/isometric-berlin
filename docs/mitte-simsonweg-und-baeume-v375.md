@@ -10,6 +10,22 @@ Der korrigierte Korridor umfasst 3.208 m² Mosaikpflaster, 5.206 m² wassergebun
 
 ## Bäume an beiden Orten
 
-Das Berliner Baumkataster führt Anlagen- und Straßenbäume getrennt. Im untersuchten Ausschnitt zwischen Tor und Reichstag sind 228 Anlagenbäume und 78 Straßenbäume erfasst. Im Ausschnitt am Robert-Koch-Platz sind es 30 Straßenbäume. Alle 336 Standorte waren bereits im Parkpaket von v1.0.254 enthalten. Trotzdem fehlten in einem mobilen WebKit-Test noch 90 Sekunden nach der ersten bedienbaren Kartenansicht die Baumkronen. Der Viewer hatte das stadtweite Paket zu diesem Zeitpunkt noch nicht angefordert. [Berliner Baumkataster](https://gdi.berlin.de/services/wfs/baumbestand?SERVICE=WFS&REQUEST=GetCapabilities)
+Das Berliner Baumkataster führt Anlagen- und Straßenbäume getrennt. Im untersuchten Ausschnitt zwischen Tor und Reichstag sind 228 Anlagenbäume und 78 Straßenbäume erfasst. Im Ausschnitt am Robert-Koch-Platz sind es 30 Straßenbäume. Alle 336 Standorte waren bereits im Parkpaket von v1.0.254 enthalten. Trotzdem fehlten in einem mobilen WebKit-Test noch 90 Sekunden nach der ersten bedienbaren Kartenansicht die Baumkronen. Der Viewer hatte das vollständige Parkpaket zu diesem Zeitpunkt noch nicht angefordert. [Berliner Baumkataster](https://gdi.berlin.de/services/wfs/baumbestand?SERVICE=WFS&REQUEST=GetCapabilities)
 
 Der früh gezeichnete Bestand ist größer als die 336 amtlichen Vergleichspunkte, weil der Viewer auch weitere vorhandene Baumquellen verwendet. Er umfasst 483 Standorte im östlichen Tiergarten und 39 am und um den Robert-Koch-Platz. Weitere 141 Standorte aus den Berliner Katastern kommen im Zentrum hinzu. Davon liegen 47 im Bereich des Wasserspielplatzes an der Eichendorffstraße. Für 513 der 522 bereits vorhandenen Bäume ließ sich der Stammfuß eindeutig auf der sichtbaren Bodenoberfläche verorten. Die übrigen neun behalten ihre bisherige Höhe. Im Blockstil nutzt der Viewer sein eigenes Vier-Meter-Raster. 105 bislang freie und für einen kantigen Stamm ausreichend große Rasterzellen lassen sich aus den zusätzlichen Standorten ableiten.
+
+## Weitere Wege im Bezirk Mitte
+
+Die Prüfung vergleicht die tatsächlichen Dreiecke kartierter Sand- und Erdwege sowie die befestigten Wegteile in öffentlich kartierten Parks und Fußgängerplätzen mit den darüberliegenden Rasenflächen. Ältere, vier Meter breite Rasterzellen und jüngere Vektorflächen können denselben Quadratmeter überdecken. Die folgende Tabelle zählt eine Fläche einmal, sobald sie von beiden freigelegt ist. Der separat neu aufgebaute Simsonweg ist aus dieser Rechnung ausgeschlossen.
+
+| Ortsteil | Wieder sichtbare Wegefläche |
+| --- | ---: |
+| Tiergarten | 11.630,19 m² |
+| Moabit | 2.750,56 m² |
+| Mitte | 1.035,51 m² |
+| Gesundbrunnen | 134,97 m² |
+| Wedding | 0 m² |
+| Hansaviertel | 0 m² |
+| **Gesamter Bezirk** | **15.551,23 m²** |
+
+Zu den betroffenen Orten gehören der Geschichtspark Ehemaliges Zellengefängnis Moabit, der Agnes-Sorma-Park und der Volkspark Humboldthain. In Wedding und im Hansaviertel ergab der Vergleich für diesen konkreten Konflikt keine Fläche. Andere Belagsarten, private Grundstücke und Wege außerhalb der untersuchten Modellflächen sind von dieser Prüfung nicht erfasst.
