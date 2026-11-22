@@ -4,7 +4,7 @@ import { inkLineFadeOpacity } from "./fineDetailFade";
 type Ink = LineSegments<BufferGeometry, LineBasicMaterial>;
 
 export function createQuadrigaInkTarget(line: Ink) {
-  line.geometry.computeBoundingSphere();
+  if (!line.geometry.boundingSphere) line.geometry.computeBoundingSphere();
   const centre = line.localToWorld(line.geometry.boundingSphere!.center.clone());
   return { line, centre, viewPoint: new Vector3(), opacity: Number.NaN };
 }

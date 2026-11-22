@@ -352,6 +352,11 @@ test("only the Quadriga engraving follows its own projected size during a pan or
   const city = new LineSegments(new BufferGeometry(), new LineBasicMaterial());
   run.runtime.signatures.add(model, city);
   run.collect();
+  // A later scene collection may occur after the renderer has parked immutable
+  // vertex storage. Reuse the sphere certified before that first upload.
+  const compute = ink.geometry.computeBoundingSphere;
+  ink.geometry.computeBoundingSphere = () => { throw Error("re-read parked Quadriga vertices"); };
+  try { run.collect(); } finally { ink.geometry.computeBoundingSphere = compute; }
   const centre = ink.localToWorld(ink.geometry.boundingSphere!.center.clone());
   camera.position.copy(centre).add(new Vector3(0, 0, 470));
   camera.lookAt(centre);
