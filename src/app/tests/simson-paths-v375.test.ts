@@ -54,3 +54,34 @@ test("the correction is guarded against a different ground survey and keeps hist
   expect(createDistrictStreets(revised,new Set(),true,true).getObjectByName(SIMSON_PATHS_V375)).toBeUndefined();
   expect(createDistrictStreets(ground,new Set(),true).getObjectByName(SIMSON_PATHS_V375)).toBeUndefined();
 });
+
+test("all six arriving production batches retire their captured faces before transfer", async () => {
+  const { createSmoothSurfaces } = await import("../src/IsometricCityWorld");
+  const { surfaceFamilyPayload, splitParkSurfaceFamily } = await import("../src/progressiveWorld");
+  const { createRestoredRoadBatch } = await import("../src/restoredRoadSurfaces");
+  const { spreebogenTerrainYAt } = await import("../src/spreebogenBankProfile");
+  const { applySimsonCutsV375 } = await import("../src/simsonSurfaceCutsV375");
+  const surfaces = await Bun.file(import.meta.dir+"/../public/mesh/regierungsviertel/surface-polygons.json").json();
+  const terrain = districtStreetTerrainSampler(ground);
+  const options = {invalidenGroundV371:true,parliamentaryDiningV296:true,waterfrontV296:true};
+  const check = (root:ReturnType<typeof createSmoothSurfaces>, key:string, name:string) => {
+    const old = (root.getObjectByName(name) as Mesh).geometry;
+    applySimsonCutsV375(root,key);
+    const actual = (root.getObjectByName(name) as Mesh).geometry;
+    expect(actual).not.toBe(old);
+    expect(actual.userData.simsonCutsV375).toBeTrue();
+  };
+  const parks = splitParkSurfaceFamily(surfaces);
+  for (const [n, payload] of parks.slice(0,3).entries()) {
+    const root = createSmoothSurfaces(payload,0,5.35,terrain,options);
+    check(root,"surface-parks-"+(n+1),"smooth parkland lawns");
+  }
+  for (const kind of ["sand","earth"] as const) {
+    const root = createSmoothSurfaces(surfaceFamilyPayload(surfaces,kind),0,5.35,terrain,options);
+    check(root,"surface-"+kind,kind==="sand"?"smooth park paths":"smooth earth desire paths");
+  }
+  const lines = (await Bun.file(import.meta.dir+"/../src/data/restoredRoadSurfaces.ndjson.txt").text()).split("\n");
+  const batch = JSON.parse(lines.find(line=>line.startsWith('{"id":"restored-paving-0-0"'))!);
+  const paved = createRestoredRoadBatch(batch,(x,z)=>spreebogenTerrainYAt(x,z,terrain(x,z)),true);
+  check(paved,batch.id,"smooth paved paths");
+}, 30000);

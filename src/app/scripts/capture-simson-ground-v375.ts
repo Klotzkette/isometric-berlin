@@ -81,7 +81,7 @@ steps.return(undefined);
 if (!received) throw new Error("The canonical Drawn ground callback did not run");
 capture(createDistrictStreets(ground,new Set(),true), "district");
 
-const options = {invalidenGroundV371:true,parliamentaryDiningV296:true,waterfrontV296:true};
+const options = {invalidenGroundV371:true,parliamentaryDiningV296:true,waterfrontV296:true,mittePathDepthV375:false};
 for (const [i, payload] of splitParkSurfaceFamily(surfaces).entries()) {
   capture(createSmoothSurfaces(payload,0,5.35,terrain,options), "parks-" + (i+1));
 }
@@ -102,7 +102,7 @@ for (const line of stream.split("\n")) {
     }
   }
   if (relevant) {
-    capture(createRestoredRoadBatch(batch,(x,z) => spreebogenTerrainYAt(x,z,terrain(x,z)),true),
+    capture(createRestoredRoadBatch(batch,(x,z) => spreebogenTerrainYAt(x,z,terrain(x,z)),true,false),
       "restored-" + batch.id);
   }
 }
