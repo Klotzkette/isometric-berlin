@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { Group, Mesh, Raycaster, Vector3 } from "three";
 import { createSmoothSurfaces, type SurfacePayload } from "../src/IsometricCityWorld";
+import { applySimsonCutsV375 } from "../src/simsonSurfaceCutsV375";
 import { splitParkSurfaceFamily } from "../src/progressiveWorld";
 import { applyMittePathLawnV375, loadMittePathLawnsV375 } from "../src/MittePathLawnV375";
 import { districtStreetTerrainSampler } from "../src/DistrictStreets";
@@ -40,6 +41,8 @@ test("all seven real worker lawn batches keep their original GPU buffers and bot
     expect(remaining.userData.groundFinishV348).toBe(lawn.userData.groundFinishV348);
     applyMittePathLawnV375(root, packets);
     expect(lawn.children).toHaveLength(1);
+    applySimsonCutsV375(root, `surface-parks-${i + 1}`);
+    expect(Boolean(lawn.geometry.userData.simsonCutsV375)).toBe(i < 3);
   }
 }, 60_000);
 

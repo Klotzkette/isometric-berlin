@@ -76,6 +76,11 @@ def build(capture, output, proof_dir=None):
       kind, len(accepted), round(sum(g.area for g in accepted.values()), 2), flush=True
     )
 
+  simson = json.loads(
+    (
+      Path(__file__).resolve().parents[1] / "src/app/src/data/simsonCutsV375.json"
+    ).read_bytes()
+  )
   batches = []
   unique_area = []
   for host, occluded in sorted(per_host.items()):
@@ -83,6 +88,14 @@ def build(capture, output, proof_dir=None):
     indices = np.fromfile(capture / (host + ".tri"), "<u4").reshape(-1, 3)
     faces, new_vertices, new_indices = [], [], []
     assignment = {}
+    key = "surface-parks-" + str(int(host[4 : host.index("-")]) + 1)
+    old = simson.get(key, {}).get("smooth parkland lawns")
+    reserved_faces = set()
+    if old:
+      words = gzip.decompress(base64.b64decode(old["records"]))
+      reserved_faces.update(np.frombuffer(words, "<i4").reshape(-1, 5)[:, 0])
+    if reserved_faces.intersection(occluded):
+      raise ValueError(f"Cannot replace an original Simson-owned face in {host}")
     for face, cuts in sorted(occluded.items()):
       original = vertices[indices[face]].astype(float)
       footprint = Polygon(original[:, [0, 2]])
