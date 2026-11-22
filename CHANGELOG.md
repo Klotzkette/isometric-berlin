@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.254
+
+- Restore the paved Platz des 18. März west of the Brandenburg Gate, its kerbs and the transition to Ebertstraße. Fit the two Pariser Platz gardens, fountains and central paving band to the Berlin street survey.
+- Open the gatehouse colonnades, distinguish sandstone from patinated metal roofing and preserve the fine Quadriga engraving at close range. Add the street façades of Haus Sommer and the DZ Bank and the bank’s glazed courtyard roof. [Views and architectural sources](docs/brandenburger-tor-und-pariser-platz-v374.md)
+
 ## 1.0.253
 
 - Restore mapped park paths in the Lietzenseepark and Hasenheide tiles that also host underground station entrances. Fit drawn paving, planted edges and surveyed street margins in Charlottenburg, Kreuzberg, Schöneberg and Wilmersdorf. [Extent, checks and sources](docs/wege-ausserhalb-mitte-v373.md)
