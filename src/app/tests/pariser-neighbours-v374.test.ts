@@ -4,6 +4,12 @@ import { buildAltMitteCoreV169Steps, createAltMitteCoreV169 } from "../src/AltMi
 import { setIsoNightPresentation } from "../src/IsometricCityWorld";
 import { DZ_FRONT_V374, DZ_ROOF_V374, finishPariserNeighboursV374, SOMMER_V374 } from "../src/PariserPlatzNeighboursV374";
 
+function displayedColor(hit: ReturnType<typeof frontage>) {
+  const colors = (hit.object as Mesh).geometry.getAttribute("color");
+  const i = hit.face!.a;
+  return [colors.getX(i), colors.getY(i), colors.getZ(i)].map(c => Math.round(c * 255));
+}
+
 function frontage(world: Group, ax: number, az: number, bx: number, bz: number, u: number, y: number) {
   const len = Math.hypot(bx-ax, bz-az);
   const direction = new Vector3((az-bz)/len, 0, (bx-ax)/len);
@@ -29,10 +35,15 @@ for (const mode of ["standalone", "browser"] as const) {
       const hit = frontage(world,481.87,356.8,523.49,353.17,.54+(bay+.5)*pitch,15.4);
       expect(hit.object.name).toBe(DZ_FRONT_V374);
       expect(hit.distance).toBeCloseTo(3.82,3);
+      expect(displayedColor(hit)).toEqual([82,106,120]);
     }
     const pier = frontage(world,481.87,356.8,523.49,353.17,.54+pitch,15.4);
     expect(pier.object.name).toBe(DZ_FRONT_V374);
     expect(pier.distance).toBeCloseTo(3,3);
+    expect(displayedColor(pier)).toEqual([182,172,153]);
+    const glassRail = frontage(world,481.87,356.8,523.49,353.17,.54+pitch/2,14.5);
+    expect(glassRail.object.name).toBe(DZ_FRONT_V374);
+    expect(displayedColor(glassRail)).toEqual([133,146,148]);
     // Public east elevation of Haus Sommer. Sample away from the mullion.
     const sommerWidth = Math.hypot(444.82-442.35,360.05-332.29);
     const sommer = frontage(world,442.35,332.29,444.82,360.05,.75*sommerWidth/11.5+.20,12.3);

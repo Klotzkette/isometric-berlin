@@ -1,5 +1,5 @@
 import {
-  BufferGeometry, Color, DoubleSide, Uint16BufferAttribute, Group, LineSegments, Mesh, MeshBasicMaterial,
+  BufferGeometry, DoubleSide, Uint16BufferAttribute, Group, LineSegments, Mesh, MeshBasicMaterial,
   MeshStandardMaterial, Uint8BufferAttribute,
 } from "three";
 import capture from "./data/pariserNeighbourOwnersV374.json";
@@ -10,8 +10,8 @@ type Face = { width: number; point(u: number, height: number, recess?: number): 
 export const SOMMER_V374 = "Haus Sommer, Pariser Platz 1";
 export const DZ_FRONT_V374 = "DZ Bank, Pariser Platz 3";
 export const DZ_ROOF_V374 = "DZ Bank, surveyed atrium roof";
-const limestone = 0xcbbca3, paleStone = 0xe4dfd3, shadow = 0x79746a;
-const glass = 0x566773, frame = 0x353c40;
+const limestone = 0xb6ac99, paleStone = 0xc6bca6, shadow = 0x312d25;
+const glass = 0x18232c, frame = 0x090c0d;
 
 // Centimetre vertices and heights of the real v169 packet fronts. Both rear
 // shells, all party walls and all non-street-facing surfaces remain resident.
@@ -23,15 +23,14 @@ class Surface {
   private xyz: number[] = [];
   private rgb: number[] = [];
   private indices: number[] = [];
-  private palette = new Map<number, Color>();
 
   quad(a: Point, b: Point, c: Point, d: Point, tone: number) {
     const index = this.xyz.length / 3;
-    let paint = this.palette.get(tone);
-    if (!paint) this.palette.set(tone, paint = new Color(tone));
+    // The byte render target and final SMAA pass present these display swatches directly.
+    const red = tone >> 16, green = (tone >> 8) & 255, blue = tone & 255;
     for (const p of [a, b, c, d]) {
       this.xyz.push(...p);
-      this.rgb.push(Math.round(paint.r * 255), Math.round(paint.g * 255), Math.round(paint.b * 255));
+      this.rgb.push(red, green, blue);
     }
     this.indices.push(index, index + 1, index + 2, index, index + 2, index + 3);
   }
@@ -93,7 +92,7 @@ function sommer(model: Surface, source: Elevation) {
     const f = wall(source, edge), w = f.width;
     const publicFront = edge === 2, rear = edge === 0, end = edge === 1;
     if (!publicFront && !rear && !end) continue;
-    model.panel(f, 0, w, 0, .46, 0x686a64);
+    model.panel(f, 0, w, 0, .46, 0x232520);
     const levels = [[.46, .82, 4.02, 4.62], [4.62, 5.35, 8.68, 9.25],
       [9.25, 9.9, 13.03, 13.8], [13.8, 14.23, 15.77, height-.36]];
     for (let floor = 0; floor < levels.length; floor++) {
@@ -110,12 +109,12 @@ function sommer(model: Surface, source: Elevation) {
         const bw = end ? 1.18 : door ? 1.85 : floor === 3 ? 1.10 : 1.30;
         const a = centre-bw/2, b = centre+bw/2, depth = door ? .85 : .34;
         model.panel(f, last, a, y, top, paleStone);
-        opening(model, f, a, b, y, top, depth, door ? 0x4d4136 : glass, 0xb0a89a);
+        opening(model, f, a, b, y, top, depth, door ? 0x130d09 : glass, 0x6f6452);
         if (!door) {
           model.panel(f, centre-.045, centre+.045, y, top, frame, depth-.025);
           model.panel(f, a, b, y + (top-y)*.56, y + (top-y)*.56+.075, frame, depth-.028);
           if (!end && floor === 2) {
-            model.panel(f, a-.13, b+.13, top+.08, top+.20, 0xc6bdab, -.12);
+            model.panel(f, a-.13, b+.13, top+.08, top+.20, 0x908268, -.12);
           }
         }
         last = b;
@@ -132,14 +131,16 @@ function sommer(model: Surface, source: Elevation) {
         model.panel(f, u-.025, u+.025, 4.97, 5.86, frame, -.92);
       }
     }
-    model.panel(f, 0, w, 4.53, 4.67, 0xc2bba9, -.06);
-    model.panel(f, 0, w, height-.36, height-.16, 0x373d41, -.10);
+    model.panel(f, 0, w, 4.53, 4.67, 0x8a7f65, -.06);
+    model.panel(f, 0, w, height-.36, height-.16, 0x0a0c0d, -.10);
     model.panel(f, 0, w, height-.16, height, paleStone);
   }
 }
 
 // Gehry’s seven-bay limestone screen has four stacked heavy floor bands. The
 // upper two levels share double-height recesses and flush glass balustrades.
+// The front photograph shows warm-grey limestone, blue-grey panes and lighter
+// reflections on the balustrades. The entrance remains in deeper shade.
 // https://www.berlin.de/sehenswuerdigkeiten/3561052-3558930-dz-bank-ehemals-dg-bank.html
 // https://commons.wikimedia.org/wiki/File:Pariser_Platz_-_DZ_Bank_-_Fassade.jpg
 function bank(model: Surface, source: Elevation) {
@@ -156,12 +157,12 @@ function bank(model: Surface, source: Elevation) {
       const centre = .54 + (i+.5)*pitch, a = centre-pitch*.34, b = centre+pitch*.34;
       model.panel(f, last, a, sill, top, limestone);
       opening(model, f, a, b, sill, top, floor === 0 ? 1.45 : .82,
-        floor === 0 ? 0x4d5355 : 0x637883, 0xa99b85);
+        floor === 0 ? 0x37464a : 0x526a78, 0x8d816d);
       if (floor === 3) {
-        model.panel(f, a, b, 16.3, 16.52, 0x7c8581, .48);
-        model.panel(f, a, b, 16.52, 17.18, 0x93a3a3, .48);
+        model.panel(f, a, b, 16.3, 16.52, 0x626e70, .48);
+        model.panel(f, a, b, 16.52, 17.18, 0x95a3a4, .48);
       } else if (floor > 0) {
-        model.panel(f, a, b, sill, sill+.64, 0x82918f, .32);
+        model.panel(f, a, b, sill, sill+.64, 0x859294, .32);
       }
       last = b;
     }
@@ -193,11 +194,11 @@ function skylight(model: Surface) {
   const rib = (a: Point, b: Point, width: number) => {
     const dx = b[0]-a[0], dz = b[2]-a[2], scale = width/(2*Math.hypot(dx,dz));
     const shift = (p: Point, s: number): Point => [p[0]-dz*scale*s, p[1]+.013, p[2]+dx*scale*s];
-    model.quad(shift(a,1),shift(b,1),shift(b,-1),shift(a,-1),0x697479);
+    model.quad(shift(a,1),shift(b,1),shift(b,-1),shift(a,-1),0x242d31);
   };
   for (let i = 1; i < rows.length; i++) for (let j = 1; j < rows[i].length; j++) {
     const a = rows[i-1][j-1], b = rows[i-1][j], c = rows[i][j], d = rows[i][j-1];
-    const tone = j < 4 ? 0x657e87 : j === 4 ? 0x718b92 : 0x81959b;
+    const tone = j < 4 ? 0x21353e : j === 4 ? 0x2a4249 : 0x384d54;
     model.quad(a,b,c,d,tone);
     rib(a,b,.105); rib(a,d,.105); rib(a,c,.085);
     if (i === rows.length-1) rib(d,c,.105);
@@ -247,7 +248,7 @@ export function finishPariserNeighboursV374(root: Group): Group {
       return [chunk.position.x + pos.getX(v)/100, chunk.position.y + pos.getY(v)/100, chunk.position.z + pos.getZ(v)/100];
     });
     const dst = ps[0][0] < 451 ? house : ps[0][1] < 26 ? bankFace : roof;
-    dst.quad(ps[0],ps[1],ps[2],ps[2], dst === house ? 0xa9aaa4 : 0xb4b3a7);
+    dst.quad(ps[0],ps[1],ps[2],ps[2], dst === house ? 0x65675f : 0x747363);
   }
   const meshes = [house.mesh(SOMMER_V374), bankFace.mesh(DZ_FRONT_V374), roof.mesh(DZ_ROOF_V374)];
   const anchor = parts[0].chunk;
