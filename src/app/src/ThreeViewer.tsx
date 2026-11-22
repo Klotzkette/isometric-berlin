@@ -123,6 +123,7 @@ import {createFirstUploadScheduleV323,type FirstUploadScheduleV323} from "./firs
 import { createRosengarten, createRosengartenMinecraft } from "./Rosengarten";
 import { createTunnelPortalApproachTester } from "./TunnelPortals";
 import { pointInDistrictStreetScope } from "./districtStreetScope";
+import { gateGardenLawnV374, gateGroundInkV374, gateSurveyAdmitsV374 } from "./GateForecourtsV374";
 import { createDistrictStreets, districtStreetTerrainSampler, districtPathMayFollowTerrain } from "./DistrictStreets";
 import { simulationStartCamera } from "./simulationStartViews";
 import { StartupPresentation } from "./StartupPresentation";
@@ -4920,6 +4921,7 @@ function ensureIsoWorld(
           surfaces,
           {
             buildings: initialBuildings,
+            surveyedGateInk: ground ? gateGroundInkV374(ground) : undefined,
             nordbahnhofCuts: nordbahnhof?.cuts,
             potsdamerNorthPavilion,
             federalStateFittingsV321: (site, style) => createStateRepresentationFittingsV321(site, prisms.buildings, style),
@@ -5112,7 +5114,9 @@ function ensureIsoWorld(
         isoWorld.add(bndV174.createBndHeadquartersV174(), createBndPublicArtV314());
         if (ground) {
           isoWorld.add(createReichstagLawnV318(worldGroundSampler(ground)));
-          isoWorld.add(createCivicGardenReliefV341(worldGroundSampler(ground)));
+          const plazaHeight = districtStreetTerrainSampler(ground);
+          isoWorld.add(createCivicGardenReliefV341(worldGroundSampler(ground), false, gateSurveyAdmitsV374(ground)
+            ? (x,z,i) => gateGardenLawnV374(x,z,i) ? plazaHeight(x,z)+.28 : null : undefined));
         }
         yield;
         isoWorld.add(northContext.createNorthContextV312());
@@ -5191,7 +5195,7 @@ function ensureIsoWorld(
         reportDetailStep(3);
         yield;
         if (ground) {
-          const streets = createDistrictStreets(ground, new Set(altMitteTransportCorrectionsV206.suppressedMarkingIndices));
+          const streets = createDistrictStreets(ground, new Set(altMitteTransportCorrectionsV206.suppressedMarkingIndices), true);
           isoWorld.add(streets);
           if (invalidenGround) {
             const oldSurfaces: Array<Mesh | LineSegments> = [];
@@ -10294,7 +10298,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.centralDetails = createCentralCivicDetails(
             manifest.landmarks,
             runtime.coarsePointer ? "mobile" : "full",
-            { includeLegacyResearchMinistry: false, includeLegacyHungarianFacade: false, embassiesV264: true },
+            { includeLegacyResearchMinistry: false, includeLegacyHungarianFacade: false, embassiesV264: true, surveyedGate: true },
           );
           setDiningLegacyVisibilityV296(runtime);
           runtime.centralDetails.visible = centralCivicDetailsVisible(

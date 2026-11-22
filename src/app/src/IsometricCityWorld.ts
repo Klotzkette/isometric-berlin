@@ -434,6 +434,7 @@ export type PrismPayload = {
 export type IsometricCityBuildOptions = {
   /** Main-thread ground ownership only; its source table must never enter the building Worker. */
   invalidenGroundV371?: boolean;
+  surveyedGateInk?: readonly number[];
   restoreRoadGroundV343?: (slabs: InstancedMesh, ground: VoxelPayload) => Generator<void>;
   federalStateFittingsV321?: import("./FederalStateRepresentations").FederalStateRepresentationOptions["fittingsFactoryV321"];
   /** Only the completed required Hauptbahnhof model may open its retained source glazing. */
@@ -13583,7 +13584,7 @@ export function* createIsometricCityCoreStepsV309(
       ground,
       surfaces ? new Set(["asphalt", "water", "basin"]) : undefined,
       (x, z) => Boolean(options.invalidenGroundV371 && insideInvalidenGroundV371(x, z)) || pointInBrandenburgApproach(x, z) || pointInHbfNorthRailCut(x, z) || Boolean(insideTunnelApproach?.(x, z)),
-      verifiedPavement ? new Set([...pavementEdgesV367.edges, ...pavementEdgesV368.edges]) : undefined,
+      verifiedPavement ? new Set([...pavementEdgesV367.edges, ...pavementEdgesV368.edges, ...options.surveyedGateInk ?? []]) : undefined,
       getPathEdgeInkV373(slabs),
     );
     releasePathEdgeInkV373(slabs);

@@ -1,3 +1,4 @@
+import { createGateForecourtsV374, gateDistrictKerbsV374, gateRemovedFacesV374, keepGateLaneMarkingsV374, gateSurveyAdmitsV374, retainGateDistrictEdgesV374 } from "./GateForecourtsV374";
 import { kerbStoneCourses } from "./kerbStoneFinish";
 import { markGroundFinishV348, type GroundFinishKindV348 } from "./GroundFinishV348";
 import {
@@ -106,9 +107,11 @@ function geometry(positions: number[] | Float32Array): BufferGeometry {
  * on both pointer profiles. No whole-city polygon union, Worker round trip,
  * lower-detail replacement or camera-dependent disappearance is necessary.
  */
-export function createDistrictStreets(ground: VoxelPayload, excludedMarkings: ReadonlySet<number> = new Set()): Group {
+export function createDistrictStreets(ground: VoxelPayload, excludedMarkings: ReadonlySet<number> = new Set(), surveyedGate = false): Group {
   const transaction = canonicalMitteRoadTransactionV343();
-  const group = createSourceStreetSurfaces(ground, streets, "District streets and roadside paths", excludedMarkings, transaction);
+  const gate = surveyedGate && gateSurveyAdmitsV374(ground);
+  const group = createSourceStreetSurfaces(ground, streets, "District streets and roadside paths", excludedMarkings, transaction, gate);
+  if (gate) group.add(createGateForecourtsV374(districtStreetTerrainSampler(ground)));
   if (transaction) {
     group.add(createSourceStreetSurfaces(ground, transaction.supplement,
       "Complete retained street fragments and surveyed kerbs v343"));
@@ -118,7 +121,7 @@ export function createDistrictStreets(ground: VoxelPayload, excludedMarkings: Re
   return freezeStaticSceneTransforms(group);
 }
 
-export function createSourceStreetSurfaces(ground: VoxelPayload, streets: StreetSource, name: string, excludedMarkings: ReadonlySet<number> = new Set(), transaction: MitteRoadTransactionV343 | null = null): Group {
+export function createSourceStreetSurfaces(ground: VoxelPayload, streets: StreetSource, name: string, excludedMarkings: ReadonlySet<number> = new Set(), transaction: MitteRoadTransactionV343 | null = null, surveyedGate = false): Group {
   const group = new Group();
   group.name = name;
   group.userData.sourceGeometry = streets.source;
@@ -139,9 +142,13 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
   };
   for (const surface of streets.surfaces) {
     const style = SURFACE_STYLES[surface.kind];
+    const previous = transaction?.surfaceRemovals.get(surface.kind);
+    const removed = surveyedGate ? new Set([...previous ?? [], ...gateRemovedFacesV374(surface.kind)]) : previous;
+    let positions = decodeSurfacePositions(surface.positions_cm_b64, terrainAt, style.lift);
+    let indices = decodeSurfaceIndices(surface.indices_b64, removed);
+    if (surveyedGate) [positions, indices] = retainGateDistrictEdgesV374(surface.kind, positions, indices);
     addSurface(
-      style.name, decodeSurfacePositions(surface.positions_cm_b64, terrainAt, style.lift),
-      style.day, style.night, decodeSurfaceIndices(surface.indices_b64, transaction?.surfaceRemovals.get(surface.kind)),
+      style.name, positions, style.day, style.night, indices,
       surface.kind === "sidewalk" ? "paving" : surface.kind === "gravel" ? undefined : surface.kind,
     );
   }
@@ -149,8 +156,9 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
   // The complete offline path inventory gives exact capacities. Writing its
   // final attributes directly avoids millions of temporary boxed numbers and
   // oversized growing arrays during the mobile startup peak.
-  const curbLines = transaction
-    ? streets.curbs_m.flatMap((line, index) => transaction.curbReplacements.get(index) ?? [line])
+  const gateKerbs = surveyedGate ? gateDistrictKerbsV374() : null;
+  const curbLines = transaction || gateKerbs
+    ? streets.curbs_m.flatMap((line, index) => gateKerbs?.get(index) ?? transaction?.curbReplacements.get(index) ?? [line])
     : streets.curbs_m;
   let pointCount = 0, segmentCount = 0, maxCurbIndex = 0;
   for (const line of curbLines) {
@@ -253,6 +261,7 @@ export function createSourceStreetSurfaces(ground: VoxelPayload, streets: Street
       }
     }
   }
+  if (surveyedGate) keepGateLaneMarkingsV374(markings, excludedMarkings, terrainAt);
   if (markings.length) addLines("District lane markings", geometry(markings), 0xf2f0e8, 0x929793);
   return freezeStaticSceneTransforms(group);
 }

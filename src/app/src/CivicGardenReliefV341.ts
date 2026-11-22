@@ -19,7 +19,7 @@ function smoothRing(ring:typeof CHANCELLERY_LAWN_RINGS[number]):[number,number][
   shape.closePath();return shape.getPoints(12).map(p=>[p.x,p.y]);
 }
 
-export function civicGardenPatchesV341(groundAt:(x:number,z:number)=>number|null,native=false):Patch[] {
+export function civicGardenPatchesV341(groundAt:(x:number,z:number)=>number|null,native=false, gateTurf?: (x:number,z:number, garden:number)=>number|null):Patch[] {
   const patches:Patch[]=[];
   const add=(site:string,x:number,y:number,z:number)=>patches.push({site,x,y,z,seed:random(x,z)});
   for(const ring of CHANCELLERY_LAWN_RINGS){
@@ -30,9 +30,11 @@ export function civicGardenPatchesV341(groundAt:(x:number,z:number)=>number|null
       const [xx,zz]=turn(x,z,yaw);add("Ehrenhof",xx-220.236,native?5.44:5.36,zz-145.806);
     }
   }
-  for(const [cx,cz,w,d] of gardens)for(let x=-w/2+3.3;x<w/2-3.3;x+=1.5)for(let z=-d/2+3.3;z<d/2-3.3;z+=1.5){
+  for(const [garden,[cx,cz,w,d]] of gardens.entries())for(let x=-w/2+3.3;x<w/2-3.3;x+=1.5)for(let z=-d/2+3.3;z<d/2-3.3;z+=1.5){
     if(Math.hypot(x,z)<6.3||[-4.35,4.35].some(az=>Math.hypot(x-(-w/2+8.2),z-az)<2.4))continue;
-    const [xx,zz]=turn(x,z,.087);add("Pariser Platz",xx+cx,5.08,zz+cz);
+    const [xx,zz]=turn(x,z,.087);
+    const y=gateTurf ? gateTurf(xx+cx,zz+cz,garden) : 5.08;
+    if(y!==null)add("Pariser Platz",xx+cx,y,zz+cz);
   }
   // Complement the existing coarse v318 lawn tufts with a finer offset grid.
   // Its retained path polygons and corner inset remain authoritative.
@@ -45,9 +47,9 @@ export function civicGardenPatchesV341(groundAt:(x:number,z:number)=>number|null
 
 /** Estimated 6–13 cm summer lawn texture; no imagery, animation, loading or
  * mobile detail downgrade. Each family is built directly from patch supports. */
-export function createCivicGardenReliefV341(groundAt:(x:number,z:number)=>number|null,native=false):Group{
+export function createCivicGardenReliefV341(groundAt:(x:number,z:number)=>number|null,native=false, gateTurf?: (x:number,z:number, garden:number)=>number|null):Group{
   const root=new Group();root.name="Government quarter fine summer lawns v341";
-  const patches=civicGardenPatchesV341(groundAt,native),positions:number[]=[],colors:number[]=[],matrices:number[]=[],matrix=new Matrix4(),color=new Color();
+  const patches=civicGardenPatchesV341(groundAt,native,gateTurf),positions:number[]=[],colors:number[]=[],matrices:number[]=[],matrix=new Matrix4(),color=new Color();
   for(const {x,y,z,seed} of patches){
     color.setHex([0x719260,0x809d6b,0x91a978,0x668752][Math.floor(seed*4)]);
     const h=.06+seed*.07;
