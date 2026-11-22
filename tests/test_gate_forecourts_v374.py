@@ -42,14 +42,32 @@ def test_municipal_boundaries_and_competing_owners():
     ]
   )
   # Clipping to the 8 m DGM cells re-snaps their boundary intersections
-  # to centimetres. Less than half a square metre changes across 25,053 m².
-  assert abs(base.area - data["surveyAreaM2"]) < 0.5
-  assert 25_000 < base.area < 25_100
+  # to centimetres. The resulting area must stay within 25 parts per million
+  # of the original planar union (less than 0.72 m² across both squares).
+  assert abs(base.area - data["surveyAreaM2"]) < data["surveyAreaM2"] * 0.000025
+  assert 28_750 < base.area < 28_780
   assert sums_are_disjoint(unions, base)
   plaza = unions["plaza"]
   west = rows["ci_oeffentlicher_platz.1728"]
-  assert plaza.difference(west.buffer(0.015)).area < 0.01
-  assert 1090 < plaza.area < 1110
+  assert 1267 < plaza.intersection(west).area < 1269
+  assert (
+    plaza.difference(west.buffer(0.015))
+    .difference(shapely.box(395, 257, 451, 344))
+    .area
+    < 0.01
+  )
+  assert 2048 < plaza.area < 2051
+  for x, z in [(370.145, 288.09), (379, 326.7), (380, 327.97)]:
+    assert unions["asphalt"].covers(shapely.Point(x, z))
+  assert unions["tactile"].covers(shapely.Point(360.531, 284.71))
+  assert unions["footway"].covers(shapely.Point(364.946, 329.04))
+  assert unions["plantedVerge"].covers(shapely.Point(428, 355))
+  for fid in ("cd_rampe.74", "cd_rampe.83", "cd_rampe.89"):
+    ramp = rows[fid].buffer(-0.1)
+    # Some access ramps meet a LoD2 doorway mask.
+    assert unions["footway"].intersection(ramp).area > ramp.area * 0.65
+  for x, z in [(411.1, 311), (409.45, 299.7), (409.3, 293.3)]:
+    assert plaza.covers(shapely.Point(x, z))
   assert (
     unions["median"].difference(rows["cf_trennstreifen.18607"].buffer(0.015)).area
     < 0.01
