@@ -1,5 +1,6 @@
 import {
   gateHallColumns,
+  gatePavementTopV374,
   gateHallsV374,
   hallPoint,
   type GateHall,
@@ -43,6 +44,12 @@ class Faces {
       this.rgb.push(this.color.r, this.color.g, this.color.b);
     }
     for (let i = 1; i < points.length - 1; i++) this.indices.push(first, first + i, first + i + 1);
+  }
+
+  roofFace(tone: number, ...points: Point[]): void {
+    const [a, b, c] = points;
+    const normalY = (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2]);
+    this.face(tone, ...(normalY < 0 ? points.reverse() : points));
   }
 
   box(x: number, y: number, z: number, dx: number, dy: number, dz: number, tone: number): void {
@@ -143,9 +150,11 @@ function buildHall(h: GateHall, masonry: Faces, roofing: Faces, shafts: Point[])
   const eaves = h.ridge - 1.25,
     orderTop = eaves - 1.12;
   for (const [x, z] of gateHallColumns(h)) {
-    const height = orderTop - 0.47;
+    const floor = gatePavementTopV374(x, z);
+    const height = orderTop - floor - 0.47;
     shafts.push([x, height, z]);
-    masonry.box(x, 0.2, z, 1.02, 0.4, 1.02, shade);
+    masonry.box(x, floor + 0.08, z, 1.04, 0.4, 1.04, shade);
+    masonry.box(x, floor + 0.285, z, 0.99, 0.085, 0.99, stone);
     masonry.box(x, orderTop - 0.04, z, 1.09, 0.27, 1.09, stone);
     masonry.box(x, orderTop + 0.07, z, 1.2, 0.17, 1.2, pale);
   }
@@ -207,7 +216,7 @@ function buildHall(h: GateHall, masonry: Faces, roofing: Faces, shafts: Point[])
   }
   for (const side of [-1, 1]) {
     const e = side * halfW;
-    roofing.face(
+    roofing.roofFace(
       copper,
       hallPoint(h, -halfL, eaves, e),
       hallPoint(h, halfL, eaves, e),
@@ -215,7 +224,7 @@ function buildHall(h: GateHall, masonry: Faces, roofing: Faces, shafts: Point[])
       hallPoint(h, -halfL, h.ridge, 0),
     );
     for (let u = -halfL + 1.05; u < halfL - 0.3; u += 1.05) {
-      roofing.face(
+      roofing.roofFace(
         flashing,
         hallPoint(h, u, eaves + 0.022, e),
         hallPoint(h, u + 0.035, eaves + 0.022, e),
@@ -298,9 +307,9 @@ function coverCentralAttic(roofing: Faces): void {
     for (const side of [-1, 1]) {
       const x = halfX * side,
         crest = y + 0.065;
-      roofing.face(copper, [x, y, z0], [x, y, z1], [0, crest, z1], [0, crest, z0]);
+      roofing.roofFace(copper, [x, y, z0], [x, y, z1], [0, crest, z1], [0, crest, z0]);
       for (let z = z0 + 0.7; z < z1 - 0.18; z += 0.7) {
-        roofing.face(
+        roofing.roofFace(
           flashing,
           [x, y + 0.016, z],
           [x, y + 0.016, z + 0.028],
@@ -344,7 +353,10 @@ export function addBrandenburgGateWingsV374(group: Group): void {
   columns.name = "Brandenburg Gate open hall fluted sandstone columns";
   const transform = new Matrix4();
   shafts.forEach(([x, h, z], i) =>
-    columns.setMatrixAt(i, transform.makeScale(1, h, 1).setPosition(x, 0.29 + h / 2, z)),
+    columns.setMatrixAt(
+      i,
+      transform.makeScale(1, h, 1).setPosition(x, gatePavementTopV374(x, z) + 0.29 + h / 2, z),
+    ),
   );
   columns.castShadow = true;
   columns.receiveShadow = true;

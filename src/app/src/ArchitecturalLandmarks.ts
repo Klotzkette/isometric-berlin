@@ -1,3 +1,4 @@
+import { gatePavementTopV374 } from "./BrandenburgGatehouseSourceV374";
 import { addBrandenburgGateWingsV374, gateDoricShaftV374 } from "./BrandenburgGateWingsV374";
 import {
   BoxGeometry,
@@ -7366,6 +7367,11 @@ function createBrandenburgGateModel(
   );
   const recess = modelMaterial(0x716c63, { opacity: 0.82, roughness: 0.92 });
   const paving = modelMaterial(0xb6b6b1, { roughness: 0.96 });
+  // The metal sheets are physically above the attic. The generic projecting
+  // facade offset pulled their stone substrates forward in the depth buffer.
+  const roofBearingStone = sandstone.clone();
+  const roofBearingShadow = sandstoneShadow.clone();
+  roofBearingStone.polygonOffset = roofBearingShadow.polygonOffset = false;
   const shaftStone = sandstone.clone();
   shaftStone.vertexColors = true;
   const mainBodyWidth = BRANDENBURG_GATE_PHOTO_DETAIL_PROFILE.mainBodyWidthM;
@@ -7434,7 +7440,7 @@ function createBrandenburgGateModel(
         sandstone,
       );
       base.name = `Brandenburg Gate column base ${row + 1}:${index + 1}`;
-      base.position.set(x, 0.23, column.position.z);
+      base.position.set(x, gatePavementTopV374(x, z) + 0.19, column.position.z);
       group.add(base);
       const capital = new Mesh(
         new CylinderGeometry(1.14, 0.76, 0.68, 40),
@@ -7473,14 +7479,14 @@ function createBrandenburgGateModel(
     "Brandenburg Gate stepped square column plinths",
     [2.2, 0.14, 2.2],
     sandstoneShadow,
-    columnCenters.map(([x, z]) => ({ position: [x, 0.07, z] })),
+    columnCenters.map(([x, z]) => ({ position: [x, gatePavementTopV374(x, z) + 0.07, z] })),
   );
   addInstancedGeometry(
     photoDetails,
     "Brandenburg Gate column base torus courses",
     new CylinderGeometry(1.0, 1.07, 0.18, 40),
     sandstone,
-    columnCenters.map(([x, z]) => ({ position: [x, 0.54, z] })),
+    columnCenters.map(([x, z]) => ({ position: [x, gatePavementTopV374(x, z) + 0.42, z] })),
   );
   addInstancedGeometry(
     photoDetails,
@@ -7609,7 +7615,7 @@ function createBrandenburgGateModel(
     "Brandenburg Gate attic",
     [signature.depth_m - 0.42, 1.52, mainBodyWidth - 0.2],
     [0, 18.14, 0],
-    sandstone,
+    roofBearingStone,
     0.9,
   );
   addBox(
@@ -7657,7 +7663,7 @@ function createBrandenburgGateModel(
     "Brandenburg Gate stepped attic shoulder",
     [signature.depth_m - 0.55, 0.72, 23.8],
     [0, 19.26, 0],
-    sandstoneShadow,
+    roofBearingShadow,
     0.82,
   );
   addBox(
@@ -7665,7 +7671,7 @@ function createBrandenburgGateModel(
     "Brandenburg Gate central Quadriga plinth",
     [signature.depth_m - 0.72, 0.68, 14.8],
     [0, 19.96, 0],
-    sandstone,
+    roofBearingStone,
     0.88,
   );
   const triglyphs: InstanceTransform[] = [];
@@ -7738,7 +7744,7 @@ function createBrandenburgGateModel(
       `Brandenburg Gate stepped ${name}`,
       [depth, 0.18, width],
       [0, y, 0],
-      sandstone,
+      name === "attic base crown" || name === "Quadriga plinth crown" ? roofBearingStone : sandstone,
       0.54,
     );
   }

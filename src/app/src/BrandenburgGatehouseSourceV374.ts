@@ -81,6 +81,29 @@ const angle = (core.rotation * Math.PI) / 180;
 const cosine = Math.cos(angle),
   sine = Math.sin(angle);
 
+// Same 16 m DGM knots as the surveyed forecourt, elevations in decimetres.
+// The signature can be built before the regular terrain mesh is available.
+const gateTerrainDm = [
+  [51, 52, 51, 48],
+  [50, 51, 50, 49],
+  [50, 50, 50, 48],
+  [50, 50, 49, 48],
+  [50, 50, 49, 49],
+  [50, 50, 49, 49],
+];
+
+export function gatePavementTopV374(localX: number, localZ: number): number {
+  const x = (core.anchor[0] + localX * cosine + localZ * sine - 396) / 16;
+  const z = (core.anchor[2] - localX * sine + localZ * cosine - 260) / 16;
+  const col = Math.max(0, Math.min(2, Math.floor(x)));
+  const row = Math.max(0, Math.min(4, Math.floor(z)));
+  const tx = Math.max(0, Math.min(1, x - col)),
+    tz = Math.max(0, Math.min(1, z - row));
+  const north = gateTerrainDm[row][col] * (1 - tx) + gateTerrainDm[row][col + 1] * tx;
+  const south = gateTerrainDm[row + 1][col] * (1 - tx) + gateTerrainDm[row + 1][col + 1] * tx;
+  return ((1 - tz) * north + tz * south) / 10 + 0.32 - core.anchor[1];
+}
+
 export function gateHallWalkableV374(x: number, y: number, z: number, sourceId?: string): boolean {
   const owner = sourceId ? accessHallByOwner.get(sourceId) : undefined;
   if (owner === undefined) return false;
