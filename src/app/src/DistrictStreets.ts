@@ -1,3 +1,4 @@
+import { createSintiRomaApronV375 } from "./SintiRomaApronV375";
 import { createSimsonWoodsV375 } from "./SimsonWoodsV375";
 import { createSimsonPathsV375 } from "./SimsonPathsV375";
 import { admitsSimsonGroundV375 } from "./simsonGroundGuardV375";
@@ -119,6 +120,7 @@ export function createDistrictStreets(ground: VoxelPayload, excludedMarkings: Re
     applySimsonCutsV375(group,"district");
     const terrainAt = districtStreetTerrainSampler(ground);
     group.add(createSimsonPathsV375(terrainAt),createSimsonWoodsV375(terrainAt));
+    group.add(createSintiRomaApronV375());
   }
   if (gate) group.add(createGateForecourtsV374(districtStreetTerrainSampler(ground)));
   if (transaction) {

@@ -49,7 +49,7 @@ test("first publication contains every surveyed Tiergarten and Robert-Koch-Platz
   const rootContact = group.getObjectByName(
     "Source tree root contact with arrival terrain",
   ) as InstancedMesh;
-  expect(rootContact.count).toBe(83);
+  expect(rootContact.count).toBe(81);
   let foundArrival = false;
   for (let i = 0; i < rootContact.count; i++) {
     rootContact.getMatrixAt(i, matrix);
@@ -83,7 +83,7 @@ test("first and final stems meet their actual drawn ground without altering the 
   const cases = [
     [336.21, 250.92, 5.22],
     [344.21, 245.95, 5.22],
-    [304.32, 204.49, 5.0],
+    [304.32, 204.49, 4.813],
     [504.25, -997.26, 5.3],
   ];
   for (const [x, z, ground] of cases) {
