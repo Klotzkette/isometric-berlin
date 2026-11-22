@@ -66,6 +66,9 @@ export type ParkPath = {
 };
 
 export type ParkTree = {
+  /** This municipal addition has no corresponding tree in the native voxel inventory. */
+  drawnOnly?: boolean;
+  nativeTreeBlock?: [number, number, number, number];
   catalogue?: string | null;
   crown_radius_m: number;
   height_m: number;
@@ -1200,6 +1203,25 @@ function* addPathsSteps(
     group.add(mesh);
     yield;
   }
+}
+
+/** Render a small, independently culled source stand using the complete park's exact botanical forms. */
+export function createParkTreeStand(trees: ParkTree[], tunnel: TunnelPortalPayload, settledDetail: boolean): Group {
+  const group = new Group();
+  const inApproach = createTunnelPortalApproachTester(tunnel);
+  const retained = trees.filter(tree => {
+    const [x, , z] = tree.position;
+    return !isChancelleryExtensionConstructionPoint(x, z) && !inApproach(x, z, tree.crown_radius_m + 1.5);
+  });
+  const steps = addTreesSteps(group, retained, null, settledDetail, false);
+  for (let step = steps.next(); !step.done; step = steps.next()) {
+    // Only the bounded first-paint stand is synchronous.
+  }
+  for (const mesh of group.children) {
+    if (mesh instanceof InstancedMesh) indexGeometryExactly(mesh.geometry);
+  }
+  group.userData.treeCount = retained.length;
+  return freezeStaticSceneTransforms(group);
 }
 
 function* addTreesSteps(

@@ -135,6 +135,7 @@ import { sovietMemorialWalkableAt, sovietMemorialSolidAt, sovietMemorialGroundAt
 import { setSovietMemorialSmoothVisibility } from "./MinecraftSovietMemorial";
 import { setComposerMemorialSmoothVisibility } from "./MusicComposerMemorial";
 import { completeCooperatively } from "./cooperativeWork";
+import { createEarlyMitteTreesV375, earlyMitteTreeStandsV375, matchesMitteTreeSceneV375, withMitteSurveyTreesV375, withMitteNativeTreesV375 } from "./MitteTreesV375";
 import { startupWorkPositionV309, startupWorkPresentationV309, type StartupWorkV309 } from "./startupWorkV309";
 import { createBndPublicArtV314 } from "./BndPublicArtV314";
 import { WORLD_ORBIT_BASE_DISTANCE_M, worldCameraFarM } from "./worldCameraDepth";
@@ -381,6 +382,7 @@ import {
   PEDESTRIAN_IDLE_INPUT,
   PEDESTRIAN_VIEW_DISTANCE_M,
   addPedestrianParkObstacles,
+  addFirstParkTreeObstacles,
   compilePedestrianWater,
   createPedestrianEnvironment,
   createPedestrianParkTreeSolidTester,
@@ -959,6 +961,7 @@ type Runtime = {
   amenityGroundRevisionV332?: number;
   namedGravesSolidAtV347?: (x:number,y:number,z:number,radius:number,native:boolean)=>boolean;
   startDeferredDetails: () => void;
+  mitteTreesV375?: boolean;
   trafficSignals?: Group | null;
   potsdamerTrafficTower: Group;
   tramCatenary: Group;
@@ -4372,6 +4375,9 @@ function prepareIsoNavigation(
   pedestrianEnvironment.visualMode = () =>
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
   const coreSpreeBridges = createCoreSpreeBridgeNavigationV242(ground, pedestrianEnvironment.visualMode, runtime.signatures);
+  if (runtime.mitteTreesV375) {
+    addFirstParkTreeObstacles(pedestrianEnvironment, earlyMitteTreeStandsV375().flat(), runtime.tunnelPortalCourse);
+  }
   pedestrianEnvironment.parkTreeSolidAt =
     createPedestrianParkTreeSolidTester(
       ground.cell_m,
@@ -5675,6 +5681,9 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
   const coreSpreeBridges = createCoreSpreeBridgeNavigationV242(payload, environment.visualMode, runtime.signatures);
   const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(payload);
   configureNeueNationalgalerieObstaclesV217(environment.obstacles);
+  if (runtime.mitteTreesV375) {
+    addFirstParkTreeObstacles(environment, earlyMitteTreeStandsV375().flat(), runtime.tunnelPortalCourse);
+  }
   environment.parkTreeSolidAt =
     createPedestrianParkTreeSolidTester(
       payload.cell_m,
@@ -5932,7 +5941,7 @@ function ensureVoxelWorld(
       await completeCooperatively(
         buildMinecraftVoxelWorldSteps(
           provisionalVoxelWorld,
-          payload,
+          runtime.mitteTreesV375 ? withMitteNativeTreesV375(payload) : payload,
           prisms ? buildColumnToneLookup(prisms) : null,
           runtime.tunnelPortalCourse,
           {
@@ -10265,6 +10274,15 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           } else {
             ensureIsoWorld(runtime, onWarningRef.current);
           }
+          const hasMitteTrees = matchesMitteTreeSceneV375(manifest);
+          runtime.mitteTreesV375 = hasMitteTrees;
+          if (hasMitteTrees) {
+            const trees = createEarlyMitteTreesV375(manifest.tiergartentunnel, !runtime.coarsePointer);
+            runtime.parkDetails.add(trees);
+            applyLightingToRoot(trees, runtime.lightingMode, runtime.nightLightsOn);
+            setParkSnowPresentation(runtime.parkDetails, runtime.lightingMode === "snowstorm");
+            runtime.parkDetails.visible = !runtime.underside && !voxelModeActive(runtime);
+          }
           await yieldStartupWork();
           if (runtime.disposed) return;
           runtime.civicDetails.removeFromParent();
@@ -10754,6 +10772,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                     deferredDetailsStarted = false;
                     return;
                   }
+                  const park = hasMitteTrees ? withMitteSurveyTreesV375(payload) : payload;
                   const options = {
                     fritzCourseV366: true,
                     pathTerrainAt: runtime.districtPathTerrainAt,
@@ -10774,7 +10793,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                     // Both input profiles keep their exact original options.
                     // Packed scratch and task boundaries also prevent desktop
                     // startup from building the whole park in one blocking task.
-                    details = await createParkDetailsCooperative(payload, options, {
+                    details = await createParkDetailsCooperative(park, options, {
                       yieldTask: yieldStartupWork,
                       isCancelled: constructionCancelled,
                       onRoot: (root) => { staging = root; },
@@ -10841,12 +10860,13 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                     if (runtime.pedestrian.environment) {
                       addPedestrianParkObstacles(
                         runtime.pedestrian.environment,
-                        payload,
+                        park,
                         runtime.tunnelPortalCourse,
                       );
                     }
                     published = true;
                     northPropsOwner?.retireProps(previousDetails);
+                    disposeObject3D(runtime, previousDetails);
                     if (northPropsTransaction) void parkCompletedGeometry(runtime, details, true);
                   } finally {
                     if (!published) {

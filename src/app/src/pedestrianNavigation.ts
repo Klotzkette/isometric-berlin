@@ -164,6 +164,7 @@ import {
   parkHedgeSegments,
   parkShrubClusters,
   type ParkDetailsPayload,
+  type ParkTree,
   type PlaygroundEquipment,
 } from "./ParkDetails";
 import {
@@ -292,7 +293,7 @@ type PedestrianRing = ReadonlyArray<readonly number[]>;
 export type PedestrianCircleObstacle = PedestrianObstacleBase & {
   kind: "circle";
   /** Only decoded source trees follow Minecraft's reversible density filter. */
-  parkTree?: "ordinary" | "lenne-oak";
+  parkTree?: "ordinary" | "lenne-oak" | "drawn-only" | "native-only";
   /** A bounded authored radial shape may vary with height instead of filling a cylinder. */
   solidAt?: (x: number, y: number, z: number, radius?: number) => boolean;
   radius: number;
@@ -332,6 +333,7 @@ export type PedestrianObstacleIndex = {
   hedgeSegmentCount: number;
   obstacleCount: number;
   parkDetailsAdded: boolean;
+  firstParkTreeIds?: Set<string>;
   playgroundEquipmentCount: number;
   shrubClusterCount: number;
   streetLightCount: number;
@@ -352,7 +354,7 @@ export type PedestrianEnvironment = {
   visualMode?: () => VisualMode;
   obstacles?: PedestrianObstacleIndex;
   /** Mode-aware visibility of indexed source trees; other solids stay active. */
-  parkTreeSolidAt?: (x: number, z: number, landmarkOak: boolean) => boolean;
+  parkTreeSolidAt?: (x: number, z: number, landmarkOak: boolean, family?: "drawn-only" | "native-only") => boolean;
   /**
    * A tightly bounded authored doorway, ramp, stair or interior may locally
    * replace its matching closed LoD2 footprint. The optional source id lets a
@@ -1944,15 +1946,62 @@ export function createPedestrianParkTreeSolidTester(
   voxelWorldActive: () => boolean,
 ): NonNullable<PedestrianEnvironment["parkTreeSolidAt"]> {
   const usableCell = Number.isFinite(cellM) && cellM > 0;
-  return (x, z, landmarkOak) =>
-    landmarkOak ||
-    !usableCell ||
-    !voxelWorldActive() ||
-    minecraftVoxelTreeRetained(
-      Math.floor(x / cellM),
-      Math.floor(z / cellM),
-      detailProfile,
+  return (x, z, landmarkOak, family) => {
+    if (family === "drawn-only") return !voxelWorldActive();
+    if (family === "native-only" && !voxelWorldActive()) return false;
+    return landmarkOak || !usableCell || !voxelWorldActive() ||
+      minecraftVoxelTreeRetained(Math.floor(x / cellM), Math.floor(z / cellM), detailProfile);
+  };
+}
+
+function addSourceTreeObstacles(
+  index: PedestrianObstacleIndex,
+  trees: ParkTree[],
+  insideTunnelApproach: ReturnType<typeof createTunnelPortalApproachTester> | null,
+  skip?: ReadonlySet<string>,
+): void {
+  for (const tree of trees) {
+    if (skip?.has(tree.id)) continue;
+    const [x, y, z] = tree.position;
+    if (
+      isChancelleryExtensionConstructionPoint(x, z) ||
+      insideTunnelApproach?.(x, z, tree.crown_radius_m + 1.5)
+    ) {
+      continue;
+    }
+    const isShrub = tree.tree_group?.toLowerCase().includes("strauch") ?? false;
+    const radius = isShrub
+      ? clamp(tree.crown_radius_m * 0.55, 0.3, 1.5)
+      : clamp(tree.trunk_radius_m ?? 0.22, 0.16, 1.5);
+    const before = index.obstacleCount;
+    addCircleObstacle(
+      index,
+      x,
+      z,
+      radius,
+      y,
+      y + Math.max(1, tree.height_m),
+      tree.drawnOnly ? "drawn-only" : isLenneOakTree(tree) ? "lenne-oak" : "ordinary",
     );
+    if (tree.nativeTreeBlock) {
+      const [cx, cz, yDm, hDm] = tree.nativeTreeBlock;
+      const topY = yDm / 10 + Math.max(2, hDm / 10 - 6);
+      addCircleObstacle(index, cx * 4 + 2, cz * 4 + 2, 0.9, yDm / 10, topY, "native-only");
+    }
+    if (index.obstacleCount > before) {
+      index.treeCount += 1;
+    }
+  }
+}
+
+/** The complete park later adopts these same source IDs without inserting duplicate obstacles. */
+export function addFirstParkTreeObstacles(
+  environment: PedestrianEnvironment, trees: ParkTree[], tunnel?: TunnelPortalCourseInput | null,
+): void {
+  const index = environment.obstacles ??= emptyPedestrianObstacleIndex();
+  if (index.parkDetailsAdded || index.firstParkTreeIds) return;
+  addSourceTreeObstacles(index, trees, tunnel ? createTunnelPortalApproachTester(tunnel) : null);
+  index.firstParkTreeIds = new Set(trees.map(tree => tree.id));
 }
 
 /**
@@ -1973,33 +2022,8 @@ export function addPedestrianParkObstacles(
   const insideTunnelApproach = tunnel
     ? createTunnelPortalApproachTester(tunnel)
     : null;
-  const trees = decodeTrees(payload.trees, payload.tree_vocabulary);
-  for (const tree of trees) {
-    const [x, y, z] = tree.position;
-    if (
-      isChancelleryExtensionConstructionPoint(x, z) ||
-      insideTunnelApproach?.(x, z, tree.crown_radius_m + 1.5)
-    ) {
-      continue;
-    }
-    const isShrub = tree.tree_group?.toLowerCase().includes("strauch") ?? false;
-    const radius = isShrub
-      ? clamp(tree.crown_radius_m * 0.55, 0.3, 1.5)
-      : clamp(tree.trunk_radius_m ?? 0.22, 0.16, 1.5);
-    const before = index.obstacleCount;
-    addCircleObstacle(
-      index,
-      x,
-      z,
-      radius,
-      y,
-      y + Math.max(1, tree.height_m),
-      isLenneOakTree(tree) ? "lenne-oak" : "ordinary",
-    );
-    if (index.obstacleCount > before) {
-      index.treeCount += 1;
-    }
-  }
+  addSourceTreeObstacles(index, decodeTrees(payload.trees, payload.tree_vocabulary), insideTunnelApproach, index.firstParkTreeIds);
+  delete index.firstParkTreeIds;
   for (const [x, y, z, height, radius, variant] of parkShrubClusters(
     payload.shrub_patches ?? [],
     insideTunnelApproach,
@@ -2427,8 +2451,15 @@ export function pedestrianPointIsBlocked(
           obstacle.x,
           obstacle.z,
           obstacle.parkTree === "lenne-oak",
+          obstacle.parkTree === "drawn-only" || obstacle.parkTree === "native-only" ? obstacle.parkTree : undefined,
         ) === false
       ) {
+        continue;
+      }
+      if (obstacle.parkTree === "native-only") {
+        const dx = Math.max(0, Math.abs(x - obstacle.x) - obstacle.radius);
+        const dz = Math.max(0, Math.abs(z - obstacle.z) - obstacle.radius);
+        if (dx * dx + dz * dz <= PEDESTRIAN_BODY_RADIUS_M ** 2) return true;
         continue;
       }
       const radius = obstacle.radius + PEDESTRIAN_BODY_RADIUS_M;
