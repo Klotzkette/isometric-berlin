@@ -405,18 +405,17 @@ describe("idle-frame anti-flicker contract", () => {
   });
 
   test("does not clone or reveal deferred park details behind voxels", () => {
-    const deferredPark = viewerSource.slice(
-      viewerSource.indexOf("const options = {\n                    pathTerrainAt: runtime.districtPathTerrainAt"),
-      viewerSource.indexOf("runtime.tunnel = createTunnel("),
-    );
+    const start = viewerSource.indexOf("const loadParkDetails =");
+    const scheduled = viewerSource.indexOf("requestIdle(loadParkDetails", start);
+    expect(start).toBeGreaterThanOrEqual(0);
+    expect(scheduled).toBeGreaterThan(start);
+    const deferredPark = viewerSource.slice(start, scheduled).replace(/\/\/[^\n]*/g, "");
     expect(deferredPark).toContain("const voxelMode = voxelModeActive(runtime)");
-    expect(deferredPark).toContain(
-      "details.visible = !runtime.underside && !voxelMode",
+    expect(deferredPark).toMatch(/details\.visible\s*=\s*!runtime\.underside\s*&&\s*!voxelMode\s*;/);
+    expect(deferredPark.match(/setMinecraftMaterialPresentation\(/g)).toHaveLength(1);
+    expect(deferredPark).toMatch(
+      /if\s*\(runtime\.lightingMode\s*===\s*"minecraft"\s*&&\s*!voxelMode\)\s*\{\s*setMinecraftMaterialPresentation\(\s*details,/,
     );
-    expect(deferredPark).toContain(
-      'runtime.lightingMode === "minecraft" &&',
-    );
-    expect(deferredPark).toContain("!voxelMode");
     expect(deferredPark).toMatch(
       /detailProfile: runtime\.coarsePointer \? "mobile"(?: as const)? : "full"/,
     );
