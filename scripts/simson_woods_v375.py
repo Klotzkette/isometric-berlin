@@ -144,8 +144,11 @@ def make_wood_mesh(cover):
   vertices = []
   lookup = {}
   indices = []
-  for x in range(104, 384, 8):
-    for z in range(136, 312, 8):
+  # The public DGM samples lie at the centres of its sixteen-metre cells.
+  # Both support lattices are 4 (mod 8) in this world. Put the 8 m drape
+  # divisions on those lines so no triangle bridges a change of slope.
+  for x in range(100, 388, 8):
+    for z in range(132, 316, 8):
       cell = box(x, z, x + 8, z + 8)
       if not cover.intersects(cell):
         continue
