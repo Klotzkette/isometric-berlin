@@ -16,6 +16,8 @@ from build_exterior_street_margins_v373 import (
   polygon_parts,
   world,
 )
+from gate_crossings_v374 import capture_crossings, surveyed_complements
+from gate_thresholds_v374 import gate_thresholds
 from shapely.geometry import LineString, Polygon, box, shape
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,6 +29,9 @@ GARDENS = DATA / "gateGardenFurnitureV374.json"
 # explicit area owners count; the unmeasured park and building yards stay out.
 DOMAIN = box(292, 220, 560, 379)
 LAYERS = (
+  "bw_aufmerksamkeitsfeld",
+  "ck_parkflaeche",
+  "cd_rampe",
   "cm_fahrbahn",
   "cl_gehweg",
   "ci_oeffentlicher_platz",
@@ -61,6 +66,8 @@ STYLES = (
   "flushKerb",
   "gardenStone",
   "flowerSoil",
+  "tactile",
+  "plantedVerge",
 )
 MATERIAL = {
   "01": "footway",
@@ -144,7 +151,16 @@ def build():
       # narrow visible stone line without a raised transverse road barrier.
       kerbs.append((int(bor) == 1, g))
       continue
-    if layer == "ce_gruenflaeche":
+    if layer == "bw_aufmerksamkeitsfeld":
+      style, priority = "tactile", 0
+    elif layer == "ck_parkflaeche":
+      style, priority = MATERIAL.get(mat), 4
+    elif layer == "cd_rampe":
+      # The three surveyed access ramps have hard material 01. This is the
+      # support floor at surrounding terrain grade; it leaves the actual ramp
+      # profile to the building detail and does not invent a gradient.
+      style, priority = MATERIAL.get(mat), 3
+    elif layer == "ce_gruenflaeche":
       if fid not in {"ce_gruenflaeche.21433", "ce_gruenflaeche.41614"}:
         continue
       style, priority = "grass", 1
@@ -166,7 +182,8 @@ def build():
       style, priority = MATERIAL.get(mat), 4
     if style is not None:
       groups[priority, style].append(g)
-  for rec in read(MESH / "lod2-prisms.json")["buildings"]:
+  buildings = read(MESH / "lod2-prisms.json")["buildings"]
+  for rec in buildings:
     b = rec["ring"]
     if (
       b
@@ -184,6 +201,12 @@ def build():
       continue
     styles[style] = merged([region, styles.get(style, Polygon())])
     claimed = merged([claimed, region])
+  for style, region in surveyed_complements(claimed):
+    region = polygon_only(polygon_only(region).difference(claimed, grid_size=0.01))
+    styles[style] = merged([styles.get(style, Polygon()), region])
+    claimed = merged([claimed, region])
+  thresholds = gate_thresholds(features, buildings, merged(list(styles.values())))
+  styles["plaza"] = merged([styles["plaza"], thresholds])
   footprint = merged(list(styles.values()))
   # Each source alignment must touch a measured surface. The 16 cm head is
   # a display width. Stop on all non-surface owners, including pavilion walls.
@@ -427,10 +450,14 @@ def build():
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument("--capture", type=Path)
+  parser.add_argument(
+    "--osm", type=Path, default=ROOT / "geo_data/regierungsviertel/osm.gpkg"
+  )
   parser.add_argument("--check", action="store_true")
   args = parser.parse_args()
   if args.capture:
     capture(args.capture)
+    capture_crossings(args.capture, args.osm)
   data = build()
   flowers = json.dumps(data.pop("gardenLayout"), separators=(",", ":")) + "\n"
   if args.check:

@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, Color, DoubleSide, Mesh, MeshBasicMaterial } from "three";
+import { BufferAttribute, BufferGeometry, Color, DoubleSide, LinearSRGBColorSpace, Mesh, MeshBasicMaterial } from "three";
 import { gunzipSync } from "three/examples/jsm/libs/fflate.module.js";
 import gardenLayout from "./data/gateGardenFurnitureV374.json";
 import survey from "./data/gateForecourtsV374.json";
@@ -13,16 +13,22 @@ export const GATE_FORECOURTS_V374 = "Surveyed Platz des 18. März and Pariser Pl
 // These display swatches represent the WFS material differences seen in the
 // Berlin 2026 orthophoto. The light car-accessible stone east of the Gate has
 // its own material; it must not take on the asphalt of Ebertstraße to the west.
+// The drawn pass writes the normalized vertex bytes directly to the final
+// picture. These are daylight byte values from the 2026 orthophoto, including
+// its slight warm-grey difference between the mosaic wings and central stone.
 const swatches: Record<string, number> = {
-  asphalt: 0x85888b, footway: 0xc1c1bf, stoneRoad: 0xc5c4c0, mosaic: 0xa9a8a4,
-  median: 0xb2b0aa, plaza: 0xcac9c5, cycle: 0xa49e99, grass: 0x8ea17a,
-  gardenStone: 0xbabbb4, flowerSoil: 0x826e5c, earth: 0x877a69, kerb: 0xbfbfba, flushKerb: 0xbabbb8, downstand: 0x999b99,
+  asphalt: 0x787578, footway: 0xcdcbc6, stoneRoad: 0xc7c4bd, mosaic: 0xb3aea8,
+  median: 0xbdb7af, plaza: 0xc3c1ba, cycle: 0xada7a2, grass: 0x8ea17a,
+  tactile: 0xd4d1c8, plantedVerge: 0x8c997e,
+  gardenStone: 0xbabbb4, flowerSoil: 0x826e5c, earth: 0x877a69,
+  kerb: 0xbcbab1, flushKerb: 0xc2bfb6, downstand: 0x9d9c96,
 };
+const retainedVegetation = new Set(["grass","flowerSoil","earth","plantedVerge"]);
 // The local DGM is the same height reference as the district streets. The
 // exposed original raster tops lie up to 24 cm above that surface locally.
 const levels: Record<string, number> = {
   asphalt: .26, footway: .32, stoneRoad: .26, mosaic: .32, median: .32,
-  gardenStone: .36, flowerSoil: .34, plaza: .32, cycle: .32, grass: .28, earth: .26, kerb: .39, flushKerb: .325, downstand: .255,
+  tactile: .325, plantedVerge: .28, gardenStone: .36, flowerSoil: .34, plaza: .32, cycle: .32, grass: .28, earth: .26, kerb: .39, flushKerb: .325, downstand: .255,
 };
 
 function unpack(text: string): ArrayBuffer {
@@ -80,14 +86,21 @@ function stoneFinish(material: MeshBasicMaterial): void {
 export function createGateForecourtsV374(height: (x: number,z: number) => number): Mesh {
   const verts = new Uint16Array(unpack(survey.vertices)), index = new Uint16Array(unpack(survey.indices));
   const styles = [...survey.styles, "downstand"];
-  const colors = styles.map(key => new Color(swatches[key]));
+  const colors = styles.map(key => retainedVegetation.has(key)
+    ? new Color(swatches[key]) : new Color().setHex(swatches[key],LinearSRGBColorSpace));
+  const oldAsphalt = new Color(0x858d89);
   const positions = new Float32Array(verts.length), rgb = new Uint8Array(verts.length);
   const detail = new Float32Array(verts.length/3);
   for (let at = 0; at < verts.length; at += 3) {
     const x = 292 + verts[at]/100, z = 220 + verts[at+1]/100;
     const kind = verts[at+2], color = colors[kind], style = styles[kind];
     positions[at] = x; positions[at+1] = height(x,z) + levels[style]; positions[at+2] = z;
-    rgb[at] = Math.round(color.r*255); rgb[at+1] = Math.round(color.g*255); rgb[at+2] = Math.round(color.b*255);
+    // At the four clipped approach ends, blend into the existing city-road
+    // colour so a measured continuation does not gain a straight dark seam.
+    const join = style === "asphalt" ? Math.max(0,1-Math.min(x-292,560-x,z-220,379-z)/14) : 0;
+    rgb[at] = Math.round((color.r+(oldAsphalt.r-color.r)*join)*255);
+    rgb[at+1] = Math.round((color.g+(oldAsphalt.g-color.g)*join)*255);
+    rgb[at+2] = Math.round((color.b+(oldAsphalt.b-color.b)*join)*255);
     detail[at/3] = style === "mosaic" || style === "cycle" ? .15 : style === "footway" ? .56 :
       style === "stoneRoad" || style === "plaza" || style === "median" ? .26 : 0;
   }
