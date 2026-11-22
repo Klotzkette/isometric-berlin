@@ -75,7 +75,6 @@ def test_municipal_boundaries_and_competing_owners():
   assert len(indices) * 2 + len(vertices) * 19 < 600_000
 
 
-
 def sums_are_disjoint(unions, base):
   area = sum(
     g.area
