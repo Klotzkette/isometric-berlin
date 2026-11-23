@@ -17,6 +17,8 @@ tiles are produced independently for this repository.
 
 ## Data sources used by this project (additive fusion)
 
+- **Building exteriors in v1.0.257.** Land Berlin supplied the textured Berlin LoD2 model with 2013 oblique imagery and the 2014 geometry update. The historical Berlin layer hosted by 3DCityDB provided wall-aligned reference views. Geoportal Berlin supplied current LoD2 and ALKIS building records. © OpenStreetMap contributors supplied mapped building and entrance attributes under ODbL 1.0. Architectural, photographic and operator references for individual buildings are recorded in the facade survey. The application draws geometric interpretations of the source observations. [Official historical dataset](https://fbinter.stadt-berlin.de/fb_daten/beschreibung/lod2.html) · [Survey and individual source records](docs/grosse-gebaeude-fassaden-v377.md)
+
 - **Berlin allotment gardens (v1.0.240):** The [Berlin allotment inventory](https://daten.berlin.de/datensaetze/kleingartenbestand-berlin-wfs-350d69ef),
   [ALKIS](https://daten.berlin.de/datensaetze/alkis-berlin-amtliches-liegenschaftskatasterinformationssystem-wfs-66e083ae),
   [ATKIS](https://daten.berlin.de/datensaetze/atkis-basis-dlm-prasentationsdienst-wfs-d4316e05),

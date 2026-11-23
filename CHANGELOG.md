@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.257
+
+- Add individually sourced windows, glazing, structural bays and cladding to the 50 largest modelled building envelopes that still lacked architectural fittings. Both the drawn and block views attach details to their own existing exterior walls. [Buildings, evidence and viewing examples](docs/grosse-gebaeude-fassaden-v377.md)
+- Replace four uniformly tall blocks with surveyed walls and roofs in the drawn view, including the stepped Peter-Behrens tower and the two ward wings of the Klinikum Am Urban. Add direct camera links to the hospital, the Peter-Behrens-Bau and the Vienna House.
+
 ## 1.0.256
 
 - Fit mapped footway and planted edges to the Berlin street survey and restore missing carriageway margins along eleven streets in Mitte. Suppress coarse kerb segments where the surveyed materials continue across the old grid edge. Request nearby surveyed asphalt during opening and camera moves so its surface can appear ahead of the city-wide worker.
