@@ -7468,6 +7468,7 @@ export function createExtrapolatedMargin(): Group {
     mesh.userData.dayMaterial = dayMaterial;
     mesh.userData.nightMaterial = nightMaterial;
     mesh.name = "extrapolated margin ground";
+    mesh.renderOrder = -10000; // Paper precedes the non-depth-writing surveyed road margins.
     group.add(mesh);
     for (const geometry of bodyGeometries) {
       geometry.dispose();
@@ -8026,6 +8027,7 @@ function createPresentationBackdrop(): Mesh {
   const nightMaterial = new MeshBasicMaterial({ color: 0x07131f });
   const backdrop = new Mesh(geometry, dayMaterial);
   backdrop.name = "presentation paper backdrop";
+  backdrop.renderOrder = -10000;
   backdrop.position.set((bounds.minX + bounds.maxX) / 2, PRESENTATION_FLOOR_Y_M, (bounds.minZ + bounds.maxZ) / 2);
   backdrop.receiveShadow = false;
   backdrop.userData.dayMaterial = dayMaterial;

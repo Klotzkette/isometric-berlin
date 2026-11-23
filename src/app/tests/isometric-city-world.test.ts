@@ -389,6 +389,7 @@ describe("ligne-claire fenestration", () => {
     expect(backdrop).toBeInstanceOf(Mesh);
     expect(backdrop.material).toBeInstanceOf(MeshBasicMaterial);
     expect(backdrop.userData.presentationOnly).toBe(true);
+    expect(backdrop.renderOrder).toBe(city.getObjectByName("extrapolated margin ground")!.renderOrder);
     const dayMaterial = backdrop.material;
     setIsoNightPresentation(city, true);
     expect(backdrop.material).not.toBe(dayMaterial);

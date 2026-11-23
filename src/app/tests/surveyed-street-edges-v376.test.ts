@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { BoxGeometry, Color, InstancedMesh, Matrix4, Mesh, MeshStandardMaterial, Raycaster, Vector3 } from "three";
 import { attachExteriorStreetMarginsV373 } from "../src/ExteriorStreetMarginsV373";
-import { ISO_GROUND_SHADES } from "../src/IsometricCityWorld";
+import { createExtrapolatedMargin, ISO_GROUND_SHADES } from "../src/IsometricCityWorld";
 import { attachMittePlazaEdgesV367, MITTE_PLAZA_EDGES_V367 } from "../src/MittePlazaEdgesV367";
 import { surroundingPolygonContains } from "../src/SurroundingCityGeometry";
 import { createGroundSlabs, smoothGroundTopSampler, type VoxelPayload } from "../src/terrainPayload";
@@ -56,6 +56,16 @@ test("Mitte asphalt matches the measured carriageway at exposed diagonal and sta
   slabs.userData.tiergartenPathsV345 = true;
   for (const _ of attachExteriorStreetMarginsV373(slabs, ground)) { }
   const road = slabs.getObjectByName("Surveyed road margins in Mitte v376")!;
+  // Opaque Three.js draws compare the nearest Group.renderOrder first and
+  // Mesh.renderOrder second. A later-writing paper backdrop hid these roads.
+  const paper = createExtrapolatedMargin().getObjectByName("extrapolated margin ground")!;
+  const segment = road.children[0] as Mesh;
+  expect(road.renderOrder).toBe(paper.parent!.renderOrder);
+  expect(road.parent!.renderOrder).toBe(paper.parent!.renderOrder);
+  expect(paper.renderOrder).toBeLessThan(segment.renderOrder);
+  expect(segment.renderOrder).toBeLessThan(slabs.renderOrder);
+  expect(segment.userData.dayMaterial.depthWrite).toBeFalse();
+  expect(segment.userData.nightMaterial.depthWrite).toBeFalse();
   const grey = new Color(0xc4c5c0);
   const terrain = smoothGroundTopSampler(ground);
   for (const [x,z] of sites) {

@@ -53,8 +53,8 @@ export function* attachExteriorStreetMarginsV373(slabs: InstancedMesh, ground: V
       slabs.getObjectByName(name) || !groundRowsMatch(ground)) return;
   const root = new Group();
   root.name = name;
-  // THREE sorts grouped opaque draws by Group.renderOrder before Mesh.renderOrder.
-  root.renderOrder = -9000;
+  // Keep the ordinary opaque group order. The paper floor draws first, then
+  // the non-depth-writing margin meshes, then the independent city owners.
   slabs.add(root);
   const day = new MeshBasicMaterial({vertexColors: true, depthWrite: false});
   const night = new MeshBasicMaterial({vertexColors: true, color: 0x354253, depthWrite: false});
@@ -64,7 +64,6 @@ export function* attachExteriorStreetMarginsV373(slabs: InstancedMesh, ground: V
   let byteBudget = 0;
   const mitte = new Group();
   mitte.name = "Surveyed road margins in Mitte v376";
-  mitte.renderOrder = root.renderOrder;
   root.add(mitte);
   const regions = [[root, survey.chunks], [mitte, central.chunks]] as const;
   for (const [region, chunks] of regions) {
