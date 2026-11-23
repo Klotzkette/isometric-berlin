@@ -88,20 +88,26 @@ test("both inflaters enforce gzip integrity and return identical road words", as
 test("camera-near streets at either side of a district boundary use the exact binary frame", async () => {
   const { arrivalRoadIdsV376, fetchArrivalRoadsV376 } = await import("../src/arrivalRoadRangesV376");
   const keys = arrivalRoadIdsV376(-2646, 1554);
-  expect(keys[0]).toBe("restored-asphalt--6-3");
+  expect(keys.slice(0, 2)).toEqual(["restored-asphalt--6-3", "restored-paving--6-3"]);
+  expect(arrivalRoadIdsV376(0, 0).slice(0, 2)).toEqual(["restored-asphalt-0-0", "restored-paving-0-0"]);
+  expect(arrivalRoadIdsV376(-220, -780)).toContain("restored-paving--1--2");
   expect(keys).toContain("restored-asphalt--6-2");
   expect(arrivalRoadIdsV376(-3306, 726)).toContain("restored-asphalt--7-1");
   expect(arrivalRoadIdsV376(Infinity, 20)).toEqual([]);
   for (const point of [[250, -2051], [0, 0], [-512, -512]]) {
-    expect(arrivalRoadIdsV376(point[0], point[1]).length).toBeLessThanOrEqual(4);
+    expect(arrivalRoadIdsV376(point[0], point[1]).length).toBeLessThanOrEqual(8);
   }
-  const rows = records.map((row, i) => ({ ...row, kind: "asphalt", id: keys[i] }));
+  const rows = records.map((row, i) => ({ ...row, kind: i ? "paving" : "asphalt", id: keys[i] }));
   const packed = (await packBinaryRoads([header, ...rows].map(row => JSON.stringify(row)).join("\n"))).bytes;
   for (const ranges of [true, false]) {
     const requests: string[] = [];
+    let active = 0, peak = 0;
     const fetcher: typeof fetch = async (_url, init) => {
       const range = new Headers(init?.headers).get("Range");
       requests.push(range ?? "full");
+      peak = Math.max(peak, ++active);
+      await Promise.resolve();
+      active--;
       if (!range || !ranges) return new Response(packed);
       const [, a, b] = /^bytes=(\d+)-(\d+)$/.exec(range)!;
       const start = Number(a), end = Math.min(packed.length - 1, Number(b));
@@ -119,6 +125,10 @@ test("camera-near streets at either side of a district boundary use the exact bi
     expect(requests[1] === "full").toBe(!ranges);
     for await (const _ of fetchArrivalRoadsV376(url, keys, new Set(keys), signal, fetcher)) throw Error("Duplicate road");
     expect(requests).toHaveLength(2);
+    const centre = [];
+    for await (const row of fetchArrivalRoadsV376(url, keys, new Set(), signal, fetcher)) centre.push([row.id, row.kind]);
+    expect(centre).toEqual([[keys[0], "asphalt"], [keys[1], "paving"]]);
+    expect(peak).toBe(ranges ? 2 : 1);
   }
 });
 

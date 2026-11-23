@@ -8,16 +8,21 @@ const REACH_METRES = 180;
  * generator. Include the neighbouring cell as the camera approaches its edge. */
 export function arrivalRoadIdsV376(x: number, z: number): string[] {
   if (!Number.isFinite(x) || !Number.isFinite(z) || Math.abs(x) > 10_000 || Math.abs(z) > 10_000) return [];
-  const nearby: { id: string; distance: number }[] = [];
+  const centreX = Math.floor(x / CELL_METRES), centreZ = Math.floor(z / CELL_METRES);
+  const nearby: { ix: number; iz: number; distance: number }[] = [];
   for (let ix = Math.floor((x - REACH_METRES) / CELL_METRES); ix <= Math.floor((x + REACH_METRES) / CELL_METRES); ix++) {
     for (let iz = Math.floor((z - REACH_METRES) / CELL_METRES); iz <= Math.floor((z + REACH_METRES) / CELL_METRES); iz++) {
       const dx = Math.max(ix * CELL_METRES - x, x - (ix + 1) * CELL_METRES, 0);
       const dz = Math.max(iz * CELL_METRES - z, z - (iz + 1) * CELL_METRES, 0);
       const distance = dx * dx + dz * dz;
-      if (distance <= REACH_METRES * REACH_METRES) nearby.push({ id: `restored-asphalt-${ix}-${iz}`, distance });
+      if (distance <= REACH_METRES * REACH_METRES) {
+        nearby.push({ ix, iz, distance: ix === centreX && iz === centreZ ? -1 : distance });
+      }
     }
   }
-  return nearby.sort((a, b) => a.distance - b.distance).map(item => item.id);
+  return nearby.sort((a, b) => a.distance - b.distance).flatMap(({ ix, iz }) => [
+    `restored-asphalt-${ix}-${iz}`, `restored-paving-${ix}-${iz}`,
+  ]);
 }
 
 type Frame = { entry: RoadEntry; offset: number };
@@ -97,10 +102,19 @@ export async function* fetchArrivalRoadsV376(url: string, ids: readonly string[]
     }
     return;
   }
-  for (const { entry, offset } of frames) {
+  // Paving and asphalt belong to the same camera cell. Overlap their network
+  // reads, then decode one at a time to bound transient geometry memory.
+  for (let i = 0; i < frames.length; i += 2) {
     if (signal.aborted) throw new DOMException("Road request cancelled", "AbortError");
-    if (completed.has(entry[0])) continue;
-    const frame = (await readRange(url, offset, entry[4], signal, fetcher)).bytes;
-    yield await decodeRoadFrame(entry, frame);
+    const pair = frames.slice(i, i + 2).filter(({ entry }) => !completed.has(entry[0]));
+    const reads = await Promise.allSettled(pair.map(({ offset, entry }) =>
+      readRange(url, offset, entry[4], signal, fetcher)));
+    for (let j = 0; j < pair.length; j++) {
+      if (signal.aborted) throw new DOMException("Road request cancelled", "AbortError");
+      const read = reads[j];
+      const { entry } = pair[j];
+      if (read.status === "fulfilled" && !completed.has(entry[0])) yield await decodeRoadFrame(entry, read.value.bytes);
+    }
+    for (const read of reads) if (read.status === "rejected") throw read.reason;
   }
 }
