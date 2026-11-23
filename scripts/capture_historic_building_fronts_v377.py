@@ -281,7 +281,8 @@ def render(owner, edge, triangles, archive):
     if span < 1 or np.ptp(dist) / span > 0.045:
       continue
     # y increases upwards; image scan lines increase downwards.
-    v = np.stack((along / w * W, (1 - y / h) * H), axis=-1)
+    relative_y = y + edge.get("buildingGround", edge["low"]) - edge["low"]
+    v = np.stack((along / w * W, (1 - relative_y / h) * H), axis=-1)
     lx, ly = np.maximum([0, 0], np.floor(v.min(0)).astype(int))
     rx, ry = np.minimum([W, H], np.ceil(v.max(0)).astype(int))
     if lx >= rx or ly >= ry:
@@ -312,14 +313,16 @@ def render(owner, edge, triangles, archive):
     covered.sum() < 100 or covered.mean() < 0.09 or covered.sum() * w * h / (W * H) < 10
   ):
     return None
-  key = hashlib.sha256(
-    json.dumps([owner, edge["a"], edge["b"], edge["low"], edge["high"]]).encode()
-  ).hexdigest()[:14]
+  location = [owner, edge["a"], edge["b"], edge["low"], edge["high"]]
+  if "wallId" in edge:
+    location.extend([edge["wallId"], edge["buildingGround"]])
+  key = hashlib.sha256(json.dumps(location).encode()).hexdigest()[:14]
   file = archive.directory / "rectified" / owner / (key + ".png")
   file.parent.mkdir(parents=True, exist_ok=True)
   Image.fromarray(field).save(file, compress_level=3)
   return dict(
     id=owner,
+    **({"wallId": edge["wallId"]} if "wallId" in edge else {}),
     a=edge["a"],
     b=edge["b"],
     normal=edge["normal"],
@@ -349,12 +352,27 @@ def main():
     required=True,
     help="Local working directory for evidence (outside the public site)",
   )
+  parser.add_argument(
+    "--shell-walls",
+    type=Path,
+    help="Use measured LoD2 walls, including elevated walls of individual wings",
+  )
   args = parser.parse_args()
   archive = SourceArchive(args.cache.resolve())
   archive.directory.mkdir(parents=True, exist_ok=True)
   read = gzip.open if args.ranking.suffix == ".gz" else open
   with read(args.ranking, "rt", encoding="utf-8") as data:
     targets = json.load(data)["targets"]
+  prefix = ""
+  if args.shell_walls:
+    supplied = json.loads(args.shell_walls.read_bytes())["targets"]
+    targets = [t for t in targets if t["id"] in supplied]
+    for t in targets:
+      source_ground = min(w["low"] for w in t["segments"] if w["family"] == "drawn")
+      t["segments"] = [
+        {**w, "buildingGround": source_ground} for w in supplied[t["id"]]
+      ]
+    prefix = "shell-"
   footprints = owners(targets)
   index = candidates(footprints, archive)
   matches = []
@@ -369,7 +387,13 @@ def main():
     for edge in target["segments"]:
       if edge["family"] != "drawn":
         continue
-      key = tuple(edge["a"]), tuple(edge["b"]), edge["low"], edge["high"]
+      key = (
+        tuple(edge["a"]),
+        tuple(edge["b"]),
+        edge["low"],
+        edge["high"],
+        edge.get("wallId"),
+      )
       if key in seen:
         continue
       seen.add(key)
@@ -380,10 +404,12 @@ def main():
     {url for match in matches for url in match["sourceUrls"] + match["imageSources"]}
   )
   evidence = {url: archive.digest(url) for url in sources}
-  (archive.directory / "source-sha256.json").write_text(
+  (archive.directory / (prefix + "source-sha256.json")).write_text(
     json.dumps(evidence, sort_keys=True, indent=2) + "\n"
   )
-  (archive.directory / "matches.json").write_text(json.dumps(matches, indent=2) + "\n")
+  (archive.directory / (prefix + "matches.json")).write_text(
+    json.dumps(matches, indent=2) + "\n"
+  )
   print(
     f"{len(matches)} rectified historical walls for {len({m['id'] for m in matches})} modern source identities"
   )

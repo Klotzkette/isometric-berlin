@@ -352,6 +352,20 @@ class CandidateGeometry:
 def run(args):
   manifest = json.loads((OUT / "manifest.json").read_bytes())
   upper, tiles, counts = census(manifest)
+  sites_path = GEO / "current-building-sites-v377.json"
+  sites = json.loads(sites_path.read_bytes())["retired"]
+  for owner, site in sites.items():
+    photo = site["orthophoto"]
+    if (
+      hashlib.sha256((GEO / photo["file"]).read_bytes()).hexdigest() != photo["sha256"]
+    ):
+      raise ValueError(f"Changed site evidence for {owner}")
+    if (
+      any(f["uuid"] == owner or f["iou"] >= 0.45 for f in site["alkis"]["features"])
+      or site["osm"]["buildingMatches"]
+    ):
+      raise ValueError(f"Current building overlaps the cleared site at {owner}")
+
   core = json.loads(args.core_audit.read_bytes())
   if core["sourceSha256"] != hashlib.sha256(CORE.read_bytes()).hexdigest():
     raise ValueError("Core facade census and city prisms differ")
@@ -394,6 +408,21 @@ def run(args):
         if entity(row[0]) == key
       ]
       shape, volume, height = vertical_union(rows)
+      if key in sites:
+        if (
+          hashlib.sha256(shape.normalize().wkb).hexdigest()
+          != sites[key]["footprintWkbSha256"]
+        ):
+          raise ValueError(f"Source footprint has changed at {key}")
+        excluded.append(
+          dict(
+            id=key,
+            upperM3=round(upper[key], 2),
+            evidence="current-building-sites-v377.json:"
+            + sites[key]["orthophoto"]["file"],
+          )
+        )
+        continue
       if (
         len(accepted) >= 50
         and volume
@@ -495,6 +524,7 @@ def run(args):
         (OUT / "manifest.json").read_bytes()
       ).hexdigest(),
       "coreSha256": core["sourceSha256"],
+      "currentSiteAuditSha256": hashlib.sha256(sites_path.read_bytes()).hexdigest(),
       "residentAuditSha256": hashlib.sha256(
         args.resident_audit.read_bytes()
       ).hexdigest(),
