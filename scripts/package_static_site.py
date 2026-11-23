@@ -37,6 +37,8 @@ import argparse
 import functools
 import http.server
 import json
+import os
+import re
 import socket
 import socketserver
 import webbrowser
@@ -46,6 +48,7 @@ from urllib.parse import urlsplit
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8766
 START_PAGE = "index.html"
+ROAD_BINARY = re.compile(r"/assets/restoredRoadSurfaces-v376-[A-Za-z0-9_-]+[.]bin")
 REQUIRED_PACKAGE_FILES = (
   START_PAGE,
   "START-HERE.html",
@@ -86,6 +89,27 @@ def cache_control_for_path(request_path: str) -> str:
   return "no-cache"
 
 
+def single_byte_range(header: str, size: int):
+  match = re.fullmatch(r"bytes=([0-9]*)-([0-9]*)", header.strip(), re.IGNORECASE | re.ASCII)
+  if not match or not size:
+    return None
+  first, last = match.groups()
+  if not first and not last:
+    return None
+
+  def offset(digits: str) -> int:
+    # Very large decimal positions can be clamped without constructing a huge integer.
+    digits = digits.lstrip("0")
+    return size if len(digits) > len(str(size)) else min(size, int(digits or "0"))
+
+  if first:
+    start = offset(first)
+    end = min(size - 1, offset(last)) if last else size - 1
+  else:
+    start, end = size - offset(last), size - 1
+  return (start, end) if start <= end else None
+
+
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
   extensions_map = {
     **http.server.SimpleHTTPRequestHandler.extensions_map,
@@ -99,7 +123,46 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
     except (BrokenPipeError, ConnectionResetError):
       pass
 
+  def do_GET(self) -> None:
+    ranges = self.headers.get_all("Range", [])
+    if (not ranges or not ROAD_BINARY.fullmatch(urlsplit(self.path).path)
+        or "If-Range" in self.headers or "If-Modified-Since" in self.headers
+        or not ranges[0].lower().startswith("bytes=")):
+      return super().do_GET()
+    try:
+      source = open(self.translate_path(self.path), "rb")
+    except OSError:
+      self.send_error(404, "File not found")
+      return
+    with source:
+      info = os.fstat(source.fileno())
+      bounds = single_byte_range(",".join(ranges), info.st_size)
+      if bounds is None:
+        self.send_response(416)
+        self.send_header("Content-Range", f"bytes */{info.st_size}")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+        return
+      start, end = bounds
+      remaining = end - start + 1
+      source.seek(start)
+      self.send_response(206)
+      self.send_header("Content-Type", "application/octet-stream")
+      self.send_header("Content-Range", f"bytes {start}-{end}/{info.st_size}")
+      self.send_header("Content-Length", str(remaining))
+      self.send_header("Last-Modified", self.date_time_string(info.st_mtime))
+      self.end_headers()
+      while remaining:
+        block = source.read(min(64 * 1024, remaining))
+        if not block:
+          self.close_connection = True
+          return
+        self.wfile.write(block)
+        remaining -= len(block)
+
   def end_headers(self) -> None:
+    if ROAD_BINARY.fullmatch(urlsplit(self.path).path):
+      self.send_header("Accept-Ranges", "bytes")
     self.send_header("Cache-Control", cache_control_for_path(self.path))
     super().end_headers()
 

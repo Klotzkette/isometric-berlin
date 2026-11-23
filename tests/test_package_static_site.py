@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import errno
+import functools
+import http.client
 import importlib.util
 import json
 import os
 import socket
 import stat
 import tarfile
+import threading
 import zipfile
 from pathlib import Path
 from types import ModuleType
@@ -162,6 +165,78 @@ def test_generated_server_cache_policy_covers_100_requests(tmp_path: Path) -> No
   assert ".glb" not in server.QuietHandler.extensions_map
   assert server.QuietHandler.protocol_version == "HTTP/1.1"
   assert server.ReusableTCPServer.daemon_threads is True
+
+
+def test_generated_server_serves_exact_single_road_ranges(tmp_path: Path) -> None:
+  package = load_script_module("package_road_ranges", "scripts/package_static_site.py")
+  package.write_launchers(tmp_path)
+  module = load_module_path("generated_road_ranges", tmp_path / "serve-local.py")
+  assets = tmp_path / "assets"
+  assets.mkdir()
+  road = assets / "restoredRoadSurfaces-v376-ABxy_123.bin"
+  content = bytes(range(256)) * 1024
+  road.write_bytes(content)
+  url = "/assets/" + road.name + "?v=1"
+  handler = functools.partial(module.QuietHandler, directory=str(tmp_path))
+  with module.ReusableTCPServer(("127.0.0.1", 0), handler) as server:
+    worker = threading.Thread(target=server.serve_forever, args=(0.01,), daemon=True)
+    worker.start()
+    connection = http.client.HTTPConnection(*server.server_address, timeout=5)
+    try:
+
+      def get(headers, method="GET", path=url):
+        connection.request(method, path, headers=headers)
+        response = connection.getresponse()
+        return response.status, response.headers, response.read()
+
+      size = len(content)
+      for request, start, end in (
+        ("0-3", 0, 3),
+        ("19-", 19, size - 1),
+        ("-17", size - 17, size - 1),
+        ("154-9999999999999999999999999", 154, size - 1),
+        ("-999999", 0, size - 1),
+      ):
+        status, headers, body = get({"Range": "bytes=" + request})
+        assert (status, body) == (206, content[start : end + 1])
+        assert headers["Accept-Ranges"] == "bytes"
+        assert headers["Content-Range"] == f"bytes {start}-{end}/{size}"
+        assert int(headers["Content-Length"]) == end - start + 1
+        assert headers["Content-Type"] == "application/octet-stream"
+
+      for request in (f"{size}-", "2-1", "-0", "-", "0-1,4-5", "0-abc"):
+        status, headers, body = get({"Range": "bytes=" + request})
+        assert (status, headers["Content-Range"], body) == (416, f"bytes */{size}", b"")
+
+      for fields in (
+        {},
+        {"Range": "frames=1-3"},
+        {"Range": "bytes=1-2", "If-Range": '"stale"'},
+      ):
+        status, headers, body = get(fields)
+        assert (status, headers["Accept-Ranges"], body) == (200, "bytes", content)
+        assert "Content-Range" not in headers
+      status, headers, body = get({"Range": "bytes=0-2"}, method="HEAD")
+      assert (status, int(headers["Content-Length"]), body) == (200, size, b"")
+
+      (assets / "restoredRoadSurfaces-v376-empty.bin").touch()
+      status, headers, body = get(
+        {"Range": "bytes=0-"}, path="/assets/restoredRoadSurfaces-v376-empty.bin"
+      )
+      assert (status, headers["Content-Range"], body) == (416, "bytes */0", b"")
+
+      # Closing a partially read response must leave the threaded server usable.
+      interrupted = http.client.HTTPConnection(*server.server_address, timeout=5)
+      interrupted.request("GET", url, headers={"Range": "bytes=0-"})
+      response = interrupted.getresponse()
+      assert response.read(1) == content[:1]
+      response.close()
+      interrupted.close()
+      assert get({"Range": "bytes=12-12"})[2] == content[12:13]
+    finally:
+      connection.close()
+      server.shutdown()
+      worker.join()
 
 
 def test_repo_server_uses_static_asset_cache_without_stale_html() -> None:
