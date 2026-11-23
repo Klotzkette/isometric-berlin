@@ -1,4 +1,4 @@
-/** Rebuild only the release-audited outer-city delta packets in package staging.
+/** Compress the release-audited outer-city packets in package staging.
  * The bitset addresses manifest order (drawn, then minecraft, least bit first).
  * Its inventory digest pins every selected source, URL, owner and bounds. */
 import { createHash } from "node:crypto";
@@ -106,7 +106,10 @@ async function main() {
   const manifest = JSON.parse(originalManifest) as { chunks: Chunk[] };
   const { chunks } = manifest;
   const mask = Buffer.from(selection.maskBase64, "base64");
-  const candidates: Asset[] = [];
+  const plainMask = Buffer.from(selection.plainGzipMaskBase64, "base64");
+  const deltaCandidates: Asset[] = [];
+  const plainCandidates: Asset[] = [];
+  const includePlain = mode !== "verify" && hash(originalManifest) === selection.plainGzipManifestSha256;
   const inventory = createHash("sha256");
   let index = 0;
   for (const chunk of chunks) {
@@ -122,13 +125,16 @@ async function main() {
         }
       } else if (mode !== "verify" && (mask[index >> 3] & (1 << (index % 8)))) {
         inventory.update([chunk.id, chunk.bounds.join(","), asset.url, asset.bytes, asset.decodedBytes, asset.sha256].join("\t") + "\n");
-        candidates.push(asset);
+        deltaCandidates.push(asset);
+      } else if (includePlain && (plainMask[index >> 3] & (1 << (index % 8)))) {
+        plainCandidates.push(asset);
       }
       index++;
     }
   }
   if (mode === "verify") return;
-  if (candidates.length !== selection.candidateCount || inventory.digest("hex") !== selection.candidateInventorySha256) {
+  if (includePlain && plainCandidates.length !== selection.plainGzipCount) throw Error("Incomplete plain gzip tile selection");
+  if (deltaCandidates.length !== selection.candidateCount || inventory.digest("hex") !== selection.candidateInventorySha256) {
     console.log("Tile inventory changed. Keeping the original offline representations.");
     return;
   }
@@ -139,6 +145,9 @@ async function main() {
     return;
   }
   const descriptors = new Map<string, Asset>();
+  // Plain packets in the pinned inventory retain their exact JSON representation in both packages.
+  const deltaAssets = new Set(mode === "compact" ? deltaCandidates : []);
+  const candidates = gzip ? [...deltaCandidates, ...plainCandidates] : deltaCandidates;
   let saved = 0;
   for (const asset of candidates) {
     const path = join(destination, asset.url);
@@ -146,7 +155,7 @@ async function main() {
     if (encoded.length !== asset.bytes || hash(encoded) !== asset.sha256) throw Error("Invalid source: " + asset.url);
     const raw = gunzipSync(encoded);
     if (raw.length !== asset.decodedBytes) throw Error("Invalid source size: " + asset.url);
-    if (mode === "gzip" && gzip) {
+    if (gzip && !deltaAssets.has(asset)) {
       const data = gzip.compress(raw);
       if (data.length >= encoded.length) continue;
       if (!gunzipSync(data).equals(raw)) throw Error("Offline gzip failed its full source-byte round trip: " + asset.url);

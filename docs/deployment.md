@@ -171,6 +171,11 @@ To create the smaller delta archives, run
 `uv run python scripts/package_static_site.py --compact-tiles --out-dir releases-compact`.
 This uses Bun to rebuild the audited outer-city tiles in the Pages delta format.
 When available, libdeflate can further reduce the same delta gzip files.
+Both package variants also use ordinary gzip for 2,291 additional files from
+the published v1.0.255 tile inventory. Each has the same decompressed bytes
+and decoder as before. Both the full input manifest and the file selection
+are pinned in the selection receipt. It excludes tiles within 3 km of the
+origin and encoded hashes referenced by the viewer sources.
 The viewer spends extra CPU time restoring those tiles when exploring the
 outskirts. Packaging checks the complete original JSON bytes and parsed objects with the
 production decoder and records the new wire sizes and hashes in the manifest.

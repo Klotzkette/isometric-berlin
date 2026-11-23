@@ -1,5 +1,8 @@
 import { expect, test } from "bun:test";
 import { gunzipSync } from "node:zlib";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import selection from "../scripts/offline-delta-selection.json";
 import { compactTile } from "../scripts/compact-offline-tiles";
 import { openOfflineGzip } from "../scripts/offline-gzip";
 import { restoreSurroundingPacketDelta } from "../src/SurroundingPacketDelta";
@@ -40,4 +43,36 @@ test("optional native build compressor emits standard gzip with identical decode
   } finally {
     encoder.close();
   }
+});
+
+test("ordinary gzip selection preserves startup tiles and runtime-pinned wire identities", () => {
+  const read = (file: string) => readFileSync(new URL(file, import.meta.url), "utf8");
+  const manifest = read("../public/mesh/surrounding-berlin-v159/manifest.json");
+  expect(createHash("sha256").update(manifest).digest("hex")).toBe(selection.plainGzipManifestSha256);
+  const pinned = new Set([
+    "../src/data/ubahnGroundApproachesV326Index.json",
+    "../src/data/steelRailSpansV369.json",
+    "../src/NikolaiFountainV353.ts",
+    "../src/NaunynSpaetiV332.ts",
+  ].flatMap(file => read(file).match(/[a-f0-9]{64}/g) ?? []));
+  const plain = Buffer.from(selection.plainGzipMaskBase64, "base64");
+  const delta = Buffer.from(selection.maskBase64, "base64");
+  let index = 0;
+  let candidates = 0;
+  for (const chunk of JSON.parse(manifest).chunks) {
+    const [minX, minZ, maxX, maxZ] = chunk.bounds;
+    const distance = Math.hypot(Math.max(0, minX, -maxX), Math.max(0, minZ, -maxZ));
+    for (const family of ["drawn", "minecraft"]) {
+      const bit = 1 << (index % 8);
+      if (plain[index >> 3] & bit) {
+        expect(delta[index >> 3] & bit).toBe(0);
+        expect(distance).toBeGreaterThan(3000);
+        expect(pinned.has(chunk[family].sha256)).toBe(false);
+        candidates++;
+      }
+      index++;
+    }
+  }
+  expect(candidates).toBe(2291);
+  expect(candidates).toBe(selection.plainGzipCount);
 });
