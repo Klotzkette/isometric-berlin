@@ -31,3 +31,17 @@ Die A100, A103, A111, A113 und die öffentliche S-Bahn-Trasse zum BER folgen kar
 ## Einrichtungshäuser und Baumärkte
 
 Die Suche unterscheidet die Einrichtungshäuser in Tempelhof, Spandau, Lichtenberg und Waltersdorf von den drei IKEA-Planungsstudios. Waltersdorf liegt in Brandenburg. Der Standortvergleich umfasst auch OBI, BAUHAUS, HELLWEG, HORNBACH, toom, Globus Baumarkt und Holz Possling. Die Zuordnungen beziehen sich auf den **23. November 2026**. Angekündigte Betreiberwechsel und geschlossene Filialen sind im Quelleninventar einzeln ausgewiesen. [Standortliste und Bestandsabgleich](einrichtungshaeuser-und-baumaerkte-v378.md) · [Standortinventar](../geo_data/regierungsviertel/retail-sites-v378-receipt.json) · [Erklärung von OBI zur Übernahme](https://www.obi.de/corporate/presse/pm_freigabe_uebernahme)
+
+## Speicherbedarf und Laden
+
+Die regionalen Ergänzungen laden erst beim Annähern. Dazu gehören 68 historische Architekturpakete, 41 Uferpakete, 36 Verkehrspakete, neun Pakete für Hermannplatz und Weserstraße, sieben Landschaftspakete und drei regionale Einzelhandelsdateien. Die Suche lädt den zusätzlichen Ortskatalog beim Öffnen eines Ortslinks, bei der Suche oder bei der Wiederaufnahme der Navigation.
+
+| Umfang in Byte | v1.0.257 | v1.0.258 | Differenz |
+| --- | ---: | ---: | ---: |
+| Start-JavaScript, drei Dateien (gzip 9) | 126.512 | 127.473 | +961 |
+| Vollständige Pages-Ausgabe | 975.722.015 | 978.422.601 | +2.700.586 |
+| Standard-ZIP | 956.739.930 | 957.803.848 | +1.063.918 |
+| Kompakte ZIP | 777.157.717 | 778.221.635 | +1.063.918 |
+| TAR.GZ | 955.213.840 | 956.217.932 | +1.004.092 |
+
+Die Startgröße ist die Summe der einzeln mit gzip auf Stufe 9 komprimierten JavaScript-Dateien der ersten HTML-Antwort. Die Übertragungsgröße im Browser hängt von der Serverkompression und vom Cache ab. Für die 6.174 regulären Stadtkachel-Dateien wurden Größe und SHA-256-Prüfsumme geprüft.
