@@ -1,3 +1,4 @@
+import surveyedCastle from "./data/tegelLandscapeCastleV378.json";
 import source from "./data/westLakesV194Navigation.json";
 
 function ringContains(x: number, z: number, ring: readonly number[][]): boolean {
@@ -37,7 +38,8 @@ const nativeBuildings = new Map<string, NativeBuilding>();
 function nativeBuilding(key: string): NativeBuilding {
   const cached = nativeBuildings.get(key);
   if (cached) return cached;
-  const boxes = native.sites.find(site => site.key === key)?.boxes ?? [];
+  const base = native.sites.find(site => site.key === key)?.boxes ?? [];
+  const boxes = key === "schloss-tegel" ? [...base, ...surveyedCastle.boxes] : base;
   let minY = Infinity, maxY = -Infinity;
   for (const row of boxes) {
     minY = Math.min(minY, row[1] - row[4] / 2);
@@ -59,6 +61,17 @@ function touchesRing(x: number, z: number, radius: number, ring: readonly number
   return false;
 }
 
+function castleRoofAtV378(x: number,z: number): number | null {
+  let highest = -Infinity;
+  for (const [ax,ay,az,bx,by,bz,cx,cy,cz] of surveyedCastle.roof) {
+    const ux=bx-ax, uz=bz-az, vx=cx-ax, vz=cz-az, d=ux*vz-uz*vx;
+    if (Math.abs(d)<1e-7) continue;
+    const u=((x-ax)*vz-(z-az)*vx)/d, v=(ux*(z-az)-uz*(x-ax))/d;
+    if (u>=-1e-7 && v>=-1e-7 && u+v<=1.0000001) highest=Math.max(highest,ay+u*(by-ay)+v*(cy-ay));
+  }
+  return highest===-Infinity ? null : highest;
+}
+
 /** Exact source footprint solids for outlined houses; native uses final block extents. */
 export function westLakesV194SolidAt(x: number, y: number, z: number, radius = 0, minecraft = false): boolean {
   for (const building of buildings) {
@@ -72,7 +85,8 @@ export function westLakesV194SolidAt(x: number, y: number, z: number, radius = 0
       }
       continue;
     }
-    if (y < building.groundY || y > building.topY) continue;
+    const top = building.key === "schloss-tegel" ? castleRoofAtV378(x,z) ?? building.topY : building.topY;
+    if (y < building.groundY || y > top) continue;
     for (const polygon of building.polygons) {
       if (touchesRing(x, z, radius, polygon[0])) return true;
       if (!ringContains(x, z, polygon[0])) continue;

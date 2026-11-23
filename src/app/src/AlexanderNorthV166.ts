@@ -4,6 +4,7 @@ import nav from "./data/alexanderNorthV166Navigation.json";
 import { letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { alexanderNorthRecognitionV272, createPressehausCrownV272 } from "./AlexanderNorthV272";
+import { createSohoHouseFrontV378 } from "./historicArchitectureV378Specials";
 import { planSchoenhauserTorV274 } from "./NorthCultureV274";
 
 export const ALEXANDER_NORTH_V166_GROUP = "Alexander north: complete Park Inn, Pressehaus, Tor and street sources";
@@ -94,3 +95,11 @@ function create(native:boolean):Group {
 }
 export function createAlexanderNorthV166():Group { return create(false); }
 export function createMinecraftAlexanderNorthV166():Group { return create(true); }
+
+/** Keep the historical source family independently verifiable inside the new landmark group. */
+export function createAlexanderNorthWithJonassV378(native = false): Group {
+  const group = new Group();
+  group.name = "Alexander-Nord und ehemaliges Kaufhaus Jonaß";
+  group.add(create(native), createSohoHouseFrontV378(native));
+  return freezeStaticSceneTransforms(group);
+}

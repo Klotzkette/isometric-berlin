@@ -1,3 +1,4 @@
+import { attachTransportRingStationsV378 } from "./transportV378Ring";
 import {
   BufferGeometry, DoubleSide, Float32BufferAttribute, Group, LineBasicMaterial,
   LineSegments, Mesh, MeshBasicMaterial, MeshStandardMaterial, Path, Shape, ShapeGeometry, Vector2,
@@ -245,5 +246,6 @@ export function createRailStationsV190(native = false): Group {
     group.add(accents); root.add(group);
   }
   applyWeddingStationHeightV229(root);
+  attachTransportRingStationsV378(root,native);
   return freezeStaticSceneTransforms(root);
 }

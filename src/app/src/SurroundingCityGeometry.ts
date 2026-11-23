@@ -300,6 +300,7 @@ function disposeUnpublishedChunk(root: Group): void {
  */
 export type SurroundingOwnershipOptions = {
   surveyedShellsV377?: ShellDataV377;
+  surveyedNativeShellsV378?: boolean;
   groundFinishV348?: boolean;
   riverFinishV348?: (mesh: Mesh, selector: PackedRiverSelectorV348) => void;
   neukoellnBuildingsV342?: SourceQuarterSourceV303;
@@ -474,7 +475,7 @@ export function* buildCityChunkWithPaletteV362(
     chunk = yield* prepareNamedSiteV238(chunk, id, minecraft, ownership.namedTransportSourceV334);
   }
   chunk = yield* prepareNeukoellnBuildingsV342(chunk, id, minecraft, ownership.neukoellnBuildingsV342);
-  const surveyedShellsV377 = !minecraft && ownership.surveyedShellsV377
+  const surveyedShellsV377 = (!minecraft || ownership.surveyedNativeShellsV378 === true) && ownership.surveyedShellsV377
     ? yield* admitSurveyedShellsV377(chunk, id, ownership.surveyedShellsV377) : undefined;
   if (surveyedShellsV377) {
     chunk = { ...chunk, meshes: [...chunk.meshes, ...surveyedShellsV377.shells.map(shell => shell.mesh)] };

@@ -62,10 +62,10 @@ def source_boundary(b, origin):
   return union_all(rings)
 
 
-def select_tile(tile, target):
-  raw = packet(tile, "drawn")
+def select_tile(tile, target, family="drawn"):
+  raw = packet(tile, family)
   origin = np.array(raw["origin"])
-  rows, _ = bodies(tile, "drawn")
+  rows, _ = bodies(tile, family)
   parts = [(b, p, lo, hi) for b, p, lo, hi in rows if entity(b) == target]
   levels = {(round(lo, 3), round(hi, 3)) for _, _, lo, hi in parts}
   if len(levels) != 1:

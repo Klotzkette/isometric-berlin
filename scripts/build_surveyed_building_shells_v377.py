@@ -165,7 +165,7 @@ def finish(site, mesh):
     }}
 
 
-def build_meshes(sites, receipts):
+def build_meshes(sites, receipts, *, surface_colours=None, output=None, receipt_path=None):
     tiles = defaultdict(list)
     for key, wall_colour, domains, surfaces in sites:
         meshes = {tile:dict(vertices={}, sides=[], roofs=[]) for tile in domains}
@@ -182,6 +182,8 @@ def build_meshes(sites, receipts):
             # tower crown and its lower apron. Keep the other roof parts neutral.
             if (kind == "RoofSurface" and part in {"DEBE3DUVr5RBkj6J", "DEBE3DjFUokBIro6"} and n[1] < .995):
                 material = (141, 93, 73)
+            if surface_colours:
+                material = surface_colours.get(key, {}).get(polygon, material)
             colour = np.asarray(material, dtype=float) / 255
             shade = 1 if n[1] > .55 else (.86 if n[1] < -.55 else
                 ((.95 if n[0] > 0 else .89) if abs(n[0]) >= abs(n[2]) else (.92 if n[2] > 0 else .98)))
@@ -232,8 +234,8 @@ def build_meshes(sites, receipts):
             quantizedAreaM2={k:round(v,4) for k,v in quantized_area.items()},
             emitted={t:{"vertices":len(m["vertices"]), "sideTriangles":len(m["sides"])//3, "roofTriangles":len(m["roofs"])//3}
                      for t,m in meshes.items()})
-    write(DATA/"surveyedBuildingShellsV377.json", {"tiles":dict(sorted(tiles.items()))})
-    write(GEO/"surveyed-building-shells-v377-receipt.json", {
+    write(output or DATA/"surveyedBuildingShellsV377.json", {"tiles":dict(sorted(tiles.items()))})
+    write(receipt_path or GEO/"surveyed-building-shells-v377-receipt.json", {
         "schemaVersion":1, "source": "Geoportal Berlin, 3D-Gebäudemodelle im Level of Detail 2 (LoD2), EPSG:25833; dl-de/zero-2-0.",
         "datum": "One common official GroundSurface minimum per building, aligned to its existing displayed base at y=3 m. Preserve all measured differences between parts.",
         "geometry": "All source WallSurface, RoofSurface, ClosureSurface and GroundSurface polygons and their interior rings triangulated in their own planes. Clip at actual streamed piece boundaries; no seam caps. Display in native packet precision of one centimetre; catalogue wall and roof colours are illustrative.",

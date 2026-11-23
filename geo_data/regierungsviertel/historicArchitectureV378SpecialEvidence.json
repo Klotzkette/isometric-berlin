@@ -1,0 +1,110 @@
+{
+  "scope": "Three named locations in addition to the thirty historical surveys. Only measurements and sources are distributed.",
+  "soho": {
+    "owner": "DEBE03YY60000BLX",
+    "part": "DEBE3DRi4wQ35v8J",
+    "source": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09050113",
+    "history": "https://www.pankow-weissensee-prenzlauerberg.berlin/de/kaufhaus-jonass",
+    "photos": [
+      41700109,
+      41700209,
+      164563902,
+      199593829
+    ],
+    "front": "Torstraße/Prenzlauer Allee public street front. Lower dark shopfront, two cornice levels and tall pale limestone piers beside measured upper-storey reveals. OSM way 23278333; main entrance node 1552565156. Bay widths, offsets and tones are approximate."
+  },
+  "zeiss": {
+    "owners": [
+      "DEBE03YY6000044a",
+      "DEBE00YYMM000010"
+    ],
+    "history": "https://www.planetarium.berlin/zeiss-grossplanetarium",
+    "source": "https://www.berlin.de/landesdenkmalamt/aktivitaeten/kurzmeldungen/2025/artikel.1521460.php",
+    "photo": "https://www.berlin.de/landesdenkmalamt/_assets/bilder/aktuelles/presse/zeiss-grossplanetarium_aussenansicht.jpg",
+    "photoCredit": "Stiftung Planetarium Berlin / Natalie Toczek, published by Landesdenkmalamt Berlin. Reference only.",
+    "sha256": "cf131a08f78cfce943c84bff906ee62b7ec0bef7c0168852d0f8848d79515301",
+    "publishedExteriorDomeDiameterM": 30,
+    "front": "Standing metal meridians and staggered transverse laps on the original round exterior dome and its independent block version. Panel pitch and silver swatches are visual estimates."
+  },
+  "archenhold": {
+    "owner": "DEBE09YYP00000z1",
+    "photos": [
+      16812631
+    ],
+    "source": "https://www.planetarium.berlin/archenhold-sternwarte/technik-und-instrumente",
+    "history": "https://astw.de/publikationen/blick_in_das_weltall/pdf/Blick_in_das_Weltall_1987.pdf",
+    "monument": "https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09020301",
+    "publicPath": "https://www.openstreetmap.org/way/172964828",
+    "entrance": "https://www.openstreetmap.org/node/1837936697",
+    "ortho": "https://gdi.berlin.de/services/wms/truedop_2026?service=WMS&version=1.3.0&request=GetMap&layers=truedop_2026&styles=&crs=EPSG:25833&bbox=396493,5816110,396590,5816232&width=485&height=610&format=image/jpeg",
+    "orthoSha256": "ceffc6b8a8fd35f15695b9ced971b23fbc49df6f61c5db88ff69629a96f16c92",
+    "front": "East entrance portico and clock aligned to the public path, surveyed historical wall and aerial stair projection. The three-glazed-bay portico and facade clock are visible on the credited photograph. Dimensions, material tones and clock hands are visual estimates. The Zeiss-Kleinplanetarium is the projection facility; the great refractor is a separate instrument."
+  },
+  "photographs": {
+    "16812631": {
+      "page": "https://commons.wikimedia.org/wiki/File:Archenhold-Sternwarte,_Main_building.jpg",
+      "revision": 1212755971,
+      "artist": "Zael",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "capture": "2011-09-30",
+      "originalPixels": [
+        3872,
+        2592
+      ],
+      "originalSha1": "5d960442a962b3e1efe40f9ac402bf0fdb452b33"
+    },
+    "41700209": {
+      "page": "https://commons.wikimedia.org/wiki/File:150502_Kaufhaus_Jona%C3%9F_Detailansicht_Fassade.jpg",
+      "revision": 1016313912,
+      "artist": "Ansgar Koreng",
+      "license": "CC BY-SA 3.0 de",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "capture": "2015-05-02 07:22:06",
+      "originalPixels": [
+        5472,
+        3648
+      ],
+      "originalSha1": "c36cbda1aae38ecb5b857a11e904b6586f56cdc9"
+    },
+    "41700109": {
+      "page": "https://commons.wikimedia.org/wiki/File:150502_Kaufhaus_Jona%C3%9F_Fassade_Detailansicht.jpg",
+      "revision": 1016313930,
+      "artist": "Ansgar Koreng",
+      "license": "CC BY-SA 3.0 de",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "capture": "2015-05-02 07:21:24",
+      "originalPixels": [
+        5472,
+        3648
+      ],
+      "originalSha1": "b6259d8321d52a87b17de098e8a1b42155d941c5"
+    },
+    "199593829": {
+      "page": "https://commons.wikimedia.org/wiki/File:Berlijn-Prenzlauer_Berg,_het_voormalige_Kaufhaus_Jona%C3%9F_momenteel_het_Soho_House_Berlin_Dm09050113_IMG_1978_2026-05-24_10.54.jpg",
+      "revision": 1303756796,
+      "artist": "Michielverbeek",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "capture": "2026-05-24 10:54:14",
+      "originalPixels": [
+        4804,
+        2568
+      ],
+      "originalSha1": "4e77dc7f0f70cc6be1a99b4b5a6580ca6b8ef831"
+    },
+    "164563902": {
+      "page": "https://commons.wikimedia.org/wiki/File:Kaufhaus_Jonass_Soho_House_Berlin,_02-05-2025.jpg",
+      "revision": 1139969755,
+      "artist": "Roy Zuo",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "capture": "2025-05-02 14:35:37",
+      "originalPixels": [
+        4096,
+        3072
+      ],
+      "originalSha1": "b253c349e8c72ccdd2bcfadde4127865aee60c82"
+    }
+  }
+}

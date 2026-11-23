@@ -6,13 +6,16 @@ import nativeB from "./data/northParksV198Native1.json";
 import {justicePalaceV183Boxes} from "./justicePalaceV183Batches";
 import {freezeStaticSceneTransforms} from "./staticSceneTransforms";
 import {correctParkTerrainV229} from "./parkTerrainGeometryV229";
-import {northParksV198GroundAt} from "./northParksV198Navigation";
+import {northParksV198GroundAt, northParksV198TerrainAt} from "./northParksV198Navigation";
 export {northParksV198GroundAt} from "./northParksV198Navigation";
 
 /** Source-bound northern parks; independent orthogonal native construction. */
 export function createNorthParksV198(native=false):Group {
   const root=new Group();root.name="Schönhausen, mapped Panke and Schönholzer Heide v198";
   root.userData={northParksV198:true,textureFree:true,fullStaticDetailOnTouch:true,nativeMinecraft:native,keepInMinecraft:native,blockNative:native,additiveOnly:true,groundAt:(x:number,z:number)=>northParksV198GroundAt(x,z,native)};
+  // The measured chamber rims are already inside this land owner's scope.
+  // Sampling its registered terrain here avoids repeating polygon admission per vertex.
+  root.userData.burialTerrainHeightV378=(x:number,z:number)=>northParksV198TerrainAt(x,z,native);
   for(const model of (native?[nativeA,nativeB]:[drawnA,drawnB]))for(const sourceCell of model.cells){
     const cell=correctParkTerrainV229(sourceCell,native);
     if(cell.positions.length){

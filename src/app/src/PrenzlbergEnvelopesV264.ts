@@ -1,6 +1,7 @@
 import { BufferAttribute, BufferGeometry, Color, DoubleSide, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 import drawn from "./data/prenzlbergV264Envelopes.json";
 import blocks from "./data/prenzlbergV264Native.json";
+import { addPlanetariumCladdingV378 } from "./historicArchitectureV378Planetarium";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
@@ -31,6 +32,8 @@ export function createPrenzlbergEnvelopesV264(native = false): Group {
   if (native) {
     for (const site of blocks.sites) {
       const mesh = justicePalaceV183Boxes(site.blocks, true); mesh.name = `${site.name} independent reconstructed surface blocks`;
+      addPlanetariumCladdingV378(mesh.userData.dayMaterial);
+      addPlanetariumCladdingV378(mesh.userData.nightMaterial);
       Object.assign(mesh.userData, { prenzlbergEnvelopesV264: true, siteKey: site.key,
         nativeMinecraft: true, requiredBeforeNavigation: true, sourceOwnerIds: site.owners.slice() }); root.add(mesh);
     }
@@ -53,6 +56,8 @@ export function createPrenzlbergEnvelopesV264(native = false): Group {
       geometry.computeBoundingBox(); geometry.computeBoundingSphere();
       const day = new MeshBasicMaterial({ vertexColors: true, side: DoubleSide });
       const night = new MeshStandardMaterial({ vertexColors: true, side: DoubleSide, roughness: .86 });
+      addPlanetariumCladdingV378(day);
+      addPlanetariumCladdingV378(night);
       const mesh = new Mesh(geometry, day); mesh.name = `${site.name} documented dome, low foyer and retained footprint`;
       mesh.userData = { dayMaterial: day, nightMaterial: night, textureFree: true,
         prenzlbergEnvelopesV264: true, siteKey: site.key, requiredBeforeNavigation: true,

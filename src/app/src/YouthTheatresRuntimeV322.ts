@@ -1,3 +1,4 @@
+import { createArchenholdEntranceV378 } from "./historicArchitectureV378Specials";
 /** One atomic authored-source lifetime for the complete EastParks family. */
 import{Box3,Group,Mesh,type Material}from"three";
 import{createArchenholdV322Steps,hasCompleteArchenholdV322,disposeArchenholdV322,bindArchenholdSourcesV322,youthTheatreOwnJSONV322}from"./ArchenholdV322";
@@ -16,8 +17,9 @@ export type YouthTheatresRuntimeV322={root:Group;complete():boolean;release():vo
 /** Must finish before the synchronous generator starts; no new public fetch. */
 export async function prepareYouthTheatresRuntimeV322(native=false,includeTreptow=false):Promise<boolean>{return !includeTreptow||hash(joint)===660074104&&await prepareMemorialPreviousV322(native,{keys:["treptow"]});}
 export function* createYouthTheatresRuntimeV322Steps(oldRoot:Group,native:boolean,sourceBuildings:readonly unknown[],options:{mobileLike?:boolean;beforeSwap?:NorthCoreTerrainRebindV309;afterSwap?:()=>void;includeTreptow?:boolean}={}):Generator<void,YouthTheatresRuntimeV322|null>{
+ let entrance:Group|null=null;
  let model:Group|null=null,arche:Group|null=null,memorial:Group|null=null,tx:NorthCoreTerrainTransactionV309|null=null,delivered=false,released=false;
- const release=()=>{if(released)return;released=true;tx?.rollback();if(model){model.removeFromParent();dispose(model);}options.afterSwap?.();};
+ const release=()=>{if(released)return;released=true;tx?.rollback();if(entrance){entrance.removeFromParent();dispose(entrance);entrance=null;}if(model){model.removeFromParent();dispose(model);}options.afterSwap?.();};
  try{const sourceProof=bindArchenholdSourcesV322(sourceBuildings);if(!sourceProof)return null;
   arche=yield*createArchenholdV322Steps(native,{sourceBuildings,mobileLike:options.mobileLike});if(!arche)return null;model=arche;
   let modelProof=()=>!!arche&&sourceProof()&&hasCompleteArchenholdV322(arche,native);
@@ -31,6 +33,7 @@ export function* createYouthTheatresRuntimeV322Steps(oldRoot:Group,native:boolea
   oldRoot.add(model);if(!tx.commit(()=>model!.parent===oldRoot&&modelProof(),options.beforeSwap))return null;options.afterSwap?.();const nav=archenholdNavigationV322(arche,native)!;
   const boxes=[new Box3().setFromObject(arche),...(memorial?[new Box3().setFromObject(memorial)]:[])],near=(x:number,y:number|undefined,z:number,r=0)=>boxes.some(b=>x+r>=b.min.x&&x-r<=b.max.x&&z+r>=b.min.z&&z-r<=b.max.z&&(y===undefined||y+r>=b.min.y&&y-r<=b.max.y));
   const runtime:YouthTheatresRuntimeV322={root:model,complete(){if(released)return false;if(!model||model.parent!==oldRoot||!modelProof()||!tx?.complete()){release();return false;}return true;},release,solidAt(x,y,z,radius=0){return near(x,y,z,radius)&&runtime.complete()&&(nav.solidAt(x,y,z,radius)||!!memorial&&memorialAccuracySolidAtV322(memorial,x,y,z,radius));},groundAt(x,z,currentY){return near(x,undefined,z)&&runtime.complete()?nav.groundAt(x,z,currentY):null;},previousOwnerRetired(owner){return joint.sourceBuildings.some(p=>p.id===owner)&&runtime.complete();}};
+  entrance=createArchenholdEntranceV378(native);oldRoot.add(entrance);
   delivered=true;return runtime;
  }finally{if(!delivered){release();if(arche&&arche!==model&&!arche.parent)disposeArchenholdV322(arche);}}
 }

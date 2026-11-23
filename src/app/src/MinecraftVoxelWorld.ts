@@ -97,7 +97,7 @@ import { createMinecraftTachelesV167 } from "./TachelesV167";
 import { createMinecraftMonbijouBathV167 } from "./MonbijouBathV167";
 import { createMinecraftKosmosV166 } from "./KosmosV166";
 import { upbeatV166NativeAccents } from "./upbeatV166Details";
-import { createMinecraftAlexanderNorthV166 } from "./AlexanderNorthV166";
+import { createAlexanderNorthWithJonassV378 } from "./AlexanderNorthV166";
 import { alexanderNorthV166SourceColumn } from "./alexanderNorthV166Profile";
 import { alexanderStationsV183SourceColumn } from "./alexanderStationsV183Profile";
 import { createMinecraftCityWestCinemasV166 } from "./CityWestCinemasV166";
@@ -2561,7 +2561,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createMinecraftCafeNeuerSeeV164());
   yield;
-  group.add(createMinecraftAlexanderNorthV166());
+  group.add(createAlexanderNorthWithJonassV378(true));
   yield;
   group.add(createMinecraftCityWestCinemasV166());
   yield;

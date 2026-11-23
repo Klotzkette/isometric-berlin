@@ -1,3 +1,4 @@
+import { prepareLandwehrClustersV378 } from "./waterwayReplacementV378";
 import { GATE_COLONNADE_PRISMS_V374 } from "./BrandenburgGatehouseSourceV374";
 import { getPathEdgeInkV373, releasePathEdgeInkV373 } from "./pathEdgeInkV373";
 import { isLeopoldplatzFountainPad } from "./leopoldplatzFountainV367";
@@ -84,7 +85,7 @@ import { createTachelesV167 } from "./TachelesV167";
 import { createMonbijouBathV167 } from "./MonbijouBathV167";
 import { createKosmosV166 } from "./KosmosV166";
 import { createUpbeatV166FacadeDetails } from "./UpbeatV166FacadeDetails";
-import { createAlexanderNorthV166 } from "./AlexanderNorthV166";
+import { createAlexanderNorthWithJonassV378 } from "./AlexanderNorthV166";
 import { ALEXANDER_NORTH_V166_PRISM_IDS } from "./alexanderNorthV166Profile";
 import { createCityWestCinemasV166 } from "./CityWestCinemasV166";
 import { CITYWEST_CINEMAS_V166_PRISM_IDS } from "./cityWestCinemasV166Profile";
@@ -4838,7 +4839,8 @@ export function createBridgeStructures(
     bakeBridgeColor(geometry, tone);
     moltkeDetailLampParts.push(geometry);
   };
-  for (const cluster of clusters) {
+  const landwehrV378 = prepareLandwehrClustersV378(ground,clusters);
+  for (const cluster of landwehrV378.clusters) {
     if (replaceMonbijou && isMonbijouBridgeClusterV231(ground, cluster)) continue;
     // Fit the complete occupied cell envelope, not only cell centres. Besides
     // measuring the deck's full raster width, this gives one- and two-cell
@@ -7072,12 +7074,13 @@ export function createBridgeStructures(
       }
     }
   }
-  if (parts.length === 0 && !sourceBridgesV242?.root.userData.sourceOwnersV242.length &&
+  if (parts.length === 0 && !landwehrV378.root && !sourceBridgesV242?.root.userData.sourceOwnersV242.length &&
       !sourceBridgesV242?.root.userData.sourceOwnersV243?.length) {
     return null;
   }
   const group = new Group();
   group.name = "drawn bridge structures";
+  if (landwehrV378.root) group.add(landwehrV378.root);
   const sandkrug = finishDrawnGroup(sandkrugBuilder, {name: "Sandkrugbrücke drawn architecture"});
   if (sandkrug) {
     sandkrug.userData.sandkrugOnly = true;
@@ -13754,7 +13757,7 @@ export function* createIsometricCityRuntimeStepsV359(
       builders.push(() => group.add(createStandaloneAltMitte()));
     }
     if (options.includeUniversitiesV168 !== false) builders.push(() => group.add(createHumboldtMainV168Details(),createTeehausRuinV168(),createTuWaterV168()));
-    if (options.includeCityRefinementsV166 !== false) builders.push(() => group.add(createUpbeatV166FacadeDetails(),createAlexanderNorthV166(),createCityWestCinemasV166(),createMoabitJusticeV166(),createMitteHeritageV166(options.includeLegacyMonbijou === false),createKosmosV166()));
+    if (options.includeCityRefinementsV166 !== false) builders.push(() => group.add(createUpbeatV166FacadeDetails(),createAlexanderNorthWithJonassV378(),createCityWestCinemasV166(),createMoabitJusticeV166(),createMitteHeritageV166(options.includeLegacyMonbijou === false),createKosmosV166()));
     if (options.includeCityWestV165 !== false) builders.push(() => group.add(createKranzlerV165(), createZooStationV165(), createZooGroundsV165(), createHuthmacherHaus()));
     if (options.includeKulturforumAndNorthRail !== false) {
       builders.push(() => group.add(createConcertHalls()));
