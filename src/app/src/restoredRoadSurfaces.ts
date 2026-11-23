@@ -141,7 +141,8 @@ async function* developmentArrivalRoads(ids: readonly string[], signal: AbortSig
   for await (const line of roadLines(response.body)) {
     const row = JSON.parse(line);
     if (wanted.delete(row.id)) {
-      if (row.kind !== "asphalt" || typeof row.indices !== "string" || typeof row.xz !== "string") throw new Error("Invalid road source");
+      if ((row.kind !== "asphalt" && row.kind !== "paving") || !row.id.startsWith("restored-" + row.kind + "-") ||
+          typeof row.indices !== "string" || typeof row.xz !== "string") throw new Error("Invalid road source");
       yield row;
       if (!wanted.size) return;
     }

@@ -7,6 +7,15 @@ export function registerMittePathPreviewsV375(slabs: InstancedMesh, previews: Ma
   pending.set(slabs, previews);
 }
 
+/** A camera-only district may retire before the city worker adopts it. Keep
+ * its original exact path fragments available while that district is mobile. */
+export function showArrivalPavingPreviewV376(world: Object3D, batch: string, visible: boolean): void {
+  if (!batch.startsWith("restored-paving-")) return;
+  const slabs = world.getObjectByName("Drawn ground slabs");
+  const preview = slabs && pending.get(slabs)?.get(batch);
+  if (preview) preview.visible = visible;
+}
+
 export function takeMittePathPreviewV375(world: Object3D, batch: string): Mesh | undefined {
   if (batch !== "surface-sand" && batch !== "surface-earth" && !batch.startsWith("restored-paving-"))
     return;

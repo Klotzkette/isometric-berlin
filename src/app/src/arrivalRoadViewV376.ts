@@ -10,6 +10,7 @@ type RoadViewHooks = {
   load: (x: number, z: number, completed: ReadonlySet<string>, signal: AbortSignal) => AsyncIterable<ArrivalRoadV376>;
   attach: (road: ArrivalRoadV376) => Promise<void>;
   remove: (root: Group) => void;
+  adopt: (id: string) => void;
 };
 
 /** Only the current arrival may get ahead of the ordinary city stream. Once a
@@ -104,7 +105,7 @@ export function createArrivalRoadViewV376(hooks: RoadViewHooks) {
   if (hooks.signal.aborted) stop();
   return {
     update, stop,
-    adopt(id: string) { early.delete(id); },
+    adopt(id: string) { if (early.delete(id)) hooks.adopt(id); },
     async opening(): Promise<void> {
       if (!work) return;
       // The bounded opening fetch normally finishes during city construction.

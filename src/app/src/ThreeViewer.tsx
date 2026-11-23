@@ -1,4 +1,4 @@
-import { takeMittePathPreviewV375 } from "./mittePathArrivalV375";
+import { showArrivalPavingPreviewV376, takeMittePathPreviewV375 } from "./mittePathArrivalV375";
 import { createQuadrigaInkTarget, updateQuadrigaInkProjection } from "./quadrigaInk";
 import { presentKerbStoneFinish } from "./kerbStoneFinish";
 import { presentArchitecturalSheen } from "./architecturalSheen";
@@ -4062,8 +4062,12 @@ async function attachProgressiveWorldMessage(
   object.userData.progressiveWorldBatchId = message.id;
   runtime.progressiveWorldBatches.push(object);
   runtime.isoWorld.add(object);
-  const pathPreview = takeMittePathPreviewV375(runtime.isoWorld, message.id);
-  if (pathPreview) disposeObject3D(runtime, pathPreview);
+  if (message.type === "arrival") {
+    showArrivalPavingPreviewV376(runtime.isoWorld, message.id, false);
+  } else {
+    const pathPreview = takeMittePathPreviewV375(runtime.isoWorld, message.id);
+    if (pathPreview) disposeObject3D(runtime, pathPreview);
+  }
   if(governmentForBatchV321&&!governmentForBatchV321.activateFamily(object))governmentForBatchV321.releaseFamily(object);
   const backingReady = parkCompletedGeometry(runtime, object);
   hideReplacedBuildingPreview(runtime.isoWorld, message.replaces);
@@ -4699,8 +4703,14 @@ function prepareArrivalRoadViewV376(
       if (!signal.aborted) yield* loadArrivalRoadBatchesV376(ground, x, z, completed, signal, invalidenGround);
     },
     attach: road => attachProgressiveWorldMessage(runtime, undefined, { ...road, type: "arrival", kind: "surfaces" }, warn),
+    adopt: id => {
+      if (!runtime.isoWorld) return;
+      const preview = takeMittePathPreviewV375(runtime.isoWorld, id);
+      if (preview) disposeObject3D(runtime, preview);
+    },
     remove: root => {
       if (root.parent) {
+        showArrivalPavingPreviewV376(root.parent, root.userData.progressiveWorldBatchId, true);
         forgetFarZoomAntiFlickerTargets(runtime, root);
         const index = runtime.progressiveWorldBatches.indexOf(root);
         if (index !== -1) runtime.progressiveWorldBatches.splice(index, 1);
