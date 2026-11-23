@@ -4,6 +4,12 @@ Zwischen Siegessäule, Rosengarten und Brandenburger Tor erscheinen die Kronen j
 
 Die früheren 483 detaillierten Frühbäume lagen in einem 440 × 350 Meter großen Ausschnitt am östlichen Parkrand. Für die übrige Parkfläche musste zunächst die separate 6,1-MB-Datei mit 45.540 Berliner Bäumen, Wegen und weiteren Objekten eintreffen und verarbeitet werden. Im Blockstil wurden die Stämme und Kronen erst in einem späten Arbeitsschritt des Voxelmodells erzeugt.
 
+Beim Direktstart an der Siegessäule standen in Version 1.0.258 zur Freigabe der Bedienoberfläche noch keine Bäume im 160-Meter-Umkreis. Im fertig gebauten Viewer 1.0.259 zählte der Chromium-Test am gleichen Kamerastandpunkt bei der ersten Stichprobe 307 eingetragene Standorte und vor der Freigabe bereits 345. Die Messung zählt gezeichnete Stamm-Instanzen innerhalb des Radius. Ein Teil davon liegt seitlich oder hinter der Kamera.
+
+![Blick über die Siegessäule auf den Tiergarten, links ohne und rechts mit den frühen kartierten Bäumen](tiergarten-baeume-v379.webp)
+
+Beide Bilder zeigen dieselbe Kameraposition und denselben Zeitpunkt im fertig gebauten Viewer 1.0.259. Links wurde für den Bildvergleich die frühe Baumgruppe ausgeblendet. Die rechte Seite zeigt den regulären Anblick. Beim Vergleich der ursprünglichen Einzelbilder (660 × 500 Pixel) unterscheiden sich 94.992 Pixel um mehr als acht Helligkeitsstufen in mindestens einem Farbkanal.
+
 ## Umfang und Quellen
 
 Die Auswahl folgt der kartierten Grenze des Großen Tiergartens. Sie enthält 13.156 mit dem Berliner Baumkataster verknüpfte Standorte und 1.443 zusätzliche Standorte aus OpenStreetMap. Alle 14.599 gehören bereits zum vollständigen Stadtmodell. Der Blockstil verwendet seine eigenen 4-Meter-Zellen und die geltende Ausdünnung für Desktop und Mobilgeräte. Im vollständigen Parkumfang sind das 6.164 beziehungsweise 3.084 Zellen. 1.280 beziehungsweise 1.107 davon stehen für die erste Ansicht bereit. Tunnelzufahrten, Aussparungen und frühere Korrekturen der Stammhöhe werden bei der Auswahl berücksichtigt. [Parkgrenze](https://www.openstreetmap.org/relation/7643526) · [Berliner Baumkataster](https://gdi.berlin.de/services/wfs/baumbestand?SERVICE=WFS&REQUEST=GetCapabilities) · [Herkunft, Prüfsummen und Stückzahlen](../geo_data/regierungsviertel/tiergarten-tree-arrival-v379.json)
