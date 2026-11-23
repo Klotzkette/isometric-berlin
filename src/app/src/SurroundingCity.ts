@@ -1,3 +1,5 @@
+import { completeCooperatively } from "./cooperativeWork";
+import surveyedFacadeTilesV377 from "./data/surveyedFacadeTilesV377.json";
 import bankIndexV370 from "./data/waterwayBankHostsV370.json";
 import steelRailHostIdsV369 from "./data/steelRailHostIdsV369.json";
 import steelRailExteriorV369 from "./data/steelRailExteriorV369.json";
@@ -97,6 +99,12 @@ const bankDescriptors: SurroundingChunkDescriptor[] = Object.entries(bankIndexV3
 // These detail-only packets attach to the existing core and lake shores; they own no terrain.
 const bankExteriors = new Set(bankDescriptors);
 const detailOnlyDescriptors = new Set([...steelDescriptors, ...bankDescriptors]);
+
+const surveyedShellTileKeysV377 = new Set([
+  "4_5", "5_5", "east200-20_13", "east200-20_14", "east200-21_13", "east200-21_14",
+  "11_-2", "ring182-11_-2", "ring182-12_4", "ring182-12_5",
+]);
+const surveyedFacadeTileKeysV377 = new Set<string>(surveyedFacadeTilesV377);
 
 type Resident = SurroundingChunkGeometry & { descriptor: SurroundingChunkDescriptor; lastWanted: number; southOwnersReadyV294: boolean; littenReadyV297:boolean; wallReadyV298:boolean;westReadyV302:boolean;neukoellnReadyV305:boolean;northCandidateV309:boolean;northReadyV309:boolean;treptowCandidateV317:boolean;treptowReadyV317:boolean;governmentCandidateV321:boolean;governmentReadyV321:boolean;universitiesCandidateV322:boolean;universitiesReadyV322:boolean;wilhelmCandidateV324:boolean;wilhelmReadyV324:boolean;wilhelmStreetCandidateV325:boolean;wilhelmStreetReadyV325:boolean;southwestCandidateV326:boolean;southwestReadyV326:boolean };
 export type SurroundingNavigationTile = {
@@ -504,9 +512,38 @@ export async function createStreamedSurroundingCityChunkV255(
     checkAbort();
     if (data) ownership = { ...ownership, neukoellnBuildingsV342: data.default as NonNullable<SurroundingOwnershipOptions["neukoellnBuildingsV342"]> };
   }
+  if (!minecraft && surveyedShellTileKeysV377.has(id)) {
+    const pair = await Promise.all([import("./data/surveyedBuildingShellsV377.json"),
+      import("./data/surveyedShellRetirementsV377.json")]).catch(() => undefined);
+    checkAbort();
+    if (pair) ownership = { ...ownership, surveyedShellsV377: { shells: pair[0].default,
+      retirements: pair[1].default } as NonNullable<SurroundingOwnershipOptions["surveyedShellsV377"]> };
+  }
   const entry = await createSurroundingCityChunkCooperatively(chunk, id, minecraft, schedule, ownership);
   try {
     checkAbort();
+    const facadeKey = (minecraft ? "minecraft:" : "drawn:") + id;
+    if (surveyedFacadeTileKeysV377.has(facadeKey)) {
+      const facades = await import("./surveyedBuildingFacadesV377").catch(() => undefined);
+      checkAbort();
+      const owners = new Set(entry.nav.buildings.map(building => building.sourceId));
+      for (const id of entry.root.userData.surveyedShellOwnersV377 ?? []) owners.add("surveyed-shell:" + id);
+      const physicalSource = facades && await completeCooperatively(facades.verifiedSplitFacadePacketV377(facadeKey, chunk), {
+        yieldTask: schedule.yield ?? (() => new Promise<void>(resolve => setTimeout(resolve, 0))),
+        isCancelled: () => schedule.signal?.aborted === true,
+      });
+      checkAbort();
+      const facade = facades?.createSurveyedBuildingFacadesV377(id, minecraft, entry.origin, owners, undefined, physicalSource);
+      if (facade) {
+        entry.root.add(facade);
+        for (const attribute of Object.values(facade.geometry.attributes)) {
+          entry.geometryBytes += attribute.array.byteLength;
+          entry.bufferCount++;
+        }
+        entry.geometryBytes += facade.geometry.index!.array.byteLength;
+        entry.bufferCount++;
+      }
+    }
     // Figure construction is bounded by this tile and retained owners. Attach
     // before publication so ordinary cancellation/disposal owns every buffer.
     const figures = createZooAnimalsV282('tierpark', minecraft, animals.animals, id);

@@ -116,6 +116,12 @@ const MITTE_PAVING_VIEWS: typeof MOABIT_VIEWS_V358 = {
   "Osttor Olympiastadion": { position: [-8641, 103, 322], target: [-8707, 34, 267], fov: 49 },
 };
 
+const BUILDING_FACADE_VIEWS_V377: typeof MOABIT_VIEWS_V358 = {
+  "Vivantes Klinikum Am Urban": { position: [2524.943, 33, 2617.104], target: [2468, 24, 2745], fov: 39 },
+  "Vienna House an der Landsberger Allee": { position: [5821.042, 33, -995.466], target: [5838, 18, -940], fov: 39 },
+  "Peter-Behrens-Bau": { position: [10452.607, 26, 7194.717], target: [10581, 26, 7153], fov: 39 },
+};
+
 // Extra place links use the same focus control without adding tour stops.
 export const STARTUP_ONLY_SIGHTS = [
   "Kaiser-Wilhelm-Gedächtniskirche",
@@ -141,6 +147,7 @@ export const STARTUP_ONLY_SIGHTS = [
   ...Object.keys(VENUE_VIEWS_V357),
   ...Object.keys(MOABIT_VIEWS_V358),
   ...Object.keys(MITTE_PAVING_VIEWS),
+  ...Object.keys(BUILDING_FACADE_VIEWS_V377),
 ].map(name => ({ name, role: "owner_added" }));
 
 export function startupOnlySight(name: string) {
@@ -153,7 +160,7 @@ export type StartupFlightView = Pick<NavigationSnapshot, "pose" | "fov"> & { lan
  * flight lens. No pedestrian state is created or enabled. */
 export function startupFlightView(name: string): StartupFlightView {
   if (name === GALLERY_FLIGHT_START_V223.landmarkName) return GALLERY_FLIGHT_START_V223;
-  const framed = MOABIT_VIEWS_V358[name] ?? MITTE_PAVING_VIEWS[name];
+  const framed = MOABIT_VIEWS_V358[name] ?? MITTE_PAVING_VIEWS[name] ?? BUILDING_FACADE_VIEWS_V377[name];
   if (framed) return { landmarkName: name, fov: framed.fov, pose: { target: [...framed.target], position: [...framed.position] } };
   const extra = GARDEN_VIEWS_V330[name] ?? AMENITY_VIEWS_V332[name] ?? COURT_VIEWS_V333[name] ?? TRANSPORT_VIEWS_V334[name] ?? BRITZ_NEUKOELLN_VIEWS_V342[name] ?? STREET_VIEWS_V343[name] ?? MITTE_EXTERIOR_VIEWS_V344[name] ?? CITY_DETAIL_VIEWS_V345[name] ?? VENUE_VIEWS_V357[name];
   if (extra) return { landmarkName: name, fov: 16, pose: { target: [...extra.target], position: [...extra.position] } };

@@ -1,3 +1,4 @@
+import { admitSurveyedShellsV377, applySurveyedShellPartV377, retireSurveyedShellInkV377, surveyedShellNavigationV377, type ShellDataV377 } from "./surveyedBuildingShellsV377";
 import { createParkPathAccessMeshV373, isParkPathAccessSourceV373 } from "./ParkPathAccessV373";
 import { surveyedPavingPart } from "./surveyedPavingV368";
 import { markKoepenickCourtWalls } from "./civicArchitecturalFinish";
@@ -298,6 +299,7 @@ function disposeUnpublishedChunk(root: Group): void {
  * interleaved ink buffer. Nothing is triangulated or voxelised on the phone.
  */
 export type SurroundingOwnershipOptions = {
+  surveyedShellsV377?: ShellDataV377;
   groundFinishV348?: boolean;
   riverFinishV348?: (mesh: Mesh, selector: PackedRiverSelectorV348) => void;
   neukoellnBuildingsV342?: SourceQuarterSourceV303;
@@ -472,6 +474,11 @@ export function* buildCityChunkWithPaletteV362(
     chunk = yield* prepareNamedSiteV238(chunk, id, minecraft, ownership.namedTransportSourceV334);
   }
   chunk = yield* prepareNeukoellnBuildingsV342(chunk, id, minecraft, ownership.neukoellnBuildingsV342);
+  const surveyedShellsV377 = !minecraft && ownership.surveyedShellsV377
+    ? yield* admitSurveyedShellsV377(chunk, id, ownership.surveyedShellsV377) : undefined;
+  if (surveyedShellsV377) {
+    chunk = { ...chunk, meshes: [...chunk.meshes, ...surveyedShellsV377.shells.map(shell => shell.mesh)] };
+  }
   const firstGroundOverlayPart = chunk.meshes.length;
   for (const ticket of groundOverlayTicketsV329) chunk = yield* prepareNeighbourhoodPacketV300(chunk, ticket);
   let separatePath: SurroundingPackedMesh | undefined;
@@ -614,6 +621,7 @@ export function* buildCityChunkWithPaletteV362(
       const golgathaAppearance = yield* applyGolgathaColoursV270(ownership.golgathaV270 === true, id, minecraft, part, meshIndex, vertices, vertexOffset, count);
       if (golgathaAppearance) root.userData.golgathaMaterialVerticesV270 = (root.userData.golgathaMaterialVerticesV270 ?? 0) + golgathaAppearance;
       }
+      if (surveyedShellsV377) yield* applySurveyedShellPartV377(surveyedShellsV377, chunk, part, meshIndex, vertices, indices, indexOffset, written);
       const replacedRoof = yield* applyRoofHouseV233Triangles(chunk, meshIndex, indices, indexOffset);
       if (replacedRoof) root.userData.roofHouseTrianglesV233 = (root.userData.roofHouseTrianglesV233 ?? 0) + replacedRoof;
       const outerRoofs = yield* applyOuterRoofsV262Triangles(chunk, meshIndex, indices, indexOffset);
@@ -755,6 +763,7 @@ export function* buildCityChunkWithPaletteV362(
       root.userData.golgathaTransferredLineSegmentsV270 = yield* transferGolgathaLinesV270(ownership.golgathaV270 === true, id, lines, values, hasLineColors ? 6 : 3);
       root.userData.operaTheatreLinesV274 = yield* transferOperaTheatreLinesV274(ownership.operaTheatresV274 === true, id, lines, values, hasLineColors ? 6 : 3);
       root.userData.siteTransferredLineSegmentsV209 = yield* transferSiteLinesV209(id, lines, values, hasLineColors ? 6 : 3, ownership.schlossplatzV239 === true, ownership.architectureV241 === true, ownership.prenzlbergV264 === true, ownership.chariteBridgesV265 === true, ownership.northernSitesV266 === true);
+      if (surveyedShellsV377) retireSurveyedShellInkV377(surveyedShellsV377, values, hasLineColors ? 6 : 3);
       root.userData.roofHouseLineSegmentsV233 = yield* applyRoofHouseV233Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.outerRoofLineSegmentsV262 = yield* applyOuterRoofsV262Lines(chunk, values, hasLineColors ? 6 : 3);
       root.userData.namedSiteLineSegmentsV238 = yield* applyNamedSiteLinesV238(chunk, values, hasLineColors ? 6 : 3);
@@ -790,6 +799,11 @@ export function* buildCityChunkWithPaletteV362(
     const result = { root: freezeStaticSceneTransforms(root), geometryBytes: geometryBytes + (gardenTerrainV330?.byteLength ?? 0), bufferCount,
       ...(gardenTerrainV330 ? { gardenTerrainV330 } : {}),
       nav: sourceQuarterNavigationV303(chunk,southFidelityNavigationV294(chunk, cityWestTransportNavigationV281(chunk, mierendorffNavigationV269(chunk, kraftwerkBerlinNavigationV268(chunk, koepenickerLandmarksNavigationV268(chunk, feuerwacheKreuzbergNavigationV267(chunk, eurefNavigationV262(chunk, namedSiteNavigationV238(chunk, siteNavigationV209(id, operaTheatreNavigationV274(ownership.operaTheatresV274 === true, id, minecraft, chunk.nav, root.userData.operaTheatreTrianglesV274 ?? 0), ownership.prenzlbergV264 === true)))))))))), origin: chunk.origin };
+    if (surveyedShellsV377) {
+      result.nav = surveyedShellNavigationV377(result.nav, surveyedShellsV377);
+      root.userData.surveyedShellOwnersV377 = [...surveyedShellsV377.roofs.keys()];
+      root.userData.surveyedShellIndexRangesV377 = surveyedShellsV377.figures;
+    }
     completed = true;
     return result;
   } finally {
