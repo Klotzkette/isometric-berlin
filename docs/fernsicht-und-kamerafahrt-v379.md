@@ -16,7 +16,7 @@ Bei einer festen Kamerafahrt im Cloud-JavaScript-Lauf entfielen auf 300 bewegte 
 
 ## Ankunft im westlichen Berlin
 
-In Chromium wurde der vollständige, unveränderte v1.0.258-Viewer einem zweiten Produktionsbuild mit derselben Stadt und ausschließlich den Änderungen am Streaming gegenübergestellt. Unmittelbar nach Freigabe am Brandenburger Tor wechselte die Kamera in den westlichen Panoramaausschnitt. Im Kontrolllauf wartete die erste Anforderung auf den Abschluss der Speicheraufbereitung des Kerns. Im Vergleichsbuild begann sie bereits 0,83 s nach dem Kameraschwenk. Ein tatsächlich befülltes, sichtbares Mesh der Zielkachel `-8_1` war nach 25,90 s im Szenengraphen, zuvor nach 60,63 s. Für diese einzelne Messung der Ankunft waren die GPU-Zeichenaufrufe unterdrückt.
+In Chromium wurde der veröffentlichte v1.0.258-Viewer einem Produktionsbuild mit demselben Stadtkern und den neuen Streamingpfaden gegenübergestellt. In beiden Versionen kamen die regulären Originalpakete aus demselben Datenbestand. Der Vergleichsbuild ergänzte in der westlichen Zielkachel auch die neuen Bezirksfassaden. Unmittelbar nach Freigabe am Brandenburger Tor wechselte die Kamera in den westlichen Panoramaausschnitt. Im Kontrolllauf wartete die erste Anforderung auf den Abschluss der Speicheraufbereitung des Kerns. Im Vergleichsbuild begann sie bereits 0,83 s nach dem Kameraschwenk. Ein tatsächlich befülltes, sichtbares Mesh der Zielkachel `-8_1` war nach 25,90 s im Szenengraphen, zuvor nach 60,63 s. Für diese einzelne Messung der Ankunft waren die GPU-Zeichenaufrufe unterdrückt.
 
 Eine separate Fahrt hat den Produktions-Kachelcontroller auf einem 900 × 540 Pixel großen Canvas mit WebGL tatsächlich gezeichnet. Blickziel, Blickfeld und Fahrweg waren gleich. In Modellmetern begann die Kamera bei (−3.260, 1.430, 1.855) mit Blick auf (−3.980, 2, 535). Nach sechs Sekunden begann ein viersekündiger Schwenk mit Annäherung auf (−2.890, 890, 1.325) mit Blick auf (−3.430, 2, 305). Die vertikale Perspektive betrug 50 Grad. Zwei äußere Strahlen des Bildes treffen im Test die Kacheln `-11_1` und `-9_2`. In den ersten drei v1.0.258-Fahrten kam im 13-s-Messfenster keine der beiden an. In v1.0.259 zeichneten alle drei Fahrten beide originalen Modelle. Ihre ersten Zeichenaufrufe erfolgten im Median nach 2,50 s und 4,52 s. Die beiden anderen Messstrahlen treffen den separaten Stadtkern. Er gehört im vollständigen Viewer zu einer anderen Geometriequelle.
 
@@ -32,3 +32,15 @@ Die folgenden Messungen verwenden Chromium mit dem Software-WebGL-Treiber SwiftS
 | Vollständiger Tagesviewer direkt nach Freigabe der Karte, längster Bildabstand bei einer 12-s-Fahrt | 4.567 ms | 4.300 ms |
 
 Beim vollständigen Tagesviewer war der Kern in beiden Versionen während der ganzen Fahrt im Aufbau. In diesem kurzen Versuch ließen sich sechs bzw. vier Bildabstände beobachten. Ihr p95 fällt jeweils mit dem größten Wert zusammen. Für einen belastbaren Vergleich der Bildrate auf einem Windows-PC oder Mac reichen diese Stichproben und die Softwaregrafik nicht aus. In der separaten Stadtcontroller-Fahrt wurden mehr entfernte Originalgebäude früher sichtbar. Gleichzeitig nahm das Ruckeln während des Ladens auf diesem Rechner zu.
+
+
+Eine zweite Kontrolle wartete auf dieselben sechs benannten Originalpakete, darunter zwei benachbarte Hauptkacheln mit ihren Detailpaketen und die beiden entfernten Sichtziele. Erst dann begann die Messung über 40 Kameraschritte. Über alle 40 Bilder blieb die jeweilige Zeichenlast konstant. v1.0.258 zeichnete 96.235 Dreiecke in 22 Aufrufen. Der Vergleichsbuild zeichnete 96.265 Dreiecke in 23 Aufrufen. Die zusätzlichen 30 Dreiecke gehören zu den vier neu dokumentierten Straßenfassaden der Kachel `-9_2`. Die übrigen fünf Testkacheln verwenden keine neue Bezirksfassade.
+
+| Bewegte Kamera nach vollständiger Ankunft | v1.0.258 | v1.0.259 |
+| --- | ---: | ---: |
+| Bildabstand im Median | 583 ms | 433 ms |
+| p95 der Bildabstände, 38. Wert unter 40 sortierten Intervallen | 2.017 ms | 1.367 ms |
+| Mittlere Bildrate | 1,21 Bilder/s | 1,60 Bilder/s |
+| CPU-Zeit für Kachelauswahl und zwei Bodenabfragen pro Bild im Median | 1,5 ms | 0,3 ms |
+
+Die beiden Fahrten unterscheiden einen belasteten Kaltstart von der Bewegung nach dem Laden. Die Softwaregrafik teilt sich Prozessorzeit mit anderen Cloud-Aufgaben. Die sechs vollständig geladenen Pakete zeigten hier keinen Einbruch der Bildrate durch die neue Auswahl. Das frühere Zeichnen weiterer Stadtteile kostete im Kaltstart messbar Bildzeit.

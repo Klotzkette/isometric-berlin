@@ -21,3 +21,16 @@ Im Zoologischen Garten sind das neue Flusspferdhaus mit verglaster Doppelkuppel,
 ## Baumkronen und Fernsicht
 
 Die erste gezeichnete Parkansicht enthält 1.376 über den Großen Tiergarten verteilte Bäume. Die nachfolgenden Detailstufen übernehmen die kartierten Standorte. Der Vollbestand umfasst 14.599 Bäume. Auch die räumliche Auswahl der Umgebungskacheln wurde geändert. Der Viewer kann im Fernblick schon die ersten Originalgebäude am Bildrand zeichnen, während Details im Zentrum eintreffen. [Anflug auf die Siegessäule](https://klotzkette.github.io/isometric-berlin/#landmark=siegessaule) · [Baumbestand und Vergleich mit der vorherigen Version](tiergarten-baeume-v379.md) · [Messungen zur Kamerafahrt](fernsicht-und-kamerafahrt-v379.md)
+
+
+## Speicherbedarf
+
+Die neuen Zoo- und Bezirksdateien werden für den besuchten Ort geladen. Die drei JavaScript-Dateien beim Einstieg wachsen zusammen um 95 Byte bei gzip-Stufe 9. Serverkompression und Browsercache bestimmen die tatsächlich übertragene Menge. Das vollständige kompakte Offlinepaket mit der zusätzlichen Stadtgeometrie ist rund 3 MB größer als zuvor.
+
+| Umfang in Byte | v1.0.258 | v1.0.259 | Zunahme |
+| --- | ---: | ---: | ---: |
+| Einstiegs-JavaScript, drei Dateien (gzip 9) | 127.486 | 127.581 | +95 |
+| Vollständige GitHub-Pages-Ausgabe | 978.422.652 | 988.416.071 | +9.993.419 |
+| Standard-ZIP | 957.803.866 | 960.801.261 | +2.997.395 |
+| Kompaktes ZIP | 778.221.653 | 781.219.048 | +2.997.395 |
+| TAR.GZ | 956.218.531 | 959.201.041 | +2.982.510 |
