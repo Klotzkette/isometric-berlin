@@ -1,3 +1,6 @@
+import { landwehrDeckFloorV378 } from "./waterwayFloorsV378";
+import { attachBerlinDetailsV378, exteriorSitesV378 } from "./berlinDetailSitesV378";
+import { loadHistoricArchitectureV378 } from "./historicArchitectureV378";
 import { completeCooperatively } from "./cooperativeWork";
 import surveyedFacadeTilesV377 from "./data/surveyedFacadeTilesV377.json";
 import bankIndexV370 from "./data/waterwayBankHostsV370.json";
@@ -98,7 +101,11 @@ const bankDescriptors: SurroundingChunkDescriptor[] = Object.entries(bankIndexV3
 }));
 // These detail-only packets attach to the existing core and lake shores; they own no terrain.
 const bankExteriors = new Set(bankDescriptors);
-const detailOnlyDescriptors = new Set([...steelDescriptors, ...bankDescriptors]);
+const siteDescriptors = exteriorSitesV378.map((site): SurroundingChunkDescriptor => ({
+  id: site.id, bounds: site.bounds, drawn: EXTERIOR_ALLOTMENT_ASSET, minecraft: EXTERIOR_ALLOTMENT_ASSET,
+}));
+const siteExteriors = new Set(siteDescriptors);
+const detailOnlyDescriptors = new Set([...steelDescriptors, ...bankDescriptors, ...siteDescriptors]);
 
 const surveyedShellTileKeysV377 = new Set([
   "4_5", "5_5", "east200-20_13", "east200-20_14", "east200-21_13", "east200-21_14",
@@ -168,6 +175,12 @@ export type SurroundingCityOptions = {
   /** Optional V326 actual public-site adapters; original callers stay exact. */
   publicSitesV326?:boolean;
   transportDetailsV334?: boolean;
+  berlinDetailsV378?: boolean;
+  openingPlaceV378?: {
+    x: number; z: number; required: readonly string[]; meshName?: string;
+    pending: () => boolean;
+    onGeometry: (id: string) => void;
+  };
   onChange?: () => void;
   onError?: (message: string) => void;
   fetch?: typeof fetch;
@@ -183,6 +196,8 @@ export type SurroundingCity = {
   refresh: (now?: number, focus?: { x: number; z: number }) => void;
   /** Changes native/drawn family only; caller applies its normal lighting pass. */
   setMode: (mode: VisualMode) => void;
+  updateAirportBeaconV378: (timestamp: number, reducedMotion: boolean) => boolean;
+  siteGroundAtV378: (x: number, z: number) => number | null;
   interiorGroundAt:(x:number,z:number,currentY?:number)=>number|null;
   groundAt: (x: number, z: number) => number | null;
   hasResidentSurfaceAt: (x: number, z: number) => boolean;
@@ -519,29 +534,40 @@ export async function createStreamedSurroundingCityChunkV255(
     if (pair) ownership = { ...ownership, surveyedShellsV377: { shells: pair[0].default,
       retirements: pair[1].default } as NonNullable<SurroundingOwnershipOptions["surveyedShellsV377"]> };
   }
+  const historic = await loadHistoricArchitectureV378(id, minecraft);
+  checkAbort();
+  if (historic?.shells && historic.retirements) {
+    ownership = { ...ownership, surveyedNativeShellsV378: minecraft, surveyedShellsV377: { shells: historic.shells, retirements: historic.retirements } };
+  }
   const entry = await createSurroundingCityChunkCooperatively(chunk, id, minecraft, schedule, ownership);
   try {
     checkAbort();
     const facadeKey = (minecraft ? "minecraft:" : "drawn:") + id;
-    if (surveyedFacadeTileKeysV377.has(facadeKey)) {
+    if (surveyedFacadeTileKeysV377.has(facadeKey) || historic) {
       const facades = await import("./surveyedBuildingFacadesV377").catch(() => undefined);
       checkAbort();
       const owners = new Set(entry.nav.buildings.map(building => building.sourceId));
       for (const id of entry.root.userData.surveyedShellOwnersV377 ?? []) owners.add("surveyed-shell:" + id);
-      const physicalSource = facades && await completeCooperatively(facades.verifiedSplitFacadePacketV377(facadeKey, chunk), {
-        yieldTask: schedule.yield ?? (() => new Promise<void>(resolve => setTimeout(resolve, 0))),
-        isCancelled: () => schedule.signal?.aborted === true,
-      });
-      checkAbort();
-      const facade = facades?.createSurveyedBuildingFacadesV377(id, minecraft, entry.origin, owners, undefined, physicalSource);
-      if (facade) {
-        entry.root.add(facade);
-        for (const attribute of Object.values(facade.geometry.attributes)) {
-          entry.geometryBytes += attribute.array.byteLength;
+      // Old and new owners may share a district; retain each catalogue's own proof.
+      const catalogues = [];
+      if (surveyedFacadeTileKeysV377.has(facadeKey)) catalogues.push(undefined);
+      if (historic) catalogues.push(historic.facades);
+      for (const catalogue of catalogues) {
+        const physicalSource = facades && await completeCooperatively(facades.verifiedSplitFacadePacketV377(facadeKey, chunk, catalogue), {
+          yieldTask: schedule.yield ?? (() => new Promise<void>(resolve => setTimeout(resolve, 0))),
+          isCancelled: () => schedule.signal?.aborted === true,
+        });
+        checkAbort();
+        const facade = facades?.createSurveyedBuildingFacadesV377(id, minecraft, entry.origin, owners, catalogue, physicalSource);
+        if (facade) {
+          entry.root.add(facade);
+          for (const attribute of Object.values(facade.geometry.attributes)) {
+            entry.geometryBytes += attribute.array.byteLength;
+            entry.bufferCount++;
+          }
+          entry.geometryBytes += facade.geometry.index!.array.byteLength;
           entry.bufferCount++;
         }
-        entry.geometryBytes += facade.geometry.index!.array.byteLength;
-        entry.bufferCount++;
       }
     }
     // Figure construction is bounded by this tile and retained owners. Attach
@@ -602,6 +628,20 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const finishV326=async<T>(steps:Generator<void,T>,signal:AbortSignal):Promise<T>=>{try{for(;;){if(signal.aborted)throw new DOMException("Aborted","AbortError");const next=steps.next();if(next.done)return next.value;await new Promise<void>(resolve=>setTimeout(resolve,0));}}finally{steps.return(undefined as never);}};
   const controller = new AbortController();
   const residents = new Map<string, Resident>();
+  let airportBeacon: Group | undefined;
+  const landscapeFloors = new Map<string, Resident>();
+  const landscapeFloorAt = (x: number, z: number): number | null => {
+    const deck = landwehrDeckFloorV378(x,z,mode === "minecraft");
+    if (deck !== null) return deck;
+    for (const floor of landscapeFloors.values()) {
+      const [x0,z0,x1,z1] = floor.descriptor.bounds;
+      if (x<x0 || x>x1 || z<z0 || z>z1) continue;
+      const y = floor.root.userData.tegelLandscapeFloorV378?.(x,z);
+      if (y != null) return y;
+      if (floor.nav.ground.some(poly => surroundingPolygonContains(poly,x-floor.origin[0],z-floor.origin[2]))) return floor.nav.groundY;
+    }
+    return null;
+  };
   const failedAt = new Map<string, number>();
   const desired = new Set<string>();
   let previousDesired: Set<string> | null = null;
@@ -637,7 +677,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   };
   const updateNavigation = (): void => {
     options.onQuarterResidentsV303?.(new Set([...residents].filter(([,e])=>e.root.userData.sourceQuarterOwnersV303?.length>0).map(([id,e])=>`${e.root.userData.sourceQuarterNativeV303?"minecraft":"drawn"}:${id}`)));
-    navigationTiles = Array.from(residents.values()).filter(entry => !entry.descriptor.detailCompanionOf && !detailOnlyDescriptors.has(entry.descriptor)).map(entry => ({
+    navigationTiles = Array.from(residents.values()).filter(entry => !entry.descriptor.detailCompanionOf &&
+      (!detailOnlyDescriptors.has(entry.descriptor) || (siteExteriors.has(entry.descriptor) && (entry.nav.ground.length || entry.nav.buildings.length)))).map(entry => ({
       origin: entry.origin, bounds: entry.descriptor.bounds, nav: entry.nav,
     }));
   };
@@ -646,6 +687,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     const entry = residents.get(id);
     if (!entry) return;
     residents.delete(id);
+    landscapeFloors.delete(id);
+    if (airportBeacon === entry.root) airportBeacon = undefined;
     root.remove(entry.root);
     geometryBytes -= entry.geometryBytes;
     bufferCount -= entry.bufferCount;
@@ -774,6 +817,10 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
             { groundFinishV348:options.groundFinishV348, riverFinishV348:options.riverFinishV348, operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,clusterFacadesV320:options.clusterFacadesV320,berlinSenateV321:options.berlinSenateV321,governmentOfficesV321:governmentReadyV321,universitiesV322:universitiesReadyV322,wilhelmHousingV324:wilhelmReadyV324,wilhelmStreetFrontsV325:wilhelmStreetReadyV325,southWestSitesV326:southwestReadyV326,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,groundOverlaysV329,separateParkPathAccessV373:!groundOverlaysV329,transportDetailsV334:options.transportDetailsV334,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317,allotmentDetailsV360 },
           );
           unpublished = entry.root;
+          if (options.berlinDetailsV378) {
+            await attachBerlinDetailsV378(entry, descriptor.id, minecraft, task.signal);
+            task.signal.throwIfAborted();
+          }
           if (options.steelRailBridgesV369 && (railHostIds.has(descriptor.id) ||
               (southOwnersReady && skalitzerIds.has(descriptor.id)) || steelExterior)) {
             const { attachRailSteelV369 } = await import("./RailSteelPacketV369");
@@ -805,10 +852,25 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           options.onAttach?.(entry.root, mode);
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id) || (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305()||northChangedV309()||treptowChangedV317()||officesChangedV322()||wilhelmChangedV324()||wilhelmStreetChangedV325()||southwestChangedV326())) { release(entry.root); unpublished = null; continue; }
           residents.set(descriptor.id, { ...entry, descriptor, lastWanted: now(), southOwnersReadyV294:southOwnersReady,littenReadyV297,wallReadyV298,westReadyV302,neukoellnReadyV305,northCandidateV309,northReadyV309,treptowCandidateV317,treptowReadyV317,governmentCandidateV321,governmentReadyV321,universitiesCandidateV322,universitiesReadyV322,wilhelmCandidateV324,wilhelmReadyV324,wilhelmStreetCandidateV325,wilhelmStreetReadyV325,southwestCandidateV326,southwestReadyV326 });
+          if (siteExteriors.has(descriptor) && (entry.root.userData.tegelLandscapeFloorV378 || entry.nav.ground.length)) landscapeFloors.set(descriptor.id, residents.get(descriptor.id)!);
+          if (entry.root.userData.updateTransportV378) airportBeacon = entry.root;
           geometryBytes += entry.geometryBytes;
           bufferCount += entry.bufferCount;
           root.add(entry.root);
           unpublished = null;
+          const opening = options.openingPlaceV378;
+          if (opening?.pending() && entry.geometryBytes > 0 && (opening.required.length
+            ? opening.required.includes(descriptor.id)
+            : distanceSquared(descriptor.bounds,opening.x,opening.z) <= 20 ** 2)) {
+            entry.root.updateWorldMatrix(true,true);
+            let visible = false;
+            entry.root.traverseVisible(object => {
+              if (visible || !(object instanceof Mesh) || (opening.meshName && object.name !== opening.meshName)) return;
+              const position = object.geometry.getAttribute("position");
+              if (position?.count && object.geometry.drawRange.count > 0 && frustum.intersectsObject(object)) visible = true;
+            });
+            if (visible) opening.onGeometry(descriptor.id);
+          }
           updateNavigation();
           failedAt.delete(descriptor.id);
           options.onChange?.();
@@ -928,8 +990,14 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     hasScanned = true;
     desired.clear();
     queue = [];
+    const focusPoint = focus ?? cameraPosition;
+    const siteReach = Math.max(1100, 1.5 * Math.hypot(cameraPosition.x-focusPoint.x, cameraPosition.z-focusPoint.z, cameraPosition.y));
     for (const descriptor of manifest.chunks) {
       const b = descriptor.bounds;
+      // Small fittings in these optional local packets are beyond the current
+      // view when distant from both the camera and its projected focus.
+      if (siteExteriors.has(descriptor) && distanceSquared(b,focusPoint.x,focusPoint.z) > siteReach*siteReach &&
+          distanceSquared(b,cameraPosition.x,cameraPosition.z) > siteReach*siteReach) continue;
       // The source extractor accepts building heights through 400 m. The
       // selection box must include their complete tops as well as ground.
       const ceiling = bankExteriors.has(descriptor) ? 24 : exteriorDescriptorsV360.has(descriptor) ? 7 : 410;
@@ -943,7 +1011,10 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       else queue.push(descriptor);
     }
     const from = focus ?? cameraPosition;
-    queue.sort((a, b) => distanceSquared(a.bounds, from.x, from.z) - distanceSquared(b.bounds, from.x, from.z));
+    const opening = options.openingPlaceV378;
+    const priority = opening?.pending() && opening.required.length ? new Set(opening.required) : null;
+    queue.sort((a, b) => (priority ? Number(priority.has(b.id)) - Number(priority.has(a.id)) : 0)
+      || distanceSquared(a.bounds, from.x, from.z) - distanceSquared(b.bounds, from.x, from.z));
     if (active && !desired.has(active.id)) active.controller.abort();
     cancelPrefetches();
     if (processing) fillPrefetches();
@@ -1004,6 +1075,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           if (options.waterwayBanksV370) {
             manifest = { ...manifest, chunks: [...manifest.chunks, ...bankDescriptors] };
           }
+          if (options.berlinDetailsV378) {
+            manifest = { ...manifest, chunks: [...manifest.chunks, ...siteDescriptors] };
+          }
           refresh();
         }
         return;
@@ -1022,7 +1096,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     for (const entry of residents.values()) {
       // A detail companion can finish before a failed primary retries. Its
       // intentionally empty navigation must never mask the later ground/water.
-      if (entry.descriptor.detailCompanionOf || detailOnlyDescriptors.has(entry.descriptor)) continue;
+      if (entry.descriptor.detailCompanionOf || (detailOnlyDescriptors.has(entry.descriptor) && !siteExteriors.has(entry.descriptor))) continue;
       const b = entry.descriptor.bounds;
       if (x < b[0] || z < b[1] || x >= b[2] || z >= b[3]) continue;
       // Additive scopes can share a tile rectangle while owning disjoint land.
@@ -1035,7 +1109,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   };
   return {
     root, ready, refresh, dispose,
-    hasResidentSurfaceAt: (x, z) => at(x, z) !== undefined,
+    siteGroundAtV378: landscapeFloorAt,
+    updateAirportBeaconV378: (timestamp, reducedMotion) => airportBeacon?.userData.updateTransportV378(timestamp, options.camera, reducedMotion) ?? false,
+    hasResidentSurfaceAt: (x, z) => landscapeFloorAt(x,z) !== null || at(x, z) !== undefined,
     hasResidentChunk: (id, sha256) =>
       residents.get(id)?.descriptor[mode === "minecraft" ? "minecraft" : "drawn"].sha256 === sha256,
     setMode(nextMode) {
@@ -1062,6 +1138,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
         : null;
     },
     gardenGroundAtV330(x, z) {
+      const floor = landscapeFloorAt(x,z);
+      if (floor !== null) return floor;
       const entry = at(x, z);
       if (entry && exteriorDescriptorsV360.has(entry.descriptor)) return entry.nav.groundY;
       if (!entry?.gardenTerrainV330) return null;
@@ -1071,6 +1149,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
         gardenTerrainGroundAtV330(entry.gardenTerrainV330, lx, lz, mode === "minecraft");
     },
     groundAt(x, z) {
+      const floor = landscapeFloorAt(x,z);
+      if (floor !== null) return floor;
       const entry = at(x, z);
       if (entry && exteriorDescriptorsV360.has(entry.descriptor)) return entry.nav.groundY;
       if (entry?.descriptor.id === "outer187--19_20") {
@@ -1112,6 +1192,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       return false;
     },
     waterAt(x, z) {
+      if (landwehrDeckFloorV378(x,z,mode === "minecraft") !== null) return false;
       const entry = at(x, z);
       if (!entry) return false;
       const lx = x - entry.origin[0], lz = z - entry.origin[2];

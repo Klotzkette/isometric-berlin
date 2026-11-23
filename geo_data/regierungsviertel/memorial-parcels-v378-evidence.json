@@ -1,0 +1,195 @@
+{
+  "reference": {
+    "system": "EPSG:25833, scene x = easting - 389500; scene z = 5820000 - northing",
+    "height": "DGM1 NHN of the nearest 1 m pixel centre, minus the Berlin scene datum of 30 m, as in scripts/build_fuel_terrain_v351.py. At this local depiction the small entrance apron uses the sampled entrance height.",
+    "date": "2026-11-23",
+    "osm": "© OpenStreetMap contributors, Geofabrik Berlin 2026-11-22",
+    "map": "https://download.geofabrik.de/europe/germany/berlin-261122.osm.pbf",
+    "mapSha256": "56551452bd0656d371ac473216324b679879eddf2a40f417ce9330a7f065c00d",
+    "dgm": "Geoportal Berlin DGM1, dl-de/zero-2-0",
+    "dop": "Geoportal Berlin TrueDOP 2026, native ground sample distance 0.20 m, dl-de/zero-2-0"
+  },
+  "heiligensee": {
+    "place": "Access at Sandhauser Straße 110 to the cemetery which includes the French garrison plot in division 34",
+    "gate": "node/12616770571",
+    "fence": "way/1362706796",
+    "land": "way/51832225",
+    "landClip": [
+      -10350.99,
+      -9098.37,
+      -10317.99,
+      -9068.37
+    ],
+    "approach": "way/48522712",
+    "gateWidthMApprox": 4.2,
+    "pathWidthMApprox": 4.1,
+    "dop": {
+      "center": [
+        379199.00528054027,
+        5829115.610501464
+      ],
+      "bbox": [
+        379064.0,
+        5828980.6,
+        379334.0,
+        5829250.6
+      ],
+      "url": "https://gdi.berlin.de/services/wms/truedop_2026?service=WMS&version=1.3.0&request=GetMap&layers=truedop_2026&styles=&crs=EPSG%3A25833&bbox=379064.0%2C5828980.6%2C379334.0%2C5829250.6&width=2700&height=2700&format=image%2Fjpeg",
+      "sha256": "9e7cbd1b175dc75a752ef81d8aecc9a81f6b59d69ff9e37d638d2010d89f958e",
+      "size": [
+        2700,
+        2700
+      ]
+    },
+    "dgm": {
+      "file": "dgm1_33_378_5828_2_be.xyz",
+      "archiveSha256": "bc3c039f18da851d1f102605ce4139b05a1b035d35c567450c73d727ca67edb8",
+      "xyzNHN": [
+        379157.5,
+        5829080.5,
+        33.35
+      ]
+    },
+    "citations": [
+      "https://www.berlin.de/ba-reinickendorf/politik-und-verwaltung/aemter/strassen-und-gruenflaechenamt/verwaltung/friedhofsverwaltung/friedhoefe/artikel.87911.php",
+      "https://www.gedenktafeln-in-berlin.de/gedenktafeln/detail/robert-emile-jacquinot-de-besange/2955",
+      "https://www.senat.fr/rap/r07-065/r07-065_mono.html",
+      "https://commons.wikimedia.org/wiki/File:French_Military_Cemetery_Berlin-Heiligensee.jpg"
+    ],
+    "limit": "An independent cemetery plan, register and a street photograph verify the cemetery and its French section. The register point of Father Jacquinot is on the road. The model locates the cemetery entrance. It assigns no position to a specific grave in section 34."
+  },
+  "frohnau": {
+    "place": "1997 commemorative plaque beside the entrance of the sports ground, Schönfließer Straße 13–19",
+    "approach": "way/929416122",
+    "dop": {
+      "center": [
+        384385.7873581954,
+        5833841.932825871
+      ],
+      "bbox": [
+        384320.8,
+        5833776.9,
+        384450.8,
+        5833906.9
+      ],
+      "url": "https://gdi.berlin.de/services/wms/truedop_2026?service=WMS&version=1.3.0&request=GetMap&layers=truedop_2026&styles=&crs=EPSG%3A25833&bbox=384320.8%2C5833776.9%2C384450.8%2C5833906.9&width=1300&height=1300&format=image%2Fjpeg",
+      "sha256": "d2fee85b3e6522b4d80d908c3e58be479726b4617df95e2836e1a47e5b7b10fe",
+      "size": [
+        1300,
+        1300
+      ]
+    },
+    "trace": {
+      "imageWidth": 1100,
+      "imageHeight": 1100,
+      "pixelToScene": "scene x = 384320.8 + col * 130 / 1100 - 389500; scene z = 5820000 - 5833906.9 + row * 130 / 1100",
+      "entranceApron": [
+        [
+          535,
+          720
+        ],
+        [
+          541,
+          690
+        ],
+        [
+          548,
+          657
+        ],
+        [
+          554,
+          635
+        ],
+        [
+          558,
+          611
+        ],
+        [
+          567,
+          618
+        ],
+        [
+          560,
+          660
+        ],
+        [
+          596,
+          674
+        ],
+        [
+          610,
+          667
+        ],
+        [
+          626,
+          645
+        ],
+        [
+          683,
+          658
+        ],
+        [
+          685,
+          679
+        ],
+        [
+          699,
+          701
+        ],
+        [
+          719,
+          715
+        ],
+        [
+          721,
+          729
+        ],
+        [
+          540,
+          731
+        ]
+      ],
+      "brickWallCentreline": [
+        [
+          546,
+          705
+        ],
+        [
+          557,
+          650
+        ]
+      ],
+      "gateEnds": [
+        [
+          626,
+          646
+        ],
+        [
+          681,
+          658
+        ]
+      ],
+      "plaqueApprox": [
+        551,
+        680
+      ]
+    },
+    "dgm": {
+      "file": "dgm1_33_384_5832_2_be.xyz",
+      "archiveSha256": "ead76bdbcf37d74fd1a048904df014b9ce0c9983a63e3fb7eadddddf41f76c55",
+      "xyzNHN": [
+        384385.5,
+        5833826.5,
+        49.47
+      ]
+    },
+    "citations": [
+      "https://www.gedenktafeln-in-berlin.de/gedenktafeln/detail/opfer-des-nationalsozialismus/2449",
+      "https://heinz-knobloch.de/wirkung-nachlass/gedenktafel-fuer-franzoesische-opfer-des-2-weltkrieges/",
+      "https://heinz-knobloch.de/index.php?rex_media_type=content&rex_media_file=2021-03-08_gedenktafel_schoenfliesser_str_13-19_mit_standortdarstellung.jpg",
+      "https://kriegsgraeberstaetten.volksbund.de/friedhof/berlin-reinickendorf-friedhof-heiligensee"
+    ],
+    "streetPhotoSha256": "9a8dbb7fd8f92aad4503a24ed03e98cf6a20ec6cc97bacc036326786bf48e930",
+    "limit": "The photograph identifies the plaque on the low red-brick wall left of the entrance. The surveyed image supplies the wall alignment, the gate and paved forecourt. Its approximate face position on the correct wall is an interpretation of the photograph. The 1946–1952 burial ground was exhumed."
+  }
+}

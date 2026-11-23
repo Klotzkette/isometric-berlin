@@ -1500,6 +1500,20 @@ button:active:not(:disabled) {
   font-size: 12px;
 }
 
+.landmark-search {
+  width: 100%;
+  min-height: 38px;
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border: 1px solid #726c60;
+  border-radius: 6px;
+  background: #262b27;
+  color: #f5efe4;
+  font: inherit;
+}
+.landmark-search::placeholder { color: #d5cec3; }
+.landmark-search:focus-visible { outline: 2px solid #e0ae69; }
+
 .landmark-list {
   display: grid;
   gap: 6px;
@@ -2491,7 +2505,7 @@ button:active:not(:disabled) {
   }
 
   .landmark-list {
-    max-height: calc(40dvh - 48px);
+    max-height: calc(40dvh - 94px);
   }
 
   .landmark-list button {

@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-import { App } from "./App";
+import { App, prepareInitialPlaceView } from "./App";
 import { installPreloadErrorRecovery } from "./preloadRecovery";
 import { PROJECT_VERSION } from "./projectMetadata";
 import "./styles.css";
@@ -14,9 +14,15 @@ installPreloadErrorRecovery({ version: PROJECT_VERSION });
 const root = document.getElementById("root") as HTMLElement;
 // index.html carries a no-JavaScript startup plate so the first response is
 // never a blank screen. React owns the node from this point onward.
-root.replaceChildren();
-ReactDOM.createRoot(root).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+function render() {
+  root.replaceChildren();
+  ReactDOM.createRoot(root).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  );
+}
+
+const requestedPlace = prepareInitialPlaceView();
+if (requestedPlace) void requestedPlace.then(render, render);
+else render();

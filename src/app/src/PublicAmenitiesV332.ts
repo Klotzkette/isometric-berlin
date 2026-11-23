@@ -1,3 +1,4 @@
+import { createMemorialsV378 } from "./memorialsV378";
 import {
   BoxGeometry, BufferGeometry, CanvasTexture, Color, DynamicDrawUsage, Float32BufferAttribute,
   Group, InstancedMesh, Matrix4, Mesh, MeshStandardMaterial, ShapeUtils, Sprite,
@@ -142,6 +143,7 @@ export function createPublicAmenitiesV332() {
   const root = new Group();
   root.name = "Verified public amenities v332";
   const namedGraves = createNamedGravesV347();
+  const memorials = createMemorialsV378();
   const nikolaiFountain = createNikolaiFountainV353();
   const box = new BoxGeometry();
   const material = new MeshStandardMaterial({ roughness: 0.8 });
@@ -189,6 +191,9 @@ export function createPublicAmenitiesV332() {
       if (timestamp - lastScan < 260) return false;
       lastScan = timestamp;
       const gravesChanged = namedGraves.refresh(x, z, native, support);
+      const memorialsChanged = memorials.refresh(x, z, native, support, root.parent, namedGraves.root);
+      if (memorials.root.children.length && !memorials.root.parent) root.add(memorials.root);
+      else if (!memorials.root.children.length) memorials.root.removeFromParent();
       const fountainChanged = nikolaiFountain.refresh(x, z, native, support);
       if (namedGraves.root.children.length && !namedGraves.root.parent) root.add(namedGraves.root);
       else if (!namedGraves.root.children.length) namedGraves.root.removeFromParent();
@@ -199,7 +204,7 @@ export function createPublicAmenitiesV332() {
       if (previous && previous.native === native && previous.show === show && previous.lang === lang &&
           previous.revision === revision && (previous.x - x) ** 2 + (previous.z - z) ** 2 < 9 ** 2 &&
           (!show || direction.dot(previousDirection) > 0.998 &&
-            Math.abs(previous.distance - distanceToFocus) < 7)) return gravesChanged || fountainChanged;
+            Math.abs(previous.distance - distanceToFocus) < 7)) return gravesChanged || fountainChanged || memorialsChanged;
       previous = { x, z, distance: distanceToFocus, native, show, lang, revision };
       previousDirection.copy(direction);
       const [shopX, shopZ] = NAUNYN_SPAETI_V332.worldXZ;
@@ -300,18 +305,21 @@ export function createPublicAmenitiesV332() {
       return true;
     },
     namedGravesSolidAt(x: number, y: number, z: number, radius: number, native: boolean): boolean {
-      return namedGraves.solidAt(x, y, z, radius, native) || nikolaiFountain.solidAt(x, y, z, radius, native);
+      return namedGraves.solidAt(x, y, z, radius, native) || memorials.solidAt(x, y, z, radius, native) || nikolaiFountain.solidAt(x, y, z, radius, native);
     },
     releaseNamedGraves(): boolean {
       const changed = namedGraves.release();
       const fountainChanged = nikolaiFountain.release();
+      const memorialsChanged = memorials.release();
       namedGraves.root.removeFromParent();
       nikolaiFountain.root.removeFromParent();
-      return changed || fountainChanged;
+      memorials.root.removeFromParent();
+      return changed || fountainChanged || memorialsChanged;
     },
     dispose(): void {
       root.removeFromParent();
       namedGraves.dispose();
+      memorials.dispose();
       nikolaiFountain.dispose();
       releaseStorefront();
       for (const sprite of activeBadges.values()) releaseBadge(sprite);

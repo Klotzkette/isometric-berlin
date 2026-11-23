@@ -123,7 +123,7 @@ const BUILDING_FACADE_VIEWS_V377: typeof MOABIT_VIEWS_V358 = {
 };
 
 // Extra place links use the same focus control without adding tour stops.
-export const STARTUP_ONLY_SIGHTS = [
+export const STARTUP_ONLY_SIGHTS = [...new Set([
   "Kaiser-Wilhelm-Gedächtniskirche",
   "Rotes Rathaus",
   "Gymnasium Steglitz",
@@ -148,7 +148,28 @@ export const STARTUP_ONLY_SIGHTS = [
   ...Object.keys(MOABIT_VIEWS_V358),
   ...Object.keys(MITTE_PAVING_VIEWS),
   ...Object.keys(BUILDING_FACADE_VIEWS_V377),
-].map(name => ({ name, role: "owner_added" }));
+])].map(name => ({ name, role: "owner_added" }));
+
+// The optional city-wide place catalogue is fetched only for search, a shared
+// place link or restoring a visit. Ordinary startup keeps its small camera list.
+let berlinPlaceViewsV378: typeof MOABIT_VIEWS_V358 = {};
+let placeLoad: Promise<void> | undefined;
+export function loadBerlinPlaceViewsV378(): Promise<void> {
+  return placeLoad ??= import("./berlinPlaceViewsV378").then(module => {
+    berlinPlaceViewsV378 = module.berlinPlaceViewsV378;
+    const known = new Set(STARTUP_ONLY_SIGHTS.map(place => place.name));
+    for (const name of Object.keys(berlinPlaceViewsV378)) {
+      if (!known.has(name)) STARTUP_ONLY_SIGHTS.push({ name, role: "owner_added" });
+    }
+  }).catch(error => {
+    placeLoad = undefined;
+    throw error;
+  });
+}
+
+export function isSurveyedOpeningV378(name: string): boolean {
+  return Object.hasOwn(berlinPlaceViewsV378, name);
+}
 
 export function startupOnlySight(name: string) {
   return STARTUP_ONLY_SIGHTS.find(sight => sight.name === name) ?? null;
@@ -160,7 +181,7 @@ export type StartupFlightView = Pick<NavigationSnapshot, "pose" | "fov"> & { lan
  * flight lens. No pedestrian state is created or enabled. */
 export function startupFlightView(name: string): StartupFlightView {
   if (name === GALLERY_FLIGHT_START_V223.landmarkName) return GALLERY_FLIGHT_START_V223;
-  const framed = MOABIT_VIEWS_V358[name] ?? MITTE_PAVING_VIEWS[name] ?? BUILDING_FACADE_VIEWS_V377[name];
+  const framed = berlinPlaceViewsV378[name] ?? MOABIT_VIEWS_V358[name] ?? MITTE_PAVING_VIEWS[name] ?? BUILDING_FACADE_VIEWS_V377[name];
   if (framed) return { landmarkName: name, fov: framed.fov, pose: { target: [...framed.target], position: [...framed.position] } };
   const extra = GARDEN_VIEWS_V330[name] ?? AMENITY_VIEWS_V332[name] ?? COURT_VIEWS_V333[name] ?? TRANSPORT_VIEWS_V334[name] ?? BRITZ_NEUKOELLN_VIEWS_V342[name] ?? STREET_VIEWS_V343[name] ?? MITTE_EXTERIOR_VIEWS_V344[name] ?? CITY_DETAIL_VIEWS_V345[name] ?? VENUE_VIEWS_V357[name];
   if (extra) return { landmarkName: name, fov: 16, pose: { target: [...extra.target], position: [...extra.position] } };

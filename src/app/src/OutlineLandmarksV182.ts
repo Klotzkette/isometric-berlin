@@ -104,6 +104,7 @@ import {createMemorialRuntimeV322Steps,type MemorialRuntimeV322} from "./Memoria
 import type {ExactOwnersHooksV321} from "./ExactOwnersV321";
 
 export type OutlineLandmarkOwnershipOptions = {
+  reserveOpeningCastleV378?: (native: boolean) => boolean;
   /** Complete library architecture already belongs to the required world. */
   architectureV241?: boolean;
   bayerCampusV277?: boolean;
@@ -271,7 +272,7 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createEurefCampusV262(nextNative));
       yield;
-      const westLakes=createWestLakesV194(nextNative);
+      const westLakes=createWestLakesV194(nextNative, ownership.reserveOpeningCastleV378?.(nextNative));
       pfaueninselV346=attachPfaueninselDetailsV346(westLakes,nextNative);
       root.add(westLakes);
       yield;

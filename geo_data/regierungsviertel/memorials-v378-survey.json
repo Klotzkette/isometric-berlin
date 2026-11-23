@@ -1,0 +1,206 @@
+{
+  "version": 1,
+  "crs": "EPSG:25833; world X = east - 389500, Z = 5820000 - north",
+  "source": "Geoportal Berlin, Digitale farbige TrueOrthophotos 2026, DOP20RGBI. Native resolution 0.20 m, stated horizontal accuracy ±0.40 m. Heerstraße WMS sampling interval 0.10 m. dl-de-zero-2.0.",
+  "rasters": {
+    "heerstrasse": {
+      "center": null,
+      "bbox": [
+        379171.7,
+        5818818.6,
+        379394.5,
+        5819052.8
+      ],
+      "url": "https://gdi.berlin.de/services/wms/truedop_2026?service=WMS&version=1.3.0&request=GetMap&layers=truedop_2026&styles=&crs=EPSG%3A25833&bbox=379171.7%2C5818818.6%2C379394.5%2C5819052.8&width=2228&height=2342&format=image%2Fjpeg",
+      "sha256": "7bc31c58fd42e855b40954f76f1f273b4a15fa18bb60e66a101b73de250e1c8c",
+      "size": [
+        2228,
+        2342
+      ]
+    },
+    "schoenholz": {
+      "url": "https://gdi.berlin.de/services/wms/truedop_2026?service=WMS&version=1.3.0&request=GetMap&layers=truedop_2026&styles=&crs=EPSG%3A25833&bbox=389625%2C5826765%2C389965%2C5827045&width=1700&height=1400&format=image%2Fjpeg",
+      "world": [
+        125,
+        -7045,
+        465,
+        -6765
+      ],
+      "sha256": "86927837a887d2d0ad692e9755e3719616a194139b6634c64a1ccb4be19750f2"
+    },
+    "treptow": {
+      "url": "https://gdi.berlin.de/services/wms/truedop_2026?service=WMS&version=1.3.0&request=GetMap&layers=truedop_2026&styles=&crs=EPSG%3A25833&bbox=395980%2C5816191%2C396262%2C5816445&width=1410&height=1270&format=image%2Fjpeg",
+      "world": [
+        6480,
+        3555,
+        6762,
+        3809
+      ],
+      "sha256": "d41717c431bf2fa987975a906f30a2a908ff61d0a6ae6d0d3d0c94d340158fe0"
+    },
+    "tiergarten": {
+      "url": "https://gdi.berlin.de/services/wms/truedop_2026?service=WMS&version=1.3.0&request=GetMap&layers=truedop_2026&styles=&crs=EPSG%3A25833&bbox=389476%2C5819737%2C389573%2C5819818&width=970&height=810&format=image%2Fjpeg",
+      "world": [
+        -24,
+        182,
+        73,
+        263
+      ],
+      "sha256": "2654a7a8aab3be8ea88ed8f15427e804576f8750b22ff31b9632a10fa77091b9"
+    }
+  },
+  "schoenholz": {
+    "originWorld": [
+      231.4,
+      -6974
+    ],
+    "across": [
+      0.723,
+      -0.691
+    ],
+    "along": [
+      0.691,
+      0.723
+    ],
+    "rectifiedOriginUV": [
+      -55,
+      -10
+    ],
+    "rectifiedMetresPerPixel": 0.18,
+    "outerXPairPerBedRow": [
+      [
+        140,
+        208.5,
+        381,
+        449
+      ],
+      [
+        140,
+        208,
+        380.5,
+        448.5
+      ],
+      [
+        140,
+        207.5,
+        380.5,
+        448
+      ],
+      [
+        140,
+        207.5,
+        380,
+        447.5
+      ],
+      [
+        139.5,
+        207.5,
+        380,
+        447.5
+      ],
+      [
+        139,
+        207,
+        379.5,
+        447
+      ],
+      [
+        139,
+        207,
+        379,
+        447
+      ],
+      [
+        138.5,
+        206.5,
+        379,
+        446.5
+      ]
+    ],
+    "outerYPairPerBedRow": [
+      [
+        333,
+        381
+      ],
+      [
+        413,
+        461
+      ],
+      [
+        493,
+        541
+      ],
+      [
+        573,
+        621
+      ],
+      [
+        653,
+        701
+      ],
+      [
+        733,
+        781
+      ],
+      [
+        813,
+        861
+      ],
+      [
+        893,
+        941
+      ]
+    ],
+    "measured": "16 distinct enclosing rectangular stone kerbs, grass centre and inner upright. The dark planting squares outside these eight pairs are excluded."
+  },
+  "treptow": {
+    "axes": [
+      [
+        0.792,
+        0.61
+      ],
+      [
+        0.61,
+        -0.792
+      ]
+    ],
+    "localMetresPerPixel": 0.07,
+    "windowMidpoint": [
+      75,
+      75
+    ],
+    "localWindowsAsWorldCentreAndRectifiedSlabCentre": [
+      [
+        6587.14,
+        3673.76,
+        84,
+        74
+      ],
+      [
+        6612.94,
+        3693.59,
+        75,
+        72
+      ],
+      [
+        6637.75,
+        3713.19,
+        80.5,
+        76.5
+      ],
+      [
+        6663.46,
+        3732.35,
+        80.5,
+        70
+      ],
+      [
+        6688.54,
+        3751.96,
+        81,
+        72
+      ]
+    ],
+    "measured": "The five independent orthophoto windows each resolve a square slab and a distinct circular relief within the retained grass polygon."
+  }
+}

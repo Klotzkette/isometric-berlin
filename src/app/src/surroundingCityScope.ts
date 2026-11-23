@@ -1,3 +1,4 @@
+import { memorialParcelGroundV378 } from "./memorialParcelGroundV378";
 import addedCityV346 from "./data/addedCityScopeV346.json";
 import { buddhistFrohnauGroundAtV347 } from "./BuddhistFrohnauGroundV347";
 import marzahn from "./data/marzahnScopeV230.json";
@@ -44,6 +45,8 @@ export function addedCityScopeGroundAtV346(x:number,z:number):number|null {
  * The small source scope contains no building, road or render geometry.
  */
 export function surroundingScopeGroundAt(x: number, z: number, native = false): number | null {
+  const memorialGround = memorialParcelGroundV378(x,z);
+  if (memorialGround !== null) return memorialGround;
   const frohnauGround = buddhistFrohnauGroundAtV347(x, z, native);
   if (frohnauGround !== null) return frohnauGround;
   const namedGround = botanicalV230GroundAt(x, z, native) ?? westIndustrialV230TerrainAt(x, z, native) ?? northParksV198GroundAt(x, z, native) ??

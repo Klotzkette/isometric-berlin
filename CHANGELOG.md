@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.258
+
+- Refine 30 historic buildings, the former Kaufhaus Jonaß, both astronomy sites and Berlin war cemeteries. Add searchable close views of the graves of Fontane, Hoffmann, Mendelssohn and Nico.
+- Rebuild 41 Landwehrkanal crossings and map paths, railings and vegetation along Berlin waterways. Improve Hermannplatz, Weserstraße, Schloss Tegel, the lake beaches and the fairground.
+- Add mapped motorways and the rail approach to BER, station details on the Ringbahn, airport exhibits and hardware and furniture stores. [Locations, direct views and source records](docs/berlin-landmarken-und-stadtwege-v378.md)
+
 ## 1.0.257
 
 - Add individually sourced windows, glazing, structural bays and cladding to the 50 largest modelled building envelopes that still lacked architectural fittings. Both the drawn and block views attach details to their own existing exterior walls. [Buildings, evidence and viewing examples](docs/grosse-gebaeude-fassaden-v377.md)

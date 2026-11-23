@@ -173,7 +173,7 @@ import {
   simulationStartStorage,
   sightSlug,
 } from "./viewNavigation";
-import { STARTUP_ONLY_SIGHTS, startupFlightView, startupOnlySight, startupViewSelection } from "./startupView";
+import { STARTUP_ONLY_SIGHTS, loadBerlinPlaceViewsV378, startupFlightView, startupOnlySight, startupViewSelection } from "./startupView";
 import {
   loadThreeViewerComponent,
 } from "./viewerEngineLoader";
@@ -209,10 +209,20 @@ function initialSimulationStart(): { name: string; automatic: boolean } {
   );
 }
 
-const INITIAL_SIMULATION_START = initialSimulationStart();
-const INITIAL_FLIGHT_VIEW = INITIAL_SIMULATION_START.automatic || startupOnlySight(INITIAL_SIMULATION_START.name)
-  ? startupFlightView(INITIAL_SIMULATION_START.name) : null;
-const INITIAL_OPENING_NAME = INITIAL_FLIGHT_VIEW ? INITIAL_SIMULATION_START.name : null;
+export function prepareInitialPlaceView(): Promise<void> | undefined {
+  if (typeof window !== "undefined" && (parseViewHash(window.location.hash).landmarkSlug || RECOVERED_VISIT?.navigation)) {
+    return loadBerlinPlaceViewsV378();
+  }
+}
+
+function initialOpening() {
+  const INITIAL_SIMULATION_START = initialSimulationStart();
+  const INITIAL_FLIGHT_VIEW = INITIAL_SIMULATION_START.automatic || startupOnlySight(INITIAL_SIMULATION_START.name)
+    ? startupFlightView(INITIAL_SIMULATION_START.name) : null;
+  const INITIAL_OPENING_NAME = INITIAL_FLIGHT_VIEW ? INITIAL_SIMULATION_START.name : null;
+  return { INITIAL_SIMULATION_START, INITIAL_FLIGHT_VIEW, INITIAL_OPENING_NAME };
+}
+let opening: ReturnType<typeof initialOpening> | undefined;
 
 type MobileSheet = "compass" | "overflow" | null;
 
@@ -814,6 +824,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
   initialViewerLanguage: Language;
   recoveredVisit: ViewerVisit | null;
 }) {
+  const { INITIAL_SIMULATION_START, INITIAL_FLIGHT_VIEW, INITIAL_OPENING_NAME } = opening ??= initialOpening();
   const restoredNavigation = recoveredVisit?.navigation ?? null;
   const appShellRef = useRef<HTMLElement | null>(null);
   const [pergamonRevealed, setPergamonRevealed] = useState(false);
@@ -874,6 +885,17 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
   const threeViewerAutoRecoveryUsedRef = useRef(false);
   const threeViewerGenerationRef = useRef(0);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
+  const [placeQuery, setPlaceQuery] = useState("");
+  const [catalogueState, setCatalogueState] = useState<"idle" | "ready" | "failed">("idle");
+  useEffect(() => {
+    if (!placeQuery.trim() || catalogueState === "ready") return;
+    let active = true;
+    loadBerlinPlaceViewsV378().then(
+      () => { if (active) setCatalogueState("ready"); },
+      () => { if (active) setCatalogueState("failed"); },
+    );
+    return () => { active = false; };
+  }, [placeQuery, catalogueState]);
   const [publicAmenitiesOn, setPublicAmenitiesOn] = useState(false);
   const openingLandmarkRef = useRef<string | null>(restoredNavigation ? null : INITIAL_OPENING_NAME);
   const [selected, setSelected] = useState<string>(INITIAL_SIMULATION_START.name);
@@ -1013,6 +1035,18 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
     () => featuredSights(landmarks),
     [landmarks],
   );
+  const tourNumbers = useMemo(() => new Map(landmarks.map((place, i) => [place.name, i + 1])), [landmarks]);
+  const listedPlaces = useMemo(() => {
+    const words = sightSlug(placeQuery).split("-").filter(Boolean);
+    if (!words.length) return featuredLandmarks;
+    const seen = new Set<string>();
+    return [...landmarks, ...STARTUP_ONLY_SIGHTS].filter(place => {
+      const name = sightSlug(place.name).replaceAll("-", "");
+      if (seen.has(place.name) || !words.every(word => name.includes(word))) return false;
+      seen.add(place.name);
+      return true;
+    });
+  }, [placeQuery, landmarks, featuredLandmarks, catalogueState]);
   const selectedIndex = useMemo(
     () => landmarks.findIndex((landmark) => landmark.name === selected),
     [landmarks, selected],
@@ -2431,8 +2465,10 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
     if (landmarks.length === 0) {
       return;
     }
+    let listening = true;
     const applyHash = () => {
-      const viewHash = parseViewHash(window.location.hash);
+      const hash = window.location.hash;
+      const viewHash = parseViewHash(hash);
       const hashLandmark = findSightBySlug(landmarks, viewHash.landmarkSlug) ??
         findSightBySlug(STARTUP_ONLY_SIGHTS, viewHash.landmarkSlug);
       const hashRotation = rotationFromHashValue(viewHash.rotationValue);
@@ -2444,6 +2480,12 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
       // generic rotation afterwards used to destroy that framing.
       if (hashLandmark) {
         focusLandmark(hashLandmark, true);
+      } else if (viewHash.landmarkSlug) {
+        void loadBerlinPlaceViewsV378().then(() => {
+          if (!listening || window.location.hash !== hash) return;
+          const place = findSightBySlug(STARTUP_ONLY_SIGHTS, viewHash.landmarkSlug);
+          if (place) focusLandmark(place, true);
+        }).catch(() => {});
       }
     };
     if (restoredHashRef.current !== window.location.hash) applyHash();
@@ -2454,6 +2496,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
     window.addEventListener("hashchange", applyChangedHash);
     window.addEventListener("popstate", applyChangedHash);
     return () => {
+      listening = false;
       window.removeEventListener("hashchange", applyChangedHash);
       window.removeEventListener("popstate", applyChangedHash);
     };
@@ -3134,9 +3177,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
                 : landmarkShortLabel(selectedDisplayName ?? status)}
             </strong>
             <small>
-              {selectedIndex >= 0 ? selectedIndex + 1 : 1}/
-              {landmarks.length || 1}
-              {" · 3D"}
+              {selectedIndex >= 0 ? `${selectedIndex + 1}/${landmarks.length} · ` : ""}3D
               {isPedestrianMode
                 ? language === "de"
                   ? " · Zu Fuß"
@@ -4388,10 +4429,19 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
           <div className="rail-heading">
             <LocateFixed aria-hidden="true" size={17} />
             <span>{copy.attractions}</span>
-            <small>{featuredLandmarks.length}</small>
+            <small>{listedPlaces.length}</small>
           </div>
+          <input
+            className="landmark-search" type="search" value={placeQuery}
+            placeholder={language === "de" ? "Ort suchen" : "Find a place"}
+            aria-label={language === "de" ? "Ort suchen" : "Find a place"}
+            onChange={event => setPlaceQuery(event.currentTarget.value)}
+          />
           <div className="landmark-list">
-            {featuredLandmarks.map((landmark) => (
+            {listedPlaces.length === 0 && <small role="status">{catalogueState === "ready" ? (language === "de" ? "Kein passender Ort" : "No matching place")
+              : catalogueState === "failed" ? (language === "de" ? "Weitere Orte konnten nicht geladen werden" : "Additional places could not be loaded")
+              : (language === "de" ? "Orte werden geladen …" : "Loading places …")}</small>}
+            {listedPlaces.map((landmark) => (
               <button
                 key={landmark.name}
                 ref={(element) => {
@@ -4419,9 +4469,9 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
                 }}
               >
                 <span className="landmark-row">
-                  <span className="landmark-index">
-                    {String(landmarks.indexOf(landmark) + 1).padStart(2, "0")}
-                  </span>
+                  {tourNumbers.has(landmark.name) && <span className="landmark-index">
+                    {String(tourNumbers.get(landmark.name)).padStart(2, "0")}
+                  </span>}
                   <span className="landmark-name">{landmark.name}</span>
                 </span>
                 <small>{roleLabel(landmark.role, language)}</small>
@@ -4447,7 +4497,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
           <strong>{selectedDisplayName}</strong>
           <small>{roleLabel(selectedLandmark.role, language)}</small>
           {selectedIndex >= 0 ? <>
-            <span>{selectedIndex + 1} / {landmarks.length}</span>
+            {selectedIndex >= 0 && <span>{selectedIndex + 1} / {landmarks.length}</span>}
             <div className="selection-progress" aria-hidden="true">
               <span style={{ width: `${selectionProgress}%` }} />
             </div>
