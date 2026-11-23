@@ -1,0 +1,166 @@
+{
+  "additions": {
+    "src/app/src/MitteCanopyV376.ts": "d0b63cc7daf58bcc1e585dc181c7f3ee971e4e4c7d0065f2c7bfc27b8edd3b94",
+    "src/app/src/arrivalRoadRangesV376.ts": "0903e99fd02420bc0f8e49229216b82eb3cadb41bc6b79f9e475c6de58f09a57",
+    "src/app/src/arrivalRoadViewV376.ts": "d9d8f15238b287e340249c7030489fd451bbeeae6b155f4fe342701d6383694e",
+    "src/app/src/binaryRoadBatchesV376.ts": "01e93b1a03532b946598e2a566bb68f552ab6085406e30cc81176488afe76dd7",
+    "src/app/src/data/mitteCanopyV376.json": "931f3831a87a191fe75d609a4fa7f78f151141d53205eec8657a664bdda5f53e",
+    "src/app/src/data/mitteRoadMarginsV376.json": "f3777f9fb0a64f1bd3a8d83c6bcbfc863caa05b00afdc401b101595583d64af5",
+    "src/app/src/data/surveyedSidewalkEdgesV376.json": "2de8ddb89932dfad2b3e91817a83a0db7dd0e7153ac5eb8716f37608d9a0728b",
+    "src/app/src/nativeRoofLookup.ts": "be8318861b767599a93ed4207b2bd56d3d0656076dfc7ca8a11bdeee51469bc4"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "after": "ade703271fd73b114d56d0d163b3deac6af97c29e862522e5eeb0c5ca0efa9d3",
+      "before": "0128f1df1d4ff31bc2a68cd5eb04b459c5e0446d801e96963a75992e4c09e06d"
+    },
+    "src/app/src/ExteriorStreetMarginsV373.ts": {
+      "after": "b0a2394891735546edd6d983eae776eed75798b28ae27d2df2c92c727880bcc1",
+      "before": "c0f741001a985eac2e1f7f6d4044eda76365e223a91bc38e732a3cfd4c42cbc3"
+    },
+    "src/app/src/GendarmenmarktArchitecture.ts": {
+      "after": "b86e324456dd14b15ee6f5a02db2f8c7d1b4a8892222fb9bde6898443fe5e7a9",
+      "before": "82a54413f23a364a88c87b8f2d0fd8bbbfc9cc531ebf0308422072b94373a9f6"
+    },
+    "src/app/src/MinecraftMobs.ts": {
+      "after": "1e307c530b34fc219b143998b4d6ad13d8c392495bfae7765f664cb18b452394",
+      "before": "9d47e4303c5b14e64a831c013cc7a447884f39768eeb06f002fc2534003f2243"
+    },
+    "src/app/src/MinecraftVoxelWorld.ts": {
+      "after": "444a09698f9c74e98a65889eb0d0005f1693c9580067d20dab04f133ff5e4473",
+      "before": "0115b1bf15e629465dd9f74b7fee2084aec95ec2a56565db3141110d9abaea19"
+    },
+    "src/app/src/MittePathDepthV375.ts": {
+      "after": "8d21429a4f3ba41d37b28d076e605ef78432ca953fb3dbcf834a11eab6abb249",
+      "before": "514a2f65a07b124bba4974644f2b1f2309378035b06e750ce6007e5bc4cac16b"
+    },
+    "src/app/src/MittePlazaEdgesV367.ts": {
+      "after": "e8a62aefbab8cebaf91972826d70dc23249c85b25fce5a0e885ddbcbbbea44f5",
+      "before": "9b66e091de0d4543229a781f99a3e4ed51785c6240925667a4c480bffac0b1cc"
+    },
+    "src/app/src/MitteTreesV375.ts": {
+      "after": "bcabf9f6441feccce9fb4632fc6a666dc94a8aa790ea5a8fa9349203a8395d7e",
+      "before": "fdb7f8e89bc5466547704fd193661a8ea38e3c3b9ff4754b194d7f5bd6b79daf"
+    },
+    "src/app/src/ParkDetails.ts": {
+      "after": "bc687caf99420df44a4586e9faaf1c19bfa76f712b4e8b54cd04724f9daf8ff3",
+      "before": "5dbfdde3585ff7e9166fba7a1902bca96413916a8fa726f67e5841270992268a"
+    },
+    "src/app/src/SourcesDialog.tsx": {
+      "after": "a97deecc4d30967762f53556afc948121b435e8aa9c969c15efeb80bac6a3771",
+      "before": "227f44d1dc97d3e773fb2015f2b96cb46f3f7773b533e1b5bb4d666745b8e780"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "after": "84293eb0e616183e4e9f6dbd2c1b4cc76556cc976340ff8aee19d210d99b075c",
+      "before": "16a08342642dec9ff9010be8ebacb966f6faec7080653687e02be6f72a14673b"
+    },
+    "src/app/src/alexanderNorthV166Profile.ts": {
+      "after": "c744192f99439bdbfed60245673b4f513f113266b8bdd2e9b5626b192f4ea8f3",
+      "before": "8a4873838b836f175b969261bbff96586f01e23db3b678e3df7bf2cf66856f45"
+    },
+    "src/app/src/breitscheidTowersProfile.ts": {
+      "after": "a6b37422bdda6a54f32384bc33e1f382e51cceba833e06eecdb91004955d0ad5",
+      "before": "ad9a0d5db33fda2bcf8fac759527942e10697d3345a769d39bb0b948cdf133dd"
+    },
+    "src/app/src/cafeNeuerSeeV164Profile.ts": {
+      "after": "ffe6ff79b526901dce53f13660895a9f1a3eb6a6683f95dc2fec4c9a4495bd29",
+      "before": "4297b76806a677c8ce0d9b26d9541195d44f165e15a796e5e54f05fec1af0357"
+    },
+    "src/app/src/chancelleryExtensionProfile.ts": {
+      "after": "4b82a337976c4e967984dd5e86dc62eb6d0b71a8781a813cceb022f8cfb84e72",
+      "before": "6c7bef4efef3f0846d15cefa715e2c7e3aa6d70f2ef7e7dbe6b2dbbdef71799c"
+    },
+    "src/app/src/cityWestCinemasV166Profile.ts": {
+      "after": "550a8bc916a17a6fcb217d7125c63be7ec7ee485a8cd573c8e474ef5eba206de",
+      "before": "e6fefbfdc01722a140d577190dec36804ece1b83cdcceaeba991dcb18d847b12"
+    },
+    "src/app/src/concertHallsProfile.ts": {
+      "after": "ed5e90d51d8a54f587475c0b4dbde0049071e752eeb0a8f8035d64df6a90de98",
+      "before": "4e16a3ef743586c071c544690eb90de4f7fee16b1c0103b7c256e66a14e4d3d4"
+    },
+    "src/app/src/hackescherMarktV163Profile.ts": {
+      "after": "19493d9048cbf4ed75e2953fb3429a66dd75971567055b89d6f7fc0cef4d0276",
+      "before": "16fd51c5e6d5fa75e94985ca428e731bb9f9e4d970eee8d8d362ea26d1a17067"
+    },
+    "src/app/src/huthmacherProfile.ts": {
+      "after": "49d9960bc25a57405838c343f37b82efb9cf343f33d332a4565309e3196afe96",
+      "before": "c3909facb63ed9eeccfab98955db2ff8bf9f65c36fd1d668834220bb39c2afaf"
+    },
+    "src/app/src/kosmosV166Profile.ts": {
+      "after": "f6e83ed0b80c1c1f47011bce9aeac180504a8a4edfd2a3c15ea6345b1b173396",
+      "before": "734d139b7436e720c82e59c936e25af8e7e1e4ec5ba97642395f4a5d6438d15e"
+    },
+    "src/app/src/kranzlerV165Profile.ts": {
+      "after": "c331934007ce4b0c97fa81adc0a0c6d8798dd36ca2a0a2564f0fc5df309edcfe",
+      "before": "083ffcd580b9345f2d1289351d04ec6675006d0995dd51045be9de0c00ef3a33"
+    },
+    "src/app/src/losslessWordStreamV309.ts": {
+      "after": "8ba9df44f6a03af37e268f780b859cc4615be6b5b4950a45dd0d8c90681e86c4",
+      "before": "9570496f0c1d5048dbe3ba4281f14a968128e167050151b5fb4b578656410ba7"
+    },
+    "src/app/src/mitteHeritageV166Profile.ts": {
+      "after": "67ddb8294695f78102b99c138dd013e93bc21887b2cfb3a49904e8d59cda0dd4",
+      "before": "f29ef9bd01cdacc2aa20764e81f242357bbd8c1ad2fc22b6863880bb0d9bf591"
+    },
+    "src/app/src/moabitJusticeV166Profile.ts": {
+      "after": "58733971e0893c873304f444c8564cc59265029579540300ff3e79cb2dd1d573",
+      "before": "ae2ffaab35c799e2f84049410c1880d2d4972a1efb049353273e502079bc4c30"
+    },
+    "src/app/src/neueSynagogeV167Profile.ts": {
+      "after": "c28f4cfcfd204ab410e604b86298981cf1dc2ba1671f7bd551e276d1af5c6c1c",
+      "before": "af30dff39267b03ef4e1d60e9fcf91195b3a9e2eade9b6adec2f577a15cb416c"
+    },
+    "src/app/src/operaTheatresV274Profile.ts": {
+      "after": "867241c08dce713375f0395816f2dc3f434944abca2fa665ade99ec09ea4a0a6",
+      "before": "2e20502029ab0985b0e59fb1b3a1737acd91bbf791de642578f7820274f9dfbe"
+    },
+    "src/app/src/pedestrianNavigation.ts": {
+      "after": "5374f95fbb703bc55c86c9673b369f2b0aaa26a8c27bfb11e1aff864c7c3cccf",
+      "before": "95bb56eda70342b07e2b0f8c069f2e8e14c8f335ff56a8858f4ffe624ba3f7f3"
+    },
+    "src/app/src/pressQuarterV272Profile.ts": {
+      "after": "e51155d50737a7d2d19b3a41994a85b3b67a35bdbb9ffffafe54f4367b2dfd11",
+      "before": "e4446086eb52ac8d1c0c9e7b6fab32308a74cc037e496cd2318cc9b9494f62e4"
+    },
+    "src/app/src/restoredRoadSurfaces.ts": {
+      "after": "99944a488c23c4d6dccbace9ac23cc214ccfb395f58b4ddad98dcdc1180e4c2d",
+      "before": "309f137af749e6dbe83b819d4aae9f7dcae82ba7820503db984026105d990002"
+    },
+    "src/app/src/roadWordPlanesV362.ts": {
+      "after": "6f45ef6dbdb8053ee19f31bdeb0d1ae18e2cd97c87b95f6b69fd54d08f5df55c",
+      "before": "5569241f288051234987a40cff03bb3a177bc2c485dfdf04ef73cb1f22743de2"
+    },
+    "src/app/src/spanishEmbassyV164Profile.ts": {
+      "after": "1950bf9f6a2dcaf18b50c8cc9a2f8e05677e92f7a56c059909cfe61b633e97c3",
+      "before": "c655014bf8f0df1299f2736b7767bf2a14d2e0e1af441d1aacd27b488961b94f"
+    },
+    "src/app/src/tachelesV167Profile.ts": {
+      "after": "a5f83ec221c49e126595e7ac5d66432f153c56d1cf325263ba4b3ef0578ab423",
+      "before": "86281d3ffd621c9c2b8fb436b62a26a037bea4b5601645860fcc354da25c305b"
+    },
+    "src/app/src/terrainPayload.ts": {
+      "after": "4548659b321c2ea2e3e006afc154b16b01622a215da1935357c4808b7531926f",
+      "before": "85a6f626742e3f05a17a276e00593252688fdf1221c59d0353512201ff5fce37"
+    },
+    "src/app/src/theatresV272Profile.ts": {
+      "after": "b462e7f337592ebf8f8b4afb025b64e14d4b8db70281240c7cc95929ab6bc755",
+      "before": "8058dd73bd6544abe919c6b40a9858cc9b04af0941a0c175fbad76ec2f6729e3"
+    },
+    "src/app/src/westSquaresV163Profile.ts": {
+      "after": "b0511d5bb2cdf1009845b1f4214e6a1d779cde3403689b779d8f896d3fdd78f5",
+      "before": "8ce4443020e6126763421fe8ab1300030cec58a603aa658ef1e795912c1dbe4c"
+    },
+    "src/app/src/westVenuesV260Profile.ts": {
+      "after": "84c001a026539b2d1a7c58927f6a9fd432a66f1d159b3cad9627c1b34e1c951d",
+      "before": "e3f1bfc6bcd502ad1457cd6531475f17445515f3aea6fcd6d9772f5d39f71fcb"
+    },
+    "src/app/src/zooGroundsV165Profile.ts": {
+      "after": "d114a098b8a7396a1f06e4065d42d04613c348f0b7a7a831a45d7af99379a812",
+      "before": "a792cbb8dbd2d9b0312e72a0587ef4be6db1893992ccb8792d173d314f27a9d0"
+    },
+    "src/app/src/zooStationV165Profile.ts": {
+      "after": "98eba39573a9feff9f454e155599732beb3765e95de09f6b15e77272389d8043",
+      "before": "b69511ef1d3abf2c56d5c24d9d3db90f497bf043a44f94de85f4124178f803dc"
+    }
+  }
+}
