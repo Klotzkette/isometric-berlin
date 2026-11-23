@@ -5,6 +5,7 @@ import {
   createSmoothSurfaces,
   ISO_GROUND_SHADES,
 } from "../src/IsometricCityWorld";
+import { bindGroundFinishV348 } from "../src/GroundFinishV348";
 import { restoreRoadGroundV343 } from "../src/RoadGroundV343";
 import { createKulturforumPlazaV343 } from "../src/KulturforumPlazaV343";
 import { restoreTiergartenPathsV345 } from "../src/TiergartenPathsV345";
@@ -75,6 +76,20 @@ test("eight blocked paths transfer from their temporary fragments to the complet
   expect(restoreMittePathGroundV375(floor, ground, ISO_GROUND_SHADES.grass)).toBe(true);
   expect(restoreMittePathGroundV375(floor, ground, ISO_GROUND_SHADES.grass)).toBe(false);
   expect(floor.userData.mittePathGroundV375).toBe(1009);
+  // Both sides of the formerly bright four-metre fringe at the ring path in
+  // Geschichtspark Moabit are the same surveyed host grass at this height.
+  const retained = first(world, -327.9, -898);
+  const neighbour = first(world, -325.9, -900.2);
+  expect(retained.object.parent?.name).toBe(MITTE_PATH_GROUND_V375);
+  expect(retained.object.userData.groundFinishV348).toBe("grass");
+  expect(neighbour.object).toBe(floor);
+  expect(neighbour.object.userData.groundFinishV348).toBe("core-drawn");
+  const lawn = floor.getObjectByName(MITTE_PATH_GROUND_V375)!;
+  expect(lawn.children.every(piece => piece.userData.groundFinishV348 === "grass")).toBeTrue();
+  expect(bindGroundFinishV348(lawn)).toBe(2); // shared day and night materials
+  expect(bindGroundFinishV348(lawn)).toBe(0);
+  expect(floor.getObjectByName("Original Mitte path fragments awaiting their source batches")!
+    .children.every(piece => !piece.userData.groundFinishV348)).toBeTrue();
   let memory = 0;
   floor.getObjectByName(MITTE_PATH_GROUND_V375)!.traverse((mesh) => {
     if (!(mesh instanceof Mesh)) return;

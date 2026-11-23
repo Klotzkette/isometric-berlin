@@ -11,6 +11,7 @@ import {
 import { gunzipSync } from "three/examples/jsm/libs/fflate.module.js";
 import { decodeBase64Bytes } from "./decodeBase64Bytes";
 import { restoreDrawnWaterBoundary } from "./drawnWaterBoundary";
+import { markGroundFinishV348 } from "./GroundFinishV348";
 import { registerMittePathPreviewsV375 } from "./mittePathArrivalV375";
 import type { VoxelPayload } from "./terrainPayload";
 import packet from "./data/mittePathDepthV375.json";
@@ -151,6 +152,12 @@ export function restoreMittePathGroundV375(
   const outside = slabs.children.find((child) => !previous.has(child));
   if (!outside) return false;
   outside.name = MITTE_PATH_GROUND_V375;
+  // completeGrassHosts verified every source span. Its polygon remainder
+  // must use the same world-space lawn grain and colour as the surrounding
+  // instanced slab, including after its vertex colours are packed for touch.
+  for (const piece of outside.children) {
+    if (piece instanceof Mesh) markGroundFinishV348(piece, "grass");
+  }
 
   const previews = new Map<string, Mesh>();
   const group = new Group();
