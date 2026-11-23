@@ -139,7 +139,11 @@ import { sovietMemorialWalkableAt, sovietMemorialSolidAt, sovietMemorialGroundAt
 import { setSovietMemorialSmoothVisibility } from "./MinecraftSovietMemorial";
 import { setComposerMemorialSmoothVisibility } from "./MusicComposerMemorial";
 import { completeCooperatively } from "./cooperativeWork";
-import { createEarlyMitteTreesV375, earlyMitteTreeStandsV375, matchesMitteTreeSceneV375, withMitteSurveyTreesV375, withMitteNativeTreesV375 } from "./MitteTreesV375";
+import { matchesMitteTreeSceneV375 } from "./MitteTreesV375";
+import {
+  createMitteCanopiesV376, earlyCanopiesV376,
+  retainMitteCanopyCellV376, withCanopyParkV376, withCanopyVoxelsV376,
+} from "./MitteCanopyV376";
 import { startupWorkPositionV309, startupWorkPresentationV309, type StartupWorkV309 } from "./startupWorkV309";
 import { createBndPublicArtV314 } from "./BndPublicArtV314";
 import { WORLD_ORBIT_BASE_DISTANCE_M, worldCameraFarM } from "./worldCameraDepth";
@@ -4382,13 +4386,14 @@ function prepareIsoNavigation(
     publishedNavigationMode(runtime.lightingMode, voxelModeActive(runtime));
   const coreSpreeBridges = createCoreSpreeBridgeNavigationV242(ground, pedestrianEnvironment.visualMode, runtime.signatures);
   if (runtime.mitteTreesV375) {
-    addFirstParkTreeObstacles(pedestrianEnvironment, earlyMitteTreeStandsV375().flat(), runtime.tunnelPortalCourse);
+    addFirstParkTreeObstacles(pedestrianEnvironment, earlyCanopiesV376().flat(), runtime.tunnelPortalCourse);
   }
   pedestrianEnvironment.parkTreeSolidAt =
     createPedestrianParkTreeSolidTester(
       ground.cell_m,
       runtime.coarsePointer ? "mobile" : "full",
       () => voxelModeActive(runtime),
+      runtime.mitteTreesV375 ? retainMitteCanopyCellV376 : undefined,
     );
   const ardRoofCollision = createArdHauptstadtstudioRoofCollision(prisms);
   const historicParkBridgeCollision =
@@ -5694,13 +5699,14 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
   const spreebogenLawnGroundAt = createSpreebogenLawnGroundAt(payload);
   configureNeueNationalgalerieObstaclesV217(environment.obstacles);
   if (runtime.mitteTreesV375) {
-    addFirstParkTreeObstacles(environment, earlyMitteTreeStandsV375().flat(), runtime.tunnelPortalCourse);
+    addFirstParkTreeObstacles(environment, earlyCanopiesV376().flat(), runtime.tunnelPortalCourse);
   }
   environment.parkTreeSolidAt =
     createPedestrianParkTreeSolidTester(
       payload.cell_m,
       runtime.coarsePointer ? "mobile" : "full",
       () => voxelModeActive(runtime),
+      runtime.mitteTreesV375 ? retainMitteCanopyCellV376 : undefined,
     );
   environment.walkableInteriorAt = (x, y, z, sourceId) =>
     parliamentWorldReadyV295(runtime) && parliamentWalkableInteriorV295(x,y,z,sourceId) ||
@@ -5949,11 +5955,12 @@ function ensureVoxelWorld(
       ]) : [null, null, null, null, null, null, null, null];
       if (runtime.disposed || runtime.loadSignal.aborted || !voxelWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
       const nordbahnhof = nordbahnhofModule?.prepareNordbahnhofNative(prisms?.buildings, payload) ?? null;
+      const treePayload = runtime.mitteTreesV375 ? withCanopyVoxelsV376(payload) : payload;
       provisionalVoxelWorld = new Group();
       await completeCooperatively(
         buildMinecraftVoxelWorldSteps(
           provisionalVoxelWorld,
-          runtime.mitteTreesV375 ? withMitteNativeTreesV375(payload) : payload,
+          treePayload,
           prisms ? buildColumnToneLookup(prisms) : null,
           runtime.tunnelPortalCourse,
           {
@@ -6060,7 +6067,7 @@ function ensureVoxelWorld(
       });
       pedestrianSnapshot = capturePedestrianAttachment(runtime);
       provisionalMinecraftMobs = createMinecraftMobs(
-        payload,
+        treePayload,
         !runtime.coarsePointer,
         runtime.coarsePointer ? "mobile" : "full",
       );
@@ -10289,7 +10296,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           const hasMitteTrees = matchesMitteTreeSceneV375(manifest);
           runtime.mitteTreesV375 = hasMitteTrees;
           if (hasMitteTrees) {
-            const trees = createEarlyMitteTreesV375(manifest.tiergartentunnel, !runtime.coarsePointer);
+            const trees = createMitteCanopiesV376(manifest.tiergartentunnel, !runtime.coarsePointer);
             runtime.parkDetails.add(trees);
             applyLightingToRoot(trees, runtime.lightingMode, runtime.nightLightsOn);
             setParkSnowPresentation(runtime.parkDetails, runtime.lightingMode === "snowstorm");
@@ -10784,7 +10791,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                     deferredDetailsStarted = false;
                     return;
                   }
-                  const park = hasMitteTrees ? withMitteSurveyTreesV375(payload) : payload;
+                  const park = hasMitteTrees ? withCanopyParkV376(payload) : payload;
                   const options = {
                     fritzCourseV366: true,
                     pathTerrainAt: runtime.districtPathTerrainAt,

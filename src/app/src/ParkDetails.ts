@@ -1,3 +1,4 @@
+import type { SurveyedNativeCrown } from "./terrainPayload";
 import { cutInvalidenGeometryV371 } from "./invalidenGroundOwnershipV371";
 import { isFritzCourseV366, paintFritzCourseV366 } from "./fritzCourseV366";
 import { createGovernmentStreetLampBatchV286, type GovernmentStreetFurnitureTerrainAtV286 } from "./GovernmentStreetLampBatchV286";
@@ -69,6 +70,7 @@ export type ParkTree = {
   /** This municipal addition has no corresponding tree in the native voxel inventory. */
   drawnOnly?: boolean;
   nativeTreeBlock?: [number, number, number, number];
+  nativeCrown?: SurveyedNativeCrown;
   catalogue?: string | null;
   crown_radius_m: number;
   height_m: number;
@@ -1206,16 +1208,20 @@ function* addPathsSteps(
 }
 
 /** Render a small, independently culled source stand using the complete park's exact botanical forms. */
-export function createParkTreeStand(trees: ParkTree[], tunnel: TunnelPortalPayload, settledDetail: boolean): Group {
+export function createParkTreeStand(trees: ParkTree[], tunnel: TunnelPortalPayload, settledDetail: boolean, coarse = false): Group {
   const group = new Group();
   const inApproach = createTunnelPortalApproachTester(tunnel);
   const retained = trees.filter(tree => {
     const [x, , z] = tree.position;
     return !isChancelleryExtensionConstructionPoint(x, z) && !inApproach(x, z, tree.crown_radius_m + 1.5);
   });
-  const steps = addTreesSteps(group, retained, null, settledDetail, false);
-  for (let step = steps.next(); !step.done; step = steps.next()) {
-    // Only the bounded first-paint stand is synchronous.
+  if (coarse) {
+    addMobileTrees(group, retained);
+  } else {
+    const steps = addTreesSteps(group, retained, null, settledDetail, false);
+    for (let step = steps.next(); !step.done; step = steps.next()) {
+      // Only the bounded first-paint stand is synchronous.
+    }
   }
   for (const mesh of group.children) {
     if (mesh instanceof InstancedMesh) indexGeometryExactly(mesh.geometry);
@@ -1295,6 +1301,11 @@ function* addTreesSteps(
     vase: 0,
     willow: 0,
   };
+  // Crown diameter and rise above the trunk for each unscaled, five-lobed
+  // dense deciduous primitive. These extents include the actual faceted vertices
+  // and lobe rotations. A test checks the fitted vertices for every surveyed tree.
+  const chestnutWidths = [2.425261, 2.062020, 2.198108];
+  const chestnutRises = [1.245972, 1.477753, 1.429047];
   let treeIndex = 0;
   for (const tree of trees) {
     if (packedScratch && treeIndex++ % 128 === 0) yield;
@@ -1453,15 +1464,18 @@ function* addTreesSteps(
         });
       }
     }
+    const fit = tree.nativeCrown;
+    const crownRadius = fit ? fit.diameter / chestnutWidths[variant] : tree.crown_radius_m;
+    const crownRise = fit ? (fit.height - trunkHeight) / chestnutRises[variant] : tree.crown_radius_m;
     if (Math.abs(tree.variant) % 3 === 0) {
       const snowTarget = isInsideCutaway ? cutawaySnowCaps : snowCaps;
       snowTarget.push({
-        position: [x, y + trunkHeight + tree.crown_radius_m * 1.02, z],
+        position: [x, y + trunkHeight + crownRise * 1.02, z],
         rotation: [0, branchYaw, 0],
         scale: [
-          tree.crown_radius_m * 0.78,
-          tree.crown_radius_m * 0.12,
-          tree.crown_radius_m * 0.72,
+          crownRadius * 0.78,
+          crownRise * 0.12,
+          crownRadius * 0.72,
         ],
       });
     }
@@ -1473,19 +1487,20 @@ function* addTreesSteps(
       for (let layer = 0; layer < profile.offsets.length; layer += 1) {
         const [offsetX, offsetY, offsetZ] =
           profile.offsets[(layer + variant) % profile.offsets.length];
-        const radius = tree.crown_radius_m * profile.radiusScales[layer];
+        const radius = crownRadius * profile.radiusScales[layer];
+        const radiusY = fit ? crownRise * profile.radiusScales[layer] : radius;
         const [scaleX, scaleY, scaleZ] = profile.axisScale;
         target[variant].push({
           color: foliageColor,
           position: [
-            x + offsetX * tree.crown_radius_m,
-            y + trunkHeight + radius * (0.4 + offsetY),
-            z + offsetZ * tree.crown_radius_m,
+            x + offsetX * crownRadius,
+            y + trunkHeight + radiusY * (0.4 + offsetY),
+            z + offsetZ * crownRadius,
           ],
           rotation: [0, ((tree.variant + layer) * Math.PI) / 7, 0],
           scale: [
             radius * scaleX * (variant === 0 ? 1.06 : variant === 1 ? 0.94 : 1),
-            radius *
+            radiusY *
               scaleY *
               (1 + layer * 0.035) *
               (variant === 1 ? 1.16 : variant === 2 ? 0.88 : 1),
@@ -1505,16 +1520,17 @@ function* addTreesSteps(
       ];
       const target = isInsideCutaway ? settledCutawayCrowns : settledCrowns;
       settledOffsets.forEach(([offsetX, offsetY, offsetZ], index) => {
-        const radius = tree.crown_radius_m * (index === 0 ? 0.54 : 0.58);
+        const radius = crownRadius * (index === 0 ? 0.54 : 0.58);
+        const radiusY = fit ? crownRise * (index === 0 ? 0.54 : 0.58) : radius;
         target[variant].push({
           color: foliageColor,
           position: [
-            x + offsetX * tree.crown_radius_m,
-            y + trunkHeight + radius * offsetY,
-            z + offsetZ * tree.crown_radius_m,
+            x + offsetX * crownRadius,
+            y + trunkHeight + radiusY * offsetY,
+            z + offsetZ * crownRadius,
           ],
           rotation: [0, ((tree.variant + index + 5) * Math.PI) / 7, 0],
-          scale: [radius, radius * (index === 0 ? 0.74 : 0.79), radius],
+          scale: [radius, radiusY * (index === 0 ? 0.74 : 0.79), radius],
         });
       });
     }

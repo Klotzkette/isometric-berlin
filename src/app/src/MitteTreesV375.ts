@@ -133,6 +133,7 @@ function addFirstGroundContacts(stand: Group, anchors: FirstTree[]): void {
 export function createEarlyMitteTreesV375(
   tunnel: TunnelPortalPayload,
   settledDetail: boolean,
+  stands = earlyMitteTreeStandsV375(),
 ): Group {
   const root = new Group();
   root.name = "Mitte source trees awaiting the complete park";
@@ -141,7 +142,6 @@ export function createEarlyMitteTreesV375(
     "Robert-Koch-Platz",
     "Weitere vermessene Bäume in Mitte",
   ];
-  const stands = earlyMitteTreeStandsV375();
   for (let i = 0; i < stands.length; i++) {
     const group = createParkTreeStand(stands[i], tunnel, settledDetail);
     if (i < source.focus.length) addFirstGroundContacts(group, source.focus[i]);

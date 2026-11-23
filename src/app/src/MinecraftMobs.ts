@@ -180,7 +180,7 @@ function buildWalkableGrid(
   const treeCells = new Uint8Array(payload.grid.cols * payload.grid.rows);
   forEachVoxelTreeBlock(payload, (xIndex, zIndex, y0dm, heightDm) => {
     if (!isLenneOakVoxelTree(xIndex, zIndex, y0dm, heightDm, payload.cell_m) &&
-      !minecraftVoxelTreeRetained(xIndex, zIndex, detailProfile)) return;
+      !minecraftVoxelTreeRetained(xIndex, zIndex, detailProfile, payload.retainSurveyTree)) return;
     const xOffset = xIndex - payload.grid.min_x_idx;
     const zOffset = zIndex - payload.grid.min_z_idx;
     if (

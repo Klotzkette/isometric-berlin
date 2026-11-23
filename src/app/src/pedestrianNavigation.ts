@@ -154,6 +154,7 @@ import { resolveHumboldthafenPrism } from "./humboldthafenCourtyardProfile";
 import { ECONOMIC_MINISTRY_SOURCE_IDS, economicMinistryRoofTopAt } from "./EconomicMinistrySourceGeometry";
 import {
   minecraftVoxelTreeRetained,
+  nativeChestnutTrunkHeight,
   type MinecraftVoxelDetailProfile,
   type VoxelPayload,
   smoothGroundTopSampler,
@@ -1944,13 +1945,14 @@ export function createPedestrianParkTreeSolidTester(
   cellM: number,
   detailProfile: MinecraftVoxelDetailProfile,
   voxelWorldActive: () => boolean,
+  retainSurveyTree?: VoxelPayload["retainSurveyTree"],
 ): NonNullable<PedestrianEnvironment["parkTreeSolidAt"]> {
   const usableCell = Number.isFinite(cellM) && cellM > 0;
   return (x, z, landmarkOak, family) => {
     if (family === "drawn-only") return !voxelWorldActive();
     if (family === "native-only" && !voxelWorldActive()) return false;
     return landmarkOak || !usableCell || !voxelWorldActive() ||
-      minecraftVoxelTreeRetained(Math.floor(x / cellM), Math.floor(z / cellM), detailProfile);
+      minecraftVoxelTreeRetained(Math.floor(x / cellM), Math.floor(z / cellM), detailProfile, retainSurveyTree);
   };
 }
 
@@ -1985,8 +1987,10 @@ function addSourceTreeObstacles(
     );
     if (tree.nativeTreeBlock) {
       const [cx, cz, yDm, hDm] = tree.nativeTreeBlock;
-      const topY = yDm / 10 + Math.max(2, hDm / 10 - 6);
-      addCircleObstacle(index, cx * 4 + 2, cz * 4 + 2, 0.9, yDm / 10, topY, "native-only");
+      const crown = tree.nativeCrown;
+      const trunkHeight = crown ? nativeChestnutTrunkHeight(crown.height) : Math.max(2, hDm / 10 - 6);
+      addCircleObstacle(index, crown?.x ?? cx * 4 + 2, crown?.z ?? cz * 4 + 2,
+        crown?.stemRadius ?? 0.9, yDm / 10, yDm / 10 + trunkHeight, "native-only");
     }
     if (index.obstacleCount > before) {
       index.treeCount += 1;

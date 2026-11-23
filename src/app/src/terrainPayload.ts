@@ -16,6 +16,15 @@ import { GROSSER_STERN_GATEHOUSES_V164_GROUND_CUTS } from "./grosserSternGatehou
  * world stays at a few draw calls and well below photogrammetry-tier
  * triangle counts — deliberately "eckig, klotzig, blockig".
  */
+/** Axis-aligned native interpretation fitted to a measured deciduous tree. */
+export type SurveyedNativeCrown = {
+  x: number; z: number; stemRadius: number; height: number; diameter: number;
+};
+
+export function nativeChestnutTrunkHeight(height: number): number {
+  return height * 0.43;
+}
+
 export type VoxelPayload = {
   schema_version: number;
   cell_m: number;
@@ -38,6 +47,9 @@ export type VoxelPayload = {
   trees?: VoxelTreeBlock[];
   /** Schema 2: rows[z_offset] = [x_offset, y0_dm, height_dm][]. */
   tree_rows?: Array<Array<[number, number, number]>>;
+  /** Optional admission of exact surveyed tree cells in the Berlin viewer. */
+  retainSurveyTree?: (xIndex: number, zIndex: number) => boolean;
+  surveyedNativeCrown?: (xIndex: number, zIndex: number) => SurveyedNativeCrown | undefined;
   water_top_y_m: number;
 };
 
@@ -99,7 +111,9 @@ export function minecraftVoxelTreeRetained(
   xIndex: number,
   zIndex: number,
   detailProfile: MinecraftVoxelDetailProfile,
+  retainSurveyTree?: VoxelPayload["retainSurveyTree"],
 ): boolean {
+  if (retainSurveyTree?.(xIndex, zIndex)) return true;
   const policy = MINECRAFT_TREE_RETENTION[detailProfile];
   const hash =
     (Math.imul(xIndex, 73_856_093) ^ Math.imul(zIndex, 19_349_663)) >>> 0;

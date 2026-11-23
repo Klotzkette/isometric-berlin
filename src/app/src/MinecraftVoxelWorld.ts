@@ -1,3 +1,4 @@
+import { nativeChestnutTrunkHeight } from "./terrainPayload";
 import { LEHRTER_BRICK, LEHRTER_TILE, lehrterKulturhausOwnerV366 } from "./lehrterKulturhausProfileV366";
 import { markHbfForecourtFinishV354 } from "./HbfForecourtFinishV354";
 import type { NordbahnhofNativeCuts } from "./NordbahnhofPublicAccess";
@@ -3342,7 +3343,7 @@ export function* buildMinecraftVoxelWorldSteps(
       (!insideTunnelApproach ||
         !insideTunnelApproach(worldXAbs(xIdx), worldZAbs(zIdx), cell * 1.1)) &&
       (isLandmarkOak ||
-        minecraftVoxelTreeRetained(xIdx, zIdx, options.detailProfile ?? "full"))
+        minecraftVoxelTreeRetained(xIdx, zIdx, options.detailProfile ?? "full", payload.retainSurveyTree))
     ) {
       const tree: VoxelTreeBlock = [xIdx, zIdx, y0dm, heightDm];
       if (isLandmarkOak) {
@@ -3368,37 +3369,44 @@ export function* buildMinecraftVoxelWorldSteps(
     if (i % 1024 === 0) yield;
     const [xIdx, zIdx, y0dm, hdm] = visibleTrees[i];
     const y0 = y0dm / 10;
-    const height = Math.max(cell, hdm / 10);
-    const trunkHeight = Math.max(cell / 2, height - cell * 1.5);
+    const survey = payload.surveyedNativeCrown?.(xIdx, zIdx);
+    const tx = survey?.x ?? worldXAbs(xIdx);
+    const tz = survey?.z ?? worldZAbs(zIdx);
+    const height = survey?.height ?? Math.max(cell, hdm / 10);
+    const trunkHeight = survey ? nativeChestnutTrunkHeight(height) : Math.max(cell / 2, height - cell * 1.5);
     const species = Math.abs(xIdx * 7 + zIdx * 13) % 5;
-    center.set(worldXAbs(xIdx), y0 + trunkHeight / 2, worldZAbs(zIdx));
-    size.set(cell * 0.45, trunkHeight, cell * 0.45);
+    center.set(tx, y0 + trunkHeight / 2, tz);
+    const stemWidth = survey ? 2 * survey.stemRadius : cell * 0.45;
+    size.set(stemWidth, trunkHeight, stemWidth);
     // Every fifth tree is a birch (pale trunk), like a mixed park.
     trunks.write(
       center,
       size,
-      species === 0
+      !survey && species === 0
         ? birchPaint
         : shadeFor(TRUNK_SHADES, xIdx, zIdx, 1, trunkPaint),
     );
-    const crownHeight = cell * 1.9;
+    const crownHeight = survey ? (height - trunkHeight) * 0.60 : cell * 1.9;
+    const crownWidth = survey?.diameter ?? cell * 2.2;
     const leafShades = inPotsdamerPanoramaLandscape(worldXAbs(xIdx), worldZAbs(zIdx))
       ? POTSDAMER_PANORAMA_LANDSCAPE.foliage : LEAF_SHADES;
     center.set(
-      worldXAbs(xIdx),
+      tx,
       y0 + trunkHeight + crownHeight / 2,
-      worldZAbs(zIdx),
+      tz,
     );
-    size.set(cell * 2.2, crownHeight, cell * 2.2);
+    size.set(crownWidth, crownHeight, crownWidth);
     crowns.write(center, size, shadeFor(leafShades, xIdx, zIdx, 2, leafPaint));
     // Every third tree stacks a smaller crown — the spruce silhouette.
-    if (species === 1 || species === 3) {
+    if (survey || species === 1 || species === 3) {
+      const capHeight = survey ? height - trunkHeight - crownHeight : cell * 1.1;
+      const capWidth = survey ? crownWidth * 0.72 : cell * 1.3;
       center.set(
-        worldXAbs(xIdx),
-        y0 + trunkHeight + crownHeight + cell * 0.55,
-        worldZAbs(zIdx),
+        tx,
+        y0 + trunkHeight + crownHeight + capHeight / 2,
+        tz,
       );
-      size.set(cell * 1.3, cell * 1.1, cell * 1.3);
+      size.set(capWidth, capHeight, capWidth);
       crowns.write(
         center,
         size,
