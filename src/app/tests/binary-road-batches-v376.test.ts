@@ -84,3 +84,47 @@ test("both inflaters enforce gzip integrity and return identical road words", as
     Object.defineProperty(globalThis, "DecompressionStream", { configurable: true, writable: true, value: native });
   }
 });
+
+test("camera-near streets at either side of a district boundary use the exact binary frame", async () => {
+  const { arrivalRoadIdsV376, fetchArrivalRoadsV376 } = await import("../src/arrivalRoadRangesV376");
+  const keys = arrivalRoadIdsV376(-2646, 1554);
+  expect(keys[0]).toBe("restored-asphalt--6-3");
+  expect(keys).toContain("restored-asphalt--6-2");
+  expect(arrivalRoadIdsV376(-3306, 726)).toContain("restored-asphalt--7-1");
+  expect(arrivalRoadIdsV376(Infinity, 20)).toEqual([]);
+  for (const point of [[250, -2051], [0, 0], [-512, -512]]) {
+    expect(arrivalRoadIdsV376(point[0], point[1]).length).toBeLessThanOrEqual(4);
+  }
+  const rows = records.map((row, i) => ({ ...row, kind: "asphalt", id: keys[i] }));
+  const packed = (await packBinaryRoads([header, ...rows].map(row => JSON.stringify(row)).join("\n"))).bytes;
+  for (const ranges of [true, false]) {
+    const requests: string[] = [];
+    const fetcher: typeof fetch = async (_url, init) => {
+      const range = new Headers(init?.headers).get("Range");
+      requests.push(range ?? "full");
+      if (!range || !ranges) return new Response(packed);
+      const [, a, b] = /^bytes=(\d+)-(\d+)$/.exec(range)!;
+      const start = Number(a), end = Math.min(packed.length - 1, Number(b));
+      return new Response(packed.subarray(start, end + 1), {
+        status: 206, headers: { "Content-Range": `bytes ${start}-${end}/${packed.length}` },
+      });
+    };
+    const received = [];
+    const url = `https://example.com/${ranges}.bin`;
+    const signal = new AbortController().signal;
+    for await (const row of fetchArrivalRoadsV376(url, keys, new Set([keys[1]]), signal, fetcher)) received.push(row);
+    expect(received.map(row => row.id)).toEqual([keys[0]]);
+    expect(Buffer.from(received[0].xz).toString("base64")).toBe(xz);
+    expect(requests).toHaveLength(2);
+    expect(requests[1] === "full").toBe(!ranges);
+    for await (const _ of fetchArrivalRoadsV376(url, keys, new Set(keys), signal, fetcher)) throw Error("Duplicate road");
+    expect(requests).toHaveLength(2);
+  }
+});
+
+test("a misdirected partial HTTP response is rejected before its bytes reach the road scene", async () => {
+  const { fetchArrivalRoadsV376 } = await import("../src/arrivalRoadRangesV376");
+  const fetcher: typeof fetch = async () => new Response(bytes, { status: 206, headers: { "Content-Range": "bytes 8-11/20" } });
+  const iterator = fetchArrivalRoadsV376("https://example.com/bad.bin", ["restored-asphalt-0-0"], new Set(), new AbortController().signal, fetcher);
+  await expect(iterator.next()).rejects.toThrow("Content-Range");
+});

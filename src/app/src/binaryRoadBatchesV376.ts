@@ -3,12 +3,12 @@ import { releaseScratchBuffer } from "./releaseScratchBuffer";
 import { inflateRoadWordPlanes, type RoadWordBatch } from "./roadWordPlanesV362";
 
 export const BINARY_ROAD_ENCODING = "road-delta-planes-gzip-v1";
-const MAX_DIRECTORY_BYTES = 512 * 1024;
+export const MAX_DIRECTORY_BYTES = 512 * 1024;
 const MAX_FRAME_BYTES = 2 * 1024 * 1024;
 
-type Entry = [string, RoadWordBatch["kind"], number, number, number];
+export type RoadEntry = [string, RoadWordBatch["kind"], number, number, number];
 
-function readDirectory(bytes: Uint8Array): Entry[] {
+export function readRoadDirectory(bytes: Uint8Array): RoadEntry[] {
   const header = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
   if (header?.format !== "bounded-source-road-surfaces" || header.version !== 1 ||
       header.encoding !== BINARY_ROAD_ENCODING || !Array.isArray(header.entries) ||
@@ -57,6 +57,20 @@ async function inflateFrame(frame: Uint8Array, size: number): Promise<Uint8Array
   }
 }
 
+export async function decodeRoadFrame(row: RoadEntry, frame: Uint8Array): Promise<RoadWordBatch> {
+  const [id, kind, coords, indices, size] = row;
+  if (frame.byteLength !== size) throw new Error("Truncated road frame");
+  const planes = await inflateFrame(frame, coords + indices);
+  try {
+    const xz = decodeWordPlaneBytes(planes.subarray(0, coords), coords / 4, 2).buffer;
+    return kind === "kerbs" ? { id, kind, xz } : {
+      id, kind, xz, indices: decodeWordPlaneBytes(planes.subarray(coords), indices / 4, 1).buffer,
+    };
+  } finally {
+    releaseScratchBuffer(planes.buffer);
+  }
+}
+
 /** A cached response can arrive in one chunk. Borrow whole frames in place and
  * copy only when a network boundary falls inside a frame. */
 export async function* binaryRoadBatches(body: ReadableStream<Uint8Array>, completed: ReadonlySet<string>): AsyncGenerator<RoadWordBatch> {
@@ -92,21 +106,10 @@ export async function* binaryRoadBatches(body: ReadableStream<Uint8Array>, compl
     const prefix = await take(4);
     const length = new DataView(prefix.buffer, prefix.byteOffset, 4).getUint32(0, true);
     if (!length || length > MAX_DIRECTORY_BYTES) throw new Error("Invalid road directory length");
-    const entries = readDirectory(await take(length));
-    for (const [id, kind, coords, indices, size] of entries) {
-      const frame = await take(size);
-      if (completed.has(id)) continue;
-      const planes = await inflateFrame(frame, coords + indices);
-      let batch: RoadWordBatch;
-      try {
-        const xz = decodeWordPlaneBytes(planes.subarray(0, coords), coords / 4, 2).buffer;
-        batch = kind === "kerbs" ? { id, kind, xz } : {
-          id, kind, xz, indices: decodeWordPlaneBytes(planes.subarray(coords), indices / 4, 1).buffer,
-        };
-      } finally {
-        releaseScratchBuffer(planes.buffer);
-      }
-      yield batch;
+    const entries = readRoadDirectory(await take(length));
+    for (const entry of entries) {
+      const frame = await take(entry[4]);
+      if (!completed.has(entry[0])) yield await decodeRoadFrame(entry, frame);
     }
     if (await refill()) throw new Error("Trailing road data");
   } finally {

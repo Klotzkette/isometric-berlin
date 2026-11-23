@@ -1,5 +1,8 @@
 import { BufferAttribute, BufferGeometry, DoubleSide, Group, LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial } from "three";
 import { trimInvalidenSurfaceV371 } from "./invalidenGroundOwnershipV371";
+import { arrivalRoadIdsV376, fetchArrivalRoadsV376 } from "./arrivalRoadRangesV376";
+import { admitsSimsonGroundV375 } from "./simsonGroundGuardV375";
+import { applySimsonCutsV375 } from "./simsonSurfaceCutsV375";
 import { binaryRoadBatches } from "./binaryRoadBatchesV376";
 import roadDataUrl from "./data/restoredRoadSurfaces.ndjson.txt?url";
 import { markArchitecturalInk } from "./architecturalInk";
@@ -129,6 +132,46 @@ async function* roadLines(body: ReadableStream<Uint8Array>): AsyncGenerator<stri
   }
 }
 
+/** Vite dev serves the original NDJSON. Build only the selected source rows
+ * and stop reading as soon as they have all been received. */
+async function* developmentArrivalRoads(ids: readonly string[], signal: AbortSignal): AsyncGenerator<RestoredRoadBatch> {
+  const wanted = new Set(ids);
+  const response = await fetch(roadDataUrl, { signal });
+  if (!response.ok || !response.body) throw new Error(`Exact street data failed with HTTP ${response.status}`);
+  for await (const line of roadLines(response.body)) {
+    const row = JSON.parse(line);
+    if (wanted.delete(row.id)) {
+      if (row.kind !== "asphalt" || typeof row.indices !== "string" || typeof row.xz !== "string") throw new Error("Invalid road source");
+      yield row;
+      if (!wanted.size) return;
+    }
+  }
+}
+
+function roadTerrainAt(ground: VoxelPayload): (x: number, z: number) => number {
+  const sample = smoothGroundTopSampler(ground);
+  const { cell_m: cell, grid: { min_x_idx: minX, min_z_idx: minZ } } = ground;
+  return (x, z) => spreebogenTerrainYAt(x, z, sample(x / cell - minX, z / cell - minZ));
+}
+
+export async function* loadArrivalRoadBatchesV376(
+  ground: VoxelPayload, targetX: number, targetZ: number, completed: ReadonlySet<string>,
+  signal: AbortSignal, invalidenGroundV371: boolean,
+): AsyncGenerator<{ id: string; root: Group }> {
+  const ids = arrivalRoadIdsV376(targetX, targetZ).filter(id => !completed.has(id));
+  if (!ids.length) return;
+  const terrainAt = roadTerrainAt(ground);
+  const simson = admitsSimsonGroundV375(ground);
+  const batches = roadDataUrl.endsWith(".bin")
+    ? fetchArrivalRoadsV376(roadDataUrl, ids, completed, signal) : developmentArrivalRoads(ids, signal);
+  for await (const batch of batches) {
+    if (signal.aborted || completed.has(batch.id)) continue;
+    const root = createRestoredRoadBatch(batch, terrainAt, invalidenGroundV371);
+    if (simson) applySimsonCutsV375(root, batch.id);
+    yield { id: batch.id, root };
+  }
+}
+
 /** Read the next batch only after the caller acknowledges the previous geometry. */
 export async function* createRestoredRoadSurfaceBatches(
   ground: VoxelPayload, completed: ReadonlySet<string> = new Set(), invalidenGroundV371 = false,
@@ -136,9 +179,7 @@ export async function* createRestoredRoadSurfaceBatches(
   const response = await fetch(roadDataUrl);
   if (!response.ok) throw new Error(`Exact street data failed with HTTP ${response.status}`);
   if (!response.body) throw new Error("Exact street data has no readable body");
-  const sample = smoothGroundTopSampler(ground);
-  const {cell_m: cell, grid: {min_x_idx: minX, min_z_idx: minZ}} = ground;
-  const terrainAt = (x: number, z: number): number => spreebogenTerrainYAt(x,z,sample(x/cell-minX,z/cell-minZ));
+  const terrainAt = roadTerrainAt(ground);
   if (roadDataUrl.endsWith(".bin")) {
     for await (const batch of binaryRoadBatches(response.body, completed)) {
       yield { id: batch.id, root: createRestoredRoadBatch(batch, terrainAt, invalidenGroundV371) };
