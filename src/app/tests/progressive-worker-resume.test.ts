@@ -1,3 +1,7 @@
+import { correctGardenPrismsV358 } from "../src/LehrterGardenPayloadV358";
+import { admitsSimsonGroundV375 } from "../src/simsonGroundGuardV375";
+import { applySimsonCutsV375 } from "../src/simsonSurfaceCutsV375";
+import { applyMittePathLawnV375, loadMittePathLawnsV375 } from "../src/MittePathLawnV375";
 import { describe, expect, test } from "bun:test";
 import ts from "typescript";
 import { Group } from "three";
@@ -83,6 +87,7 @@ function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload, sta
     },
   };
   const bindings = {
+    correctGardenPrismsV358, admitsSimsonGroundV375, applySimsonCutsV375, applyMittePathLawnV375, loadMittePathLawnsV375,
     canReplacePotsdamerSouthStationPhoto: () => stationSourceMatches,
     Group, performance, setTimeout,
     BuildingDetailWorker, PackedBuildingDistrictStore, buildingDetailProfile,
