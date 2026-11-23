@@ -38,10 +38,10 @@ Die regionalen Ergänzungen laden erst beim Annähern. Dazu gehören 68 historis
 
 | Umfang in Byte | v1.0.257 | v1.0.258 | Differenz |
 | --- | ---: | ---: | ---: |
-| Start-JavaScript, drei Dateien (gzip 9) | 126.512 | 127.473 | +961 |
-| Vollständige Pages-Ausgabe | 975.722.015 | 978.422.601 | +2.700.586 |
-| Standard-ZIP | 956.739.930 | 957.803.848 | +1.063.918 |
-| Kompakte ZIP | 777.157.717 | 778.221.635 | +1.063.918 |
-| TAR.GZ | 955.213.840 | 956.217.932 | +1.004.092 |
+| Start-JavaScript, drei Dateien (gzip 9) | 126.512 | 127.486 | +974 |
+| Vollständige Pages-Ausgabe | 975.722.015 | 978.422.652 | +2.700.637 |
+| Standard-ZIP | 956.739.930 | 957.803.866 | +1.063.936 |
+| Kompakte ZIP | 777.157.717 | 778.221.653 | +1.063.936 |
+| TAR.GZ | 955.213.840 | 956.218.531 | +1.004.691 |
 
 Die Startgröße ist die Summe der einzeln mit gzip auf Stufe 9 komprimierten JavaScript-Dateien der ersten HTML-Antwort. Die Übertragungsgröße im Browser hängt von der Serverkompression und vom Cache ab. Für die 6.174 regulären Stadtkachel-Dateien wurden Größe und SHA-256-Prüfsumme geprüft.
