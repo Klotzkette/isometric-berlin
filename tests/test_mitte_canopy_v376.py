@@ -2,6 +2,8 @@
 
 import gzip
 import json
+import math
+from collections import Counter
 
 from shapely import Point, STRtree, box
 
@@ -51,7 +53,21 @@ def test_native_cells_are_unique_and_all_19_square_trunks_have_clear_footprints(
       + read(PUBLIC / "lod2-prisms.json")["buildings"]
     ]
   )
-  for index, cx, cz, _, _ in native:
+  voxels = read(PUBLIC / "minecraft-voxels.json")
+  grid = voxels["grid"]
+  trees = read(PUBLIC / "park-details.json")["trees"]
+  occupants = Counter(
+    (math.floor(t["position"][0] / 4), math.floor(t["position"][2] / 4)) for t in trees
+  )
+  for index, cx, cz, base, h in native:
+    assert occupants[cx, cz] == 1
+    offset = cx - grid["min_x_idx"]
+    columns = voxels["building_rows"][cz - grid["min_z_idx"]]
+    assert not any(
+      start <= offset < start + length and low < base + h and high > base
+      for start, length, low, high, _ in columns
+    )
+
     if index in points:
       _, x, z, r, _, _ = points[index]
     else:

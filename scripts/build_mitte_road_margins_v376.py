@@ -18,6 +18,7 @@ from shapely.geometry import shape
 from scripts import build_exterior_street_margins_v373 as margins
 from scripts import build_mitte_path_depth_v375 as depth
 from scripts import build_surveyed_sidewalk_edges_v376 as walks
+from scripts import check_street_surfaces_v376 as equivalence
 
 SURVEY = margins.GEO / "mitte-road-margins-v376-survey.json.gz"
 OUTPUT = margins.DATA / "mitteRoadMarginsV376.json"
@@ -170,7 +171,13 @@ if __name__ == "__main__":
   result = build(road_cache=opts.road_cache, sidewalk_cache=opts.sidewalk_cache)
   txt = json.dumps(result, separators=(",", ":")) + "\n"
   if opts.check:
-    assert OUTPUT.read_text() == txt
+    old = OUTPUT.read_text()
+    if equivalence.original_toolchain():
+      assert old == txt
+    elif old != txt:
+      equivalence.check_roads(
+        json.loads(old), result, margins.read(margins.MESH / "ground-context.json")
+      )
   else:
     OUTPUT.write_text(txt)
   print({k: v for k, v in result.items() if k not in {"sources", "chunks"}})

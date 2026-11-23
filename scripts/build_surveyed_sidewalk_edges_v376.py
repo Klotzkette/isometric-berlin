@@ -22,6 +22,7 @@ from shapely.geometry import Polygon, shape
 from scripts import build_exterior_street_margins_v373 as margins
 from scripts import build_mitte_path_depth_v375 as depth
 from scripts import build_path_edges_v373 as edges
+from scripts import check_street_surfaces_v376 as equivalence
 
 DATA, GEO, MESH = margins.DATA, margins.GEO, margins.MESH
 ARCHIVE = GEO / "sidewalk-edges-v376-survey.json.gz"
@@ -288,7 +289,11 @@ if __name__ == "__main__":
   result = build()
   txt = json.dumps(result, separators=(",", ":")) + "\n"
   if args.check:
-    assert OUTPUT.read_text() == txt
+    old = OUTPUT.read_text()
+    if equivalence.original_toolchain():
+      assert old == txt
+    elif old != txt:
+      equivalence.check_walks(json.loads(old), result)
   else:
     OUTPUT.write_text(txt)
   print({k: v for k, v in result.items() if k not in {"words", "ink"}})

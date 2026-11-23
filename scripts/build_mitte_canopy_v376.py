@@ -4,6 +4,7 @@ import argparse
 import gzip
 import json
 import math
+import sys
 import urllib.parse
 import urllib.request
 from collections import Counter
@@ -11,7 +12,10 @@ from pathlib import Path
 
 from shapely import Point, STRtree, box
 
-from scripts.build_mitte_trees_v375 import (
+if __package__ in (None, ""):
+  sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from scripts.build_mitte_trees_v375 import (  # noqa: E402
   BOUNDS,
   DATA,
   LAYER,
