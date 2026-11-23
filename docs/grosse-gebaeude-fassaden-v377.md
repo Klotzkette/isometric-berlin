@@ -26,7 +26,7 @@ Drei Direktansichten öffnen die Kamera an einer bearbeiteten Außenwand. [Klini
 
 ![Drei Ansichten vor und nach der Fassadenüberarbeitung, einschließlich des abgestuften Turms des Peter-Behrens-Baus](grosse-gebaeude-vorher-nachher-v377.webp)
 
-Für alle 50 Gebäude wurde die Änderung mit derselben Kamera in der gezeichneten Ansicht und im Blockmodus gerendert. In allen 100 Bildpaaren waren an dem jeweils geprüften Gebäude Änderungen sichtbar.
+Für alle 50 Gebäude wurde die Änderung mit derselben Kamera in der gezeichneten Ansicht und im Blockmodus gerendert. In allen 100 Bildpaaren waren an dem jeweils geprüften Gebäude Änderungen sichtbar. Die drei Direktlinks wurden zusätzlich im gepackten Viewer geöffnet. In Chromium erschienen beim Peter-Behrens-Bau alle vier Gebäudekacheln am selben Kamerastandpunkt. In der mobilen WebKit-Prüfung öffnete der Hotel-Link die verglaste Eingangsfront.
 
 Die kompakte Offline-ZIP wächst gegenüber v1.0.256 um 190.000 Bytes auf 777.157.717 Bytes. Die Standard-ZIP wächst um 190.001 Bytes auf 956.739.930 Bytes. Beim ersten Seitenaufruf wächst das direkt eingebundene JavaScript um 311 Bytes vor Transportkompression. Die Fassaden und die vier Gebäudehüllen lädt der Viewer nach Bedarf. Eine Ladezeit auf individuellen Endgeräten wurde für diese Runde nicht gemessen.
 
