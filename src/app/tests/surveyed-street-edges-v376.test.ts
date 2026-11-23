@@ -66,6 +66,15 @@ test("Mitte asphalt matches the measured carriageway at exposed diagonal and sta
   expect(segment.renderOrder).toBeLessThan(slabs.renderOrder);
   expect(segment.userData.dayMaterial.depthWrite).toBeFalse();
   expect(segment.userData.nightMaterial.depthWrite).toBeFalse();
+  const portal = road.children.find(node => node.name.startsWith("Invalidenstraße portal shoulders"))!;
+  for (const [x, z, shade] of [[-225.397,-791.640,0xc4c5c0], [-215.698,-792.987,0xc4c5c0], [-208.188,-754.423,0xd3cfc3]]) {
+    const hits = ray(x,z).intersectObject(portal);
+    expect(hits).toHaveLength(1);
+    const hit = hits[0], colour = new Color().fromBufferAttribute((hit.object as Mesh).geometry.getAttribute("color"), hit.face!.a);
+    expect(Math.abs(colour.r - new Color(shade).r)).toBeLessThan(.5/255);
+  }
+  // The camera's central ray meets the actual east ramp at this point.
+  expect(ray(-220.823,-779.683).intersectObject(portal)).toHaveLength(0);
   const grey = new Color(0xc4c5c0);
   const terrain = smoothGroundTopSampler(ground);
   for (const [x,z] of sites) {
