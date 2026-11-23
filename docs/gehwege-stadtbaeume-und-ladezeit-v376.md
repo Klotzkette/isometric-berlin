@@ -6,9 +6,11 @@ Die vier Meter breiten Rasterzellen des Kernmodells konnten an schrägen Gehwege
 
 Auf weiteren 15.652,07 m² schließen vermessene Beläge Lücken zwischen vorhandenen Fahrbahnen und den dort ausgesparten Rasterzellen. 12.410,01 m² davon sind Asphalt. Die Korrektur betrifft Alt-Moabit, Brunnenstraße, Chausseestraße, Friedrichstraße, Invalidenstraße, Karl-Liebknecht-Straße, Lehrter Straße, Luxemburger Straße, Müllerstraße, Potsdamer Straße und Turmstraße. Die Straßennamen grenzen das Suchgebiet ein. Jede einzelne Ergänzung benötigt einen belegten Umriss und Belag. Diese Flächen liegen außerhalb der oben gezählten Gehwegzellen. [Fahrbahngenerator](../scripts/build_mitte_road_margins_v376.py)
 
-Die Fahrbahnbreite kann auch dann stufig erscheinen, wenn die vermessene Oberfläche noch unterwegs ist. In der ersten mobilen Ansicht von v1.0.255 trafen Sichtstrahlen am Kurfürstendamm, an der Hardenbergstraße und an der Chausseestraße die Papierkulisse rund 24 Meter unterhalb des Modells. In der untersuchten Ansicht an der Invalidenstraße beim Hauptbahnhof waren in v1.0.255 insgesamt 25.976 Pixel papierfarben. Im fertigen v1.0.256-Build waren es 19.976. An drei verbleibenden Stellen verläuft der Kamerastrahl bis zur Kulisse. In den archivierten Asphalt- und Pflasterdreiecken fehlt dort auf Straßenniveau ein Flächennachweis. Eine erste 2D-Projektion hatte die Abdeckung dieser Punkte überschätzt. Für die erste Ansicht und nach einem Kamerasprung lädt der Viewer daher sowohl den Asphalt als auch das Pflaster der Kamerazelle zuerst. Am Rand berücksichtigt er bis zu drei Nachbarzellen. Höchstens zwei Teildownloads laufen gleichzeitig. Die beiden Abschnitte für die genannte Stelle an der Invalidenstraße umfassen zusammen 99.372 Bytes. Auf GitHub Pages und mit den Offline-Startern liest er nur die benötigten Abschnitte der Binärdatei. Der reguläre Aufbau übernimmt bereits gezeichnete Straßen anhand derselben Paketkennung. [Darstellung der frühen Fahrbahnen](../src/app/src/arrivalRoadViewV376.ts)
+Die Fahrbahnbreite kann auch dann stufig erscheinen, wenn die vermessene Oberfläche noch unterwegs ist. In der ersten mobilen Ansicht von v1.0.255 trafen Sichtstrahlen am Kurfürstendamm, an der Hardenbergstraße und an der Chausseestraße die Papierkulisse rund 24 Meter unterhalb des Modells. Für die erste Ansicht und nach einem Kamerasprung lädt der Viewer daher sowohl den Asphalt als auch das Pflaster der Kamerazelle zuerst. Am Rand berücksichtigt er bis zu drei Nachbarzellen. Höchstens zwei Teildownloads laufen gleichzeitig. Die beiden Abschnitte für die genannte Stelle an der Invalidenstraße umfassen zusammen 99.372 Bytes. Auf GitHub Pages und mit den Offline-Startern liest er nur die benötigten Abschnitte der Binärdatei. Der reguläre Aufbau übernimmt bereits gezeichnete Straßen anhand derselben Paketkennung. [Darstellung der frühen Fahrbahnen](../src/app/src/arrivalRoadViewV376.ts)
 
 Am Kurfürstendamm und an der Hardenbergstraße lagen weitere helle Stufen über bereits gezeichneten vermessenen Straßenrändern. Die tiefer liegende Papierkulisse konnte diese schmalen Dreiecke übermalen. Die Kulisse wird jetzt zuerst gezeichnet. Belag, Straßenhöhe und Zahl der Zeichenaufrufe bleiben erhalten.
+
+An der Invalidenstraße am Hauptbahnhof zeigte die erste Ansicht in v1.0.255 die Papierkulisse neben der Tunnelrampe. Das Raster ließ am Rampenende und entlang der Außenwand zu viel Boden frei. Zwei amtliche Fahrbahnpolygone und ein vermessener Gehweg belegen dort weitere **55,82 m² Asphalt und 20,01 m² Mosaikpflaster**. Die 42 neuen Dreiecke halten nach der Zentimeterkodierung mindestens 24,47 cm Abstand von der Umhüllung beider Rampen einschließlich ihrer Wände und Decks. Ihre Fläche überschneidet keine der oben gezählten Korrekturen. Die drei Flächenkorrekturen dieser Version umfassen zusammen **30.382,72 m²**. [Generator und Quelldaten](../scripts/build_invaliden_road_shoulders_v376.py)
 
 ## Robert-Koch-Platz und die Bäume in den Parks
 
@@ -28,7 +30,7 @@ Für weitere 2.291 Außenkacheln verwendet der Paketierer stärkeres gzip. Die A
 
 | Vollständiger Viewer | v1.0.255 | v1.0.256 | Ersparnis |
 | --- | ---: | ---: | ---: |
-| Dateien auf GitHub Pages | 987.332.895 B | 975.162.937 B | 12.169.958 B |
-| Offline-ZIP, kompakt | 788.477.077 B | 776.966.634 B | 11.510.443 B |
-| Offline-ZIP, Standard | 968.059.332 B | 956.548.846 B | 11.510.486 B |
-| Statischer Viewer als tar.gz | 966.609.336 B | 955.021.474 B | 11.587.862 B |
+| Dateien auf GitHub Pages | 987.332.895 B | 975.165.373 B | 12.167.522 B |
+| Offline-ZIP, kompakt | 788.477.077 B | 776.967.717 B | 11.509.360 B |
+| Offline-ZIP, Standard | 968.059.332 B | 956.549.929 B | 11.509.403 B |
+| Statischer Viewer als tar.gz | 966.609.336 B | 955.025.741 B | 11.583.595 B |
