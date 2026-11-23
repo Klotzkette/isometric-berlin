@@ -19,16 +19,20 @@ import tempfile
 import time
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from playwright.sync_api import ConsoleMessage, Request, Response, sync_playwright
-from smoke_mode_continuity import launch_startup_mode
+from smoke_mode_continuity import PROBE, launch_startup_mode
 
 CRITICAL_RESOURCE_TYPES = {"document", "script", "stylesheet", "xhr", "fetch"}
 CONSOLE_ADVISORIES = {
   'Viewport argument key "interactive-widget" not recognized and ignored.'
 }
 STATE_MESSAGE_PREFIX = "isometric-startup-probe:"
+SURVEYED_OPENINGS = {
+  "hermannplatz-in-neukolln": "Hermannplatz in Neukölln",
+  "schloss-tegel": "Schloss Tegel",
+}
 STARTUP_STATE = """() => {
   const visible = (element) => {
     if (!element) return false;
@@ -40,6 +44,7 @@ STARTUP_STATE = """() => {
   const viewer = document.querySelector('.three-viewer.is-active');
   const canvas = viewer?.querySelector('canvas');
   const error = document.querySelector('.three-viewer-error.is-active');
+  const opening = window.__modeContinuityRuntime?.()?.openingPlaceV378;
   return {
     ready: !!viewer?.classList.contains('is-presentation-ready') &&
       visible(canvas) && canvas.width > 0 && canvas.height > 0 &&
@@ -48,6 +53,7 @@ STARTUP_STATE = """() => {
     curtain: !!viewer?.querySelector('.three-startup-curtain'),
     progress: viewer?.querySelector('.three-progress')?.textContent ?? null,
     error: visible(error) ? error.textContent : null,
+    openingPlace: opening?.name ?? null,
   };
 }"""
 
@@ -78,6 +84,9 @@ def parse_args() -> argparse.Namespace:
 
 def smoke(args: argparse.Namespace) -> dict[str, Any]:
   started = time.monotonic()
+  fragment = urlparse(args.url).fragment
+  slug = parse_qs(fragment).get("landmark", [fragment])[0]
+  expected_opening = SURVEYED_OPENINGS.get(slug)
   deadline = started + args.timeout
   page_errors: list[str] = []
   console_errors: list[dict[str, Any]] = []
@@ -150,6 +159,8 @@ def smoke(args: argparse.Namespace) -> dict[str, Any]:
         context_options["viewport"] = {"width": 1440, "height": 900}
       context = browser.new_context(**context_options)
       page = context.new_page()
+      if expected_opening:
+        page.add_init_script(PROBE)
       page.on("pageerror", lambda error: page_errors.append(str(error)))
       page.on("console", on_console)
       page.on("response", on_response)
@@ -178,6 +189,8 @@ def smoke(args: argparse.Namespace) -> dict[str, Any]:
         now = time.monotonic()
         ready_since = (ready_since or now) if state.get("ready") else None
         if ready_since is not None and now - ready_since >= 3:
+          if expected_opening and state.get("openingPlace") != expected_opening:
+            failure = f"Presented the direct link before starting its local scene for {expected_opening}"
           break
         if now >= next_progress:
           emit({"event": "waiting", "elapsedSeconds": round(now - started, 1), **state})

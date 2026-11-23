@@ -8343,8 +8343,11 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.marker.visible = false;
       }
 
+      // The parent may apply the shared URL before this lazy viewer mounts.
+      // Use the actual initial flight and its selected destination here. The
+      // transient focus ref is also cleared by later interactive camera moves.
       const linkedPlace = initialFlightStartRef.current && initialNavigationRef.current === null &&
-        openingLandmarkRef.current === initialFlightViewRef.current.landmarkName ? openingLandmarkRef.current : null;
+        selectedRef.current === initialFlightViewRef.current.landmarkName ? selectedRef.current : null;
       if (linkedPlace && isSurveyedOpeningV378(linkedPlace)) {
         const required = linkedPlace === "Schloss Tegel" ? ["tegel-landscape-schloss--13_-17"]
           : linkedPlace === "Hermannplatz in Neukölln" ? ["ring182-6_7","ring182-7_6","ring182-6_6"] : [];

@@ -2466,7 +2466,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
       return;
     }
     let listening = true;
-    const applyHash = () => {
+    const applyHash = (initial: boolean) => {
       const hash = window.location.hash;
       const viewHash = parseViewHash(hash);
       const hashLandmark = findSightBySlug(landmarks, viewHash.landmarkSlug) ??
@@ -2479,19 +2479,19 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
       // close-up camera (notably the Tiergartentunnel bore); applying the
       // generic rotation afterwards used to destroy that framing.
       if (hashLandmark) {
-        focusLandmark(hashLandmark, true);
+        focusLandmark(hashLandmark, true, initial && openingLandmarkRef.current === hashLandmark.name);
       } else if (viewHash.landmarkSlug) {
         void loadBerlinPlaceViewsV378().then(() => {
           if (!listening || window.location.hash !== hash) return;
           const place = findSightBySlug(STARTUP_ONLY_SIGHTS, viewHash.landmarkSlug);
-          if (place) focusLandmark(place, true);
+          if (place) focusLandmark(place, true, initial && openingLandmarkRef.current === place.name);
         }).catch(() => {});
       }
     };
-    if (restoredHashRef.current !== window.location.hash) applyHash();
+    if (restoredHashRef.current !== window.location.hash) applyHash(true);
     const applyChangedHash = () => {
       restoredHashRef.current = null;
-      applyHash();
+      applyHash(false);
     };
     window.addEventListener("hashchange", applyChangedHash);
     window.addEventListener("popstate", applyChangedHash);
