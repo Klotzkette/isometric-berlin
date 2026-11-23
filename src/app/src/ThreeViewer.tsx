@@ -117,6 +117,7 @@ import { arenaStationV225GroundAt, arenaStationV225SolidAt } from "./arenaStatio
 import { districtTownhallV227GroundAt, districtTownhallV227SolidAt, districtTownhallV227TerrainAt } from "./districtTownhallV227Navigation";
 import { steglitzMotorwayV226GroundAt, steglitzMotorwayV226SolidAt } from "./steglitzMotorwayV226Navigation";
 import { DATA_WEST_M, DATA_EAST_M, DATA_NORTH_M, DATA_SOUTH_M } from "./worldEnvelope";
+import { createArrivalRoadViewV376, type ArrivalRoadV376 } from "./arrivalRoadViewV376";
 import { compactStaticGeometry, compactStaticGeometrySteps } from "./compactStaticGeometry";
 import { parkStaticGeometrySteps, parkStaticInstancesSteps } from "./losslessStaticStorage";
 import {collectFirstUploadParkingV323,type FirstUploadParkingV323} from "./firstUploadParkingV323";
@@ -940,6 +941,7 @@ type Runtime = {
   surfacePayloadPromise?: Promise<SurfacePayload>;
   voxelPayloadPromise?: Promise<VoxelPayload>;
   progressiveWorldBatches: Group[];
+  arrivalRoadViewV376?: ReturnType<typeof createArrivalRoadViewV376>;
   mobileBuildingDistricts?: readonly BuildingDetailDistrict[];
   mobileBuildingWanted?: readonly string[];
   mobileBuildingLastUsed?: Map<string, number>;
@@ -3934,12 +3936,14 @@ function stopProgressiveWorld(runtime: Runtime): void {
 
 async function attachProgressiveWorldMessage(
   runtime: Runtime,
-  worker: Worker,
-  message: ProgressiveWorldAttachMessage,
+  worker: Worker | undefined,
+  message: ProgressiveWorldAttachMessage | (ArrivalRoadV376 & { type: "arrival"; kind: "surfaces"; replaces?: undefined }),
   warn: (message: string) => void,
 ): Promise<void> {
   if (message.type === "settled") {
     if (message.viewRevision !== runtime.mobileBuildingViewRevision) return;
+    runtime.arrivalRoadViewV376?.stop();
+    runtime.arrivalRoadViewV376 = undefined;
     // This receipt follows every surface ACK. Keep that ownership fact with
     // this drawn world so a resumed worker need not reload its finished terrain.
     if (runtime.progressiveWorldInput) runtime.progressiveWorldInput.surfacesComplete = true;
@@ -3952,7 +3956,9 @@ async function attachProgressiveWorldMessage(
     return;
   }
   if (message.type === "complete") {
-    worker.terminate();
+    worker?.terminate();
+    runtime.arrivalRoadViewV376?.stop();
+    runtime.arrivalRoadViewV376 = undefined;
     runtime.progressiveWorldWorker = undefined;
     runtime.progressiveWorldState =
       progressiveWorldStopPolicy("complete").nextState;
@@ -3972,6 +3978,9 @@ async function attachProgressiveWorldMessage(
     // envelope (or an already attached exact batch) is still visible. Decline
     // the transfer before allocating Three objects or arrays; no scene/GPU
     // resources exist to dispose, and ACK still unblocks the bounded worker.
+    if (message.type === "arrival") { disposeObject3D(runtime, message.root); return; }
+    runtime.arrivalRoadViewV376?.adopt(message.id);
+    if (!worker) return;
     const acknowledged = tryProgressiveWorkerOperation(() =>
       worker.postMessage({ id: message.id, type: "batch-attached" }),
     );
@@ -3980,14 +3989,18 @@ async function attachProgressiveWorldMessage(
   }
   let object: Object3D;
   try {
-    object = deserializeTransferredObject3D(message.object);
-  } catch {
+    if (message.type === "arrival") {
+      object = message.root;
+      object.traverse(compactStaticGeometry);
+    } else object = deserializeTransferredObject3D(message.object);
+  } catch (error) {
+    if (!worker) throw error;
     failProgressiveWorld(runtime, worker, warn);
     return;
   }
   if (!(object instanceof Group) || !runtime.isoWorld) {
     disposeObject3D(runtime, object);
-    failProgressiveWorld(runtime, worker, warn);
+    if (worker) failProgressiveWorld(runtime, worker, warn);
     return;
   }
   // Materialise against the mode active at ATTACH time. Day ↔ Night ↔ Snow
@@ -4073,6 +4086,7 @@ async function attachProgressiveWorldMessage(
   invalidateScenePresentation(runtime);
   // Keep the existing two worker lanes bounded through CPU compaction too.
   // The complete batch is already visible; ACK permits the next allocation.
+  if (!worker) return backingReady;
   void backingReady.then(() => {
     if (runtime.disposed || worker !== runtime.progressiveWorldWorker) return;
     const acknowledged = tryProgressiveWorkerOperation(() =>
@@ -4246,6 +4260,9 @@ function startProgressiveWorld(
     }),
   );
   if (!posted.ok) failProgressiveWorld(runtime, worker, warn);
+  else if (runtime.arrivalRoadViewV376) {
+    for (const id of completedBatchIds) runtime.arrivalRoadViewV376.adopt(id);
+  }
 }
 
 /**
@@ -4661,6 +4678,39 @@ function attachCoreAllotmentsV360(runtime: Runtime, world: Group, ground: VoxelP
   });
 }
 
+function prepareArrivalRoadViewV376(
+  runtime: Runtime, source: VoxelPayload, invalidenGround: boolean, warn: (message: string) => void,
+): ReturnType<typeof createArrivalRoadViewV376> {
+  // Roads need only the checked height grid throughout later camera moves.
+  // Avoid pinning the full voxel tree, ground runs and building payload.
+  const ground: VoxelPayload = {
+    schema_version: source.schema_version, cell_m: source.cell_m, classes: source.classes,
+    grid: source.grid, ground_height: source.ground_height, ground_rows: [], water_top_y_m: source.water_top_y_m,
+  };
+  return createArrivalRoadViewV376({
+    signal: runtime.loadSignal,
+    active: () => !runtime.disposed && !runtime.contextLost && !document.hidden && isoWorldIntentActive(runtime),
+    attached: () => new Set(runtime.isoWorld?.children.flatMap(child => {
+      const id = child.userData.progressiveWorldBatchId;
+      return typeof id === "string" ? [id] : [];
+    })),
+    async *load(x, z, completed, signal) {
+      const { loadArrivalRoadBatchesV376 } = await import("./restoredRoadSurfaces");
+      if (!signal.aborted) yield* loadArrivalRoadBatchesV376(ground, x, z, completed, signal, invalidenGround);
+    },
+    attach: road => attachProgressiveWorldMessage(runtime, undefined, { ...road, type: "arrival", kind: "surfaces" }, warn),
+    remove: root => {
+      if (root.parent) {
+        forgetFarZoomAntiFlickerTargets(runtime, root);
+        const index = runtime.progressiveWorldBatches.indexOf(root);
+        if (index !== -1) runtime.progressiveWorldBatches.splice(index, 1);
+        invalidateScenePresentation(runtime);
+      }
+      disposeObject3D(runtime, root);
+    },
+  });
+}
+
 function ensureIsoWorld(
   runtime: Runtime,
   warn: (message: string) => void,
@@ -4686,6 +4736,7 @@ function ensureIsoWorld(
   let publishedParkingV323:FirstUploadScheduleV323|undefined;
   let provisionalGovernmentV321:GovernmentOfficesV321|null=null;
   const previousGovernmentV321=runtime.governmentOfficesV321?.drawn;
+  let openingRoadViewV376: Runtime["arrivalRoadViewV376"];
   let provisionalIsoWorld: Group | null = null;
   let provisionalIsoAddons: Group | null = null;
   let provisionalPedestrianEnvironment: PedestrianEnvironment | null = null;
@@ -4924,6 +4975,11 @@ function ensureIsoWorld(
               }
             : null;
       if (progressiveInput && invalidenGround) progressiveInput.invalidenGroundV371 = true;
+      if (ground && surfaces && progressiveInput) {
+        openingRoadViewV376 = prepareArrivalRoadViewV376(runtime, ground, Boolean(invalidenGround), warn);
+        const focus = runtime.pedestrian.enabled ? runtime.camera.position : runtime.controls.target;
+        openingRoadViewV376.update(focus.x, focus.z, performance.now());
+      }
       // Keep the old scene intact until every exact layer is ready. Task
       // boundaries release constructor scratch space and let context loss or
       // a mode switch cancel remaining work before it allocates.
@@ -5490,6 +5546,11 @@ function ensureIsoWorld(
         isCancelled: () => runtime.disposed || runtime.loadSignal.aborted ||
           runtime.worldFailureReported || !isoWorldIntentActive(runtime),
       });
+      if (openingRoadViewV376) {
+        await openingRoadViewV376.opening();
+        if (runtime.disposed || runtime.loadSignal.aborted || runtime.worldFailureReported || !isoWorldIntentActive(runtime))
+          throw new DOMException("World construction cancelled", "AbortError");
+      }
       mutableRootSnapshots = captureMutableRootSnapshots([
         runtime.signatures,
         runtime.cityStaffage,
@@ -5543,6 +5604,8 @@ function ensureIsoWorld(
       runtime.hbfStationV291.register(isoWorld);
       (runtime.zooAnimalsV282 ??= createZooAnimalRuntimeV282()).register(isoWorld);
       runtime.progressiveWorldInput = progressiveInput ?? undefined;
+      runtime.arrivalRoadViewV376 = openingRoadViewV376;
+      openingRoadViewV376?.activate();
       collectFarZoomAntiFlickerTargets(runtime);
       runtime.reportStartupWork?.({ phase: "presentation", completed: 0 });
       performance.mark("isometric-city-preview-ready");
@@ -5606,6 +5669,8 @@ function ensureIsoWorld(
       }
     })
     .catch((error: unknown) => {
+      openingRoadViewV376?.stop();
+      if (runtime.arrivalRoadViewV376 === openingRoadViewV376) runtime.arrivalRoadViewV376 = undefined;
       provisionalParkingV323?.release();provisionalParkingV323=undefined;
       publishedParkingV323?.release();
       if(runtime.firstUploadParkingV323===publishedParkingV323)runtime.firstUploadParkingV323=undefined;
@@ -9925,6 +9990,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.gpuWarmup?.refreshView();
         updatePressehausV272(timestamp, false);
         runtime.scheduleGpuWarmup?.();
+        if (runtime.arrivalRoadViewV376) {
+          const focus = runtime.pedestrian.enabled ? camera.position : controls.target;
+          runtime.arrivalRoadViewV376.update(focus.x, focus.z, timestamp);
+        }
         updateMobileBuildingDetails(runtime, timestamp, onWarningRef.current);
         const movingFlagCount =
           stability.animateWind && civicFlagsVisible

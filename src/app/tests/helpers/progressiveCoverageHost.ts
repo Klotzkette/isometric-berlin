@@ -1,3 +1,9 @@
+import { bindHbfForecourtFinishV354 } from "../../src/HbfForecourtFinishV354";
+import { bindGroundFinishV348 } from "../../src/GroundFinishV348";
+import { createWaterRipplesV348 } from "../../src/WaterRipplesV348";
+import { takeMittePathPreviewV375 } from "../../src/mittePathArrivalV375";
+import { compactStaticGeometry } from "../../src/compactStaticGeometry";
+import type { ArrivalRoadV376, createArrivalRoadViewV376 } from "../../src/arrivalRoadViewV376";
 import { interleaveStaticGeometry } from "../../src/interleaveStaticGeometry";
 import { retainedBuildingDetailIds } from "../../src/buildingDetailResidency";
 import { cutRosenthalerPresentationV228 } from "../../src/RosenthalerSurfaceAperturesV228";
@@ -28,6 +34,7 @@ import { selectBuildingDetailDistricts, type BuildingDetailDistrict } from "../.
 import type { VisualMode } from "../../src/visualMode";
 
 type AttachMessage = Exclude<ProgressiveWorldWorkerOutput, { type: "error" }>;
+type ArrivalMessage = ArrivalRoadV376 & { type: "arrival"; kind: "surfaces" };
 
 /**
  * Execute the actual viewer attachment/pause/failure functions. Only unrelated
@@ -82,7 +89,9 @@ export function progressiveCoverageHost(
   const pendingBacking: Array<() => void> = [];
   const bindings = {
     parkCompletedGeometry: () => ({ then: (ready: () => void) => { if (deferBacking) pendingBacking.push(ready); else ready(); } }),
-    interleaveStaticGeometry,
+    interleaveStaticGeometry, compactStaticGeometry, takeMittePathPreviewV375,
+    bindHbfForecourtFinishV354, bindGroundFinishV348, createWaterRipplesV348,
+    potsdamerRoutesByWorld: new WeakMap(), currentNordbahnhofPlan: () => undefined,
     cutRosenthalerPresentationV228, cutUbahnPresentationV261, cutUbahnPresentationV281,
     Group, InstancedMesh, Line, LineSegments, Material, Mesh, Points, Texture,
     setIsoNightPresentation, hideReplacedBuildingPreview, restoreBuildingPreview, selectBuildingDetailDistricts, retainedBuildingDetailIds,
@@ -107,7 +116,7 @@ export function progressiveCoverageHost(
   const functions = new Function(...Object.keys(bindings), `${compiled}; return { ${names.join(", ")} };`)(
     ...Object.values(bindings),
   ) as {
-    attachProgressiveWorldMessage: (runtime: unknown, worker: unknown, message: AttachMessage, warn: (message: string) => void) => void;
+    attachProgressiveWorldMessage: (runtime: unknown, worker: unknown, message: AttachMessage | ArrivalMessage, warn: (message: string) => void) => Promise<void>;
     stopProgressiveWorld: (runtime: unknown) => void;
     startProgressiveWorld: (runtime: unknown, warn: (message: string) => void) => void;
     failProgressiveWorld: (runtime: unknown, worker: unknown, warn: (message: string) => void) => void;
@@ -133,6 +142,7 @@ export function progressiveCoverageHost(
     progressiveWorldWorker: worker as typeof worker | undefined,
     progressiveWorldState: "loading" as ProgressiveWorldState,
     progressiveWorldBatches: [] as Group[],
+    arrivalRoadViewV376: undefined as ReturnType<typeof createArrivalRoadViewV376> | undefined,
     progressiveWorldMessages: [] as unknown[],
     progressiveWorldInput: {
       type: "build", detailProfile: coarsePointer ? "mobile" : "full",
@@ -154,6 +164,7 @@ export function progressiveCoverageHost(
     get worker() { return worker; },
     get terminated() { return terminated; },
     get deferredStarts() { return deferredStarts; },
+    arrival: (road: ArrivalRoadV376) => functions.attachProgressiveWorldMessage(runtime, undefined, { ...road, type: "arrival", kind: "surfaces" }, warn),
     attach: (message: AttachMessage) => functions.attachProgressiveWorldMessage(runtime, worker, message, warn),
     view: (x: number, z: number, time: number) => {
       runtime.controls.target = { x, z };
