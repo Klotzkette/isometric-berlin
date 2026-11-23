@@ -56,6 +56,21 @@ mask=base64.b64decode(selection['maskBase64'])
 assets=[(chunk,chunk[mode]) for chunk in manifest['chunks'] for mode in ('drawn','minecraft')]
 selected=[a for index,(c,a) in enumerate(assets) if index//8<len(mask) and mask[index//8] & (1<<(index%8))]
 assert len(selected)==selection['candidateCount']
+# Starting in v1.0.256 a second finite mask admits plain gzip, independently
+# of the earlier delta candidates. Raw manifest bytes guard its ordering.
+if 'plainGzipMaskBase64' in selection:
+    if sha(raw_manifest.encode()) != selection['plainGzipManifestSha256']:
+        raise ValueError('Unexpected source manifest for plain gzip')
+    plain_mask = base64.b64decode(selection['plainGzipMaskBase64'],validate=True)
+    if len(plain_mask) != (len(assets)+7)//8:
+        raise ValueError('Unexpected size of plain gzip mask')
+    if any(a & b for a,b in zip(mask,plain_mask)):
+        raise ValueError('Plain gzip mask overlaps earlier candidates')
+    plain = [a for index,(_,a) in enumerate(assets)
+             if plain_mask[index//8] & (1<<(index%8))]
+    if len(plain) != selection['plainGzipCount']:
+        raise ValueError('Unexpected size of plain gzip selection')
+    selected.extend(plain)
 assert {p.relative_to(source_tiles) for p in source_tiles.rglob('*') if p.is_file()}=={
     p.relative_to(target_tiles) for p in target_tiles.rglob('*') if p.is_file()}
 for p in source_tiles.rglob('*'):
