@@ -1,3 +1,4 @@
+import { assertSourceLayerV377, isSourceAdditionV377, projectSourceBeforeV377, sourceAtBeforeV377 } from "./sourceHistoryV377";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -24,29 +25,36 @@ function verifyPredecessor(path: string): Buffer {
   return raw;
 }
 export function isSourceAdditionV376(path: string): boolean {
-  return Object.hasOwn(receipt.additions, path);
+  return Object.hasOwn(receipt.additions, path) || isSourceAdditionV377(path);
 }
 export function sourceAtBeforeV376(path: string, bytes: Uint8Array): Uint8Array {
   const entry = receipt.changes[path];
-  if (!entry) return bytes;
+  if (!entry) return sourceAtBeforeV377(path, bytes);
+  if (entry.before === digest(bytes)) return bytes;
+  bytes = sourceAtBeforeV377(path, bytes);
   const hash = digest(bytes);
   if (hash === entry.before) return bytes;
   if (hash !== entry.after) throw new Error("Unknown exact v376 source bytes: " + path);
   return verifyPredecessor(path);
 }
 export function projectSourceBeforeV376(source: string): string {
+  source = projectSourceBeforeV377(source);
   const hash = digest(source);
   const path = Object.keys(receipt.changes).find(name => receipt.changes[name].after === hash);
   return path ? verifyPredecessor(path).toString() : source;
 }
 export function assertSourceLayerV376(before: Readonly<Record<string, string>>, files: readonly string[]): void {
+  const atV376: Record<string, string> = { ...before };
+  for (const [path, hash] of Object.entries(receipt.additions)) atV376[path] = hash;
+  for (const [path, entry] of Object.entries(receipt.changes)) atV376[path] = entry.after;
+  assertSourceLayerV377(atV376, files);
   for (const [path, entry] of Object.entries(receipt.changes)) {
     if (before[path] !== entry.before) throw new Error("Unexpected v376 source change: " + path);
     verifyPredecessor(path);
-    if (digest(readFileSync(resolve(repository, path))) !== entry.after) throw new Error("Changed v376 result: " + path);
+    if (digest(sourceAtBeforeV377(path, readFileSync(resolve(repository, path)))) !== entry.after) throw new Error("Changed v376 result: " + path);
   }
   for (const [path, hash] of Object.entries(receipt.additions)) {
-    if (Object.hasOwn(before, path) || (!path.endsWith(".json.gz") && !files.includes(path)) || digest(readFileSync(resolve(repository, path))) !== hash) {
+    if (Object.hasOwn(before, path) || (!path.endsWith(".json.gz") && !files.includes(path)) || digest(sourceAtBeforeV377(path, readFileSync(resolve(repository, path)))) !== hash) {
       throw new Error("Changed v376 addition: " + path);
     }
   }

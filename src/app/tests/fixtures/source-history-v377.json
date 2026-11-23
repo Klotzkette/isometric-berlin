@@ -1,0 +1,29 @@
+{
+  "additions": {
+    "src/app/src/data/buildingFacadeProfilesV377.json": "89a13b21b9b499db032dfa233968e7cedb6e1c3f7ca5e0e70086d80e54651563",
+    "src/app/src/data/surveyedBuildingFacadesV377.json": "61f59d1d86131459a7dd23497fd709ad688243bed5d0251073888b040e6cdc53",
+    "src/app/src/data/surveyedBuildingShellsV377.json": "d7738d09ebf07a31589fc507f8167ba46848c371b0ec9bb2f5185a92fc4e6e7b",
+    "src/app/src/data/surveyedFacadeTilesV377.json": "5a8bc57cbd9fb17f5d169eb5e41d6abc92d0111d53d00f209c7eff01ff88b2d9",
+    "src/app/src/data/surveyedShellRetirementsV377.json": "465c317560442a90fc0aac6fc006e6753a940676c99794f332079e7558f1b965",
+    "src/app/src/surveyedBuildingFacadesV377.ts": "ff45aa6c67b2606b4fcb88b3075e3d5bc21985ac7205a66e59652335c73c1fef",
+    "src/app/src/surveyedBuildingShellsV377.ts": "d811b688d7812c111297a4fb28f05520ecfc21d56fd8da7914ead3c4dcb62527"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "after": "871f8251c881975cf2569059a270204ae6216828437a61e14dbb13523c0aec84",
+      "before": "ade703271fd73b114d56d0d163b3deac6af97c29e862522e5eeb0c5ca0efa9d3"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "after": "26fc9a2eb9ea6227261a5321e99ba5c9b01cd59ff2cf6d4d0b2c8bda666c06e5",
+      "before": "a05c580ba76ff202d466ff2f7f208b745b34f7161c12aae875df6a6da47bd3f1"
+    },
+    "src/app/src/SurroundingCityGeometry.ts": {
+      "after": "a60d710d94ea79cf78e142a4823435cc883b1d406abb3f5c99e5a5555cb7ce4f",
+      "before": "d5db8811e83fa494b8fa265685901bdd732d4d8c88b699c443f35474c32f2ae6"
+    },
+    "src/app/src/startupView.ts": {
+      "after": "b06a3d2b8a70d0a848acf0ac9efd3b47554ccaae5c21596947ba03bef950ac72",
+      "before": "e202b8ecd1dfc5fc46d75c5dbdfc47836676a8b4852a1bcc503ee9eda6d45bc5"
+    }
+  }
+}
