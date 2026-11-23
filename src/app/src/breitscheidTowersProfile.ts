@@ -1,3 +1,4 @@
+import { nativeRoofCellLookup } from "./nativeRoofLookup";
 import source from "./data/breitscheidTowersNavigation.json";
 
 export const BREITSCHEID_TOWER_PRISM_IDS: ReadonlySet<string> = new Set(source.legacyPrisms.map(p => p.id));
@@ -26,9 +27,9 @@ function inRing(x: number, z: number, ring: readonly number[][], scale = 1): boo
 export function breitscheidTowerContains(x: number, z: number): boolean {
   return BREITSCHEID_TOWER_SOURCE_BOUNDS.some(({ part, minX, maxX, minZ, maxZ }) => x >= minX && x <= maxX && z >= minZ && z <= maxZ && part.rings.some(r => inRing(x, z, r)));
 }
-const nativeRoofs = new Map(source.nativeRoofCells.map(([x, z, y]) => [`${Math.floor(x / 2)},${Math.floor(z / 2)}`, y]));
+const nativeRoofAtCell = nativeRoofCellLookup(() => source.nativeRoofCells, 2);
 export function breitscheidTowerRoofAt(x: number, z: number, minecraft = false): number | null {
-  if (minecraft) return nativeRoofs.get(`${Math.floor(x / 2)},${Math.floor(z / 2)}`) ?? null;
+  if (minecraft) return nativeRoofAtCell(Math.floor(x / 2), Math.floor(z / 2));
   if (!BREITSCHEID_TOWER_SOURCE_BOUNDS.some(b => x >= b.minX && x <= b.maxX && z >= b.minZ && z <= b.maxZ)) return null;
   let roof: number | null = null;
   for (const [a, b, c] of source.roofTriangles) {

@@ -1,3 +1,4 @@
+import { nativeRoofCellLookup } from "./nativeRoofLookup";
 import source from "./data/moabitJusticeV166Navigation.json";
 import { pointInWorldRing, type WorldRing } from "./chancelleryExtensionProfile";
 
@@ -5,13 +6,13 @@ export const MOABIT_JUSTICE_V166_PARTS = source.parts;
 export const MOABIT_JUSTICE_V166_PARENT_IDS: ReadonlySet<string> = new Set(source.parentIds);
 export const MOABIT_JUSTICE_V166_PRISM_IDS: ReadonlySet<string> = new Set(source.legacyPrisms.map(p => p.id));
 const bounds = source.parts.map(p => ({ p, minX: Math.min(...p.ring.map(v => v[0])), maxX: Math.max(...p.ring.map(v => v[0])), minZ: Math.min(...p.ring.map(v => v[1])), maxZ: Math.max(...p.ring.map(v => v[1])) }));
-const nativeRoofs = new Map(source.nativeRoofCells.map(([x, z, y]) => [`${x},${z}`, y]));
+const nativeRoofAtCell = nativeRoofCellLookup(() => source.nativeRoofCells);
 const inside = (x: number, z: number, p: {ring: number[][]; holes: number[][][]}) => pointInWorldRing(x, z, p.ring as unknown as WorldRing) && !p.holes.some(h => pointInWorldRing(x, z, h as unknown as WorldRing));
 
 /** Exact retained roof planes; courtyard ground is never a building column. */
 export function moabitJusticeV166RoofAt(x: number, z: number, minecraft = false): number | null {
   if (x < -1280 || x > -595 || z < -950 || z > -575) return null;
-  if (minecraft) return nativeRoofs.get(`${Math.floor(x)},${Math.floor(z)}`) ?? null;
+  if (minecraft) return nativeRoofAtCell(Math.floor(x), Math.floor(z));
   if (!bounds.some(b => x >= b.minX && x <= b.maxX && z >= b.minZ && z <= b.maxZ && inside(x, z, b.p))) return null;
   let top: number | null = null;
   for (const [a, b, c] of source.roofTriangles) {

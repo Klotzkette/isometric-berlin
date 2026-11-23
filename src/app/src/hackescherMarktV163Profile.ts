@@ -1,11 +1,12 @@
+import { nativeRoofCellLookup } from "./nativeRoofLookup";
 import source from "./data/hackescherMarktV163Navigation.json";
 import { pointInWorldRing, type WorldRing } from "./chancelleryExtensionProfile";
 export const HACKESCHER_MARKT_V163_PRISM_IDS = new Set(source.legacyPrisms.map(p => p.id));
 export const HACKESCHER_MARKT_V163_PARTS = source.parts;
 const bounds = source.parts.map(p => ({p,minX:Math.min(...p.ring.map(v=>v[0])),maxX:Math.max(...p.ring.map(v=>v[0])),minZ:Math.min(...p.ring.map(v=>v[1])),maxZ:Math.max(...p.ring.map(v=>v[1]))}));
-const nativeRoofs = new Map(source.nativeRoofCells.map(([x,z,y])=>[`${Math.floor(x/2)},${Math.floor(z/2)}`,y]));
+const nativeRoofAtCell = nativeRoofCellLookup(() => source.nativeRoofCells, 2);
 export function hackescherMarktRoofAt(x:number,z:number,minecraft=false):number|null {
-  if (minecraft) return nativeRoofs.get(`${Math.floor(x/2)},${Math.floor(z/2)}`)??null;
+  if (minecraft) return nativeRoofAtCell(Math.floor(x/2), Math.floor(z/2));
   if (!bounds.some(b=>x>=b.minX&&x<=b.maxX&&z>=b.minZ&&z<=b.maxZ&&pointInWorldRing(x,z,b.p.ring as unknown as WorldRing)&&!b.p.holes.some(h=>pointInWorldRing(x,z,h as unknown as WorldRing)))) return null;
   let top:number|null=null;
   for (const [a,b,c] of source.roofTriangles) {

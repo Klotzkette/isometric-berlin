@@ -1,3 +1,4 @@
+import { nativeRoofCellLookup } from "./nativeRoofLookup";
 import source from "./data/westSquaresV163Navigation.json";
 
 /** Explicit identity ownership: no spatial blanket may suppress neighbouring buildings. */
@@ -32,10 +33,10 @@ export function westSquaresV163Contains(x: number, z: number): boolean {
   return WEST_SQUARES_V163_SOURCE_BOUNDS.some(({ part, minX, maxX, minZ, maxZ }) =>
     x >= minX && x <= maxX && z >= minZ && z <= maxZ && part.rings.some(r => inRing(x, z, r)));
 }
-const nativeRoofs = new Map(source.nativeRoofCells.map(([x, z, y]) => [`${Math.floor(x / 2)},${Math.floor(z / 2)}`, y]));
+const nativeRoofAtCell = nativeRoofCellLookup(() => source.nativeRoofCells, 2);
 /** Native cells are checked before metric bounds: edge blocks can straddle a facade. */
 export function westSquaresV163RoofAt(x: number, z: number, minecraft = false): number | null {
-  if (minecraft) return nativeRoofs.get(`${Math.floor(x / 2)},${Math.floor(z / 2)}`) ?? null;
+  if (minecraft) return nativeRoofAtCell(Math.floor(x / 2), Math.floor(z / 2));
   if (!WEST_SQUARES_V163_SOURCE_BOUNDS.some(b => x >= b.minX && x <= b.maxX && z >= b.minZ && z <= b.maxZ)) return null;
   let roof: number | null = null;
   for (const [a, b, c] of source.roofTriangles) {

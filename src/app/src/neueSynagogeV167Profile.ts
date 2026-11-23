@@ -1,3 +1,4 @@
+import { nativeRoofCellLookup } from "./nativeRoofLookup";
 import source from "./data/neueSynagogeV167Navigation.json";
 
 export const NEUE_SYNAGOGE_V167_PRISM_IDS: ReadonlySet<string> = new Set(source.legacyPrisms.map(p => p.id));
@@ -36,9 +37,9 @@ export function neueSynagogeV167SourceColumn(x: number, z: number, baseY: number
     Math.abs(topY - baseY - Math.ceil(p.h_dm / 40) * 4) < .11 &&
     inRing(x, z, p.ring, 10) && !p.holes.some(h => inRing(x, z, h, 10)));
 }
-const nativeRoofs = new Map(source.nativeRoofCells.map(([ix, iz, y]) => [`${ix},${iz}`, y]));
+const nativeRoofAtCell = nativeRoofCellLookup(() => source.nativeRoofCells);
 export function neueSynagogeV167RoofAt(x: number, z: number, minecraft = false): number | null {
-  if (minecraft) return nativeRoofs.get(`${Math.floor(x / .5)},${Math.floor(z / .5)}`) ?? null;
+  if (minecraft) return nativeRoofAtCell(Math.floor(x / .5), Math.floor(z / .5));
   if (x < 1539 || x > 1595 || z < -670 || z > -615) return null;
   let roof: number | null = null;
   const take = (y: number) => { roof = roof === null ? y : Math.max(roof, y); };

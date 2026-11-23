@@ -1,6 +1,7 @@
 import source from "./data/mitteHeritageV166Navigation.json";
 import { pointInWorldRing, type WorldRing } from "./chancelleryExtensionProfile";
 import { buildingTerrainOffset } from "./weinbergTerrainV176";
+import { nativeRoofRunLookup } from "./nativeRoofLookup";
 
 export const MITTE_HERITAGE_V166_PRISM_IDS = new Set(source.legacyPrisms.map(p=>p.id));
 const parentOffsets = new Map<string, number>();
@@ -17,19 +18,27 @@ export function mitteHeritageV166ParentOffset(parentId: string): number {
 export function mitteHeritageV166PartOffset(partId: string): number {
   return mitteHeritageV166ParentOffset(source.parts.find(p => p.id === partId)?.parentId ?? partId);
 }
-const affectedBounds = source.parts.filter(p => mitteHeritageV166ParentOffset(p.parentId) !== 0).map(p => ({
-  x0: Math.min(...p.ring.map(v => v[0])) - 1.2, x1: Math.max(...p.ring.map(v => v[0])) + 1.2,
-  z0: Math.min(...p.ring.map(v => v[1])) - 1.2, z1: Math.max(...p.ring.map(v => v[1])) + 1.2,
+const bounds = source.parts.map(p => ({
+  p,
+  x0: Math.min(...p.ring.map(v => v[0])), x1: Math.max(...p.ring.map(v => v[0])),
+  z0: Math.min(...p.ring.map(v => v[1])), z1: Math.max(...p.ring.map(v => v[1])),
 }));
+const affectedBounds = bounds.filter(b => mitteHeritageV166ParentOffset(b.p.parentId) !== 0);
 
 /** Rows are source building skin only; nearest footprint resolves offset panes/voxels. */
 export function mitteHeritageV166BuildingOffsetAt(x: number, z: number): number {
-  if (!affectedBounds.some(b => x >= b.x0 && x <= b.x1 && z >= b.z0 && z <= b.z1)) return 0;
+  if (!affectedBounds.some(b => x >= b.x0 - 1.2 && x <= b.x1 + 1.2 && z >= b.z0 - 1.2 && z <= b.z1 + 1.2)) return 0;
+  for (const {p, x0, x1, z0, z1} of bounds) {
+    if (x >= x0 && x <= x1 && z >= z0 && z <= z1 &&
+        pointInWorldRing(x, z, p.ring as unknown as WorldRing) &&
+        !p.holes.some(h => pointInWorldRing(x, z, h as unknown as WorldRing))) {
+      return mitteHeritageV166ParentOffset(p.parentId);
+    }
+  }
+  // Only points outside every footprint need the nearest segment. Keep the
+  // original part and edge order so tied distances select the same owner.
   let nearest = Infinity, owner = "";
   for (const part of source.parts) {
-    if (pointInWorldRing(x, z, part.ring as unknown as WorldRing) && !part.holes.some(h => pointInWorldRing(x, z, h as unknown as WorldRing))) {
-      return mitteHeritageV166ParentOffset(part.parentId);
-    }
     for (const ring of [part.ring, ...part.holes]) for (let i = 0; i < ring.length; i++) {
       const a = ring[i], b = ring[(i + 1) % ring.length];
       const dx = b[0] - a[0], dz = b[1] - a[1], length2 = dx * dx + dz * dz;
@@ -45,11 +54,7 @@ export const MITTE_HERITAGE_V166_PARTS = source.parts.map(p => {
   const offset = mitteHeritageV166ParentOffset(p.parentId);
   return offset === 0 ? p : { ...p, ground_y_m: p.ground_y_m + offset, top_y_m: p.top_y_m + offset };
 });
-const bounds=source.parts.map(p=>({p,x0:Math.min(...p.ring.map(v=>v[0])),x1:Math.max(...p.ring.map(v=>v[0])),z0:Math.min(...p.ring.map(v=>v[1])),z1:Math.max(...p.ring.map(v=>v[1]))}));
-const cells=new Map<string,number>();
-for(const [start,end,z,y] of source.nativeRoofRuns)for(let ix=start;ix<end;ix++){
-  cells.set(`${ix},${z}`,y + mitteHeritageV166BuildingOffsetAt(ix + .5, z + .5));
-}
+const nativeRoofAtCell = nativeRoofRunLookup(() => source.nativeRoofRuns, mitteHeritageV166BuildingOffsetAt);
 const roofTriangles = source.roofTriangles.map(triangle => {
   const x = triangle.reduce((sum, p) => sum + p[0], 0) / 3;
   const z = triangle.reduce((sum, p) => sum + p[2], 0) / 3;
@@ -57,7 +62,7 @@ const roofTriangles = source.roofTriangles.map(triangle => {
   return offset === 0 ? triangle : triangle.map(p => [p[0], p[1] + offset, p[2]]);
 });
 export function mitteHeritageV166RoofAt(x:number,z:number,minecraft=false):number|null {
-  if(minecraft)return cells.get(`${Math.floor(x)},${Math.floor(z)}`)??null;
+  if(minecraft)return nativeRoofAtCell(Math.floor(x), Math.floor(z));
   if(!bounds.some(b=>x>=b.x0&&x<=b.x1&&z>=b.z0&&z<=b.z1&&pointInWorldRing(x,z,b.p.ring as unknown as WorldRing)&&!b.p.holes.some(h=>pointInWorldRing(x,z,h as unknown as WorldRing))))return null;
   let top:number|null=null;
   for(const [a,b,c] of roofTriangles){

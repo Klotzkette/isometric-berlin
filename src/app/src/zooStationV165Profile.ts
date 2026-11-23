@@ -1,3 +1,4 @@
+import { nativeRoofCellLookup } from "./nativeRoofLookup";
 import source from "./data/zooStationV165Navigation.json";
 import { ZOO_ENTRANCE_V192_PART, ZOO_ENTRANCE_V192_SOURCE, zooEntranceRoofAtV192, zooEntranceSolidAtV192 } from "./stationDetailsV192Profile";
 const legacyPrisms=[...source.legacyPrisms,ZOO_ENTRANCE_V192_SOURCE.legacyPrism];
@@ -38,10 +39,10 @@ export function zooStationV165FloorAt(x:number,z:number,currentY=5.2):number|nul
   if(currentY>11.4&&source.platforms.some(p=>p.polygons.some(poly=>contains(x,z,poly))))return 13.96;
   return currentY>11.4?13.2:5.25;
 }
-const nativeRoofs=new Map(source.nativeRoofCells.map(([x,z,y])=>[`${Math.floor(x/2)},${Math.floor(z/2)}`,y]));
+const nativeRoofAtCell = nativeRoofCellLookup(() => source.nativeRoofCells, 2);
 export function zooStationV165RoofAt(x:number,z:number,minecraft=false):number|null{
   const canopy=zooEntranceRoofAtV192(x,z);if(canopy!==null)return canopy;
-  if(minecraft)return nativeRoofs.get(`${Math.floor(x/2)},${Math.floor(z/2)}`)??null;
+  if(minecraft)return nativeRoofAtCell(Math.floor(x/2), Math.floor(z/2));
   let result:number|null=null;
   for(const [a,b,c] of source.roofTriangles){const d=(b[2]-c[2])*(a[0]-c[0])+(c[0]-b[0])*(a[2]-c[2]);if(Math.abs(d)<1e-8)continue;
     const u=((b[2]-c[2])*(x-c[0])+(c[0]-b[0])*(z-c[2]))/d,v=((c[2]-a[2])*(x-c[0])+(a[0]-c[0])*(z-c[2]))/d;

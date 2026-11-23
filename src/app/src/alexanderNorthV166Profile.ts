@@ -1,3 +1,4 @@
+import { nativeRoofCellLookup } from "./nativeRoofLookup";
 import source from "./data/alexanderNorthV166Navigation.json";
 import { pointInWorldRing, type WorldRing } from "./chancelleryExtensionProfile";
 
@@ -8,7 +9,7 @@ export const ALEXANDER_NORTH_V166_OUTER_SOURCE_IDS = ALEXANDER_NORTH_V166_PARENT
 const inRing = (x: number, z: number, ring: number[][]) => pointInWorldRing(x, z, ring as unknown as WorldRing);
 const contains = (x: number, z: number, p: {ring: number[][]; holes: number[][][]}) => inRing(x,z,p.ring) && !p.holes.some(h => inRing(x,z,h));
 const bounds = source.parts.map(p => ({ p, minX: Math.min(...p.ring.map(q=>q[0])), maxX: Math.max(...p.ring.map(q=>q[0])), minZ: Math.min(...p.ring.map(q=>q[1])), maxZ: Math.max(...p.ring.map(q=>q[1])) }));
-const nativeRoofs = new Map(source.nativeRoofCells.map(([x,z,y])=>[`${Math.floor(x/2)},${Math.floor(z/2)}`,y]));
+const nativeRoofAtCell = nativeRoofCellLookup(() => source.nativeRoofCells, 2);
 
 /** Exact delivered two-metre parent-column ownership; unrelated columns survive. */
 export function alexanderNorthV166SourceColumn(x: number, z: number, baseY: number, topY: number): boolean {
@@ -18,7 +19,7 @@ export function alexanderNorthV166SourceColumn(x: number, z: number, baseY: numb
 
 /** Shared precise roof support for all drawn modes; native uses its own cells. */
 export function alexanderNorthV166RoofAt(x: number, z: number, minecraft=false): number | null {
-  if (minecraft) return nativeRoofs.get(`${Math.floor(x/2)},${Math.floor(z/2)}`) ?? null;
+  if (minecraft) return nativeRoofAtCell(Math.floor(x/2), Math.floor(z/2));
   if (!bounds.some(b=>x>=b.minX&&x<=b.maxX&&z>=b.minZ&&z<=b.maxZ&&contains(x,z,b.p))) return null;
   let top: number | null = null;
   for (const [a,b,c] of source.roofTriangles) {

@@ -1,3 +1,4 @@
+import { nativeRoofCellLookup } from "./nativeRoofLookup";
 import source from "./data/concertHallsNavigation.json";
 
 export const CONCERT_HALL_PRISM_IDS: ReadonlySet<string> = new Set(
@@ -38,10 +39,10 @@ export function concertHallContains(x: number, z: number): boolean {
 }
 
 /** Actual sloping source roof, not the maximum-height prism's flat lid. */
-const nativeRoofs = new Map(source.nativeRoofCells.map(([x, z, y]) => [`${Math.floor(x / 2)},${Math.floor(z / 2)}`, y]));
+const nativeRoofAtCell = nativeRoofCellLookup(() => source.nativeRoofCells, 2);
 
 export function concertHallRoofAt(x: number, z: number, minecraft = false): number | null {
-  if (minecraft) return nativeRoofs.get(`${Math.floor(x / 2)},${Math.floor(z / 2)}`) ?? null;
+  if (minecraft) return nativeRoofAtCell(Math.floor(x / 2), Math.floor(z / 2));
   if (!CONCERT_HALL_SOURCE_BOUNDS.some((b) => x >= b.minX - .001 && x <= b.maxX + .001 && z >= b.minZ - .001 && z <= b.maxZ + .001)) return null;
   let roof: number | null = null;
   for (const [a, b, c] of source.roofTriangles) {

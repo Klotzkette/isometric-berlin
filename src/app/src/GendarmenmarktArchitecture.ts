@@ -4,7 +4,7 @@ import {
   MeshStandardMaterial, Quaternion, ShapeUtils, SphereGeometry, Vector2, Vector3,
 } from "three";
 import source from "./gendarmenmarktSource.json";
-import { GENDARMENMARKT_PROFILE as P, GENDARMENMARKT_SOURCES, gendarmenmarktPartContains } from "./gendarmenmarktProfile";
+import { GENDARMENMARKT_PROFILE as P, GENDARMENMARKT_SOURCES, gendarmenmarktPartBounds, gendarmenmarktPartContains } from "./gendarmenmarktProfile";
 import { letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { createSchillerMonument } from "./SchillerMonument";
@@ -300,7 +300,11 @@ function square(b: Builder, root: Group): void {
   const dx = across[0] - origin[0], dz = across[1] - origin[1], length = Math.hypot(dx, dz);
   const vx = source.square.ring[2][0] - origin[0], vz = source.square.ring[2][1] - origin[1], depth = Math.hypot(vx, vz);
   const p = (u: number, v: number): Point => [origin[0] + dx * u + vx * v, 5.245, origin[1] + dz * u + vz * v];
-  const clear = (point: Point) => !GENDARMENMARKT_SOURCES.some(s => s.parts.some(part => gendarmenmarktPartContains(part, point[0], point[2])));
+  const footprints = GENDARMENMARKT_SOURCES.flatMap(profile =>
+    profile.parts.map(part => ({ part, bounds: gendarmenmarktPartBounds(part) })));
+  const clear = ([x, , z]: Point) => !footprints.some(({ part, bounds }) =>
+    x >= bounds[0] && z >= bounds[1] && x <= bounds[2] && z <= bounds[3] &&
+    gendarmenmarktPartContains(part, x, z));
   // Short segments skip each exact building footprint and keep the broad pale
   // square legible without dense joints that shimmer in mobile distant views.
   for (let u = 0; u <= 1; u += 7.5 / length) for (let v = .01; v < .99; v += 3 / depth) {

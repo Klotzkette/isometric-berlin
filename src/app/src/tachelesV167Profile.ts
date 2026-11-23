@@ -1,3 +1,4 @@
+import { nativeRoofCellLookup } from "./nativeRoofLookup";
 import source from "./data/tachelesV167Navigation.json";
 import { pointInWorldRing, type WorldRing } from "./chancelleryExtensionProfile";
 export const TACHELES_V167_PRISM_IDS: ReadonlySet<string> = new Set(source.legacyPrisms.map(p => p.id));
@@ -11,9 +12,9 @@ export function tachelesV167SourceColumn(x: number, z: number, base: number, top
   if (x < 1160 || x > 1250 || z < -760 || z > -705) return false;
   return source.legacyPrisms.some(p => Math.abs(base - p.y0_dm / 10) < .11 && Math.abs(top - base - Math.ceil(p.h_dm / 40) * 4) < .11 && ringContains(x * 10, z * 10, p.ring) && !p.holes.some(h => ringContains(x * 10, z * 10, h)));
 }
-const nativeRoof = new Map(source.nativeRoofCells.map(([x, z, y]) => [`${x},${z}`, y]));
+const nativeRoofAtCell = nativeRoofCellLookup(() => source.nativeRoofCells);
 export function tachelesV167RoofAt(x: number, z: number, minecraft = false): number | null {
-  if (minecraft) return nativeRoof.get(`${Math.floor(x)},${Math.floor(z)}`) ?? null;
+  if (minecraft) return nativeRoofAtCell(Math.floor(x), Math.floor(z));
   if (!bounds.some(b => x >= b.x0 && x <= b.x1 && z >= b.z0 && z <= b.z1 && b.p.polygons.some(p => ringContains(x, z, p.ring) && !p.holes.some(h => ringContains(x, z, h))))) return null;
   let roof: number | null = null;
   for (const [a, b, c] of source.roofTriangles) {

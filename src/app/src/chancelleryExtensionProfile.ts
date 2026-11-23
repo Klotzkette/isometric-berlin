@@ -145,21 +145,22 @@ export function pointInWorldRing(
   z: number,
   ring: WorldRing,
 ): boolean {
+  if (ring.length === 0) return false;
   let inside = false;
-  for (
-    let index = 0, previous = ring.length - 1;
-    index < ring.length;
-    previous = index++
-  ) {
-    const [x1, z1] = ring[index];
-    const [x2, z2] = ring[previous];
-    const crosses = z1 > z !== z2 > z;
-    if (
-      crosses &&
-      x < ((x2 - x1) * (z - z1)) / (z2 - z1 || Number.EPSILON) + x1
-    ) {
-      inside = !inside;
+  let previous = ring[ring.length - 1];
+  let previousAbove = previous[1] > z;
+  for (let index = 0; index < ring.length; index++) {
+    const current = ring[index];
+    const z1 = current[1];
+    const above = z1 > z;
+    if (above !== previousAbove) {
+      const x1 = current[0];
+      if (x < ((previous[0] - x1) * (z - z1)) / (previous[1] - z1 || Number.EPSILON) + x1) {
+        inside = !inside;
+      }
     }
+    previous = current;
+    previousAbove = above;
   }
   return inside;
 }
