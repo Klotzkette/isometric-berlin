@@ -1,29 +1,26 @@
 # Isometric Berlin viewer
 
-React + TypeScript + Vite + OpenSeadragon, managed with `bun`.
+The React and TypeScript app renders Berlin in isometric 3D with Three.js. You can orbit the city, walk at street level and switch among Day, Night, Snowstorm, Minecraft, Schwellenraum and Flooded Berlin.
 
-## Dev
+## Local development
+
+From the repository root, start the Vite development server with Bun.
 
 ```bash
+cd src/app
 bun install
 bun run dev
 ```
 
-The app reads the committed DZI pyramid under
-`public/dzi/regierungsviertel/`. It is a static OpenSeadragon viewer
-with landmark focus buttons, labeled map pins, a landmark tour, a
-keyboard-shortcut help panel, copyable view links, a north-up default
-view, a navigator, north/east/south/west orientation presets, 90°
-rotation, horizontal mirroring, and a vertical 2D flip composed from
-rotation plus mirror. The viewer also includes a top-down OSM/LoD2
-reference map overlay with north arrow and scale for placement checks.
-The committed DZI uses the deterministic local pixel-art pass; it does
-not need a backend, AI model, or Google key at runtime.
+Open the local HTTP address printed by Vite. To build the production viewer in `src/app/dist/` and preview it, run these commands from `src/app`.
 
-## Required attribution overlay
-
-```
-© OpenStreetMap contributors · 3D building models: Geoportal Berlin (dl-de/zero-2-0) · Visual references: Wikimedia Commons/Wikipedia
+```bash
+bun run build
+bun run preview
 ```
 
-Must be visible in the viewer chrome at all times.
+The [project README](../../README.md) links the hosted viewer and complete offline downloads for Windows, macOS and Linux. The [setup guide](../../docs/setup.md) covers the development environment and local launchers.
+
+## Source credits
+
+Keep the required source attribution visible in the viewer. The [source attribution component](src/SourcesDialog.tsx) contains the displayed wording and the [project notice](../../NOTICE.md) lists the full credits and licences.

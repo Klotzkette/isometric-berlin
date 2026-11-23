@@ -164,7 +164,7 @@ The rendered tube shells have open longitudinal ends, and the exterior mouth
 shadow is removed as soon as the pedestrian enters, so neither a segment joint
 nor a portal can become a transverse wall on the route.
 
-Pedestrian mode is an independent navigation layer over all five visual modes.
+Pedestrian mode is available in all six visual modes.
 It preserves the free camera's exact X/Z coordinate and live heading and pitch,
 then drops strictly vertically to the highest LoD2 roof, authored interior
 floor, tunnel course or terrain below before applying the 1.80 m eye height.

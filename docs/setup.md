@@ -30,7 +30,7 @@ bun run dev
 ```
 
 Open the HTTP URL printed by Vite. The viewer always starts in isometric 3D;
-all five visual modes use that renderer. For a production build, run
+all six visual modes use that renderer. For a production build, run
 `bun run build` in the same directory and serve `dist/` over HTTP.
 
 The following pipeline commands are for regenerating source-derived artefacts,
