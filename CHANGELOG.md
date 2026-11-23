@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.256
+
+- Fit mapped footway and planted edges to the Berlin street survey and restore missing carriageway margins along eleven streets in Mitte. Suppress coarse kerb segments where the surveyed materials continue across the old grid edge. Request nearby surveyed asphalt during opening and camera moves so its surface can appear ahead of the city-wide worker.
+- Restore the full row of 19 surveyed horse chestnuts at Robert-Koch-Platz in the block view. Show 330 park trees on arrival at Invalidenpark, Geschichtspark Moabit and Agnes-Sorma-Park, and hand them over to the complete park layer.
+- Stream the 425 exact road batches in smaller binary frames, defer native roof lookups until used, and apply lossless gzip to 2,291 additional outer tile files. [Surveyed areas, trees and measurements](docs/gehwege-stadtbaeume-und-ladezeit-v376.md)
+
 ## 1.0.255
 
 - Rebuild the Simsonweg from the Platz des 18. März to Scheidemannstraße and connect its Tiergarten branches. Fit the mosaic, gravel and stone courses to the Berlin survey and preserve the memorial basin.

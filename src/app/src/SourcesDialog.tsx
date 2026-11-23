@@ -36,8 +36,8 @@ export function SourcesDialog({ language, onClose }: {
       <div className="sources-content">
         <p className="sources-attribution">{ATTRIBUTION}</p>
         <p>{language === "de"
-          ? "Die Beläge am Simsonweg folgen der Berliner Straßenbefahrung, dem Liegenschaftskataster und OpenStreetMap. Standorte, Baumhöhen und Kronendurchmesser in Mitte stammen aus dem Berliner Baumkataster."
-          : "Simsonweg paving follows the Berlin street survey, the cadastral map and OpenStreetMap. Berlin’s tree inventory supplies tree locations, heights and crown diameters in Mitte."}{" "}
+          ? "Die kartierten Gehweg- und Fahrbahnränder sowie die Beläge am Simsonweg folgen der Berliner Straßenbefahrung. Am Simsonweg ergänzen Liegenschaftskataster und OpenStreetMap diese Daten. Standorte, Baumhöhen und Kronendurchmesser in Mitte stammen aus dem Berliner Baumkataster."
+          : "Mapped sidewalk and carriageway edges and Simsonweg paving follow the Berlin street survey. The cadastral map and OpenStreetMap provide additional data at Simsonweg. Berlin’s tree inventory supplies tree locations, heights and crown diameters in Mitte."}{" "}
           <a href="https://gdi.berlin.de/services/wfs/strassenbefahrung?SERVICE=WFS&REQUEST=GetCapabilities" target="_blank" rel="noreferrer">Geoportal Berlin</a>
           {" · "}<a href="https://gdi.berlin.de/services/wfs/baumbestand?SERVICE=WFS&REQUEST=GetCapabilities" target="_blank" rel="noreferrer">{language === "de" ? "Baumkataster" : "Tree inventory"}</a>
           {" · "}<a href="https://www.govdata.de/dl-de/zero-2-0" target="_blank" rel="noreferrer">dl-de/zero-2-0</a>
