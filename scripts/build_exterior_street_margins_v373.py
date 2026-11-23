@@ -74,18 +74,19 @@ def dm_polygon(record):
   )
 
 
-def exterior_cutouts():
+def exterior_cutouts(districts=None):
   ground = read(MESH / "ground-context.json")
   payload = read(MESH / "surface-polygons.json")
   core = read(DATA / "surroundingCityScope.json")["core"]
   core = Polygon(core["ring"], core["holes"])
-  districts = {}
-  for f in read(DISTRICTS)["features"]:
-    if f["properties"]["sch"][6:8] == "01":
-      continue
-    zone = world(shape(f["geometry"])).intersection(core)
-    if zone.area > 0:
-      districts[f["properties"]["nam"]] = zone
+  if districts is None:
+    districts = {}
+    for f in read(DISTRICTS)["features"]:
+      if f["properties"]["sch"][6:8] == "01":
+        continue
+      zone = world(shape(f["geometry"])).intersection(core)
+      if zone.area > 0:
+        districts[f["properties"]["nam"]] = zone
   scope = shapely.union_all(list(districts.values()))
   grid = ground["grid"]
   cell = ground["cell_m"]
@@ -179,12 +180,22 @@ def pack_words(words, dtype):
   return base64.b64encode(gzip.compress(data, compresslevel=9, mtime=0)).decode()
 
 
-def build(*, cache=None):
-  cutouts, districts, payload = exterior_cutouts()
+def build(
+  *,
+  cache=None,
+  region=None,
+  survey=SURVEY,
+  features=None,
+  exclusions=(),
+  dependencies=(),
+):
+  cutouts, districts, payload = exterior_cutouts() if region is None else region
   if cache:
     capture(cache, cutouts)
   raw = list(polygon_parts(cutouts))
   protected = protections(payload)
+  if len(exclusions):
+    protected = np.concatenate((protected, exclusions))
   tree = shapely.STRtree(protected)
   eligible = []
   for gap in raw:
@@ -195,7 +206,8 @@ def build(*, cache=None):
     eligible.extend(polygon_parts(gap))
   possible = shapely.STRtree(eligible)
   per_gap = defaultdict(lambda: defaultdict(list))
-  features = json.loads(gzip.decompress(SURVEY.read_bytes()))["features"]
+  if features is None:
+    features = json.loads(gzip.decompress(survey.read_bytes()))["features"]
   for fid, material, wkb in features:
     layer = fid.split(".")[0]
     style = "lawn" if layer == "ce_gruenflaeche" else LEGEND[material]
@@ -266,7 +278,8 @@ def build(*, cache=None):
     MESH / "surface-polygons.json",
     MESH / "lod2-prisms.json",
     MESH / "rail-lines.json",
-    SURVEY,
+    survey,
+    *dependencies,
     *(
       DATA / n
       for n in [

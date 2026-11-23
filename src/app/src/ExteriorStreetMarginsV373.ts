@@ -3,6 +3,7 @@ import {
 } from "three";
 import { gunzipSync } from "three/examples/jsm/libs/fflate.module.js";
 import survey from "./data/exteriorStreetMarginsV373.json";
+import central from "./data/mitteRoadMarginsV376.json";
 import { decodeBase64Bytes } from "./decodeBase64Bytes";
 import { releaseScratchBuffer } from "./releaseScratchBuffer";
 import { smoothGroundTopSampler, type VoxelPayload } from "./terrainPayload";
@@ -61,39 +62,46 @@ export function* attachExteriorStreetMarginsV373(slabs: InstancedMesh, ground: V
   const sample = smoothGroundTopSampler(ground);
   const {cell_m: cell, grid} = ground;
   let byteBudget = 0;
-  for (const part of survey.chunks) {
-    const xz = new Uint16Array(readBuffer(part.xz, part.vertices*4).buffer);
-    const styles = readBuffer(part.style, part.vertices);
-    const indices = new Uint16Array(readBuffer(part.index, part.indices*2).buffer);
-    const pos = new Float32Array(part.vertices*3), colors = new Uint8Array(part.vertices*3);
-    for (let i=0; i<part.vertices; i++) {
-      const x = (part.origin[0] + xz[2*i]) / 100;
-      const z = (part.origin[1] + xz[2*i+1]) / 100;
-      const at = i*3, color = palette[styles[i]];
-      pos[at] = x;
-      pos[at+1] = sample(x/cell-grid.min_x_idx, z/cell-grid.min_z_idx);
-      pos[at+2] = z;
-      colors[at] = Math.round(color.r*255);
-      colors[at+1] = Math.round(color.g*255);
-      colors[at+2] = Math.round(color.b*255);
-    }
-    releaseScratchBuffer(xz.buffer);
-    releaseScratchBuffer(styles.buffer);
-    const geometry = new BufferGeometry();
-    geometry.setAttribute("position",new BufferAttribute(pos,3));
-    geometry.setAttribute("color",new BufferAttribute(colors,3,true));
-    geometry.setIndex(new BufferAttribute(indices,1));
-    geometry.computeBoundingSphere();
-    const mesh = new Mesh(geometry, day);
-    mesh.name = `Street margins ${part.origin[0]}:${part.origin[1]}`;
-    mesh.renderOrder = -9000;
-    mesh.userData.dayMaterial = day;
-    mesh.userData.nightMaterial = night;
-    root.add(mesh);
-    byteBudget += pos.byteLength + colors.byteLength + indices.byteLength;
-    if (byteBudget >= 512*1024) {
-      byteBudget = 0;
-      yield;
+  const mitte = new Group();
+  mitte.name = "Surveyed road margins in Mitte v376";
+  mitte.renderOrder = root.renderOrder;
+  root.add(mitte);
+  const regions = [[root, survey.chunks], [mitte, central.chunks]] as const;
+  for (const [region, chunks] of regions) {
+    for (const part of chunks) {
+      const xz = new Uint16Array(readBuffer(part.xz, part.vertices*4).buffer);
+      const styles = readBuffer(part.style, part.vertices);
+      const indices = new Uint16Array(readBuffer(part.index, part.indices*2).buffer);
+      const pos = new Float32Array(part.vertices*3), colors = new Uint8Array(part.vertices*3);
+      for (let i=0; i<part.vertices; i++) {
+        const x = (part.origin[0] + xz[2*i]) / 100;
+        const z = (part.origin[1] + xz[2*i+1]) / 100;
+        const at = i*3, color = palette[styles[i]];
+        pos[at] = x;
+        pos[at+1] = sample(x/cell-grid.min_x_idx, z/cell-grid.min_z_idx);
+        pos[at+2] = z;
+        colors[at] = Math.round(color.r*255);
+        colors[at+1] = Math.round(color.g*255);
+        colors[at+2] = Math.round(color.b*255);
+      }
+      releaseScratchBuffer(xz.buffer);
+      releaseScratchBuffer(styles.buffer);
+      const geometry = new BufferGeometry();
+      geometry.setAttribute("position",new BufferAttribute(pos,3));
+      geometry.setAttribute("color",new BufferAttribute(colors,3,true));
+      geometry.setIndex(new BufferAttribute(indices,1));
+      geometry.computeBoundingSphere();
+      const mesh = new Mesh(geometry, day);
+      mesh.name = `Street margins ${part.origin[0]}:${part.origin[1]}`;
+      mesh.renderOrder = -9000;
+      mesh.userData.dayMaterial = day;
+      mesh.userData.nightMaterial = night;
+      region.add(mesh);
+      byteBudget += pos.byteLength + colors.byteLength + indices.byteLength;
+      if (byteBudget >= 512*1024) {
+        byteBudget = 0;
+        yield;
+      }
     }
   }
 }

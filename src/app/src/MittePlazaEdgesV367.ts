@@ -8,6 +8,7 @@ import { decodeBase64Bytes } from "./decodeBase64Bytes";
 import { attachExteriorStreetMarginsV373 } from "./ExteriorStreetMarginsV373";
 import { setPathEdgeInkV373 } from "./pathEdgeInkV373";
 import paths from "./data/pathEdgesV373.json";
+import sidewalks from "./data/surveyedSidewalkEdgesV376.json";
 import source from "./data/mittePlazaEdgesV367.json";
 import extraEdges from "./data/innerCityPlazaEdgesV368.json";
 import extraStreets from "./data/innerCitySquareStreetsV368.json";
@@ -22,9 +23,8 @@ function pathWords(encoded: string): Uint16Array {
   return words;
 }
 
-function attachPathInk(slabs: InstancedMesh, admittedCells: Map<number, number>): void {
-  const words = pathWords(paths.ink);
-  const lines = new Map<number, number[]>();
+function addPathInk(encoded: string, admittedCells: ReadonlyMap<number, number>, lines: Map<number, number[]>): void {
+  const words = pathWords(encoded);
   const { cellM, subunits, grid } = paths;
   for (let at = 0; at < words.length;) {
     const row = words[at++], col = words[at++], direction = words[at++], count = words[at++];
@@ -42,7 +42,6 @@ function attachPathInk(slabs: InstancedMesh, admittedCells: Map<number, number>)
     }
     at = end;
   }
-  setPathEdgeInkV373(slabs, lines);
 }
 
 const applied = new WeakSet<InstancedMesh>();
@@ -67,19 +66,22 @@ export function* attachMittePlazaEdgesV367(
   const mitteWords = mitte.length / 2;
   const pathStart = mitteWords + outer.length / 2;
   const pathData = pathWords(paths.words);
-  const words = new Uint16Array(pathStart + pathData.length);
+  const sidewalkStart = pathStart + pathData.length;
+  const sidewalkData = pathWords(sidewalks.words);
+  const words = new Uint16Array(sidewalkStart + sidewalkData.length);
   let word = 0;
   for (const data of [mitte, outer]) {
     for (let i = 0; i < data.length; i += 2) words[word++] = data.charCodeAt(i) | data.charCodeAt(i+1) << 8;
   }
   words.set(pathData, pathStart);
+  words.set(sidewalkData, sidewalkStart);
   const rows: number[][] = [];
   for (let at = 0; at < words.length; at += 4 + 6 * words[at + 3]) {
     (rows[words[at]] ??= []).push(at);
   }
   for (const records of rows) records?.sort((a, b) => words[a + 1] - words[b + 1]);
-  const maxVertices = source.maxVertices + extraEdges.maxVertices + paths.maxVertices;
-  const triangles = source.triangles + extraEdges.triangles + paths.triangles;
+  const maxVertices = source.maxVertices + extraEdges.maxVertices + paths.maxVertices + sidewalks.maxVertices;
+  const triangles = source.triangles + extraEdges.triangles + paths.triangles + sidewalks.triangles;
   const palettes = new Map([
     [classIds.grass, shades.grass.map(hex => new Color(hex))],
     [classIds.plazaBrick, shades.plazaBrick.map(hex => new Color(hex))],
@@ -94,7 +96,7 @@ export function* attachMittePlazaEdgesV367(
   const localKeys: number[] = [];
   const matrices = slabs.instanceMatrix.array;
   const hostColour = new Color();
-  let admitted = 0, outerAdmitted = 0, pathAdmitted = 0;
+  let admitted = 0, outerAdmitted = 0, pathAdmitted = 0, sidewalksAdmitted = 0;
   const pathCells = new Map<number, number>();
   for (let i = 0; i < slabs.count; i++) {
     if (i && i % 16384 === 0) yield;
@@ -129,7 +131,8 @@ export function* attachMittePlazaEdgesV367(
       if (record >= pathStart) {
         pathCells.set(row * grid.cols + col, y);
         if (!words[record + 3]) continue;
-        pathAdmitted++;
+        if (record >= sidewalkStart) sidewalksAdmitted++;
+        else pathAdmitted++;
       } else if (record >= mitteWords) {
         outerAdmitted++;
       }
@@ -157,7 +160,12 @@ export function* attachMittePlazaEdgesV367(
       admitted++;
     }
   }
-  if (pathCells.size) attachPathInk(slabs, pathCells);
+  if (pathCells.size) {
+    const lines = new Map<number, number[]>();
+    addPathInk(paths.ink, pathCells, lines);
+    addPathInk(sidewalks.ink, pathCells, lines);
+    setPathEdgeInkV373(slabs, lines);
+  }
   if (!admitted) return 0;
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", new BufferAttribute(positions.subarray(0, vertexCount * 3), 3));
@@ -180,9 +188,10 @@ export function* attachMittePlazaEdgesV367(
   mesh.name = MITTE_PLAZA_EDGES_V367;
   mesh.userData.dayMaterial = day;
   mesh.userData.nightMaterial = night;
-  mesh.userData.correctedMitteCells = admitted - outerAdmitted - pathAdmitted;
+  mesh.userData.correctedMitteCells = admitted - outerAdmitted - pathAdmitted - sidewalksAdmitted;
   mesh.userData.correctedInnerCityCellsV368 = outerAdmitted;
   mesh.userData.correctedPathCellsV373 = pathAdmitted;
+  mesh.userData.correctedSurveyedSidewalkCellsV376 = sidewalksAdmitted;
   markGroundFinishV348(mesh, "core-drawn");
   slabs.add(mesh);
   applied.add(slabs);
