@@ -8,6 +8,8 @@ Auf weiteren 15.652,07 m² schließen vermessene Beläge Lücken zwischen vorhan
 
 Die Fahrbahnbreite kann auch dann stufig erscheinen, wenn die vermessene Oberfläche noch unterwegs ist. In der ersten mobilen Ansicht von v1.0.255 trafen Sichtstrahlen am Kurfürstendamm, an der Hardenbergstraße und an der Chausseestraße die Papierkulisse rund 24 Meter unterhalb des Modells. An der Invalidenstraße beim Hauptbahnhof lagen 25.899 der 25.964 papierfarbenen Pixel einer Testansicht innerhalb bereits vermessener Pflasterflächen. Für die erste Ansicht und nach einem Kamerasprung lädt der Viewer daher sowohl den Asphalt als auch das Pflaster der Kamerazelle zuerst. Am Rand berücksichtigt er bis zu drei Nachbarzellen. Höchstens zwei Teildownloads laufen gleichzeitig. Die beiden Abschnitte für die genannte Stelle an der Invalidenstraße umfassen zusammen 99.372 Bytes. Auf GitHub Pages und mit den Offline-Startern liest er nur die benötigten Abschnitte der Binärdatei. Der reguläre Aufbau übernimmt bereits gezeichnete Straßen anhand derselben Paketkennung. [Darstellung der frühen Fahrbahnen](../src/app/src/arrivalRoadViewV376.ts)
 
+Am Kurfürstendamm und an der Hardenbergstraße lagen weitere helle Stufen über bereits gezeichneten vermessenen Straßenrändern. Die tiefer liegende Papierkulisse konnte diese schmalen Dreiecke übermalen. Die Kulisse wird jetzt zuerst gezeichnet. Belag, Straßenhöhe und Zahl der Zeichenaufrufe bleiben erhalten.
+
 ## Robert-Koch-Platz und die Bäume in den Parks
 
 Im Baumkataster stehen 19 Rosskastanien mit der Adresse Robert-Koch-Platz. Die gezeichnete Ansicht verwendet für diese Bäume die nachgewiesenen Höhen und Kronendurchmesser. Im Blockmodus waren auf dem Handy zwei und am Desktop sieben ihrer Stämme sichtbar. Nun stehen auf beiden Geräteprofilen alle 19 am jeweiligen Katasterstandort. Bestehende Bäume und die begehbare Fläche wurden gegen Straßen, Gebäude und Wasser geprüft. [Berliner Baumkataster](https://gdi.berlin.de/services/wfs/baumbestand?SERVICE=WFS&REQUEST=GetCapabilities) · [Standortabgleich](../scripts/build_mitte_canopy_v376.py)
@@ -23,3 +25,10 @@ In einem lokalen Vergleich mit sechs abwechselnden Läufen je Version wurden die
 Die gezeichnete Ansicht spart außerdem den vorsorglichen Aufbau der Tabellen für 21 begehbare Dachbereiche im Blockmodus. Die 98.641 Dachpunkte und 40.732 Einträge aus Rasterläufen stehen weiter für die tatsächliche Abfrage bereit. Die Initialisierung dieser Module dauerte im Produktionsformat in Chromium im Median 564 statt 1.004 ms und in WebKit 517 statt 1.541 ms. Nach Speicherbereinigung belegten die Module im Chromium-Test rund 11,26 MB weniger JavaScript-Heap. Beim ersten Besuch im Blockmodus wird der Index des jeweiligen Ortes aufgebaut. Das erstmalige Abfragen aller 21 Standorte zusammen kostete in einem separaten Test dadurch rund 352 ms mehr.
 
 Für weitere 2.291 Außenkacheln verwendet der Paketierer stärkeres gzip. Die Auswahl enthält 1.318 Kacheln der gezeichneten Ansicht und 973 Kacheln des Blockmodus. Die 262.180.689 entpackten Bytes dieser Auswahl stimmen mit den Quelldaten überein. [Veröffentlichung und Paketformate](deployment.md)
+
+| Vollständiger Viewer | v1.0.255 | v1.0.256 | Ersparnis |
+| --- | ---: | ---: | ---: |
+| Dateien auf GitHub Pages | 987.332.895 B | 975.162.937 B | 12.169.958 B |
+| Offline-ZIP, kompakt | 788.477.077 B | 776.966.634 B | 11.510.443 B |
+| Offline-ZIP, Standard | 968.059.332 B | 956.548.846 B | 11.510.486 B |
+| Statischer Viewer als tar.gz | 966.609.336 B | 955.021.474 B | 11.587.862 B |
