@@ -4,6 +4,7 @@ import {
 import { gunzipSync } from "three/examples/jsm/libs/fflate.module.js";
 import survey from "./data/exteriorStreetMarginsV373.json";
 import central from "./data/mitteRoadMarginsV376.json";
+import portalShoulders from "./data/invalidenPortalShouldersV376.json";
 import { decodeBase64Bytes } from "./decodeBase64Bytes";
 import { releaseScratchBuffer } from "./releaseScratchBuffer";
 import { smoothGroundTopSampler, type VoxelPayload } from "./terrainPayload";
@@ -65,8 +66,11 @@ export function* attachExteriorStreetMarginsV373(slabs: InstancedMesh, ground: V
   const mitte = new Group();
   mitte.name = "Surveyed road margins in Mitte v376";
   root.add(mitte);
-  const regions = [[root, survey.chunks], [mitte, central.chunks]] as const;
-  for (const [region, chunks] of regions) {
+  const regions = [
+    [root, survey.chunks, "Street margins"], [mitte, central.chunks, "Street margins"],
+    [mitte, portalShoulders.chunks, "Invalidenstraße portal shoulders"],
+  ] as const;
+  for (const [region, chunks, label] of regions) {
     for (const part of chunks) {
       const xz = new Uint16Array(readBuffer(part.xz, part.vertices*4).buffer);
       const styles = readBuffer(part.style, part.vertices);
@@ -91,7 +95,7 @@ export function* attachExteriorStreetMarginsV373(slabs: InstancedMesh, ground: V
       geometry.setIndex(new BufferAttribute(indices,1));
       geometry.computeBoundingSphere();
       const mesh = new Mesh(geometry, day);
-      mesh.name = `Street margins ${part.origin[0]}:${part.origin[1]}`;
+      mesh.name = `${label} ${part.origin[0]}:${part.origin[1]}`;
       mesh.renderOrder = -9000;
       mesh.userData.dayMaterial = day;
       mesh.userData.nightMaterial = night;
