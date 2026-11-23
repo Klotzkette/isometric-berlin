@@ -1,1 +1,0 @@
-var e=new WeakMap;function t(t,n){e.set(t,n)}function n(t,n){if(n!==`surface-sand`&&n!==`surface-earth`&&!n.startsWith(`restored-paving-`))return;let r=t.getObjectByName(`Drawn ground slabs`),i=r?e.get(r):void 0,a=i?.get(n);if(!(!a||!r||!i))return i.delete(n),i.size||e.delete(r),a.removeFromParent(),a}export{n,t};
