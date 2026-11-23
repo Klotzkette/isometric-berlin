@@ -1,5 +1,9 @@
+import { createSurroundingViewPlanV379 } from "./surroundingViewPlanV379";
+import { indexSurroundingFootprintV379 } from "./surroundingFootprintV379";
 import { landwehrDeckFloorV378 } from "./waterwayFloorsV378";
 import { attachBerlinDetailsV378, exteriorSitesV378 } from "./berlinDetailSitesV378";
+import { hasDistrictFrontsV379 } from "./districtFrontsIndexV379";
+import { loadTierparkEastShellsV379, tierparkEastIdsV379 } from "./tierparkEastIndexV379";
 import { loadHistoricArchitectureV378 } from "./historicArchitectureV378";
 import { completeCooperatively } from "./cooperativeWork";
 import surveyedFacadeTilesV377 from "./data/surveyedFacadeTilesV377.json";
@@ -25,10 +29,10 @@ import { transferTierparkAnimalsV282 } from './tierparkAnimalTransferV282';
 import { createTierparkHouseV282 } from './ZooHousesV282';
 import { mierendorffFloorAtV269 } from "./MierendorffV269";
 import { namedElevatedFloorAtV334 } from "./namedSiteReplacementsV238";
-import { Box3, Frustum, Group, InstancedMesh, Matrix4, Vector3, type BufferGeometry, type Camera, Mesh } from "three";
+import { Frustum, Group, InstancedMesh, Matrix4, Vector3, type BufferGeometry, type Camera, Mesh } from "three";
 import {
   createSurroundingCityChunkCooperatively, groundOverlayKindsV329, surroundingBuildingSolidAt, surroundingPolygonContains, validSurroundingPolygon,
-  type SurroundingCityChunk, type SurroundingChunkGeometry, type SurroundingNavigation, type SurroundingPolygon,
+  yieldSurroundingTask, type SurroundingCityChunk, type SurroundingChunkGeometry, type SurroundingNavigation, type SurroundingPolygon,
   type SurroundingChunkSchedule, type SurroundingOwnershipOptions,
 } from "./SurroundingCityGeometry";
 import type { VisualMode } from "./visualMode";
@@ -244,7 +248,7 @@ export function validateSurroundingManifest(value: unknown): SurroundingCityMani
         !Number.isSafeInteger(manifest.gardenFootprintStartV330) || manifest.gardenFootprintStartV330 < 1 ||
         manifest.gardenFootprintStartV330 >= manifest.footprint.length)) ||
       !manifest.footprint.every(validSurroundingPolygon)) throw new Error("Invalid surrounding-city manifest");
-  const ids = new Set<string>();
+  const ids = new Map<string, SurroundingChunkDescriptor>();
   for (const chunk of manifest.chunks) {
     if (!chunk || typeof chunk.id !== "string" || ids.has(chunk.id) ||
         !Array.isArray(chunk.bounds) || chunk.bounds.length !== 4 ||
@@ -253,11 +257,11 @@ export function validateSurroundingManifest(value: unknown): SurroundingCityMani
         !assetValid(chunk.drawn) || !assetValid(chunk.minecraft)) {
       throw new Error("Invalid surrounding-city tile descriptor");
     }
-    ids.add(chunk.id);
+    ids.set(chunk.id,chunk);
   }
   for (const chunk of manifest.chunks) {
     if (chunk.detailCompanionOf === undefined) continue;
-    const primary = manifest.chunks.find(p => p.id === chunk.detailCompanionOf);
+    const primary = ids.get(chunk.detailCompanionOf);
     if (!primary || primary === chunk || primary.detailCompanionOf !== undefined ||
         !primary.bounds.every((value, index) => value === chunk.bounds[index])) {
       throw new Error("Invalid surrounding-city detail companion");
@@ -539,9 +543,32 @@ export async function createStreamedSurroundingCityChunkV255(
   if (historic?.shells && historic.retirements) {
     ownership = { ...ownership, surveyedNativeShellsV378: minecraft, surveyedShellsV377: { shells: historic.shells, retirements: historic.retirements } };
   }
+  if (tierparkEastIdsV379.has(id)) {
+    const zoo = await loadTierparkEastShellsV379(id, minecraft);
+    checkAbort();
+    if (zoo) ownership = { ...ownership, surveyedNativeShellsV378: minecraft, surveyedShellsV377: zoo };
+  }
   const entry = await createSurroundingCityChunkCooperatively(chunk, id, minecraft, schedule, ownership);
   try {
     checkAbort();
+    const attachFacade = (facade: Mesh) => {
+      entry.root.add(facade);
+      for (const attr of Object.values(facade.geometry.attributes)) {
+        entry.geometryBytes += attr.array.byteLength;
+        entry.bufferCount++;
+      }
+      if (facade.geometry.index) {
+        entry.geometryBytes += facade.geometry.index.array.byteLength;
+        entry.bufferCount++;
+      }
+    };
+    if (hasDistrictFrontsV379(id)) {
+      const { loadDistrictFrontsV379 } = await import("./districtFrontsV379");
+      checkAbort();
+      const front = await loadDistrictFrontsV379(id, minecraft, entry);
+      if (front) attachFacade(front);
+      checkAbort();
+    }
     const facadeKey = (minecraft ? "minecraft:" : "drawn:") + id;
     if (surveyedFacadeTileKeysV377.has(facadeKey) || historic) {
       const facades = await import("./surveyedBuildingFacadesV377").catch(() => undefined);
@@ -559,15 +586,7 @@ export async function createStreamedSurroundingCityChunkV255(
         });
         checkAbort();
         const facade = facades?.createSurveyedBuildingFacadesV377(id, minecraft, entry.origin, owners, catalogue, physicalSource);
-        if (facade) {
-          entry.root.add(facade);
-          for (const attribute of Object.values(facade.geometry.attributes)) {
-            entry.geometryBytes += attribute.array.byteLength;
-            entry.bufferCount++;
-          }
-          entry.geometryBytes += facade.geometry.index!.array.byteLength;
-          entry.bufferCount++;
-        }
+        if (facade) attachFacade(facade);
       }
     }
     // Figure construction is bounded by this tile and retained owners. Attach
@@ -625,9 +644,29 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const publicAccessV326=new WeakMap<Group,UbahnGroundRuntimeV326>(),monumentsV326=new WeakMap<Group,PublicMonumentsPacketV326>();
   const baseRelease=options.onRelease??disposeSurroundingCityRoot;
   const release=(group:Group)=>{options.onBeforeRelease?.(group);baseRelease(group);publicAccessV326.get(group)?.dispose();publicAccessV326.delete(group);monumentsV326.get(group)?.dispose();monumentsV326.delete(group);};
-  const finishV326=async<T>(steps:Generator<void,T>,signal:AbortSignal):Promise<T>=>{try{for(;;){if(signal.aborted)throw new DOMException("Aborted","AbortError");const next=steps.next();if(next.done)return next.value;await new Promise<void>(resolve=>setTimeout(resolve,0));}}finally{steps.return(undefined as never);}};
+  async function finishV326<T>(steps: Generator<void,T>, signal: AbortSignal): Promise<T> {
+    // Many public-access and monument generators immediately return null.
+    // Only relinquish the main thread after accumulating real construction.
+    let started = performance.now();
+    try {
+      for (;;) {
+        signal.throwIfAborted();
+        const next = steps.next();
+        if (next.done) return next.value;
+        if (performance.now() - started >= 3) {
+          await yieldSurroundingTask();
+          started = performance.now();
+        }
+      }
+    } finally { steps.return(undefined as never); }
+  }
   const controller = new AbortController();
   const residents = new Map<string, Resident>();
+  // Only these finite families can lose admission after publication.
+  const gatedResidents = new Map<string, Resident>();
+  const residentAccess = new Map<string, UbahnGroundRuntimeV326>();
+  const quarterKeys = new Map<string,string>();
+  let quartersAnnounced = false;
   let airportBeacon: Group | undefined;
   const landscapeFloors = new Map<string, Resident>();
   const landscapeFloorAt = (x: number, z: number): number | null => {
@@ -636,7 +675,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     for (const floor of landscapeFloors.values()) {
       const [x0,z0,x1,z1] = floor.descriptor.bounds;
       if (x<x0 || x>x1 || z<z0 || z>z1) continue;
-      const y = floor.root.userData.tegelLandscapeFloorV378?.(x,z);
+      const y = floor.root.userData.tegelLandscapeFloorV378?.(x,z) ?? floor.root.userData.zooWestFloorV379?.(x,z);
       if (y != null) return y;
       if (floor.nav.ground.some(poly => surroundingPolygonContains(poly,x-floor.origin[0],z-floor.origin[2]))) return floor.nav.groundY;
     }
@@ -649,7 +688,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const prefetches = new Map<string, Prefetch>();
   let prefetchedBytes = 0;
   const projection = new Matrix4(), matrix = new Matrix4(), frustum = new Frustum();
-  const box = new Box3(), cameraPosition = new Vector3();
+  const cameraPosition = new Vector3();
+  let selectView: ReturnType<typeof createSurroundingViewPlanV379> | undefined;
+  let footprintAt: ReturnType<typeof indexSurroundingFootprintV379> | undefined;
   let manifest: SurroundingCityManifest | null = null;
   let mode: VisualMode = options.mode ?? "day";
   let southAdmissionV294 = options.southFidelityV294?.(mode === "minecraft") === true;
@@ -661,7 +702,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   let queue: SurroundingChunkDescriptor[] = [];
   let geometryBytes = 0, bufferCount = 0, lastScan = -Infinity;
   let focus: { x: number; z: number } | undefined;
-  let navigationTiles: SurroundingNavigationTile[] = [];
+  let navigationTiles: SurroundingNavigationTile[] | undefined;
   let manifestAttempt: AbortController | null = null;
   let pageHidden = false;
   const activityWaiters = new Set<() => void>();
@@ -675,25 +716,36 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     while (!disposed && !activeView()) await new Promise<void>(resolve => activityWaiters.add(resolve));
     return !disposed;
   };
-  const updateNavigation = (): void => {
-    options.onQuarterResidentsV303?.(new Set([...residents].filter(([,e])=>e.root.userData.sourceQuarterOwnersV303?.length>0).map(([id,e])=>`${e.root.userData.sourceQuarterNativeV303?"minecraft":"drawn"}:${id}`)));
-    navigationTiles = Array.from(residents.values()).filter(entry => !entry.descriptor.detailCompanionOf &&
-      (!detailOnlyDescriptors.has(entry.descriptor) || (siteExteriors.has(entry.descriptor) && (entry.nav.ground.length || entry.nav.buildings.length)))).map(entry => ({
-      origin: entry.origin, bounds: entry.descriptor.bounds, nav: entry.nav,
-    }));
+  const updateNavigation = (id: string): void => {
+    navigationTiles = undefined;
+    if (!options.onQuarterResidentsV303) return;
+    // Opening and release hooks may synchronously evict a just-published
+    // packet. Derive the new key from the current active map.
+    const root = residents.get(id)?.root;
+    const key = root?.userData.sourceQuarterOwnersV303?.length
+      ? (root.userData.sourceQuarterNativeV303 ? "minecraft:" : "drawn:") + id : undefined;
+    const changed = key !== quarterKeys.get(id);
+    if (key) quarterKeys.set(id, key);
+    else quarterKeys.delete(id);
+    if (!quartersAnnounced || changed) {
+      quartersAnnounced = true;
+      options.onQuarterResidentsV303(new Set(quarterKeys.values()));
+    }
   };
 
   const evict = (id: string): void => {
     const entry = residents.get(id);
     if (!entry) return;
     residents.delete(id);
+    gatedResidents.delete(id);
+    residentAccess.delete(id);
     landscapeFloors.delete(id);
     if (airportBeacon === entry.root) airportBeacon = undefined;
     root.remove(entry.root);
     geometryBytes -= entry.geometryBytes;
     bufferCount -= entry.bufferCount;
     release(entry.root);
-    updateNavigation();
+    updateNavigation(id);
   };
   const report = (error: unknown): void => {
     options.onError?.(error instanceof Error ? error.message : String(error));
@@ -786,17 +838,18 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           const wilhelmStreetReadyV325=wilhelmStreetCandidateV325&&options.wilhelmStreetFrontsV325?.(minecraft)===true;
           const wilhelmStreetChangedV325=()=>wilhelmStreetCandidateV325&&wilhelmStreetReadyV325!==(options.wilhelmStreetFrontsV325?.(minecraft)===true);
           const universitiesCandidateV322=sourceQuarterSourcesV303?.some(entry=>entry.admission==="universities-v322")===true;
-          const officeAdmissionV322=options.publicOfficesAdmissionV322?.(minecraft);
-          const universitiesReadyV322=officeAdmissionV322?officeAdmissionV322.universities===true:options.universitiesV322?.(minecraft)===true;
           const governmentCandidateV321=sourceQuarterSourcesV303?.some(entry=>entry.admission==="government-v321")===true;
-          const governmentReadyV321=officeAdmissionV322?officeAdmissionV322.government===true:options.governmentOfficesV321?.(minecraft)===true;
+          const officeAdmissionV322 = (governmentCandidateV321 || universitiesCandidateV322)
+            ? options.publicOfficesAdmissionV322?.(minecraft) : undefined;
+          const universitiesReadyV322=universitiesCandidateV322 && (officeAdmissionV322?officeAdmissionV322.universities===true:options.universitiesV322?.(minecraft)===true);
+          const governmentReadyV321=governmentCandidateV321 && (officeAdmissionV322?officeAdmissionV322.government===true:options.governmentOfficesV321?.(minecraft)===true);
           const officesChangedV322=()=>{if(!governmentCandidateV321&&!universitiesCandidateV322)return false;const now=options.publicOfficesAdmissionV322?.(minecraft);return governmentCandidateV321&&governmentReadyV321!==(now?now.government===true:options.governmentOfficesV321?.(minecraft)===true)||universitiesCandidateV322&&universitiesReadyV322!==(now?now.universities===true:options.universitiesV322?.(minecraft)===true);};
           const neukoellnReadyV305=options.neukoellnLandmarksV305?.(minecraft)===true;
           const northCandidateV309=sourceQuarterSourcesV303?.some(entry=>entry.admission==="north-v309")===true;
-          const northReadyV309=options.northFidelityV309?.(minecraft)===true;
+          const northReadyV309=northCandidateV309 && options.northFidelityV309?.(minecraft)===true;
           const northChangedV309=()=>northCandidateV309&&northReadyV309!==(options.northFidelityV309?.(minecraft)===true);
           const treptowCandidateV317=sourceQuarterSourcesV303?.some(entry=>entry.admission==="treptow-v317")===true;
-          const treptowReadyV317=options.treptowWaterfrontV317?.(minecraft)===true;
+          const treptowReadyV317=treptowCandidateV317 && options.treptowWaterfrontV317?.(minecraft)===true;
           const treptowChangedV317=()=>treptowCandidateV317&&treptowReadyV317!==(options.treptowWaterfrontV317?.(minecraft)===true);
           const neukoellnChangedV305=()=>["ring182-7_8","ring182-8_8"].includes(descriptor.id)&&neukoellnReadyV305!==(options.neukoellnLandmarksV305?.(minecraft)===true);
           const westReadyV302=options.westKiezV302?.(minecraft)===true;
@@ -852,7 +905,15 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           options.onAttach?.(entry.root, mode);
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id) || (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305()||northChangedV309()||treptowChangedV317()||officesChangedV322()||wilhelmChangedV324()||wilhelmStreetChangedV325()||southwestChangedV326())) { release(entry.root); unpublished = null; continue; }
           residents.set(descriptor.id, { ...entry, descriptor, lastWanted: now(), southOwnersReadyV294:southOwnersReady,littenReadyV297,wallReadyV298,westReadyV302,neukoellnReadyV305,northCandidateV309,northReadyV309,treptowCandidateV317,treptowReadyV317,governmentCandidateV321,governmentReadyV321,universitiesCandidateV322,universitiesReadyV322,wilhelmCandidateV324,wilhelmReadyV324,wilhelmStreetCandidateV325,wilhelmStreetReadyV325,southwestCandidateV326,southwestReadyV326 });
-          if (siteExteriors.has(descriptor) && (entry.root.userData.tegelLandscapeFloorV378 || entry.nav.ground.length)) landscapeFloors.set(descriptor.id, residents.get(descriptor.id)!);
+          const published = residents.get(descriptor.id)!;
+          if (northCandidateV309 || treptowCandidateV317 || southwestCandidateV326 || governmentCandidateV321 ||
+              universitiesCandidateV322 || wilhelmCandidateV324 || wilhelmStreetCandidateV325 ||
+              descriptor.id === "ring182-7_8" || descriptor.id === "ring182-8_8") {
+            gatedResidents.set(descriptor.id, published);
+          }
+          const access = publicAccessV326.get(entry.root);
+          if (access) residentAccess.set(descriptor.id, access);
+          if (siteExteriors.has(descriptor) && (entry.root.userData.tegelLandscapeFloorV378 || entry.root.userData.zooWestFloorV379 || entry.nav.ground.length)) landscapeFloors.set(descriptor.id, residents.get(descriptor.id)!);
           if (entry.root.userData.updateTransportV378) airportBeacon = entry.root;
           geometryBytes += entry.geometryBytes;
           bufferCount += entry.bufferCount;
@@ -871,7 +932,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
             });
             if (visible) opening.onGeometry(descriptor.id);
           }
-          updateNavigation();
+          updateNavigation(descriptor.id);
           failedAt.delete(descriptor.id);
           options.onChange?.();
           // A single bounded decode/publication per task keeps input paintable.
@@ -928,50 +989,59 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       if(active&&westKiezPacketCandidateV302(active.id,native))active.controller.abort();
       lastScan=-Infinity;if(changed)options.onChange?.();
     }
-    const neukoellnNowV305=options.neukoellnLandmarksV305?.(mode==="minecraft")===true;
-    for(const[id,entry]of residents)if(["ring182-7_8","ring182-8_8"].includes(id)&&entry.neukoellnReadyV305!==neukoellnNowV305){evict(id);failedAt.delete(id);lastScan=-Infinity;}
-    const northNowV309=options.northFidelityV309?.(mode==="minecraft")===true;
-    for(const[id,entry]of residents)if(entry.northCandidateV309&&entry.northReadyV309!==northNowV309){evict(id);failedAt.delete(id);lastScan=-Infinity;}
-    const treptowNowV317=options.treptowWaterfrontV317?.(mode==="minecraft")===true;
-    for(const[id,entry]of residents)if(entry.treptowCandidateV317&&entry.treptowReadyV317!==treptowNowV317){evict(id);failedAt.delete(id);lastScan=-Infinity;}
-    for(const[id,e]of residents)if(e.southwestCandidateV326&&e.southwestReadyV326!==(options.southWestSitesV326?.(mode==="minecraft")===true)){evict(id);failedAt.delete(id);lastScan=-Infinity;}
-    // Recheck both relevant Wilhelm families after each real release. A
-    // release hook can change either source gate during this synchronous pass.
-    const housingCandidateV325=[...residents.values()].some(e=>e.wilhelmCandidateV324);
-    const streetCandidateV325=[...residents.values()].some(e=>e.wilhelmStreetCandidateV325);
-    if(housingCandidateV325||streetCandidateV325){
-      const read=()=>({housing:housingCandidateV325&&options.wilhelmHousingV324?.(mode==="minecraft")===true,
-        street:streetCandidateV325&&options.wilhelmStreetFrontsV325?.(mode==="minecraft")===true});
-      let ready=read();
-      for(;;){let removed=false;
-        for(const[id,e]of residents)if(e.wilhelmCandidateV324&&e.wilhelmReadyV324!==ready.housing||
-          e.wilhelmStreetCandidateV325&&e.wilhelmStreetReadyV325!==ready.street){
-          evict(id);failedAt.delete(id);lastScan=-Infinity;removed=true;
-          if(disposed)return;ready=read();break;
-        }
-        if(!removed)break;
+    if (gatedResidents.size) {
+      let north = false, treptow = false, government = false, universities = false;
+      let housingCandidateV325 = false, streetCandidateV325 = false;
+      for (const entry of gatedResidents.values()) {
+        north ||= entry.northCandidateV309;
+        treptow ||= entry.treptowCandidateV317;
+        government ||= entry.governmentCandidateV321;
+        universities ||= entry.universitiesCandidateV322;
+        housingCandidateV325 ||= entry.wilhelmCandidateV324;
+        streetCandidateV325 ||= entry.wilhelmStreetCandidateV325;
       }
-    }
-    if(options.publicOfficesAdmissionV322){
-      let affected=false;for(const entry of residents.values())if(entry.governmentCandidateV321||entry.universitiesCandidateV322){affected=true;break;}
-      if(affected){
-        let status=options.publicOfficesAdmissionV322(mode==="minecraft");
-        // Every actual release may synchronously change source ownership. A
-        // restart always removes one resident, so this loop remains finite.
+      const neukoellnNowV305=options.neukoellnLandmarksV305?.(mode==="minecraft")===true;
+      for(const[id,entry]of gatedResidents)if(["ring182-7_8","ring182-8_8"].includes(id)&&entry.neukoellnReadyV305!==neukoellnNowV305){evict(id);failedAt.delete(id);lastScan=-Infinity;}
+      const northNowV309=north && options.northFidelityV309?.(mode==="minecraft")===true;
+      for(const[id,entry]of gatedResidents)if(entry.northCandidateV309&&entry.northReadyV309!==northNowV309){evict(id);failedAt.delete(id);lastScan=-Infinity;}
+      const treptowNowV317=treptow && options.treptowWaterfrontV317?.(mode==="minecraft")===true;
+      for(const[id,entry]of gatedResidents)if(entry.treptowCandidateV317&&entry.treptowReadyV317!==treptowNowV317){evict(id);failedAt.delete(id);lastScan=-Infinity;}
+      for(const[id,e]of gatedResidents)if(e.southwestCandidateV326&&e.southwestReadyV326!==(options.southWestSitesV326?.(mode==="minecraft")===true)){evict(id);failedAt.delete(id);lastScan=-Infinity;}
+      // Recheck both relevant Wilhelm families after each real release. A
+      // release hook can change either source gate during this synchronous pass.
+      if(housingCandidateV325||streetCandidateV325){
+        const read=()=>({housing:housingCandidateV325&&options.wilhelmHousingV324?.(mode==="minecraft")===true,
+          street:streetCandidateV325&&options.wilhelmStreetFrontsV325?.(mode==="minecraft")===true});
+        let ready=read();
         for(;;){let removed=false;
-          for(const[id,entry]of residents)if(entry.governmentCandidateV321&&entry.governmentReadyV321!==(status.government===true)||entry.universitiesCandidateV322&&entry.universitiesReadyV322!==(status.universities===true)){
+          for(const[id,e]of gatedResidents)if(e.wilhelmCandidateV324&&e.wilhelmReadyV324!==ready.housing||
+            e.wilhelmStreetCandidateV325&&e.wilhelmStreetReadyV325!==ready.street){
             evict(id);failedAt.delete(id);lastScan=-Infinity;removed=true;
-            if(disposed)return;
-            status=options.publicOfficesAdmissionV322(mode==="minecraft");break;
+            if(disposed)return;ready=read();break;
           }
           if(!removed)break;
         }
       }
-    }else{
-      const governmentNowV321=options.governmentOfficesV321?.(mode==="minecraft")===true;
-      for(const[id,entry]of residents)if(entry.governmentCandidateV321&&entry.governmentReadyV321!==governmentNowV321){evict(id);failedAt.delete(id);lastScan=-Infinity;}
-      const universitiesNowV322=options.universitiesV322?.(mode==="minecraft")===true;
-      for(const[id,entry]of residents)if(entry.universitiesCandidateV322&&entry.universitiesReadyV322!==universitiesNowV322){evict(id);failedAt.delete(id);lastScan=-Infinity;}
+      if(options.publicOfficesAdmissionV322){
+        if(government || universities){
+          let status=options.publicOfficesAdmissionV322(mode==="minecraft");
+          // Every actual release may synchronously change source ownership. A
+          // restart always removes one resident, so this loop remains finite.
+          for(;;){let removed=false;
+            for(const[id,entry]of gatedResidents)if(entry.governmentCandidateV321&&entry.governmentReadyV321!==(status.government===true)||entry.universitiesCandidateV322&&entry.universitiesReadyV322!==(status.universities===true)){
+              evict(id);failedAt.delete(id);lastScan=-Infinity;removed=true;
+              if(disposed)return;
+              status=options.publicOfficesAdmissionV322(mode==="minecraft");break;
+            }
+            if(!removed)break;
+          }
+        }
+      }else{
+        const governmentNowV321=government && options.governmentOfficesV321?.(mode==="minecraft")===true;
+        for(const[id,entry]of gatedResidents)if(entry.governmentCandidateV321&&entry.governmentReadyV321!==governmentNowV321){evict(id);failedAt.delete(id);lastScan=-Infinity;}
+        const universitiesNowV322=universities && options.universitiesV322?.(mode==="minecraft")===true;
+        for(const[id,entry]of gatedResidents)if(entry.universitiesCandidateV322&&entry.universitiesReadyV322!==universitiesNowV322){evict(id);failedAt.delete(id);lastScan=-Infinity;}
+      }
     }
     if (!manifest) return;
     if (timestamp - lastScan < SURROUNDING_CITY_SCAN_MS) return;
@@ -991,30 +1061,17 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     desired.clear();
     queue = [];
     const focusPoint = focus ?? cameraPosition;
-    const siteReach = Math.max(1100, 1.5 * Math.hypot(cameraPosition.x-focusPoint.x, cameraPosition.z-focusPoint.z, cameraPosition.y));
-    for (const descriptor of manifest.chunks) {
-      const b = descriptor.bounds;
-      // Small fittings in these optional local packets are beyond the current
-      // view when distant from both the camera and its projected focus.
-      if (siteExteriors.has(descriptor) && distanceSquared(b,focusPoint.x,focusPoint.z) > siteReach*siteReach &&
-          distanceSquared(b,cameraPosition.x,cameraPosition.z) > siteReach*siteReach) continue;
-      // The source extractor accepts building heights through 400 m. The
-      // selection box must include their complete tops as well as ground.
-      const ceiling = bankExteriors.has(descriptor) ? 24 : exteriorDescriptorsV360.has(descriptor) ? 7 : 410;
-      box.min.set(b[0], -12, b[1]);
-      box.max.set(b[2], ceiling, b[3]);
-      const near = distanceSquared(b, cameraPosition.x, cameraPosition.z) < 180 ** 2;
-      if (!near && !frustum.intersectsBox(box)) continue;
+    const opening = options.openingPlaceV378;
+    const priority = opening?.pending() ? opening.required : undefined;
+    const first: SurroundingChunkDescriptor[] = [];
+    for (const descriptor of selectView!(options.camera, frustum, cameraPosition, focusPoint)) {
       desired.add(descriptor.id);
       const entry = residents.get(descriptor.id);
       if (entry) entry.lastWanted = timestamp;
+      else if (priority?.includes(descriptor.id)) first.push(descriptor);
       else queue.push(descriptor);
     }
-    const from = focus ?? cameraPosition;
-    const opening = options.openingPlaceV378;
-    const priority = opening?.pending() && opening.required.length ? new Set(opening.required) : null;
-    queue.sort((a, b) => (priority ? Number(priority.has(b.id)) - Number(priority.has(a.id)) : 0)
-      || distanceSquared(a.bounds, from.x, from.z) - distanceSquared(b.bounds, from.x, from.z));
+    if (first.length) queue.unshift(...first);
     if (active && !desired.has(active.id)) active.controller.abort();
     cancelPrefetches();
     if (processing) fillPrefetches();
@@ -1039,7 +1096,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     queue = [];
     desired.clear(); previousDesired = null; failedAt.clear();
     for (const id of residents.keys()) evict(id);
-    manifest = null;
+    manifest = null; selectView = undefined; footprintAt = undefined;
     options.signal?.removeEventListener("abort", dispose);
     if (typeof document !== "undefined") document.removeEventListener("visibilitychange", onVisibilityChange);
     if (typeof window !== "undefined") {
@@ -1078,6 +1135,10 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           if (options.berlinDetailsV378) {
             manifest = { ...manifest, chunks: [...manifest.chunks, ...siteDescriptors] };
           }
+          selectView = createSurroundingViewPlanV379(manifest.chunks,
+            tile => bankExteriors.has(tile) ? 24 : exteriorDescriptorsV360.has(tile) ? 7 : 410,
+            tile => siteExteriors.has(tile),
+            tile => !tile.detailCompanionOf && !detailOnlyDescriptors.has(tile) && !exteriorDescriptorsV360.has(tile));
           refresh();
         }
         return;
@@ -1160,7 +1221,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       // A resident tile already verified exact source-ground membership. Avoid
       // walking the full larger city's shoreline inventory for every step.
       if (!entry) {
-        if (!manifest || !manifest.footprint.some((p, i) => i < (manifest!.gardenFootprintStartV330 ?? Infinity) && surroundingPolygonContains(p, x, z))) return null;
+        if (!manifest) return null;
+        footprintAt ??= indexSurroundingFootprintV379(manifest.footprint, manifest.gardenFootprintStartV330);
+        if (!footprintAt(x,z)) return null;
         return terrainGroundAt(x, z, manifest.groundY, mode === "minecraft");
       }
       const lx = x - entry.origin[0], lz = z - entry.origin[2];
@@ -1202,11 +1265,20 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
         entry.nav.water.some(p => surroundingPolygonContains(p, lx, lz));
     },
     get residentGeometryBytes() { return geometryBytes; },
-    get residentMaskBytesV326(){let bytes=0;for(const entry of residents.values()){const access=publicAccessV326.get(entry.root);if(access)bytes+=ubahnGroundMaskBytesV326(access);}return bytes;},
+    get residentMaskBytesV326() {
+      let bytes = 0;
+      for (const access of residentAccess.values()) bytes += ubahnGroundMaskBytesV326(access);
+      return bytes;
+    },
     get residentBufferCount() { return bufferCount; },
     get residentChunkCount() { return residents.size; },
     get pending() { return processing || queue.length > 0; },
     get manifest() { return manifest; },
-    get navigationTiles() { return navigationTiles; },
+    get navigationTiles() {
+      return navigationTiles ??= Array.from(residents.values()).filter(entry => !entry.descriptor.detailCompanionOf &&
+        (!detailOnlyDescriptors.has(entry.descriptor) || (siteExteriors.has(entry.descriptor) && (entry.nav.ground.length || entry.nav.buildings.length)))).map(entry => ({
+        origin: entry.origin, bounds: entry.descriptor.bounds, nav: entry.nav,
+      }));
+    },
   };
 }

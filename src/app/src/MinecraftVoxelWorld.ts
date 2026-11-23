@@ -1,3 +1,4 @@
+import { CityWestFrontBatchV379, hasCityWestFrontV379 } from "./cityWestFrontsV379";
 import { nativeChestnutTrunkHeight } from "./terrainPayload";
 import { LEHRTER_BRICK, LEHRTER_TILE, lehrterKulturhausOwnerV366 } from "./lehrterKulturhausProfileV366";
 import { markHbfForecourtFinishV354 } from "./HbfForecourtFinishV354";
@@ -34,8 +35,10 @@ import { createWeltkugelColumnTesterV281 } from "./weltkugelV281Ownership";
 import { createBayerCampusColumnTesterV277 } from "./bayerCampusV277Ownership";
 import { createLehrterColumnTesterV277 } from "./lehrterV277Ownership";
 import { createRkiMoabitColumnTesterV277 } from "./rkiMoabitV277Ownership";
+import {createZooWestColumnTesterV379} from "./zooWestOwnersV379";
 import { createZooWestColumnTesterV276 } from "./zooWestV276Ownership";
 import { createZooHouseColumnTesterV282 } from "./zooHousesV282Ownership";
+import { charlottenburgerCandelabrumSourcePairV379, isCharlottenburgerCandelabrumCellV379 } from "./charlottenburgerTorOwnershipV379";
 import { createVerkehrskanzelColumnTesterV276 } from "./verkehrskanzelV276Ownership";
 import { createSteppengartenShelterColumnTesterV283 } from "./steppengartenShelterV283Ownership";
 import { preparePotsdamerNorthPavilionNative, preparePotsdamerSouthStationPhotoTransfer } from "./PotsdamerStationPhotoDetails";
@@ -376,6 +379,7 @@ import {
 } from "./TunnelPortals";
 
 export type MinecraftVoxelWorldOptions = {
+  reserveBreitscheidChurch?: boolean;
   refineForeignOffice?: boolean;
   potsdamerPavilions?: boolean;
   nordbahnhofCuts?: NordbahnhofNativeCuts;
@@ -390,7 +394,7 @@ export type MinecraftVoxelWorldOptions = {
   tachelesFrontsV270?: boolean;
   technikmuseumV272?: boolean;
   operaTheatresV274?: boolean;
-  tiergartenWerkhofV275?: boolean; steppengartenShelterV283?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean;
+  tiergartenWerkhofV275?: boolean; steppengartenShelterV283?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; charlottenburgerTorV379?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean;
   moabitLandmarksV269?: boolean;
   tempodromAnhalterV266?: boolean;
   northernSitesV266?: boolean;
@@ -934,6 +938,7 @@ export function minecraftBuildingLayerTones(materialClass: string): {
  */
 export type ColumnToneLookup = ((x: number, z: number) => number | null) & {
   sourceIdAt?: (x: number, z: number) => string | null;
+  cityWestOwnerAt?: (x: number, z: number) => string | null;
   attributesAt?: (x: number, z: number) => BuildingAttributes | undefined;
   storeysAt?: (x: number, z: number) => MappedStoreyProfile | null;
   roofToneAt?: (x: number, z: number) => number | undefined;
@@ -1018,6 +1023,7 @@ export function buildColumnToneLookup(prisms: {
   };
   const BUCKET = 32;
   const buckets = new Map<string, TonedPrism[]>();
+  const westBuckets = new Map<string, TonedPrism[]>();
   for (const building of prisms.buildings) {
     const panorama = building.id ? potsdamerPanoramaMaterialFor(building.id) : undefined;
     const attributes = building.id ? buildingAttributes(building.id) : undefined;
@@ -1033,7 +1039,9 @@ export function buildColumnToneLookup(prisms: {
     const lehrter = lehrterKulturhausOwnerV366(building);
     const mappedTone = wilhelmTones?.[0] ?? chariteTone ?? corridorTone ?? urbanMappedFacadeTone(attributes);
     const ordinaryPaint = mappedTone === undefined ? coreHousePaintV273(building) : undefined;
-    if ((!building.tone && !panorama && !attributes && corridorTone === undefined && chariteTone === undefined) || building.ring.length < 3) {
+    const recordedWestFront = hasCityWestFrontV379(building.id);
+    const hasToneData = !!building.tone || !!panorama || !!attributes || corridorTone !== undefined || chariteTone !== undefined;
+    if ((!recordedWestFront && !hasToneData) || building.ring.length < 3) {
       continue;
     }
     const ring = building.ring.map(
@@ -1075,11 +1083,17 @@ export function buildColumnToneLookup(prisms: {
         bz += 1
       ) {
         const key = `${bx},${bz}`;
-        const list = buckets.get(key);
-        if (list) {
-          list.push(toned);
-        } else {
-          buckets.set(key, [toned]);
+        if (hasToneData) {
+          const list = buckets.get(key);
+          if (list) list.push(toned);
+          else buckets.set(key, [toned]);
+        }
+        // An uncoloured source may still own an exactly registered facade.
+        // Keep that ownership independent of all existing tone/storey lookups.
+        if (recordedWestFront) {
+          const owners = westBuckets.get(key);
+          if (owners) owners.push(toned);
+          else westBuckets.set(key, [toned]);
         }
       }
     }
@@ -1124,9 +1138,9 @@ export function buildColumnToneLookup(prisms: {
     }
     return null;
   };
-  const sourceAt = (x: number, z: number): TonedPrism | undefined => {
+  const sourceAt = (x: number, z: number, index = buckets): TonedPrism | undefined => {
     if (voxelRecognitionAreaAt(x, z)) return undefined;
-    const list = buckets.get(`${Math.floor(x / BUCKET)},${Math.floor(z / BUCKET)}`);
+    const list = index.get(`${Math.floor(x / BUCKET)},${Math.floor(z / BUCKET)}`);
     return list?.find((toned) => x >= toned.minX && x <= toned.maxX &&
       z >= toned.minZ && z <= toned.maxZ && inside(x, z, toned.ring) &&
       !toned.holes.some((hole) => inside(x, z, hole)));
@@ -1135,6 +1149,7 @@ export function buildColumnToneLookup(prisms: {
   lookup.roofToneAt = (x, z) => sourceAt(x, z)?.roofTone;
   lookup.illustrationRoofToneAt = (x, z) => sourceAt(x, z)?.illustrationRoofTone;
   lookup.sourceIdAt = (x, z) => sourceAt(x, z)?.id ?? null;
+  lookup.cityWestOwnerAt = (x, z) => sourceAt(x, z, westBuckets)?.id ?? null;
   lookup.storeysAt = (x, z) => sourceAt(x, z)?.storeys ?? null;
   return lookup;
 }
@@ -2544,7 +2559,13 @@ export function* buildMinecraftVoxelWorldSteps(
   group.add(createMinecraftUlapQuarter());
   group.add(createUlapPark((x, z) => parkGround(x / cell - payload.grid.min_x_idx, z / cell - payload.grid.min_z_idx), true));
   yield;
-  group.add(createMinecraftGedaechtniskirche());
+  if (options.reserveBreitscheidChurch) {
+    const mount = new Group();
+    mount.name = "Breitscheidplatz early church mount";
+    group.add(mount);
+  } else {
+    group.add(createMinecraftGedaechtniskirche());
+  }
   yield;
   group.add(createMinecraftEuropaCenter());
   group.add(createWeltkugelV281(true));
@@ -2623,7 +2644,7 @@ export function* buildMinecraftVoxelWorldSteps(
   reportBuildStep(2);
   yield;
 
-  group.add(createMinecraftZooGroundsV165());
+  group.add(createMinecraftZooGroundsV165(true));
   yield;
   group.add(createMinecraftKranzlerV165());
   yield;
@@ -2830,8 +2851,10 @@ export function* buildMinecraftVoxelWorldSteps(
     ? createColonnadesCoreColumnTesterV231(options.sourcePrisms, cell) : () => false;
   const tachelesFrontColumnAt = options.tachelesFrontsV270
     ? createTachelesFrontColumnTesterV270(options.sourcePrisms, cell) : () => false;
+  const surveyedZooColumnAt = options.zooWestV276 ? createZooWestColumnTesterV379(options.sourcePrisms, cell) : () => false;
   const zooWestColumnAt = options.zooWestV276 ? createZooWestColumnTesterV276(options.sourcePrisms, cell) : () => false;
   const zooHouseColumnAt = options.zooHousesV282 ? createZooHouseColumnTesterV282(options.sourcePrisms, cell) : () => false;
+  const replacesCandelabra = options.charlottenburgerTorV379 && cell === 4 && charlottenburgerCandelabrumSourcePairV379(options.sourcePrisms);
   const kanzelColumnAt = options.verkehrskanzelV276 ? createVerkehrskanzelColumnTesterV276(options.sourcePrisms, cell) : () => false;
   const bayerCampusColumnAt = options.bayerCampusV277 ? createBayerCampusColumnTesterV277(options.sourcePrisms, cell) : () => false;
   const lehrterColumnAt = options.lehrterV277 ? createLehrterColumnTesterV277(options.sourcePrisms, cell) : () => false;
@@ -2881,8 +2904,9 @@ export function* buildMinecraftVoxelWorldSteps(
         connectedPavilions && xIdx >= 67 && xIdx <= 73 && zIdx >= 250 && zIdx <= 256 &&
         northPavilion!.replacesColumn(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (tachelesFrontColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
-    if (zooWestColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
+    if (zooWestColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || surveyedZooColumnAt(xIdx,zIdx,y0dm,y1dm,classId)) continue;
     if (zooHouseColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
+    if (replacesCandelabra && isCharlottenburgerCandelabrumCellV379(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (kanzelColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (steppengartenColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (werkhofColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
@@ -3084,6 +3108,9 @@ export function* buildMinecraftVoxelWorldSteps(
     extraRenderables: 0,
     extraAttributes: 0,
   };
+  const withinWestFronts = (x: number, z: number) =>
+    x > -3350 && x < -1760 && z > 1130 && z < 2170;
+  const mobileWestColumns: VoxelBuildingColumn[] = [];
   const facadePaint = new Color();
   const layerPaint = new Color();
   reportBuildStep(4);
@@ -3098,6 +3125,9 @@ export function* buildMinecraftVoxelWorldSteps(
     const y0 = y0dm / 10;
     const worldX = worldXAbs(xIdx);
     const worldZ = worldZAbs(zIdx);
+    if (mobileDetail && withinWestFronts(worldX, worldZ)) {
+      mobileWestColumns.push(visibleBuildingColumns[i]);
+    }
     const recognitionArea = voxelRecognitionAreaAt(worldX, worldZ);
     const attributes = toneLookup?.attributesAt?.(worldX, worldZ);
     const sourceRoofTone = toneLookup?.roofToneAt ? toneLookup.roofToneAt(worldX, worldZ) : mappedRoofTone(attributes);
@@ -3190,12 +3220,17 @@ export function* buildMinecraftVoxelWorldSteps(
   // that no neighbouring column covers gets a pale portrait pane. Hero
   // envelopes yield to their referenced recognition fenestration instead of
   // receiving a second grid of generic square holes.
-  if (!mobileDetail) {
+  const facadeColumns = mobileDetail ? mobileWestColumns : visibleBuildingColumns;
+  if (facadeColumns.length) {
+    // First pass records faces with photographic details. The second pass
+    // omits generic panes on precisely those faces and preserves all others.
+    const measuredFaces = new Map<number, number>();
+    const cityWestFronts = new CityWestFrontBatchV379();
     const columnTops = new Map<number, number>();
     const columnKey = (x: number, z: number): number => x * 65536 + z;
-    for (let i = 0; i < visibleBuildingColumns.length; i += 1) {
+    for (let i = 0; i < facadeColumns.length; i += 1) {
       if (i % 2048 === 0) yield;
-      const [xIdx, zIdx, , y1dm] = visibleBuildingColumns[i];
+      const [xIdx, zIdx, , y1dm] = facadeColumns[i];
       const key = columnKey(xIdx, zIdx);
       columnTops.set(key, Math.max(columnTops.get(key) ?? -1e9, y1dm / 10));
     }
@@ -3212,9 +3247,9 @@ export function* buildMinecraftVoxelWorldSteps(
     const matrix = new Matrix4();
     function* visitWindows(panes?: InstancedMesh): Generator<void, number> {
       let count = 0;
-      for (let i = 0; i < visibleBuildingColumns.length; i += 1) {
+      for (let i = 0; i < facadeColumns.length; i += 1) {
         if (i % 1024 === 0) yield;
-        const [xIdx, zIdx, y0dm, y1dm, classId] = visibleBuildingColumns[i];
+        const [xIdx, zIdx, y0dm, y1dm, classId] = facadeColumns[i];
         if (WINDOWLESS_CLASSES.has(payload.classes[classId] ?? "")) {
           continue;
         }
@@ -3222,6 +3257,9 @@ export function* buildMinecraftVoxelWorldSteps(
           continue;
         }
         const windowX = worldXAbs(xIdx), windowZ = worldZAbs(zIdx);
+        const westOwner = !panes && withinWestFronts(windowX, windowZ)
+          ? (toneLookup?.cityWestOwnerAt ?? toneLookup?.sourceIdAt)?.(windowX, windowZ) : undefined;
+        if (mobileDetail && !hasCityWestFrontV379(westOwner)) continue;
         if (historicCampusIds.size > 0 && windowX >= 170 && windowX <= 560 && windowZ >= -1060 && windowZ <= -460 &&
           historicCampusIds.has(toneLookup?.sourceIdAt?.(windowX, windowZ) ?? "")) continue;
         // The nine new street fronts own their full window rhythm. Keep the
@@ -3235,7 +3273,9 @@ export function* buildMinecraftVoxelWorldSteps(
         // One retained prism envelope supplies the storey grid for every
         // column; changing roof-step tops must never slope the window rows.
         const sourceStoreys = toneLookup?.storeysAt?.(worldXAbs(xIdx), worldZAbs(zIdx));
-        for (const [dx, dz] of directions) {
+        for (let side = 0; side < directions.length; side++) {
+          const [dx, dz] = directions[side];
+          if (panes && ((measuredFaces.get(i) ?? 0) & (1 << side))) continue;
           const neighbourTop = columnTops.get(columnKey(xIdx + dx, zIdx + dz));
           const faceX = worldXAbs(xIdx) + (dx * cell) / 2 + dx * 0.08;
           const faceZ = worldZAbs(zIdx) + (dz * cell) / 2 + dz * 0.08;
@@ -3246,6 +3286,12 @@ export function* buildMinecraftVoxelWorldSteps(
           // on the SAME storey grid, so the facade reads as designed rows
           // rather than randomly punched holes.
           const base = y0dm / 10;
+          if (westOwner && cityWestFronts.addNative(westOwner, faceX - dx * .08, faceZ - dz * .08,
+              dx, dz, cell, Math.max(base, neighbourTop ?? base), top)) {
+            if (!mobileDetail) measuredFaces.set(i, (measuredFaces.get(i) ?? 0) | (1 << side));
+            continue;
+          }
+          if (mobileDetail) continue;
           const rowPitch = sourceStoreys?.floorPitch ?? cell;
           const firstRow = sourceStoreys
             ? base + sourceStoreys.sillStart + sourceStoreys.height / 2
@@ -3305,6 +3351,8 @@ export function* buildMinecraftVoxelWorldSteps(
     }
     // Count first, then write directly: no million-object staging array.
     const windowCount = yield* visitWindows();
+    const fronts = cityWestFronts.mesh(true);
+    if (fronts) group.add(fronts);
     if (windowCount > 0) {
       const panes = new InstancedMesh(
         new PlaneGeometry(1, 1),

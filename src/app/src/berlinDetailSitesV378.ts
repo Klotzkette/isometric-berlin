@@ -1,4 +1,6 @@
 import type { SurroundingChunkGeometry } from "./SurroundingCityGeometry";
+import { zooWestIdsV379, zooWestHostsV379 } from "./zooWestIndexV379";
+import { tierparkEastIdsV379 } from "./tierparkEastIndexV379";
 import { retailHostsV378, retailHostV378 } from "./retailV378Index";
 import { tegelHostsV378 } from "./tegelLandscapeIndexV378";
 import { hasTransportV378, transportExteriorTilesV378 } from "./transportV378Index";
@@ -9,9 +11,26 @@ type Host = { id: string; bounds: [number, number, number, number] };
 const streets = new Set(streetIds);
 const landscape = new Set(tegelHostsV378.map(site => site.id));
 const waterwayHosts = Object.entries(waterwayIndex).map(([id,bounds]) => ({id, bounds: bounds as Host["bounds"]}));
-export const exteriorSitesV378: Host[] = [...tegelHostsV378, ...retailHostsV378, ...transportExteriorTilesV378, ...waterwayHosts];
+export const exteriorSitesV378: Host[] = [{ id: "charlottenburger-tor-v379", bounds: [-2872,505,-2600,630] }, ...zooWestHostsV379, ...tegelHostsV378, ...retailHostsV378, ...transportExteriorTilesV378, ...waterwayHosts];
 
 export async function attachBerlinDetailsV378(entry: SurroundingChunkGeometry, id: string, native: boolean, signal: AbortSignal) {
+  if (id === "charlottenburger-tor-v379") {
+    const [{ loadCharlottenburgerTorV379 }, { attachWorldSpaceDetail }] = await Promise.all([
+      import("./CharlottenburgerTorV379"), import("./attachWorldSpaceDetail"),
+    ]);
+    signal.throwIfAborted();
+    const gate = await loadCharlottenburgerTorV379(native, signal);
+    attachWorldSpaceDetail(entry, gate);
+    signal.throwIfAborted();
+  }
+  if (zooWestIdsV379.has(id)) {
+    const { attachZooWestV379 } = await import("./zooWestV379");
+    await attachZooWestV379(entry, id, native, signal);
+  }
+  if (tierparkEastIdsV379.has(id)) {
+    const { attachTierparkEastV379 } = await import("./tierparkEastV379");
+    await attachTierparkEastV379(entry, id, native, signal);
+  }
   if (streets.has(id)) {
     const {attachNeukoellnStreetV378} = await import("./neukoellnStreetV378");
     await attachNeukoellnStreetV378(entry,id,native,signal);

@@ -1,3 +1,6 @@
+import { charlottenburgerTorViewsV379 } from "./charlottenburgerTorViewsV379";
+import { tierparkEastViewsV379 } from "./tierparkEastViewsV379";
+import { zooWestViewsV379 } from "./zooWestViewsV379";
 import { historicArchitectureViewsV378 } from "./historicArchitectureViewsV378";
 import { memorialViewsV378 } from "./memorialsV378Stops";
 import { retailViewsV378 } from "./retailV378Index";
@@ -6,6 +9,12 @@ import { transportViewsV378 } from "./transportViewsV378";
 import { waterwayViewsV378 } from "./waterwayViewsV378";
 
 export const berlinPlaceViewsV378: typeof memorialViewsV378 = {
+  ...charlottenburgerTorViewsV379,
+  ...tierparkEastViewsV379,
+  ...zooWestViewsV379,
+  "Kurfürstendamm 17 – Hotel Boulevard": { position: [-2792,23,1552], target: [-2736,16,1554], fov: 48 },
+  "Hardenbergstraße 21 – aletto Hotel": { position: [-2828,30,1298], target: [-2862,16,1328], fov: 48 },
+  "Breitscheidplatz und Gedächtniskirche": { position: [-2369,91,1623], target: [-2480,21,1519], fov: 48 },
   ...historicArchitectureViewsV378,
   ...memorialViewsV378,
   ...retailViewsV378,

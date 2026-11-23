@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.259
+
+- Rebuild the Charlottenburger Tor, its colonnades and bridge approaches, and remodel individual animal houses, aviaries and outdoor terrain at Zoo Berlin and Tierpark Friedrichsfelde.
+- Fit photographed facades to 89 City West buildings and add street-facing windows and architectural details to 307 buildings in eleven districts. Load the full Breitscheidplatz church ensemble from losslessly prepared geometry.
+- Show the first trees across the Großer Tiergarten on arrival, divide the full park build into smaller steps and prioritize original city tiles under the desktop camera. [Places, comparison images, sources and measurements](docs/berlin-zoos-city-west-und-ladezeit-v379.md)
+
 ## 1.0.258
 
 - Refine 30 historic buildings, the former Kaufhaus Jonaß, both astronomy sites and Berlin war cemeteries. Add searchable close views of the graves of Fontane, Hoffmann, Mendelssohn and Nico.

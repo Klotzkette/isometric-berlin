@@ -171,8 +171,8 @@ function playground(d: ZooRecognitionV255Sink): void {
   }
 }
 
-export function appendZooRecognitionV255(d: ZooRecognitionV255Sink, source: Source): void {
-  pagoda(d); antelope(d, source); playground(d);
+export function appendZooRecognitionV255(d: ZooRecognitionV255Sink, source: Source, surveyed=false): void {
+  pagoda(d); if (!surveyed) antelope(d, source); playground(d);
   for (const [x, z] of anchors.reeds) for (let k = 0; k < 5; k++) {
     const angle = k * Math.PI * 2 / 5;
     d.line(k % 2 ? 0x899553 : 0x637c48, [x, 5.39, z], [x + Math.cos(angle) * .36, 6.04 + .2 * Math.sin(k), z + Math.sin(angle) * .36], .07);

@@ -7,6 +7,7 @@ import { createChancelleryTreeBranchesV287 } from "./ChancelleryTreesV287";
 import { staticModelDetailProfile } from "./staticModelDetail";
 import {
   AdditiveBlending,
+  Box3,
   BoxGeometry,
   BufferGeometry,
   CatmullRomCurve3,
@@ -18,12 +19,14 @@ import {
   Float32BufferAttribute,
   Group,
   IcosahedronGeometry,
+  InstancedBufferAttribute,
   InstancedMesh,
   LineBasicMaterial,
   LinearFilter,
   LinearMipmapLinearFilter,
   LineSegments,
   MathUtils,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
@@ -31,6 +34,7 @@ import {
   RepeatWrapping,
   RGBAFormat,
   ShapeUtils,
+  Sphere,
   SphereGeometry,
   SRGBColorSpace,
   UnsignedByteType,
@@ -329,6 +333,10 @@ const TREE_FORM_FOLIAGE_TONES: Record<
 
 /** Species-informed display tone; the catalogue does not measure leaf colour. */
 export function treeFoliageTone(tree: ParkTree): number {
+  return foliageTone(tree);
+}
+
+function foliageTone(tree: ParkTree, form?: TreePresentationForm): number {
   const species = tree.species?.toLowerCase() ?? "";
   const variant = Math.abs(tree.variant) % 3;
   if (
@@ -348,7 +356,7 @@ export function treeFoliageTone(tree: ParkTree): number {
   if (inPotsdamerPanoramaLandscape(tree.position[0], tree.position[2])) {
     return POTSDAMER_PANORAMA_LANDSCAPE.foliage[variant];
   }
-  return TREE_FORM_FOLIAGE_TONES[treePresentationForm(tree)][variant];
+  return TREE_FORM_FOLIAGE_TONES[form ?? treePresentationForm(tree)][variant];
 }
 
 /** Species-informed bark tone, kept in one instanced trunk draw call. */
@@ -494,30 +502,32 @@ function vocabularyEntry(
   return table[index] ?? null;
 }
 
+function decodeTree(tree: CompactParkTree | ParkTree, index: number, vocabulary: TreeVocabulary): ParkTree {
+  if (!("h" in tree)) {
+    return tree;
+  }
+  return {
+    catalogue: vocabularyEntry(vocabulary.catalogue, tree.c),
+    crown_radius_m: tree.cr,
+    height_m: tree.h,
+    id: tree.i ?? `tree-${index}`,
+    leaf_type: vocabularyEntry(vocabulary.leaf_type, tree.lt),
+    position: tree.position,
+    source: (vocabularyEntry(vocabulary.source, tree.s) ?? undefined) as
+      "berlin_official" | "osm" | undefined,
+    species: vocabularyEntry(vocabulary.species, tree.sp),
+    tree_group: vocabularyEntry(vocabulary.tree_group, tree.g),
+    trunk_radius_m: tree.tr,
+    variant: tree.v,
+  };
+}
+
 /** Expand the schema-3 wire form; schema 1 and 2 records pass through. */
 export function decodeTrees(
   trees: (CompactParkTree | ParkTree)[],
   vocabulary: TreeVocabulary = {},
 ): ParkTree[] {
-  return trees.map((tree, index) => {
-    if (!("h" in tree)) {
-      return tree;
-    }
-    return {
-      catalogue: vocabularyEntry(vocabulary.catalogue, tree.c),
-      crown_radius_m: tree.cr,
-      height_m: tree.h,
-      id: tree.i ?? `tree-${index}`,
-      leaf_type: vocabularyEntry(vocabulary.leaf_type, tree.lt),
-      position: tree.position,
-      source: (vocabularyEntry(vocabulary.source, tree.s) ?? undefined) as
-        "berlin_official" | "osm" | undefined,
-      species: vocabularyEntry(vocabulary.species, tree.sp),
-      tree_group: vocabularyEntry(vocabulary.tree_group, tree.g),
-      trunk_radius_m: tree.tr,
-      variant: tree.v,
-    };
-  });
+  return trees.map((tree, index) => decodeTree(tree, index, vocabulary));
 }
 
 type Transform = {
@@ -560,6 +570,10 @@ class PackedTransforms implements TransformCollection {
   }
 
   forEach(visit: (transform: Transform, index: number) => void): void {
+    for (const _ of this.consumePages(visit)) { /* synchronous reference construction */ }
+  }
+
+  *consumePages(visit: (transform: Transform, index: number) => void): Generator<void> {
     if (this.consumed) throw new Error("Packed transforms were already consumed");
     this.consumed = true;
     for (let pageIndex = 0; pageIndex < this.pages.length; pageIndex += 1) {
@@ -576,6 +590,7 @@ class PackedTransforms implements TransformCollection {
         }, first + entry);
       }
       this.pages[pageIndex] = undefined;
+      yield;
     }
     this.pages.length = 0;
   }
@@ -824,17 +839,10 @@ function material(color: number, roughness = 0.82): MeshStandardMaterial {
   });
 }
 
-function instanced(
-  name: string,
-  geometry: BufferGeometry,
-  surface: MeshBasicMaterial | MeshStandardMaterial,
-  transforms: TransformCollection,
-): InstancedMesh {
-  const mesh = new InstancedMesh(geometry, surface, transforms.length);
-  mesh.name = name;
+function instanceWriter(mesh: InstancedMesh) {
   const dummy = new Object3D();
   const instanceColor = new Color();
-  transforms.forEach((transform, index) => {
+  return (transform: Transform, index: number) => {
     dummy.position.set(...transform.position);
     dummy.rotation.set(...(transform.rotation ?? [0, 0, 0]));
     dummy.scale.set(...(transform.scale ?? [1, 1, 1]));
@@ -843,14 +851,65 @@ function instanced(
     if (transform.color !== undefined) {
       mesh.setColorAt(index, instanceColor.setHex(transform.color));
     }
-  });
+  };
+}
+
+type InstanceWork = Array<Generator<void>>;
+
+function* writeParkInstancesInSteps(mesh: InstancedMesh, transforms: TransformCollection): Generator<void> {
+  // A new InstancedMesh(count) would first initialize every slot to identity.
+  // This unpublished mesh overwrites every slot before it can be drawn.
+  mesh.count = transforms.length;
+  mesh.instanceMatrix = new InstancedBufferAttribute(new Float32Array(mesh.count * 16), 16);
+  const write = instanceWriter(mesh);
+  const geometry = mesh.geometry;
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  const bounds = mesh.boundingBox = new Box3();
+  const sphere = mesh.boundingSphere = new Sphere();
+  const box = new Box3(), ball = new Sphere(), rounded = new Matrix4();
+  const place = (transform: Transform, index: number) => {
+    write(transform, index);
+    // Mirror Three's two whole-mesh bounds passes using its actual float32
+    // matrices and original insertion order, within the same interruptible page.
+    mesh.getMatrixAt(index, rounded);
+    bounds.union(box.copy(geometry.boundingBox!).applyMatrix4(rounded));
+    sphere.union(ball.copy(geometry.boundingSphere!).applyMatrix4(rounded));
+  };
+  if (transforms instanceof PackedTransforms) {
+    yield* transforms.consumePages(place);
+  } else {
+    const list = transforms as Transform[];
+    for (let i = 0; i < list.length; i++) {
+      place(list[i], i);
+      if ((i+1) % 256 === 0) yield;
+    }
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+}
+
+function instanced(
+  name: string,
+  geometry: BufferGeometry,
+  surface: MeshBasicMaterial | MeshStandardMaterial,
+  transforms: TransformCollection,
+  work?: InstanceWork,
+): InstancedMesh {
+  const mesh = new InstancedMesh(geometry, surface, work ? 0 : transforms.length);
+  mesh.name = name;
+  mesh.receiveShadow = surface instanceof MeshStandardMaterial;
+  if (work) {
+    work.push(writeParkInstancesInSteps(mesh, transforms));
+    return mesh;
+  }
+  transforms.forEach(instanceWriter(mesh));
   mesh.instanceMatrix.needsUpdate = true;
   if (mesh.instanceColor) {
     mesh.instanceColor.needsUpdate = true;
   }
   mesh.computeBoundingBox();
   mesh.computeBoundingSphere();
-  mesh.receiveShadow = surface instanceof MeshStandardMaterial;
   return mesh;
 }
 
@@ -1215,13 +1274,11 @@ export function createParkTreeStand(trees: ParkTree[], tunnel: TunnelPortalPaylo
     const [x, , z] = tree.position;
     return !isChancelleryExtensionConstructionPoint(x, z) && !inApproach(x, z, tree.crown_radius_m + 1.5);
   });
-  if (coarse) {
-    addMobileTrees(group, retained);
-  } else {
-    const steps = addTreesSteps(group, retained, null, settledDetail, false);
-    for (let step = steps.next(); !step.done; step = steps.next()) {
-      // Only the bounded first-paint stand is synchronous.
-    }
+  const steps = coarse
+    ? addMobileTreesSteps(group, retained, false)
+    : addTreesSteps(group, retained, null, settledDetail, false);
+  for (let step = steps.next(); !step.done; step = steps.next()) {
+    // Only the bounded first-paint stand is synchronous.
   }
   for (const mesh of group.children) {
     if (mesh instanceof InstancedMesh) indexGeometryExactly(mesh.geometry);
@@ -1237,6 +1294,9 @@ function* addTreesSteps(
   includeSettledDetail: boolean,
   packedScratch: boolean,
 ): Generator<void, number> {
+  const work: InstanceWork | undefined = packedScratch ? [] : undefined;
+  const treeMesh = (name: string, geometry: BufferGeometry, surface: MeshStandardMaterial, transforms: TransformCollection) =>
+    instanced(name, geometry, surface, transforms, work);
   const scratch = (): TransformCollection => packedScratch ? new PackedTransforms() : [];
   const trunks: TransformCollection = scratch();
   const branches: TransformCollection = scratch();
@@ -1311,7 +1371,7 @@ function* addTreesSteps(
     if (packedScratch && treeIndex++ % 128 === 0) yield;
     const [x, y, z] = tree.position;
     const form = treePresentationForm(tree);
-    const foliageColor = treeFoliageTone(tree);
+    const foliageColor = foliageTone(tree, form);
     const barkColor = treeBarkTone(tree);
     formCounts[form] += 1;
     const trunkHeight = tree.height_m * TREE_TRUNK_HEIGHT_RATIO[form];
@@ -1536,7 +1596,7 @@ function* addTreesSteps(
     }
   }
   group.add(
-    instanced(
+    treeMesh(
       "OSM instanced granular tree trunks",
       new CylinderGeometry(1, 1.18, 1, 7),
       material(0xffffff),
@@ -1544,7 +1604,7 @@ function* addTreesSteps(
     ),
   );
   group.add(
-    instanced(
+    treeMesh(
       "OSM instanced granular tree fork branches",
       new CylinderGeometry(1, 1.18, 1, 6),
       material(0xffffff),
@@ -1557,7 +1617,7 @@ function* addTreesSteps(
   crowns.forEach((transforms, index) => {
     if (transforms.length > 0) {
       group.add(
-        instanced(
+        treeMesh(
           `OSM instanced five-lobed tree crowns variant ${index + 1}`,
           new IcosahedronGeometry(1, 1),
           material(0xffffff, 0.9),
@@ -1568,7 +1628,7 @@ function* addTreesSteps(
   });
   cutawayCrowns.forEach((transforms, index) => {
     if (transforms.length > 0 && cutaway) {
-      const mesh = instanced(
+      const mesh = treeMesh(
         `OSM instanced five-lobed tree crowns variant ${index + 1}`,
         new IcosahedronGeometry(1, 1),
         material(0xffffff, 0.9),
@@ -1593,7 +1653,7 @@ function* addTreesSteps(
         return;
       }
       group.add(
-        instanced(
+        treeMesh(
           `Geoportal Berlin ${family} crowns variant ${index + 1}`,
           geometry(),
           material(0xffffff, 0.94),
@@ -1605,7 +1665,7 @@ function* addTreesSteps(
       if (entries.length === 0 || !cutaway) {
         return;
       }
-      const mesh = instanced(
+      const mesh = treeMesh(
         `Geoportal Berlin ${family} crowns variant ${index + 1} focus cutaway`,
         geometry(),
         material(0xffffff, 0.94),
@@ -1707,7 +1767,7 @@ function* addTreesSteps(
     if (transforms.length === 0) {
       return;
     }
-    const mesh = instanced(
+    const mesh = treeMesh(
       "Snowstorm-only tree crown snow caps",
       new IcosahedronGeometry(1, 0),
       material(0xf4f7f6, 0.98),
@@ -1736,7 +1796,7 @@ function* addTreesSteps(
     const faces = geometry.index
       ? geometry.index.count / 3
       : geometry.getAttribute("position").count / 3;
-    const mesh = instanced(
+    const mesh = treeMesh(
       `Geoportal Berlin settled-only official tree microcrowns variant ${index + 1}`,
       geometry,
       material(0xffffff, 0.9),
@@ -1757,6 +1817,7 @@ function* addTreesSteps(
   settledCutawayCrowns.forEach((transforms, index) => {
     addSettledCrownInstances(transforms, index, true);
   });
+  if (work) for (const job of work) yield* job;
   group.userData.treePresentationForms = formCounts;
   return settledDetailFaces;
 }
@@ -1767,7 +1828,8 @@ function* addTreesSteps(
  * source-form presentation; this branch deliberately allocates no fork
  * branches, crown lobes, snow caps or settled microcrowns.
  */
-function addMobileTrees(group: Group, trees: ParkTree[]): void {
+function* addMobileTreesSteps(group: Group, trees: ParkTree[], cooperative: boolean): Generator<void> {
+  const work: InstanceWork | undefined = cooperative ? [] : undefined;
   const trunks: Transform[] = [];
   const crowns: Transform[] = [];
   const formCounts: Record<TreePresentationForm, number> = {
@@ -1785,7 +1847,9 @@ function addMobileTrees(group: Group, trees: ParkTree[]): void {
     vase: 0,
     willow: 0,
   };
-  for (const tree of trees) {
+  for (let i = 0; i < trees.length; i++) {
+    if (cooperative && i > 0 && i % 128 === 0) yield;
+    const tree = trees[i];
     const [x, y, z] = tree.position;
     const form = treePresentationForm(tree);
     const trunkHeight = Math.max(
@@ -1806,7 +1870,7 @@ function addMobileTrees(group: Group, trees: ParkTree[]): void {
       scale: [trunkRadius, trunkHeight, trunkRadius],
     });
     crowns.push({
-      color: treeFoliageTone(tree),
+      color: foliageTone(tree, form),
       position: [x, y + trunkHeight + crownHeight / 2, z],
       rotation: [0, ((tree.variant % 12) / 12) * Math.PI * 2, 0],
       scale: [
@@ -1820,18 +1884,20 @@ function addMobileTrees(group: Group, trees: ParkTree[]): void {
     "Mobile park instanced coarse tree trunks",
     new CylinderGeometry(1, 1.12, 1, 5),
     material(0xffffff, 0.96),
-    trunks,
+    trunks, work,
   );
   trunkMesh.castShadow = false;
   group.add(trunkMesh);
+  if (cooperative) yield;
   const crownMesh = instanced(
     "Mobile park instanced one-crown tree anchors",
     new IcosahedronGeometry(1, 0),
     material(0xffffff, 0.98),
-    crowns,
+    crowns, work,
   );
   crownMesh.castShadow = false;
   group.add(crownMesh);
+  if (work) for (const job of work) yield* job;
   group.userData.treePresentationForms = formCounts;
   group.userData.mobileTreeTrunkCount = trunks.length;
   group.userData.mobileTreeCrownCount = crowns.length;
@@ -2972,23 +3038,24 @@ function* createParkDetailsSteps(
   const insideTunnelApproach = options.tunnel
     ? createTunnelPortalApproachTester(options.tunnel)
     : null;
-  const sourceTrees = decodeTrees(payload.trees, payload.tree_vocabulary);
-  const constructionFilteredTrees = sourceTrees.filter(
-    (tree) =>
-      !isChancelleryExtensionConstructionPoint(
-        tree.position[0],
-        tree.position[2],
-      ),
-  );
-  const trees = constructionFilteredTrees.filter(
-    (tree) =>
-      !insideTunnelApproach ||
-      !insideTunnelApproach(
-        tree.position[0],
-        tree.position[2],
-        tree.crown_radius_m + 1.5,
-      ),
-  );
+  const trees: ParkTree[] = [];
+  let suppressedConstructionTreeCount = 0;
+  let suppressedTunnelApproachTreeCount = 0;
+  const vocabulary = payload.tree_vocabulary ?? {};
+  // Preserve the original array index in every ID. Decode and classify in one
+  // pass so that a 45,000-tree park cannot block the input thread before its first yield.
+  for (let i = 0; i < payload.trees.length; i++) {
+    if (packedScratch && i > 0 && i % 256 === 0) yield;
+    const tree = decodeTree(payload.trees[i], i, vocabulary);
+    const [x, , z] = tree.position;
+    if (isChancelleryExtensionConstructionPoint(x, z)) {
+      suppressedConstructionTreeCount++;
+    } else if (insideTunnelApproach?.(x, z, tree.crown_radius_m + 1.5)) {
+      suppressedTunnelApproachTreeCount++;
+    } else {
+      trees.push(tree);
+    }
+  }
   const lenneOak = trees.find(isLenneOakTree);
   const genericTrees = lenneOak
     ? trees.filter((tree) => tree !== lenneOak)
@@ -3015,12 +3082,10 @@ function* createParkDetailsSteps(
     streetLightCount: streetLights.length,
     suppressedConstructionStreetLightCount:
       sourceStreetLights.length - constructionFilteredStreetLights.length,
-    suppressedConstructionTreeCount:
-      sourceTrees.length - constructionFilteredTrees.length,
+    suppressedConstructionTreeCount,
     suppressedTunnelApproachStreetLightCount:
       constructionFilteredStreetLights.length - streetLights.length,
-    suppressedTunnelApproachTreeCount:
-      constructionFilteredTrees.length - trees.length,
+    suppressedTunnelApproachTreeCount,
     genericTreeCount: genericTrees.length,
     lenneOakSourceTreeId: lenneOak?.id ?? null,
     signatureTreeCount: lenneOak ? 1 : 0,
@@ -3037,7 +3102,7 @@ function* createParkDetailsSteps(
   );
   yield;
   if (detailProfile === "mobile") {
-    addMobileTrees(group, genericTrees);
+    yield* addMobileTreesSteps(group, genericTrees, packedScratch);
     group.userData.detailProfile = "mobile";
     group.userData.settledOfficialTreeDetailFaces = 0;
   } else {

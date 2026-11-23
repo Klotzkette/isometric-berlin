@@ -1,0 +1,192 @@
+{
+  "additions": {
+    "src/app/src/CharlottenburgerTorV379.ts": "88d3abe607d9a3e8dd9e0a05b450a79eb241ebd57d84f80efef9e26beb4a7dc8",
+    "src/app/src/TiergartenTreeArrivalV379.ts": "06e06d7cfc757d45af1ee68aab114208e80081410c96f3c807078dceb3dba7ad",
+    "src/app/src/charlottenburgerTorNavigationV379.ts": "463028296e3ccc694aabe861e03f24064cc62f1c923c0e077925a14f6b81e4bf",
+    "src/app/src/charlottenburgerTorOwnershipV379.ts": "cc37cc774a03d81a68d7eeea51a0a3d86970b33258af55340050864bbb9f2fbc",
+    "src/app/src/charlottenburgerTorViewsV379.ts": "da7edc56e3e8cd5483f296a800b849ecd169869845ac95459c6075050a617d47",
+    "src/app/src/cityWestFrontsV379.ts": "4a18a3ab3bfc9c9ee95ca4db8253cdc10e6120999fdddce37d21898e81eb9c89",
+    "src/app/src/data/breitscheidEnsembleV379.bin.gz": "d4590350d15568726d91eb0788b24a9c4d2b1f6d86670da4d004dac8687a7d00",
+    "src/app/src/data/charlottenburgerTorV379Drawn.json": "1a54fbd7b79ed36e9a78376c6ca772a97975557642614c399a7baffbbd65a4a3",
+    "src/app/src/data/charlottenburgerTorV379Native.json": "96bce0a22d960b721cebd11e17dfe8b90f79e764491b946a2e32e8a762640e40",
+    "src/app/src/data/charlottenburgerTorV379Solids.json": "5444650912c6b7b476d2ae52eab0e41b290bb9d85abc5a536ed120bd2fb8c326",
+    "src/app/src/data/cityWestFrontsV379.json": "2d3a22cfd7c195b6e29d12994c2c4fda4491ab55c2365d3765c1fda8f667bcf4",
+    "src/app/src/data/districtFrontsIndexV379.json": "135a6a2183acdd4fccd0a31bda5fb876baa776ba941f9e9b51c5c983dc7d36c1",
+    "src/app/src/data/districtFrontsV379/r-1_0.json": "dd7f4884eee6297dc4d4cc06e9cd7e92a9248c9709f110ecb8bf5047a6d49f59",
+    "src/app/src/data/districtFrontsV379/r-1_1.json": "81b8bc4905eca04ac6d6a23a2d24882e05a7696c76549a1a34f35830dfe8ea87",
+    "src/app/src/data/districtFrontsV379/r-1_2.json": "422e53c7b36dd1a155cc7c4d49f6a2f3c05460db311732dfff0e10c79d586869",
+    "src/app/src/data/districtFrontsV379/r-2_-1.json": "ecc87ddd037945ad3887a20636bacaf4a46377e60a0ca3f2bad7e5c125297cc2",
+    "src/app/src/data/districtFrontsV379/r-2_0.json": "0871208a95c574fa683cece659b7fd3dd5b8320d1566860002c9ade804c4b018",
+    "src/app/src/data/districtFrontsV379/r-2_1.json": "a12f105dc8275f2fef6fcc3cb5e4507d461910c855692924cade70b519b3a4ce",
+    "src/app/src/data/districtFrontsV379/r-2_2.json": "8fe304921a5b38fa380c6279458787539a4d1d79939f634cef413a719f89e2f2",
+    "src/app/src/data/districtFrontsV379/r-3_-1.json": "b8aee3a889a60e76f23648ca3683b93d0b5c40c97c917428b2173ef7a8b459e0",
+    "src/app/src/data/districtFrontsV379/r-3_1.json": "0f512310d205c21db8e13125bc8524c98c1b7252e29b5f957125e566e7749fdd",
+    "src/app/src/data/districtFrontsV379/r-3_2.json": "5d491edbad2a59e15a488f5af7b05ad5dc514cf833f39826d69748e91c3db51a",
+    "src/app/src/data/districtFrontsV379/r-4_1.json": "c5a2545d0f6c1afba50cef77aab1bdb9501a4fcc22a85f886438696df9b08730",
+    "src/app/src/data/districtFrontsV379/r0_-1.json": "d266599cec6136f3768369c1832c902077947ed0427c073a184a2077a633c5a9",
+    "src/app/src/data/districtFrontsV379/r0_-2.json": "7a7f8f59dc6db9ab2c28cccf0bac08a99b0d9c3be3fb577a9f03a8df99960c4a",
+    "src/app/src/data/districtFrontsV379/r0_0.json": "0678fc09509b79d8006ebd45dd62923a3515dde7ab5f019f17c0cc4f01cc0579",
+    "src/app/src/data/districtFrontsV379/r0_1.json": "2f9102b3a82b8bfca7916bc513c5bf3d82460bab825cadf6f1822eb968d0e924",
+    "src/app/src/data/districtFrontsV379/r1_-1.json": "efcbe6c3a6d4780f353b6704ae4aacf7a61592cdc8e9d6ac77d9b5db25e8dd90",
+    "src/app/src/data/districtFrontsV379/r1_-2.json": "b57299c62be4bc09cb7a96fa49644b324806b441af4e4aa44240bd4271997998",
+    "src/app/src/data/districtFrontsV379/r1_0.json": "70ed4b6ba97976caf9d2146a3307c43c58fabeb46ea17d1dea295337d0ce7f61",
+    "src/app/src/data/districtFrontsV379/r1_1.json": "f40aaf10df5397f9c1bb1a299ccc8ce65a58b5954749121086aeecd1be28d201",
+    "src/app/src/data/districtFrontsV379/r2_-1.json": "edccc261f48acacb90f0cb7fe0294471919e0c76c167318e402ecffd113e0808",
+    "src/app/src/data/districtFrontsV379/r2_-2.json": "e315dac714ac456b12b134aff3aab4c75db4d34d99faa0ae2609ca264a1f2e68",
+    "src/app/src/data/districtFrontsV379/r2_0.json": "a84aee17a08733b6ac1e42722d9d77dfc796c25bd37e8202766ba91ccfa2a757",
+    "src/app/src/data/districtFrontsV379/r2_1.json": "35f123da9e00eddd8315b949bcd9296912aac5e89dc48067190fdbe2a68c572f",
+    "src/app/src/data/districtFrontsV379/r2_2.json": "9527d63ad3154599490ad39d5c256ec4ac1d11c5d73abd1764ab07882aeff50c",
+    "src/app/src/data/districtFrontsV379/r3_-1.json": "dbf64624a86fbde178562c1dda7baa345a46beb121c77c6f9922f655930248af",
+    "src/app/src/data/districtFrontsV379/r3_0.json": "1e364a0b7c00bc03054a02a9f73e7c9cace01fdbe9fb5aa633e3c2c3f2c5b533",
+    "src/app/src/data/districtFrontsV379/r3_1.json": "7d72b1f9b961fb9571498e39eb8e09f0ee6298a8fb7b9f425af5dff8cc8da551",
+    "src/app/src/data/districtFrontsV379/r3_2.json": "24faafaeef01e79826bfd6a12da8e6e24cefa41a79567892b7e318e9916b5caf",
+    "src/app/src/data/districtFrontsV379/r4_1.json": "d8056afd48e49c813e885e3533f6513f399220dc039eb1017d7833527d10f8ca",
+    "src/app/src/data/districtFrontsV379/r4_2.json": "1412318c5eeb63957612f375d8d257fa4f5a465bad7fe4e8fc759eb5e859858e",
+    "src/app/src/data/tiergartenTreeFillV379.json": "c48ef769b850f7590b3f885d457421562ba88c7b8847464fdb42266077dd5bf6",
+    "src/app/src/data/tiergartenTreeFirstV379.json": "4d5191aacdf51bdc36047e23b20818212e7c78b8567b13b13bcc55d0848a8ec8",
+    "src/app/src/data/tierparkEastV379Landscape/drawn_outer187-20_3.json": "66ef306b1ada2497252003e02f8f10daf99284dd2ad6b7e2172d9c1860f2aded",
+    "src/app/src/data/tierparkEastV379Landscape/drawn_outer187-20_4.json": "1d90ba8aa8e9ad0d547bb5c43e702247c6f767b5f1771fb8e624a6447952642f",
+    "src/app/src/data/tierparkEastV379Landscape/drawn_outer187-21_2.json": "699a4eaea8102881cdb23347669f638be8220b4525dcaea09e7ebd3f75fabc73",
+    "src/app/src/data/tierparkEastV379Landscape/drawn_outer187-21_3.json": "187e3bfdfbe5e7a6efc0be25c568a05bef083ffb0c0202d52c832e15439cc693",
+    "src/app/src/data/tierparkEastV379Landscape/drawn_outer187-21_4.json": "9f88f607043e8008998eaeafcb5f5f65b2303a959d3ff2eaa89c0278a599834c",
+    "src/app/src/data/tierparkEastV379Landscape/minecraft_outer187-20_3.json": "f85fae30718e149f2ae9ef85d5ca8c5a28c0f7469c5663800506ab8a81c5abaf",
+    "src/app/src/data/tierparkEastV379Landscape/minecraft_outer187-20_4.json": "6ee3f321fca9a6211820ae154c292933b308d62bd3d52a4bfe9a97e3217996fc",
+    "src/app/src/data/tierparkEastV379Landscape/minecraft_outer187-21_2.json": "6bc8b091039e6c78e48f4a010b6d5a138b3e3f6b2490bba238c1ce9886034a0b",
+    "src/app/src/data/tierparkEastV379Landscape/minecraft_outer187-21_3.json": "b1aa213b510d26e79a80358283da70b62272864e3aaef3d01b9f85044f04212e",
+    "src/app/src/data/tierparkEastV379Landscape/minecraft_outer187-21_4.json": "a6d76575474868f465ea2641145d0aa8146160f32e386a8af07402fb21e9ee11",
+    "src/app/src/data/tierparkEastV379LandscapeIndex.json": "6bf0697161245bb989e03c33f81a850afe4e52003d3a23eaf1385f53f5d6e1a4",
+    "src/app/src/data/tierparkEastV379LowIndex.json": "722c57eeb9b1486863cef89e23631f98a46ab3b55f24d072c7398cecae7b7671",
+    "src/app/src/data/tierparkEastV379LowTiles/drawn_outer187-20_2.json": "16dbca6a77704bea471596c91b3d73bac0e6fada7c8bd22ffe8affb7b4dcf537",
+    "src/app/src/data/tierparkEastV379LowTiles/drawn_outer187-20_3.json": "87fed9416ffdd765cf712c8a3207dae9bac28d202f65615bec252b3fb2c03524",
+    "src/app/src/data/tierparkEastV379LowTiles/drawn_outer187-20_4.json": "25734c7de6a4c9992a6c80c2a4c1c080a8f86de0b1b38a83590b01e4bc1147bb",
+    "src/app/src/data/tierparkEastV379LowTiles/drawn_outer187-21_2.json": "2d414a3bb4534171fa912bd9db65572b54c8b8e411ba4b4afda06edaf90e1348",
+    "src/app/src/data/tierparkEastV379LowTiles/drawn_outer187-21_3.json": "ceb0839e6dbb626f24137f91b095a4498a41d658ff0d24039077d9581e8c9cf3",
+    "src/app/src/data/tierparkEastV379LowTiles/drawn_outer187-21_4.json": "f3a9dcbba9ae5d8e2e45a2d6cc64d451fc1a1a004840e7faecaf447e6bd0f291",
+    "src/app/src/data/tierparkEastV379LowTiles/minecraft_outer187-20_2.json": "56389df26335e0bd149699d7923fe89ca9000101c0543d1a6c9d217873d65a12",
+    "src/app/src/data/tierparkEastV379LowTiles/minecraft_outer187-20_3.json": "8e153f459994ef484c647c91079c8c0d767bd8dcbb2689f776435fa3cf081e24",
+    "src/app/src/data/tierparkEastV379LowTiles/minecraft_outer187-20_4.json": "7d8889f59971c77c80b2480513eb6bb7cc6c983d2c6a3d96b379bedc73c94509",
+    "src/app/src/data/tierparkEastV379LowTiles/minecraft_outer187-21_2.json": "209865568f3623d41937b5c93363b1d02686c7295ffb619d2a7b02a6448df851",
+    "src/app/src/data/tierparkEastV379LowTiles/minecraft_outer187-21_3.json": "898dabd17626a38276de92d62716bfd547b0f18ba46d7701043f53105f822216",
+    "src/app/src/data/tierparkEastV379LowTiles/minecraft_outer187-21_4.json": "43f93aa8c90fb8e200bb98cdcb45436e93b7511913ec189cf972fd3ef1474e42",
+    "src/app/src/data/tierparkEastV379ShellIndex.json": "251a1fc6525cbe8d4f93092cfde142654581c47bbaede81d3e58c4b59d850c8d",
+    "src/app/src/data/tierparkEastV379Tiles/drawn_outer187-19_3.json": "b2daa456be224a6842c223800fac9a71142271c1fd06addafb4c928dd218e8ad",
+    "src/app/src/data/tierparkEastV379Tiles/drawn_outer187-20_3.json": "b49b42029094622cfa24dd73431969cb13a8be77a4c19a7bdf8919f81fe972e0",
+    "src/app/src/data/tierparkEastV379Tiles/drawn_outer187-20_4.json": "b59c7dd937a37076ea5377577f29a7a94e9cc8556920dd0025efad2666c910d5",
+    "src/app/src/data/tierparkEastV379Tiles/drawn_outer187-21_2.json": "27415860e61c7f32d8ecca51351f0473d76fdb8284a3bc9d62525d4c6e75df16",
+    "src/app/src/data/tierparkEastV379Tiles/drawn_outer187-21_3.json": "227d1caecc4ece1681aa11ea759be5be7c9d6a651b2516decea499dfc17810c2",
+    "src/app/src/data/tierparkEastV379Tiles/drawn_outer187-21_4.json": "36074f0f27a8689cbaa1457156d9e832a69c2eedbc4b8e5e2ba6965260938bc5",
+    "src/app/src/data/tierparkEastV379Tiles/drawn_outer187-21_5.json": "5d06f27b6060b66f81f6418e3217d9e6b49bd8855ae3b98f1341f2104179e348",
+    "src/app/src/data/tierparkEastV379Tiles/minecraft_outer187-19_3.json": "1d0f0a998be897a4392753f28de4bd9a916229b21ba4e9aeb2351fa3ae4af500",
+    "src/app/src/data/tierparkEastV379Tiles/minecraft_outer187-20_3.json": "677ccb3a8533dbbcb3664466fadfeaaa64c6ba05e3c302b2c698952c6f89f62c",
+    "src/app/src/data/tierparkEastV379Tiles/minecraft_outer187-20_4.json": "bea38277d223aed7627adff77fb25c91fa965fb4c009a2444571fee8fb8b02e9",
+    "src/app/src/data/tierparkEastV379Tiles/minecraft_outer187-21_2.json": "b83df29860694a0963f6374828933fc8fdd424c1235d4cf17b53273c81ab0177",
+    "src/app/src/data/tierparkEastV379Tiles/minecraft_outer187-21_3.json": "4f65401fada1a2013b4875d33004ce136c2b9e42aa994d92af301fb20fa3787d",
+    "src/app/src/data/tierparkEastV379Tiles/minecraft_outer187-21_4.json": "e1b78216e20a2c3eb7234ec6dcf931a242331edb05433c164dc2725c3eff9f77",
+    "src/app/src/data/tierparkEastV379Tiles/minecraft_outer187-21_5.json": "1a48d09278a26ec4a6a7b9b7464abab573416d64fecff4a9268ca8dd26487d02",
+    "src/app/src/data/zooWestV379Heights.json": "66361be4f1acacc7e311d9a55c840e25472f46a57c1317d7c1a3eedb6aa7214d",
+    "src/app/src/data/zooWestV379Hosts.json": "126c4f90b44569a04c924637baaabea479372c0e43ffac6e865076a26698a348",
+    "src/app/src/data/zooWestV379Legacy.json": "2afa7aa0e46524b9027060ec3faa07aaeb5f34e10af296ef9a2bf4573cec8e42",
+    "src/app/src/data/zooWestV379Ownership.json": "faa1858af02305903b77df17906bb2a74e0c43458f5498cfe00b5175797ccb98",
+    "src/app/src/data/zooWestV379Tiles/drawn_-4_1.json": "66756e786e6acb57a7416368d5628cec46636f75296ba9bd1166a2c546f1822e",
+    "src/app/src/data/zooWestV379Tiles/drawn_-4_2.json": "e451066337c0407b75cb406e3a276b5f67f86ca1e1f268bc2902545f41a00f00",
+    "src/app/src/data/zooWestV379Tiles/drawn_-5_1.json": "d43b7a1c708483a17488e30b8c40084c2cbfdf0d62c3233ba8397cedc2512b65",
+    "src/app/src/data/zooWestV379Tiles/drawn_-5_2.json": "8db2cf590f9a0e2c08d282304b1caf0ad7e2e2db70cc1cee408add66ac1dd687",
+    "src/app/src/data/zooWestV379Tiles/drawn_-6_1.json": "888a39a99d6221e66af89913d467cb453b9590cc47330141764612f22128b4ab",
+    "src/app/src/data/zooWestV379Tiles/drawn_-6_2.json": "1e1d6807a9a42e922cc96548658c7ddcc2848ff16f50382de9d9e00b0a5def34",
+    "src/app/src/data/zooWestV379Tiles/native_-4_1.json": "c37cca083c8fb88d7020709c5d0aefd9e0bb8814ee032093b83efbf9fe4dc4e5",
+    "src/app/src/data/zooWestV379Tiles/native_-4_2.json": "59d689966a379a75c59f990f39a65a808dd2428a602210ee8dcad722e1972f0e",
+    "src/app/src/data/zooWestV379Tiles/native_-5_1.json": "a652b6a8822441d86aa1ba44d2b5ee4c4aa931203f29c4192f135141473765ca",
+    "src/app/src/data/zooWestV379Tiles/native_-5_2.json": "e6fc3e1955ce9fd2af235a634ce64f5e7003810f9917c7b8605c7cc4301c7d5c",
+    "src/app/src/data/zooWestV379Tiles/native_-6_1.json": "888a39a99d6221e66af89913d467cb453b9590cc47330141764612f22128b4ab",
+    "src/app/src/data/zooWestV379Tiles/native_-6_2.json": "f3ab3cbc3f86abd50047c9fe988a8e2131ed8d0ae733123ad12d45cbb0d7c90c",
+    "src/app/src/districtFrontsIndexV379.ts": "bd57c9577220139e4e1aa9320d0defd8ab7182a1a205b03f423c1d1534bbe884",
+    "src/app/src/districtFrontsV379.ts": "5025ee0c015c85362ee84a24fe5b00bd9d5ffbb516c4f5be6a1364f75e8e354a",
+    "src/app/src/openingSiteOwnerV379.ts": "34d6cdb92395a906a0f74df98b7d9a3189e75b10b4e93ea384e030f265d37636",
+    "src/app/src/preparedBreitscheidV379.ts": "9df47ef82b67945a7d807f99e70b38a3213153f80942319a9cf7d159abad0c5d",
+    "src/app/src/surroundingFootprintV379.ts": "ee674ab90be789319163f83c66e8a1f1c293376b36d5eb2ba4115e6c8d61e799",
+    "src/app/src/surroundingViewPlanV379.ts": "51dc82e0ae579e7d2a38dc40886c982fefbbde3089f8720f7b699d47a6b37ca6",
+    "src/app/src/tierparkEastIndexV379.ts": "055398ab011d4261e174d700f3db682e2326595bc4f85fb97df78d9b0cc5b648",
+    "src/app/src/tierparkEastV379.ts": "ee54323a1dbce15998b766ba69f7e32e67010065a8f12c2ff48d222014abf72a",
+    "src/app/src/tierparkEastViewsV379.ts": "019dd37ff79be502583d675841202b3727b3ff93b53acd0d18860250016571dd",
+    "src/app/src/zooWestIndexV379.ts": "5ca77841321c6d607b4e7768293e0cb574dba906d7fe33bd902a39e1de606a7f",
+    "src/app/src/zooWestLegacyV379.ts": "703b56e994d45d13cf3e67bf65068b2ca75a1c742b5348e7415ca3b05cdc93a8",
+    "src/app/src/zooWestOwnersV379.ts": "f02cc3ac9e2007b05119f281bbf6962c01232753a374f6bef4d8ed758fa80e66",
+    "src/app/src/zooWestReliefV379.ts": "efa2ac3a787f91084fdfd2548a14134bca042c44d2b3e78f1ce06ed3dcf6e3f4",
+    "src/app/src/zooWestV379.ts": "6e6dd8023089c028facac294d0ad3cdf0495d05736658b173e68d075d2c90f7a",
+    "src/app/src/zooWestViewsV379.ts": "7bd94577aed1864f90e3ee6eac4b012b8dac9630547c2f867ec7f92affc8721d"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "after": "1e8f6ef2cff5b683bc2784140af587e17d06feb71f195718f74314566eb76dd2",
+      "before": "6e88b22ad9b6bdf1e4bf10091112850c31d3acc6d06fccc2d9ed7ddd940f84fb"
+    },
+    "src/app/src/CityWestDetails.ts": {
+      "after": "62cb8aaeab7477cbf1beb4a6d6f2f3b3c33116ae8a3377277456614a692cbeef",
+      "before": "d7113b9aedf2ace4133320d0ff22c53b9e4f185fe9f72f8ea10a5b3c090b6544"
+    },
+    "src/app/src/ExpandedCityDetails.ts": {
+      "after": "a89f1b010f0d79b7547b14bafba7b1b331bd54b1c34172cc40ee84c94281882b",
+      "before": "06a4cd84186ffb204ba9e257866981f40aa1231a88dd6ce642290d61879f1c39"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "after": "3b7f8975a954f1dab82322ea82d40c097dbd494e3b28956b101b5e9747494bab",
+      "before": "dbd6088daf8e0a0869fbc2d27d6b12078e8c9336b2c2f2d06c7e533b563fd7f2"
+    },
+    "src/app/src/MinecraftVoxelWorld.ts": {
+      "after": "c087c4184d50f3e59af8c8201632c1d83832bafc1383bf13412bcc22d66f7e2f",
+      "before": "e3cad9e0b7bd044d955442b28b58aa667cac55d3830ade830238f913b62840e4"
+    },
+    "src/app/src/OuterThinOutlines.ts": {
+      "after": "d34fe778b03e0cded3cc2bb6d13fbdd45f2ee00158b2db380c53824b39dcca4e",
+      "before": "ba052d01bf734e8b74da7555ea72b7e72de7c2e858088b66b19e9d06889e179a"
+    },
+    "src/app/src/OutlineLandmarksV182.ts": {
+      "after": "73d0221bbc09195198763b465a689d22b302ae919fad5e4a834e64c0ba196707",
+      "before": "f97861059ee92599910a17257469d85e4e939dff5c7103d90f755429c8a23e1b"
+    },
+    "src/app/src/ParkDetails.ts": {
+      "after": "faadfca0451c33cbde4609bf0aaf9b9b17cb5aee3b3f901651d6eebb95770df7",
+      "before": "bc687caf99420df44a4586e9faaf1c19bfa76f712b4e8b54cd04724f9daf8ff3"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "after": "6074fe2120583d6fd1198bf3354205c28f6b6c9922c76afd8b8f747d51100f5c",
+      "before": "a11ea9640cfe6ba7ea31ed30696f50703c32b2e5ca610985929a63326f0cf8af"
+    },
+    "src/app/src/SurroundingCityGeometry.ts": {
+      "after": "b6ee5185cab6033fb960020406febe0ea0a568cd6d8cb7858fa059841cb0a8d5",
+      "before": "f84d9faeec2cfaeca676eafec43cd32eba7acec2419b3c6e9d1eec950c727b35"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "after": "6149220f38357746486a1e88b7361c35d611020aa56ba1b77349cde0df9f7d03",
+      "before": "641962fac67f47cae094b4b986a9af37938e94950fe2063ea16deb1e64e16ebe"
+    },
+    "src/app/src/ZooGroundsV165.ts": {
+      "after": "2961c7a69aa66599498bcf8b1f6bec70516f8f4ab12d1cbdb471cd7535a55a71",
+      "before": "5363c6140702868e82f6b948e3c7fb15f95564992b66ad829a84dd56b7a9cdd5"
+    },
+    "src/app/src/ZooRecognitionV255.ts": {
+      "after": "befafaf5e52a599c11e9c492f687fada5f8d4b4c6399e08df9bbcac5bf11278f",
+      "before": "368aef3f023fe87819b8450beee7c44e4bdb3a357672d0bec04d2f912225a8c9"
+    },
+    "src/app/src/berlinDetailSitesV378.ts": {
+      "after": "2186e67d772bc9cd350242b75c44f3cb2985b812d4ff08ec0609bda141592771",
+      "before": "014b1d5cb11d03c70c11af6ee47456d4818c84421c73985aa862ffbdc8053ca2"
+    },
+    "src/app/src/berlinPlaceViewsV378.ts": {
+      "after": "9d47b3f20c77d20bcee5b1cddbd5b5036afb13f9839269e45a6e0c72bb463d14",
+      "before": "e02977f8be1246791351379364f0731f183d67ee11ab9fd7adc7078464bf3a62"
+    },
+    "src/app/src/pedestrianNavigation.ts": {
+      "after": "60713968200e9d37b125a9e144a6e22619f4d79662adb8f453f30d3f3fd787fc",
+      "before": "5374f95fbb703bc55c86c9673b369f2b0aaa26a8c27bfb11e1aff864c7c3cccf"
+    },
+    "src/app/src/progressiveBuildingCoverage.ts": {
+      "after": "0292ed39c79a7c4dc26d9f0294f595190a76075d5bb300c2901cbdfb35d0f3f4",
+      "before": "e10c5589b17f9324d96c3f30f91825ab9090a045fb696ad9c21a9fc2fed64a72"
+    },
+    "src/app/src/surroundingCityScope.ts": {
+      "after": "d568d3adc8a26197b62066cde12eff501c3b3d2f264c7cd188ab253d8ebc6e6c",
+      "before": "1a5eb1d1898a99c4bf1cab93713b6b7fee0c362075e5881b7a45f0400ffee8ff"
+    }
+  }
+}

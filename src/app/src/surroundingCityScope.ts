@@ -60,3 +60,10 @@ export function surroundingScopeGroundAt(x: number, z: number, native = false): 
     outskirtsPolygons.some(p => x>=p.minX && x<=p.maxX && z>=p.minZ && z<=p.maxZ && surroundingPolygonContains(p.polygon,x,z)))
     ? terrainGroundAt(x, z, scope.groundY, native) : addedCityScopeGroundAtV346(x,z);
 }
+
+
+/** A camera looking into the extension can request the regular district
+ * stream while the first core GPU upload is still being parked. */
+export function cameraNeedsSurroundingGroundV379(x: number, z: number, native: boolean): boolean {
+  return !surroundingPolygonContains(scope.core, x, z) && surroundingScopeGroundAt(x,z,native) !== null;
+}

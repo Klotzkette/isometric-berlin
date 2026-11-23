@@ -104,6 +104,7 @@ import {createMemorialRuntimeV322Steps,type MemorialRuntimeV322} from "./Memoria
 import type {ExactOwnersHooksV321} from "./ExactOwnersV321";
 
 export type OutlineLandmarkOwnershipOptions = {
+  regionalCharlottenburgerTor?: boolean;
   reserveOpeningCastleV378?: (native: boolean) => boolean;
   /** Complete library architecture already belongs to the required world. */
   architectureV241?: boolean;
@@ -326,8 +327,10 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createBerlinBoundariesV200(nextNative));
       yield;
-      if (nextNative) root.add(createMinecraftCharlottenburgerTorV201());
-      yield;
+      if (nextNative && !ownership.regionalCharlottenburgerTor) {
+        root.add(createMinecraftCharlottenburgerTorV201());
+        yield;
+      }
       root.add(createWuhlheideV201(nextNative));
       yield;
       root.add(createWaldbuehneV201(nextNative));

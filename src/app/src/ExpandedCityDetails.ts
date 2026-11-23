@@ -115,6 +115,8 @@ export type ExpandedLandmark = {
 };
 
 export type ExpandedCityDetailsOptions = {
+  earlyBreitscheid?: Group;
+  regionalCharlottenburgerTor?: boolean;
   detailProfile?: MoabitPrisonMemorialDetailProfile;
   /** Disable only after the complete required v266 portico has been constructed. */
   includeLegacyAnhalter?: boolean;
@@ -3732,11 +3734,6 @@ function addAnhalterBahnhof(
   );
 }
 
-function addCharlottenburgerTor(builder: Builder, byName: Map<string, ExpandedLandmark>): void {
-  const point = anchor(byName, "Charlottenburger Tor");
-  if (point) appendCharlottenburgerTorV201(builder, point);
-}
-
 function createWeltBalloonEnvelopeTexture(): Texture | null {
   if (typeof document === "undefined") return null;
   const word = createLetteringTexture({
@@ -4916,7 +4913,10 @@ export function createExpandedCityDetails(
     }
   }
   if (options.includeLegacyAnhalter !== false) addAnhalterBahnhof(builder, byName);
-  addCharlottenburgerTor(builder, byName);
+  if (!options.regionalCharlottenburgerTor) {
+    const point = anchor(byName, "Charlottenburger Tor");
+    if (point) appendCharlottenburgerTorV201(builder, point);
+  }
   addAmanoGrandCentral(builder, byName);
   addEuropacityCompanyBuildings(builder, byName);
   addFunboxPark(builder, byName);
@@ -5006,7 +5006,7 @@ export function createExpandedCityDetails(
 
   group.add(createKonradAdenauerHaus());
 
-  group.add(createCityWestDetails(options.detailProfile ?? "full", false, "omit"));
+  group.add(createCityWestDetails(options.detailProfile ?? "full", false, "omit", options.earlyBreitscheid));
 
   addRooftopSigns(group, byName);
   // Tiny warm markers for snow-plough salt and balloon fittings only; this is

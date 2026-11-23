@@ -825,7 +825,7 @@ export type SurroundingChunkSchedule = {
   yield?: () => Promise<void>;
 };
 
-function yieldSurroundingTask(): Promise<void> {
+export function yieldSurroundingTask(): Promise<void> {
   const scheduler = (globalThis as typeof globalThis & { scheduler?: { yield?: () => Promise<void> } }).scheduler;
   if (scheduler?.yield) return scheduler.yield();
   return new Promise(resolve => setTimeout(resolve, 0));
@@ -870,7 +870,7 @@ export function surroundingRingContains(ring: readonly number[][], x: number, z:
 
 // Weak ownership is important: source rings disappear with an evicted tile.
 const polygonBounds = new WeakMap<SurroundingPolygon, readonly [number, number, number, number]>();
-function boundsOf(polygon: SurroundingPolygon): readonly [number, number, number, number] {
+export function surroundingPolygonBounds(polygon: SurroundingPolygon): readonly [number, number, number, number] {
   let bounds = polygonBounds.get(polygon);
   if (!bounds) {
     let minX = Infinity, minZ = Infinity, maxX = -Infinity, maxZ = -Infinity;
@@ -884,7 +884,7 @@ function boundsOf(polygon: SurroundingPolygon): readonly [number, number, number
 }
 
 export function surroundingPolygonContains(polygon: SurroundingPolygon, x: number, z: number): boolean {
-  const [west, north, east, south] = boundsOf(polygon);
+  const [west, north, east, south] = surroundingPolygonBounds(polygon);
   return x >= west && x <= east && z >= north && z <= south && surroundingRingContains(polygon.ring, x, z) &&
     !polygon.holes.some(hole => surroundingRingContains(hole, x, z));
 }
@@ -914,7 +914,7 @@ export function surroundingBuildingSolidAt(
     }
     if (building.nativeRoofCaps && !building.nativeRoofCaps.some(c => x >= c[0]-radius && x <= c[2]+radius && z >= c[1]-radius && z <= c[3]+radius && y <= ground+c[4])) return false;
     if (building.roofTriangles) {
-      const [west,north,east,south]=boundsOf(building);
+      const [west,north,east,south]=surroundingPolygonBounds(building);
       if(x+radius<west||x-radius>east||z+radius<north||z-radius>south)return false;
       let top = -Infinity, edgeTop = -Infinity, nearestEdge = Infinity;
       for (const [a,b,c] of building.roofTriangles) {
@@ -939,7 +939,7 @@ export function surroundingBuildingSolidAt(
       if(top===-Infinity)top=edgeTop;
       if (top===-Infinity || y>ground+top+radius) return false;
     }
-    const [west, north, east, south] = boundsOf(building);
+    const [west, north, east, south] = surroundingPolygonBounds(building);
     if (x + radius < west || x - radius > east || z + radius < north || z - radius > south) return false;
     if (surroundingPolygonContains(building, x, z)) return true;
     return radius > 0 && (ringDistanceSquared(building.ring, x, z) < radius * radius ||

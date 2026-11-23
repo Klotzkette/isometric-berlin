@@ -32,7 +32,7 @@ export function assertSourceLayerV337(before: Readonly<Record<string, string>>):
   const candidate = JSON.parse(proof.toString("utf8")) as Receipt;
   const currentFiles = readdirSync(resolve(root, "src/app/src"), { recursive: true })
     .map(path => `src/app/src/${path}`)
-    .filter(path => /\.(?:ts|tsx|json)$/.test(path) && statSync(resolve(root, path)).isFile());
+    .filter(path => /\.(?:ts|tsx|json|bin\.gz)$/.test(path) && statSync(resolve(root, path)).isFile());
   const expected = { ...before, ...candidate.additions };
   for (const [path, record] of Object.entries(candidate.changes)) {
     if (record.before !== before[path] || record.after === record.before || digest(previous(path)) !== record.before) {

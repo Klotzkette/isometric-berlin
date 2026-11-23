@@ -2136,10 +2136,37 @@ function finishBatch(
   return group;
 }
 
+export function createBreitscheidEnsembleV379(detailProfile: CityWestDetailProfile, fountain: "current" | "legacy" | "omit"): Group {
+  const breitscheid = createBuilder();
+  const churchGlass = createBuilder();
+  addGedaechtniskirche(breitscheid, churchGlass, detailProfile);
+  addBreitscheidplatz(breitscheid, detailProfile, fountain);
+  const breitscheidBatch = finishBatch(
+    breitscheid,
+    "Gedächtniskirche and Breitscheidplatz ensemble",
+    {
+      breitscheidplatz: CITY_WEST_PROFILE.breitscheidplatz,
+      gedaechtniskirche: CITY_WEST_PROFILE.gedaechtniskirche,
+    },
+  );
+  if (breitscheidBatch) {
+    if (fountain === "current") breitscheidBatch.add(createWeltkugelV281());
+    const glazing = finishDrawnGroup(churchGlass, {
+      name: "Gedächtniskirche blue concrete-glass cells",
+      lampEmissive: 0x234bad,
+      lampEmissiveIntensity: 0.6,
+    });
+    if (glazing) breitscheidBatch.add(glazing);
+    return breitscheidBatch;
+  }
+  return new Group();
+}
+
 export function createCityWestDetails(
   detailProfile: CityWestDetailProfile = "full",
   includeUrania = true,
   fountain: "current" | "legacy" | "omit" = "current",
+  earlyBreitscheid?: Group,
 ): Group {
   detailProfile = staticModelDetailProfile(detailProfile);
   const group = new Group();
@@ -2163,28 +2190,7 @@ export function createCityWestDetails(
     group.add(towerBatch);
   }
 
-  const breitscheid = createBuilder();
-  const churchGlass = createBuilder();
-  addGedaechtniskirche(breitscheid, churchGlass, detailProfile);
-  addBreitscheidplatz(breitscheid, detailProfile, fountain);
-  const breitscheidBatch = finishBatch(
-    breitscheid,
-    "Gedächtniskirche and Breitscheidplatz ensemble",
-    {
-      breitscheidplatz: CITY_WEST_PROFILE.breitscheidplatz,
-      gedaechtniskirche: CITY_WEST_PROFILE.gedaechtniskirche,
-    },
-  );
-  if (breitscheidBatch) {
-    if (fountain === "current") breitscheidBatch.add(createWeltkugelV281());
-    const glazing = finishDrawnGroup(churchGlass, {
-      name: "Gedächtniskirche blue concrete-glass cells",
-      lampEmissive: 0x234bad,
-      lampEmissiveIntensity: 0.6,
-    });
-    if (glazing) breitscheidBatch.add(glazing);
-    group.add(breitscheidBatch);
-  }
+  group.add(earlyBreitscheid ?? createBreitscheidEnsembleV379(detailProfile, fountain));
 
   // v206 replaces only this documented proportional proxy. Keep its original
   // recipe available for exact historical comparisons; all other batches stay.

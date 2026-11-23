@@ -12,6 +12,8 @@ import { appendZooHippoV256 } from "./ZooHippoV256";
 import { appendZooWestV276, compactZooWestV276Rows } from "./zooWestV276";
 import { createZooAnimalsV282, type RetainedZooAnimalV282 } from './ZooAnimalsV282';
 
+import {replacedZooPartsV379, replacedZooFacadeBoxesV379, replacedZooRowsV379, zooAnimalFeetV379} from "./zooWestLegacyV379";
+
 type P = [number, number, number];
 type Sheet = { color: number; triangles: number[][][] };
 export const ZOO_GROUNDS_V165_GROUP = "Zoo Berlin measured animal houses and mapped grounds";
@@ -94,10 +96,22 @@ function animal(d:Details,x:number,y:number,z:number,kind:"ibex"|"takin"|"tahr"|
   d.line(0x493d2d,at(.63*size,.96*size,0),at(.55*size,.55*size,0),.12);
   for(const side of[-1,1]){const n=12;let previous=at(.55*size,1.29*size,side*.11*size);for(let i=1;i<=n;i++){const t=i/n;const p=at((.55-.75*t)*size,(1.29+.65*Math.sin(t*Math.PI*.9))*size,side*(.11+.17*t)*size);d.line(0xb4a587,previous,p,.065);previous=p;}}
 }
-function mountain(d:Details,identity:string,height:number,kind:"ibex"|"takin"|"tahr"):void {
+function mountain(d:Details,identity:string,height:number,kind:"ibex"|"takin"|"tahr",surveyed=false):void {
   const habitat=source.habitats.find(h=>h.id===identity)!;const ring=habitat.ring as unknown as WorldRing;
   const minX=Math.min(...ring.map(p=>p[0])),maxX=Math.max(...ring.map(p=>p[0])),minZ=Math.min(...ring.map(p=>p[1])),maxZ=Math.max(...ring.map(p=>p[1]));
   const cx=(minX+maxX)/2,cz=(minZ+maxZ)/2;
+  if (surveyed) {
+    // Keep the established moving animals and fit their feet to the measured relief.
+    const poses = [[-3,2,.1],[2,-3,2.3],[5,3,-.8]];
+    for (const [i,[dx,dz,yaw]] of poses.entries()) {
+      const x=cx+dx,z=cz+dz;
+      if (!pointInWorldRing(x,z,ring)) continue;
+      const y=zooAnimalFeetV379[identity][i];
+      const floor=(d.native ? Math.round(y*2)/2 : y)+.12;
+      d.animal("zoo-mountain-"+identity+"-"+dx,x,floor,z,()=>animal(d,x,floor,z,kind,yaw));
+    }
+    return;
+  }
   const h=(x:number,z:number)=>{const q=Math.max(0,1-Math.hypot((x-cx)/((maxX-minX)*.57),(z-cz)/((maxZ-minZ)*.57)));return 5.39+height*Math.pow(q,.38)*(1+.08*Math.sin(x*.42+z*.23));};
   const step=d.native?1:2.1;
   const validCell=(x:number,z:number)=>[[x,z],[x+step,z],[x+step,z+step],[x,z+step]].every(p=>pointInWorldRing(p[0],p[1],ring));
@@ -169,26 +183,29 @@ function birdhouse(d:Details):void {
   sign(d,"WELT DER VÖGEL",-2410.4,12,911.8,8.4,.59,Math.PI/2,0x8f7955);
 }
 
-function create(native:boolean):Group {
+function create(native:boolean,surveyed:boolean):Group {
   const group=new Group();group.name=native?ZOO_GROUNDS_V165_NATIVE_GROUP:ZOO_GROUNDS_V165_GROUP;
   const details=new Details(native);
-  if(native)for(const r of source.facadeBoxes)details.box(r[7],r[0],r[1],r[2],r[3],r[4],r[5],r[6]);
+  const facades=surveyed ? source.facadeBoxes.filter((_,i)=>!replacedZooFacadeBoxesV379.has(i)) : source.facadeBoxes;
+  const surfaces=surveyed ? source.surfaces.filter(s=>!replacedZooPartsV379.has(s.partId)) : source.surfaces;
+  const nativeRows=surveyed && native ? source.nativeRows.filter((_,i)=>!replacedZooRowsV379.has(i)) : source.nativeRows;
+  if(native)for(const r of facades)details.box(r[7],r[0],r[1],r[2],r[3],r[4],r[5],r[6]);
   for(const b of source.barriers)fence(details,b.line,Math.min(4,b.height),b.kind);
-  mountain(details,"25036813",10.5,"ibex");mountain(details,"25036814",9.8,"takin");mountain(details,"49896121",7.8,"tahr");
+  mountain(details,"25036813",10.5,"ibex",surveyed);mountain(details,"25036814",9.8,"takin",surveyed);mountain(details,"49896121",7.8,"tahr",surveyed);
   aviary(details,"32995989",21.2);aviary(details,"32995991",23.9);aviary(details,"618256710",8.8);aviary(details,"48374319",7.5);
-  beerGarden(details);birdhouse(details);appendZooRecognitionV255(details,source);appendZooHippoV256(details);
+  beerGarden(details);birdhouse(details);appendZooRecognitionV255(details,source,surveyed);if(!surveyed)appendZooHippoV256(details);
   const beforeV276={boxes:details.boxes.length,triangles:details.surfaces.reduce((n,s)=>n+s.triangles.length,0)};
   appendZooWestV276(details);
   group.add(createZooAnimalsV282('zoo',native,[...details.animals.values()]));
   if(native){
-    const rows=[...source.nativeRows.filter(r=>r[6]!==0x758c86),...source.groundRuns].map(r=>[r[0],r[1],r[2],r[3],r[4],r[5],0,r[6]]);
+    const rows=[...nativeRows.filter(r=>r[6]!==0x758c86),...source.groundRuns].map(r=>[r[0],r[1],r[2],r[3],r[4],r[5],0,r[6]]);
     const model=batch(compactZooWestV276Rows(rows));model.name="Zoo retained native house shells and ground rows";group.add(model);
     const props=batch(details.boxes);props.name="Zoo native aviaries climbing rocks and furniture";group.add(props);
-    const glass=batch(source.nativeRows.filter(r=>r[6]===0x758c86).map(r=>[r[0],r[1],r[2],r[3],r[4],r[5],0,r[6]]),true);glass.name="Zoo native transparent aviary shell blocks";group.add(glass);
+    const glass=batch(nativeRows.filter(r=>r[6]===0x758c86).map(r=>[r[0],r[1],r[2],r[3],r[4],r[5],0,r[6]]),true);glass.name="Zoo native transparent aviary shell blocks";group.add(glass);
   }else{
-    const opaque=sheets(source.surfaces.filter(s=>!s.glass));opaque.name="Zoo complete official animal-house walls and roofs";group.add(opaque);
-    const transparent=sheets(source.surfaces.filter(s=>s.glass),true);transparent.name="Zoo glass hippo house and birdhouse aviary shell";group.add(transparent);
-    const facade=batch(source.facadeBoxes);facade.name="Zoo source-clipped facade windows";group.add(facade);
+    const opaque=sheets(surfaces.filter(s=>!s.glass));opaque.name="Zoo complete official animal-house walls and roofs";group.add(opaque);
+    const transparent=sheets(surfaces.filter(s=>s.glass),true);transparent.name="Zoo glass hippo house and birdhouse aviary shell";group.add(transparent);
+    const facade=batch(facades);facade.name="Zoo source-clipped facade windows";group.add(facade);
     const ground=sheets(source.groundSurfaces);ground.name="Zoo exact mapped paths ponds and habitat grounds";group.add(ground);
     const boxes=batch(details.boxes);boxes.name="Zoo structural posts rails and garden furniture";group.add(boxes);
     const rocks=sheets(details.surfaces,false,true);rocks.name="Zoo climbing cliffs aviary rods and animals";group.add(rocks);
@@ -196,5 +213,5 @@ function create(native:boolean):Group {
   group.userData={fullStaticDetailOnTouch:true,textureFree:true,sourceBound:true,sourceHouseParts:source.parts.length,mappedHabitats:source.habitats.length,mappedPaths:source.paths.length,mappedPonds:source.waters.length,schleusenkrugTables:source.schleusenkrugTables.length,condorAviary:"way/32995989",mountainHabitats:["25036813","25036814","49896121"],polarFoxStatus:source.polarFoxStatus,native,zooRecognitionV255:true,zooHippoV256:true,zooWestV276:true,beforeV276};
   freezeStaticSceneTransforms(group);return group;
 }
-export function createZooGroundsV165():Group {return create(false);}
-export function createMinecraftZooGroundsV165():Group {return create(true);}
+export function createZooGroundsV165(surveyed=false):Group {return create(false,surveyed);}
+export function createMinecraftZooGroundsV165(surveyed=false):Group {return create(true,surveyed);}

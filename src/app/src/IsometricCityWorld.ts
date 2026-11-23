@@ -1,3 +1,4 @@
+import { CityWestFrontBatchV379 } from "./cityWestFrontsV379";
 import { prepareLandwehrClustersV378 } from "./waterwayReplacementV378";
 import { GATE_COLONNADE_PRISMS_V374 } from "./BrandenburgGatehouseSourceV374";
 import { getPathEdgeInkV373, releasePathEdgeInkV373 } from "./pathEdgeInkV373";
@@ -31,8 +32,10 @@ import { isWeltkugelSourceV281 } from "./weltkugelV281Ownership";
 import { isBayerCampusSourceV277 } from "./bayerCampusV277Ownership";
 import { isLehrterSourceV277 } from "./lehrterV277Ownership";
 import { isRkiMoabitSourceV277 } from "./rkiMoabitV277Ownership";
+import {isZooWestSourceV379} from "./zooWestOwnersV379";
 import { isZooWestSourceV276 } from "./zooWestV276Ownership";
 import { isZooHouseSourceV282 } from "./zooHousesV282Ownership";
+import { isCharlottenburgerCandelabrumV379 } from "./charlottenburgerTorOwnershipV379";
 import { isVerkehrskanzelSourceV276 } from "./verkehrskanzelV276Ownership";
 import { isSteppengartenShelterSourceV283 } from "./steppengartenShelterV283Ownership";
 import { isPotsdamerStationPhotoSource } from "./potsdamerStationPhotoOwnership";
@@ -469,7 +472,7 @@ export type IsometricCityBuildOptions = {
   technikmuseumV272?: boolean;
   operaTheatresV274?: boolean;
   /** Required source-bound Werkhof model replaces only exact old envelopes. */
-  tiergartenWerkhofV275?: boolean; steppengartenShelterV283?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean;
+  tiergartenWerkhofV275?: boolean; steppengartenShelterV283?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; charlottenburgerTorV379?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean;
   moabitLandmarksV269?: boolean;
   tempodromAnhalterV266?: boolean;
   northernSitesV266?: boolean;
@@ -1882,7 +1885,7 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
 export function createDistantBuildingShells(
   prisms: PrismPayload,
   buildings: readonly PrismBuilding[],
-  options: Pick<IsometricCityBuildOptions, "moabitMitteV300" | "westKiezV302" | "hbfCirculationV291" | "parliamentInteriorsV295" | "parliamentaryDiningV296" | "nordbahnhofCuts" | "waterfrontV296" | "chancelleryCanopySourceV289" | "historicDomV288" | "potsdamerCorridorV288" | "potsdamerStationPhoto" | "potsdamerNorthPavilion" | "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "steppengartenShelterV283" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
+  options: Pick<IsometricCityBuildOptions, "moabitMitteV300" | "westKiezV302" | "hbfCirculationV291" | "parliamentInteriorsV295" | "parliamentaryDiningV296" | "nordbahnhofCuts" | "waterfrontV296" | "chancelleryCanopySourceV289" | "historicDomV288" | "potsdamerCorridorV288" | "potsdamerStationPhoto" | "potsdamerNorthPavilion" | "zooHousesV282" | "bayerCampusV277" | "lehrterV277" | "rkiMoabitV277" | "zooWestV276" | "verkehrskanzelV276" | "charlottenburgerTorV379" | "steppengartenShelterV283" | "tiergartenWerkhofV275" | "operaTheatresV274" | "technikmuseumV272" | "golgathaV270" | "tachelesFrontsV270" | "moabitLandmarksV269" | "northernSitesV266" | "tempodromAnhalterV266" | "chariteBridgesV265" | "architectureV241" | "includeLegacyTownhallEnvelopes" | "includeLegacyDistrictCourtEnvelopes" | "includeLegacyWeddingStationRoof" | "includeLegacyColonnadesEnvelopes" | "includeLegacySchlossplatzEnvelopes"> = {},
 ): Group {
   const group = new Group();
   group.name = "Complete distant building coverage";
@@ -1895,9 +1898,10 @@ export function createDistantBuildingShells(
     .filter(building => (!options.potsdamerStationPhoto || !isPotsdamerStationPhotoSource(building)) &&
       (!options.potsdamerNorthPavilion || !isPotsdamerNorthPavilionSource(building)))
     .filter(building => !options.architectureV241 || !isAEGCampusCorePrismV241(building))
-    .filter(building => !options.zooWestV276 || !isZooWestSourceV276(building))
+    .filter(building => !options.zooWestV276 || (!isZooWestSourceV276(building) && !isZooWestSourceV379(building)))
     .filter(building => !options.zooHousesV282 || !isZooHouseSourceV282(building))
     .filter(building => !isWeltkugelSourceV281(building))
+    .filter(building => !options.charlottenburgerTorV379 || !isCharlottenburgerCandelabrumV379(building))
     .filter(building => !options.verkehrskanzelV276 || !isVerkehrskanzelSourceV276(building))
     .filter(building => !options.steppengartenShelterV283 || !isSteppengartenShelterSourceV283(building))
     .filter(building => !options.tiergartenWerkhofV275 || !isTiergartenWerkhofSourceV275(building))
@@ -1946,6 +1950,7 @@ export function createDistantBuildingShells(
     );
     return index;
   };
+  const cityWestFronts = new CityWestFrontBatchV379();
   for (const building of visible) {
     const y0 = building.y0_dm / 10;
     const totalHeight = Math.max(2.5, building.h_dm / 10);
@@ -1986,6 +1991,7 @@ export function createDistantBuildingShells(
       if (!roofTriangles) group.userData.pitchedRoofCount += 1;
       roofTriangles = measuredRoof.triangles;
     }
+    if (!isGlass) cityWestFronts.addDrawn(building.id,y0,y0+bodyHeight);
     const upperY = !isGlass && hasPotsdamerUpperStoreys(building.id, bodyHeight)
       ? y0 + POTSDAMER_UPPER_STOREYS.startM : undefined;
     const hbfCuts = isGlass ? hbfRetainedGlassOpeningsV291(building, options.hbfCirculationV291 === true) : [];
@@ -2082,6 +2088,8 @@ export function createDistantBuildingShells(
   shells.userData.nightMaterial = nightMaterial;
   shells.userData.detailProfile = "source-envelope";
   group.add(shells);
+  const fronts = cityWestFronts.mesh(false);
+  if (fronts) group.add(fronts);
   return freezeStaticSceneTransforms(group);
 }
 
@@ -12038,6 +12046,7 @@ export function* createIsometricCityCoreStepsV309(
   const buildings = options.buildings ?? prisms.buildings;
   const parisMoskauV354 = prepareParisMoskauV354(buildings);
   if (parisMoskauV354) group.add(parisMoskauV354.group);
+  const cityWestFronts = new CityWestFrontBatchV379();
   const ordinaryPanesV288: OrdinaryPaneV288[] = [];
   const exposedOrdinaryPaneV288 = ordinaryWindowExposureV288(prisms.buildings);
   const facadeAxisPositions = new Float32Accumulator(buildings.length * 180);
@@ -12212,8 +12221,9 @@ export function* createIsometricCityCoreStepsV309(
     if (options.potsdamerStationPhoto && isPotsdamerStationPhotoSource(sourceBuilding) ||
         options.potsdamerNorthPavilion && isPotsdamerNorthPavilionSource(sourceBuilding)) continue;
     if (isWeltkugelSourceV281(sourceBuilding)) continue;
-    if (options.zooWestV276 && isZooWestSourceV276(sourceBuilding)) continue;
+    if (options.zooWestV276 && (isZooWestSourceV276(sourceBuilding) || isZooWestSourceV379(sourceBuilding))) continue;
     if (options.zooHousesV282 && isZooHouseSourceV282(sourceBuilding)) continue;
+    if (options.charlottenburgerTorV379 && isCharlottenburgerCandelabrumV379(sourceBuilding)) continue;
     if (options.verkehrskanzelV276 && isVerkehrskanzelSourceV276(sourceBuilding)) continue;
     if (options.steppengartenShelterV283 && isSteppengartenShelterSourceV283(sourceBuilding)) continue;
     if (options.tiergartenWerkhofV275 && isTiergartenWerkhofSourceV275(sourceBuilding)) continue;
@@ -12293,6 +12303,7 @@ export function* createIsometricCityCoreStepsV309(
       roofTriangles = measuredRoof.triangles;
       roofRect = null;
     }
+    if (!isGlass) cityWestFronts.addDrawn(building.id,y0,y0+bodyHeight);
     const hasUpperStoreys = !isGlass && hasPotsdamerUpperStoreys(building.id, bodyHeight);
     let geometry: BufferGeometry = new ExtrudeGeometry(
       shapeFromRings(building),
@@ -13120,6 +13131,8 @@ export function* createIsometricCityCoreStepsV309(
   };
   group.userData.plazaFacadeDetails = plazaFacadeDetails;
   group.userData.buildingDetailCoverage = buildingDetailCoverage;
+  const fronts = cityWestFronts.mesh(false);
+  if (fronts) group.add(fronts);
   if (ordinaryPanesV288.length) group.add(createOrdinaryWindowsV288(ordinaryPanesV288));
   onProgress?.({ phase: "geometry", completed: 4, total: 11 });
   yield;
@@ -13758,7 +13771,7 @@ export function* createIsometricCityRuntimeStepsV359(
     }
     if (options.includeUniversitiesV168 !== false) builders.push(() => group.add(createHumboldtMainV168Details(),createTeehausRuinV168(),createTuWaterV168()));
     if (options.includeCityRefinementsV166 !== false) builders.push(() => group.add(createUpbeatV166FacadeDetails(),createAlexanderNorthWithJonassV378(),createCityWestCinemasV166(),createMoabitJusticeV166(),createMitteHeritageV166(options.includeLegacyMonbijou === false),createKosmosV166()));
-    if (options.includeCityWestV165 !== false) builders.push(() => group.add(createKranzlerV165(), createZooStationV165(), createZooGroundsV165(), createHuthmacherHaus()));
+    if (options.includeCityWestV165 !== false) builders.push(() => group.add(createKranzlerV165(), createZooStationV165(), createZooGroundsV165(true), createHuthmacherHaus()));
     if (options.includeKulturforumAndNorthRail !== false) {
       builders.push(() => group.add(createConcertHalls()));
       builders.push(() => group.add(createKulturforumMuseums()));

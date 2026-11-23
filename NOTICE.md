@@ -3402,3 +3402,10 @@ Die Wegeflächen beruhen auf Daten des Geoportals Berlin aus ALKIS und der Stra�
 ## Gehwegkanten, Fahrbahnränder und Stadtbäume (v1.0.256)
 
 Die Umrisse und Belagsarten der Gehwege, Fahrbahnen, Grünflächen und Baumscheiben stammen aus der Berliner Straßenbefahrung 2014/15. Die Berliner Anlagen- und Straßenbaumkataster liefern die Standorte der untersuchten Bäume und die Maße der Rosskastanien am Robert-Koch-Platz. Die Auswahl der Straßenabschnitte verwendet das Wegenetz von OpenStreetMap. [Straßenbefahrung Berlin](https://gdi.berlin.de/services/wfs/strassenbefahrung?SERVICE=WFS&REQUEST=GetCapabilities) · [Baumkataster Berlin](https://gdi.berlin.de/services/wfs/baumbestand?SERVICE=WFS&REQUEST=GetCapabilities) · [Datenlizenz Deutschland – Zero – Version 2.0](https://www.govdata.de/dl-de/zero-2-0) · [OpenStreetMap-Mitwirkende, ODbL](https://www.openstreetmap.org/copyright)
+
+
+## City West, beide Tiergärten und Berliner Straßenfronten
+
+Gebäudeumrisse aus dem Berliner 3D-Stadtmodell und Kartendaten © OpenStreetMap-Mitwirkende. Kartenauszug über Geofabrik, Berliner Fassadenaufnahmen aus dem texturierten Berliner 3D-Stadtmodell im 3DCityDB-Archiv. Die Fassadenpakete enthalten ausgerichtete Geometrie und Farbstichproben. Historische Aufnahmen und die heutige Fassung eines Hauses können voneinander abweichen. [LoD2 Berlin](https://fbinter.stadt-berlin.de/fb_daten/beschreibung/lod2.html) · [Texturiertes Berliner Stadtmodell](https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Berlin_Buildings_rgbTexture_collada_MasterJSON.json) · [Geofabrik Berlin](https://download.geofabrik.de/europe/germany/berlin.html) · [OpenStreetMap und ODbL](https://www.openstreetmap.org/copyright)
+
+Für Tor, Brücke, Zoos und Vegetation wurden Berliner Geobasisdaten, Straßenbefahrung, Orthofotos, Baumkataster und Höhenmodelle von GeoBasis-DE/LGB sowie die verlinkten Angaben der jeweiligen Einrichtungen ausgewertet. [Standortbezogene Quellen und Nachweise](docs/berlin-zoos-city-west-und-ladezeit-v379.md)

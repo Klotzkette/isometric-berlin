@@ -20,6 +20,7 @@ import { iccV199SolidAt } from "./iccV199Navigation";
 import { regionalV200NavigationTiles, regionalV200SolidAt, regionalV200WaterAt } from "./RegionOutlinesV200";
 import { cemeteryGrunewaldV199SolidAt } from "./cemeteryGrunewaldV199Navigation";
 import { charlottenburgerTorV201SolidAt } from "./charlottenburgerTorV201Navigation";
+import { charlottenburgerTorSolidAtV379 } from "./charlottenburgerTorNavigationV379";
 import { wuhlheideGroundAt, wuhlheideSolidAt } from "./wuhlheideV201Navigation";
 import { waldbuehneGroundAt, waldbuehneSolidAt } from "./waldbuehneV201Navigation";
 import { danzigerTramGroundAtV249, danzigerTramSolidAtV249 } from "./DanzigerTramV249";
@@ -36,6 +37,7 @@ export function* createOuterThinOutlinesSteps(
   let completed = false;
   let landmarks:Group|undefined;
   const retiredArchenholdV322=(owner:string)=>root.visible&&!!landmarks&&landmarks.parent===root&&landmarks!.visible&&landmarks!.userData.previousArchenholdOwnerV322?.(owner)===true;
+  const gateSolidAt = ownership.regionalCharlottenburgerTor ? charlottenburgerTorSolidAtV379 : charlottenburgerTorV201SolidAt;
   const activeLandmarks = () => root.visible && landmarks?.parent === root && landmarks.visible ? landmarks : undefined;
   try {
     root.name = "Connected outer Berlin hairline outlines v180";
@@ -55,7 +57,7 @@ export function* createOuterThinOutlinesSteps(
       iccV199SolidAt(x, y, z, radius) ||
       cemeteryGrunewaldV199SolidAt(x, y, z, radius, activeMode === "minecraft") ||
       eastParksV198SolidAt(x, y, z, radius, activeMode === "minecraft",retiredArchenholdV322) ||
-      charlottenburgerTorV201SolidAt(x, y, z, radius, activeMode === "minecraft") ||
+      gateSolidAt(x, y, z, radius, activeMode === "minecraft") ||
       wuhlheideSolidAt(x, y, z, radius, activeMode === "minecraft") ||
       waldbuehneSolidAt(x, y, z, radius, activeMode === "minecraft") ||
       regionalV200SolidAt(x, y, z, radius);
