@@ -2,8 +2,8 @@
 import { decodeBase64Bytes } from "./decodeBase64Bytes";
 import { releaseScratchBuffer } from "./releaseScratchBuffer";
 const MAX_WORDS = 4_000_000;
-function valid(count: number, stride: number): void {
-  if (!Number.isSafeInteger(count) || count < 0 || count > MAX_WORDS || (stride !== 1 && stride !== 3) || count % stride) throw Error("Invalid finite lossless word stream");
+function valid(count: number, stride: number, allowXY = false): void {
+  if (!Number.isSafeInteger(count) || count < 0 || count > MAX_WORDS || (stride !== 1 && stride !== 3 && !(allowXY && stride === 2)) || count % stride) throw Error("Invalid finite lossless word stream");
 }
 
 export function decodeLosslessWordStreamV309(encoded: string, count: number, stride: number): Uint32Array {
@@ -48,7 +48,8 @@ export function encodeLosslessWordStreamV309(words: Uint32Array, stride: number)
 /** Wrapped per-axis deltas, followed by axis columns and little-endian byte
  * planes. The outer source compressor benefits without discarding one bit. */
 export function encodeLosslessWordPlanesV309(words: Uint32Array, stride: number): Uint8Array {
-  valid(words.length, stride);
+  // XY road coordinates use two columns, XYZ mesh vertices use three.
+  valid(words.length, stride, true);
   const packed = new Uint8Array(words.length * 4), previous = new Uint32Array(stride), rows = words.length / stride;
   for (let i = 0; i < words.length; i++) {
     const axis = i % stride, delta = (words[i] - previous[axis]) | 0;
@@ -60,15 +61,27 @@ export function encodeLosslessWordPlanesV309(words: Uint32Array, stride: number)
 
 export function decodeLosslessWordPlanesV309(encoded: string, count: number, stride: number): Uint32Array {
   valid(count, stride);
-  const packed = decodeBase64Bytes(encoded), words = new Uint32Array(count), previous = new Uint32Array(stride), rows = count / stride;
+  const packed = decodeBase64Bytes(encoded);
   try {
-    if (packed.byteLength !== count * 4) throw Error("Incomplete lossless word planes");
-    for (let i = 0; i < count; i++) {
-      const axis = i % stride, column = axis * rows + Math.floor(i / stride);
-      const value = (packed[column] | packed[count + column] << 8 | packed[count * 2 + column] << 16 | packed[count * 3 + column] << 24) >>> 0;
-      previous[axis] = (previous[axis] + ((value >>> 1) ^ -(value & 1))) >>> 0;
-      words[i] = previous[axis];
-    }
-    return words;
+    return decodeWordPlaneBytes(packed, count, stride);
   } finally { releaseScratchBuffer(packed.buffer); }
+}
+
+/** Read directly from a bounded byte slice, including a frame shared with other fields. */
+export function decodeWordPlaneBytes(packed: Uint8Array, count: number, stride: number): Uint32Array<ArrayBuffer> {
+  valid(count, stride, true);
+  if (packed.byteLength !== count * 4) throw Error("Incomplete lossless word planes");
+  const words = new Uint32Array(count);
+  const rows = count / stride;
+  for (let axis = 0; axis < stride; axis++) {
+    let previous = 0;
+    for (let row = 0; row < rows; row++) {
+      const column = axis * rows + row;
+      const value = (packed[column] | packed[count + column] << 8 |
+        packed[count * 2 + column] << 16 | packed[count * 3 + column] << 24) >>> 0;
+      previous = (previous + ((value >>> 1) ^ -(value & 1))) >>> 0;
+      words[row * stride + axis] = previous;
+    }
+  }
+  return words;
 }

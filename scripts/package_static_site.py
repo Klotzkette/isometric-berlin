@@ -65,6 +65,7 @@ REQUIRED_PACKAGE_FILES = (
   "mesh/surrounding-berlin-v159/manifest.json",
 )
 CACHEABLE_SUFFIXES = {
+  ".bin",
   ".css",
   ".gz",
   ".jpg",

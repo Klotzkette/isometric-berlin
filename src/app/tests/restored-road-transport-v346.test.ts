@@ -13,7 +13,7 @@ import { compressRestoredRoadSourceV346, losslessRestoredRoadSurfacesV346, packR
 import { decodeLosslessBase85, decodeLosslessGzipJson, encodeLosslessBase85 } from "../src/losslessGzipBase85";
 
 const sourcePath = new URL("../src/data/restoredRoadSurfaces.ndjson.txt", import.meta.url);
-const sha = (text: string) => createHash("sha256").update(text).digest("hex");
+const sha = (text: string | Uint8Array) => createHash("sha256").update(text).digest("hex");
 
 test("all 425 production batches remain byte-exact through independently bounded transport", () => {
   const source = readFileSync(sourcePath, "utf8"), before = sha(source);
@@ -84,16 +84,16 @@ test("optional decode bound preserves defaults and refuses oversized or forged I
 });
 
 test("build-only plugin intercepts precisely the road URL and emits one compressed asset plus receipt", async () => {
-  const plugin = losslessRestoredRoadSurfacesV346(), emitted: { name: string; source: string }[] = [];
+  const plugin = losslessRestoredRoadSurfacesV346(), emitted: { name: string; source: string | Uint8Array }[] = [];
   expect(plugin.apply).toBe("build");
   expect(plugin.enforce).toBe("pre");
   const load = plugin.load as (this: unknown, id: string) => Promise<string | undefined>;
-  const context = { emitFile(file: { name: string; source: string }) { emitted.push(file); return `asset${emitted.length}`; } };
+  const context = { emitFile(file: { name: string; source: string | Uint8Array }) { emitted.push(file); return `asset${emitted.length}`; } };
   expect(await load.call(context, "/project/unrelated.ndjson.txt?url")).toBeUndefined();
   expect(await load.call(context, fileURLToPath(sourcePath) + "?url")).toBe('export default "__VITE_ASSET__asset1__";');
   expect(emitted).toHaveLength(2);
-  expect(emitted[0].name).toBe("restoredRoadSurfaces-words-v362.ndjson.txt");
-  const receipt = JSON.parse(emitted[1].source);
+  expect(emitted[0].name).toBe("restoredRoadSurfaces-v376.bin");
+  const receipt = JSON.parse(String(emitted[1].source));
   expect(receipt.transportBytes).toBe(Buffer.byteLength(emitted[0].source));
   expect(receipt.transportSha256).toBe(sha(emitted[0].source));
 }, 30_000);
@@ -110,7 +110,7 @@ test("actual IIFE worker executes and fetches its emitted compressed asset at th
       build: { write: false, minify: true, rolldownOptions: { input: entry } } });
     if (Array.isArray(result) || !("output" in result)) throw new Error("Expected production output");
     const output = result.output;
-    const asset = output.find(item => item.type === "asset" && item.fileName.includes("restoredRoadSurfaces-words-v362"));
+    const asset = output.find(item => item.type === "asset" && item.fileName.includes("restoredRoadSurfaces-v376"));
     const script = output.find(item => item.type === "asset" && /worker.*\.js$/.test(item.fileName));
     expect(asset).toBeDefined(); expect(script).toBeDefined();
     expect(output.filter(item => item.type === "asset" && item.fileName.includes("restoredRoadSurfaces"))).toHaveLength(1);

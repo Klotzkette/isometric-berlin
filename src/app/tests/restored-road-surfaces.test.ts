@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import ts from "typescript";
+import { binaryRoadBatches } from "../src/binaryRoadBatchesV376";
 import { readRoadWordRecord, readRoadWordBatch, ROAD_PLANES_ENCODING } from "../src/roadWordPlanesV362";
 import {
   BufferAttribute, BufferGeometry, DoubleSide, Group, LineBasicMaterial,
@@ -12,7 +13,7 @@ import { freezeStaticSceneTransforms } from "../src/staticSceneTransforms";
 import { setIsoNightPresentation } from "../src/IsometricCityWorld";
 import { indexGeometryExactly } from "../src/exactGeometryIndex";
 import { decodeLosslessGzipJson, encodeLosslessBase85 } from "../src/losslessGzipBase85";
-import { compressRestoredRoadSourceV346, packRoadWordPlanes } from "../losslessRestoredRoadSurfacesV346";
+import { compressRestoredRoadSourceV346, packBinaryRoads, packRoadWordPlanes } from "../losslessRestoredRoadSurfacesV346";
 import { gzipSync } from "node:zlib";
 import type { RestoredRoadBatch, RestoredRoadManifest } from "../src/restoredRoadSurfaces";
 import { GROSSER_STERN_GATEHOUSES_V164_PROFILE, gatehouseV164World } from "../src/grosserSternGatehousesV164Profile";
@@ -26,7 +27,7 @@ const compiled = ts.transpileModule(functions.join("\n"), {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS },
 }).outputText;
 
-function host(fetcher: (url: string) => Promise<unknown> = async () => { throw new Error("Unexpected fetch"); }, indexer: (geometry: BufferGeometry) => unknown = indexGeometryExactly, cutter = cutGrosserSternGatehouseGroundSurface) {
+function host(fetcher: (url: string) => Promise<unknown> = async () => { throw new Error("Unexpected fetch"); }, indexer: (geometry: BufferGeometry) => unknown = indexGeometryExactly, cutter = cutGrosserSternGatehouseGroundSurface, roadDataUrl = "./assets/restored-road-fixture.ndjson.txt") {
   const decodeSizes: number[] = [];
   const inflatedRoadIds: string[] = [];
   const bindings = {
@@ -39,7 +40,7 @@ function host(fetcher: (url: string) => Promise<unknown> = async () => { throw n
     exports: {}, BufferAttribute, BufferGeometry, DoubleSide, Group,
     LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial, Raycaster, Vector3, markArchitecturalInk,
     smoothGroundTopSampler, spreebogenTerrainYAt, freezeStaticSceneTransforms, cutGrosserSternGatehouseGroundSurface: cutter,
-    roadDataUrl: "./assets/restored-road-fixture.ndjson.txt", fetch: fetcher,
+    roadDataUrl, binaryRoadBatches, fetch: fetcher,
     RESTORED_ROAD_MAX_LINE_CHARS: 2 * 1024 * 1024, indexGeometryExactly: indexer, decodeSizes, decodeLosslessGzipJson, readRoadWordRecord, ROAD_PLANES_ENCODING, inflatedRoadIds,
     readRoadWordBatch(record: ReturnType<typeof readRoadWordRecord>) {
       inflatedRoadIds.push(record.id);
@@ -123,6 +124,25 @@ function geometryBytes(root: Group): number {
 }
 
 describe("restored exact road runtime", () => {
+  test("the production binary URL builds the same geometry and releases its stream on early return", async () => {
+    const batches = [asphalt(), { ...asphalt(), id: "second" }];
+    const source = records(batches).join("\n");
+    const { bytes } = await packBinaryRoads(source);
+    const network = streamResponse([bytes]);
+    const url = "./assets/restoredRoadSurfaces-v376-fixture.bin";
+    const binary = host(async requested => {
+      expect(requested).toBe(url);
+      return network.response;
+    }, undefined, undefined, url).createRestoredRoadSurfaceBatches(ground, new Set([batches[0].id]));
+    const plain = host(async () => new Response(source)).createRestoredRoadSurfaceBatches(ground, new Set([batches[0].id]));
+    const actual = (await binary.next()).value!;
+    expect(actual.id).toBe("second");
+    expect(fingerprint(actual.root)).toBe(fingerprint((await plain.next()).value!.root));
+    await binary.return(undefined);
+    await plain.return(undefined);
+    expect(network.response.body.locked).toBeFalse();
+  });
+
   test("bounded compressed transport retains geometry, completion skips and cancellation", async () => {
     const batches = [asphalt(), { ...asphalt(), id: "already-attached", xz: "unused" }, { ...asphalt(), id: "last" }];
     const { text } = compressRestoredRoadSourceV346(records(batches).join("\n"));

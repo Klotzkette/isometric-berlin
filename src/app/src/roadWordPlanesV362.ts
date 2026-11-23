@@ -44,24 +44,32 @@ function crc32(bytes: Uint8Array): number {
   return (word ^ 0xffffffff) >>> 0;
 }
 
-export function readRoadWordBatch({ id, kind, coords, indices, encoded }: RoadWordRecord): RoadWordBatch {
-  const size = coords + indices;
-  const compressed = decodeLosslessBase85(encoded);
-  let scratch: Uint8Array<ArrayBuffer> | undefined;
+/** Check the bounded output size and CRC before passing a street batch to the scene. */
+export function inflateRoadWordPlanes(compressed: Uint8Array, size: number): Uint8Array<ArrayBuffer> {
+  if (compressed.length < 18) throw new Error("Incomplete packed road gzip");
+  const footer = new DataView(compressed.buffer, compressed.byteOffset + compressed.length - 8, 8);
+  if (footer.getUint32(4, true) !== size) throw new Error("Invalid packed road gzip size");
+  const scratch = new Uint8Array(size + 1);
   try {
-    if (compressed.length < 18) throw new Error("Incomplete packed road gzip");
-    const footer = new DataView(compressed.buffer, compressed.byteOffset + compressed.length - 8, 8);
-    if (footer.getUint32(4, true) !== size) {
-      throw new Error("Invalid packed road gzip size");
-    }
-    scratch = new Uint8Array(size + 1);
     const planes = gunzipSync(compressed, { out: scratch });
     if (planes.length !== size) throw new Error("Invalid expanded road size");
     if (crc32(planes) !== footer.getUint32(0, true)) throw new Error("Invalid packed road checksum");
+    return scratch.subarray(0, size);
+  } catch (error) {
+    releaseScratchBuffer(scratch.buffer);
+    throw error;
+  }
+}
+
+export function readRoadWordBatch({ id, kind, coords, indices, encoded }: RoadWordRecord): RoadWordBatch {
+  const compressed = decodeLosslessBase85(encoded);
+  let planes: Uint8Array<ArrayBuffer> | undefined;
+  try {
+    planes = inflateRoadWordPlanes(compressed, coords + indices);
     const xz = restoreWords(planes, 0, coords);
     return kind === "kerbs" ? { id, kind, xz } : { id, kind, xz, indices: restoreWords(planes, coords, indices) };
   } finally {
     releaseScratchBuffer(compressed.buffer);
-    releaseScratchBuffer(scratch?.buffer);
+    releaseScratchBuffer(planes?.buffer);
   }
 }

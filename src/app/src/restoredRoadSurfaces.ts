@@ -1,5 +1,6 @@
 import { BufferAttribute, BufferGeometry, DoubleSide, Group, LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial } from "three";
 import { trimInvalidenSurfaceV371 } from "./invalidenGroundOwnershipV371";
+import { binaryRoadBatches } from "./binaryRoadBatchesV376";
 import roadDataUrl from "./data/restoredRoadSurfaces.ndjson.txt?url";
 import { markArchitecturalInk } from "./architecturalInk";
 import { cutGrosserSternGatehouseGroundSurface, smoothGroundTopSampler, type VoxelPayload } from "./terrainPayload";
@@ -138,6 +139,12 @@ export async function* createRestoredRoadSurfaceBatches(
   const sample = smoothGroundTopSampler(ground);
   const {cell_m: cell, grid: {min_x_idx: minX, min_z_idx: minZ}} = ground;
   const terrainAt = (x: number, z: number): number => spreebogenTerrainYAt(x,z,sample(x/cell-minX,z/cell-minZ));
+  if (roadDataUrl.endsWith(".bin")) {
+    for await (const batch of binaryRoadBatches(response.body, completed)) {
+      yield { id: batch.id, root: createRestoredRoadBatch(batch, terrainAt, invalidenGroundV371) };
+    }
+    return;
+  }
   let manifest: RestoredRoadManifest | undefined;
   let count = 0;
   const ids = new Set<string>();
