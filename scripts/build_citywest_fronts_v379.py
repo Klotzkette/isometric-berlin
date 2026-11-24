@@ -16,8 +16,8 @@ EVIDENCE = ROOT / "geo_data/regierungsviertel/citywest-fronts-v379-evidence.json
 OUTPUT = ROOT / "src/app/src/data/cityWestFrontsV379.json"
 
 
-def compile_fronts():
-    evidence = json.loads(gzip.decompress(EVIDENCE.read_bytes()))
+def compile_fronts(evidence_path=EVIDENCE):
+    evidence = json.loads(gzip.decompress(evidence_path.read_bytes()))
     assert hashlib.sha256(CITY.read_bytes()).hexdigest() == evidence["prismsSha256"]
     shapes, occupants = [], []
     for building in json.loads(CITY.read_bytes())["buildings"]:

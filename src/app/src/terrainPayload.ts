@@ -170,6 +170,11 @@ const CLASS_SHADES: Record<string, readonly number[]> = {
 const FALLBACK_SHADES: readonly number[] = CLASS_SHADES.concrete;
 
 
+function shadeHex(shades: readonly number[], xIdx: number, zIdx: number, salt: number): number {
+  const pick = Math.abs(xIdx * 31 + zIdx * 17 + salt * 7) % shades.length;
+  return shades[pick];
+}
+
 function shadeFor(
   shades: readonly number[],
   xIdx: number,
@@ -177,8 +182,7 @@ function shadeFor(
   salt: number,
   output = new Color(),
 ): Color {
-  const pick = Math.abs(xIdx * 31 + zIdx * 17 + salt * 7) % shades.length;
-  return output.setHex(shades[pick]);
+  return output.setHex(shadeHex(shades, xIdx, zIdx, salt));
 }
 
 
@@ -227,6 +231,18 @@ function instancedBoxes(
     mesh,
     write: (center, size, color, rotationY = 0) => {
       const index = mesh.count;
+      if (deferMatrices && rotationY === 0 && mesh.instanceColor) {
+        // Emit Matrix4.makeScale().setPosition() straight into the GPU buffer.
+        // Explicit +0 also resets off-diagonals if a rotated slot is reused.
+        const m = mesh.instanceMatrix.array, i = index * 16;
+        m[i] = size.x; m[i+1] = m[i+2] = m[i+3] = 0;
+        m[i+4] = 0; m[i+5] = size.y; m[i+6] = m[i+7] = 0;
+        m[i+8] = m[i+9] = 0; m[i+10] = size.z; m[i+11] = 0;
+        m[i+12] = center.x; m[i+13] = center.y; m[i+14] = center.z; m[i+15] = 1;
+        color.toArray(mesh.instanceColor.array, index * 3);
+        mesh.count = index + 1;
+        return;
+      }
       if (rotationY === 0) {
         matrix.makeScale(size.x, size.y, size.z);
       } else {
@@ -488,7 +504,9 @@ function* createGroundSlabsSteps(
   ground.mesh.userData.skippedBridgeCells = skippedBridgeCells;
   const center = new Vector3();
   const size = new Vector3();
-  const shade = new Color();
+  // Every final run is written synchronously with the same working color space.
+  // Keep each palette entry's exact sRGB conversion local to this construction.
+  const palette = new Map<number,Color>();
   const writeRun = (classId: number, run: number, xStart: number, zOffset: number,
     overriddenTop?: number, shadeXStart?: number, shadeRun?: number): void => {
     const className = payload.classes[classId] ?? "grass";
@@ -508,7 +526,13 @@ function* createGroundSlabsSteps(
       worldZAbs(min_z_idx + zOffset),
     );
     size.set(run * cell, slabHeight, cell);
-    ground.write(center, size, shadeFor(shades, shadeXStart ?? xStart, zOffset, shadeRun ?? run, shade));
+    const hex = shadeHex(shades, shadeXStart ?? xStart, zOffset, shadeRun ?? run);
+    let paint = palette.get(hex);
+    if (!paint) {
+      paint = new Color().setHex(hex);
+      palette.set(hex, paint);
+    }
+    ground.write(center, size, paint);
   };
   const writeWithRelief = (classId: number, run: number, xStart: number, zOffset: number,
     overriddenTop?: number, shadeXStart?: number, shadeRun?: number) => {

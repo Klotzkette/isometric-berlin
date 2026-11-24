@@ -194,10 +194,12 @@ export type SurroundingCityOptions = {
   transportIdleMs?: number;
   residentBudgetBytes?: number;
 };
+export type SurroundingPlaceFocusV383 = { x: number; z: number; required: readonly string[] };
 export type SurroundingCity = {
   root: Group;
   ready: Promise<void>;
   refresh: (now?: number, focus?: { x: number; z: number }) => void;
+  setPlaceFocusV383: (place: SurroundingPlaceFocusV383) => void;
   /** Changes native/drawn family only; caller applies its normal lighting pass. */
   setMode: (mode: VisualMode) => void;
   updateAirportBeaconV378: (timestamp: number, reducedMotion: boolean) => boolean;
@@ -543,6 +545,13 @@ export async function createStreamedSurroundingCityChunkV255(
   if (historic?.shells && historic.retirements) {
     ownership = { ...ownership, surveyedNativeShellsV378: minecraft, surveyedShellsV377: { shells: historic.shells, retirements: historic.retirements } };
   }
+  if (id === "-3_4" || id === "-3_5") {
+    const { loadMatthiaskircheV383 } = await import("./matthiaskircheV383");
+    checkAbort();
+    const church = await loadMatthiaskircheV383(id, minecraft, ownership.surveyedShellsV377);
+    checkAbort();
+    ownership = { ...ownership, surveyedNativeShellsV378: minecraft, surveyedShellsV377: church };
+  }
   if (tierparkEastIdsV379.has(id)) {
     const zoo = await loadTierparkEastShellsV379(id, minecraft);
     checkAbort();
@@ -686,6 +695,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const desired = new Set<string>();
   let previousDesired: Set<string> | null = null;
   let hasScanned = false;
+  let selectedPlace: SurroundingPlaceFocusV383 | undefined = options.openingPlaceV378;
+  let tilesById: Map<string, SurroundingChunkDescriptor> | undefined;
+  const missingOwners = new Set<string>();
   const prefetches = new Map<string, Prefetch>();
   let prefetchedBytes = 0;
   const projection = new Matrix4(), matrix = new Matrix4(), frustum = new Frustum();
@@ -757,7 +769,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     return job;
   };
   const cancelPrefetches = (all = false): void => {
-    for (const [id, job] of prefetches) if (all || !desired.has(id)) {
+    for (const [id, job] of prefetches) if (all || !desired.has(id) || (missingOwners.size > 0 && !missingOwners.has(id))) {
       job.controller.abort(); takePrefetch(id); job.result = null;
     }
   };
@@ -766,8 +778,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     const minecraft = mode === "minecraft";
     for (const descriptor of queue) {
       if (prefetches.size >= SURROUNDING_CITY_PREFETCH_COUNT) break;
+      if (missingOwners.size && !missingOwners.has(descriptor.id)) continue;
       if (exteriorDescriptorsV360.has(descriptor) || detailOnlyDescriptors.has(descriptor) || descriptor.id === active?.id || residents.has(descriptor.id) || prefetches.has(descriptor.id) ||
-          (previousDesired && !previousDesired.has(descriptor.id)) ||
+          (previousDesired && !previousDesired.has(descriptor.id) && !missingOwners.has(descriptor.id)) ||
           !desired.has(descriptor.id) || now() - (failedAt.get(descriptor.id) ?? -Infinity) < 30_000) continue;
       const asset = minecraft ? descriptor.minecraft : descriptor.drawn;
       const reservedBytes = prefetchReservation(asset);
@@ -870,6 +883,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
             packet!, descriptor.id, minecraft, { signal: task.signal },
             { groundFinishV348:options.groundFinishV348, riverFinishV348:options.riverFinishV348, operaTheatresV274: options.operaTheatresV274 === true, schlossplatzV239: options.schlossplatzV239 === true, staatsoperV240: options.staatsoperV240 === true, architectureV241: options.architectureV241 === true, mitteEnsembleV281: options.mitteEnsembleV281 === true, prenzlbergV264: options.prenzlbergV264 === true, chariteBridgesV265: options.chariteBridgesV265 === true, northernSitesV266: options.northernSitesV266 === true, golgathaV270: options.golgathaV270 === true, tachelesFrontsV270: options.tachelesFrontsV270 === true, southFidelityV294: southOwnersReady, littenStadthausV297:littenReadyV297, wallGalleryV298:wallReadyV298,stralauSisyphosV299:options.stralauSisyphosV299===true,neighbourhoodV300:options.neighbourhoodV300===true,clusterFacadesV320:options.clusterFacadesV320,berlinSenateV321:options.berlinSenateV321,governmentOfficesV321:governmentReadyV321,universitiesV322:universitiesReadyV322,wilhelmHousingV324:wilhelmReadyV324,wilhelmStreetFrontsV325:wilhelmStreetReadyV325,southWestSitesV326:southwestReadyV326,westKiezV302:westReadyV302,sourceQuartersV303:options.sourceQuartersV303===true,sourceQuarterSourcesV303,groundOverlaysV329,separateParkPathAccessV373:!groundOverlaysV329,transportDetailsV334:options.transportDetailsV334,neukoellnLandmarksV305:neukoellnReadyV305,northFidelityV309:northReadyV309,treptowWaterfrontV317:treptowReadyV317,allotmentDetailsV360 },
           );
+          if (detailOnly) entry.root.name = `Surrounding Berlin outline ${descriptor.id}${minecraft ? " native Minecraft" : ""}`;
           unpublished = entry.root;
           if (options.berlinDetailsV378) {
             await attachBerlinDetailsV378(entry, descriptor.id, minecraft, task.signal);
@@ -919,6 +933,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           geometryBytes += entry.geometryBytes;
           bufferCount += entry.bufferCount;
           root.add(entry.root);
+          missingOwners.delete(descriptor.id);
           unpublished = null;
           const opening = options.openingPlaceV378;
           if (opening?.pending() && entry.geometryBytes > 0 && (opening.required.length
@@ -1062,18 +1077,31 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     desired.clear();
     queue = [];
     const focusPoint = focus ?? cameraPosition;
-    const opening = options.openingPlaceV378;
-    const priority = opening?.pending() ? opening.required : undefined;
-    const first: SurroundingChunkDescriptor[] = [];
+    // A named view can straddle districts. Submit its exact owners first even
+    // when a tile's bounds sit just outside the lens. Ordinary pan/flight
+    // resumes the view plan as soon as the camera leaves the destination.
+    missingOwners.clear();
+    if (selectedPlace && Math.hypot(focusPoint.x - selectedPlace.x, focusPoint.z - selectedPlace.z) <= 180) {
+      for (const id of selectedPlace.required) {
+        const descriptor = tilesById?.get(id);
+        if (!descriptor || desired.has(id)) continue;
+        desired.add(id);
+        const entry = residents.get(id);
+        if (entry) entry.lastWanted = timestamp;
+        else if (timestamp - (failedAt.get(id) ?? -Infinity) >= 30_000) {
+          missingOwners.add(id);
+          queue.push(descriptor);
+        }
+      }
+    }
     for (const descriptor of selectView!(options.camera, frustum, cameraPosition, focusPoint)) {
+      if (desired.has(descriptor.id)) continue;
       desired.add(descriptor.id);
       const entry = residents.get(descriptor.id);
       if (entry) entry.lastWanted = timestamp;
-      else if (priority?.includes(descriptor.id)) first.push(descriptor);
       else queue.push(descriptor);
     }
-    if (first.length) queue.unshift(...first);
-    if (active && !desired.has(active.id)) active.controller.abort();
+    if (active && (!desired.has(active.id) || (missingOwners.size > 0 && !missingOwners.has(active.id)))) active.controller.abort();
     cancelPrefetches();
     if (processing) fillPrefetches();
     let changed = false;
@@ -1097,7 +1125,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     queue = [];
     desired.clear(); previousDesired = null; failedAt.clear();
     for (const id of residents.keys()) evict(id);
-    manifest = null; selectView = undefined; footprintAt = undefined;
+    manifest = null; tilesById = undefined; selectView = undefined; footprintAt = undefined;
     options.signal?.removeEventListener("abort", dispose);
     if (typeof document !== "undefined") document.removeEventListener("visibilitychange", onVisibilityChange);
     if (typeof window !== "undefined") {
@@ -1136,6 +1164,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           if (options.berlinDetailsV378) {
             manifest = { ...manifest, chunks: [...manifest.chunks, ...siteDescriptors] };
           }
+          tilesById = new Map(manifest.chunks.map(tile => [tile.id, tile]));
           selectView = createSurroundingViewPlanV379(manifest.chunks,
             tile => bankExteriors.has(tile) ? 24 : exteriorDescriptorsV360.has(tile) ? 7 : 410,
             tile => siteExteriors.has(tile),
@@ -1171,6 +1200,16 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   };
   return {
     root, ready, refresh, dispose,
+    setPlaceFocusV383(place) {
+      if (disposed) return;
+      const same = selectedPlace?.x === place.x && selectedPlace.z === place.z &&
+        selectedPlace.required.length === place.required.length && selectedPlace.required.every((id,i) => id === place.required[i]);
+      if (same && focus?.x === place.x && focus?.z === place.z) return;
+      selectedPlace = place;
+      if (!same) for (const id of place.required) failedAt.delete(id);
+      lastScan = -Infinity;
+      refresh(now(), place);
+    },
     siteGroundAtV378: landscapeFloorAt,
     updateAirportBeaconV378: (timestamp, reducedMotion) => airportBeacon?.userData.updateTransportV378(timestamp, options.camera, reducedMotion) ?? false,
     hasResidentSurfaceAt: (x, z) => landscapeFloorAt(x,z) !== null || at(x, z) !== undefined,

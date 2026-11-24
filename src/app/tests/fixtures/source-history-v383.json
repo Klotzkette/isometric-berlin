@@ -1,0 +1,185 @@
+{
+  "additions": {
+    "src/app/losslessSurveyFieldsV383.ts": "793c457f901ca85b6e8b3463cabfcbb7331d48ec9250ecd6603a4df5fd305d0f",
+    "src/app/src/ArbeitsministeriumQuartierV383.ts": "83a1c83ab1800772c3d2766ac87d4b50050abd30866c96b0c85663f488d235b6",
+    "src/app/src/MehringplatzV383.ts": "4c968f3078ce57acbfaff19b454cfda3c88708fd3c219b7329224b5ed8c92dad",
+    "src/app/src/SchlossQuartierV383.ts": "4055e563cbf432c28fe49c30ffaa03958960e59eb1dc00ad30c390c610b7f841",
+    "src/app/src/WittenbergQuartierV383.ts": "8c77da473b63a2ca41377a46ea58a5381332d0a41493caf84bddd3df82fef3df",
+    "src/app/src/arbeitsministeriumViewsV383.ts": "8b8cb162fe70864ca30105a4fb4f55c8aef5e90096c416fd3066193e4997d9c9",
+    "src/app/src/coreMitteStreetsIndexV383.ts": "888451ca7211923643fe94fc52be121af9c9a4b37053b8fb37a4b19537d176eb",
+    "src/app/src/coreMitteStreetsV383.ts": "1e74f8178f3559568df8a826f80ca56e5f1a1cbd90d06f34c6ae6263c1d61994",
+    "src/app/src/corePrismChecksV383.ts": "41be88ed166b45ac45ec01b70ae1298cf375605545babea0f0858e84acd40e40",
+    "src/app/src/data/arbeitsministeriumQuartierV383/drawn.json": "3dd3cf142c10d60b275632ca22b580306478945f20d6ee1fa36584e2b23b4f08",
+    "src/app/src/data/arbeitsministeriumQuartierV383/native.json": "6bde6f46163225615a4e49c3c3d761112a5aca8e4267eb425a5837de903d120c",
+    "src/app/src/data/coreMitteStreetsHostsV383.json": "928753942121e2ef7eeae904a6cba32e51c234e9717413a6f6e9cb98444fa1f5",
+    "src/app/src/data/coreMitteStreetsV383/1_0.json": "63dbdcf22a0123132818412f60aeab9d793387b79be1896fa5585ef27e35b042",
+    "src/app/src/data/coreMitteStreetsV383/1_1.json": "6e52f5c4e769cb9ca8cbd4e396adb588b569f2effece2796a0887c7cff3aac58",
+    "src/app/src/data/coreMitteStreetsV383/2_0.json": "56775b758de397a3c0eeb13c0ad522409c31208203f2e10f89576055b63e069f",
+    "src/app/src/data/coreMitteStreetsV383/2_1.json": "123b26eefb60f157c39e4fbe7181594b558b99dc49f133dd6c8be24f351b4c36",
+    "src/app/src/data/coreMitteStreetsV383/3_0.json": "eeb58b01ef1aa09abea463d0053c1810abf572aac2707369acb45beeabfbbfa9",
+    "src/app/src/data/coreMitteStreetsV383/3_1.json": "354838c07ea7c01e81f76e97e618b54dbfeb766f9ef59f267b69bcde48431195",
+    "src/app/src/data/coreMitteStreetsV383/4_0.json": "5b325d81e65a6b222665d989602a3fb9211b84d68133b6fd4b825f8b4fdf49e1",
+    "src/app/src/data/gendarmenFrontAxesV383.json": "f82b65ad68d536902c242631ae156a05d4806726de31ad5d9acb3e50ecd95c4e",
+    "src/app/src/data/gendarmenQuartierV383.json": "338890300d0c4b444a23360234e0a76ffd73d0cecb1d67513941ddf13302de73",
+    "src/app/src/data/kurstrasseGiebelV383.json": "97cff2235cc20e06bf45ebad44b8f9786a170424b3ba7ba83275b7afec74f45b",
+    "src/app/src/data/lindenFrontTreesV383.json": "28b7eb11038eed47307ac65d93827d5e27bd1e7dcdbf99e9852c993ae60e5f51",
+    "src/app/src/data/lindenFrontV383/drawn-mitte.json": "591e6b0e7d1caef2d5bad0ec45c4eb73936bab04d369b2af1e901e72908cdcee",
+    "src/app/src/data/lindenFrontV383/drawn-ost.json": "d0ef1387d1e4420525e964f811de56136ae18a992a520c90926526ee6cecde36",
+    "src/app/src/data/lindenFrontV383/drawn-west.json": "a39fbc1d5b3ee68d8910236836adc52fc53586238be2a61c644b18afb83329bc",
+    "src/app/src/data/lindenFrontV383/native-mitte.json": "34942d7aca600db46e3f68aa66cddedcaf447399808c2d0989b2eced80ca8715",
+    "src/app/src/data/lindenFrontV383/native-ost.json": "dcc353de01823da90b992e82deb4fb47c382924265494d0d7bcd292c1c78348e",
+    "src/app/src/data/lindenFrontV383/native-west.json": "88ae91760e192e3d835de833922257331c5025916a31ba37ce139da2a772bcaa",
+    "src/app/src/data/matthiaskircheV383/drawn_-3_4.json": "ab9da8cc4675a737ed0e62f445bc165e1d0f4bc01047a37eda339f70e9f0208a",
+    "src/app/src/data/matthiaskircheV383/drawn_-3_5.json": "b54e2b3f187535e3f95bcdfb55cfa0f229a422fd1f54ff14570e3f52700370bc",
+    "src/app/src/data/matthiaskircheV383/minecraft_-3_4.json": "c20f36f379b3c95d008e8f006c55bedbd7010b05a0c061c81d64d3e864760b54",
+    "src/app/src/data/matthiaskircheV383/minecraft_-3_5.json": "78d30f48d1d2c2da91d23982160bcfefaa5e75cf1b6c04c483566a3eed75e793",
+    "src/app/src/data/mehringplatzV383/drawn.json": "3be33cd89b2d7f0a108534df48d31af947f57d45301afd87f025be3ed8f16e22",
+    "src/app/src/data/mehringplatzV383/native.json": "89a04b011a3b9bd5c01420f1d027f9b06946f3cf0b6591a09fb717c928b660b9",
+    "src/app/src/data/mehringplatzV383/navigation.json": "35fbc0e798235af3ea8a4fea53e4a53c7d274ea1fecb68622534619d2f4c1d67",
+    "src/app/src/data/mehringplatzV383/previous.json": "77937ca70dc27523872b7d80b8825ae0b718b2e9c1a0e3c3b58c74e2da7b4e46",
+    "src/app/src/data/schlossQuartierV383.json": "8b8cf400d651de4fbf868264e6d558d57acc7581fddc094e821c92bfd3973aa7",
+    "src/app/src/data/schoenebergPlaetzeV383/noll.json": "5a2e8d73ba968f3a7e16f13c736bc45040b92dbb278c125e1127faa63eca00b9",
+    "src/app/src/data/schoenebergPlaetzeV383/noll_drawn.json": "fdc59eea87870e8e7316de6b07da90362cc14d1fc2367343296dfa6460a2d34a",
+    "src/app/src/data/schoenebergPlaetzeV383/noll_native.json": "4d9fc522ee4c4457d3c24fec73b3bc1e66265cda7a734eebde06708f2457ff3e",
+    "src/app/src/data/schoenebergPlaetzeV383/winter.json": "026d99dc9035f30eea260f9cba656eddd462c0792e0039bac873615a0b7a74d7",
+    "src/app/src/data/schoenebergPlaetzeV383/winter_drawn.json": "a78aad625e34471e9d58151b8f44730994aebd82bdb664a8dcc1a5e85ec56b00",
+    "src/app/src/data/schoenebergPlaetzeV383/winter_native.json": "abe2f352974d1d7b900a822a14be2ed986f7d8279eddd4936894a561efd41e1b",
+    "src/app/src/data/wittenbergBahnhofV383/drawn.json": "2fdd6a9112b212c417a7b8f198f8e189ddea937c8e67ea39e2ad3247a96fb145",
+    "src/app/src/data/wittenbergBahnhofV383/native.json": "c0fdab14339ab861af80ddfbadd4e0864fcbbc5a18a444837418337efa451fd2",
+    "src/app/src/data/wittenbergFrontsV383.json": "1734aad4c413e25d611e820b8e35fe353acd3d6b587fa891feb5877449cda2ec",
+    "src/app/src/data/wittenbergQuartierIndexV383.json": "823812fabb67673b4c0c66ff0a3f3fd3a17b2ec894f5751f9591466a39b4cae5",
+    "src/app/src/data/wittenbergQuartierV383/-4_2.json": "eacd1c8183317b192ceedbf148247f75fa1048d1fbb07cff9f958cebcf83fa31",
+    "src/app/src/data/wittenbergQuartierV383/-4_3.json": "e33956588d46e061b64e2090d3a71c78002b17bea9654d6e2d69ccf410f24af0",
+    "src/app/src/data/wittenbergQuartierV383/-5_2.json": "827f865fb9a256e158c27c0de24b5f1c5d53aa41e77cb7a571d076cf9f13fa6f",
+    "src/app/src/data/wittenbergQuartierV383/-5_3.json": "8ddfc348fc843a4864eda05664f1fb9331fd3ec48f94d2eb8d730fa5d4b1fbb1",
+    "src/app/src/districtDrawCullingV383.ts": "5d5d2f00d76c6cf23fe275bd529043539200699473fd6fbbfa6aff103564099a",
+    "src/app/src/gendarmenFrontsV383.ts": "bacdc03cf8eb388b09d1dd18470db5a60c36d7f7e3db045a6f047949db561a07",
+    "src/app/src/gendarmenQuartierV383.ts": "b5045dae9ccae96e8d9352b3defc947e3bcde9deb1e7641ac62d2a3654b5a9dd",
+    "src/app/src/groundDrawRangesV383.ts": "fcb0f5c7feffe9fd6cc02c21fd1f4bcd2bde7af574a6c66c77c7a1b52ad8691c",
+    "src/app/src/lindenFrontCanopyV383.ts": "64cd68ec96688a286c1b68d306c950b6cb8f57efeeaddd7c90aa3fe4634d39c3",
+    "src/app/src/lindenFrontIndexV383.ts": "69a8cf4173ee72324895537fb3d489a5a4a3133e11ef907dafdd6fe2983bd9d3",
+    "src/app/src/lindenFrontV383.ts": "f16b680efef8811aeaa1583d65b5383bc1d6492140dba61d577d0cc7c442bea1",
+    "src/app/src/losslessSurveyFieldV383.ts": "dc5b001dd02a53b95145144be76408bf3ff37d177279863c4b78ab531d2435f1",
+    "src/app/src/matthiaskircheV383.ts": "c47dd18d6bef45f883496b2a9b26dc3158ef91bf2836738fcc80fce93605ff8c",
+    "src/app/src/mehringplatzNavigationV383.ts": "2ba9990c7fcdfc85c3fd8eef42e25c557a4074502f22cb20be1cffbe51f9974a",
+    "src/app/src/mehringplatzOwnersV383.ts": "27762e5d8f31b40f078573e3178baaeddd2e5b59eeefae5cfce9e2314213ffe4",
+    "src/app/src/mehringplatzViewsV383.ts": "33c3a3117629b4f963bda82aad9f2a3a09be68e2ced0235e6866a34a87b0e290",
+    "src/app/src/mitteWestViewsV383.ts": "4f5acfc53595906f8df9915f7d418ff570ec1f7aae6c76e313e78947929d8a7a",
+    "src/app/src/openingShaderProgramsV383.ts": "cccd3d35d396b2e22477141cea07536999c94a71b6be15b8dda4285688986811",
+    "src/app/src/platzModelGroupV383.ts": "d575124c07c7236d09a8af6367ac7d89e0f84e8a1ae0ada01f5d362a38c17ced",
+    "src/app/src/schoenebergPlaetzeIndexV383.ts": "5f60488aec3b8829d80309624718ed9ff7aa2087a3468bafe43ced7b19831d48",
+    "src/app/src/schoenebergPlaetzeV383.ts": "e1888c9d5d29db7bfbdd82009a6bd1c46c4b9482a8c4e794d7baeed06e143383",
+    "src/app/src/schoenebergPlaetzeViewsV383.ts": "a531fc6c9086f9ef295805b6176913a013c007c45f9c042f25b34e265986d7c8",
+    "src/app/src/wittenbergQuartierIndexV383.ts": "8c319d3cdbab38ac73cfc6a1b55a72e7ed11ad0be59ff91380fc43db3a1954d8"
+  },
+  "changes": {
+    "src/app/losslessJsonData.ts": {
+      "after": "6e5359a705caf0858b8463d33d56351c4fe82108c2334c78cf9ad40c15869cb0",
+      "before": "633e33887b1fd92d1cca0af7664bd59e5f7afd6af398e9e9f12ff89393324119"
+    },
+    "src/app/package.json": {
+      "after": "600f753c5e24752aa13587feeebaf50ba1c11e4bb3376e75d58417a9e9c8b5f8",
+      "before": "87a8db7654e9122d604bae3270820697b5f4b6c4dc0714bbb64198c43a42fc9d"
+    },
+    "src/app/src/CampusNordV266Profile.ts": {
+      "after": "9c500b821b15027a90b49246aedb522910b52d4ccf2b055c09816c690b6ca639",
+      "before": "410fd18e1f90fa36d7f6ee6bf90974f25191db6c3bbc20dbc0cca5c82b2bf3cd"
+    },
+    "src/app/src/GendarmenmarktArchitecture.ts": {
+      "after": "42e44e15ff8d427851fd8eecb1d89084d0973532f70e38ac5c34f881d1b8e559",
+      "before": "b86e324456dd14b15ee6f5a02db2f8c7d1b4a8892222fb9bde6898443fe5e7a9"
+    },
+    "src/app/src/GendarmenmarktPerimeterFacades.ts": {
+      "after": "e4b302572fe694c69638ddfc7fae1f4f2ca944a8f24f5ef445a010d001a0b16e",
+      "before": "9c9571f0e603f9355823187decfcbaecd33cf71b94f13ffbfba227697e795fd2"
+    },
+    "src/app/src/HbfGeometryOpeningsV291.ts": {
+      "after": "37cab2cc070a0f7f591fff496146ca5e1247063d1c12fda9584d82db8a5cc2e6",
+      "before": "9925d0f951c8d22bb261f2cc5640b52cbd0f08e166f118c515092ee40d0e67f5"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "after": "cda176b8aa159af5e14fbd1e15d28deff1db2c461d6e90f305f5419290a0f73c",
+      "before": "3b7f8975a954f1dab82322ea82d40c097dbd494e3b28956b101b5e9747494bab"
+    },
+    "src/app/src/LabourQuartierV208.ts": {
+      "after": "96e8713a4e99f1a781acea423a7ee02e9a753687f367af4495bcbef3627e9049",
+      "before": "c95dec3ba91c056b58ca47ce5335ed5227a3b7196f4c42b796dac13da231d75a"
+    },
+    "src/app/src/MinecraftVoxelWorld.ts": {
+      "after": "9a751d626e3a44e5f56b5aab069870f789f815c2d4004e6670e11441a4f8e1e7",
+      "before": "c087c4184d50f3e59af8c8201632c1d83832bafc1383bf13412bcc22d66f7e2f"
+    },
+    "src/app/src/MittePlazaEdgesV367.ts": {
+      "after": "d1ea19c88d0a3c892a27e568d92dc7f6eb63c087235d9e389a2f4e636a24e51b",
+      "before": "e8a62aefbab8cebaf91972826d70dc23249c85b25fce5a0e885ddbcbbbea44f5"
+    },
+    "src/app/src/OutlineLandmarksV182.ts": {
+      "after": "215e35bdf1e6cb900708a4f86576aa629829b7d57bb10cbed8cd780739a8cc28",
+      "before": "1e7d0a1810b4aa3efc4032946a0dc640d76a852ea18f6110f503dedb1cbc27b0"
+    },
+    "src/app/src/ParkDetails.ts": {
+      "after": "3bce427ec308c7b071b604a1c2c94c3c833f766c789e2cb6ca07df843e156873",
+      "before": "faadfca0451c33cbde4609bf0aaf9b9b17cb5aee3b3f901651d6eebb95770df7"
+    },
+    "src/app/src/PublicAmenitiesV332.ts": {
+      "after": "a147b8b8d04c980a6d2ed46b69b69e135cbb7c47c87dc566519a2daed984f1d0",
+      "before": "adadc32356d74b294b4b4950a8836c9ecfff40bda9948bf1da9cd4f7fba30de9"
+    },
+    "src/app/src/RequiredFidelityV288.ts": {
+      "after": "14f5a35598258b0589083c7a1066a1203bb3a76812aa848a80251c72256625bc",
+      "before": "6427aa669de31d82223fcaee3d90120f706df3b2a4786b951c284a173baa6805"
+    },
+    "src/app/src/RoadGroundV343.ts": {
+      "after": "367ee64def4d3cad9197e1c9201a11ee7a53c6a41f71357970567c3209f87578",
+      "before": "01e164e7d9cae82ff8def560a545c33814fc94eab802f1fa3cdc4f2deb96c460"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "after": "20b76a2a894106ebc0ef43973301b0a18b2b8158a84575744f64efa22ebe2e24",
+      "before": "f300de673b7eb649ffbcb16e61782241bba236e44ea01692711a70e4a32a283f"
+    },
+    "src/app/src/TempodromAnhalterV266Profile.ts": {
+      "after": "b4b95fab066c8193bc6f62177d82a6074fde2efc53d123c72f1fb5752a0c9d7c",
+      "before": "2b529e9b1596128198fc8487deddba0bba434ea012c115510152de2ebcc41e37"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "after": "a164013019efbe95af218621803172542328abbe1d1874cff9756d852653aa32",
+      "before": "160c578e02a7f0b9206fecd3b1a0165972fad063766fdb4f35508811ed076c7d"
+    },
+    "src/app/src/berlinPlaceViewsV378.ts": {
+      "after": "d7448cea1531bf819c6569549d70dcf24635d7c2a283787ee9c8f85ecbce6b4a",
+      "before": "549becc126028c03b0579008b65e9a390bb3112de3ec8edf26f5777ae2ae3b2c"
+    },
+    "src/app/src/berlinRegionsV380.ts": {
+      "after": "f75e85c44fd16fc5a846a46f0fa039de44055d0e7aa2b82f7ea56a13a31bdb0b",
+      "before": "2fefc1020be19b34f8cfc851ea0a055ae88387350457b3bbe1261970760a563e"
+    },
+    "src/app/src/cityWestFrontsV379.ts": {
+      "after": "c6dd13841623c99a923858b2065a3a3244595ca8e86ee8937c60e981cb513cc5",
+      "before": "4a18a3ab3bfc9c9ee95ca4db8253cdc10e6120999fdddce37d21898e81eb9c89"
+    },
+    "src/app/src/drawnWaterBoundary.ts": {
+      "after": "ddc34f903a70895862295a8f770a7e18e66ca6a5c8ce729246213863c09de753",
+      "before": "1b4955cd533f560cd471837c7f23e07d75ca6e59456314bfd57cac92c33d9183"
+    },
+    "src/app/src/losslessStaticStorage.ts": {
+      "after": "26db75676dd96912f0dbf7de1ee238fa654ea1dd9fd9cabd76ddee798a897882",
+      "before": "0c770bd8cca7b2888b079748f1e7b29ff2166445b25c18e7f32572b3d025e907"
+    },
+    "src/app/src/pedestrianNavigation.ts": {
+      "after": "27e9214ee942d0bfa3e1832c14b12a7a9646105f4dbcbb943e956a906d9fec38",
+      "before": "60713968200e9d37b125a9e144a6e22619f4d79662adb8f453f30d3f3fd787fc"
+    },
+    "src/app/src/startupWorldRequests.ts": {
+      "after": "4b9a9632512caec82472506e19508cea855bb77a99fd8f5d9e3723e163b741f9",
+      "before": "75a671b5e6f480da4112d322f94e61c241bea5149fc2953062502ff15376141b"
+    },
+    "src/app/src/terrainPayload.ts": {
+      "after": "61cd6e9120c3bb331a9934d5c8f9699f65fda52d3c10c05fed12ff17bdf99dd0",
+      "before": "4548659b321c2ea2e3e006afc154b16b01622a215da1935357c4808b7531926f"
+    },
+    "src/app/src/zooHousesV282Ownership.ts": {
+      "after": "508f3f3777fbebd7560442fdd2633a2c98939f9c410a56c54a2dca187f472960",
+      "before": "86303da5ed7613e7d5ca70a9742b294262f2c5e120c6dcb0f19a9654e31a977a"
+    }
+  }
+}

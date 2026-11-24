@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { describe, expect, test } from "bun:test";
 import { BoxGeometry, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from "three";
 import { HBF_CIRCULATION_V291, hbfRailCurveAtV291 } from "../src/HbfCirculationV291";
@@ -94,6 +95,7 @@ describe("Hbf bounded real geometry openings",()=>{
     }
   });
   test("office underpasses retain offices above and glass outside the rail hall",()=>{
+    const geometryDigest = createHash("sha256");
     for(const x of [-35,35]) {
       const cut=hbfOfficeRailUnderpassV291(x,20);
       for(const box of cut.nativeBoxes!)for(const xx of box.min[0]===box.max[0]?[box.min[0]]:[box.min[0],box.max[0]])for(const yy of[box.min[1],box.max[1]])for(const zz of[box.min[2],box.max[2]])expect(inside(cut,[xx,yy,zz])).toBeTrue();
@@ -102,6 +104,12 @@ describe("Hbf bounded real geometry openings",()=>{
       expect(hits(opened,new Vector3(x-15,35,0),new Vector3(1,0,0),30).length).toBeGreaterThan(0);
       expect(hits(opened,new Vector3(x-15,12,70),new Vector3(1,0,0),30).length).toBeGreaterThan(0);
       expect(volume(opened)).toBeGreaterThan(volume(source)*.8);
+      for (const key of ["position", "normal"]) {
+        const bytes = opened.getAttribute(key).array;
+        geometryDigest.update(Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+      }
     }
+    // Positions and normals of both authored v1.0.262 railway openings, in draw order.
+    expect(geometryDigest.digest("hex")).toBe("a1292c92646c893c0371b858e472a799d7f027f045e2c77107cc9106b59ec335");
   });
 });

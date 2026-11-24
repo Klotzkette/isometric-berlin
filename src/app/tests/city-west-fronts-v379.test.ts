@@ -103,6 +103,11 @@ test("all 89 facades project equally onto real exposed block faces on mobile and
   }
   const fixture = { ...voxels, building_rows: undefined, tree_rows: undefined, ground_rows: [], trees: [], buildings };
   const lookup = buildColumnToneLookup(source);
+  // Keep the original 89 surveyed owners in this v379 geometry receipt. The
+  // real voxel columns, neighbouring buildings, colours and heights stay live.
+  lookup.cityWestOwnerAt = buildColumnToneLookup({
+    ...source, buildings: source.buildings.filter(building => Object.hasOwn(fronts, building.id)),
+  }).cityWestOwnerAt;
   let desktop = "";
   for (const detailProfile of ["full", "mobile"] as const) {
     const root = new Group();

@@ -10,7 +10,9 @@ const neighbours = new Map((data.neighbours as Prism[]).map(p => [p.id, fingerpr
 export function isZooHouseSourceV282(value: unknown): boolean {
   if (!value || typeof value !== 'object') return false;
   const p = value as Prism;
-  return typeof p.id === 'string' && originals.get(p.id) === fingerprint(p);
+  if (typeof p.id !== "string") return false;
+  const previous = originals.get(p.id);
+  return previous !== undefined && previous === fingerprint(p);
 }
 
 /** Exact retained full column tuples, not a bounding-box erasure. */

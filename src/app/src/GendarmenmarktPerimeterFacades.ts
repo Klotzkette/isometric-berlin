@@ -1,3 +1,4 @@
+import { additionalGendarmenFrontsV383, fitGendarmenFrontV383 } from "./gendarmenFrontsV383";
 import { Group } from "three";
 import source from "./gendarmenmarktPerimeterSource.json";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
@@ -306,7 +307,7 @@ function specialEntrance(b: Builder, building: Building, style: Style): void {
 /** All four drawn modes use this same source-bound, frozen, texture-free layer. */
 export function createGendarmenmarktPerimeterFacades(
   minecraft = false,
-  options: { includeLegacyQuartier206Facade?: boolean } = {},
+  options: { includeLegacyQuartier206Facade?: boolean; surveyedFrontsV383?: boolean } = {},
 ): Group {
   const root = new Group();
   root.name = minecraft ? MINECRAFT_GENDARMENMARKT_PERIMETER_GROUP_NAME : GENDARMENMARKT_PERIMETER_GROUP_NAME;
@@ -330,10 +331,14 @@ export function createGendarmenmarktPerimeterFacades(
     for (const edge of fronts) {
       const edgeStyle = building.key === "academy" && edge.parentId !== "DEBE01YYK00001jU"
         ? { ...OFFICE, wall: style.wall, trim: style.trim, upperFloors: 4 } : style;
+      if (options.surveyedFrontsV383 !== false && fitGendarmenFrontV383(builder, edge)) continue;
       finishFace(builder, edge, edgeStyle);
       if (building.key === "borchardt" && edge === borchardt) borchardtFacade(builder, edge, style);
       else ordinaryFacade(builder, edge, edgeStyle, base, Number.isFinite(referenceTop) ? referenceTop : edge.wallTopY);
       characteristicMembers(builder, edge, building.key, edgeStyle);
+    }
+    if (building.key === "newton" && options.surveyedFrontsV383 !== false) {
+      for (const edge of additionalGendarmenFrontsV383) fitGendarmenFrontV383(builder, edge);
     }
     specialEntrance(builder, building, style);
     const child = builder.finish(building.name);

@@ -36,8 +36,8 @@ for (const profile of ["full", "mobile"] as const) test(`${profile}: Hungarian r
 });
 for (const native of [false, true]) test(`${native ? "minecraft" : "day"}: only Quartier206's old decorative family yields`, () => {
   const key = native ? "minecraft" : "day";
-  expect(audit(createGendarmenmarktPerimeterFacades(native))).toEqual(receipt.baseline.gendarmenmarkt[key]);
-  expect(audit(createGendarmenmarktPerimeterFacades(native, { includeLegacyQuartier206Facade: false })))
+  expect(audit(createGendarmenmarktPerimeterFacades(native, { surveyedFrontsV383: false }))).toEqual(receipt.baseline.gendarmenmarkt[key]);
+  expect(audit(createGendarmenmarktPerimeterFacades(native, { includeLegacyQuartier206Facade: false, surveyedFrontsV383: false })))
     .toEqual(receipt.retained.gendarmenmarkt[key]);
 });
 test("Aeroflot replacement preserves every other complete Linden facade in both representations", () => {

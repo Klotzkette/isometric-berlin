@@ -18,7 +18,15 @@ const capFaces=new WeakSet<Polygon>();
 const value = (p: Vertex, plane:HbfPlaneV291):number => p[0]*plane[0]+p[1]*plane[1]+p[2]*plane[2]+plane[3];
 const overlaps=(a:HbfBoxV291,b:HbfBoxV291):boolean=>a.min.every((n,i)=>n<b.max[i]-EPS&&a.max[i]>b.min[i]+EPS);
 function bounds(poly:readonly Vertex[]):HbfBoxV291 {
-  return {min:[0,1,2].map(i=>Math.min(...poly.map(p=>p[i]))) as [number,number,number],max:[0,1,2].map(i=>Math.max(...poly.map(p=>p[i]))) as [number,number,number]};
+  const min: [number, number, number] = [Infinity, Infinity, Infinity];
+  const max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
+  for (const point of poly) {
+    for (let axis = 0; axis < 3; axis++) {
+      min[axis] = Math.min(min[axis], point[axis]);
+      max[axis] = Math.max(max[axis], point[axis]);
+    }
+  }
+  return { min, max };
 }
 function polygonArea(poly:readonly Vertex[]):number {
   if(poly.length<3)return 0;
@@ -29,6 +37,9 @@ function polygonArea(poly:readonly Vertex[]):number {
   }
   return Math.hypot(x,y,z)/2;
 }
+function distance3(a: Vertex, b: Vertex): number {
+  return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+}
 function clip(poly:readonly Vertex[],plane:HbfPlaneV291,sign=1):Polygon {
   const out:Polygon=[];
   for(let i=0;i<poly.length;i++) {
@@ -38,7 +49,7 @@ function clip(poly:readonly Vertex[],plane:HbfPlaneV291,sign=1):Polygon {
       const t=da/(da-db);out.push(a.map((v,k)=>v+(b[k]-v)*t));
     }
   }
-  const result=out.filter((p,i)=>!i||Math.hypot(...p.slice(0,3).map((n,k)=>n-out[i-1][k]))>EPS);
+  const result = out.filter((point, i) => !i || distance3(point, out[i - 1]) > EPS);
   if(capFaces.has(poly as Polygon))capFaces.add(result);
   return result;
 }
@@ -57,17 +68,26 @@ export function hbfPolygonComplementV291(poly:readonly Vertex[],cuts:readonly Hb
       const b=bounds(piece);
       if(b.min.some((v,i)=>v>cut.bounds.max[i]+EPS||b.max[i]<cut.bounds.min[i]-EPS)){next.push(piece);continue;}
       let inside:Polygon=piece;
-      for(const plane of cut.planes)inside=clip(inside,plane);
+      // An accepted cut needs the input to each plane again when emitting its
+      // outside pieces. Reuse the exact first pass, including the cap markings.
+      const steps: Polygon[] = [];
+      for (const plane of cut.planes) {
+        steps.push(inside);
+        inside = clip(inside, plane);
+        if (!inside.length) break;
+      }
       if(polygonArea(inside)<EPS){next.push(piece);continue;}
-      changed=true;inside=piece;
-      for(const plane of cut.planes) {
+      changed=true;
+      for (let i = 0; i < steps.length; i++) {
+        inside = steps[i];
+        const plane = cut.planes[i];
         // A polygon coincident with a cut plane belongs to the closed opening;
         // it must not be emitted again as a zero-thickness outside cap.
         if(inside.some(p=>value(p,plane)<-EPS)) {
           const outside=clip(inside,plane,-1);
           if(polygonArea(outside)>EPS)next.push(outside);
         }
-        inside=clip(inside,plane);if(polygonArea(inside)<EPS)break;
+        if (i + 1 < steps.length && polygonArea(steps[i + 1]) < EPS) break;
       }
     }
     pieces=next;
@@ -204,7 +224,7 @@ function clippedPolyhedron(faces:Polygon[],plane:HbfPlaneV291,sign:number):Polyg
   const result:Polygon[]=[],points:Polygon=[];
   for(const face of faces) {
     const p=clip(face,plane,sign);if(polygonArea(p)>EPS)result.push(p);
-    for(const v of p)if(Math.abs(value(v,plane))<1e-7&&!points.some(p=>Math.hypot(...p.slice(0,3).map((n,k)=>n-v[k]))<1e-7))points.push(v);
+    for(const v of p)if(Math.abs(value(v,plane))<1e-7&&!points.some(p => distance3(p, v) < 1e-7))points.push(v);
   }
   if(points.length>=3) {
     const n=[-sign*plane[0],-sign*plane[1],-sign*plane[2]],length=Math.hypot(...n);for(let i=0;i<3;i++)n[i]/=length;
@@ -218,9 +238,15 @@ function clippedPolyhedron(faces:Polygon[],plane:HbfPlaneV291,sign:number):Polyg
 }
 function polyhedronVolume(faces:Polygon[]):number {
   const o=faces[0]?.[0];if(!o)return 0;let sum=0;
-  for(const face of faces)for(let i=1;i+1<face.length;i++) {
-    const a=face[0].slice(0,3).map((n,k)=>n-o[k]),b=face[i].slice(0,3).map((n,k)=>n-o[k]),c=face[i+1].slice(0,3).map((n,k)=>n-o[k]);
-    sum+=a[0]*(b[1]*c[2]-b[2]*c[1])+a[1]*(b[2]*c[0]-b[0]*c[2])+a[2]*(b[0]*c[1]-b[1]*c[0]);
+  for (const face of faces) {
+    if (face.length < 3) continue;
+    const ax = face[0][0] - o[0], ay = face[0][1] - o[1], az = face[0][2] - o[2];
+    for (let i = 1; i + 1 < face.length; i++) {
+      const b = face[i], c = face[i + 1];
+      const bx = b[0] - o[0], by = b[1] - o[1], bz = b[2] - o[2];
+      const cx = c[0] - o[0], cy = c[1] - o[1], cz = c[2] - o[2];
+      sum += ax * (by * cz - bz * cy) + ay * (bz * cx - bx * cz) + az * (bx * cy - by * cx);
+    }
   }
   return Math.abs(sum)/6;
 }
@@ -232,10 +258,19 @@ export function hbfConvexComplementV291(source:readonly (readonly Vertex[])[],cu
     for(const piece of pieces) {
       if(!overlaps(bounds(piece.flat()),cut.bounds)){next.push(piece);continue;}
       let inside=piece;
-      for(const plane of cut.planes)inside=clippedPolyhedron(inside,plane,1);
+      const steps: Polygon[][] = [];
+      for (const plane of cut.planes) {
+        steps.push(inside);
+        inside = clippedPolyhedron(inside, plane, 1);
+        if (!inside.length) break;
+      }
       if(polyhedronVolume(inside)<EPS){next.push(piece);continue;}
-      changed=true;inside=piece;
-      for(const plane of cut.planes){const outside=clippedPolyhedron(inside,plane,-1);if(polyhedronVolume(outside)>EPS)next.push(outside);inside=clippedPolyhedron(inside,plane,1);if(polyhedronVolume(inside)<EPS)break;}
+      changed=true;
+      for (let i = 0; i < steps.length; i++) {
+        const outside = clippedPolyhedron(steps[i], cut.planes[i], -1);
+        if (polyhedronVolume(outside) > EPS) next.push(outside);
+        if (i + 1 < steps.length && polyhedronVolume(steps[i + 1]) < EPS) break;
+      }
     }
     pieces=next;
   }

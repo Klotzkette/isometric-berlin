@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.263
+
+- Rebuild the pedestrian surfaces, planting, kerbs and street fronts around Gendarmenmarkt, Friedrichstraße, Unter den Linden, the Humboldt Forum, Hausvogteiplatz and the Federal Ministry of Labour. The Gendarmenmarkt link now frames the ensemble. [Gendarmenmarkt photographs and comparisons](docs/gendarmenquartier-v383.md) · [Surveyed streets](docs/mitte-strassen-v383.md) · [Unter den Linden](docs/unter-den-linden-v383.md) · [Schlossplatz and Hausvogteiplatz](docs/schloss-und-hausvogteiplatz-v383.md)
+- Model the raised residential rings at Mehringplatz, the two Hallesches Tor platforms, the planted basins, station roof glazing and paved approaches at Wittenbergplatz and the public space along Tauentzienstraße and around Nollendorfplatz and Winterfeldtplatz. [Nollendorfplatz and Winterfeldtplatz](docs/schoeneberger-plaetze-v383.md) · [Mehringplatz and Hallesches Tor](docs/arbeitsministerium-und-mehringplatz-v383.md) · [Wittenbergplatz and Tauentzienstraße](docs/wittenbergplatz-und-tauentzien-v383.md)
+- Prioritize the selected landmark and its source tiles as soon as the camera changes destination. Cull off-screen ranges of original terrain, street and facade geometry in WebGL, queue common shader programs during construction and share verified immutable building data with the walking system. Pack the two large street-data modules losslessly and build the original terrain, building shells and Hauptbahnhof openings with fewer redundant calculations. In the Unter den Linden street test the renderer submitted 186,680 triangles instead of 852,027 and produced identical pixels. In five cold V8 runs per version, the median construction time for 29,398 distant buildings fell from 2.00 to 1.69 seconds. Positions, colours, normals, indices and bounds were byte-identical across the 50 building groups.
+
 ## 1.0.262
 
 - Frame the synagogue on Rykestraße from its courtyard so the opposite roof does not hide the rose windows in the opening view.

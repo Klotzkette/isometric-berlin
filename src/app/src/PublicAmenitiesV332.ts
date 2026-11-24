@@ -277,6 +277,8 @@ export function createPublicAmenitiesV332() {
       for (const basin of nearby(basins, x, z).sort((a, b) => basinDistance(a) - basinDistance(b))) {
         if (desired.size >= MAX_BASINS) break;
         const [id, , bx, bz] = basin;
+        // The surveyed Friedenssäule includes this exact fountain rim and water surface.
+        if (id === "way/608732506:0") continue;
         if (basinDistance(basin) > RADIUS ** 2 || support.water(bx, bz)) continue;
         const y = support.ground(bx, bz);
         if (y === null || support.blocked(bx, y, bz)) continue;

@@ -1,3 +1,4 @@
+import {mitteWestViewsV383} from "./mitteWestViewsV383";
 import {kollwitzKiezViewsV381} from "./kollwitzKiezViewsV381";
 import {berlinPlaceViewsV380} from "./berlinPlaceViewsV380";
 import { charlottenburgerTorViewsV379 } from "./charlottenburgerTorViewsV379";
@@ -28,4 +29,5 @@ export const berlinPlaceViewsV378: typeof memorialViewsV378 = {
   "Weserstraße – südöstlicher Abschnitt": { position: [4748, 39, 4157], target: [4715, 3, 4129], fov: 52 },
   ...berlinPlaceViewsV380,
   ...kollwitzKiezViewsV381,
+  ...mitteWestViewsV383,
 };

@@ -21,7 +21,7 @@ def display_colour(colour, shade):
   )
 
 
-def create_native(owner, surfaces, colours, domains, observed_walls):
+def create_native(owner, surfaces, colours, domains, observed_walls, *, default_wall=(211, 208, 195)):
   roof, planes, roof_colour = [], [], []
   for kind, _, __, polygon, rings in surfaces:
     if kind != "RoofSurface":
@@ -111,10 +111,10 @@ def create_native(owner, surfaces, colours, domains, observed_walls):
             key=lambda i: wall_lines[i].distance(Point((ax + bx) / 2, (az + bz) / 2)),
           )
           material = tuple(
-            colours.get(observed_walls[nearby]["wallId"], (211, 208, 195))
+            colours.get(observed_walls[nearby]["wallId"], default_wall)
           )
         else:
-          material = (211, 208, 195)
+          material = default_wall
       rgb = display_colour(material, 0.90 if dx else 0.98)
       quad(
         tile,

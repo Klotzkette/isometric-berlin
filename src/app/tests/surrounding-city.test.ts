@@ -732,3 +732,69 @@ test("renderer suspension retains resident packets and resumes requests with unc
     expect(city.groundAt(2200, 200)).toBe(3);
   } finally { city.dispose(); }
 });
+
+test("changing landmarks replaces a still-visible opening request, including speculative transfers", async () => {
+  const source = broadManifest(6), requests: { id: number; signal: AbortSignal; finish: () => void }[] = [];
+  const attached: string[] = [], errors: string[] = [];
+  const city = createSurroundingCity({
+    camera: camera(256, 8000), now: () => 0,
+    manifestUrl: new URL("https://example.test/manifest.json"),
+    openingPlaceV378: { x: 256, z: 256, required: ["wide-0"], pending: () => true, onGeometry() {} },
+    onAttach: group => attached.push(group.name), onError: message => errors.push(message),
+    fetch: (async (input, init) => {
+      const path = new URL(String(input)).pathname;
+      if (path.endsWith("manifest.json")) return response(source);
+      const id = Number(path.slice(1).split(".")[0]);
+      await new Promise<void>(finish => requests.push({id, signal: init!.signal!, finish}));
+      return response(sample(id * 512));
+    }) as typeof fetch,
+  });
+  try {
+    await city.ready;
+    await until(() => requests.length === 1);
+    city.setPlaceFocusV383({x: 800, z: 256, required: ["wide-2","wide-3"]});
+    await until(() => requests.some(r => r.id === 3));
+    expect(requests[0].signal.aborted).toBe(true);
+    const destination = {x: 1600, z: 256, required: ["wide-5","wide-4"]};
+    city.setPlaceFocusV383(destination);
+    city.setPlaceFocusV383(destination); // The selection effect can repeat an imperative jump.
+    await until(() => requests.some(r => r.id === 5) && requests.some(r => r.id === 4));
+    expect(requests.filter(r => r.id <= 3).every(r => r.signal.aborted)).toBe(true);
+    expect(requests.filter(r => r.id >= 4)).toHaveLength(2);
+    for (const request of requests) request.finish();
+    await until(() => attached.length === 2);
+    expect(attached).toEqual(["Surrounding Berlin outline wide-5", "Surrounding Berlin outline wide-4"]);
+    expect(errors).toEqual([]);
+  } finally { city.dispose(); for (const request of requests) request.finish(); }
+});
+
+test("an off-screen owner straddling the selected place follows its style and retires after a pan", async () => {
+  const source = manifest(), view = camera(), calls: string[] = [], warnings: string[] = [];
+  let clock = 0, retry = false;
+  const city = createSurroundingCity({
+    camera: view, now: () => clock, retireMs: 0, manifestUrl: new URL("https://example.test/manifest.json"),
+    onError: message => warnings.push(message),
+    fetch: (async (input, init) => {
+      const path = new URL(String(input)).pathname;
+      if (path.endsWith("manifest.json")) return response(source);
+      if (path.includes("2048") && !retry) { calls.push(path); return new Response("",{status:404}); }
+      return sourceFetch(calls)(input,init);
+    }) as typeof fetch,
+  });
+  try {
+    city.setPlaceFocusV383({x: 256, z: 256, required: ["tile-2048","tile-0"]});
+    await city.ready;
+    await until(() => !city.pending);
+    expect(calls.slice(0,2)).toEqual(["/drawn/2048.json", "/drawn/0.json"]);
+    expect(warnings).toHaveLength(1);
+    expect(city.residentChunkCount).toBe(1);
+    retry = true;
+    city.setMode("minecraft");
+    await until(() => !city.pending);
+    expect(calls.slice(-2)).toEqual(["/minecraft/2048.json", "/minecraft/0.json"]);
+    expect(city.residentChunkCount).toBe(2);
+    view.position.set(1280,500,256); view.lookAt(1280,0,256);
+    city.refresh(clock += 300, {x:1280, z:256});
+    expect(city.residentChunkCount).toBe(0);
+  } finally { city.dispose(); }
+});

@@ -19,7 +19,7 @@ function materials(vertexColors = false) {
 }
 
 /** Static, texture-free attachment layers; complete earlier shells remain. */
-export function createLabourQuartierV208(native = false): Group {
+export function createLabourQuartierV208(native = false, includeHofbeamtenhaus = true): Group {
   const root = new Group();
   root.name = LABOUR_QUARTIER_V208_GROUP + (native ? " native" : "");
   root.userData = {
@@ -29,10 +29,11 @@ export function createLabourQuartierV208(native = false): Group {
     keepInMinecraft: native, newCourtWalls: false, newPassageClosures: false,
   };
   if (!native) {
-    const positions = new Float32Array(data.surfaces.reduce((sum, s) => sum + s.triangles.length * 9, 0));
+    const surfaces = includeHofbeamtenhaus ? data.surfaces : data.surfaces.filter(s => s.face < 14 || s.face > 16);
+    const positions = new Float32Array(surfaces.reduce((sum, s) => sum + s.triangles.length * 9, 0));
     const colors = new Float32Array(positions.length), tint = new Color();
     let offset = 0;
-    for (const surface of data.surfaces) {
+    for (const surface of surfaces) {
       tint.setHex(surface.color);
       for (const triangle of surface.triangles) for (const p of triangle) {
         positions.set([p[0], p[1] + terrainOffsets[surface.owner], p[2]], offset);
@@ -48,7 +49,13 @@ export function createLabourQuartierV208(native = false): Group {
     mesh.userData = { dayMaterial: day, nightMaterial: night, textureFree: true };
     root.add(mesh);
   }
-  const rows = native ? data.blocks : data.boxes;
+  const sourceRows = native ? data.blocks : data.boxes;
+  // Only the three former façade sheets at Wilhelmstraße 49 have a photographed replacement.
+  const faceIndex = native ? 8 : 9;
+  const rows = includeHofbeamtenhaus ? sourceRows : sourceRows.filter(row => {
+    const face = Number(row[faceIndex]);
+    return face < 14 || face > 16;
+  });
   const geometry = new BoxGeometry(1, 1, 1); geometry.deleteAttribute("uv");
   const { day, night } = materials(), mesh = new InstancedMesh(geometry, day, 0);
   const matrices = new Float32Array(rows.length * 16), colors = new Float32Array(rows.length * 3);

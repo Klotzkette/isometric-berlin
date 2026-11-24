@@ -11,6 +11,9 @@ the Spree and discover the city's architecture from an isometric perspective.
 
 **[Viewer öffnen / Explore Berlin](https://klotzkette.github.io/isometric-berlin/)** ·
 [Download](https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip) ·
+[Gendarmenmarkt und Friedrichstraße](docs/gendarmenquartier-v383.md) ·
+[Unter den Linden](docs/unter-den-linden-v383.md) ·
+[Wittenbergplatz und Tauentzienstraße](docs/wittenbergplatz-und-tauentzien-v383.md) ·
 [Wasserturm, Synagoge und Kollwitzplatz](docs/kollwitzkiez-v381.md) ·
 [Straßen, Plätze und Botschaften](docs/berlin-strassen-plaetze-botschaften-v380.md) ·
 [City West, beide Zoos und Tiergarten](docs/berlin-zoos-city-west-und-ladezeit-v379.md) ·
@@ -338,8 +341,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.262** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.262/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.263** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.263/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

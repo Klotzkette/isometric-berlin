@@ -1,6 +1,7 @@
 import type { Plugin } from "vite";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
+import { encodeSurveyFieldV383, surveyLayoutsV383 } from "./losslessSurveyFieldsV383";
 import { encodeLosslessBase85 } from "./src/losslessGzipBase85";
 import { LOSSLESS_BASE85_SOURCES_V263 } from "./losslessBase85SourcesV263";
 import { LOSSLESS_EAGER_FIELDS_V270 } from "./losslessEagerFieldsV270";
@@ -370,6 +371,8 @@ const PACKED_SOURCE_JSON_FIELDS: Readonly<Record<string, readonly string[]>> = {
 // in the current worker/main graphs, so lossless source packing avoids duplicated
 // uncompressed base64 literals while preserving the existing source lifetime.
 export const LOSSLESS_PACKED_STRING_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  "roadGroundV343.json": Object.keys(surveyLayoutsV383["roadGroundV343.json"]),
+  "mittePlazaEdgesV367.json": Object.keys(surveyLayoutsV383["mittePlazaEdgesV367.json"]),
   "bayerCampusV277.json": ["drawnPositions", "drawnColors", "drawnDetails", "nativeDetails"],
   "bayerCampusV277Legacy.json": ["drawn", "native"],
   "lehrterV277.json": ["sourcePositions", "sourceColors", "facadeBoxes", "nativeBoxes"],
@@ -386,6 +389,7 @@ export const LOSSLESS_PACKED_STRING_FIELDS: Readonly<Record<string, readonly str
 // Encode existing lazy fields only. Their cache/ownership policy is independent
 // of compression; packed base64 fields above keep their direct-literal path.
 const GZIP_DECODER = fileURLToPath(new URL("./src/losslessGzipJson.ts", import.meta.url));
+const STREET_FIELD_DECODER = fileURLToPath(new URL("./src/losslessSurveyFieldV383.ts", import.meta.url));
 const BASE85_DECODER = fileURLToPath(new URL("./src/losslessGzipBase85.ts", import.meta.url));
 
 /** JSON.stringify normally changes -0 and non-finite parsed JSON numbers. */
@@ -546,6 +550,7 @@ export function transformLosslessJsonData(
   const properties: string[] = [];
   let lazyFields = 0;
   let gzipUsed = false;
+  let surveyUsed = false;
   for (const [index, [key, value]] of Object.entries(data).entries()) {
     const json = exactJson(value);
     const field = `__field${index}`;
@@ -561,7 +566,13 @@ export function transformLosslessJsonData(
       const loaded = `__loaded${index}`;
       const read = `__read${index}`;
       let decode = `JSON.parse(${JSON.stringify(json)})`;
-      {
+      const layout = surveyLayoutsV383[sourceName]?.[key];
+      const survey = layout && typeof value === "string" && !base85 ? encodeSurveyFieldV383(value, layout) : undefined;
+      if (survey) {
+        decode = `__decodeLosslessGzip(${JSON.stringify(survey)})`;
+        gzipUsed = true;
+        surveyUsed = true;
+      } else {
         const { encoded: packed, admissionLength } = pack(json);
         // Avoid decode work for poorly compressible data. No values change.
         if (admissionLength < json.length * 0.8) {
@@ -637,8 +648,9 @@ export function transformLosslessJsonData(
     if (key !== "default" && EXPORT_NAME.test(key)) exports.push(`${field} as ${key}`);
   }
   if (lazyFields === 0 && !packedPacket && !packedFields.length && !gzipUsed) return undefined;
+  const moduleDecoder = surveyUsed ? STREET_FIELD_DECODER : gzipDecoder;
   return {
-    code: `${gzipUsed ? `import { decodeLosslessGzipJson as __decodeLosslessGzip } from ${JSON.stringify(gzipDecoder)};\n` : ""}${declarations.join("\n")}\nexport { ${exports.join(", ")} };\nexport default {\n${properties.join(",\n")}\n};`,
+    code: `${gzipUsed ? `import { decodeLosslessGzipJson as __decodeLosslessGzip } from ${JSON.stringify(moduleDecoder)};\n` : ""}${declarations.join("\n")}\nexport { ${exports.join(", ")} };\nexport default {\n${properties.join(",\n")}\n};`,
     map: null,
     moduleType: "js",
   };

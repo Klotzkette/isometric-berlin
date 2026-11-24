@@ -52,7 +52,9 @@ export function staticStorageInfo(storage: Storage): StorageInfo {
 /** Store instance transforms by column to remove common rotation and scale
  * words before compression. Use uint32 throughout so signed zeros and NaN
  * payloads are reproduced exactly. */
-function packInstanceMatrixBlock(bytes: Uint8Array): StorageBlock {
+type BlockLayout = { bytes: Uint8Array; header?: Pick<MatrixStorageBlock, "firstRow" | "varyingColumns"> };
+
+function matrixBlockLayout(bytes: Uint8Array): BlockLayout {
   const words = new Uint32Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / 4);
   const rowCount = words.length / MATRIX_WORDS;
   const firstRow = words.subarray(0, MATRIX_WORDS);
@@ -61,14 +63,14 @@ function packInstanceMatrixBlock(bytes: Uint8Array): StorageBlock {
     for (let column = 0; column < MATRIX_WORDS; column++) {
       if (words[i + column] !== firstRow[column]) varyingColumns |= 1 << column;
     }
-    if (varyingColumns === 0xffff) return deflateSync(bytes, { level: 1 });
+    if (varyingColumns === 0xffff) return { bytes };
   }
   const columns: number[] = [];
   for (let column = 0; column < MATRIX_WORDS; column++) {
     if (varyingColumns & (1 << column)) columns.push(column);
   }
   // Keep the row layout when almost every word varies.
-  if (columns.length > 12) return deflateSync(bytes, { level: 1 });
+  if (columns.length > 12) return { bytes };
   const compact = new Uint32Array(columns.length * rowCount);
   for (let i = 0; i < columns.length; i++) {
     const column = columns[i];
@@ -78,9 +80,8 @@ function packInstanceMatrixBlock(bytes: Uint8Array): StorageBlock {
     }
   }
   return {
-    compressed: deflateSync(new Uint8Array(compact.buffer), { level: 1 }),
-    firstRow: firstRow.slice(),
-    varyingColumns,
+    bytes: new Uint8Array(compact.buffer),
+    header: { firstRow: firstRow.slice(), varyingColumns },
   };
 }
 
@@ -118,8 +119,8 @@ function unpackStaticBlock(block: StorageBlock, output: Uint8Array): void {
  * A Three update or explicit array replacement permanently returns this storage
  * to its ordinary writable representation. Animated/unfinalized data is excluded.
  */
-export function* parkStaticAttribute(storage: Storage, ownsBuffer = false,
-  instanceMatrix = false): Generator<void, number> {
+function* prepareStaticBacking(storage: Storage, ownsBuffer: boolean,
+  instanceMatrix: boolean): Generator<BlockLayout, number, Uint8Array> {
   if (parked.has(storage) || typeof WeakRef !== "function" ||
       storage.usage !== StaticDrawUsage || storage.updateRanges.length ||
       storage.onUploadCallback !== (storage instanceof BufferAttribute
@@ -127,6 +128,7 @@ export function* parkStaticAttribute(storage: Storage, ownsBuffer = false,
       Object.getOwnPropertyDescriptor(storage, "array")?.get) return 0;
   const original = storage.array;
   const version = storage.version;
+  const upload = storage.onUploadCallback;
   if (original.byteLength < MIN_BYTES || original.byteOffset !== 0 ||
       original.byteLength !== original.buffer.byteLength) return 0;
   const bytes = new Uint8Array(original.buffer, original.byteOffset, original.byteLength);
@@ -135,15 +137,18 @@ export function* parkStaticAttribute(storage: Storage, ownsBuffer = false,
   let packedBytes = 0;
   for (let offset = 0; offset < bytes.length; offset += BLOCK_BYTES) {
     const block = bytes.subarray(offset, offset + BLOCK_BYTES);
-    const chunk = packMatrix ? packInstanceMatrixBlock(block) : deflateSync(block, { level: 1 });
+    const layout = packMatrix ? matrixBlockLayout(block) : { bytes: block };
+    const compressed = yield layout;
+    const chunk = layout.header ? { ...layout.header, compressed } : compressed;
     chunks.push(chunk);
     packedBytes += chunk instanceof Uint8Array
       ? chunk.byteLength
       : chunk.compressed.byteLength + chunk.firstRow.byteLength + 4;
-    yield;
   }
   if (packedBytes >= bytes.length * 0.8) return 0;
-  if (storage.array !== original || storage.version !== version) return 0;
+  if (storage.version !== version || storage.onUploadCallback !== upload || parked.has(storage) ||
+      Object.getOwnPropertyDescriptor(storage, "array")?.value !== original ||
+      storage.usage !== StaticDrawUsage || storage.updateRanges.length) return 0;
   // Capture only scalar metadata and a weak view, never original/bytes in the
   // accessor's environment. The construction generator ends immediately after.
   installStorage(storage, chunks, new WeakRef(original), original.constructor as
@@ -152,6 +157,20 @@ export function* parkStaticAttribute(storage: Storage, ownsBuffer = false,
   const saved = bytes.length - packedBytes;
   if (ownsBuffer) releaseScratchBuffer(original.buffer as ArrayBuffer);
   return saved;
+}
+
+export function* parkStaticAttribute(storage: Storage, ownsBuffer = false,
+  instanceMatrix = false): Generator<void, number> {
+  const steps = prepareStaticBacking(storage, ownsBuffer, instanceMatrix);
+  try {
+    let next = steps.next();
+    while (!next.done) {
+      const packed = deflateSync(next.value.bytes, { level: 1 });
+      yield;
+      next = steps.next(packed);
+    }
+    return next.value;
+  } finally { steps.return(0); }
 }
 
 function installStorage(storage: Storage, chunks: StorageBlock[], weak: WeakRef<Values>,
@@ -205,17 +224,16 @@ function installStorage(storage: Storage, chunks: StorageBlock[], weak: WeakRef<
 }
 
 /** Call after indexing, terrain draping, colours and optional interleaving. */
-export function* parkStaticGeometrySteps(root: Object3D, ownsBuffers = false,
-  shouldPark?: (storage: Storage) => boolean): Generator<void, number> {
+function* staticGeometryInputs(root: Object3D, ownsBuffers: boolean,
+  shouldPark?: (storage: Storage) => boolean): Generator<[Storage, boolean]> {
   const storages = new Set<Storage>();
   const owners = new Map<object, Set<Storage>>();
   root.traverse(object => {
     if (!(object instanceof Mesh || object instanceof Line || object instanceof Points)) return;
     const geometry: BufferGeometry = object.geometry;
-    const fields = [...Object.values(geometry.attributes), geometry.index,
+    if (ownsBuffers) for (const attribute of [...Object.values(geometry.attributes), geometry.index,
       ...Object.values(geometry.morphAttributes).flat(),
-      ...(object instanceof InstancedMesh ? [object.instanceMatrix, object.instanceColor] : [])];
-    if (ownsBuffers) for (const attribute of fields) {
+      ...(object instanceof InstancedMesh ? [object.instanceMatrix, object.instanceColor] : [])]) {
       if (!attribute) continue;
       const storage = "data" in attribute ? attribute.data : attribute;
       // Already parked fields still participate in alias protection, without
@@ -231,14 +249,18 @@ export function* parkStaticGeometrySteps(root: Object3D, ownsBuffers = false,
       storages.add("data" in attribute ? attribute.data : attribute);
     }
   });
-  let saved = 0;
   for (const storage of storages) {
     if (shouldPark && !shouldPark(storage)) continue;
     if (parked.has(storage)) continue;
-    const info = staticStorageInfo(storage);
-    // Do not detach subviews or storage shared with any other attribute.
-    const exclusive = ownsBuffers && info.byteLength === info.bufferBytes &&
-      owners.get(info.bufferIdentity)?.size === 1;
+    const info = ownsBuffers ? staticStorageInfo(storage) : undefined;
+    yield [storage, !!info && info.byteLength === info.bufferBytes && owners.get(info.bufferIdentity)?.size === 1];
+  }
+}
+
+export function* parkStaticGeometrySteps(root: Object3D, ownsBuffers = false,
+  shouldPark?: (storage: Storage) => boolean): Generator<void, number> {
+  let saved = 0;
+  for (const [storage, exclusive] of staticGeometryInputs(root, ownsBuffers, shouldPark)) {
     saved += yield* parkStaticAttribute(storage, exclusive);
   }
   return saved;
@@ -256,4 +278,92 @@ export function* parkStaticInstancesSteps(root: Object3D,
     saved += yield* parkStaticAttribute(matrix, true, true);
   }
   return saved;
+}
+
+/** Compress the unpublished city with the browser's background codec. Each of
+ * the two lanes owns at most one 256 KiB input copy. The sync generator and
+ * native path install exactly the same backing and restore the same words. */
+export async function parkOpeningWorldBuffers(
+  world: Object3D, addons: Object3D, shouldPark: ((storage: Storage) => boolean) | undefined,
+  cancelled: () => boolean, yieldTask: () => Promise<void>,
+): Promise<void> {
+  function* inputs(): Generator<[Storage, boolean, boolean]> {
+    for (const root of [world, addons]) {
+      for (const [storage] of staticGeometryInputs(root, false, shouldPark)) yield [storage, false, false];
+    }
+    const matrices = new Set<BufferAttribute>();
+    world.traverse(object => {
+      if (object instanceof InstancedMesh && !parked.has(object.instanceMatrix) &&
+          object.instanceMatrix.count * 64 >= MIN_BYTES && (!shouldPark || shouldPark(object.instanceMatrix))) {
+        matrices.add(object.instanceMatrix);
+      }
+    });
+    // An instance matrix normally owns its constructor allocation. A custom
+    // geometry or a sibling can still have a distinct view of the same buffer.
+    const exclusive = new Map<object, Storage | null>();
+    for (const matrix of matrices) {
+      const key = staticStorageInfo(matrix).bufferIdentity;
+      exclusive.set(key, exclusive.has(key) ? null : matrix);
+    }
+    const seen = new Set<Storage>();
+    for (const root of [world, addons]) root.traverse(object => {
+      if (!(object instanceof Mesh || object instanceof Line || object instanceof Points)) return;
+      for (const attribute of [...Object.values(object.geometry.attributes), object.geometry.index,
+        ...Object.values(object.geometry.morphAttributes).flat(),
+        ...(object instanceof InstancedMesh ? [object.instanceMatrix, object.instanceColor] : [])]) {
+        if (!attribute) continue;
+        const storage = "data" in attribute ? attribute.data : attribute;
+        if (seen.has(storage)) continue;
+        seen.add(storage);
+        const key = staticStorageInfo(storage).bufferIdentity;
+        if (exclusive.has(key) && exclusive.get(key) !== storage) exclusive.set(key, null);
+      }
+    });
+    for (const matrix of matrices) yield [matrix, exclusive.get(staticStorageInfo(matrix).bufferIdentity) === matrix, true];
+  }
+  const pending = inputs();
+  let native = typeof CompressionStream === "function";
+  const claimed = new Set<Storage>();
+  let failed = false;
+  function check() {
+    if (failed || cancelled()) throw new DOMException("World construction cancelled", "AbortError");
+  }
+  async function compress(bytes: Uint8Array) {
+    if (native) {
+      try {
+        const stream = new CompressionStream("deflate-raw");
+        const response = new Response(bytes as Uint8Array<ArrayBuffer>);
+        return new Uint8Array(await new Response(response.body!.pipeThrough(stream)).arrayBuffer());
+      } catch { native = false; }
+    }
+    return deflateSync(bytes, { level: 1 });
+  }
+  async function lane() {
+    let deadline = performance.now() + 5;
+    for (;;) {
+      check();
+      const item = pending.next();
+      if (item.done) return;
+      const [storage, exclusive, matrix] = item.value;
+      if (claimed.has(storage)) continue;
+      claimed.add(storage);
+      const steps = prepareStaticBacking(storage, exclusive, matrix);
+      try {
+        let next = steps.next();
+        while (!next.done) {
+          const packed = await compress(next.value.bytes);
+          check();
+          next = steps.next(packed);
+          if (performance.now() >= deadline) {
+            await yieldTask();
+            deadline = performance.now() + 5;
+          }
+        }
+      } finally { steps.return(0); }
+    }
+  }
+  const run = () => lane().catch(error => { failed = true; throw error; });
+  const results = await Promise.allSettled([run(), run()]);
+  pending.return(undefined);
+  for (const result of results) if (result.status === "rejected") throw result.reason;
 }

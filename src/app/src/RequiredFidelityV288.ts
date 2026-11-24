@@ -1,3 +1,4 @@
+import { checkCorePrismsV383 } from "./corePrismChecksV383";
 import {createNeukoellnLandmarksV305,hasCompleteNeukoellnLandmarksV305} from "./NeukoellnLandmarksV305";
 import { waterfrontOriginalPrismV296 } from "./waterfrontV296Profile";
 import { createLittenStadthausV297, hasCompleteLittenStadthausV297 } from "./LittenStadthausV297";
@@ -11,17 +12,17 @@ import { createCourtsParkV293 } from "./CourtsParkV293";
 import { createWaterfrontFidelityV296 } from "./WaterfrontFidelityV296";
 import { BufferGeometry, Group, InstancedMesh, Material, Mesh } from "three";
 import { createBerlinHistoricDomV288, hasCompleteBerlinHistoricDomV288 } from "./BerlinHistoricCoreV288";
-import { matchesBerlinHistoricDomOwnersV288, matchesBerlinHistoricDomNativeV288 } from "./BerlinHistoricCoreV288Ownership";
+import { matchesBerlinHistoricDomNativeV288 } from "./BerlinHistoricCoreV288Ownership";
 import { createPotsdamerCorridorCoreV288, hasCompletePotsdamerCorridorCoreV288 } from "./PotsdamerCorridorCoreV288";
-import { admitsPotsdamerCorridorCoreV288, admitsPotsdamerCorridorNativeV288 } from "./PotsdamerCorridorV288Ownership";
+import { admitsPotsdamerCorridorNativeV288 } from "./PotsdamerCorridorV288Ownership";
 import { createMitteDdrV288 } from "./MitteDdrV288";
 import { createChancelleryCanopySourceV289, hasCompleteChancelleryCanopySourceV289 } from "./ChancelleryCanopySourceV289";
-import { admitsChancelleryCanopySourceV289, admitsChancelleryCanopyNativeV289 } from "./ChancelleryCanopySourceV289Ownership";
+import { admitsChancelleryCanopyNativeV289 } from "./ChancelleryCanopySourceV289Ownership";
 
 import { createMoabitMitteV300Core, hasCompleteMoabitMitteV300Core } from "./MoabitMitteV300Core";
-import { admitsMoabitMitteV300Core, admitsMoabitMitteV300Native } from "./MoabitMitteV300Ownership";
+import { admitsMoabitMitteV300Native } from "./MoabitMitteV300Ownership";
 import { createWestKiezV302Core, hasCompleteWestKiezV302Core } from "./WestKiezV302Core";
-import { admitsWestKiezV302Core, admitsWestKiezV302Native } from "./WestKiezV302CoreOwnership";
+import { admitsWestKiezV302Native } from "./WestKiezV302CoreOwnership";
 
 type FactoryV288 = () => { group: Group; complete?: (group: Group) => boolean } | null;
 /** Own each completed result immediately, including before its admission
@@ -44,11 +45,13 @@ export function constructUnpublishedFidelityV288(factories: readonly FactoryV288
 /** Construct complete owners before any old prism/column can yield. This
  * module belongs only to the main-thread city transaction, never the worker. */
 export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payload: unknown, native=false, canopyLegacyAdmitted=false, mobileLike=false, neighbourhoodV300=false, districtCourtDetailsV333=false) {
-  const moabitMitte=neighbourhoodV300&&admitsMoabitMitteV300Core(prisms)&&(!native||admitsMoabitMitteV300Native(payload));
-  const westKiez=neighbourhoodV300&&admitsWestKiezV302Core(prisms)&&(!native||admitsWestKiezV302Native(payload));
-  const historicDom=matchesBerlinHistoricDomOwnersV288(prisms.buildings)&&(!native||matchesBerlinHistoricDomNativeV288(payload));
-  const potsdamerCorridor=admitsPotsdamerCorridorCoreV288(prisms)&&(!native||admitsPotsdamerCorridorNativeV288(payload));
-  const chancelleryCanopy=admitsChancelleryCanopySourceV289(prisms)&&(native?admitsChancelleryCanopyNativeV289(payload):canopyLegacyAdmitted);
+  const corePrismChecks = checkCorePrismsV383(prisms, neighbourhoodV300);
+  const source = corePrismChecks.results;
+  const moabitMitte = source.moabitMitte === true && (!native || admitsMoabitMitteV300Native(payload));
+  const westKiez = source.westKiez === true && (!native || admitsWestKiezV302Native(payload));
+  const historicDom = source.historicDom && (!native || matchesBerlinHistoricDomNativeV288(payload));
+  const potsdamerCorridor = source.potsdamerCorridor && (!native || admitsPotsdamerCorridorNativeV288(payload));
+  const chancelleryCanopy = source.chancelleryCanopy && (native ? admitsChancelleryCanopyNativeV289(payload) : canopyLegacyAdmitted);
   const diningIds=[...PARLIAMENTARY_DINING_V296.lampenladen.sourceIds,...PARLIAMENTARY_DINING_V296.marie.sourceIds];
   const parliamentaryDining=Array.isArray(prisms.buildings)&&diningIds.every(id=>(prisms.buildings as DiningPrismV296[]).some(p=>p.id===id&&diningOriginalPrismV296(p)));
   const waterfront=Array.isArray(prisms.buildings)&&prisms.buildings.some(waterfrontOriginalPrismV296);
@@ -72,5 +75,5 @@ export function prepareRequiredFidelityV288(prisms: { buildings: unknown }, payl
   root.userData={historicDomV288:historicDom,potsdamerCorridorV288:potsdamerCorridor,chancelleryCanopySourceV289:chancelleryCanopy,courtsParkV293:true,southFidelityV294:true,parliamentaryDiningV296:parliamentaryDining,waterfrontV296:waterfront,sourceGeometryRetained:true,fullStaticDetailOnTouch:true};
   root.userData.moabitMitteV300=moabitMitte;root.userData.westKiezV302=westKiez;
   root.userData.littenStadthausV297=true;root.userData.wallGalleryV298=true;
-  return {root,neukoellnModel,moabitMitte,westKiez,historicDom,potsdamerCorridor,chancelleryCanopy,courtsPark:true,southFidelity:true,parliamentaryDining,waterfront,littenStadthaus:true,wallGallery:true};
+  return {corePrismChecks,root,neukoellnModel,moabitMitte,westKiez,historicDom,potsdamerCorridor,chancelleryCanopy,courtsPark:true,southFidelity:true,parliamentaryDining,waterfront,littenStadthaus:true,wallGallery:true};
 }

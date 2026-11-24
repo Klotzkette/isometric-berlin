@@ -1,3 +1,4 @@
+import { decodeBase64Bytes } from "./decodeBase64Bytes";
 import { BufferAttribute, BufferGeometry, Group, InstancedBufferAttribute, type InstancedMesh, type Material, Mesh, type MeshBasicMaterial } from "three";
 import boundaryData from "./data/drawnWaterBoundary.json";
 import type { VoxelPayload } from "./MinecraftVoxelWorld";
@@ -17,9 +18,7 @@ const RECORD_SIZE = 6;
 
 function decode(value: string | ArrayBuffer): ArrayBuffer {
   if (typeof value !== "string") return value;
-  const text = atob(value), bytes = new Uint8Array(text.length);
-  for (let i = 0; i < text.length; i++) bytes[i] = text.charCodeAt(i);
-  return bytes.buffer;
+  return decodeBase64Bytes(value).buffer;
 }
 
 function matchesGround(ground: VoxelPayload, data: DrawnWaterBoundaryData): boolean {

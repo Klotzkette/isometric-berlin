@@ -62,7 +62,7 @@ export function* attachMittePlazaEdgesV367(
 
   if (slabs.userData.tiergartenPathsV345) yield* attachExteriorStreetMarginsV373(slabs, ground);
 
-  const mitte = atob(source.words), outer = atob(extraEdges.words);
+  const mitte = decodeBase64Bytes(source.words), outer = decodeBase64Bytes(extraEdges.words);
   const mitteWords = mitte.length / 2;
   const pathStart = mitteWords + outer.length / 2;
   const pathData = pathWords(paths.words);
@@ -71,7 +71,7 @@ export function* attachMittePlazaEdgesV367(
   const words = new Uint16Array(sidewalkStart + sidewalkData.length);
   let word = 0;
   for (const data of [mitte, outer]) {
-    for (let i = 0; i < data.length; i += 2) words[word++] = data.charCodeAt(i) | data.charCodeAt(i+1) << 8;
+    for (let i = 0; i < data.length; i += 2) words[word++] = data[i] | data[i+1] << 8;
   }
   words.set(pathData, pathStart);
   words.set(sidewalkData, sidewalkStart);
@@ -225,7 +225,7 @@ export function attachMitteSquareStreetsV367(slabs: InstancedMesh, ground: Voxel
   const indices = nVertices <= 65535 ? new Uint16Array(nIndices) : new Uint32Array(nIndices);
   let vertex = 0, index = 0;
   for (const part of groups) {
-    const bytes = (s: string) => Uint8Array.from(atob(s), c => c.charCodeAt(0)).buffer;
+    const bytes = (s: string) => decodeBase64Bytes(s).buffer;
     const packed = bytes(part.xz);
     const xz = part.origin ? new Int16Array(packed) : new Int32Array(packed);
     const local = new Uint16Array(bytes(part.index));

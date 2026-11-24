@@ -1,3 +1,4 @@
+import { decodeBase64Bytes } from "./decodeBase64Bytes";
 import type { Group, InstancedMesh } from "three";
 import type { VoxelPayload } from "./terrainPayload";
 import { restoreDrawnWaterBoundary } from "./drawnWaterBoundary";
@@ -32,9 +33,7 @@ function sourcesAdmitted(): boolean {
 }
 
 function decoded(value: string): ArrayBuffer {
-  const bytes=atob(value), result=new Uint8Array(bytes.length);
-  for(let i=0;i<bytes.length;i++)result[i]=bytes.charCodeAt(i);
-  return result.buffer;
+  return decodeBase64Bytes(value).buffer;
 }
 
 /** Every original host needed by the new full-footprint plaza must still be

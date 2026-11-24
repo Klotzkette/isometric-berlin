@@ -9,9 +9,14 @@ const VOXEL_WORLD_FILE = "minecraft-voxels.json";
 export const RAIL_LINES_FILE = "rail-lines.json";
 export const STREET_DETAILS_FILE = "street-details.json?schema=7";
 
-export function createStartupWorldRequests(
-  fetcher: FetchLike = globalThis.fetch.bind(globalThis),
-) {
+const browserFetchers = new WeakSet<FetchLike>();
+
+export function isBrowserWorldFetch(fetcher?: FetchLike): boolean {
+  return fetcher === undefined || browserFetchers.has(fetcher);
+}
+
+export function createStartupWorldRequests(customFetcher?: FetchLike) {
+  const fetcher = customFetcher ?? globalThis.fetch.bind(globalThis);
   const pending = new Map<string, {
     controller: AbortController;
     response: Promise<Response>;
@@ -36,7 +41,7 @@ export function createStartupWorldRequests(
 
     adopt(): FetchLike {
       adopted = true;
-      return (input, init) => {
+      const adoptedFetch: FetchLike = (input, init) => {
         const url = input instanceof URL ? input.href : typeof input === "string" ? input : input.url;
         const request = pending.get(url);
         if (!request) return fetcher(input, init);
@@ -46,6 +51,8 @@ export function createStartupWorldRequests(
         else init?.signal?.addEventListener("abort", abort, { once: true });
         return request.response;
       };
+      if (!customFetcher) browserFetchers.add(adoptedFetch);
+      return adoptedFetch;
     },
 
     discard(): void {

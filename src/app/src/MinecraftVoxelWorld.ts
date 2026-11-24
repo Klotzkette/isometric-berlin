@@ -159,6 +159,7 @@ import { createMinecraftAlexanderPublicRealm } from "./AlexanderPublicRealm";
 import { createMinecraftGendarmenmarktShells } from "./GendarmenmarktShells";
 import { createMinecraftGendarmenmarktPerimeterShells } from "./GendarmenmarktPerimeterShells";
 import { createGendarmenmarktPerimeterFacades } from "./GendarmenmarktPerimeterFacades";
+import { isMehringplatzReplacementColumnV383 } from "./mehringplatzOwnersV383";
 import { isGendarmenmarktPerimeterReplacementColumn } from "./gendarmenmarktPerimeterProfile";
 import { createMinecraftChariteHistoricFacades } from "./ChariteHistoricFacades";
 import { CHARITE_HISTORIC_FACADE_TONES, CHARITE_HISTORIC_FACADE_ROOF_TONES } from "./chariteHistoricFacadeProfiles";
@@ -2889,6 +2890,7 @@ export function* buildMinecraftVoxelWorldSteps(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
+    if (cell === 4 && isMehringplatzReplacementColumnV383(xIdx,zIdx,y0dm,y1dm,classId)) continue;
     if (parisMoskauV354?.replacesColumn(xIdx,zIdx,y0dm,y1dm,classId)) continue;
     const stationCuts = options.nordbahnhofCuts?.(xIdx, zIdx, y0dm, y1dm, classId);
     if (stationCuts?.length) nordbahnhofColumnCuts.set(nordbahnhofColumnKey(xIdx, zIdx), stationCuts);

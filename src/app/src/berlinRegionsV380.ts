@@ -1,3 +1,7 @@
+import {coreMitteStreetsHostsV383} from "./coreMitteStreetsIndexV383";
+import {lindenFrontHostsV383} from "./lindenFrontIndexV383";
+import {schoenebergPlaetzeHostsV383} from "./schoenebergPlaetzeIndexV383";
+import {wittenbergQuartierHostsV383} from "./wittenbergQuartierIndexV383";
 import {embassyHostsV380, embassyIdsV380} from "./embassySitesIndexV380";
 import {kreuzbergPlaetzeHostsV380, kreuzbergPlaetzeIdsV380} from "./kreuzbergPlaetzeIndexV380";
 import {prenzlauerStreetsIdsV380} from "./prenzlauerStreetsIndexV380";
@@ -7,6 +11,10 @@ import type {SurroundingChunkGeometry} from "./SurroundingCityGeometry";
 
 type Host = {id: string; bounds: [number, number, number, number]};
 export const berlinRegionsV380: Host[] = [
+  ...coreMitteStreetsHostsV383,
+  ...lindenFrontHostsV383,
+  ...schoenebergPlaetzeHostsV383,
+  ...wittenbergQuartierHostsV383,
   ...embassyHostsV380, ...kreuzbergPlaetzeHostsV380, ...torstrasseHostsV380,
   ...diplomaticHosts.map(({id,bounds}) => ({id,bounds:bounds as Host["bounds"]})),
 ];
@@ -15,6 +23,10 @@ const loaders=new Map<string,() => Promise<Attach>>();
 function register(ids: Iterable<string>, load: () => Promise<Attach>) {
   for (const id of ids) loaders.set(id,load);
 }
+register(coreMitteStreetsHostsV383.map(site => site.id), async () => (await import("./coreMitteStreetsV383")).attachCoreMitteStreetsV383);
+register(lindenFrontHostsV383.map(site => site.id), async () => (await import("./lindenFrontV383")).attachLindenFrontV383);
+register(schoenebergPlaetzeHostsV383.map(site => site.id), async () => (await import("./schoenebergPlaetzeV383")).attachSchoenebergPlaetzeV383);
+register(wittenbergQuartierHostsV383.map(site => site.id), async () => (await import("./WittenbergQuartierV383")).attachWittenbergQuartierV383);
 register(prenzlauerStreetsIdsV380, async () => (await import("./prenzlauerStreetsV380")).attachPrenzlauerStreetsV380);
 register(torstrasseHostsV380.map(site => site.id), async () => (await import("./torstrasseV380")).attachTorstrasseV380);
 register(kreuzbergPlaetzeIdsV380, async () => (await import("./kreuzbergPlaetzeV380")).attachKreuzbergPlaetzeV380);

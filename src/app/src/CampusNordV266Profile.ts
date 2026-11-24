@@ -6,8 +6,11 @@ import type { SurroundingPackedLines, SurroundingPackedMesh } from './Surroundin
 type Source={id?:unknown;ring?:unknown;holes?:unknown;y0_dm?:unknown;h_dm?:unknown;class?:unknown;roof?:unknown;tone?:unknown};
 const fingerprint=(p:Source)=>JSON.stringify([p.id,p.ring,p.holes,p.y0_dm,p.h_dm,p.class,p.roof,p.tone]);
 const knownNeighbours=new Map(data.neighbours.map(p=>[p.id,fingerprint(p)]));
+const previousCanopyFingerprint = fingerprint(data.canopy.previousPrism);
 export function isCampusCanopySourceV266(value:unknown):boolean{
-  return !!value&&typeof value==='object'&&fingerprint(value as Source)===fingerprint(data.canopy.previousPrism);
+  if (!value || typeof value !== "object") return false;
+  const source = value as Source;
+  return source.id === data.canopy.previousPrism.id && fingerprint(source) === previousCanopyFingerprint;
 }
 export function campusCanopyContainsV266(x:number,z:number):boolean{
   const ring=data.canopy.ring;let inside=false;

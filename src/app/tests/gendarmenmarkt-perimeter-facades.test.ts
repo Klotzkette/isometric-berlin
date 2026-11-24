@@ -3,6 +3,7 @@ import {
   Box3, BufferGeometry, Group, InstancedMesh, Material, Matrix4, Mesh,
   Raycaster, Vector3,
 } from "three";
+import { additionalGendarmenFrontsV383 } from "../src/gendarmenFrontsV383";
 import source from "../src/gendarmenmarktPerimeterSource.json";
 import {
   GendarmenmarktFacadeBuilder,
@@ -164,6 +165,7 @@ describe("Gendarmenmarkt perimeter facades and retained source envelopes", () =>
   test("street panes are visible from outside before the official source wall", () => {
     const familyByEdge = new Map<PerimeterFacadeEdge, string>(source.buildings.flatMap(building =>
       building.streetFronts.map(edge => [edge, building.key] as const)));
+    for (const edge of additionalGendarmenFrontsV383) familyByEdge.set(edge, "newton");
     const byEdge = new Map<PerimeterFacadeEdge, Probe[]>();
     for (const probe of probes) {
       const list = byEdge.get(probe.edge) ?? [];

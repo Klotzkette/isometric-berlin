@@ -1,3 +1,4 @@
+import type { CorePrismChecksV383 } from "./corePrismChecksV383";
 import { isLeopoldplatzFountainPad } from "./leopoldplatzFountainV367";
 import {treptowWaterfrontV317Solids} from "./treptowWaterfrontV317Navigation";
 import {neukoellnLandmarksV305Solids} from "./NeukoellnLandmarksV305Navigation";
@@ -110,6 +111,8 @@ import { ALEXANDER_CIVIC_PARTS, ALEXANDER_CIVIC_PRISM_IDS, MARIEN_TOWER, MARIEN_
   RATHAUS_TOWER_ID, RATHAUS_TOWER_PLATFORM, RATHAUS_TERMINAL, rathausTerminalSolidAt,
   alexanderCivicPartBaseAt, alexanderCivicPartRoofAt, alexanderCivicTowerSolidAt } from "./alexanderCivicProfile";
 import { gendarmenmarktSourceForPrism, gendarmenmarktPartRoofAt } from "./gendarmenmarktProfile";
+import { isMehringplatzPrismV383 } from "./mehringplatzOwnersV383";
+import { mehringplatzSolidsV383 } from "./mehringplatzNavigationV383";
 import { gendarmenmarktPerimeterSourceForPrism } from "./gendarmenmarktPerimeterProfile";
 import { LEIPZIGER_SOURCE_PARTS, leipzigerSourceRoofAt, leipzigerPartSolidBase } from "./leipzigerPlatzSourceProfile";
 import { POTSDAMER_MINISTRY_BUILDINGS } from "./potsdamerMinistrySourceProfile";
@@ -746,7 +749,7 @@ function addSegmentObstacle(
 export function compilePedestrianObstacles(
   prisms: Pick<PrismPayload, "buildings">,
   visualMode: () => VisualMode = () => "day",
-  options: { universitiesPreviousV322?:(prism:PrismPayload["buildings"][number])=>boolean; universitiesReadyV322?:()=>boolean; governmentPreviousV321?:(prism:PrismPayload["buildings"][number])=>boolean; governmentReadyV321?:()=>boolean; treptowWaterfrontV317?:boolean|(()=>boolean); neukoellnLandmarksV305?:boolean|(()=>boolean); moabitMitteV300?: boolean | (() => boolean); westKiezV302?: boolean | (() => boolean); chancelleryCanopySourceV289?: boolean | (() => boolean); klosterruineV288?: boolean | (() => boolean); historicDomV288?: boolean | (() => boolean); potsdamerCorridorV288?: boolean | (() => boolean); potsdamerStationPhoto?: boolean | (() => boolean); requiredSitesV281?: boolean; tiergartenWerkhofV275?: boolean; steppengartenShelterV283?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; charlottenburgerTorV379?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { corePrismChecks?: CorePrismChecksV383; universitiesPreviousV322?:(prism:PrismPayload["buildings"][number])=>boolean; universitiesReadyV322?:()=>boolean; governmentPreviousV321?:(prism:PrismPayload["buildings"][number])=>boolean; governmentReadyV321?:()=>boolean; treptowWaterfrontV317?:boolean|(()=>boolean); neukoellnLandmarksV305?:boolean|(()=>boolean); moabitMitteV300?: boolean | (() => boolean); westKiezV302?: boolean | (() => boolean); chancelleryCanopySourceV289?: boolean | (() => boolean); klosterruineV288?: boolean | (() => boolean); historicDomV288?: boolean | (() => boolean); potsdamerCorridorV288?: boolean | (() => boolean); potsdamerStationPhoto?: boolean | (() => boolean); requiredSitesV281?: boolean; tiergartenWerkhofV275?: boolean; steppengartenShelterV283?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; charlottenburgerTorV379?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianObstacleIndex {
   const index = emptyPedestrianObstacleIndex();
   if (options.includeAuguststrasseMuralV270) {
@@ -782,12 +785,13 @@ export function compilePedestrianObstacles(
   // environment created before attachment, or switched between modes, honest.
   // Full old owner receipts are checked once; a changed/partial source keeps
   // all its original obstacles even if a foreign caller supplies `true`.
-  const moabitAdmission = options.moabitMitteV300 && admitsMoabitMitteV300Core(prisms) ? options.moabitMitteV300 : false;
-  const westAdmission = options.westKiezV302 && admitsWestKiezV302Core(prisms) ? options.westKiezV302 : false;
-  const canopyAdmission = options.chancelleryCanopySourceV289 && admitsChancelleryCanopySourceV289(prisms) ? options.chancelleryCanopySourceV289 : false;
-  const historicAdmission = options.historicDomV288 && matchesBerlinHistoricDomOwnersV288(prisms.buildings)
+  const checked = options.corePrismChecks?.forSource(prisms);
+  const moabitAdmission = options.moabitMitteV300 && (checked?.moabitMitte ?? admitsMoabitMitteV300Core(prisms)) ? options.moabitMitteV300 : false;
+  const westAdmission = options.westKiezV302 && (checked?.westKiez ?? admitsWestKiezV302Core(prisms)) ? options.westKiezV302 : false;
+  const canopyAdmission = options.chancelleryCanopySourceV289 && (checked?.chancelleryCanopy ?? admitsChancelleryCanopySourceV289(prisms)) ? options.chancelleryCanopySourceV289 : false;
+  const historicAdmission = options.historicDomV288 && (checked?.historicDom ?? matchesBerlinHistoricDomOwnersV288(prisms.buildings))
     ? options.historicDomV288 : false;
-  const corridorAdmission = options.potsdamerCorridorV288 && admitsPotsdamerCorridorCoreV288(prisms)
+  const corridorAdmission = options.potsdamerCorridorV288 && (checked?.potsdamerCorridor ?? admitsPotsdamerCorridorCoreV288(prisms))
     ? options.potsdamerCorridorV288 : false;
   const active = (admission: boolean | (() => boolean)) => typeof admission === "function" ? admission() : admission;
   for (const [admission, solids] of [[moabitAdmission, moabitMitteV300Solids], [westAdmission, westKiezV302Solids], [options.neukoellnLandmarksV305??false,neukoellnLandmarksV305Solids], [options.treptowWaterfrontV317??false,treptowWaterfrontV317Solids]] as const) if (admission) for (const native of [false,true]) for (const solid of solids(native)) {
@@ -1386,6 +1390,16 @@ export function compilePedestrianObstacles(
         building.id, 0.1,
         (x, z) => zollpackhofDisplayTopAt(x, z, visualMode() === "minecraft"));
       index.buildingCount += 1;
+      continue;
+    }
+    if (isMehringplatzPrismV383(building)) {
+      for (const native of [false, true]) {
+        for (const [, source, bottom, top, [ring, ...holes]] of mehringplatzSolidsV383(building.id, native) ?? []) {
+          addPolygonObstacle(index, ring, holes, bottom, top, source, 1,
+            () => (visualMode() === "minecraft") === native ? top : Number.NEGATIVE_INFINITY);
+          index.buildingCount += 1;
+        }
+      }
       continue;
     }
     const perimeter = gendarmenmarktPerimeterSourceForPrism(building.id);
@@ -2561,7 +2575,7 @@ export function createPedestrianEnvironment(
   tunnel?: TunnelPortalCourseInput | null,
   prisms?: Pick<PrismPayload, "buildings"> | null,
   extension?: PedestrianExtension,
-  options: { universitiesPreviousV322?:(prism:PrismPayload["buildings"][number])=>boolean; universitiesReadyV322?:()=>boolean; governmentPreviousV321?:(prism:PrismPayload["buildings"][number])=>boolean; governmentReadyV321?:()=>boolean; treptowWaterfrontV317?:boolean|(()=>boolean); neukoellnLandmarksV305?:boolean|(()=>boolean); moabitMitteV300?: boolean | (() => boolean); westKiezV302?: boolean | (() => boolean); chancelleryCanopySourceV289?: boolean | (() => boolean); klosterruineV288?: boolean | (() => boolean); historicDomV288?: boolean | (() => boolean); potsdamerCorridorV288?: boolean | (() => boolean); potsdamerStationPhoto?: boolean | (() => boolean); requiredSitesV281?: boolean; tiergartenWerkhofV275?: boolean; steppengartenShelterV283?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; charlottenburgerTorV379?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
+  options: { corePrismChecks?: CorePrismChecksV383; universitiesPreviousV322?:(prism:PrismPayload["buildings"][number])=>boolean; universitiesReadyV322?:()=>boolean; governmentPreviousV321?:(prism:PrismPayload["buildings"][number])=>boolean; governmentReadyV321?:()=>boolean; treptowWaterfrontV317?:boolean|(()=>boolean); neukoellnLandmarksV305?:boolean|(()=>boolean); moabitMitteV300?: boolean | (() => boolean); westKiezV302?: boolean | (() => boolean); chancelleryCanopySourceV289?: boolean | (() => boolean); klosterruineV288?: boolean | (() => boolean); historicDomV288?: boolean | (() => boolean); potsdamerCorridorV288?: boolean | (() => boolean); potsdamerStationPhoto?: boolean | (() => boolean); requiredSitesV281?: boolean; tiergartenWerkhofV275?: boolean; steppengartenShelterV283?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; charlottenburgerTorV379?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean; northCultureV274?: boolean; operaTheatresV274?: boolean; includeAuguststrasseMuralV270?: boolean; golgathaV270?: boolean; includeSchlesischesTorV267?: boolean; replaceCampusCanopy?: boolean; replaceTachelesFrontPrisms?: boolean; replaceTechnikmuseumPrisms?: boolean; replaceMoabitLandmarkPrisms?: boolean; replaceAnhalterPrism?: boolean; replaceChariteBridges?: boolean; replaceAEGCampusPrisms?: boolean; replaceTownhallPrisms?: boolean; replaceDistrictCourtPrisms?: boolean; replaceColonnadesPrisms?: boolean; replaceSchlossplatzPrisms?: boolean } = {},
 ): PedestrianEnvironment {
   const smoothGround = smoothGroundTopSampler(ground);
   const cell = ground.cell_m;

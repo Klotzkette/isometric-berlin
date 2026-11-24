@@ -343,7 +343,7 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createEmbassiesV208(nextNative));
       yield;
-      root.add(createLabourQuartierV208(nextNative));
+      root.add(createLabourQuartierV208(nextNative, false));
       yield;
       root.add(createPrisonsMemorialsV209(nextNative));
       yield;

@@ -17,6 +17,7 @@ if (digest(proof) !== "45eeb46ae45a1f4bd05eaada60950d864b8d3580e3824903f67b76ac1
 }
 const receipt = JSON.parse(proof.toString("utf8")) as Receipt;
 const predecessors = new Map<string, Buffer>();
+const publishedAtV351 = new Map<string, Buffer>();
 
 export function assertSourceLayerV351(previous: Readonly<Record<string, string>>, files: readonly string[]): void {
   const current = { ...previous };
@@ -28,6 +29,9 @@ export function assertSourceLayerV351(previous: Readonly<Record<string, string>>
     const raw = execFileSync("git", ["show", `${previousCommit}:${path}`], { cwd: root, maxBuffer: 32 * 1024 * 1024 });
     if (digest(raw) !== before) throw Error(`Changed v351 source predecessor: ${path}`);
     predecessors.set(path, raw);
+    const published = execFileSync("git", ["show", `69810478315fb30ab5ded23f8bde39c51cb1ca20:${path}`], { cwd: root, maxBuffer: 32 * 1024 * 1024 });
+    if (digest(published) !== after) throw Error(`Changed published v351 result: ${path}`);
+    publishedAtV351.set(path, published);
   }
   for (const [path, hash] of Object.entries(receipt.additions)) {
     if (Object.hasOwn(previous, path) || !files.includes(path) || digest(sourceAtBeforeV352(path, readFileSync(resolve(root, path)))) !== hash) {
@@ -41,7 +45,9 @@ export function isSourceAdditionV351(path: string): boolean {
 }
 
 export function sourceAtBeforeV351(path: string, raw: Uint8Array): Uint8Array {
-  raw = sourceAtBeforeV352(path, raw);
+  // A caller can supply the original published v351 bytes after already
+  // reversing later releases. Compare them with the independent Git object.
+  if (!publishedAtV351.get(path)?.equals(raw)) raw = sourceAtBeforeV352(path, raw);
   const row = receipt.changes[path];
   if (!row) return raw;
   const hash = digest(raw);

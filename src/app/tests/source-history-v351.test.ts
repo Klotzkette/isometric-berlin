@@ -1,3 +1,4 @@
+import { expectedExactSourceRejection } from "./helpers/expectedExactSourceRejection";
 import { sourceAtBeforeV352 } from "./helpers/sourceHistoryV352";
 import { expect, test } from "bun:test";
 import { execFileSync } from "node:child_process";
@@ -23,7 +24,7 @@ test("v351 independently reconstructs each exact published v230 source and rejec
     expect(digest(before)).toBe(row.before);expect(digest(current)).toBe(row.after);
     expect(Buffer.from(sourceAtBeforeV351(path,current)).equals(before)).toBe(true);
     expect(projectSourceBeforeV351(current.toString())).toBe(before.toString());
-    expect(()=>sourceAtBeforeV351(path,Buffer.concat([current,Buffer.from(" ")]))).toThrow(/Unknown exact v35[123] source bytes/);
+    expect(()=>sourceAtBeforeV351(path,Buffer.concat([current,Buffer.from(" ")]))).toThrow(expectedExactSourceRejection(path));
   }
   for(const [path,hash] of Object.entries(receipt.additions))expect(digest(sourceAtBeforeV352(path,readFileSync(new URL(path,root))))).toBe(hash);
 },60_000);

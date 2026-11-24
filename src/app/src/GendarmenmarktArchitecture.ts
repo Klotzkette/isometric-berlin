@@ -1,13 +1,15 @@
 import {
-  BoxGeometry, BufferGeometry, Color, CylinderGeometry, DoubleSide, Float32BufferAttribute,
+  BoxGeometry, BufferGeometry, Color, CylinderGeometry, Float32BufferAttribute,
   Group, InstancedBufferAttribute, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial,
-  MeshStandardMaterial, Quaternion, ShapeUtils, SphereGeometry, Vector2, Vector3,
+  MeshStandardMaterial, Quaternion, SphereGeometry, Vector3,
 } from "three";
 import source from "./gendarmenmarktSource.json";
-import { GENDARMENMARKT_PROFILE as P, GENDARMENMARKT_SOURCES, gendarmenmarktPartBounds, gendarmenmarktPartContains } from "./gendarmenmarktProfile";
+import { GENDARMENMARKT_PROFILE as P, gendarmenmarktPartContains } from "./gendarmenmarktProfile";
 import { letteringStrokePaths } from "./drawnLettering";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { createSchillerMonument } from "./SchillerMonument";
+
+import { addGendarmenQuartierV383 } from "./gendarmenQuartierV383";
 
 type Point = [number, number, number];
 type Kind = "box" | "column" | "drum" | "head" | "dome" | "pediment";
@@ -285,36 +287,7 @@ function konzerthaus(b: Builder): void {
 }
 
 function square(b: Builder, root: Group): void {
-  // Exact OSM square outline at street level; hidden ground is kept flat.
-  const outline = source.square.ring.map(p => new Vector2(p[0], p[1]));
-  const triangles = ShapeUtils.triangulateShape(outline, []), positions: number[] = [];
-  for (const t of triangles) for (const i of t) positions.push(outline[i].x, 5.23, outline[i].y);
-  const geometry = new BufferGeometry(); geometry.setAttribute("position", new Float32BufferAttribute(positions, 3)); geometry.computeVertexNormals();
-  const day = new MeshBasicMaterial({ color: 0xaaa89b, side: DoubleSide });
-  const night = new MeshStandardMaterial({ color: 0xaaa89b, roughness: .94, side: DoubleSide });
-  const mesh = new Mesh(geometry, day); mesh.name = "Exact OSM Gendarmenmarkt flush natural-stone ground";
-  mesh.userData = { dayMaterial: day, nightMaterial: night, textureFree: true, osmKey: source.square.osm_key };
-  root.add(mesh);
-  // Larger retained-grid readings, not one mesh per individual paving stone.
-  const origin = source.square.ring[3], across = source.square.ring[0];
-  const dx = across[0] - origin[0], dz = across[1] - origin[1], length = Math.hypot(dx, dz);
-  const vx = source.square.ring[2][0] - origin[0], vz = source.square.ring[2][1] - origin[1], depth = Math.hypot(vx, vz);
-  const p = (u: number, v: number): Point => [origin[0] + dx * u + vx * v, 5.245, origin[1] + dz * u + vz * v];
-  const footprints = GENDARMENMARKT_SOURCES.flatMap(profile =>
-    profile.parts.map(part => ({ part, bounds: gendarmenmarktPartBounds(part) })));
-  const clear = ([x, , z]: Point) => !footprints.some(({ part, bounds }) =>
-    x >= bounds[0] && z >= bounds[1] && x <= bounds[2] && z <= bounds[3] &&
-    gendarmenmarktPartContains(part, x, z));
-  // Short segments skip each exact building footprint and keep the broad pale
-  // square legible without dense joints that shimmer in mobile distant views.
-  for (let u = 0; u <= 1; u += 7.5 / length) for (let v = .01; v < .99; v += 3 / depth) {
-    const a = p(u, v), z = p(u, Math.min(.995, v + 3 / depth));
-    if (clear(a) && clear(z)) b.beam(a, z, .09, 0x898c84);
-  }
-  for (let v = 0; v <= 1; v += 7.5 / depth) for (let u = .01; u < .99; u += 3 / length) {
-    const a = p(u, v), z = p(Math.min(.995, u + 3 / length), v);
-    if (clear(a) && clear(z)) b.beam(a, z, .09, 0x898c84);
-  }
+  addGendarmenQuartierV383(root, b);
   root.add(createSchillerMonument(b.minecraft));
 }
 

@@ -9,7 +9,10 @@ export const TEMPODROM_ANHALTER_V266_PROFILE = {
 } as const;
 const fingerprint=(p:Source)=>JSON.stringify([p.id,p.ring,p.holes,p.y0_dm,p.h_dm,p.class,p.roof,p.tone]);
 export function isAnhalterSourceV266(value:unknown):boolean{
-  return !!value&&typeof value==='object'&&fingerprint(value as Source)===fingerprint(data.portico.previousPrism);
+  if (!value || typeof value !== "object") return false;
+  const part=value as Source;
+  if (typeof part.id === "string" && part.id !== data.portico.previousPrism.id) return false;
+  return fingerprint(part) === fingerprint(data.portico.previousPrism);
 }
 export function isTempodromSourceV266(value:unknown):boolean{
   return !!value&&typeof value==='object'&&fingerprint(value as Source)===fingerprint(data.tempodrom.retainedPrism);

@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { build } from "vite";
 import { losslessJsonData, transformLosslessJsonData } from "../losslessJsonData";
 import { decodeLosslessGzipJson } from "../src/losslessGzipJson";
+import { decodeLosslessGzipJson as decodeStreetField } from "../src/losslessSurveyFieldV383";
 import { decodeLosslessGzipJson as decodeBase85GzipJson } from "../src/losslessGzipBase85";
 import { LOSSLESS_EAGER_FIELDS_V270 } from "../losslessEagerFieldsV270";
 
@@ -21,12 +22,25 @@ function evaluateModule(source: string, threshold = 64 * 1024, id = ID) {
     });
     return `const named = {${properties.join(",")}};`;
   }).replace("export default", "const data =");
-  return new Function("__decodeLosslessGzip", `${result.code.includes("export {") ? "" : "const named = {};"}${script}\nreturn { data, named };`)(result.code.includes("losslessGzipBase85") ? decodeBase85GzipJson : decodeLosslessGzipJson) as {
+  const decoder = result.code.includes("losslessSurveyFieldV383") ? decodeStreetField
+    : result.code.includes("losslessGzipBase85") ? decodeBase85GzipJson : decodeLosslessGzipJson;
+  return new Function("__decodeLosslessGzip", `${result.code.includes("export {") ? "" : "const named = {};"}${script}\nreturn { data, named };`)(decoder) as {
     data: Record<string, unknown>; named: Record<string, unknown>;
   };
 }
 
 describe("lossless lazy source JSON", () => {
+  test("v383 street and plaza module exports reconstruct the production source", async () => {
+    for (const name of ["roadGroundV343","mittePlazaEdgesV367"]) {
+      const path = fileURLToPath(new URL(`../src/data/${name}.json`, import.meta.url));
+      const source = await readFile(path,"utf8");
+      const {data,named} = evaluateModule(source,64*1024,path);
+      const expected = JSON.parse(source);
+      expect(data).toEqual(expected);
+      for (const [key,value] of Object.entries(expected)) expect(named[key]).toEqual(value);
+    }
+  });
+
   test("v271 colour receipts preserve exact values and small eager indices", async () => {
     for (const name of ["northMitteColoursV271", "weinbergLegacyMaterialsV271", "kollwitzMaterialsV271"]) {
       const path = fileURLToPath(new URL(`../src/data/${name}.json`, import.meta.url));

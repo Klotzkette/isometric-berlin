@@ -2,8 +2,10 @@ import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { transformLosslessJsonData, LOSSLESS_JSON_FIELD_BYTES, LOSSLESS_PACKED_STRING_FIELDS } from '../losslessJsonData';
 import { decodeLosslessGzipJson } from '../src/losslessGzipJson';
+import { decodeLosslessGzipJson as decodeStreetField } from "../src/losslessSurveyFieldV383";
 import { decodeLosslessGzipJson as decodeBase85GzipJson } from "../src/losslessGzipBase85";
 import { LOSSLESS_EAGER_FIELDS_V270 } from '../losslessEagerFieldsV270';
+import { LOSSLESS_EAGER_FIELDS_V322 } from '../losslessEagerFieldsV322';
 
 // These separately audited fields were already eager, strongly owned literals.
 // Their v270 source encoding adds exactly one initial decode per listed field.
@@ -24,8 +26,8 @@ const DIRECT_PACKED_FIELDS: Readonly<Record<string, readonly string[]>> = {
   'theatresV272.json': ['sourcePositions', 'facadeBoxes'],
 };
 
-function compile(name: string, value: unknown) {
-  const result = transformLosslessJsonData(JSON.stringify(value), `/project/src/app/src/data/${name}`)!;
+function compile(name: string, original: string) {
+  const result = transformLosslessJsonData(original, `/project/src/app/src/data/${name}`)!;
   expect(result).toBeDefined();
   const code = result.code.replace(/^import[^\n]*\n/, '').replace(/export \{[^\n]*\};/, '')
     // Production default consumers tree-shake unused named export initializers.
@@ -33,7 +35,9 @@ function compile(name: string, value: unknown) {
     .replace('export default', 'return');
   let decodes = 0;
   const data = new Function('__decodeLosslessGzip', code)((encoded: string) => {
-    decodes++; return (result.code.includes("losslessGzipBase85") ? decodeBase85GzipJson : decodeLosslessGzipJson)(encoded);
+    decodes++;
+    if (result.code.includes("losslessSurveyFieldV383")) return decodeStreetField(encoded);
+    return (result.code.includes("losslessGzipBase85") ? decodeBase85GzipJson : decodeLosslessGzipJson)(encoded);
   });
   return { data, result, decodes: () => decodes };
 }
@@ -41,12 +45,14 @@ function compile(name: string, value: unknown) {
 test('audited packed strings round-trip every byte with strong ownership and size-bound lazy decoding', () => {
   let savings = 0;
   for (const [name, fields] of Object.entries(LOSSLESS_PACKED_STRING_FIELDS)) {
-    const source = JSON.parse(readFileSync(new URL(`../src/data/${name}`, import.meta.url), 'utf8'));
-    const { data, result, decodes } = compile(name, source);
-    const eagerFields = EAGER_FIELDS[name] ?? [];
+    const original = readFileSync(new URL(`../src/data/${name}`, import.meta.url), 'utf8');
+    const source = JSON.parse(original);
+    const { data, result, decodes } = compile(name, original);
+    const earlierEager = EAGER_FIELDS[name] ?? [];
+    const eagerFields = [...earlierEager, ...(LOSSLESS_EAGER_FIELDS_V322[`data/${name}`] ?? [])];
     const directFields = DIRECT_PACKED_FIELDS[name] ?? [];
     for (const field of directFields) expect(fields).toContain(field);
-    expect(LOSSLESS_EAGER_FIELDS_V270[`data/${name}`] ?? []).toEqual(eagerFields);
+    expect(LOSSLESS_EAGER_FIELDS_V270[`data/${name}`] ?? []).toEqual(earlierEager);
     expect(decodes()).toBe(eagerFields.length);
     for (const field of eagerFields) {
       expect(Object.getOwnPropertyDescriptor(data, field)?.value).toBe(data[field]);

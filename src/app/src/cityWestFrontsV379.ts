@@ -1,9 +1,10 @@
 import { BufferAttribute, BufferGeometry, Color, Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 import survey from "./data/cityWestFrontsV379.json";
+import wittenberg from "./data/wittenbergFrontsV383.json";
 
 type Opening = [number, number, number, number, number, number];
 type Front = [number, number, number, number, number, number, number, Opening[]];
-const fronts = survey as unknown as Record<string, Front[]>;
+const fronts = {...survey, ...wittenberg} as unknown as Record<string, Front[]>;
 
 export function hasCityWestFrontV379(id: string | undefined | null): boolean {
   return id != null && Object.hasOwn(fronts, id);

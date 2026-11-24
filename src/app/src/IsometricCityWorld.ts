@@ -119,6 +119,7 @@ import { EAST_CIVIC_PRISM_IDS } from "./eastCivicProfile";
 import { RUSSIAN_EMBASSY_SOURCE_IDS } from "./RussianEmbassySourceGeometry";
 import { cutUnterDenLindenSurfaceApertures } from "./UnterDenLindenSurfaceApertures";
 import { GENDARMENMARKT_PRISM_IDS } from "./gendarmenmarktProfile";
+import { isMehringplatzPrismV383 } from "./mehringplatzOwnersV383";
 import { GENDARMENMARKT_PERIMETER_REPLACED_PRISM_IDS } from "./gendarmenmarktPerimeterIds";
 import { createChariteHistoricFacades } from "./ChariteHistoricFacades";
 import { CHARITE_HISTORIC_FACADE_IDS, CHARITE_HISTORIC_FACADE_TONES, CHARITE_HISTORIC_FACADE_ROOF_TONES, CHARITE_THEATRE_REPLACEMENT_IDS } from "./chariteHistoricFacadeProfiles";
@@ -237,6 +238,7 @@ import {
   Uint16BufferAttribute,
   Uint8BufferAttribute,
   Vector2,
+  Sphere,
   Vector3,
 } from "three";
 import { TessellateModifier } from "three/examples/jsm/modifiers/TessellateModifier.js";
@@ -1832,6 +1834,7 @@ function isRenderablePrismBuilding(building: PrismBuilding): boolean {
   return !(
     building.ring.length < 3 ||
     PRISM_SUPPRESSED_IDS.has(building.id) ||
+    isMehringplatzPrismV383(building) ||
     isInterimOfficeFootprintSuppressed(building) ||
     isFriedrichstrasseStationFootprintSuppressed(building) ||
     (!PRISM_GLASSED_IDS.has(building.id) &&
@@ -1890,36 +1893,37 @@ export function createDistantBuildingShells(
   const group = new Group();
   group.name = "Complete distant building coverage";
   const originalWaterfrontPrismV296=options.waterfrontV296?buildings.find(waterfrontOriginalPrismV296):undefined;
-  const visible = buildings.filter(building => !options.chancelleryCanopySourceV289 || !isChancelleryCanopyOldPrismV289(building))
-    .filter(building => !options.moabitMitteV300 || !isMoabitMitteV300OldCore(building))
-    .filter(building => !options.westKiezV302 || !isWestKiezV302OldCore(building))
-    .filter(building => !options.historicDomV288 || !isBerlinHistoricDomOldCoreV288(building))
-    .filter(building => !options.potsdamerCorridorV288 || !isPotsdamerCorridorOldCoreV288(building))
-    .filter(building => (!options.potsdamerStationPhoto || !isPotsdamerStationPhotoSource(building)) &&
-      (!options.potsdamerNorthPavilion || !isPotsdamerNorthPavilionSource(building)))
-    .filter(building => !options.architectureV241 || !isAEGCampusCorePrismV241(building))
-    .filter(building => !options.zooWestV276 || (!isZooWestSourceV276(building) && !isZooWestSourceV379(building)))
-    .filter(building => !options.zooHousesV282 || !isZooHouseSourceV282(building))
-    .filter(building => !isWeltkugelSourceV281(building))
-    .filter(building => !options.charlottenburgerTorV379 || !isCharlottenburgerCandelabrumV379(building))
-    .filter(building => !options.verkehrskanzelV276 || !isVerkehrskanzelSourceV276(building))
-    .filter(building => !options.steppengartenShelterV283 || !isSteppengartenShelterSourceV283(building))
-    .filter(building => !options.tiergartenWerkhofV275 || !isTiergartenWerkhofSourceV275(building))
-    .filter(building => !options.bayerCampusV277 || !isBayerCampusSourceV277(building))
-    .filter(building => !options.lehrterV277 || !isLehrterSourceV277(building))
-    .filter(building => !options.rkiMoabitV277 || !isRkiMoabitSourceV277(building))
-    .filter(building => !options.tachelesFrontsV270 || !isTachelesFrontSourceV270(building))
-    .filter(building => !isOperaTheatrePreviousPrismV274(options.operaTheatresV274 === true, building))
-    .filter(building => !options.technikmuseumV272 || !isTechnikmuseumSourceV272(building))
-    .filter(building => !options.moabitLandmarksV269 || !isMoabitLandmarkSourceV269(building))
-    .filter(building => !options.tempodromAnhalterV266 || !isAnhalterSourceV266(building))
-    .filter(building => !options.northernSitesV266 || !isCampusCanopySourceV266(building))
-    .filter(building => !options.chariteBridgesV265 || !isChariteBridgeSourceV265(building))
-    .filter(building => options.includeLegacyTownhallEnvelopes !== false || !isTownhallCorePrismV227(building))
-    .filter(building => options.includeLegacyDistrictCourtEnvelopes !== false || !isDistrictCourtCorePrismV229(building))
-    .filter(building => options.includeLegacyWeddingStationRoof !== false || !isWeddingRoofCoreV229(building))
-    .filter(building => options.includeLegacySchlossplatzEnvelopes !== false || !isSchlossplatzCorePrismV239(building))
-    .filter(building => options.includeLegacyColonnadesEnvelopes !== false || !isColonnadesCorePrismV231(building))
+  const visible = buildings.filter(building =>
+    (!options.chancelleryCanopySourceV289 || !isChancelleryCanopyOldPrismV289(building)) &&
+    (!options.moabitMitteV300 || !isMoabitMitteV300OldCore(building)) &&
+    (!options.westKiezV302 || !isWestKiezV302OldCore(building)) &&
+    (!options.historicDomV288 || !isBerlinHistoricDomOldCoreV288(building)) &&
+    (!options.potsdamerCorridorV288 || !isPotsdamerCorridorOldCoreV288(building)) &&
+    ((!options.potsdamerStationPhoto || !isPotsdamerStationPhotoSource(building)) &&
+      (!options.potsdamerNorthPavilion || !isPotsdamerNorthPavilionSource(building))) &&
+    (!options.architectureV241 || !isAEGCampusCorePrismV241(building)) &&
+    (!options.zooWestV276 || (!isZooWestSourceV276(building) && !isZooWestSourceV379(building))) &&
+    (!options.zooHousesV282 || !isZooHouseSourceV282(building)) &&
+    (!isWeltkugelSourceV281(building)) &&
+    (!options.charlottenburgerTorV379 || !isCharlottenburgerCandelabrumV379(building)) &&
+    (!options.verkehrskanzelV276 || !isVerkehrskanzelSourceV276(building)) &&
+    (!options.steppengartenShelterV283 || !isSteppengartenShelterSourceV283(building)) &&
+    (!options.tiergartenWerkhofV275 || !isTiergartenWerkhofSourceV275(building)) &&
+    (!options.bayerCampusV277 || !isBayerCampusSourceV277(building)) &&
+    (!options.lehrterV277 || !isLehrterSourceV277(building)) &&
+    (!options.rkiMoabitV277 || !isRkiMoabitSourceV277(building)) &&
+    (!options.tachelesFrontsV270 || !isTachelesFrontSourceV270(building)) &&
+    (!isOperaTheatrePreviousPrismV274(options.operaTheatresV274 === true, building)) &&
+    (!options.technikmuseumV272 || !isTechnikmuseumSourceV272(building)) &&
+    (!options.moabitLandmarksV269 || !isMoabitLandmarkSourceV269(building)) &&
+    (!options.tempodromAnhalterV266 || !isAnhalterSourceV266(building)) &&
+    (!options.northernSitesV266 || !isCampusCanopySourceV266(building)) &&
+    (!options.chariteBridgesV265 || !isChariteBridgeSourceV265(building)) &&
+    (options.includeLegacyTownhallEnvelopes !== false || !isTownhallCorePrismV227(building)) &&
+    (options.includeLegacyDistrictCourtEnvelopes !== false || !isDistrictCourtCorePrismV229(building)) &&
+    (options.includeLegacyWeddingStationRoof !== false || !isWeddingRoofCoreV229(building)) &&
+    (options.includeLegacySchlossplatzEnvelopes !== false || !isSchlossplatzCorePrismV239(building)) &&
+    (options.includeLegacyColonnadesEnvelopes !== false || !isColonnadesCorePrismV231(building)))
     .map(resolveHumboldthafenPrism).filter(isRenderablePrismBuilding);
   group.userData.sourceBuildingCount = buildings.length;
   group.userData.visibleBuildingCount = visible.length;
@@ -1935,20 +1939,21 @@ export function createDistantBuildingShells(
   const color = new Color();
   const capColor = new Color();
   const upperColor = new Color(POTSDAMER_UPPER_STOREYS.color);
-  const vertex = (
-    x: number, y: number, z: number,
-    nx: number, ny: number, nz: number, tone: Color,
-  ): number => {
-    const index = positions.length / 3;
-    positions.push(x, y, z);
-    normals.push(Math.round(nx * 127), Math.round(ny * 127), Math.round(nz * 127));
+  // All vertices on a flat face share the same quantized normal and shade.
+  const faceAttributes = (nx: number, ny: number, nz: number, tone: Color, count: number): void => {
+    const qx = Math.round(nx * 127), qy = Math.round(ny * 127), qz = Math.round(nz * 127);
     const shade = isoFaceShade(nx, ny, nz);
-    colors.push(
-      Math.round(tone.r * shade * 255),
-      Math.round(tone.g * shade * 255),
-      Math.round(tone.b * shade * 255),
-    );
-    return index;
+    const red = Math.round(tone.r * shade * 255);
+    const green = Math.round(tone.g * shade * 255);
+    const blue = Math.round(tone.b * shade * 255);
+    for (let i = 0; i < count; i++) {
+      normals.push(qx, qy, qz);
+      colors.push(red, green, blue);
+    }
+  };
+  const vertex = (x: number, y: number, z: number, nx: number, ny: number, nz: number, tone: Color) => {
+    positions.push(x, y, z);
+    faceAttributes(nx,ny,nz,tone,1);
   };
   const cityWestFronts = new CityWestFrontBatchV379();
   for (const building of visible) {
@@ -2016,13 +2021,13 @@ export function createDistantBuildingShells(
     for (const wall of facadeWallsOf(building)) {
       const x2 = wall.x1 + wall.dirX * wall.length;
       const z2 = wall.z1 + wall.dirZ * wall.length;
-      const levels = upperY === undefined ? [y0, y0 + bodyHeight] : [y0, upperY, y0 + bodyHeight];
-      for (let level = 0; level < levels.length - 1; level += 1) {
-        const tone = level === 0 ? color : upperColor;
-        const a = vertex(wall.x1, levels[level], wall.z1, wall.nx, 0, wall.nz, tone);
-        const b = vertex(x2, levels[level], z2, wall.nx, 0, wall.nz, tone);
-        const c = vertex(x2, levels[level + 1], z2, wall.nx, 0, wall.nz, tone);
-        const d = vertex(wall.x1, levels[level + 1], wall.z1, wall.nx, 0, wall.nz, tone);
+      const levels = upperY === undefined ? 1 : 2;
+      for (let level = 0; level < levels; level++) {
+        const low = level === 0 ? y0 : upperY!;
+        const high = level === 0 && upperY !== undefined ? upperY : y0 + bodyHeight;
+        const a = positions.length / 3, b = a+1, c = a+2, d = a+3;
+        positions.push(wall.x1,low,wall.z1, x2,low,z2, x2,high,z2, wall.x1,high,wall.z1);
+        faceAttributes(wall.nx,0,wall.nz,level === 0 ? color : upperColor,4);
         if (-wall.dirZ * wall.nx + wall.dirX * wall.nz > 0) {
           indices.push(a, b, c, a, c, d);
         } else {
@@ -2037,7 +2042,8 @@ export function createDistantBuildingShells(
       // triangulateShape removes duplicated closing points in place.
       const points = [contour, ...holes].flat();
       const offset = positions.length / 3;
-      for (const point of points) vertex(point.x, y0 + bodyHeight, -point.y, 0, 1, 0, capColor);
+      for (const point of points) positions.push(point.x, y0 + bodyHeight, -point.y);
+      faceAttributes(0,1,0,capColor,points.length);
       for (const [a, b, c] of triangles) indices.push(offset + a, offset + b, offset + c);
       group.userData.openCourtyardCount += holes.length;
     }
@@ -2076,7 +2082,18 @@ export function createDistantBuildingShells(
   geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
   geometry.setIndex(indices);
   geometry.computeBoundingBox();
-  geometry.computeBoundingSphere();
+  // computeBoundingSphere scans the same position buffer a second time to
+  // recreate the box. All vertices are finalized Float32s with no morphs.
+  const sphere = new Sphere();
+  geometry.boundingBox!.getCenter(sphere.center);
+  const xyz = geometry.getAttribute("position").array;
+  let radiusSquared = 0;
+  for (let i = 0; i < xyz.length; i += 3) {
+    const x = sphere.center.x - xyz[i], y = sphere.center.y - xyz[i+1], z = sphere.center.z - xyz[i+2];
+    radiusSquared = Math.max(radiusSquared, x*x + y*y + z*z);
+  }
+  sphere.radius = Math.sqrt(radiusSquared);
+  geometry.boundingSphere = sphere;
   const dayMaterial = new MeshBasicMaterial({ vertexColors: true, side: DoubleSide });
   const nightMaterial = new MeshStandardMaterial({
     vertexColors: true, side: DoubleSide, flatShading: true,

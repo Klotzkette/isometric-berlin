@@ -1366,6 +1366,10 @@ function* addTreesSteps(
   // and lobe rotations. A test checks the fitted vertices for every surveyed tree.
   const chestnutWidths = [2.425261, 2.062020, 2.198108];
   const chestnutRises = [1.245972, 1.477753, 1.429047];
+  // The vase-shaped linden has different lobe spacing from a horse chestnut.
+  // The regression measures all three variants against their transformed vertices.
+  const lindenWidths = [2.475228, 2.065393, 2.117659];
+  const lindenRises = [1.122272, 1.360657, 1.263407];
   let treeIndex = 0;
   for (const tree of trees) {
     if (packedScratch && treeIndex++ % 128 === 0) yield;
@@ -1525,8 +1529,8 @@ function* addTreesSteps(
       }
     }
     const fit = tree.nativeCrown;
-    const crownRadius = fit ? fit.diameter / chestnutWidths[variant] : tree.crown_radius_m;
-    const crownRise = fit ? (fit.height - trunkHeight) / chestnutRises[variant] : tree.crown_radius_m;
+    const crownRadius = fit ? fit.diameter / (form === "vase" ? lindenWidths : chestnutWidths)[variant] : tree.crown_radius_m;
+    const crownRise = fit ? (fit.height - trunkHeight) / (form === "vase" ? lindenRises : chestnutRises)[variant] : tree.crown_radius_m;
     if (Math.abs(tree.variant) % 3 === 0) {
       const snowTarget = isInsideCutaway ? cutawaySnowCaps : snowCaps;
       snowTarget.push({
