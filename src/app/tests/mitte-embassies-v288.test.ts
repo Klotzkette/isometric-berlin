@@ -86,7 +86,16 @@ test("the photographed NE front owns silver skins,39 measured short bay planes a
     expect(Math.abs(skin.triangles.reduce((sum, tri) => sum + area(tri), 0) - sourceArea)).toBeLessThan(1e-5);
   }
   expect(profile.chinaFrontAudit.skinOffsetM).toBeLessThan(.055);
-  expect(new Bun.CryptoHasher("sha256").update(JSON.stringify(bakeEmbassyFittingsV288("dprk", true))).digest("hex")).toBe("139b150b1eefaed0e2df776f5039ebb628636e5ec18e85f3d847ac32611d9d2e");
+  // Transcendental functions in JavaScript differ in their final bits across engines.
+  // A nanometre/one nanoradian retains more precision than the render buffers.
+  const fitted = bakeEmbassyFittingsV288("dprk", true);
+  const nano = (n: number) => Math.round(n * 1e9);
+  const geometry = {
+    boxes: fitted.boxes.map(b => [b.p.map(nano), b.size.map(nano), nano(b.yaw), b.tint, b.run]),
+    faces: fitted.faces,
+  };
+  expect(new Bun.CryptoHasher("sha256").update(JSON.stringify(geometry)).digest("hex"))
+    .toBe("212abc688a003b56a0d0de15f25d56f7958d1c209eafb04e17e78822b6f7df19");
 });
 
 test("DPRK native addition admits only the original bounded payload and does not invoke adversarial descriptors", () => {
