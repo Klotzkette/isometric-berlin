@@ -10,6 +10,8 @@ Der Südgiebel trägt eine große Rosette zwischen zwei kleineren. Im Modell umg
 
 Der Direktaufruf führt vor den Südgiebel. Im früheren Kamerabild verdeckte das gegenüberliegende Dach große Teile der Fassade. Für die Hofansicht wurden Sichtstrahlen gegen die vorhandenen Nachbargebäude geprüft. In beiden Modellstilen und in beiden geprüften Bildformaten sind alle 64 Prüfpunkte der zentralen Rosette und alle 189 Prüfpunkte am Giebel frei. Für die Rundbögen des Vorderhauses gibt es weiterhin eine eigene Straßenansicht. [Blick auf den Südgiebel](https://klotzkette.github.io/isometric-berlin/?theme=day&lang=de#landmark=synagoge-rykestrasse) · [Vorderhaus an der Straße](https://klotzkette.github.io/isometric-berlin/?theme=day&lang=de#landmark=vorderhaus-der-synagoge-rykestrasse)
 
+![Links verdeckt das Nachbardach den Südgiebel. Rechts sind vom Hof aus alle drei Rosetten und die Rundbogenfenster zu sehen. Beide Aufnahmen stammen aus dem vollständig geladenen mobilen Viewer.](rykestrasse-hofblick-v382.webp)
+
 ## Historisches Vorderhaus
 
 Der frühere flach gedeckte Block ist durch die amtlich erfasste Hülle mit Satteldach ersetzt. Die öffentliche Straßenfassade zeigt zwei breite Ziegelbögen, eine schmal gegliederte Mittelpartie, horizontale Gesimse und einen oberen Abschluss mit Rundbogenfenstern. Das Gesicht der Fassade folgt der von Berlin.de veröffentlichten Außenaufnahme. Die Nachbargebäude gehören weiterhin zu ihren ursprünglichen Stadtobjekten. [Außenaufnahme und Geschichte bei Berlin.de](https://www.berlin.de/sehenswuerdigkeiten/6426835-3558930-synagoge-rykestrasse.html) · [LoD2 Berlin, Kachel 392/5821](https://gdi.berlin.de/data/a_lod2/atom/LoD2_392_5821.zip)
