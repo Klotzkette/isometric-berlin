@@ -21,3 +21,13 @@ An der Wörther Straße stehen zwei unterschiedliche denkmalgeschützte Litfaßs
 An der Kollwitzstraße 56a erinnert eine gelbe Tafel an Käthe und Karl Kollwitz. Im Viewer sitzt sie an der Straßenfassade oberhalb des Eingangs. Die Beschriftung wurde für die Nahansicht gekürzt, Maße und Höhe über der Tür wurden nach der Außenaufnahme angenähert. [Gedenktafel im Viewer](https://klotzkette.github.io/isometric-berlin/#landmark=gedenktafel-fur-kathe-und-karl-kollwitz) · [Gedenktafeln in Berlin](https://www.gedenktafeln-in-berlin.de/gedenktafeln/detail/kollwitz/2595)
 
 ![Die drei verschiedenen Litfaßsäulen und die gelbe Gedenktafel in beiden Modellstilen](kollwitz-stadtmoebel-v381.webp)
+
+## Größe der veröffentlichten Fassung
+
+| Messung am Produktionsbuild | v1.0.260 | v1.0.261 |
+| --- | ---: | ---: |
+| Drei JavaScript-Dateien des ersten Starts, unkomprimiert | 415.971 Byte | 415.971 Byte |
+| Dieselben Dateien, mit gzip Stufe 9 komprimiert | 127.621 Byte | 127.631 Byte |
+| Vollständiger GitHub-Pages-Dateibaum | 990.651.261 Byte | 992.251.602 Byte |
+
+Die neuen Ortsmodelle werden erst bei einem Besuch im Viertel geladen. In der dokumentierten Rykestraßen-Ansicht verringerte die räumliche Gruppierung der Bäume die von WebGL verarbeiteten Dreiecke von 256.026 auf 162.874. Ein Pixelvergleich mit unveränderter Kamera bestätigte die identische Darstellung. Die tatsächliche Bildrate und Startzeit hängen vom Gerät und vom Browser ab. [Prüfansicht und Messverfahren](ryke-strassen-v381.md)
