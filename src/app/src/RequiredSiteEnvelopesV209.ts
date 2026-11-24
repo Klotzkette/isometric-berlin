@@ -54,7 +54,6 @@ import { createMuseumColonnadesV231 } from "./MuseumColonnadesV231";
 import { createMonbijouV231 } from "./MonbijouV231";
 import { createSpandauBotanicalV230 } from "./SpandauBotanicalV230";
 import { createCentralNamedV230 } from "./CentralNamedV230";
-import { createCentralNamedEnvelopesV230 } from "./CentralNamedEnvelopesV230";
 import { createWestIndustrialV230 } from "./WestIndustrialV230";
 import { createSchoolCultureV228 } from "./SchoolCultureV228";
 import type { Group } from "three";
@@ -140,7 +139,7 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   yield;
   root.add(createPrenzlbergEnvelopesV264(native));
   yield;
-  root.add(createPrenzlbergV264(native));
+  root.add(createPrenzlbergV264(native, true, true));
   yield;
   root.add(createChariteRailV261(native));
   yield;
@@ -224,9 +223,8 @@ export function* addRequiredSiteEnvelopesV209Steps(root: Group, native = false):
   yield;
   root.add(createWestIndustrialV230(native));
   yield;
-  root.add(createCentralNamedEnvelopesV230(native));
   yield;
-  root.add(createCentralNamedV230(native));
+  root.add(createCentralNamedV230(native, true));
   yield;
   root.add(createSpandauBotanicalV230(native));
   yield;

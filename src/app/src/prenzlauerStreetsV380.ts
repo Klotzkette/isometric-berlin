@@ -58,7 +58,7 @@ function pavingMaterial(night: boolean) {
   return material;
 }
 
-function surfaceMesh(data: PrenzlauerStreetPacketV380) {
+export function createSurveySurfaceV380(data: PrenzlauerStreetPacketV380, name: string) {
   const n = data.n;
   if (n < 1 || n > 65535 || data.faces < 1 || data.faces > 100000) throw new Error("Invalid Prenzlauer packet extent");
   const words = decodeWords(data.p, n, 3), positions = new Float32Array(n*3);
@@ -84,7 +84,7 @@ function surfaceMesh(data: PrenzlauerStreetPacketV380) {
   geometry.computeBoundingSphere();
   const day = pavingMaterial(false), night = pavingMaterial(true);
   const mesh = new Mesh(geometry, day);
-  mesh.name = "Kastanienallee und Oderberger Straße – Straßenbefahrung, Gleise und historische Fronten";
+  mesh.name = name;
   mesh.userData = { dayMaterial: day, nightMaterial: night };
   return mesh;
 }
@@ -113,7 +113,7 @@ function addTreeParts(root: Group, rows: TreePart[], geom: BufferGeometry, name:
   root.add(mesh);
 }
 
-function addSurveyTrees(root: Group, rows: number[][], native: boolean) {
+export function addSurveyTreesV380(root: Group, rows: number[][], native: boolean) {
   const wood: TreePart[] = [], leaves: TreePart[] = [];
   const rotation = new Quaternion(), vertical = new Vector3(0,1,0);
   for (const [x,z,y,h,w,girth,species,index] of rows) {
@@ -151,8 +151,8 @@ export function createPrenzlauerStreetsV380(data: PrenzlauerStreetPacketV380, na
   const group = new Group();
   group.name = "Kastanienallee und Oderberger Straße";
   group.userData = { nativeMinecraft:native, keepInMinecraft:native, prenzlauerStreetTrees:data.trees.length };
-  group.add(surfaceMesh(data));
-  addSurveyTrees(group,data.trees,native);
+  group.add(createSurveySurfaceV380(data,"Kastanienallee und Oderberger Straße – Straßenbefahrung, Gleise und historische Fronten"));
+  addSurveyTreesV380(group,data.trees,native);
   return group;
 }
 

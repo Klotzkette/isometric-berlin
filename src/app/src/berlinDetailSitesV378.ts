@@ -1,3 +1,4 @@
+import {attachKollwitzKiezV381, kollwitzKiezHostsV381, kollwitzKiezIdsV381} from "./kollwitzKiezSitesV381";
 import {berlinRegionLoaderV380, berlinRegionsV380} from "./berlinRegionsV380";
 import type { SurroundingChunkGeometry } from "./SurroundingCityGeometry";
 import { zooWestIdsV379, zooWestHostsV379 } from "./zooWestIndexV379";
@@ -12,7 +13,7 @@ type Host = { id: string; bounds: [number, number, number, number] };
 const streets = new Set(streetIds);
 const landscape = new Set(tegelHostsV378.map(site => site.id));
 const waterwayHosts = Object.entries(waterwayIndex).map(([id,bounds]) => ({id, bounds: bounds as Host["bounds"]}));
-export const exteriorSitesV378: Host[] = [...berlinRegionsV380, { id: "charlottenburger-tor-v379", bounds: [-2872,505,-2600,630] }, ...zooWestHostsV379, ...tegelHostsV378, ...retailHostsV378, ...transportExteriorTilesV378, ...waterwayHosts];
+export const exteriorSitesV378: Host[] = [...kollwitzKiezHostsV381, ...berlinRegionsV380, { id: "charlottenburger-tor-v379", bounds: [-2872,505,-2600,630] }, ...zooWestHostsV379, ...tegelHostsV378, ...retailHostsV378, ...transportExteriorTilesV378, ...waterwayHosts];
 
 export async function attachBerlinDetailsV378(entry: SurroundingChunkGeometry, id: string, native: boolean, signal: AbortSignal) {
   if (id === "charlottenburger-tor-v379") {
@@ -58,4 +59,5 @@ export async function attachBerlinDetailsV378(entry: SurroundingChunkGeometry, i
     signal.throwIfAborted();
     await attach(entry,id,native,signal);
   }
+  if (kollwitzKiezIdsV381.has(id)) await attachKollwitzKiezV381(entry,id,native,signal);
 }

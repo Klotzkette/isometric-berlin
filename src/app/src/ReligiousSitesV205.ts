@@ -60,13 +60,14 @@ function members(rows: number[][]): InstancedMesh {
 }
 
 /** Six independently culled sites; native mode creates only its block surface. */
-export function createReligiousSitesV205(minecraft = false): Group {
+export function createReligiousSitesV205(minecraft = false, regionalRykestrasse = false): Group {
+  const sites = regionalRykestrasse ? source.sites.filter(site => site.id !== "rykestrasse") : source.sites;
   const root = new Group(); root.name = RELIGIOUS_SITES_V205_GROUP;
   root.userData = { textureFree: true, sourceGeometryRetained: true, exactOwnerTransfer: true,
     fullStaticDetailOnTouch: true, nativeMinecraft: minecraft, blockNative: minecraft,
-    keepInMinecraft: minecraft, sourceParents: source.sites.flatMap(s => s.parents),
+    keepInMinecraft: minecraft, sourceParents: sites.flatMap(s => s.parents),
     estimateStatus: source.estimates };
-  for (const site of source.sites) {
+  for (const site of sites) {
     const group = new Group(); group.name = site.name;
     group.userData = { siteId: site.id, sourceParents: site.parents, recognition: site.recognition,
       groundY: 3, sourceNavigationParts: site.navigation.length, fullStaticDetailOnTouch: true };

@@ -4,11 +4,13 @@ import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 /** Three bounded architecture accents; all prior source and detail survives. */
-export function createPrenzlbergV264(native = false): Group {
+export function createPrenzlbergV264(native = false, omitHistoricSynagogue = false, surveyedTower = false): Group {
   const root = new Group();
   root.name = native ? "Prenzlauer Berg landmarks v264 independent native recognition" : "Prenzlauer Berg landmarks v264 source-bound recognition";
   root.userData = {prenzlbergV264:true,requiredBeforeNavigation:true,textureFree:true,additiveOnly:true,sourceGeometryRetained:true,fullStaticDetailOnTouch:true,blockNative:native,nativeMinecraft:native,keepInMinecraft:native,noHiddenSolidInfill:true};
   for (const site of source.sites) {
+    if(surveyedTower && site.key==="wasserturm")continue;
+    if (omitHistoricSynagogue && site.key === "rykestrasse") continue;
     const group = new Group();
     group.name = `${site.key}: ${site.name}`;
     group.userData = {...root.userData,siteKey:site.key,sourceOwner:site.owner};

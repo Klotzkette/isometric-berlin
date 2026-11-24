@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.261
+
+- Rebuild the Wasserturm and its park terraces, the synagogue basilica and its street-front building, and Kollwitzplatz with its playgrounds and Gustav Seitz’s seated Käthe Kollwitz.
+- Fit paving and curbs along nine streets, place 583 street trees and model 1,189 photographed windows on 32 surrounding buildings. Add the Kollwitz memorial plaque and three individually documented advertising columns.
+- Load the local landmarks with their districts in both styles. [Direct views, sources and model comparisons](docs/kollwitzkiez-v381.md)
+
 ## 1.0.260
 
 - Rebuild the surveyed surfaces of Kastanienallee, Oderberger Straße, Torstraße, Rosenthaler Platz, Moritzplatz and Rio-Reiser-Platz. Fit street trees, tram stops, measured curbs and the Aufbau Haus facade to the actual sites.

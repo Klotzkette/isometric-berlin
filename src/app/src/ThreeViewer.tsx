@@ -900,7 +900,7 @@ type Runtime = {
   navigationRestored: boolean;
   openingDetailReady: boolean;
   openingPlaceV378?: {
-    name: string; x: number; z: number; required: string[]; meshName?: string; seen: Set<string>;
+    name: string; x: number; z: number; required: string[]; meshName?: string; waitForAll?: boolean; seen: Set<string>;
     settled: boolean; timer?: ReturnType<typeof setTimeout>; startOutlines?: () => void;
     castle?: Group; castleNative?: boolean; createCastle?: (native: boolean) => Group;
   };
@@ -1849,7 +1849,7 @@ function notifyPresentationReadyWhenPossible(runtime: Runtime): void {
   }
   const opening = runtime.openingPlaceV378;
   if (opening && !opening.settled) {
-    const local = opening.seen.size > 0;
+    const local = opening.waitForAll ? opening.required.every(id => opening.seen.has(id)) : opening.seen.size > 0;
     const castle = opening.name !== "Schloss Tegel" || opening.castle?.parent === runtime.scene;
     if (!local || !castle) {
       opening.timer ??= setTimeout(() => {
@@ -2519,7 +2519,7 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       weddingStationSolidAtV229(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       botanicalV230SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       prenzlbergV264SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
-      centralNamedV230SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
+      centralNamedV230SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft", true) ||
       westIndustrialV230SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       districtCourtsV229SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       ubahnV281SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
@@ -4630,7 +4630,7 @@ function prepareIsoNavigation(
     if (weddingStationSolidAtV229(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (botanicalV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (prenzlbergV264SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
-    if (centralNamedV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (centralNamedV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft", true)) return true;
     if (westIndustrialV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (districtCourtsV229SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (!currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) && hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -4712,7 +4712,7 @@ function prepareIsoNavigation(
     if (botanicalFloor !== null) return botanicalFloor;
     const planetariumFloor = prenzlbergV264GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (planetariumFloor !== null) return planetariumFloor;
-    const centralFloor = centralNamedV230GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const centralFloor = centralNamedV230GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft", true);
     if (centralFloor !== null) return centralFloor;
     const industrialFloor = westIndustrialV230GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
     if (industrialFloor !== null) return industrialFloor;
@@ -5977,7 +5977,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     if (weddingStationSolidAtV229(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (botanicalV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (prenzlbergV264SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
-    if (centralNamedV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (centralNamedV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft", true)) return true;
     if (westIndustrialV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (districtCourtsV229SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (!currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) && hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -6035,7 +6035,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     weddingStationFloorAtV229(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     botanicalV230FloorAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     prenzlbergV264GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
-    centralNamedV230GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
+    centralNamedV230GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft", true) ??
     westIndustrialV230GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     districtCourtsV229GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
     (currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) ? null : hospitalV228GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft")) ??
@@ -8444,9 +8444,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         selectedRef.current === initialFlightViewRef.current.landmarkName ? selectedRef.current : null;
       if (linkedPlace && isSurveyedOpeningV378(linkedPlace)) {
         const {x,z} = runtime.controls.target;
-        const {required,meshName} = openingSiteOwnerV379(linkedPlace,x,z);
+        const {required,meshName,waitForAll} = openingSiteOwnerV379(linkedPlace,x,z);
         const opening: NonNullable<Runtime["openingPlaceV378"]> = {
-          name: linkedPlace, x, z, required, meshName, seen: new Set(), settled: false,
+          name: linkedPlace, x, z, required, meshName, waitForAll, seen: new Set(), settled: false,
         };
         runtime.openingPlaceV378 = opening;
         startSurroundingCity(runtime, "opening");

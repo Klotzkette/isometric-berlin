@@ -1,0 +1,93 @@
+{
+  "crs": "EPSG:25833, world x=easting−389500, z=5820000−northing",
+  "surveys": {
+    "wfs": "https://gdi.berlin.de/services/wfs/strassenbefahrung?service=WFS&version=2.0.0&request=GetFeature&typenames=strassenbefahrung%3Aag_werbesaeule&srsName=EPSG%3A25833&outputformat=application%2Fjson&bbox=392540%2C5821680%2C392740%2C5822110%2CEPSG%3A25833",
+    "east": "https://gdi.berlin.de/services/wms/truedop_2026?service=WMS&version=1.3.0&request=GetMap&layers=truedop_2026&styles=&crs=EPSG%3A25833&bbox=392696.04%2C5821892.59%2C392706.04%2C5821902.59&width=200&height=200&format=image%2Fjpeg",
+    "west": "https://gdi.berlin.de/services/wms/truedop_2026?service=WMS&version=1.3.0&request=GetMap&layers=truedop_2026&styles=&crs=EPSG%3A25833&bbox=392572.16%2C5821884.48%2C392582.16%2C5821894.48&width=200&height=200&format=image%2Fjpeg",
+    "north": "https://gdi.berlin.de/services/wms/truedop_2026?service=WMS&version=1.3.0&request=GetMap&layers=truedop_2026&styles=&crs=EPSG%3A25833&bbox=392663.25%2C5822083.09%2C392673.25%2C5822093.09&width=200&height=200&format=image%2Fjpeg",
+    "bdom": "https://isk.geobasis-bb.de/ows/bdom_wcs?service=WCS&version=2.0.1&request=GetCoverage&coverageid=bb_bdom&subset=x%28392540%2C392740%29&subset=y%285821680%2C5822110%29&format=image%2Ftiff",
+    "dgm": "https://isk.geobasis-bb.de/ows/dgm_wcs?service=WCS&version=2.0.1&request=GetCoverage&coverageid=bb_dgm&subset=x%28392540%2C392740%29&subset=y%285821680%2C5822110%29&format=image%2Ftiff"
+  },
+  "photoList": "https://www.berlin.de/landesdenkmalamt/_assets/pdf-und-zip/aktuelles/kurzmeldungen/litfasssaeulen_berlin_denkmalgeschuetzt.pdf",
+  "listSHA256": "69ae2078f202ef2df81e11bd2ad09f94211a5336ab376b3e50405d484ed46406",
+  "columns": [
+    {
+      "name": "Wörther Straße an der Knaackstraße",
+      "monument": "09070255",
+      "osm": 10617517244,
+      "style": "stone",
+      "surveyId": "ag_werbesaeule.1435",
+      "surveyFeature": "Pk_2015-05-06_1039",
+      "xy": [
+        3077.104,
+        -1889.547
+      ],
+      "osmXZ": [
+        3077.164,
+        -1889.48
+      ],
+      "w": 1.34,
+      "h": 3.92
+    },
+    {
+      "name": "Wörther Straße an der Kollwitzstraße",
+      "monument": "09070256",
+      "osm": 10617306969,
+      "style": "green",
+      "surveyId": "ag_werbesaeule.1434",
+      "surveyFeature": "Pk_2015-05-06_1038",
+      "xy": [
+        3201.459,
+        -1897.993
+      ],
+      "osmXZ": [
+        3201.044,
+        -1897.589
+      ],
+      "w": 1.3,
+      "h": 4.15
+    },
+    {
+      "name": "Sredzkistraße an der Husemannstraße",
+      "monument": "09070260",
+      "osm": 10617358444,
+      "style": "dark",
+      "surveyId": "ag_werbesaeule.1191",
+      "surveyFeature": "Pk_2015-06-04_793",
+      "xy": [
+        3167.96,
+        -2088.159
+      ],
+      "osmXZ": [
+        3168.249,
+        -2088.089
+      ],
+      "w": 1.27,
+      "h": 4.12
+    }
+  ],
+  "plaque": {
+    "owner": "DEBE03YY6000071J",
+    "entranceNode": 1731186303,
+    "address": "Kollwitzstraße 56a",
+    "description": "Public memorial plaque fixed in 2005 above the doorway of the later building. Image proportions and metal edge are photographic; plaque size and vertical placement are estimates.",
+    "url": "https://www.gedenktafeln-in-berlin.de/gedenktafeln/detail/kollwitz/2595",
+    "photoSHA256": "7a84e598ccbfc2674c91b760054741183efee303a288394b60a26ebfc2ab390b",
+    "width": 1.28,
+    "height": 0.92,
+    "base": 5.74,
+    "drawn": [
+      3154.511,
+      -1768.617,
+      -0.8157,
+      -0.5784
+    ],
+    "native": [
+      3154,
+      -1768.7,
+      -1,
+      0
+    ]
+  },
+  "dimensions": "Column coordinates use surveyed point furniture and cross-checked OSM nodes. Radial profile, paint and heights are recognition estimates from the individual listed photographs. Terrain raster does not resolve reliably these narrow items. Poster artwork is illustrative."
+}

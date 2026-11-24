@@ -1,6 +1,7 @@
 /** Exact small catalogue only; large immutable recipes load for requested tiles.
  * A shared in-flight import has no scene lifetime and cannot publish geometry.
  * Failed imports are forgotten; the controller owns its bounded retry cadence. */
+import {rykeStreetHouseV381} from "./rykeStreetHouseV381";
 import type {SurroundingOwnershipOptions} from "./SurroundingCityGeometry";
 import type {SourceQuarterSourceV303} from "./SourceQuarterPacketV303";
 import networkIndexV326 from "./data/networkFidelityV326Index.json";
@@ -143,6 +144,7 @@ export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV
   ...venueFrontEntriesV356,
   ...venueFrontEntriesV357,
   ...omanExteriorV380,
+  ...rykeStreetHouseV381,
 ];
 
 /** Separate factory permits deterministic transport/retry tests without mocks

@@ -1,3 +1,4 @@
+import {towerCrownRoofV381,towerBodyCutV381} from "./wasserturmCrownProfileV381";
 import rawData from "./data/centralNamedV230Navigation.json";
 import nativeData from "./data/centralNamedV230Native.json";
 
@@ -110,7 +111,8 @@ function roofAt(triangles: readonly number[][][], x: number, z: number): number 
   }
   return roof;
 }
-export function centralNamedV230RoofAt(x: number, z: number, native = false): number | null {
+export function centralNamedV230RoofAt(x: number, z: number, native = false, surveyedTower = false): number | null {
+  if(surveyedTower&&Math.hypot(x-3236.36,z+1629.52)<13.2) return towerCrownRoofV381(x,z,native)??null;
   if (native) return nativeSupportAt(x, z, Infinity);
   for (const site of data.sites) if (inBounds(site.bounds, x, z)) {
     const roof = roofAt(site.roofTriangles, x, z); if (roof !== null) return roof;
@@ -125,7 +127,11 @@ export function centralNamedV230TerrainAt(x: number, z: number, native = false):
   return null;
 }
 /** Courtyards stay open and a high roof never lifts a pedestrian from below. */
-export function centralNamedV230GroundAt(x: number, z: number, feet: number, native = false): number | null {
+export function centralNamedV230GroundAt(x: number, z: number, feet: number, native = false, surveyedTower = false): number | null {
+  if(surveyedTower&&feet+.45>=towerBodyCutV381&&Math.hypot(x-3236.36,z+1629.52)<13.2){
+    const roof=towerCrownRoofV381(x,z,native);
+    return roof!==undefined&&roof<=feet+.45?roof:null;
+  }
   if (!Number.isFinite(feet)) return null;
   if (native) return nativeSupportAt(x, z, feet + .45);
   for (const site of data.sites) if (inBounds(site.bounds, x, z)) {
@@ -138,7 +144,11 @@ export function centralNamedV230GroundAt(x: number, z: number, feet: number, nat
   }
   return null;
 }
-export function centralNamedV230SolidAt(x: number, y: number, z: number, radius = 0, native = false): boolean {
+export function centralNamedV230SolidAt(x: number, y: number, z: number, radius = 0, native = false, surveyedTower = false): boolean {
+  if(surveyedTower&&y>=towerBodyCutV381&&Math.hypot(x-3236.36,z+1629.52)<13+radius){
+    const samples=[[x,z],[x-radius,z],[x+radius,z],[x,z-radius],[x,z+radius]];
+    return samples.some(([sx,sz])=>{const roof=towerCrownRoofV381(sx,sz,native);return roof!==undefined&&y<roof;});
+  }
   if (native && nativeSolidAt(x, y, z, radius)) return true;
   // Preserve the enclosed source volume as solid; the exact native surface
   // cells above additionally cover its independently rasterised outer edges.

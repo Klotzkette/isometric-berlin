@@ -675,7 +675,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     for (const floor of landscapeFloors.values()) {
       const [x0,z0,x1,z1] = floor.descriptor.bounds;
       if (x<x0 || x>x1 || z<z0 || z>z1) continue;
-      const y = floor.root.userData.tegelLandscapeFloorV378?.(x,z) ?? floor.root.userData.zooWestFloorV379?.(x,z) ?? floor.root.userData.kreuzbergPlaetzeFloorV380?.(x,z);
+      const y = floor.root.userData.tegelLandscapeFloorV378?.(x,z) ?? floor.root.userData.zooWestFloorV379?.(x,z) ?? floor.root.userData.kreuzbergPlaetzeFloorV380?.(x,z)
+        ?? floor.root.userData.wasserturmParkFloorV381?.(x,z) ?? floor.root.userData.kollwitzplatzFloorV381?.(x,z);
       if (y != null) return y;
       if (floor.nav.ground.some(poly => surroundingPolygonContains(poly,x-floor.origin[0],z-floor.origin[2]))) return floor.nav.groundY;
     }
@@ -913,7 +914,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           }
           const access = publicAccessV326.get(entry.root);
           if (access) residentAccess.set(descriptor.id, access);
-          if (siteExteriors.has(descriptor) && (entry.root.userData.tegelLandscapeFloorV378 || entry.root.userData.zooWestFloorV379 || entry.root.userData.kreuzbergPlaetzeFloorV380 || entry.nav.ground.length)) landscapeFloors.set(descriptor.id, residents.get(descriptor.id)!);
+          if (siteExteriors.has(descriptor) && (entry.root.userData.tegelLandscapeFloorV378 || entry.root.userData.zooWestFloorV379 || entry.root.userData.kreuzbergPlaetzeFloorV380 || entry.root.userData.wasserturmParkFloorV381 || entry.root.userData.kollwitzplatzFloorV381 || entry.nav.ground.length)) landscapeFloors.set(descriptor.id, residents.get(descriptor.id)!);
           if (entry.root.userData.updateTransportV378) airportBeacon = entry.root;
           geometryBytes += entry.geometryBytes;
           bufferCount += entry.bufferCount;
@@ -1190,6 +1191,8 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       options.onChange?.();
     },
     interiorGroundAt(x, z, currentY) {
+      const parkRoof = landscapeFloors.get("wasserturm381-park")?.root.userData.wasserturmParkRoofV381?.(x,z,currentY);
+      if (parkRoof != null) return parkRoof;
       const entry = at(x, z);
       if (!entry) return null;
       const underground = publicAccessV326.get(entry.root)?.groundAt(x, z, currentY);
@@ -1248,6 +1251,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
         if (x + radius < b[0] || z + radius < b[1] || x - radius > b[2] || z - radius > b[3]) continue;
         if(publicAccessV326.get(entry.root)?.solidAt(x,y,z,radius))return true;
         if(entry.descriptor.id.startsWith("northEast326-")&&entry.nav.ground.some(p=>surroundingPolygonContains(p,x-entry.origin[0],z-entry.origin[2]))&&northEastPublicSiteSolidAtV326(x,y,z,radius,mode==="minecraft"))return true;
+        if (entry.root.userData.wasserturmParkSolidV381?.(x,y,z,radius)) return true;
         if (entry.root.userData.brehmTropicalHallSolidAt?.(x, y, z, radius)) return true;
         if (spreeBridgeSolidAtV242(entry.nav, x - entry.origin[0], y, z - entry.origin[2], radius)) return true;
         if (surroundingBuildingSolidAt(entry.nav, x - entry.origin[0], y, z - entry.origin[2], radius)) return true;

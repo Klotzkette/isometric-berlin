@@ -1,3 +1,4 @@
+import {kollwitzKiezViewsV381} from "./kollwitzKiezViewsV381";
 import {berlinPlaceViewsV380} from "./berlinPlaceViewsV380";
 import { charlottenburgerTorViewsV379 } from "./charlottenburgerTorViewsV379";
 import { tierparkEastViewsV379 } from "./tierparkEastViewsV379";
@@ -26,4 +27,5 @@ export const berlinPlaceViewsV378: typeof memorialViewsV378 = {
   "Weserstraße – Fahrradstraße in Neukölln": { position: [3995, 32, 3585], target: [4031, 3, 3605], fov: 52 },
   "Weserstraße – südöstlicher Abschnitt": { position: [4748, 39, 4157], target: [4715, 3, 4129], fov: 52 },
   ...berlinPlaceViewsV380,
+  ...kollwitzKiezViewsV381,
 };

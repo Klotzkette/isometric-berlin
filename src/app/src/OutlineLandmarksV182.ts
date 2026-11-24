@@ -221,7 +221,7 @@ export function* createOutlineLandmarksV182Steps(
       yield;
       root.add(createSteglitzMotorwayV226(nextNative));
       yield;
-      root.add(createReligiousSitesV205(nextNative));
+      root.add(createReligiousSitesV205(nextNative, true));
       yield;
       root.add(createNorthV185(nextNative));
       yield;

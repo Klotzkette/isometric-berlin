@@ -1,3 +1,4 @@
+import {refineKollwitzDenkmalV381,appendKollwitzDenkmalV381} from "./kollwitzDenkmalV381";
 import { Color, Group, InstancedBufferAttribute, Matrix4, Quaternion, Vector3 } from "three";
 import source from "./data/centralNamedV230.json";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
@@ -6,12 +7,13 @@ import { replacesLennonV250 } from "./LennonV250";
 import { refineChorinerV250Central } from "./ChorinerV250";
 
 /** Five bounded central-site accents; source bodies and prior aperture axes survive. */
-export function createCentralNamedV230(native = false): Group {
+export function createCentralNamedV230(native = false, regionalSitesV381 = false): Group {
   const root = new Group();
   root.name = native ? "Central named sites v230 independent native recognition" : "Central named sites v230 source-bound recognition";
   root.userData = {centralNamedV230:true,requiredBeforeNavigation:true,textureFree:true,additiveOnly:true,sourceGeometryRetained:true,fullStaticDetailOnTouch:true,blockNative:native,nativeMinecraft:native,keepInMinecraft:native,noHiddenSolidInfill:true};
   for (const originalSite of source.sites) {
-    const site = refineChorinerV250Central(originalSite);
+    if(regionalSitesV381 && originalSite.key==="wasserturm")continue;
+    const site = refineKollwitzDenkmalV381(refineChorinerV250Central(originalSite));
     if (replacesLennonV250(site, "v230")) continue;
     const group = new Group();
     group.name = `${site.key}: ${site.name}`;
@@ -35,6 +37,7 @@ export function createCentralNamedV230(native = false): Group {
     mesh.name=`${site.key}: exact-count recognition members`;
     mesh.userData={...mesh.userData,...group.userData};
     group.add(mesh);
+    if (!regionalSitesV381) appendKollwitzDenkmalV381(group,originalSite,native);
     root.add(group);
   }
   return freezeStaticSceneTransforms(root);

@@ -1,0 +1,123 @@
+{
+  "additions": {
+    "src/app/src/data/kollwitzDenkmalV381.json": "b214907ea7150a3553cdcca002f47f38adf5027c08e130bc5669ebea3bdc5844",
+    "src/app/src/data/kollwitzFrontsV381/drawn_5_-4.json": "b776a3c50e36691295429257988012cb850ee0554a0bfb2691cdbc4a5a351d52",
+    "src/app/src/data/kollwitzFrontsV381/drawn_6_-4.json": "6b4429780fa3628f28e8d6e4f192faeb722c9f03ab867b07cc736c9653a8feed",
+    "src/app/src/data/kollwitzFrontsV381/native_5_-4.json": "9a747354a84cddcc8627e53c323484be704914f76dd58a091c2562d024cd5404",
+    "src/app/src/data/kollwitzFrontsV381/native_6_-4.json": "f789b5a06a4d16f0227487260996845d0ebbd864e79fad0468959982d13c6157",
+    "src/app/src/data/kollwitzStreetFurnitureV381/drawn_6_-4.json": "91aa39025ccd21e7e11feaa5769ed1838c2bdfa5250b7e5f1f2ce60dde2192e6",
+    "src/app/src/data/kollwitzStreetFurnitureV381/drawn_6_-5.json": "b1e3211058e76099548bab1d04a08bfc9773d995220e426c04803eaa4b280c3a",
+    "src/app/src/data/kollwitzStreetFurnitureV381/native_6_-4.json": "d47b8db8ff9c36fdcf499ecbd04dc404bdaab8a83c522627d5423339e33cc2b1",
+    "src/app/src/data/kollwitzStreetFurnitureV381/native_6_-5.json": "7125a01e1327005f1ca3f0e2b30a7831844ca372f936332513068daf0f51986f",
+    "src/app/src/data/kollwitzplatzV381/drawn.json": "46ccdabaedf6a674554972dd64f5e044f25b29ba45813a9ec231798910d22882",
+    "src/app/src/data/kollwitzplatzV381/native.json": "2af9ba4e05368e78d0384097a5d24b33e17f0ab7a50213d387585bee7351629a",
+    "src/app/src/data/kollwitzplatzV381/surfaces.json": "81ba4a25676e522c34f703e8e1943083813207cc3a05638520b8720123f8c760",
+    "src/app/src/data/rykeBasilicaV381-drawn.json": "093e8871a47fe8fd78ec06c5279f32b8dcebaf1f9d85c004d2116144cc7b5543",
+    "src/app/src/data/rykeBasilicaV381-native.json": "b197d2b2ad4f01eca97ddce2aa5e9741b068dc015d6fa76dc84e02f3a06d0a59",
+    "src/app/src/data/rykeStreetHouseV381-drawn.json.gz": "b6b22d6acc4f042353115de66165d29c085966ad61a5299311b08ad051f4172e",
+    "src/app/src/data/rykeStreetHouseV381-minecraft.json.gz": "1d14435e6d753025b115c5a022c92da5165309dca1188cbaad983245c903493a",
+    "src/app/src/data/rykeStreetsHostsV381.json": "9a7754d9982470b65af4b9bb7b96f6a8be7cd25c79e5c5ad95cd1e5baea9a990",
+    "src/app/src/data/rykeStreetsV381/5_-3.json": "a4fe84574e3b3190bb110aaa55fb27dedabdd07d192911193c8549b21ca1c209",
+    "src/app/src/data/rykeStreetsV381/5_-4.json": "0d06ccc9deeedeab16bd29275dd05a646478c8ffe9fc219bdb61360eb1d1eb5e",
+    "src/app/src/data/rykeStreetsV381/5_-5.json": "4730f2f6ed8d5fc52911d7e39bdb5fb929f8a664fb7c4925123b91637231256c",
+    "src/app/src/data/rykeStreetsV381/6_-3.json": "a9ec1f89fc1a85d440e7e30758fbad09a7858f066c0097d87d2dce30537ec396",
+    "src/app/src/data/rykeStreetsV381/6_-4.json": "160df0bb62bf8e22369ccf5e857026831d25bf50604373f0b0195e8193f68f7f",
+    "src/app/src/data/rykeStreetsV381/6_-5.json": "4b193ea0632f0818daeb509c3205785460aa50e809d06be9858cc86092c4d065",
+    "src/app/src/data/wasserturmMainV381-drawn.json": "152fab46ed7ee61752a516e01be5f640a1478a7a80990ac1416f491c34be7eac",
+    "src/app/src/data/wasserturmMainV381-native.json": "f95c1bebdee376c2275e2eed594ad7e94d2b9eef0ab2e2838d5bbfbdf778554f",
+    "src/app/src/data/wasserturmParkObjectsV381-drawn.json": "4ef269ef22963471e391afa7c16fae5d0b22105066152f25df91385151b72538",
+    "src/app/src/data/wasserturmParkObjectsV381-native.json": "1a6f2e989f44499152e76a4c5aca7936f5b5b7455334e3c0b95634dd770454af",
+    "src/app/src/data/wasserturmParkTerrainV381-drawn.json": "c8edc59b35e1dae597e3aef0f44f9b239714dab3fe06ff43d418cb8ba55f6bc7",
+    "src/app/src/data/wasserturmParkTerrainV381-native.json": "e28025cb9b1658cfb4f15948b86838aa8681ba519105c3019764ea28f5196a71",
+    "src/app/src/data/wasserturmParkWalkV381.json": "3a6dda48c75a3b4c4731268d177b5e8613dada3cced604c40336dc969ed228ab",
+    "src/app/src/kollwitzDenkmalV381.ts": "6250ad70cdf1e3e7f3f3c7b37638052ba483f06f09fb5f980d6d1ac566962954",
+    "src/app/src/kollwitzFrontViewsV381.ts": "ba4c4f118f0b059f30d0c25cbdbc5e7bfb07a6009f14ff0dc5d910cf659d9ad5",
+    "src/app/src/kollwitzFrontsIndexV381.ts": "7add063ece39e716904565d1fd93bb6c20c925361a739ea2844f6c8e7cb4b51b",
+    "src/app/src/kollwitzFrontsV381.ts": "8c79969d8a793b02d25b321115e4200f9fa1a7829b89a5a373406113f4cf4331",
+    "src/app/src/kollwitzFurnitureViewsV381.ts": "48a854ac0068bcbeadcb66cf4df42d2f12f15da58cdf66a6c5d236cc7e65cea1",
+    "src/app/src/kollwitzKiezSitesV381.ts": "bfa964d5f751d174b7410a591229574d974b6734921643d40a59634c6a70e19d",
+    "src/app/src/kollwitzKiezViewsV381.ts": "85a69354e62f4e256645e8572bf0deafa8c91f85dc8f6e89ae757f98fe33adfc",
+    "src/app/src/kollwitzStreetFurnitureV381.ts": "63918057bb407cd2ac50551944ff19c136fddc34a537918546c15f02445462e9",
+    "src/app/src/kollwitzplatzIndexV381.ts": "d06f7037693ae3345fa7a2d311370ea56c92159cbc4071da7630cc6b5c0bacb7",
+    "src/app/src/kollwitzplatzV381.ts": "ebf46d59fef29c3288735d0fe6681d9a396c89fba8d27cae55a761f3e148b8b7",
+    "src/app/src/kollwitzplatzViewsV381.ts": "c54ee6ae8fbce99a625f54d6486d33f1100d74118ad99d3a48363a6343afce2e",
+    "src/app/src/localColourGeometryV381.ts": "edc40538d132787898d32ad5a80cdebe80796a84d362d553e7b4ba84d7a7f8ea",
+    "src/app/src/measuredPlaceGeometryV381.ts": "bc4c404deef4414ab161f5863a065547b0009903af77f32c863e0bb55365ef94",
+    "src/app/src/rykeBasilicaV381.ts": "46b8a3afea90b12fc985f5484b391ac671a3e1234748acb5780a9fe8e7623603",
+    "src/app/src/rykeBasilicaViewsV381.ts": "c73d4874037ae335db5250e2c11ce55709a6c3bf3ceaa2f9ad5d54a713ef33db",
+    "src/app/src/rykeStreetHouseV381.ts": "3ae386bbbb45ad68221f9a37db0943fcae9cf120e4452a51a3cc749677167ded",
+    "src/app/src/rykeStreetsIndexV381.ts": "505c4ac307d3fa1d5cd41d1995570e0cd0bfbb869b9054a126eb47479a5dcad2",
+    "src/app/src/rykeStreetsV381.ts": "944c67751253ebcf53877b6c1ee7435864a1c641f740d309664d264160d76150",
+    "src/app/src/wasserturmCrownProfileV381.ts": "29854aee474f121fbbc8900089feee869fca29db4e17c65f22d8d26e480243d2",
+    "src/app/src/wasserturmParkIndexV381.ts": "1e1d9ed0c8a85237dca71bb123fe5648ec31bed1fec01856da1cb2cf3c957429",
+    "src/app/src/wasserturmParkNavigationV381.ts": "68d32b623f52e8cb9dde69c24bd49d5eb7a644e630f124df3bc43476b728ebd5",
+    "src/app/src/wasserturmParkV381.ts": "193efcec6988cc06acfe76ad9f57712ed6e114c5bcc87566b124e0185b3ff662",
+    "src/app/src/wasserturmParkViewsV381.ts": "68f50fb432c77316c38c57ccf91cfd9d71e4220a35d762566c71506e3e1efac9"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "after": "e76f84e8b8509a056143da5efb731494c8ce528c00a87b647b1e42906f691d72",
+      "before": "caefed34049dd7f72f3d37399a668959a68347e9884b657163ab8610e232dd37"
+    },
+    "src/app/src/CentralNamedV230.ts": {
+      "after": "a5270ac8bb90cf4825c619ae74d48c35b9bd32d70edd680ee9a7923aeaf27f7b",
+      "before": "920e1395093f8f8c9b6e63a4cd197d1e44cedd89b49cab9f3ad6e57aed412141"
+    },
+    "src/app/src/OutlineLandmarksV182.ts": {
+      "after": "1e7d0a1810b4aa3efc4032946a0dc640d76a852ea18f6110f503dedb1cbc27b0",
+      "before": "73d0221bbc09195198763b465a689d22b302ae919fad5e4a834e64c0ba196707"
+    },
+    "src/app/src/PrenzlbergV264.ts": {
+      "after": "0e801b10a2757787d424b5594c8c903f181a2767984c711fa4a78d9e1dff688a",
+      "before": "8de68ad39f4449241f611bac7c1729470a2f888a7b209899e7912ec19e840de9"
+    },
+    "src/app/src/ReligiousSitesV205.ts": {
+      "after": "cc97d7fdf6c696bc340baf2ab6b4fa001448a1f7108c610edcd5c899d9805900",
+      "before": "e27fe7d9200bee36ebaf9a2bc2dce3644e6fdc3e0bae850ab176b884706414cf"
+    },
+    "src/app/src/RequiredSiteEnvelopesV209.ts": {
+      "after": "3705c7ac4dd690d4cca0f958e733797cee4c3b268cea6118bc3ad06ef173622a",
+      "before": "03b5e865ed518264bffbe3a51566bed1cb5b4dee5988e9a66e7769071151ed94"
+    },
+    "src/app/src/SourceQuarterCatalogueV309.ts": {
+      "after": "ef0231f24a64867374d2e39420df2fbdbd012007e37af3139c44e67984b5aa5a",
+      "before": "19abe85a99bdf7d495aabc8e4c48435bc12463a51ad140c5c81343b0ba47a275"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "after": "f300de673b7eb649ffbcb16e61782241bba236e44ea01692711a70e4a32a283f",
+      "before": "ed967546a14b9bd0679ee603d363e72fa31c6cf015c027e69f5e2ef41fa2bfb9"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "after": "160c578e02a7f0b9206fecd3b1a0165972fad063766fdb4f35508811ed076c7d",
+      "before": "460853a8a167af460cd42769c9a833e068af213d148814da7122df1611a1e9b6"
+    },
+    "src/app/src/berlinDetailSitesV378.ts": {
+      "after": "9d70aeaf7b40be2a2487b9dc821c1579a5a2fcd7e10d198ecf3c78d7b0cb6e9f",
+      "before": "948ebe9e59d2528ccf64432bff9e274a899a440f7b1258c28e176c19562625fc"
+    },
+    "src/app/src/berlinPlaceViewsV378.ts": {
+      "after": "549becc126028c03b0579008b65e9a390bb3112de3ec8edf26f5777ae2ae3b2c",
+      "before": "b6e6323dc84c5a52c612f3d5358e4346c02c64cc4e5db352efb6065033c91860"
+    },
+    "src/app/src/centralNamedV230Navigation.ts": {
+      "after": "7bee75e3e55eff1e7ef9a4d2b796769e560ee9f2b77657ee08d8b59b46969dfc",
+      "before": "d1fff7844090c2adc07d8c96d2f550f3c6b18524e7db3897a6ad901a9b069810"
+    },
+    "src/app/src/embassySitesV380.ts": {
+      "after": "55c7b4c85eea2dc0edda05b0470c0525152fbb4967a88489da912999a2d29c63",
+      "before": "dc4e38664924b7ff2e64df802b176d630a9fbfe7f9da5d7a42479fa75bfd61d2"
+    },
+    "src/app/src/kreuzbergPlaetzeV380.ts": {
+      "after": "05efcddfb389cca22b33ebe2ee8550049e77b9bbbc9e7fbf413339a29bc972d3",
+      "before": "e0028936ae11c8f02a02f4009dab015656d9792b6cbdb29f35c2f5651ed8716f"
+    },
+    "src/app/src/openingSiteOwnerV379.ts": {
+      "after": "f440afcce9e0e9cea002f0d34871507ee5f7d7c9a86038f308141fe001b22bde",
+      "before": "59d5ea8f730b00d4a9a1eb7a3614ce81a08b67f7e52aa0a8e6b75bb1cff3b6d8"
+    },
+    "src/app/src/prenzlauerStreetsV380.ts": {
+      "after": "1fb31edec69073d653f1c09696877617b8c03ae737eead84e1b4f2d3e6b131d6",
+      "before": "adc7a5c6c7d98ec7f0b5ec0e38d1bd5fafce666e7f28e37d17a18716c963a347"
+    }
+  }
+}
