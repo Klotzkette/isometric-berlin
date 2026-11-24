@@ -1,3 +1,4 @@
+import { assertSourceLayerV384, isSourceAdditionV384, projectSourceBeforeV384, sourceAtBeforeV384 } from "./sourceHistoryV384";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync, statSync } from "node:fs";
@@ -24,31 +25,37 @@ function verifyPredecessor(path: string): Buffer {
   return raw;
 }
 export function isSourceAdditionV383(path: string): boolean {
-  return Object.hasOwn(receipt.additions, path);
+  return Object.hasOwn(receipt.additions, path) || isSourceAdditionV384(path);
 }
 export function sourceAtBeforeV383(path: string, bytes: Uint8Array): Uint8Array {
   const entry = receipt.changes[path];
-  if (!entry) return bytes;
+  if (!entry) return sourceAtBeforeV384(path, bytes);
+  if (digest(bytes) === entry.before) return bytes;
+  bytes = sourceAtBeforeV384(path, bytes);
   const hash = digest(bytes);
   if (hash === entry.before) return bytes;
   if (hash !== entry.after) throw new Error("Unknown exact v383 source bytes: " + path);
   return verifyPredecessor(path);
 }
 export function projectSourceBeforeV383(source: string): string {
+  source = projectSourceBeforeV384(source);
   const hash = digest(source);
   const path = Object.keys(receipt.changes).find(name => receipt.changes[name].after === hash);
   return path ? verifyPredecessor(path).toString() : source;
 }
 export function assertSourceLayerV383(before: Readonly<Record<string, string>>, files: readonly string[]): void {
+  const atV383 = { ...before, ...receipt.additions };
+  for (const [path, entry] of Object.entries(receipt.changes)) atV383[path] = entry.after;
+  assertSourceLayerV384(atV383, files);
   for (const [path, entry] of Object.entries(receipt.changes)) {
     if (before[path] !== entry.before) throw new Error("Unexpected v383 source change: " + path);
     verifyPredecessor(path);
-    if (digest(readFileSync(resolve(repository, path))) !== entry.after) throw new Error("Changed v383 result: " + path);
+    if (digest(sourceAtBeforeV384(path, readFileSync(resolve(repository, path)))) !== entry.after) throw new Error("Changed v383 result: " + path);
   }
   const buildCodec = "src/app/losslessSurveyFieldsV383.ts";
   const inventory = statSync(resolve(repository, buildCodec)).isFile() ? [...files, buildCodec] : files;
   for (const [path, hash] of Object.entries(receipt.additions)) {
-    if (Object.hasOwn(before, path) || (!path.endsWith(".json.gz") && !inventory.includes(path)) || digest(readFileSync(resolve(repository, path))) !== hash) {
+    if (Object.hasOwn(before, path) || (!path.endsWith(".json.gz") && !inventory.includes(path)) || digest(sourceAtBeforeV384(path, readFileSync(resolve(repository, path)))) !== hash) {
       throw new Error("Changed v383 addition: " + path);
     }
   }

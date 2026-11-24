@@ -1,3 +1,4 @@
+import { expectedExactSourceRejection } from "./helpers/expectedExactSourceRejection";
 import { expect, test } from "bun:test";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -25,7 +26,7 @@ test("v346 independently reconstructs each exact published v225 source and rejec
     expect(digest(before)).toBe(row.before);expect(digest(current)).toBe(row.after);
     expect(Buffer.from(sourceAtBeforeV346(path,latest)).equals(before)).toBe(true);
     expect(projectSourceBeforeV346(latest.toString())).toBe(before.toString());
-    expect(()=>sourceAtBeforeV346(path,Buffer.concat([latest,Buffer.from(" ")]))).toThrow(/Unknown exact v(?:34[6-9]|35[017]|362|37[0-9]|38[0-3]) source bytes/);
+    expect(()=>sourceAtBeforeV346(path,Buffer.concat([latest,Buffer.from(" ")]))).toThrow(expectedExactSourceRejection(path));
   }
   for(const [path,hash] of Object.entries(receipt.additions))expect(digest(sourceAtBeforeV347(path,readFileSync(new URL(path,root))))).toBe(hash);
 },240_000);

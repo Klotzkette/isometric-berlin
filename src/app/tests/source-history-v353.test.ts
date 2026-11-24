@@ -1,3 +1,4 @@
+import { expectedExactSourceRejection } from "./helpers/expectedExactSourceRejection";
 import { sourceAtBeforeV354 } from "./helpers/sourceHistoryV354";
 import { expect, test } from "bun:test";
 import { execFileSync } from "node:child_process";
@@ -23,7 +24,7 @@ test("v353 independently reconstructs each exact published v232 source and rejec
     expect(digest(before)).toBe(row.before);expect(digest(current)).toBe(row.after);
     expect(Buffer.from(sourceAtBeforeV353(path,current)).equals(before)).toBe(true);
     expect(projectSourceBeforeV353(current.toString())).toBe(before.toString());
-    expect(()=>sourceAtBeforeV353(path,Buffer.concat([current,Buffer.from(" ")]))).toThrow(/Unknown exact v(35[3-9]|36[0-9]|37[0-9]|38[0-3]) source bytes/);
+    expect(()=>sourceAtBeforeV353(path,Buffer.concat([current,Buffer.from(" ")]))).toThrow(expectedExactSourceRejection(path));
   }
   for (const [path, hash] of Object.entries(receipt.additions)) {
     expect(digest(sourceAtBeforeV354(path, readFileSync(new URL(path, root))))).toBe(hash);
@@ -42,9 +43,9 @@ test("v353 repeated normalization admits only the two independently verified v23
     const path=paths[i],raw=ancestors[i];
     expect(sourceAtBeforeV353(path,raw)).toBe(raw);
     expect(sourceAtBeforeV353(path,sourceAtBeforeV353(path,raw))).toBe(raw);
-    expect(()=>sourceAtBeforeV353(path,Buffer.concat([raw,Buffer.from(" ")]))).toThrow(/Unknown exact v(35[3-9]|36[0-9]|37[0-9]|38[0-3]) source bytes/);
-    expect(()=>sourceAtBeforeV353(path,ancestors[1-i])).toThrow(/Unknown exact v(35[3-9]|36[0-9]|37[0-9]|38[0-3]) source bytes/);
+    expect(()=>sourceAtBeforeV353(path,Buffer.concat([raw,Buffer.from(" ")]))).toThrow(expectedExactSourceRejection(path));
+    expect(()=>sourceAtBeforeV353(path,ancestors[1-i])).toThrow(expectedExactSourceRejection(path));
   }
   const unlisted = execFileSync("git",["show","33941dd9:src/app/package.json"],{cwd:root});
-  expect(()=>sourceAtBeforeV353(paths[0],unlisted)).toThrow(/Unknown exact v(35[3-9]|36[0-9]|37[0-9]|38[0-3]) source bytes/);
+  expect(()=>sourceAtBeforeV353(paths[0],unlisted)).toThrow(expectedExactSourceRejection(paths[0]));
 });

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.264
+
+- Fit the surveyed streets, kerbs, street furniture and tree bases at Nollendorfplatz and Winterfeldtplatz to the terrain present at each site. [Schöneberg squares](docs/schoeneberger-plaetze-v383.md)
+
 ## 1.0.263
 
 - Rebuild the pedestrian surfaces, planting, kerbs and street fronts around Gendarmenmarkt, Friedrichstraße, Unter den Linden, the Humboldt Forum, Hausvogteiplatz and the Federal Ministry of Labour. The Gendarmenmarkt link now frames the ensemble. [Gendarmenmarkt photographs and comparisons](docs/gendarmenquartier-v383.md) · [Surveyed streets](docs/mitte-strassen-v383.md) · [Unter den Linden](docs/unter-den-linden-v383.md) · [Schlossplatz and Hausvogteiplatz](docs/schloss-und-hausvogteiplatz-v383.md)

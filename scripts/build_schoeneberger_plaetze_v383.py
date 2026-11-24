@@ -11,7 +11,7 @@ from pathlib import Path
 import numpy as np
 import shapely as s
 from build_kollwitz_fronts_v381 import surfaces
-from build_kreuzberg_plaetze_v380 import Mesh, lines, rail
+from build_kreuzberg_plaetze_v380 import METAL, Mesh, lines, rail
 from build_matthiaskirche_v383 import architectural_details
 from build_prenzlauer_streets_v380 import (
   COLORS,
@@ -22,6 +22,7 @@ from build_prenzlauer_streets_v380 import (
   parts,
 )
 from build_ryke_streets_v381 import assemble, tree_rows
+from schoeneberg_ground_v384 import PlazaGround, winterfeld_road_extension
 from shapely.affinity import translate
 from shapely.geometry import Polygon
 
@@ -30,7 +31,7 @@ SOURCE = ROOT / "geo_data/regierungsviertel/schoeneberger-plaetze-v383.json.gz"
 OUT = ROOT / "src/app/src/data/schoenebergPlaetzeV383"
 
 
-def road_space(source, packet, references):
+def road_space(source, packet, references, ground):
   areas, bands, public = assemble(source)
   kerbs = [
     (s.from_wkb(w), 0.296 if props["bor"] == 3 else 0.319)
@@ -46,13 +47,17 @@ def road_space(source, packet, references):
         for region in parts(piece, "Polygon"):
           if region.area < 0.00015:
             continue
-          for tri in s.constrained_delaunay_triangles(region).geoms:
-            pts = list(s.orient_polygons(tri, exterior_cw=True).exterior.coords)[:3]
-            packet.facet(
-              [(x, 3 + (top(x, z) if callable(top) else top), z) for x, z in pts],
-              COLORS.get(tone, tone),
-              COURSES.get(tone, 0),
-            )
+          for face in ground.cut(region, "Polygon"):
+            for tri in s.constrained_delaunay_triangles(face).geoms:
+              pts = list(s.orient_polygons(tri, exterior_cw=True).exterior.coords)[:3]
+              packet.facet(
+                [
+                  (x, ground.at(x, z) + (top(x, z) if callable(top) else top), z)
+                  for x, z in pts
+                ],
+                COLORS.get(tone, tone),
+                COURSES.get(tone, 0),
+              )
 
   for (tone, h), area in areas.items():
     # Crossing colours of today's Nollendorfplatz are mapped from TrueDOP below.
@@ -63,11 +68,13 @@ def road_space(source, packet, references):
     plate(bands[code], "kerb" if code == 1 else "lowered", h)
     if code == 1:
       for line in lines(bands[code].boundary):
-        for a, b in zip(line.coords, list(line.coords)[1:]):
-          lowA, highA = (a[0], 3.285, a[1]), (a[0], 3 + h, a[1])
-          lowB, highB = (b[0], 3.285, b[1]), (b[0], 3 + h, b[1])
-          packet.facet([lowA, highA, highB], 0xA6A297)
-          packet.facet([lowA, highB, lowB], 0xA6A297)
+        for piece in ground.cut(line, "LineString"):
+          for a, b in zip(piece.coords, list(piece.coords)[1:]):
+            ya, yb = ground.at(*a), ground.at(*b)
+            lowA, highA = (a[0], ya + 0.285, a[1]), (a[0], ya + h, a[1])
+            lowB, highB = (b[0], yb + 0.285, b[1]), (b[0], yb + h, b[1])
+            packet.facet([lowA, highA, highB], 0xA6A297)
+            packet.facet([lowA, highB, lowB], 0xA6A297)
   for w in source["red"]:
     plate(s.from_wkb(w), 0xB97065, 0.302)
   claimed = public.union(s.union_all([s.from_wkb(w) for _, w in source["buildings"]]))
@@ -89,12 +96,27 @@ def road_space(source, packet, references):
     {**source, "trees": measured}, s.from_wkb(source["scope"])
   )
 
+  for tree in packet.trees:
+    tree[2] = round(ground.at(tree[0], tree[1]) + 0.36, 2)
 
-def furniture(mesh, source):
+
+def furniture(mesh, source, ground):
   for _, _, w in source["rails"]:
     for line in lines(s.from_wkb(w)):
       for a, b in zip(line.coords, list(line.coords)[1:]):
-        rail(mesh, a, b, 3.4)
+        # Sample each real support, so a rail follows a changing footway.
+        length = math.dist(a, b)
+        points = np.linspace(a, b, max(2, math.ceil(length / 1.65) + 1))
+        color = METAL
+        bases = [(x, ground.at(x, z) + 0.40, z) for x, z in points]
+        if max(p[1] for p in bases) - min(p[1] for p in bases) < 0.001:
+          rail(mesh, a, b, bases[0][1])
+          continue
+        for x, y, z in bases:
+          mesh.rod((x, y, z), (x, y + 1.02, z), 0.047, color)
+        for a0, b0 in zip(bases, bases[1:]):
+          for h in (0.47, 0.99):
+            mesh.rod((a0[0], a0[1] + h, a0[2]), (b0[0], b0[1] + h, b0[2]), 0.055, color)
   for _, _, w in source["benches"]:
     for line in lines(s.from_wkb(w)):
       if line.length < 0.7:
@@ -104,9 +126,11 @@ def furniture(mesh, source):
       axis = (b - a) / width
       normal = np.array([-axis[1], axis[0]])
 
+      datum = ground.at(*((a + b) / 2))
+
       def point(along, depth, y):
         x, z = a + along * axis + depth * normal
-        return (x, y, z)
+        return (x, y + datum - 3, z)
 
       for d in [-0.18, -0.05, 0.08, 0.21]:
         mesh.face(
@@ -146,7 +170,14 @@ def frontage(mesh, record, outlines, native):
     left, right = x - w / 2, x + w / 2
     panel(left - 0.105, right + 0.105, y - h / 2 - 0.1, y + h / 2 + 0.11, 0.22, pale)
     panel(left, right, y - h / 2, y + h / 2, 0.242, (73, 77, 77))
-    panel(left + 0.07, right - 0.06, y - h / 2 + 0.06, y + h / 2 - 0.05, 0.254, (96, 109, 114))
+    panel(
+      left + 0.07,
+      right - 0.06,
+      y - h / 2 + 0.06,
+      y + h / 2 - 0.05,
+      0.254,
+      (96, 109, 114),
+    )
     panel(x - 0.045, x + 0.045, y - h / 2, y + h / 2, 0.271, pale)
     panel(left, right, y + h * 0.16 - 0.035, y + h * 0.16 + 0.035, 0.273, pale)
     panel(left - 0.13, right + 0.13, y - h / 2 - 0.15, y - h / 2 - 0.04, 0.319, pale)
@@ -162,10 +193,28 @@ def build(check):
     else:
       (OUT / file).write_bytes(data)
 
+  root = ROOT / "src/app/public/mesh/regierungsviertel"
+  core = json.loads((root / "ground-context.json").read_bytes())
+  district = {}
+  for host in source["hosts"]:
+    file = (
+      ROOT / "src/app/public/mesh/surrounding-berlin-v159" / (host + ".drawn.json.gz")
+    )
+    district[host] = json.loads(gzip.decompress(file.read_bytes()))["nav"]["groundY"]
+  assert len(set(district.values())) == 1
   for place, origin in [("noll", [-1250, 0, 2116]), ("winter", [-1224, 0, 2500])]:
     packet = Packet(0, 0)
     packet.origin = origin
-    road_space(source[place], packet, source["crownObservations"])
+    extension = None
+    if place == "winter":
+      previous_roads = json.loads((root / "surface-polygons.json").read_bytes())[
+        "roads"
+      ]
+      extension = winterfeld_road_extension(source[place], previous_roads)
+    ground = PlazaGround(
+      s.from_wkb(source[place]["scope"]), core, next(iter(district.values())), extension
+    )
+    road_space(source[place], packet, source["crownObservations"], ground)
     with tempfile.TemporaryDirectory() as tmp:
       target = Path(tmp) / "surface.json"
       packet.save(target)
@@ -188,7 +237,7 @@ def build(check):
           if poly.is_valid:
             walls.setdefault(building["sourceId"], []).append(translate(poly, x, z))
       mesh = Mesh(origin)
-      furniture(mesh, source[place])
+      furniture(mesh, source[place], ground)
       if place == "winter":
         architectural_details(mesh, source["church"], native)
       for face in source["fronts"]:

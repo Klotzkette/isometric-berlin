@@ -1,0 +1,43 @@
+{
+  "additions": {},
+  "changes": {
+    "src/app/package.json": {
+      "after": "aadb21ba433c61258df3128b701dd138d0f48574b6e2ff0dacc38e08409a775b",
+      "before": "600f753c5e24752aa13587feeebaf50ba1c11e4bb3376e75d58417a9e9c8b5f8"
+    },
+    "src/app/src/data/schoenebergPlaetzeV383/noll.json": {
+      "after": "656d68b52e9baea85b2af6a5eba512892ccb8a38b1515ee09923f59f56f1c78f",
+      "before": "5a2e8d73ba968f3a7e16f13c736bc45040b92dbb278c125e1127faa63eca00b9"
+    },
+    "src/app/src/data/schoenebergPlaetzeV383/noll_drawn.json": {
+      "after": "8ccf485d917465cca4f401e7a2ab58e5edfe450f662ee49bf155ce3d6f59852b",
+      "before": "fdc59eea87870e8e7316de6b07da90362cc14d1fc2367343296dfa6460a2d34a"
+    },
+    "src/app/src/data/schoenebergPlaetzeV383/noll_native.json": {
+      "after": "77e8a3c9b5dc6d2701b2497e0491d915a543cf299663a7a27053acb2220ce015",
+      "before": "4d9fc522ee4c4457d3c24fec73b3bc1e66265cda7a734eebde06708f2457ff3e"
+    },
+    "src/app/src/data/schoenebergPlaetzeV383/winter.json": {
+      "after": "62a46309d626c403cc5112709d70ac902ff480acc2ba3c694bb04dfadec7e51e",
+      "before": "026d99dc9035f30eea260f9cba656eddd462c0792e0039bac873615a0b7a74d7"
+    },
+    "src/app/src/data/schoenebergPlaetzeV383/winter_drawn.json": {
+      "after": "a5a3512cafeda4542e7f776b4563a2edb47218464f33581140429b801085bddb",
+      "before": "a78aad625e34471e9d58151b8f44730994aebd82bdb664a8dcc1a5e85ec56b00"
+    },
+    "src/app/src/data/schoenebergPlaetzeV383/winter_native.json": {
+      "after": "e05ad942ccd8be73b9fd1ecf1e5cfa73bcc468db7848e4693e38c4e53e9e78fc",
+      "before": "abe2f352974d1d7b900a822a14be2ed986f7d8279eddd4936894a561efd41e1b"
+    }
+  },
+  "generators": {
+    "scripts/build_schoeneberger_plaetze_v383.py": {
+      "after": "99238a986239a7a169d97b6e7d2e9e703f6118d63531352c38d3914f67bc5ba0",
+      "before": "0b005b1412e0803ee16789c98763453cbcf45a150f577b2138858aaedad747d0"
+    },
+    "scripts/schoeneberg_ground_v384.py": {
+      "after": "d6a0e88f961c7ed2d161f4e155bafb756e37a2f24d88a00a87f77ca4b06b193c",
+      "before": null
+    }
+  }
+}
