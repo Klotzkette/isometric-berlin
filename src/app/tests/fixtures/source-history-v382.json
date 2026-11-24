@@ -1,0 +1,13 @@
+{
+  "additions": {},
+  "changes": {
+    "src/app/package.json": {
+      "after": "87a8db7654e9122d604bae3270820697b5f4b6c4dc0714bbb64198c43a42fc9d",
+      "before": "e76f84e8b8509a056143da5efb731494c8ce528c00a87b647b1e42906f691d72"
+    },
+    "src/app/src/rykeBasilicaViewsV381.ts": {
+      "after": "f4e74f159b5ffea873fa336fc2e9625d99aa6437c8ab8ee264eb778ebae8cd5c",
+      "before": "c73d4874037ae335db5250e2c11ce55709a6c3bf3ceaa2f9ad5d54a713ef33db"
+    }
+  }
+}

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.262
+
+- Frame the synagogue on Rykestraße from its courtyard so the opposite roof does not hide the rose windows in the opening view.
+
 ## 1.0.261
 
 - Rebuild the Wasserturm and its park terraces, the synagogue basilica and its street-front building, and Kollwitzplatz with its playgrounds and Gustav Seitz’s seated Käthe Kollwitz.
