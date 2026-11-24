@@ -1,0 +1,1 @@
+var e=[{id:`kollwitz381-platz`,bounds:[3075,-1907,3203,-1790]}],t=new Set(e.map(e=>e.id));export{t as n,e as t};
