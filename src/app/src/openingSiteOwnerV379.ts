@@ -1,8 +1,12 @@
+export const regionalPlaceOwnersV380 = new Map<string, string[]>();
+
 /** A packet can contain several adjacent sites. A shared link should wait for
  * the selected landmark's district or its own named mesh when available. */
 export function openingSiteOwnerV379(name: string, x: number, z: number): {
   required: string[]; meshName?: string;
 } {
+  const regional = regionalPlaceOwnersV380.get(name);
+  if (regional) return {required:regional};
   if (name === "Schloss Tegel") {
     return {required:["tegel-landscape-schloss--13_-17"], meshName:"Vermessene Landschaft v378 · schloss"};
   }

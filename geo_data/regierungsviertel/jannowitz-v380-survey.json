@@ -1,0 +1,651 @@
+{
+ "lampSource": "OpenStreetMap / Geofabrik Berlin 2026-11-22, ODbL-1.0",
+ "bridgeId": 334070711,
+ "bridgeRing": [
+  [
+   3110.242,
+   617.823
+  ],
+  [
+   3123.392,
+   620.281
+  ],
+  [
+   3132.59,
+   621.873
+  ],
+  [
+   3145.081,
+   624.05
+  ],
+  [
+   3145.482,
+   621.566
+  ],
+  [
+   3148.223,
+   604.579
+  ],
+  [
+   3151.106,
+   587.328
+  ],
+  [
+   3152.591,
+   578.124
+  ],
+  [
+   3154.232,
+   568.001
+  ],
+  [
+   3154.889,
+   563.409
+  ],
+  [
+   3156.556,
+   551.75
+  ],
+  [
+   3134.885,
+   547.803
+  ],
+  [
+   3122.227,
+   545.534
+  ],
+  [
+   3119.262,
+   563.718
+  ],
+  [
+   3116.02,
+   583.41
+  ],
+  [
+   3114.758,
+   590.815
+  ],
+  [
+   3113.62,
+   597.5
+  ],
+  [
+   3112.46,
+   604.251
+  ],
+  [
+   3111.52,
+   610.006
+  ],
+  [
+   3110.242,
+   617.823
+  ]
+ ],
+ "lampPoints": [
+  [
+   7978189706,
+   3117.96,
+   614.754
+  ],
+  [
+   7978189707,
+   3137.739,
+   618.615
+  ],
+  [
+   7978189708,
+   3141.548,
+   597.845
+  ],
+  [
+   7978189709,
+   3121.616,
+   594.448
+  ],
+  [
+   7978189710,
+   3145.268,
+   574.303
+  ],
+  [
+   7978189711,
+   3125.377,
+   571.53
+  ],
+  [
+   7978189712,
+   3128.698,
+   551.028
+  ],
+  [
+   7978189713,
+   3148.738,
+   554.149
+  ]
+ ],
+ "clubPoi": [
+  3066.2394880116335,
+  923.5653266916052
+ ],
+ "archiveWalls": {
+  "DEBE01YYK0000CXv": [
+   {
+    "id": "DEBE01YYK0000CXv",
+    "a": [
+     3059.956,
+     944.167
+    ],
+    "b": [
+     3064.144,
+     934.838
+    ],
+    "normal": [
+     0.9122889212100729,
+     0.4095472185687037
+    ],
+    "low": 0,
+    "high": 6.083,
+    "widthM": 10.23,
+    "heightM": 6.08,
+    "fraction": 0.9,
+    "wallDistanceM": 0.156,
+    "sourceUrl": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/129/149/842120/BLDG_0003000200892796.dae"
+   },
+   {
+    "id": "DEBE01YYK0000CXv",
+    "a": [
+     3064.144,
+     934.838
+    ],
+    "b": [
+     3066.304,
+     930.027
+    ],
+    "normal": [
+     0.9122724255467919,
+     0.4095839615841581
+    ],
+    "low": 0,
+    "high": 6.083,
+    "widthM": 5.27,
+    "heightM": 6.08,
+    "fraction": 0.9,
+    "wallDistanceM": 0.156,
+    "sourceUrl": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/129/149/842120/BLDG_0003000200892796.dae"
+   },
+   {
+    "id": "DEBE01YYK0000CXv",
+    "a": [
+     3066.304,
+     930.027
+    ],
+    "b": [
+     3088.255,
+     939.768
+    ],
+    "normal": [
+     -0.4056168246645553,
+     0.9140432109856971
+    ],
+    "low": 0,
+    "high": 6.083,
+    "widthM": 24.02,
+    "heightM": 6.08,
+    "fraction": 0.9,
+    "wallDistanceM": 0.297,
+    "sourceUrl": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/129/149/842120/BLDG_0003000200892796.dae"
+   },
+   {
+    "id": "DEBE01YYK0000CXv",
+    "a": [
+     3088.255,
+     939.768
+    ],
+    "b": [
+     3081.82,
+     953.87
+    ],
+    "normal": [
+     -0.9097579280662862,
+     -0.41513914814256925
+    ],
+    "low": 0,
+    "high": 6.083,
+    "widthM": 15.5,
+    "heightM": 6.08,
+    "fraction": 0.888,
+    "wallDistanceM": 0.304,
+    "sourceUrl": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/129/149/842120/BLDG_0003000200892796.dae"
+   },
+   {
+    "id": "DEBE01YYK0000CXv",
+    "a": [
+     3081.82,
+     953.87
+    ],
+    "b": [
+     3059.956,
+     944.167
+    ],
+    "normal": [
+     0.40563803302587187,
+     -0.914033799245357
+    ],
+    "low": 0,
+    "high": 6.083,
+    "widthM": 23.92,
+    "heightM": 6.08,
+    "fraction": 0.9,
+    "wallDistanceM": 0.257,
+    "sourceUrl": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/129/149/842120/BLDG_0003000200892796.dae"
+   }
+  ],
+  "DEBE01YYK00005jK": [
+   {
+    "id": "DEBE01YYK00005jK",
+    "a": [
+     3048.077,
+     935.913
+    ],
+    "b": [
+     3054.649,
+     914.603
+    ],
+    "normal": [
+     0.9555887749071257,
+     0.2947033988122614
+    ],
+    "low": 0,
+    "high": 10.372,
+    "widthM": 22.3,
+    "heightM": 10.37,
+    "fraction": 0.982,
+    "wallDistanceM": 0.115,
+    "sourceUrl": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/129/149/842131/BLDG_0003000e00650e3d.dae"
+   },
+   {
+    "id": "DEBE01YYK00005jK",
+    "a": [
+     3054.649,
+     914.603
+    ],
+    "b": [
+     3070.083,
+     921.608
+    ],
+    "normal": [
+     -0.41329168453346604,
+     0.9105986950877374
+    ],
+    "low": 0,
+    "high": 10.372,
+    "widthM": 16.95,
+    "heightM": 10.37,
+    "fraction": 0.981,
+    "wallDistanceM": 0.348,
+    "sourceUrl": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/129/149/842131/BLDG_0003000e00650e3d.dae"
+   },
+   {
+    "id": "DEBE01YYK00005jK",
+    "a": [
+     3070.083,
+     921.608
+    ],
+    "b": [
+     3067.964,
+     926.335
+    ],
+    "normal": [
+     -0.9125093245149439,
+     -0.4090559040929256
+    ],
+    "low": 0,
+    "high": 10.372,
+    "widthM": 5.18,
+    "heightM": 10.37,
+    "fraction": 0.981,
+    "wallDistanceM": 0.103,
+    "sourceUrl": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/129/149/842131/BLDG_0003000e00650e3d.dae"
+   },
+   {
+    "id": "DEBE01YYK00005jK",
+    "a": [
+     3067.964,
+     926.335
+    ],
+    "b": [
+     3063.628,
+     924.388
+    ],
+    "normal": [
+     0.4096297093219468,
+     -0.9122518847559687
+    ],
+    "low": 0,
+    "high": 10.372,
+    "widthM": 4.75,
+    "heightM": 10.37,
+    "fraction": 0.94,
+    "wallDistanceM": 0.175,
+    "sourceUrl": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/129/149/842131/BLDG_0003000e00650e3d.dae"
+   },
+   {
+    "id": "DEBE01YYK00005jK",
+    "a": [
+     3062.343,
+     923.586
+    ],
+    "b": [
+     3060.343,
+     930.072
+    ],
+    "normal": [
+     -0.9556004407483463,
+     -0.2946655691484267
+    ],
+    "low": 0,
+    "high": 10.372,
+    "widthM": 6.79,
+    "heightM": 10.37,
+    "fraction": 0.923,
+    "wallDistanceM": 0.157,
+    "sourceUrl": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/129/149/842131/BLDG_0003000e00650e3d.dae"
+   },
+   {
+    "id": "DEBE01YYK00005jK",
+    "a": [
+     3059.217,
+     932.627
+    ],
+    "b": [
+     3064.144,
+     934.838
+    ],
+    "normal": [
+     -0.4094174176092001,
+     0.9123471807147835
+    ],
+    "low": 0,
+    "high": 10.372,
+    "widthM": 5.4,
+    "heightM": 10.37,
+    "fraction": 0.908,
+    "wallDistanceM": 0.08,
+    "sourceUrl": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/129/149/842131/BLDG_0003000e00650e3d.dae"
+   },
+   {
+    "id": "DEBE01YYK00005jK",
+    "a": [
+     3064.144,
+     934.838
+    ],
+    "b": [
+     3059.956,
+     944.167
+    ],
+    "normal": [
+     -0.9122889212100729,
+     -0.4095472185687037
+    ],
+    "low": 0,
+    "high": 10.372,
+    "widthM": 10.23,
+    "heightM": 10.37,
+    "fraction": 0.999,
+    "wallDistanceM": 0.158,
+    "sourceUrl": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/129/149/842131/BLDG_0003000e00650e3d.dae"
+   }
+  ]
+ },
+ "roofImage": {
+  "service": "https://gdi.berlin.de/services/wms/truedop_2026",
+  "crs": "EPSG:25833",
+  "bounds": [
+   392696,
+   5818972,
+   392830,
+   5819091
+  ],
+  "width": 536,
+  "height": 476,
+  "credit": "Geoportal Berlin / Digitale farbige TrueOrthophotos 2026 (TrueDOP20RGB), dl-de/by-2-0"
+ },
+ "roofDirection": [
+  0.924,
+  0.383
+ ],
+ "roofObjects": [
+  [
+   "raised rooflight",
+   3251.27,
+   942.13
+  ],
+  [
+   "raised rooflight",
+   3262.2,
+   946.63
+  ],
+  [
+   "raised rooflight",
+   3273.44,
+   951.13
+  ],
+  [
+   "raised rooflight",
+   3284.69,
+   955.64
+  ],
+  [
+   "hood",
+   3246.13,
+   952.42
+  ],
+  [
+   "hood",
+   3256.41,
+   956.92
+  ],
+  [
+   "hood",
+   3261.55,
+   962.07
+  ],
+  [
+   "hood",
+   3270.87,
+   962.39
+  ],
+  [
+   "hood",
+   3281.48,
+   967.54
+  ],
+  [
+   "hood",
+   3292.72,
+   972.36
+  ],
+  [
+   "hood",
+   3302.36,
+   975.9
+  ],
+  [
+   "hood",
+   3240.35,
+   965.93
+  ],
+  [
+   "hood",
+   3217.53,
+   957.24
+  ],
+  [
+   "hood",
+   3282.12,
+   982.97
+  ],
+  [
+   "hood",
+   3295.94,
+   989.41
+  ]
+ ],
+ "viaductEdge": {
+  "osmWay": 345162606,
+  "frame": "v183 station u/v in metres",
+  "offsets": [
+   [
+    -70.2077,
+    17.9434
+   ],
+   [
+    -54.762,
+    18.673
+   ],
+   [
+    -53.3578,
+    18.7242
+   ],
+   [
+    -32.2955,
+    18.8907
+   ],
+   [
+    -30.8914,
+    18.8397
+   ],
+   [
+    70.2077,
+    13.1316
+   ]
+  ]
+ },
+ "embassy": {
+  "owner": "DEBE01YYK00001GA",
+  "osmRelation": 2668473,
+  "facades": [
+   {
+    "kind": "projected street bay",
+    "a": [
+     2754.992,
+     453.28
+    ],
+    "b": [
+     2752.312,
+     477.997
+    ],
+    "low": 3,
+    "high": 15.11,
+    "normalSign": -1,
+    "archive": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/132/147/822710/DEB_LOD2_UUID_8ed661f1-b77b-47c6-b825-7c068a5e2de0.dae",
+    "rectifiedCoverage": 0.984,
+    "registrationErrorMetres": 0.003
+   },
+   {
+    "kind": "upper street glass",
+    "a": [
+     2752.572,
+     453.03
+    ],
+    "b": [
+     2749.914,
+     477.731
+    ],
+    "low": 15.108,
+    "high": 30.23,
+    "normalSign": -1,
+    "archive": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/132/147/822710/DEB_LOD2_UUID_8ed661f1-b77b-47c6-b825-7c068a5e2de0.dae",
+    "rectifiedCoverage": 0.559,
+    "registrationErrorMetres": 0.05
+   },
+   {
+    "kind": "river glass east",
+    "a": [
+     2749.869,
+     478.15
+    ],
+    "b": [
+     2733.685,
+     476.411
+    ],
+    "low": 3,
+    "high": 30.23,
+    "normalSign": -1,
+    "archive": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/132/147/822710/DEB_LOD2_UUID_8ed661f1-b77b-47c6-b825-7c068a5e2de0.dae",
+    "rectifiedCoverage": 1.0,
+    "registrationErrorMetres": 0.005
+   },
+   {
+    "kind": "river glass west",
+    "a": [
+     2733.685,
+     476.411
+    ],
+    "b": [
+     2723.501,
+     475.316
+    ],
+    "low": 3,
+    "high": 30.23,
+    "normalSign": -1,
+    "archive": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/132/147/822710/DEB_LOD2_UUID_8ed661f1-b77b-47c6-b825-7c068a5e2de0.dae",
+    "rectifiedCoverage": 1.0,
+    "registrationErrorMetres": 0.005
+   },
+   {
+    "kind": "return glass",
+    "a": [
+     2723.015,
+     474.78
+    ],
+    "b": [
+     2724.254,
+     463.284
+    ],
+    "low": 7.8,
+    "high": 30.23,
+    "normalSign": -1,
+    "archive": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/132/147/822710/DEB_LOD2_UUID_8ed661f1-b77b-47c6-b825-7c068a5e2de0.dae",
+    "rectifiedCoverage": 1.0,
+    "registrationErrorMetres": 0.003
+   },
+   {
+    "kind": "court connector face",
+    "a": [
+     2732.243,
+     440.01
+    ],
+    "b": [
+     2714.693,
+     438.694
+    ],
+    "low": 12,
+    "high": 30.23,
+    "normalSign": -1,
+    "archive": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/132/147/822710/DEB_LOD2_UUID_8ed661f1-b77b-47c6-b825-7c068a5e2de0.dae",
+    "rectifiedCoverage": 0.993,
+    "registrationErrorMetres": 0.003
+   },
+   {
+    "kind": "silver court screen",
+    "a": [
+     2714.693,
+     438.694
+    ],
+    "b": [
+     2706.152,
+     460.86
+    ],
+    "low": 7,
+    "high": 30.23,
+    "normalSign": -1,
+    "archive": "https://www.3dcitydb.net/3dcitydb/fileadmin/mydata/Berlin_Demo/Berlin_Buildings_rgbTexture_ScaleFactor_0.3/Tiles/132/147/822710/DEB_LOD2_UUID_8ed661f1-b77b-47c6-b825-7c068a5e2de0.dae",
+    "rectifiedCoverage": 0.993,
+    "registrationErrorMetres": 0.007
+   }
+  ]
+ }
+}

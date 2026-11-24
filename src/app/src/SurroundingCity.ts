@@ -675,7 +675,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     for (const floor of landscapeFloors.values()) {
       const [x0,z0,x1,z1] = floor.descriptor.bounds;
       if (x<x0 || x>x1 || z<z0 || z>z1) continue;
-      const y = floor.root.userData.tegelLandscapeFloorV378?.(x,z) ?? floor.root.userData.zooWestFloorV379?.(x,z);
+      const y = floor.root.userData.tegelLandscapeFloorV378?.(x,z) ?? floor.root.userData.zooWestFloorV379?.(x,z) ?? floor.root.userData.kreuzbergPlaetzeFloorV380?.(x,z);
       if (y != null) return y;
       if (floor.nav.ground.some(poly => surroundingPolygonContains(poly,x-floor.origin[0],z-floor.origin[2]))) return floor.nav.groundY;
     }
@@ -913,7 +913,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           }
           const access = publicAccessV326.get(entry.root);
           if (access) residentAccess.set(descriptor.id, access);
-          if (siteExteriors.has(descriptor) && (entry.root.userData.tegelLandscapeFloorV378 || entry.root.userData.zooWestFloorV379 || entry.nav.ground.length)) landscapeFloors.set(descriptor.id, residents.get(descriptor.id)!);
+          if (siteExteriors.has(descriptor) && (entry.root.userData.tegelLandscapeFloorV378 || entry.root.userData.zooWestFloorV379 || entry.root.userData.kreuzbergPlaetzeFloorV380 || entry.nav.ground.length)) landscapeFloors.set(descriptor.id, residents.get(descriptor.id)!);
           if (entry.root.userData.updateTransportV378) airportBeacon = entry.root;
           geometryBytes += entry.geometryBytes;
           bufferCount += entry.bufferCount;

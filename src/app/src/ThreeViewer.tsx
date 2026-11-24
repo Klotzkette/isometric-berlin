@@ -10987,6 +10987,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             includePotsdamerSouthHall: false,
             earlyBreitscheid: church,
             regionalCharlottenburgerTor: true,
+            surveyedDprkEmbassy: true,
           });
           cityWestEarly.drawn = undefined;
           cityWestEarly.prepared = undefined;

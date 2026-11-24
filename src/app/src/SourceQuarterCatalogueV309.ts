@@ -18,6 +18,7 @@ import { schwanenwerderV346 } from "./SchwanenwerderV346";
 import { airfieldSurfacesV346 } from "./AirfieldSurfacesV346";
 import { huxleysEntranceV346 } from "./HuxleysEntranceV346";
 import { mainRoadFrontsEntriesV346 } from "./MainRoadFrontsV346";
+import { omanExteriorV380 } from "./omanExteriorV380";
 import { clayDahlemV347 } from "./ClayDahlemV347";
 import { sacredPlacesEntriesV347 } from "./SacredPlacesV347";
 import { civicFacilitiesEntriesV350 } from "./CivicFacilitiesV350";
@@ -141,6 +142,7 @@ export const SOURCE_QUARTER_CATALOGUE_V309:readonly SourceQuarterCatalogueEntryV
   ...venueFrontEntriesV355,
   ...venueFrontEntriesV356,
   ...venueFrontEntriesV357,
+  ...omanExteriorV380,
 ];
 
 /** Separate factory permits deterministic transport/retry tests without mocks

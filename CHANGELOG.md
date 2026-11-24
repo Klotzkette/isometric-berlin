@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.260
+
+- Rebuild the surveyed surfaces of Kastanienallee, Oderberger Straße, Torstraße, Rosenthaler Platz, Moritzplatz and Rio-Reiser-Platz. Fit street trees, tram stops, measured curbs and the Aufbau Haus facade to the actual sites.
+- Refine Jannowitzbrücke and its station, KitKatClub, Kraftwerk Berlin and the Dutch, Chinese, Spanish, North Korean and Omani embassy buildings. Fit openings to 130 registered wall faces at 47 additional diplomatic sites and add the measured Clayallee streetscape.
+- Stream the new geometry in local packets and reuse identical packets in both styles. [Sources, before-and-after views and direct links](docs/berlin-strassen-plaetze-botschaften-v380.md)
+
 ## 1.0.259
 
 - Rebuild the Charlottenburger Tor, its colonnades and bridge approaches, and remodel individual animal houses, aviaries and outdoor terrain at Zoo Berlin and Tierpark Friedrichsfelde.

@@ -11,6 +11,7 @@ the Spree and discover the city's architecture from an isometric perspective.
 
 **[Viewer öffnen / Explore Berlin](https://klotzkette.github.io/isometric-berlin/)** ·
 [Download](https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip) ·
+[Straßen, Plätze und Botschaften](docs/berlin-strassen-plaetze-botschaften-v380.md) ·
 [City West, beide Zoos und Tiergarten](docs/berlin-zoos-city-west-und-ladezeit-v379.md) ·
 [Weitere Orte und Direktansichten](docs/berlin-landmarken-und-stadtwege-v378.md) ·
 [Deutsch](#deutsch) · [English](#english)
@@ -336,8 +337,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.259** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.259/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.260** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.260/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

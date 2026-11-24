@@ -117,6 +117,8 @@ export type ExpandedLandmark = {
 export type ExpandedCityDetailsOptions = {
   earlyBreitscheid?: Group;
   regionalCharlottenburgerTor?: boolean;
+  /** The viewer owns the complete eight-part embassy in its Alt-Mitte source layer. */
+  surveyedDprkEmbassy?: boolean;
   detailProfile?: MoabitPrisonMemorialDetailProfile;
   /** Disable only after the complete required v266 portico has been constructed. */
   includeLegacyAnhalter?: boolean;
@@ -3402,6 +3404,7 @@ function addPotsdamerUndergroundStation(builder: Builder): void {
 function addPotsdamerWilhelmDetails(
   builder: Builder,
   byName: Map<string, ExpandedLandmark>,
+  surveyedDprkEmbassy: boolean,
 ): void {
   if (!byName.has("Mall of Berlin")) return;
   addPotsdamerUndergroundStation(builder);
@@ -3432,6 +3435,7 @@ function addPotsdamerWilhelmDetails(
     -0.03,
   );
 
+  if (surveyedDprkEmbassy) return;
   const northKorea = fixedWorldPoint(profile.northKoreanEmbassyWorldM);
   addLocalBox(
     builder,
@@ -3470,10 +3474,6 @@ function addPotsdamerWilhelmDetails(
       0.12,
     );
   }
-
-  // The source-bound bronze figure and pedestal are an independent group;
-  // do not retain the former cone/cylinder placeholder underneath it.
-
 }
 
 type TillaLawnProfile =
@@ -4906,7 +4906,7 @@ export function createExpandedCityDetails(
   addHamburgerBahnhof(builder, byName);
   addRieckhallen(builder, byName);
   addKulturforum(builder, byName);
-  addPotsdamerWilhelmDetails(builder, byName);
+  addPotsdamerWilhelmDetails(builder, byName, options.surveyedDprkEmbassy === true);
   if (byName.has("Tilla-Durieux-Park")) {
     for (const box of potsdamerPanoramaRoofBoxes()) {
       addBox(builder, box.color, ...box.position, ...box.size, box.rotationY, false);
