@@ -1,0 +1,1 @@
+var e=[{id:`kreuzberg380-moritz`,bounds:[2508,1636,2748,1876]},{id:`kreuzberg380-rio`,bounds:[3375,2070,3539,2234]}],t=new Set(e.map(e=>e.id));export{t as n,e as t};
