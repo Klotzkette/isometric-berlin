@@ -399,6 +399,28 @@ def load_script_module(name: str, relative_path: str) -> ModuleType:
   return module
 
 
+def test_stelenfeld_release_counts_measured_records(tmp_path: Path) -> None:
+  release_readiness = load_script_module(
+    "readiness_stelenfeld", "scripts/check_release_readiness.py"
+  )
+  assert release_readiness.stelenfeld_survey_failures(ROOT) == []
+  relative = Path("src/app/src/data/stelenfeldV385/field.json")
+  target = tmp_path / relative
+  target.parent.mkdir(parents=True)
+  packet = json.loads((ROOT / relative).read_bytes())
+  records = bytearray(base64.b64decode(packet["stelae"]))
+  # Keep the overall count at 2,710 while turning one flush stone into a raised stone.
+  offset = next(
+    i + 4 for i in range(0, len(records), 12) if records[i + 4 : i + 6] == b"\0\0"
+  )
+  struct.pack_into("<h", records, offset, 1)
+  packet["stelae"] = base64.b64encode(records).decode()
+  target.write_text(json.dumps(packet))
+  assert release_readiness.stelenfeld_survey_failures(tmp_path)
+  target.write_text('{"stelae": "!"}')
+  assert release_readiness.stelenfeld_survey_failures(tmp_path)
+
+
 def test_current_tree_is_release_ready() -> None:
   release_readiness = load_script_module(
     "check_release_readiness", "scripts/check_release_readiness.py"

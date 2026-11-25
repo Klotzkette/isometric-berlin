@@ -3,21 +3,17 @@
 The true-3D viewer adds small procedural recognition models for memorials
 whose defining shapes are easily lost in aerial photogrammetry. These models
 are additive cues over the official Berlin 3D Mesh, not replacements for it.
-They use the committed landmark coordinates and do not claim surveyed site
-geometry unless a dimension is explicitly listed below.
+The evidence table identifies the surveys and published dimensions used for each site.
 
 The manifest's landmark camera anchors all use a generic `38 m NHN` height.
-Each procedural model is therefore grounded separately at the fifth-percentile
-surface elevation sampled around its coordinate from the committed official
-Berlin 3D Mesh. This prevents floating plinths without claiming a surveyed
-monument foundation height.
+Most procedural models use the fifth-percentile surface elevation sampled around the landmark from the committed Berlin 3D Mesh. The Stelenfeld has its own registered pavement and per-stele heights.
 
 ## Evidence table
 
 | Memorial | Retained recognition cues | Metric status |
 |---|---|---|
 | Siegessäule / Viktoria (Goldelse) | Bright leaf-gold figure with two layered feather fans, visible head and Prussian eagle helmet, bent raised arm with a leafed laurel wreath, folded standard arm, ring-framed Iron Cross, pointed finial, three wind-blown ribbons, visible shoes and an asymmetrically wind-filled robe with deep folds | Berlin's monument inventory and Bildhauerei in Berlin fix the complete monument at 67 m, the Viktoria at 8.32 m and 35 t, her 0.92 m shoe length, 17 cast parts and gold leaf on oil ground. The model retains those measured values and the documented west-facing attributes; local anatomy, feather and drapery subdivisions are reference-bounded procedural geometry rather than a scan. Its 47 procedural parts, 21,828 vertices and 66 explicit ink segments merge into one texture-free gold material draw. |
-| Memorial to the Murdered Jews of Europe | Complete field, depressed terrain cue, individually varied and slightly tilted stelae | The current model contract retains 2,711 concrete stelae, each 0.95 x 2.38 m, with 0.95 m single-file alleys and a 0.2–4.7 m published height range. Count, cross-section, alley width and range are exact contracts; individual height, tilt, terrain roll and scene orientation remain deterministic presentation geometry. |
+| Memorial to the Murdered Jews of Europe | Cadastral field boundary, 2,598 raised concrete stelae, 112 flush inserts and walkable surveyed alleys | The Foundation records 2,710 stelae. The model registers individual footprints to ALKIS, OpenStreetMap and aerial imagery. The lane floor and 2,594 raised tops derive from Berlin's laser survey. Four occluded raised tops, some flush positions and individual inclinations are estimates. [Survey and sources](stelenfeld-v385.md) |
 | Memorial to the Sinti and Roma murdered under National Socialism | Black reflecting pool in a dark-coated steel pan, retractable triangular granite stone with daily flower, German/English rim poem, broken-granite apron, 69 crime-site stones, segmented glass/Corten chronology and nine-biography 2022 exhibition cues | The responsible foundation publishes the approximately 12 m pool diameter and 69 named places; Dani Karavan's catalogue publishes a 2.5 x 60 x 60 m overall artwork extent. Those figures are exact model contracts; uncited stone, panel and local-spacing dimensions remain visual-reference approximations. |
 | Memorial to Homosexuals Persecuted under Nazism | Tall concrete cuboid and inset viewing window | Characteristic form follows the responsible foundation and licensed reference images; uncited dimensions are approximate. |
 | Soviet War Memorial Tiergarten | Street-facing forecourt, broad stair, six side pylons, central pylon, soldier, two T-34/76 tanks, two ML-20 gun-howitzers and rifle | Berlin's official pages document the south-facing entrance on Strasse des 17. Juni: tanks left and right at the road, guns diagonally behind at the first stair, and an 8 m soldier on a total height around 20 m. Individual tank, gun and soldier positions use their exact OSM nodes; the site axis follows the tank pair. Local sculptural sections and vehicle dimensions remain approximate. |
@@ -103,9 +99,7 @@ monument foundation height.
 
 No external photograph is copied into the WebGL scene. The procedural layer is
 kept in source code, uses flat-shaded materials for a crisp model-railway read,
-and batches the 2,711 Holocaust stelae into one draw call. That large instance
-batch receives existing scene shadows but does not cast 2,711 additional
-shadow objects, preserving responsive camera flight on mobile hardware.
+and batches the 2,598 raised stelae into one draw call. The 112 flush inserts share the pavement draw call. The raised stones receive scene shadows.
 
 The v256 [Sinti and Roma refinement](sinti-roma-v256.md) corrects only the
 earlier sparse authored paving estimate into a fitted field of all 168 + 69

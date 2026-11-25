@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import ts from "typescript";
+import { cutStelenfeldPavingV385 } from "../src/stelenfeldPavingV385";
 import { BoxGeometry, BufferAttribute, BufferGeometry, Color, DoubleSide, Group, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial } from "three";
 import { createAltMitteSidewalksV226 } from "../src/AltMitteSidewalksV226";
 import { cutRosenthalerGroundSlabsV228, cutRosenthalerPresentationV228, cutRosenthalerSurfaceV228, rosenthalerGroundComplementV228 } from "../src/RosenthalerSurfaceAperturesV228";
@@ -173,7 +174,7 @@ describe("Rosenthaler four precise surface apertures v228", () => {
     const parsed = ts.createSourceFile("restoredRoadSurfaces.ts", text, ts.ScriptTarget.Latest, true);
     const functions = parsed.statements.filter(ts.isFunctionDeclaration).filter(node => ["bytes", "createRestoredRoadBatch"].includes(node.name?.text ?? ""));
     const compiled = ts.transpileModule(functions.map(node => node.getText(parsed)).join("\n"), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText;
-    const bindings = { exports: {}, BufferAttribute, BufferGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial, indexGeometryExactly, freezeStaticSceneTransforms };
+    const bindings = { exports: {}, BufferAttribute, BufferGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial, indexGeometryExactly, freezeStaticSceneTransforms, cutStelenfeldPavingV385 };
     const create = new Function(...Object.keys(bindings), `${compiled}\nreturn createRestoredRoadBatch;`)(...Object.values(bindings)) as typeof import("../src/restoredRoadSurfaces").createRestoredRoadBatch;
     const encode = (array: Float32Array | Uint32Array) => Buffer.from(array.buffer).toString("base64");
     for (const kind of ["asphalt", "paving"] as const) {

@@ -334,24 +334,6 @@ function addStreetFurniture(
   }
 }
 
-function addTrafficTowerPaving(
-  builder: ReturnType<typeof createBuilder>,
-): void {
-  const [x, y, z] = POTSDAMER_PUBLIC_REALM_PROFILE.trafficTowerWorldM;
-  for (let spoke = 0; spoke < 8; spoke += 1) {
-    const angle = (spoke / 8) * Math.PI;
-    addBox(builder, GRANITE, x, y + 0.095, z, 20.5, 0.035, 0.24, angle, false);
-  }
-  for (const [dx, dz] of [
-    [-8.8, -8.8],
-    [8.8, -8.8],
-    [-8.8, 8.8],
-    [8.8, 8.8],
-  ] as const) {
-    addBox(builder, GRANITE, x + dx, y + 0.28, z + dz, 2.2, 0.48, 0.68);
-  }
-}
-
 export function createPotsdamerPlatzPublicRealm(
   detailProfile: "full" | "mobile" = "full",
 ): Group {
@@ -366,7 +348,6 @@ export function createPotsdamerPlatzPublicRealm(
   const builder = createBuilder();
   addCorridorPaving(builder);
   addStreetFurniture(builder, detailProfile === "mobile");
-  addTrafficTowerPaving(builder);
   const details = finishDrawnGroup(builder, {
     name: POTSDAMER_PUBLIC_REALM_PROFILE.name,
   });

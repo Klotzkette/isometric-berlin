@@ -1,4 +1,5 @@
 import {mitteWestViewsV383} from "./mitteWestViewsV383";
+import { potsdamerPlatzViewsV385 } from "./potsdamerPlatzViewsV385";
 import {kollwitzKiezViewsV381} from "./kollwitzKiezViewsV381";
 import {berlinPlaceViewsV380} from "./berlinPlaceViewsV380";
 import { charlottenburgerTorViewsV379 } from "./charlottenburgerTorViewsV379";
@@ -30,4 +31,5 @@ export const berlinPlaceViewsV378: typeof memorialViewsV378 = {
   ...berlinPlaceViewsV380,
   ...kollwitzKiezViewsV381,
   ...mitteWestViewsV383,
+  ...potsdamerPlatzViewsV385,
 };

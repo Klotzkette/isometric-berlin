@@ -5,6 +5,7 @@ import { HAND_MIT_UHR_PROFILE } from "./gymnasiumTiergartenProfile";
 export { BERLIN_JUNCTION_PROFILE } from "./BerlinJunction";
 
 import { POTSDAMER_TRAFFIC_TOWER_PROFILE } from "./potsdamerTrafficTowerProfile";
+import { potsdamerWallBoxesV385, potsdamerWallExhibitsV385 } from "./potsdamerWallExhibitsV385";
 import { SOVIET_MEMORIAL_SOURCE } from "./SovietMemorialSource";
 import { DOM_ALTES_ARTWORK_KEYS } from "./domAltesMuseumIds";
 import {
@@ -2818,6 +2819,7 @@ function addMergedMonumentBatch(parent: Group, builder: Builder): void {
 }
 
 const fechterFallbacksV352 = new WeakMap<Group, Group>();
+const potsdamerWallExhibitsByKey = new Map(potsdamerWallExhibitsV385.map(site => [site.key, site]));
 
 /** Only the constructor-verified old Fechter owner may be hidden by its successor. */
 export function setFechterFallbackHiddenV352(root: Group | undefined, hidden: boolean): boolean {
@@ -2878,7 +2880,10 @@ export function createTiergartenMonuments(
     ) {
       floraplatzAnimalCount += 1;
     }
-    if (entry.osm_key === KINDERTRANSPORT_MEMORIAL_OSM_KEY) {
+    const wallExhibit = potsdamerWallExhibitsByKey.get(entry.osm_key);
+    if (wallExhibit) {
+      for (const part of potsdamerWallBoxesV385(wallExhibit)) box(builder, ...part);
+    } else if (entry.osm_key === KINDERTRANSPORT_MEMORIAL_OSM_KEY) {
       // This exact seven-figure ensemble owns its OSM point. Keeping it out of
       // the subtype dispatcher prevents the former generic sculpture marker
       // from surviving underneath the detailed model.

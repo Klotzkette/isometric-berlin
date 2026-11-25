@@ -1,234 +1,123 @@
-/**
- * The stele field of the Denkmal für die ermordeten Juden Europas
- * (Peter Eisenman, 2005), laid out from its documented figures.
- *
- * ## What was wrong before
- *
- * The field shipped with three measurable errors, all of which change how
- * the memorial reads:
- *
- *  1. **2710 stelae instead of 2711.** The count is the one number about
- *     this memorial everybody knows.
- *  2. **Alleys 1.50 m wide across the field** — 58 % too wide.
- *  3. **Alleys 0.52 m wide along it** — 45 % too narrow.
- *
- * Eisenman's alleys are 0.95 m in BOTH directions: wide enough for one
- * person, too narrow for two. That single dimension is the whole
- * experience of the place, and getting it wrong in opposite directions on
- * the two axes turned a lattice of equal corridors into rows of widely
- * spaced blocks. Everything here derives from the documented stele size
- * and that one alley width, so the grid cannot drift again.
- *
- * ## Status
- *
- * Stele size, alley width, count and height range are documented figures.
- * The individual height of any one stele, the roll of the ground and each
- * stele's small tilt are NOT published per stele; they are generated
- * deterministically to the documented ranges and are labelled as
- * presentation geometry.
- */
+import { stelenfeldRimGroundAtV385 } from "./stelenfeldRimV385";
+import survey from "./data/stelenfeldV385/field.json";
+import { decodeBase64Bytes } from "./decodeBase64Bytes";
+import { inStelenfeldSite, STELENFELD_ANCHOR, STELENFELD_BASE } from "./stelenfeldSiteV385";
 
-/** Documented dimensions of the memorial, in metres. */
+export { HOLOCAUST_MINECRAFT_PROTECTION, isHolocaustMinecraftProtectedAt } from "./stelenfeldSiteV385";
 export const HOLOCAUST_FIELD = {
-  /** Every stele has the same footprint. */
-  steleWidth: 0.95,
-  steleLength: 2.38,
-  /**
-   * The defining dimension: single-file alleys, the same both ways.
-   * Everything else in the layout is derived from it.
-   */
-  alley: 0.95,
-  /** Documented total. */
-  steleCount: 2711,
-  /** Documented height range across the field. */
-  minHeight: 0.2,
-  maxHeight: 4.7,
-  /** The stelae lean, but barely — up to two degrees. */
-  maxTiltDegrees: 2,
-  /** Site extent the lattice is trimmed to. */
-  siteWidth: 200,
-  siteDepth: 95,
+  steleWidth: 0.95, steleLength: 2.38, alley: 0.95, steleCount: 2710,
+  minHeight: 0, maxHeight: 4.7, maxTiltDegrees: 2,
 } as const;
-
-/**
- * Shared world-space exclusion used by the Minecraft tree and mob layers.
- * The centre and bearing are the committed landmark anchor and the same
- * presentation rotation used by `MemorialLandmarks`. The extra eight metres
- * keep voxel crowns and one-block-high walkers out of the memorial's edge,
- * rather than merely testing their centre points against the stele lattice.
- */
-export const HOLOCAUST_MINECRAFT_PROTECTION = {
-  centreWorldM: [462.88128157681786, 557.3677023872733] as const,
-  edgeClearanceM: 8,
-  rotationY: -0.105,
-} as const;
-
-/** True throughout the protected stele field, including its voxel clearance. */
-export function isHolocaustMinecraftProtectedAt(
-  worldX: number,
-  worldZ: number,
-  extraClearanceM = 0,
-): boolean {
-  const dx = worldX - HOLOCAUST_MINECRAFT_PROTECTION.centreWorldM[0];
-  const dz = worldZ - HOLOCAUST_MINECRAFT_PROTECTION.centreWorldM[1];
-  const sine = Math.sin(HOLOCAUST_MINECRAFT_PROTECTION.rotationY);
-  const cosine = Math.cos(HOLOCAUST_MINECRAFT_PROTECTION.rotationY);
-  // Inverse of the memorial group's Y rotation: world -> field local.
-  const localX = cosine * dx - sine * dz;
-  const localZ = sine * dx + cosine * dz;
-  const clearance =
-    HOLOCAUST_MINECRAFT_PROTECTION.edgeClearanceM +
-    Math.max(0, extraClearanceM);
-  return (
-    Math.abs(localX) <= HOLOCAUST_FIELD.siteWidth / 2 + clearance &&
-    Math.abs(localZ) <= HOLOCAUST_FIELD.siteDepth / 2 + clearance
-  );
-}
-
-/** Centre-to-centre spacing across the stele's short side. */
-export const PITCH_ACROSS =
-  HOLOCAUST_FIELD.steleWidth + HOLOCAUST_FIELD.alley;
-/** Centre-to-centre spacing along the stele's long side. */
-export const PITCH_ALONG =
-  HOLOCAUST_FIELD.steleLength + HOLOCAUST_FIELD.alley;
-
+export const PITCH_ACROSS = HOLOCAUST_FIELD.steleWidth + HOLOCAUST_FIELD.alley;
+export const PITCH_ALONG = HOLOCAUST_FIELD.steleLength + HOLOCAUST_FIELD.alley;
 export const HOLOCAUST_GEOMETRY_STATUS =
-  "Documented stele footprint (0.95 x 2.38 m), documented 0.95 m single-file alleys in both directions, documented count of 2711 and the 0.2-4.7 m height range. Per-stele height, tilt and the roll of the ground are not published and are generated deterministically within those ranges as presentation geometry.";
+  "2710 concrete stelae including 112 flush with the paving. Registered ALKIS, OSM and orthophoto positions; ALS-derived lane and top heights. Four raised tops under trees, sub-canopy flush positions and individual inclinations are estimates.";
 
 export type StelePlacement = {
-  /** Height of this stele, in metres. */
-  height: number;
-  /** Ground level under it, relative to the field's mean. */
-  ground: number;
-  /** Small lean, in radians, about x and z. */
-  tiltX: number;
-  tiltZ: number;
-  x: number;
-  z: number;
+  x: number; z: number; ground: number; height: number; rotationY: number;
+  tiltX: number; tiltZ: number;
 };
 
-/**
- * Deterministic hash in [0, 1). Used for the per-stele variation that is
- * not published, so the field is identical on every machine and every
- * reload — a memorial that reshuffles itself between visits would be
- * both wrong and disrespectful.
- */
-function unit(index: number, salt: number): number {
-  let value = Math.imul(index + salt, 0x9e3779b1);
-  value = Math.imul(value ^ (value >>> 16), 0x85ebca6b);
-  value = Math.imul(value ^ (value >>> 13), 0xc2b2ae35);
-  return ((value ^ (value >>> 16)) >>> 0) / 0x1_0000_0000;
+const int16 = (b64: string) => new Int16Array(decodeBase64Bytes(b64).buffer);
+let heights: Int16Array | undefined;
+const [minX,minZ,pitch,cols,rows] = survey.grid;
+
+/** Interpolate the same two plane triangles as the survey pavement at each cell. */
+export function stelenfeldFloorSampleV385(x: number, z: number): number {
+  heights ??= int16(survey.floor);
+  const gx = Math.max(0, Math.min(cols-1, (x-minX)/pitch));
+  const gz = Math.max(0, Math.min(rows-1, (z-minZ)/pitch));
+  const i = Math.min(cols-2, Math.floor(gx)), j = Math.min(rows-2, Math.floor(gz));
+  const u = gx-i, v = gz-j, k = j*cols+i;
+  const a = heights[k], b = heights[k+1], c = heights[k+cols+1], d = heights[k+cols];
+  return (u>=v ? a+(b-a)*u+(c-b)*v : a+(d-a)*v+(c-d)*u)/100;
 }
 
-/**
- * The roll of the ground. Eisenman's floor is not one funnel — it swells
- * and dips in long waves, so an alley rises and falls as you walk it and
- * the tops of the stelae ripple with it.
- */
-export function fieldGround(x: number, z: number): number {
-  const u = x / (HOLOCAUST_FIELD.siteWidth / 2);
-  const v = z / (HOLOCAUST_FIELD.siteDepth / 2);
-  return (
-    0.62 * Math.sin(u * 2.4 + 0.7) * Math.cos(v * 1.7) +
-    0.38 * Math.sin(v * 3.0 + 1.35) -
-    2.2 * Math.max(0, 1 - Math.hypot(u, v * 1.15))
-  );
+export function stelenfeldGroundAtV385(x: number, z: number, native=false): number | null {
+  return inStelenfeldSite(x,z) ? stelenfeldFloorSampleV385(x,z) : stelenfeldRimGroundAtV385(x,z,native);
 }
 
-/**
- * The height profile. Low at the rim where the field meets the pavement,
- * rising toward the middle: that is what makes the memorial look like a
- * flat grid from the street and swallow you once you walk in.
- */
-export function steleHeight(x: number, z: number, index: number): number {
-  const u = Math.abs(x) / (HOLOCAUST_FIELD.siteWidth / 2);
-  const v = Math.abs(z) / (HOLOCAUST_FIELD.siteDepth / 2);
-  const toEdge = Math.max(u, v);
-  // Smooth rise from the rim inward, then per-stele variation on top so
-  // no two neighbours match and the tops never form a dome.
-  const base = Math.pow(1 - Math.min(1, toEdge), 1.35);
-  const jitter = unit(index, 7919) * 0.34 - 0.17;
-  const height =
-    HOLOCAUST_FIELD.minHeight +
-    (HOLOCAUST_FIELD.maxHeight - HOLOCAUST_FIELD.minHeight) *
-      Math.min(1, Math.max(0, base + jitter));
-  return Math.min(HOLOCAUST_FIELD.maxHeight, Math.max(HOLOCAUST_FIELD.minHeight, height));
-}
-
-/**
- * Every stele, in field-local coordinates with the origin at the centre.
- * The lattice is laid out on the documented pitch and then trimmed to the
- * documented count by dropping the outermost cells first, so the field
- * keeps a full grid in the middle and a ragged edge at the pavement —
- * which is how it actually meets Ebertstraße and Hannah-Arendt-Straße.
- */
+let placements: StelePlacement[] | undefined;
 export function holocaustStelePlacements(): StelePlacement[] {
-  const columns = Math.floor(HOLOCAUST_FIELD.siteWidth / PITCH_ACROSS);
-  const rows = Math.floor(HOLOCAUST_FIELD.siteDepth / PITCH_ALONG);
-  const cells: Array<{ column: number; rank: number; row: number }> = [];
-  for (let row = 0; row < rows; row += 1) {
-    for (let column = 0; column < columns; column += 1) {
-      const u = Math.abs(column - (columns - 1) / 2) / ((columns - 1) / 2);
-      const v = Math.abs(row - (rows - 1) / 2) / ((rows - 1) / 2);
-      cells.push({ column, rank: Math.max(u, v), row });
+  if (placements) return placements;
+  placements = [];
+  const raw = int16(survey.stelae);
+  for (let i=0; i<raw.length; i+=6) {
+    const x = 460+raw[i]/100, z = 550+raw[i+1]/100;
+    const slopeX = raw[i+4]/1000, slopeZ = raw[i+5]/1000;
+    // A flush slab follows the paved slope. Internal 4 m cell boundaries can
+    // change gradient, so use the neighbourhood spanning half a stele.
+    const raised = raw[i+2] !== 0;
+    const dx = raised ? slopeX : (stelenfeldFloorSampleV385(x+.8,z)-stelenfeldFloorSampleV385(x-.8,z))/1.6;
+    const dz = raised ? slopeZ : stelenfeldFloorSampleV385(x,z+.5)-stelenfeldFloorSampleV385(x,z-.5);
+    const cap = raised ? Math.min(1, Math.tan(Math.PI/90)/(Math.hypot(dx,dz)||1)) : 1;
+    placements.push({
+      x: x-STELENFELD_ANCHOR[0], z: z-STELENFELD_ANCHOR[1],
+      ground: stelenfeldFloorSampleV385(x,z)-STELENFELD_BASE, height: raw[i+2]/100,
+      rotationY: -raw[i+3]/1000, tiltX: -Math.atan(dz*cap), tiltZ: Math.atan(dx*cap),
+    });
+  }
+  return placements;
+}
+
+export function stelenfeldPavementDataV385() {
+  const raw = int16(survey.positions);
+  const positions = new Float32Array(raw.length);
+  for (let i=0; i<raw.length; i+=3) {
+    positions[i] = 460+raw[i]/100-STELENFELD_ANCHOR[0];
+    positions[i+1] = raw[i+1]/100-STELENFELD_BASE;
+    positions[i+2] = 550+raw[i+2]/100-STELENFELD_ANCHOR[1];
+  }
+  return {positions, indices: new Uint16Array(decodeBase64Bytes(survey.indices).buffer)};
+}
+
+export const stelenfeldTreesV385 = survey.trees;
+export const stelenfeldInformationBuildingV385 = survey.entrance;
+
+let collision: Map<number, StelePlacement[]> | undefined;
+export function stelenfeldSolidAtV385(x: number, y: number, z: number, radius=0): boolean {
+  if (x<389 || x>568 || z<482 || z>649) return false;
+  if (x>=546.7-radius && x<=553.85+radius && z>=581.91-radius && z<=589.06+radius &&
+      y>=3.6 && y<=survey.entrance.roofCm/100) {
+    const px=(x-460)*100, pz=(z-550)*100;
+    let inside=false;
+    const ring=survey.entrance.ring;
+    for (let i=0;i<ring.length;i++) {
+      const [ax,az]=ring[i], [bx,bz]=ring[(i+1)%ring.length];
+      const dx=bx-ax,dz=bz-az;
+      if ((az>pz)!==(bz>pz) && px < ax+dx*(pz-az)/dz) inside=!inside;
+      if (radius>0) {
+        const t=Math.max(0,Math.min(1,((px-ax)*dx+(pz-az)*dz)/(dx*dx+dz*dz)));
+        if ((px-ax-t*dx)**2+(pz-az-t*dz)**2 <= (radius*100)**2) return true;
+      }
+    }
+    if (inside) return true;
+  }
+  if (!collision) {
+    collision = new Map();
+    for (const stele of holocaustStelePlacements()) {
+      if (stele.height <= 0.04) continue;
+      const key = Math.floor((stele.x+STELENFELD_ANCHOR[0])/4)*256+
+        Math.floor((stele.z+STELENFELD_ANCHOR[1])/4);
+      const bucket = collision.get(key);
+      if (bucket) bucket.push(stele);
+      else collision.set(key,[stele]);
     }
   }
-  // Innermost first: the trim then bites only at the rim.
-  cells.sort(
-    (left, right) =>
-      left.rank - right.rank ||
-      left.row - right.row ||
-      left.column - right.column,
-  );
-  const kept = cells.slice(0, HOLOCAUST_FIELD.steleCount);
-  // Back into reading order so the instance list is spatially coherent.
-  kept.sort((left, right) => left.row - right.row || left.column - right.column);
-  return kept.map((cell, index) => {
-    const x = (cell.column - (columns - 1) / 2) * PITCH_ACROSS;
-    const z = (cell.row - (rows - 1) / 2) * PITCH_ALONG;
-    const maxTilt = (HOLOCAUST_FIELD.maxTiltDegrees * Math.PI) / 180;
-    return {
-      ground: fieldGround(x, z),
-      height: steleHeight(x, z, index),
-      tiltX: (unit(index, 104_729) * 2 - 1) * maxTilt,
-      tiltZ: (unit(index, 15_485_863) * 2 - 1) * maxTilt,
-      x,
-      z,
-    };
-  });
+  const ix = Math.floor(x/4), iz = Math.floor(z/4);
+  for (let i=ix-1; i<=ix+1; i++) for (let j=iz-1; j<=iz+1; j++) {
+    const stones = collision.get(i*256+j);
+    if (!stones) continue;
+    for (const s of stones) {
+      const h = y-STELENFELD_BASE-s.ground;
+      if (h < -0.04 || h>s.height+0.025) continue;
+      const dx = x-STELENFELD_ANCHOR[0]-s.x+(h-s.height/2)*Math.tan(s.tiltZ);
+      const dz = z-STELENFELD_ANCHOR[1]-s.z-(h-s.height/2)*Math.tan(s.tiltX);
+      const c = Math.cos(s.rotationY), t = Math.sin(s.rotationY);
+      const outsideX = Math.max(0, Math.abs(c*dx-t*dz)-HOLOCAUST_FIELD.steleLength/2);
+      const outsideZ = Math.max(0, Math.abs(t*dx+c*dz)-HOLOCAUST_FIELD.steleWidth/2);
+      if (outsideX*outsideX+outsideZ*outsideZ <= radius*radius) return true;
+    }
+  }
+  return false;
 }
-
-export type HolocaustFieldMode = "day" | "night" | "winter";
-
-/**
- * The stelae are dark grey self-compacting concrete with an
- * anti-graffiti coating that gives them a faint sheen. They read cooler
- * and darker than any other paving in the quarter, which is the point:
- * the field is a grey mass, not a plaza.
- */
-export const HOLOCAUST_PALETTES: Record<
-  HolocaustFieldMode,
-  { concrete: number; concreteTop: number; ground: number; ink: number; snow: number }
-> = {
-  day: {
-    concrete: 0x8d9295,
-    concreteTop: 0x9ca1a4,
-    ground: 0x76797b,
-    ink: 0x716c62,
-    snow: 0xf2f5f7,
-  },
-  night: {
-    concrete: 0x232a33,
-    concreteTop: 0x2c343e,
-    ground: 0x171c22,
-    ink: 0x8ea3bd,
-    snow: 0x9fb0c2,
-  },
-  winter: {
-    concrete: 0x7f868c,
-    concreteTop: 0x8c9399,
-    ground: 0x6b7175,
-    ink: 0x6b727a,
-    snow: 0xf6f9fc,
-  },
-};

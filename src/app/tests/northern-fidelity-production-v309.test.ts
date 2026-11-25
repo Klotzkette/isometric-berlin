@@ -1,3 +1,4 @@
+import { captureStationOwners, expectStationOwners } from "./helpers/northernStationOwnersV385";
 /** The actual settled Core, actual retained hospital/station constructors and
  * real five-model factory must cross one reversible publication boundary. */
 import {expect,test} from "bun:test";
@@ -79,6 +80,7 @@ for(const family of ["drawn","native","v8"]){const native=family==="native";test
   try{const unknown=await stage(prepareNorthCoreEnginesV311Steps(world,false,true,source,bridgeReceipt as unknown as NorthCoreBridgeDeltaV309,actualReceipt as unknown as NorthCoreActualDeltaV310,v8Profile as unknown as CoreWorkerV8ProfileV311));expect(unknown).toBeNull();unknown?.rollback();expect(hasCompleteNorthCoreTerrainV309(world,false)).toBe(false);expectUnchanged(refs);}finally{words[0]=original;}
  }
  legacy.add(createHospitalRecognitionV228(native),createHospitalEnvelopesV228(native),createBundeswehrHospitalV214(native),createRailStationsV190(native));world.add(legacy);scene.add(world);
+ const stations=captureStationOwners(legacy);
  interleaveStaticGeometry(world);freezeStaticSceneTransforms(world);const rankedInk:Line[]=[];world.traverse(o=>{if(o instanceof Line)rankedInk.push(o);});assignStableInkRenderOrder(rankedInk);
  const toon=native?createMinecraftMaterialState():null;let provisional:Group|null=null,bundle:NorthernFidelityBundleV309|null=null;
  try{
@@ -102,14 +104,14 @@ for(const family of ["drawn","native","v8"]){const native=family==="native";test
   const gpuSamples:(Mesh|Line|Points)[]=[];for(const child of bundle.root.children){let chosen:Mesh|Line|Points|undefined;child.traverse(o=>{if(!chosen&&(o instanceof Mesh||o instanceof Line||o instanceof Points))chosen=o;});if(chosen)gpuSamples.push(chosen);}expect(gpuSamples).toHaveLength(5);gpu.register();for(const m of gpuSamples)gpu.draw(m);gpu.uploads.length=0;expect(gpu.retire().geometry).toBeGreaterThan(0);expect(bundle.complete()).toBe(true);for(const m of gpuSamples)gpu.draw(m);expectPrivateModels(bundle,native);expect(bundle.complete()).toBe(true);gpu.uploads.length=0;
   expect(bundle.terrainAt(schoolX,schoolZ)).toBe(schoolFloor.groundY);expect(bundle.terrainAt(hill.x,hill.z)).toBeCloseTo(hill.y,5);expect(bundle.solidAt(probe.x,probe.y,probe.z)).toBe(true);expect(bundle.floorAt(probe.x,probe.z,probe.top)).toBeCloseTo(probe.top,5);expect(bundle.overridesOldHospitalAt(-3600,8400)).toBe(true);
   expect(bundle.terrainAt(1510,-3328)).toBeCloseTo(bridgeGround!,5);expect(bundle.floorAt(1510,-3328,bridgeGround!)).toBeCloseTo(bridgeGround!,5);expect(bundle.floorAt(1510,-3328,bridgeTop!)).toBeCloseTo(bridgeTop!,5);
-  const stations:Object3D[]=[];legacy.traverse(o=>{if(o instanceof Group&&["Gesundbrunnen","Landsberger Allee"].includes(o.userData.stationName))stations.push(o);});expect(stations).toHaveLength(2);expect(stations.every(g=>g.children.every(c=>!c.visible))).toBe(true);
+  expectStationOwners(stations,native,true);
   const previousNames=previousHospitals.batches.find(p=>p.native===native)!.children.map(p=>p.name),hospitalMembers:Mesh[]=[];legacy.traverse(o=>{if(o instanceof Mesh&&previousNames.includes(o.name))hospitalMembers.push(o);});expect(hospitalMembers).toHaveLength(previousNames.length);expect(hospitalMembers.every(o=>!o.visible)).toBe(true);
   const retained=toon?.originals.size;expect(bundle.syncPrevious(scene,true)).toBe(true);if(toon)expect(toon.originals.size).toBe(retained);
   if(family==="v8"){expect(await stage(prepareNorthCoreEnginesV311Steps(world,true,true,source,bridgeReceipt as unknown as NorthCoreBridgeDeltaV309,actualReceipt as unknown as NorthCoreActualDeltaV310,v8Profile as unknown as CoreWorkerV8ProfileV311))).toBeNull();expect(bundle.complete()).toBe(true);}
   if(native){bundle.bridges.visible=false;expect(bundle.complete()).toBe(false);expect(bundle.terrainAt(1510,-3328)).toBeNull();expect(bundle.syncPrevious(scene,true)).toBe(false);}
   else if(family==="v8"){let owner:Mesh|undefined;world.traverse(o=>{if(o instanceof Mesh&&o.name==="smooth parkland lawns"&&o.parent?.userData.progressiveWorldBatchId==="surface-parks-1")owner=o;});expect(owner!==undefined).toBe(true);owner!.geometry.dispose();expect(bundle.complete()).toBe(false);expect(bundle.syncPrevious(scene,true)).toBe(false);}
   else expect(bundle.syncPrevious(scene,false)).toBe(true);
-  expect(bundle.complete()).toBe(false);expect(hasCompleteNorthCoreTerrainV309(world,native)).toBe(false);expect(bundle.terrainAt(schoolX,schoolZ)).toBeNull();expect(bundle.solidAt(probe.x,probe.y,probe.z)).toBe(false);bundle.root.removeFromParent();expectUnchanged(refs);expect(fingerprint(world)).toBe(before);expect(stations.every(g=>g.children.every(c=>c.visible))).toBe(true);
+  expect(bundle.complete()).toBe(false);expect(hasCompleteNorthCoreTerrainV309(world,native)).toBe(false);expect(bundle.terrainAt(schoolX,schoolZ)).toBeNull();expect(bundle.solidAt(probe.x,probe.y,probe.z)).toBe(false);bundle.root.removeFromParent();expectUnchanged(refs);expect(fingerprint(world)).toBe(before);expectStationOwners(stations,native,false);
  }finally{
   if(bundle)bundle.syncPrevious(scene,false);
   if(toon)disposeMinecraftMaterialState(toon);

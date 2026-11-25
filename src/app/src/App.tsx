@@ -215,10 +215,10 @@ export function prepareInitialPlaceView(): Promise<void> | undefined {
   }
 }
 
-function initialOpening() {
+function initialOpening(mode: VisualMode) {
   const INITIAL_SIMULATION_START = initialSimulationStart();
   const INITIAL_FLIGHT_VIEW = INITIAL_SIMULATION_START.automatic || startupOnlySight(INITIAL_SIMULATION_START.name)
-    ? startupFlightView(INITIAL_SIMULATION_START.name) : null;
+    ? startupFlightView(INITIAL_SIMULATION_START.name, mode === "minecraft") : null;
   const INITIAL_OPENING_NAME = INITIAL_FLIGHT_VIEW ? INITIAL_SIMULATION_START.name : null;
   return { INITIAL_SIMULATION_START, INITIAL_FLIGHT_VIEW, INITIAL_OPENING_NAME };
 }
@@ -824,7 +824,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
   initialViewerLanguage: Language;
   recoveredVisit: ViewerVisit | null;
 }) {
-  const { INITIAL_SIMULATION_START, INITIAL_FLIGHT_VIEW, INITIAL_OPENING_NAME } = opening ??= initialOpening();
+  const { INITIAL_SIMULATION_START, INITIAL_FLIGHT_VIEW, INITIAL_OPENING_NAME } = opening ??= initialOpening(initialMode);
   const restoredNavigation = recoveredVisit?.navigation ?? null;
   const appShellRef = useRef<HTMLElement | null>(null);
   const [pergamonRevealed, setPergamonRevealed] = useState(false);

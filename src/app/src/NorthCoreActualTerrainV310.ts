@@ -1,6 +1,6 @@
 /** Explicit actual-runtime Main source derivative over frozen v307 receipts.
  * All Worker, geometry, paint, outside and native/drawn floor streams survive. */
-import type {Group} from "three";
+import {InstancedMesh,type Group} from "three";
 import {createNorthCoreTerrainControllerV309,type NorthCoreTerrainRecipesV309,type NorthCoreTerrainRebindV309} from "./NorthCoreTerrainV309";
 import {createNorthCoreBridgeTerrainControllerV309,type NorthCoreBridgeDeltaV309} from "./NorthCoreBridgeTerrainV309";
 type Gate=boolean|(()=>boolean);
@@ -9,6 +9,13 @@ type Part=Variant["parts"][number];
 export type NorthCoreActualDeltaV310={schemaVersion:number;baseVariantControls:Record<string,number>;variants:Record<string,{basePartControl:number;captureSha256:string;instances:NonNullable<Part["instances"]>;retire:number[]}>};
 const OLD=Object.freeze({"drawn-initial":691981172,"drawn-worker":2745148416,minecraft:398998653});
 const BRIDGE=Object.freeze({delta:1522445275,variants:{"drawn-initial":691981172,"drawn-worker":1893277644,minecraft:398998653}});
+// Complete native ground after the station, memorial and final v261 U-Bahn
+// cuts. All 784 Humboldthain source rows, their paint and ordinals match v310.
+const nativeGroundV385 = {
+  captureSha256: "1b452eb8c40422b2e71e9115769e9cdc65e4506ceea8c02a02b73749f881dd6d",
+  instances: { count: 184947, matrixHash: 1296808677, colorHash: 1587017014 },
+  variantControl: 2573219881,
+};
 const admitted=(gate:Gate)=>{try{return typeof gate==="function"?gate()===true:gate===true;}catch{return false;}};
 function* checked(value:unknown,expected:number):Generator<void,boolean>{const text=JSON.stringify(value);let h=2166136261;for(let at=0;at<text.length;at+=65536){for(let i=at;i<Math.min(at+65536,text.length);i++)h=Math.imul(h^text.charCodeAt(i),16777619)>>>0;yield;}return h===expected&&JSON.stringify(value)===text;}
 function freeze(value:unknown):void{if(value&&typeof value==="object"&&!Object.isFrozen(value)){for(const child of Object.values(value))freeze(child);Object.freeze(value);}}
@@ -16,6 +23,8 @@ function freeze(value:unknown):void{if(value&&typeof value==="object"&&!Object.i
  * never hashes read from an incoming source object. */
 export function createNorthCoreActualTerrainControllerV310(controls:{delta:number;variants:Readonly<Record<string,number>>}){
  const bridge=createNorthCoreBridgeTerrainControllerV309(BRIDGE),controller=createNorthCoreTerrainControllerV309(controls.variants,true);
+ const settled = createNorthCoreTerrainControllerV309({ minecraft: nativeGroundV385.variantControl });
+ const settledSources = new WeakMap<NorthCoreTerrainRecipesV309,NorthCoreTerrainRecipesV309>();
  type Receipt={source:NorthCoreTerrainRecipesV309;originals:Record<string,Variant>;bridge:NorthCoreBridgeDeltaV309;actual:NorthCoreActualDeltaV310};
  const cache=new WeakMap<NorthCoreTerrainRecipesV309,WeakMap<NorthCoreBridgeDeltaV309,WeakMap<NorthCoreActualDeltaV310,Receipt>>>();
  const intact=(base:NorthCoreTerrainRecipesV309,r:Receipt)=>base.schemaVersion===1&&!!base.variants&&Object.keys(base.variants).length===3&&Object.entries(r.originals).every(([key,value])=>base.variants[key]===value)&&r.bridge.schemaVersion===1&&Object.isFrozen(r.bridge)&&r.actual.schemaVersion===1&&Object.isFrozen(r.actual);
@@ -40,9 +49,24 @@ export function createNorthCoreActualTerrainControllerV310(controls:{delta:numbe
   composeSteps:compose,
   *prepareSteps(root:Group,native:boolean,gate:Gate,base:NorthCoreTerrainRecipesV309,bridgeDelta:NorthCoreBridgeDeltaV309,actual:NorthCoreActualDeltaV310){
    if(!admitted(gate))return null;const receipt=yield*compose(base,bridgeDelta,actual);if(!receipt)return null;
-   const tx=yield*controller.prepareSteps(root,native,()=>admitted(gate)&&intact(base,receipt),receipt.source);if(!tx)return null;
+   const liveSource = () => admitted(gate) && intact(base,receipt);
+   const ground = native && root.getObjectByName("Voxel ground runs");
+   const useSettled = ground instanceof InstancedMesh && ground.count === nativeGroundV385.instances.count;
+   let source = receipt.source;
+   if (useSettled) {
+    let projected = settledSources.get(source);
+    if (!projected) {
+     const part = source.variants.minecraft.parts[0];
+     const variant = { captureSha256: nativeGroundV385.captureSha256, parts: [{ ...part, instances: nativeGroundV385.instances }] };
+     projected = { schemaVersion: 1, variants: { minecraft: variant } };
+     settledSources.set(source,projected);
+    }
+    source = projected;
+   }
+   const tx=yield*(useSettled ? settled : controller).prepareSteps(root,native,liveSource,source);if(!tx)return null;
    return{commit:(live:Gate,beforeSwap?:NorthCoreTerrainRebindV309)=>tx.commit(()=>admitted(live)&&intact(base,receipt),beforeSwap),rollback:tx.rollback,complete:tx.complete};
-  },complete:controller.complete,revoke:controller.revoke,
+  },complete:(root:Group,native?:boolean)=>controller.complete(root,native)||settled.complete(root,native),
+  revoke(root:Group){controller.revoke(root);settled.revoke(root);},
  };
 }
 

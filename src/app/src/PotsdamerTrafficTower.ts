@@ -17,7 +17,7 @@ type Part = {
   position: Point; size: Point; yaw: number; roll?: number; face?: number; color: number;
   glass?: boolean;
 };
-const GREEN = 0x405b49, EDGE = 0x293e33, GLASS = 0x8ca7aa;
+const GREEN = 0x53635a, EDGE = 0x37483f, GLASS = 0xc1d0ce;
 const ON = [0xff4939, 0xffbc39, 0x35ed75];
 const OFF = [0x371713, 0x34280e, 0x123823];
 const UP = new Vector3(0, 1, 0);
@@ -31,14 +31,14 @@ export function planPotsdamerTrafficTower(): Part[] {
     color: number, yaw = 0, face?: number, glass = false): void => {
     parts.push({ role, shape, position, size, color, yaw, face, glass });
   };
-  add("granite platform", "pentagon", [0, .16, 0], [1.18, .32, 1.18], 0xa9aaa2, P.firstFaceYaw);
-  add("granite platform cap", "pentagon", [0, .34, 0], [1.21, .04, 1.21], 0xc0c0b6, P.firstFaceYaw);
+  add("granite platform", "pentagon", [0, .3, 0], [1.18, .60, 1.18], 0xaaa99d, P.firstFaceYaw);
+  add("granite platform cap", "pentagon", [0, .63, 0], [1.21, .06, 1.21], 0xbebfb4, P.firstFaceYaw);
   add("cabin floor", "pentagon", [0, P.clockBottomM, 0], [1.01, .12, 1.01], EDGE, P.firstFaceYaw);
   add("cabin ceiling", "pentagon", [0, P.eaveBottomM, 0], [1.03, .1, 1.03], GREEN, P.firstFaceYaw);
   add("circular projecting eave", "disk", [0, (P.eaveBottomM + P.eaveTopM) / 2, 0],
     [P.roofRadiusM, P.eaveTopM - P.eaveBottomM, P.roofRadiusM], GREEN);
   add("shallow metal roof", "roof", [0, (P.eaveTopM + P.heightM) / 2, 0],
-    [1.19, P.heightM - P.eaveTopM, 1.19], 0x647663, P.firstFaceYaw);
+    [1.28, P.heightM - P.eaveTopM, 1.28], 0x667468, P.firstFaceYaw);
   const apothem = Math.cos(Math.PI / 5) * P.frameRadiusM;
   const width = 2 * Math.sin(Math.PI / 5) * P.frameRadiusM;
   for (let face = 0; face < P.faces; face++) {
@@ -56,6 +56,11 @@ export function planPotsdamerTrafficTower(): Part[] {
       [Math.sin(cornerYaw) * P.frameRadiusM, (P.platformTopM + P.eaveBottomM) / 2,
         Math.cos(cornerYaw) * P.frameRadiusM], [.16, P.eaveBottomM - P.platformTopM, .16],
       GREEN, cornerYaw, face);
+    // The clock cabinet projects over a recessed band between the five piers.
+    panel("recess below clock cabinet", 0, P.clockBottomM - .14,
+      width - .17, .28, .07, EDGE, apothem - .08);
+    panel("lower cabinet moulding", 0, P.clockBottomM + .025, width + .10, .065, .17, 0x647268);
+    panel("plinth slab joint", .27, .29, .016, .53, .014, 0x8d8d80, 1.18 * Math.cos(Math.PI / 5) + .008);
     panel("clock backing", 0, (P.clockBottomM + P.clockTopM) / 2,
       width, P.clockTopM - P.clockBottomM, .09, GREEN);
     panel("clock lower frame", 0, P.clockBottomM + .035, width + .09, .09, .15, EDGE);
@@ -100,7 +105,7 @@ export function planPotsdamerTrafficTower(): Part[] {
   }
   // Small brass identity plate on the base: no copied donor inscription.
   const plaqueYaw = P.firstFaceYaw;
-  add("bronze identity plate", "box", [Math.sin(plaqueYaw) * .977, .19, Math.cos(plaqueYaw) * .977],
+  add("bronze identity plate", "box", [Math.sin(plaqueYaw) * .977, .29, Math.cos(plaqueYaw) * .977],
     [.43, .16, .025], 0x8d7c55, plaqueYaw);
   return parts;
 }
@@ -108,7 +113,7 @@ export function planPotsdamerTrafficTower(): Part[] {
 function shapeGeometry(part: Part, segments: number): BufferGeometry {
   let geometry: BufferGeometry;
   if (part.shape === "box") geometry = new BoxGeometry(...part.size);
-  else if (part.shape === "roof") geometry = new CylinderGeometry(0.04, part.size[0], part.size[1], 5, 1);
+  else if (part.shape === "roof") geometry = new CylinderGeometry(.64, part.size[0], part.size[1], segments, 1);
   else geometry = new CylinderGeometry(part.size[0], part.size[0], part.size[1], part.shape === "pentagon" ? 5 : segments, 1);
   if (part.shape === "disk" && part.face !== undefined) geometry.rotateX(Math.PI / 2);
   if (part.roll) geometry.rotateZ(part.roll);
@@ -119,7 +124,7 @@ function shapeGeometry(part: Part, segments: number): BufferGeometry {
 }
 
 function materials(glass: boolean, vertexColors: boolean): readonly [MeshBasicMaterial, MeshStandardMaterial] {
-  const common = { vertexColors, side: DoubleSide, transparent: glass, opacity: glass ? .24 : 1, depthWrite: !glass };
+  const common = { vertexColors, side: DoubleSide, transparent: glass, opacity: glass ? .42 : 1, depthWrite: !glass };
   const day = new MeshBasicMaterial(common);
   const night = new MeshStandardMaterial({ ...common, metalness: .12, roughness: .74 });
   return [day, night];
@@ -139,7 +144,7 @@ function createDrawn(parts: Part[], mobile: boolean): Group {
       COLOR.setHex(part.color);
       for (let i = 0; i < g.getAttribute("position").count; i++) colors.push(COLOR.r, COLOR.g, COLOR.b);
       g.setAttribute("color", new Float32BufferAttribute(colors, 3));
-      const flat = g.toNonIndexed(); g.dispose(); return flat;
+      return g;
     });
     const geometry = mergeGeometries(geometries)!;
     for (const g of geometries) g.dispose();
@@ -214,9 +219,18 @@ function createMinecraft(parts: Part[], mobile: boolean): Group {
           if (!inside) continue;
         }
         const roof = part.shape === "roof";
-        const top = roof ? P.eaveTopM + (1 - Math.hypot(x, z) / r) * (P.heightM - P.eaveTopM) : part.position[1] + part.size[1] / 2;
+        const top = roof ? P.eaveTopM + Math.min(1, (r - Math.hypot(x, z)) / (r - .64)) * (P.heightM - P.eaveTopM) : part.position[1] + part.size[1] / 2;
         const height = roof ? .1 : part.size[1];
-        blocks.push({ p: [x, top - height / 2, z], s: [s, height, s], color: part.color, glass: false });
+        // Adjacent blocks on a horizontal course describe exactly the same surface as a single row run.
+        const previous = ix > 0 ? blocks[blocks.length - 1] : undefined;
+        if (previous && previous.color === part.color && previous.p[2] === z &&
+            previous.p[1] === top - height / 2 && previous.s[1] === height && previous.s[2] === s &&
+            Math.abs(previous.p[0] + previous.s[0] / 2 - (x - s / 2)) < 1e-7) {
+          previous.p[0] += s / 2;
+          previous.s[0] += s;
+        } else {
+          blocks.push({ p: [x, top - height / 2, z], s: [s, height, s], color: part.color, glass: false });
+        }
       }
       if (part.shape === "roof") blocks.push({ p: [0, P.heightM - .04, 0], s: [.12, .08, .12], color: part.color, glass: false });
     }

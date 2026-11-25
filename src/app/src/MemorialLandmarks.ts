@@ -1,6 +1,9 @@
 import {
   BoxGeometry,
   BufferGeometry,
+  Color,
+  BufferAttribute,
+  DodecahedronGeometry,
   ConeGeometry,
   CylinderGeometry,
   DoubleSide,
@@ -30,9 +33,12 @@ import { createLetteringTexture } from "./drawnLettering";
 import {
   HOLOCAUST_FIELD,
   HOLOCAUST_GEOMETRY_STATUS,
-  HOLOCAUST_PALETTES,
+  stelenfeldTreesV385,
+  stelenfeldInformationBuildingV385,
+  stelenfeldPavementDataV385,
   holocaustStelePlacements,
 } from "./holocaustField";
+import { stelenfeldRenderDataV385 } from "./stelenfeldRimV385";
 import { createGeorgElserMemorial } from "./GeorgElserMemorial";
 import {
   TIERGARTEN_LITERARY_MEMORIALS_PROFILE,
@@ -339,36 +345,108 @@ function createHolocaustMemorial(anchor: MemorialLandmark): Group {
   const group = new Group();
   group.name = anchor.name;
   placeOnOfficialMesh(group, anchor);
-  group.rotation.y = -0.105;
   group.userData.geometryStatus = HOLOCAUST_GEOMETRY_STATUS;
+  group.userData.surveyedSteleFieldV385 = true;
+  const { positions, indices } = stelenfeldPavementDataV385();
+  const rim = stelenfeldRenderDataV385();
+  const baseCount = positions.length/3;
+  const drawnPaving = new Float32Array(positions.length+rim.drawn.length);
+  drawnPaving.set(positions); drawnPaving.set(rim.drawn,positions.length);
+  const nativePaving = drawnPaving.slice();
+  nativePaving.set(rim.native,positions.length);
+  const allIndices = new Uint16Array(indices.length+rim.indices.length);
+  allIndices.set(indices);
+  for (let j=0;j<rim.indices.length;j++) allIndices[indices.length+j]=rim.indices[j]+baseCount;
 
-  // The layout now comes from `holocaustField.ts`, which derives the whole
-  // grid from the documented stele footprint and Eisenman's 0.95 m alley.
-  // The field that shipped before had three measurable errors: 2710 stelae
-  // instead of 2711, alleys 1.50 m wide across the field (58 % too wide)
-  // and 0.52 m along it (45 % too narrow). The alley is the memorial —
-  // wide enough for one person, too narrow for two, the same either way
-  // you turn — and having it wrong in opposite directions on the two axes
-  // turned a lattice of equal corridors into rows of spaced blocks.
-  const placements = holocaustStelePlacements();
-  const transforms: InstanceTransform[] = placements.map((stele) => ({
-    position: [stele.x, stele.ground + stele.height / 2, stele.z],
-    rotation: [stele.tiltX, 0, stele.tiltZ],
-    scale: [1, stele.height, 1],
+  const paving = new BufferGeometry();
+  const drawnPositions = new BufferAttribute(drawnPaving,3);
+  const nativePositions = new BufferAttribute(nativePaving,3);
+  paving.setAttribute("position", drawnPositions);
+  paving.setIndex(new BufferAttribute(allIndices,1));
+  const palette=[0x73767a,0xa7a5a1,0xb9b7b0,0x898780,0x898d90,0xa7a5a1,0xb9b7b0,0x858d89].map(v=>new Color(v));
+  const pavingColors=new Float32Array(drawnPaving.length);
+  for (let i=0; i<drawnPositions.count; i++) palette[i<baseCount ? 0 : rim.roles[i-baseCount]].toArray(pavingColors,3*i);
+  const roofPaint = new Color(0x555654), wallPaint = new Color(0x8c8b85);
+  const {roofStart,wallStart}=stelenfeldInformationBuildingV385;
+  for (let i=roofStart; i<baseCount; i++) (i<wallStart ? roofPaint : wallPaint).toArray(pavingColors,3*i);
+  const pavingPaint=new BufferAttribute(pavingColors,3);
+  const roadPaintNative = new Color(0x34443a);
+  let roadsPaintedNative = false;
+  paving.setAttribute("color",pavingPaint);
+  paving.computeVertexNormals();
+  const floorMaterial=modelMaterial(0xffffff, {roughness:.97});
+  floorMaterial.vertexColors=true;
+  const floor = new Mesh(paving, floorMaterial);
+  floor.name = "Stelenfeld surveyed alley pavement";
+  floor.userData.flushInserts=112;
+  floor.receiveShadow = true;
+  group.add(floor);
+
+  // The flush stones follow each local paving triangle and end at the mapped
+  // edge of a tree pit or cycle lane. Their tops share the ground draw call.
+  const transforms: InstanceTransform[] = holocaustStelePlacements().filter(s=>s.height>0).map(s=>({
+    position:[s.x, s.ground+(s.height-.14)/2, s.z],
+    rotation:[s.tiltX, s.rotationY, s.tiltZ],
+    scale:[1,s.height+.14,1],
   }));
-  const stelae = addInstances(
-    group,
-    `Holocaust Memorial ${HOLOCAUST_FIELD.steleCount} instanced stelae`,
-    new BoxGeometry(
-      HOLOCAUST_FIELD.steleWidth,
-      1,
-      HOLOCAUST_FIELD.steleLength,
-    ),
-    modelMaterial(HOLOCAUST_PALETTES.day.concrete, { roughness: 0.82 }),
-    transforms,
-  );
+  const box = new BoxGeometry(HOLOCAUST_FIELD.steleLength, 1, HOLOCAUST_FIELD.steleWidth);
+  const normals = box.getAttribute("normal"), colors = new Float32Array(normals.count*3);
+  const color = new Color();
+  for (let i=0; i<normals.count; i++) {
+    const nx=normals.getX(i), ny=normals.getY(i), nz=normals.getZ(i);
+    color.setHex(ny>0.5 ? 0x8e9194 : nx>0.5 ? 0x696d71 : nz>0.5 ? 0x777b7d : 0x6e7376);
+    color.toArray(colors, i*3);
+  }
+  const dayColors = new BufferAttribute(colors,3);
+  const winterColors = dayColors.clone();
+  color.setHex(0xc1c7ca);
+  for (let i=0; i<normals.count; i++) {
+    if (normals.getY(i)>.5) winterColors.setXYZ(i,color.r,color.g,color.b);
+  }
+  box.setAttribute("color", dayColors);
+  const concrete = modelMaterial(0xffffff, { metalness: 0, roughness: 0.89 });
+  concrete.vertexColors = true;
+  const stelae = addInstances(group, `Holocaust Memorial ${transforms.length} raised stelae`,
+    box, concrete, transforms);
   stelae.castShadow = false;
+
+  for (const alreadyDrawn of [0,1]) {
+    const stand = new Group();
+    stand.name = alreadyDrawn ? "Stelenfeld native tree completion" : "Stelenfeld mapped trees";
+    stand.visible = !alreadyDrawn;
+    const trunks: InstanceTransform[] = [], crowns: InstanceTransform[] = [];
+    for (const [sx,sz,sy,dm,existing] of stelenfeldTreesV385) {
+      if (existing !== alreadyDrawn) continue;
+      const x=460+sx/100-anchor.world[0], z=550+sz/100-anchor.world[2];
+      const y=sy/100-group.position.y, h=dm/10, r=Math.min(3.6,h*0.22);
+      trunks.push({position:[x,y+h*0.27,z], scale:[Math.max(.09,h*.014),h*.54,Math.max(.09,h*.014)]});
+      crowns.push({position:[x,y+h*.68,z], rotation:[0,sx*.02,0], scale:[r,h*.32,r]});
+    }
+    addInstances(stand,"Stelenfeld mapped tree trunks",new CylinderGeometry(.82,1,1,6),modelMaterial(0x64584c),trunks);
+    addInstances(stand,"Stelenfeld mapped tree crowns",new DodecahedronGeometry(1),modelMaterial(0x59734d),crowns);
+    group.add(stand);
+  }
+  const nativeTrees = group.getObjectByName("Stelenfeld native tree completion")!;
+  group.userData.presentSteleFieldV385 = (native: boolean, snow: boolean) => {
+    nativeTrees.visible = native;
+    box.setAttribute("color", snow ? winterColors : dayColors);
+    paving.setAttribute("position",native ? nativePositions : drawnPositions);
+    if (native !== roadsPaintedNative) {
+      const roadColor=native ? roadPaintNative : palette[7];
+      const start=baseCount+rim.roadStart;
+      for (let i=start; i<pavingPaint.count; i++) roadColor.toArray(pavingColors,i*3);
+      pavingPaint.addUpdateRange(start*3,(pavingPaint.count-start)*3);
+      pavingPaint.needsUpdate=true;
+      roadsPaintedNative=native;
+    }
+    floor.material.color.setScalar(snow ? 1.22 : 1);
+  };
   return group;
+}
+
+export function setStelenfeldPresentation(root: Object3D, native: boolean, snow: boolean): void {
+  const field = root.getObjectByName("Denkmal für die ermordeten Juden Europas");
+  field?.userData.presentSteleFieldV385?.(native,snow);
 }
 
 function createSintiRomaMemorial(anchor: MemorialLandmark): Group {

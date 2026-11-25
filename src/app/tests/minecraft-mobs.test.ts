@@ -14,8 +14,6 @@ import {
 } from "../src/MinecraftMobs";
 import type { VoxelPayload } from "../src/MinecraftVoxelWorld";
 import {
-  HOLOCAUST_FIELD,
-  HOLOCAUST_MINECRAFT_PROTECTION,
   isHolocaustMinecraftProtectedAt,
 } from "../src/holocaustField";
 
@@ -150,31 +148,14 @@ describe("Minecraft roaming mobs", () => {
     expect(field.mesh.count).toBeLessThanOrEqual(field.parts.length);
   });
 
-  test("keeps the rotated Holocaust field and its safety edge mob-free", () => {
+  test("keeps the cadastral stele field and its eight metre safety edge mob-free", () => {
     const field = createMinecraftMobs(payload, false);
-    const [centreX, centreZ] =
-      HOLOCAUST_MINECRAFT_PROTECTION.centreWorldM;
-    const sine = Math.sin(HOLOCAUST_MINECRAFT_PROTECTION.rotationY);
-    const cosine = Math.cos(HOLOCAUST_MINECRAFT_PROTECTION.rotationY);
-    const toWorld = (localX: number, localZ: number): [number, number] => [
-      centreX + cosine * localX + sine * localZ,
-      centreZ - sine * localX + cosine * localZ,
-    ];
-    const protectedSamples = [
-      toWorld(0, 0),
-      toWorld(HOLOCAUST_FIELD.siteWidth / 2 + 7.9, 0),
-      toWorld(0, HOLOCAUST_FIELD.siteDepth / 2 + 7.9),
-      toWorld(
-        HOLOCAUST_FIELD.siteWidth / 2 + 7.9,
-        HOLOCAUST_FIELD.siteDepth / 2 + 7.9,
-      ),
-    ];
+    const protectedSamples = [[463,557], [392,648], [567,596], [570,596], [410,499], [534,485]];
     for (const [x, z] of protectedSamples) {
       expect(isHolocaustMinecraftProtectedAt(x, z)).toBe(true);
       expect(field.isWalkable(x, z)).toBe(false);
     }
-    const outside = toWorld(HOLOCAUST_FIELD.siteWidth / 2 + 8.1, 0);
-    expect(isHolocaustMinecraftProtectedAt(...outside)).toBe(false);
+    expect(isHolocaustMinecraftProtectedAt(380,648)).toBe(false);
 
     setMinecraftMobsVisible(field, true);
     for (let step = 0; step < 1_200; step += 1) {

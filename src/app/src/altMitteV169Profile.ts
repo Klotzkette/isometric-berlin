@@ -1,6 +1,8 @@
 import { correctedHospitalRoofAtV215, BUNDESWEHR_HOSPITAL_V215_PART, BUNDESWEHR_HOSPITAL_V215_ROOF_Y } from "./bundeswehrHospitalV215Profile";
 import { correctedSpringerPartsV215, correctedSpringerRoofAtV215 } from "./springerV215Profile";
 import source from "./data/altMitteV169DrawnNavigationData";
+import { hasOldStelenfeldFloor, isOldStelenfeldFloorPart } from "./stelenfeldAltMitteNavigationV385";
+import { isFormerMallCrossing, mallBridgeRoofTrianglesV385, retainedMallNativeRoofV385 } from "./mallBridgeNavigationV385";
 import {
   createAltMitteV169NavigationIndex,
   type AltMitteV169Navigation,
@@ -42,6 +44,7 @@ let navigation:
 const preparedNavigation = () =>
   (navigation ??= createAltMitteV169NavigationIndex(navigationData, {
     lazy: true,
+    retiredDrawnRoofs: mallBridgeRoofTrianglesV385,
   }));
 /** Prepare during unpublished navigation construction, not on the first step. */
 export function prepareAltMitteV169Navigation(): void {
@@ -73,7 +76,8 @@ export function preloadAltMitteV169NativeNavigation(): Promise<void> {
 // progressive worker, which imports only unrelated ground helpers through
 // MinecraftVoxelWorld, can discard the navigation payload together with it.
 export const ALT_MITTE_V169_PARTS = /* @__PURE__ */ (() =>
-  correctedSpringerPartsV215(navigationData.parts.map(part => part.id === BUNDESWEHR_HOSPITAL_V215_PART ? { ...part, topY: BUNDESWEHR_HOSPITAL_V215_ROOF_Y } : part)))();
+  correctedSpringerPartsV215(navigationData.parts.filter(part => !isOldStelenfeldFloorPart(part) && !isFormerMallCrossing(part))
+    .map(part => part.id === BUNDESWEHR_HOSPITAL_V215_PART ? { ...part, topY: BUNDESWEHR_HOSPITAL_V215_ROOF_Y } : part)))();
 export function altMitteV169SourceColumn(
   x: number,
   z: number,
@@ -87,6 +91,8 @@ export function altMitteV169RoofAt(
   z: number,
   native = false,
 ): number | null {
+  if (hasOldStelenfeldFloor(x, z, native)) return null;
+  const roof = preparedNavigation().roofAt(x, z, native);
   return correctedSpringerRoofAtV215(x, z, native,
-    correctedHospitalRoofAtV215(x, z, native, preparedNavigation().roofAt(x, z, native)));
+    correctedHospitalRoofAtV215(x, z, native, native ? retainedMallNativeRoofV385(x, z, roof) : roof));
 }

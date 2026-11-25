@@ -148,7 +148,7 @@ describe("Sony Center surrounding architecture", () => {
   test("shares one untextured cube and two materials across ten bounded batches", () => {
     const group = createSonyCenterSurroundings();
     expect(group.children).toHaveLength(10);
-    expect(group.userData.instanceCount).toBe(6949);
+    expect(group.userData.instanceCount).toBe(6430);
     expect(group.userData.instanceCount).toBeLessThanOrEqual(
       SONY_SURROUNDINGS_PROFILE.performance.drawnInstanceBudget,
     );

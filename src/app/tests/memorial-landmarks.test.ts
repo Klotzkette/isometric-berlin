@@ -217,17 +217,14 @@ describe("granular memorial recognition models", () => {
       });
   });
 
-  test("renders the documented 2711 Holocaust stelae in one draw call", () => {
+  test("batches the 2598 raised stelae and includes 112 flush tops in the pavement", () => {
     const root = createMemorialLandmarks(landmarks);
     const stelae = root.getObjectByName(
-      "Holocaust Memorial 2711 instanced stelae",
+      "Holocaust Memorial 2598 raised stelae",
     );
     expect(stelae).toBeInstanceOf(InstancedMesh);
-    expect((stelae as InstancedMesh).count).toBe(2_711);
-    // The height bands were a property of the old hand-banded lattice.
-    // The field is now generated from the documented figures in
-    // holocaustField.ts, whose own tests pin the count, the 0.95 m alleys
-    // in both directions and the 0.2-4.7 m height range.
+    expect((stelae as InstancedMesh).count).toBe(2_598);
+    expect(root.getObjectByName("Stelenfeld surveyed alley pavement")?.userData.flushInserts).toBe(112);
     expect(stelae?.castShadow).toBeFalse();
   });
 
@@ -276,7 +273,7 @@ describe("granular memorial recognition models", () => {
     // Eisenman's floor rolls; a field whose stelae all sit on one cone has
     // rows of identical feet, which is exactly what the place is not.
     const stelae = root.getObjectByName(
-      "Holocaust Memorial 2711 instanced stelae",
+      "Holocaust Memorial 2598 raised stelae",
     ) as InstancedMesh;
     // A pure funnel gives every stele at the same radius the same foot, so
     // measuring the spread within one narrow ring is the real test.

@@ -2,6 +2,8 @@ import {
   BufferGeometry, Color, Float32BufferAttribute, Group, type InstancedMesh,
   Mesh, MeshBasicMaterial, MeshStandardMaterial, ShapeUtils, Vector2,
 } from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { indexGeometryExactly } from "./exactGeometryIndex";
 import { gunzipSync } from "three/examples/jsm/libs/fflate.module.js";
 import { ALLOTMENT_TOP_COLORS_V360, decodeAllotmentRingV360 } from "./AllotmentDetailsV360";
 import { releaseScratchBuffer } from "./releaseScratchBuffer";
@@ -77,6 +79,17 @@ function clip(points: Vector2[], axis: "x" | "y", cut: number, side: 1 | -1): Ve
   return result;
 }
 
+// One former 250,000-vertex non-indexed mesh carried nine Float32 words per vertex.
+const CORE_GEOMETRY_BYTES = 9_000_000;
+
+function makeCoreGeometry(positions: number[], paint: number[]): BufferGeometry {
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new Float32BufferAttribute(paint, 3));
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
 export async function loadCoreAllotmentsV360(signal: AbortSignal) {
   const tiles = await readCoreAllotments(signal);
   return function* build(
@@ -88,6 +101,8 @@ export async function loadCoreAllotmentsV360(signal: AbortSignal) {
     const colors = ALLOTMENT_TOP_COLORS_V360.map(hex => new Color(hex));
     const shaded = colors.map(color => color.clone().multiplyScalar(.69));
     const positions: number[] = [], paint: number[] = [];
+    const pieces: BufferGeometry[] = [];
+    let indexedBytes = 0;
     const cell = ground.cell_m;
     function vertex(point: Vector2, y: number, color: Color) {
       if (positions.length >= 750_000) throw Error("Core allotment detail exceeds its geometry allowance");
@@ -149,12 +164,26 @@ export async function loadCoreAllotmentsV360(signal: AbortSignal) {
           yield;
         }
       }
+      if (!native && positions.length) {
+        // Compute the original flat normals before sharing any corners. Finish
+        // each tile separately so the temporary triangle soup stays bounded.
+        const tileGeometry = makeCoreGeometry(positions, paint);
+        const indexed = indexGeometryExactly(tileGeometry);
+        if (!tileGeometry.index) {
+          tileGeometry.setIndex(Array.from({ length: indexed.vertexCount }, (_, i) => i));
+        }
+        // The merged index may need 32-bit entries even if this tile uses 16.
+        indexedBytes += indexed.vertexCount * 36 + tileGeometry.index!.count * 4;
+        if (indexedBytes > CORE_GEOMETRY_BYTES) throw Error("Core allotment detail exceeds its geometry allowance");
+        pieces.push(tileGeometry);
+        positions.length = 0;
+        paint.length = 0;
+        yield;
+      }
     }
-    if (!positions.length) return group;
-    const geometry = new BufferGeometry();
-    geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
-    geometry.setAttribute("color", new Float32BufferAttribute(paint, 3));
-    geometry.computeVertexNormals();
+    if (!positions.length && !pieces.length) return group;
+    const geometry = native ? makeCoreGeometry(positions, paint) : mergeGeometries(pieces);
+    if (!geometry) throw Error("Could not join indexed allotment detail");
     geometry.computeBoundingSphere();
     const dayMaterial = new MeshBasicMaterial({ vertexColors: true });
     const nightMaterial = new MeshStandardMaterial({ vertexColors: true, flatShading: true });

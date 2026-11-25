@@ -1,3 +1,4 @@
+import {railTransportCarSolidsV385} from "./railTransportRemainderV385";
 /** Loaded only for a visible requested northern/clinical site, never the shell. */
 import { Group, Mesh, type Object3D } from "three";
 import { createNorthSitesV306, hasCompleteNorthSitesV306 } from "./NorthSitesV306";
@@ -8,7 +9,7 @@ import { createGesundbrunnenRoadBridgesStepsV309, hasCompleteGesundbrunnenRoadBr
 import { prepareGesundbrunnenBridgeInkV309Steps, type GesundbrunnenBridgeInkTransactionV309 } from "./GesundbrunnenBridgeInkV309";
 import { createGesundbrunnenRoadBridgeNavigationV309 } from "./gesundbrunnenRoadBridgeNavigationV309";
 import { applyHospitalPreviousV308 } from "./HospitalArchitectureV308Previous";
-import { applyRailSseLegacyV307 } from "./RailSseLegacyV307";
+import { applyRailSseLegacyV307, hasRaisedRailCarsV385 } from "./RailSseLegacyV307";
 import { hospitalArchitectureV308Solids, hospitalV308OverridesV228 } from "./HospitalArchitectureV308Navigation";
 import { northSitesV306Solids, northSchoolGroundAtV306 } from "./northSitesV306Navigation";
 import { northParkTerrainOffsetV306, northParkTerrainFieldAtV306 } from "./northParkTerrainV306";
@@ -122,10 +123,14 @@ export function* createNorthernFidelityStepsV309(native: boolean, mobileLike: bo
       if(latest.length===wanted.length&&latest.every(r=>set.has(r))){propsSettled=true;break;}
       yield;
     }
-    const navigation = createNorthernNavigationV309([...northSitesV306Solids(native), ...railSseArchitectureV307Solids(native), ...hospitalArchitectureV308Solids(native), ...bridgeNavigation.solids], complete, stagedTerrainAt);
+    let activeLegacy: Object3D | undefined;
+    const carSolids = railTransportCarSolidsV385(native).map(solid=>({
+      ...solid, topAt:()=>activeLegacy && hasRaisedRailCarsV385(activeLegacy,native) ? solid.maxY : null,
+    }));
+    const navigation = createNorthernNavigationV309([...northSitesV306Solids(native), ...railSseArchitectureV307Solids(native), ...carSolids, ...hospitalArchitectureV308Solids(native), ...bridgeNavigation.solids], complete, stagedTerrainAt);
     const restore = (legacy: Object3D) => {
       const wasOpen = !closed;
-      active = false;
+      active = false; activeLegacy = undefined;
       applyHospitalPreviousV308(legacy, native, false, hospital, context.world);
       applyRailSseLegacyV307(legacy, native, false, architecture, contact);
       for (const transaction of props.values()) transaction.rollback();
@@ -155,7 +160,7 @@ export function* createNorthernFidelityStepsV309(native: boolean, mobileLike: bo
         if(!currentProps().every(r=>props.get(r)?.complete()===true)){restore(legacy);return false;}
         if (!applyHospitalPreviousV308(legacy, native, true, hospital, context.world) || !applyRailSseLegacyV307(legacy, native, true, architecture, contact)) { restore(legacy); return false; }
         if (!active) context.afterSwap?.();
-        active = true; return complete();
+        activeLegacy = legacy; active = true; return complete();
       },
     };
   } finally {

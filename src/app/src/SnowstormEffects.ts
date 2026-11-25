@@ -24,6 +24,7 @@ import {
 
 import type { VisualMode } from "./visualMode";
 import { cutGrosserSternGatehouseGroundSurface } from "./terrainPayload";
+import { cutStelenfeldPavingV385 } from "./stelenfeldPavingV385";
 
 const SNOW_RADIUS_M = 360;
 const SNOW_HEIGHT_M = 260;
@@ -268,8 +269,10 @@ function createSettledSnow(): Group {
   sourceBlanket.deleteAttribute("uv");
   sourceBlanket.rotateX(-Math.PI / 2);
   sourceBlanket.translate(-735, 5.72, -355);
-  const blanketGeometry = cutGrosserSternGatehouseGroundSurface(sourceBlanket);
-  if (blanketGeometry !== sourceBlanket) sourceBlanket.dispose();
+  const withStairWells = cutGrosserSternGatehouseGroundSurface(sourceBlanket);
+  if (withStairWells !== sourceBlanket) sourceBlanket.dispose();
+  const blanketGeometry = cutStelenfeldPavingV385(withStairWells);
+  if (blanketGeometry !== withStairWells) withStairWells.dispose();
   const blanket = new Mesh(blanketGeometry, blanketMaterial);
   blanket.name = "Continuous deep snow cover across the expanded city";
   // The drawn-ground extrusion tops vary between roughly 4.8 and 5.5 m;
@@ -295,6 +298,9 @@ function createSettledSnow(): Group {
       ] as [number, number, number],
     };
   });
+  // Only generated drift 37 lies in the surveyed memorial, at (521.69,577.65).
+  // Remove it after generating the sequence so all other positions remain exact.
+  driftTransforms.splice(37, 1);
   const drifts = new InstancedMesh(
     new SphereGeometry(1, 10, 6),
     new MeshStandardMaterial({

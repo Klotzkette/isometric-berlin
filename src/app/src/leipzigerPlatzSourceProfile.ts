@@ -5,6 +5,44 @@ export const LEIPZIGER_SOURCE_PROFILES = Object.values(source.profiles);
 export const LEIPZIGER_SOURCE_PRISM_IDS = new Set(
   LEIPZIGER_SOURCE_PROFILES.flatMap(profile => profile.replaced_prism_ids),
 );
+// Two bare CityGML bridge envelopes were extruded to street level by the
+// original footprint converter. Two public gallery decks replace each one.
+export const MALL_PIAZZA_BRIDGE_PRISMS = new Set(["ANtdjIMa", "f8929NwV"]);
+export const MALL_PIAZZA_GALLERY_CORNERS = [[623.44,978.45],[619.78,931.54],[643.59,929.69],[647.26,976.60]];
+// OSM area:highway=footway, covered=yes, way 194066305, projected in EPSG:25833.
+// The narrow arms are the paved approaches to Voßstraße and Leipziger Straße.
+export const mallPiazzaFootwayV385 = [
+  [646.53,1013.76],[630.36,1015.17],[630.27,1013.92],[628.58,991.48],[627.9,983.05],
+  [623.74,983.31],[623.44,978.45],[619.78,931.54],[619.34,925.09],[623.75,924.74],
+  [623.09,916.51],[622.08,897.92],[629.7,897.37],[637.29,896.75],[638.47,915.29],
+  [639.19,924.41],[643.06,924.1],[643.59,929.69],[644.79,945.1],[647.26,976.6],
+  [647.73,981.6],[644.2,981.88],[644.74,988.63],[644.86,990.2],[644.98,991.91],[646.42,1012.66],
+];
+
+// The original grass runs are graded at their midpoints, often well
+// outside this footway. Their tops reach 5.40 m at Voßstraße and remain
+// at 5.00 m all the way to z=968. Grade the paved surface over those two
+// changes without moving any surrounding sidewalk or building.
+export const mallPiazzaPavingProfileV385 = [
+  [896,5.45],[900,5.45],[908,5.33],[962.5,5.33],[970.5,4.93],[1016,4.93],
+];
+export function mallPiazzaPavingHeightV385(z: number): number {
+  for (let i=1; i<mallPiazzaPavingProfileV385.length; i++) {
+    const [end,endY]=mallPiazzaPavingProfileV385[i];
+    if (z > end) continue;
+    const [start,startY]=mallPiazzaPavingProfileV385[i-1];
+    return startY + (endY-startY) * Math.max(0,(z-start)/(end-start));
+  }
+  return 4.93;
+}
+export const MALL_PIAZZA_DECK_Y = [10.25, 15.58];
+export function mallPiazzaCrossingRingV385(id: string): number[][] {
+  const i = id === "ANtdjIMa" ? 3 : 1;
+  const a = MALL_PIAZZA_GALLERY_CORNERS[i], b = MALL_PIAZZA_GALLERY_CORNERS[(i + 1) % 4];
+  const length = Math.hypot(b[0] - a[0], b[1] - a[1]);
+  const nx = 1.175 * (b[1] - a[1]) / length, nz = 1.175 * (a[0] - b[0]) / length;
+  return [[a[0]+nx,a[1]+nz],[b[0]+nx,b[1]+nz],[b[0]-nx,b[1]-nz],[a[0]-nx,a[1]-nz]];
+}
 export const LEIPZIGER_SOURCE_GROUP_NAME = "Complete Leipziger Platz and Mall source envelopes";
 
 /** Original JSON stays untouched; all parts of one parent share one rigid shift. */

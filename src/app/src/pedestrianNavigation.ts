@@ -111,10 +111,15 @@ import { ALEXANDER_CIVIC_PARTS, ALEXANDER_CIVIC_PRISM_IDS, MARIEN_TOWER, MARIEN_
   RATHAUS_TOWER_ID, RATHAUS_TOWER_PLATFORM, RATHAUS_TERMINAL, rathausTerminalSolidAt,
   alexanderCivicPartBaseAt, alexanderCivicPartRoofAt, alexanderCivicTowerSolidAt } from "./alexanderCivicProfile";
 import { gendarmenmarktSourceForPrism, gendarmenmarktPartRoofAt } from "./gendarmenmarktProfile";
+import { ritzRoofNavigationV385 } from "./ritzRoofsV385";
+import { isRitzCanopyV385, nativeRitzCanopyRingsV385, ritzCanopyRingV385, ritzCanopyTopV385, ritzCanopySoffitV385 } from "./ritzCanopyProfileV385";
+import { ebertstrasseTerracePrismV385, ebertstrasseObstaclesV385 } from "./ebertstrasseOfficeOwnersV385";
+import { replacesStelePrism } from "./stelenfeldSiteV385";
+import { stelenfeldGroundAtV385 } from "./holocaustField";
 import { isMehringplatzPrismV383 } from "./mehringplatzOwnersV383";
 import { mehringplatzSolidsV383 } from "./mehringplatzNavigationV383";
 import { gendarmenmarktPerimeterSourceForPrism } from "./gendarmenmarktPerimeterProfile";
-import { LEIPZIGER_SOURCE_PARTS, leipzigerSourceRoofAt, leipzigerPartSolidBase } from "./leipzigerPlatzSourceProfile";
+import { LEIPZIGER_SOURCE_PARTS, MALL_PIAZZA_BRIDGE_PRISMS, MALL_PIAZZA_DECK_Y, mallPiazzaCrossingRingV385, mallPiazzaFootwayV385, mallPiazzaPavingHeightV385, leipzigerSourceRoofAt, leipzigerPartSolidBase } from "./leipzigerPlatzSourceProfile";
 import { POTSDAMER_MINISTRY_BUILDINGS } from "./potsdamerMinistrySourceProfile";
 import { BIKINI_DISPLAY_PARTS, BIKINI_REPLACEMENT_IDS, BIKINI_SOURCE } from "./bikiniProfile";
 import { GORKI_BUILDING_PRISM_IDS, GORKI_BUILDING_SOURCE, gorkiPartRoofAt } from "./gorkiBuildingProfile";
@@ -834,6 +839,13 @@ export function compilePedestrianObstacles(
     index.buildingCount += 1;
   }
   for (const sourceBuilding of prisms.buildings) {
+    if (MALL_PIAZZA_BRIDGE_PRISMS.has(sourceBuilding.id)) {
+      const ring = mallPiazzaCrossingRingV385(sourceBuilding.id);
+      for (const deck of MALL_PIAZZA_DECK_Y)
+        addPolygonObstacle(index, ring, [], deck - .165, deck + .165, sourceBuilding.id);
+      index.buildingCount += 1;
+      continue;
+    }
     const fidelityAdmission = options.universitiesPreviousV322?.(sourceBuilding)===true&&options.universitiesReadyV322 ? options.universitiesReadyV322 : options.governmentPreviousV321?.(sourceBuilding)===true&&options.governmentReadyV321 ? options.governmentReadyV321 : moabitAdmission && isMoabitMitteV300OldCore(sourceBuilding) ? moabitAdmission :
       westAdmission && isWestKiezV302OldCore(sourceBuilding) ? westAdmission : canopyAdmission && isChancelleryCanopyOldPrismV289(sourceBuilding) ? canopyAdmission :
       historicAdmission && isBerlinHistoricDomOldCoreV288(sourceBuilding) ? historicAdmission :
@@ -1392,6 +1404,32 @@ export function compilePedestrianObstacles(
       index.buildingCount += 1;
       continue;
     }
+    const ritzRoof = ritzRoofNavigationV385(building);
+    if (ritzRoof) {
+      addPolygonObstacle(index,building.ring,building.holes ?? [],building.y0_dm/10,
+        (building.y0_dm+building.h_dm)/10+.05,building.id,.1,
+        (x,z)=>ritzRoof(x,z,visualMode()==="minecraft"));
+      index.buildingCount += 1;
+      continue;
+    }
+    if (isRitzCanopyV385(building)) {
+      for (const native of [false,true]) {
+        const rings = native ? nativeRitzCanopyRingsV385() : [ritzCanopyRingV385];
+        for (const ring of rings) addPolygonObstacle(index,ring,[],ritzCanopySoffitV385,ritzCanopyTopV385,
+          building.id,1,()=>(visualMode()==="minecraft")===native ? ritzCanopyTopV385 : Number.NEGATIVE_INFINITY);
+      }
+      index.buildingCount += 1;
+      continue;
+    }
+    if (ebertstrasseTerracePrismV385(building) !== building) {
+      for (const solid of ebertstrasseObstaclesV385(building.id)) {
+        addPolygonObstacle(index, solid.ring, [], solid.bottom, solid.top, building.id, 1,
+          () => (visualMode() === "minecraft") === solid.native ? solid.top : Number.NEGATIVE_INFINITY);
+        index.buildingCount += 1;
+      }
+      continue;
+    }
+    if (replacesStelePrism(building)) continue;
     if (isMehringplatzPrismV383(building)) {
       for (const native of [false, true]) {
         for (const [, source, bottom, top, [ring, ...holes]] of mehringplatzSolidsV383(building.id, native) ?? []) {
@@ -2605,7 +2643,15 @@ export function createPedestrianEnvironment(
   // Keep synthetic or partial environments outside this authored source scope.
   const gatehousesPresent = prisms?.buildings.some(b =>
     GROSSER_STERN_GATEHOUSES_V164_PRISM_IDS.has(b.id)) === true;
+  const stelenfeldPresent = prisms?.buildings.some(b => b.id === "xMIcRZKx" && replacesStelePrism(b)) === true;
+  const mallPiazzaPresent = prisms?.buildings.some(b=>b.id === "ANtdjIMa" && b.h_dm === 243) === true;
   const surfaceGroundAt = (x: number, z: number): number | null => {
+    if (mallPiazzaPresent && x >= 619.34 && x <= 647.73 && z >= 896.75 && z <= 1015.17
+        && pointInPedestrianRing(x, z, mallPiazzaFootwayV385)) return mallPiazzaPavingHeightV385(z);
+    if (stelenfeldPresent) {
+      const floor = stelenfeldGroundAtV385(x,z,environment.visualMode?.() === "minecraft");
+      if (floor !== null) return floor;
+    }
     if (gatehousesPresent) {
       const stairY = grosserSternGatehouseFloorAt(x, z);
       if (stairY !== null) return stairY;

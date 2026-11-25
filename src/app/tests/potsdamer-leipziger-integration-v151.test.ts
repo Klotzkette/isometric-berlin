@@ -46,3 +46,24 @@ test("distant and streaming fallback cannot cover replacement roofs or passages 
   expect(coverage.userData.visibleBuildingCount).toBe(0);
   expect(coverage.children).toHaveLength(0);
 });
+
+test("both extruded bridge footprints in the shipped city clear the public Piazza at pedestrian height", async () => {
+  const city: PrismPayload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json();
+  const bridges = city.buildings.filter(b => ["ANtdjIMa","f8929NwV"].includes(b.id));
+  expect(bridges).toHaveLength(2);
+  for (const bridge of bridges) {
+    expect(bridge.h_dm).toBe(243);
+    expect(PRISM_SUPPRESSED_IDS.has(bridge.id)).toBe(true);
+  }
+  const distant = createDistantBuildingShells(city,bridges);
+  expect(distant.userData.visibleBuildingCount).toBe(0);
+  const index = compilePedestrianObstacles({ buildings: [...buildings,...bridges] });
+  const obstacles = new Set([...index.cells.values()].flat());
+  for (const bridge of bridges) {
+    const decks = [...obstacles].filter(o=>o.sourceId===bridge.id).sort((a,b)=>a.minY-b.minY);
+    expect(decks).toHaveLength(2);
+    for (const deck of decks) expect(deck.maxY-deck.minY).toBeCloseTo(.33,4);
+  }
+  for (let z=906; z<=1007; z+=.5)
+    expect(pedestrianPointIsBlocked(633.5+.0788*(z-953.6),z,5.5,index)).toBe(false);
+});

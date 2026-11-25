@@ -1,6 +1,5 @@
 import {
   Box3,
-  BoxGeometry,
   BufferGeometry,
   CatmullRomCurve3,
   DoubleSide,
@@ -14,14 +13,16 @@ import {
   Vector3,
 } from "three";
 
+import { canadaSquareFrontV385, createCanadianPublicFrontsV385 } from "./LeipzigerPublicFrontsV385";
 import { leipzigerMallRoofRib } from "./leipzigerPlatzSourceProfile";
+import { createDrawnEbertstrasseOffice } from "./EbertstrasseOfficeDrawnV385";
+import { createMallWestForecourtV385 } from "./potsdamerForecourtsV385";
 import { createMallAndVosspalaisDetails } from "./MallAndVosspalaisDetails";
 import { ARCHITECTURAL_EDGE_THRESHOLD_DEGREES } from "./architecturalInk";
 import { createLetteringTexture } from "./drawnLettering";
 import {
   type Builder,
   addBox,
-  addPartialCylinder,
   createBuilder,
   finishDrawnGroup,
   paintGeometry,
@@ -421,7 +422,7 @@ export const LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE = {
         measuredHeightM: 22.55,
         sourcePartId: "DEBE3DX8xkSlkClV",
         startWorldM: [388.708, 892.296],
-        storeys: 4,
+        storeys: 5,
       },
       {
         endWorldM: [366.267, 877.201],
@@ -429,7 +430,7 @@ export const LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE = {
         measuredHeightM: 21.56,
         sourcePartId: "DEBE3DhJXRqgpiKw",
         startWorldM: [363.58, 894.378],
-        storeys: 4,
+        storeys: 5,
       },
       {
         endWorldM: [387.328, 875.472],
@@ -437,7 +438,7 @@ export const LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE = {
         measuredHeightM: 21.69,
         sourcePartId: "DEBE3DR5yMfh61sW",
         startWorldM: [366.267, 877.201],
-        storeys: 4,
+        storeys: 5,
       },
       {
         endWorldM: [388.708, 892.296],
@@ -445,7 +446,7 @@ export const LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE = {
         measuredHeightM: 21.95,
         sourcePartId: "DEBE3Dt267g39Jz7",
         startWorldM: [387.328, 875.472],
-        storeys: 4,
+        storeys: 5,
       },
     ] as const satisfies ReadonlyArray<LeipzigerFacadeRun>,
     footprintAreaM2: 391.5,
@@ -455,10 +456,11 @@ export const LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE = {
     osmBuildingWayId: "43375260",
     osmPoiNodeId: "7424868639",
     partIds: TAYLOR_PART_IDS,
-    storeys: 4,
+    storeys: 5,
     sources: [
       "https://www.openstreetmap.org/way/43375260",
       "https://www.taylorwessing.com/en/contact-us/berlin",
+      "https://www.bosen-baumanagement.de/files/Bosen_Baumanagement_Referenzen.pdf",
     ] as const,
   },
   magentaMitte: {
@@ -528,33 +530,33 @@ export const LEIPZIGER_PLATZ_PORTALS = [
     sizeM: [13.5, 11.6, 69],
   },
   {
-    centerWorldM: [380.147, 8.35, 919.466],
-    collisionIds: ["GyKuiciJ"],
+    centerWorldM: [395.289, 8.35, 973.695],
+    collisionIds: ["57c7Jtdb"],
     geometryStatus:
       "source-edge entrance contract; no global LoD2 opening is enabled by this visual module",
     id: "canadian-embassy-square-entrance",
-    lod2PartIds: ["DEBE3DLjGyKuiciJ"],
-    rotationY: degrees(-178.9),
+    lod2PartIds: ["DEBE3DYO57c7Jtdb"],
+    rotationY: degrees(49.71),
     sizeM: [5.2, 6.5, 8],
   },
   {
-    centerWorldM: [382.0, 7.85, 892.85],
-    collisionIds: ["xkSlkClV"],
+    centerWorldM: [364.80, 6.92, 886.22],
+    collisionIds: ["XRqgpiKw"],
     geometryStatus:
       "source-edge entrance contract; no global LoD2 opening is enabled by this visual module",
     id: "taylor-wessing-ebertstrasse-entrance",
-    lod2PartIds: ["DEBE3DX8xkSlkClV"],
-    rotationY: degrees(-2.2),
+    lod2PartIds: ["DEBE3DhJXRqgpiKw"],
+    rotationY: degrees(-98.9),
     sizeM: [4.2, 5.5, 6],
   },
   {
-    centerWorldM: [379.0, 7.3, 862.2],
+    centerWorldM: [369.67, 5.99, 855.45],
     collisionIds: ["DHOPRr9T"],
     geometryStatus:
       "source-edge entrance contract; no global LoD2 opening is enabled by this visual module",
     id: "magenta-mitte-ebertstrasse-entrance",
     lod2PartIds: ["DEBE3DacDHOPRr9T"],
-    rotationY: degrees(-4.3),
+    rotationY: degrees(-98.9),
     sizeM: [4.5, 5.4, 6],
   },
 ] as const satisfies ReadonlyArray<LeipzigerPortalVolume>;
@@ -565,16 +567,6 @@ const MALL_FRAME = 0x59696b;
 const CANADA_ZINC = 0xb7b9b3;
 const CANADA_STONE = 0xd2c5ad;
 const CANADA_GLASS = 0x6f8d91;
-const CANADA_WOOD = 0x9a7956;
-const TAYLOR_STONE = 0xd8d3c7;
-const TAYLOR_GLASS = 0x6f9298;
-const TAYLOR_FRAME = 0x586a6d;
-const MAGENTA_WHITE = 0xeeede4;
-const MAGENTA_GLASS = 0x77999f;
-const MAGENTA_FRAME = 0x55686d;
-const MAGENTA_ACCENT = 0xe20074;
-const TERRACE_GREEN = 0x71906d;
-
 type RunFrame = {
   axis: WorldPoint2;
   lengthM: number;
@@ -635,33 +627,6 @@ function addRunBox(
     depthM,
     frame.rotationY,
     inked,
-  );
-}
-
-function addRunLampBox(
-  builder: Builder,
-  run: LeipzigerFacadeRun,
-  buildingCenter: WorldPoint2,
-  color: number,
-  alongM: number,
-  centerY: number,
-  outwardM: number,
-  widthM: number,
-  heightM: number,
-  depthM: number,
-): void {
-  const frame = runFrame(run, buildingCenter);
-  const geometry = new BoxGeometry(widthM, heightM, depthM);
-  geometry.rotateY(frame.rotationY);
-  geometry.translate(
-    frame.midpoint[0] + frame.axis[0] * alongM + frame.outward[0] * outwardM,
-    centerY,
-    frame.midpoint[1] + frame.axis[1] * alongM + frame.outward[1] * outwardM,
-  );
-  paintGeometry(geometry, color);
-  builder.lamps.push(geometry);
-  builder.edges.push(
-    new EdgesGeometry(geometry, ARCHITECTURAL_EDGE_THRESHOLD_DEGREES),
   );
 }
 
@@ -857,7 +822,7 @@ function buildMall(): Group {
   const group = finishDrawnGroup(builder, {
     name: "Mall of Berlin LoD2-bound facade overlays",
   })!;
-  group.add(createMallAndVosspalaisDetails());
+  group.add(createMallAndVosspalaisDetails(), createMallWestForecourtV385(false));
   group.userData.profile = profile;
   group.userData.collisionRole = "visual-overlay-with-open-covered-axis";
   return group;
@@ -867,6 +832,7 @@ function buildCanada(): Group {
   const profile = LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.canada;
   const builder = createBuilder();
   for (const run of profile.facadeRuns) {
+    if (run.sourcePartId === canadaSquareFrontV385.prismId || run.sourcePartId === "DEBE3DXLyhYfJwcC") continue;
     addPunchedFacade(builder, run, profile.centerWorldM, {
       bayPitchM: 4.15,
       frameColor: CANADA_ZINC,
@@ -876,19 +842,10 @@ function buildCanada(): Group {
       windowWidthM: 2.35,
     });
   }
-  const squareRun = profile.facadeRuns[4];
-  addOpenEntranceFrame(
-    builder,
-    squareRun,
-    profile.centerWorldM,
-    1.2,
-    5.2,
-    5.7,
-    CANADA_WOOD,
-  );
   const group = finishDrawnGroup(builder, {
     name: "Canadian Embassy complete-parent facade overlays",
   })!;
+  group.add(createCanadianPublicFrontsV385(false));
   group.userData.profile = profile;
   group.userData.collisionRole = "visual-overlay-with-source-edge-portal";
   return group;
@@ -898,11 +855,11 @@ function createTaylorLettering(run: LeipzigerFacadeRun): Mesh {
   const profile = LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.taylorWessing;
   const frame = runFrame(run, profile.centerWorldM);
   const texture = createLetteringTexture({
-    bandHeightM: 1.35,
-    bandWidthM: 12.6,
-    capHeightM: 0.78,
-    fieldColor: "#ded9ce",
-    letterColor: "#29596b",
+    bandHeightM: .52,
+    bandWidthM: 4.35,
+    capHeightM: .32,
+    fieldColor: "#404444",
+    letterColor: "#91bdac",
     text: "TAYLOR WESSING",
     texelsPerMetre: 180,
   });
@@ -912,15 +869,15 @@ function createTaylorLettering(run: LeipzigerFacadeRun): Mesh {
         roughness: 0.68,
         side: DoubleSide,
       })
-    : new MeshBasicMaterial({ color: TAYLOR_STONE, side: DoubleSide });
-  const sign = new Mesh(new PlaneGeometry(12.6, 1.35), material);
+    : new MeshBasicMaterial({ color: 0x454746, side: DoubleSide });
+  const sign = new Mesh(new PlaneGeometry(4.35, .52), material);
   sign.name = "Taylor Wessing facade lettering";
   sign.userData.lettering = "TAYLOR WESSING";
   sign.userData.fallbackWithoutCanvas = texture === null;
   sign.position.set(
-    frame.midpoint[0] + frame.outward[0] * 0.31,
-    run.groundYM + 19.25,
-    frame.midpoint[1] + frame.outward[1] * 0.31,
+    frame.midpoint[0] - frame.axis[0] * 6 + frame.outward[0] * .36,
+    26.36,
+    frame.midpoint[1] - frame.axis[1] * 6 + frame.outward[1] * .36,
   );
   sign.rotation.y = frame.rotationY;
   return sign;
@@ -928,225 +885,16 @@ function createTaylorLettering(run: LeipzigerFacadeRun): Mesh {
 
 function buildTaylorWessing(): Group {
   const profile = LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.taylorWessing;
-  const builder = createBuilder();
-  for (const run of profile.facadeRuns) {
-    addPunchedFacade(builder, run, profile.centerWorldM, {
-      bayPitchM: 3.35,
-      frameColor: TAYLOR_FRAME,
-      glassColor: TAYLOR_GLASS,
-      stoneColor: TAYLOR_STONE,
-      windowHeightM: 2.35,
-      windowWidthM: 2.3,
-    });
-  }
-  addOpenEntranceFrame(
-    builder,
-    profile.facadeRuns[0],
-    profile.centerWorldM,
-    -5.8,
-    4.2,
-    4.9,
-    TAYLOR_FRAME,
-  );
-  const group = finishDrawnGroup(builder, {
-    name: "Taylor Wessing exact-parent facade overlays",
-  })!;
-  group.add(createTaylorLettering(profile.facadeRuns[0]));
+  const group = createDrawnEbertstrasseOffice("taylor", "Taylor Wessing exact-parent facade overlays");
+  group.add(createTaylorLettering(profile.facadeRuns[1]));
   group.userData.profile = profile;
   group.userData.collisionRole = "visual-overlay-with-source-edge-portal";
   return group;
 }
 
-function addContinuousGlassFacade(
-  builder: Builder,
-  run: LeipzigerFacadeRun,
-  center: WorldPoint2,
-): void {
-  const frame = runFrame(run, center);
-  const floorHeight = 3.48;
-  for (let floor = 0; floor < 6; floor += 1) {
-    addRunBox(
-      builder,
-      run,
-      center,
-      MAGENTA_GLASS,
-      0,
-      run.groundYM + 1.65 + floor * floorHeight,
-      0.16,
-      frame.lengthM - 0.35,
-      2.35,
-      0.12,
-    );
-    addRunBox(
-      builder,
-      run,
-      center,
-      MAGENTA_WHITE,
-      0,
-      run.groundYM + 3.18 + floor * floorHeight,
-      0.22,
-      frame.lengthM,
-      0.5,
-      0.24,
-      true,
-    );
-    const mullionCount = Math.max(2, Math.floor(frame.lengthM / 2.7));
-    for (let mullion = 1; mullion < mullionCount; mullion += 1) {
-      const along = -frame.lengthM / 2 + (frame.lengthM * mullion) / mullionCount;
-      addRunBox(
-        builder,
-        run,
-        center,
-        MAGENTA_FRAME,
-        along,
-        run.groundYM + 1.65 + floor * floorHeight,
-        0.24,
-        0.1,
-        2.35,
-        0.12,
-      );
-    }
-  }
-}
-
-function addMagentaCurvedBands(builder: Builder): void {
-  const profile = LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.magentaMitte;
-  const width = profile.footprintSizeM[0];
-  const depth = profile.footprintSizeM[1];
-  const radius = 2.55;
-  const halfX = width / 2 - radius;
-  const halfZ = depth / 2 - radius;
-  const cosine = Math.cos(profile.rotationY);
-  const sine = Math.sin(profile.rotationY);
-  const corners = [
-    { local: [halfX, halfZ] as const, theta: 0 },
-    { local: [-halfX, halfZ] as const, theta: Math.PI / 2 },
-    { local: [-halfX, -halfZ] as const, theta: Math.PI },
-    { local: [halfX, -halfZ] as const, theta: (3 * Math.PI) / 2 },
-  ];
-  for (let floor = 0; floor < 6; floor += 1) {
-    for (const corner of corners) {
-      const x =
-        profile.centerWorldM[0] +
-        corner.local[0] * cosine +
-        corner.local[1] * sine;
-      const z =
-        profile.centerWorldM[1] -
-        corner.local[0] * sine +
-        corner.local[1] * cosine;
-      addPartialCylinder(
-        builder,
-        MAGENTA_GLASS,
-        x,
-        4.6 + 1.65 + floor * 3.48,
-        z,
-        radius,
-        2.35,
-        10,
-        corner.theta,
-        Math.PI / 2,
-        profile.rotationY,
-        false,
-      );
-      addPartialCylinder(
-        builder,
-        MAGENTA_WHITE,
-        x,
-        4.6 + 3.18 + floor * 3.48,
-        z,
-        radius + 0.08,
-        0.5,
-        10,
-        corner.theta,
-        Math.PI / 2,
-        profile.rotationY,
-        true,
-      );
-    }
-  }
-}
-
-function addMagentaRoofTerrace(builder: Builder): void {
-  const profile = LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.magentaMitte;
-  for (const run of profile.facadeRuns) {
-    const frame = runFrame(run, profile.centerWorldM);
-    const terraceY = 4.6 + profile.heightRangeM[1];
-    addRunBox(
-      builder,
-      run,
-      profile.centerWorldM,
-      TERRACE_GREEN,
-      0,
-      terraceY + 0.18,
-      -0.34,
-      frame.lengthM - 0.6,
-      0.36,
-      0.32,
-    );
-    addRunBox(
-      builder,
-      run,
-      profile.centerWorldM,
-      MAGENTA_FRAME,
-      0,
-      terraceY + 1.2,
-      0.12,
-      frame.lengthM,
-      0.1,
-      0.1,
-    );
-    const postCount = Math.max(2, Math.floor(frame.lengthM / 2.8));
-    for (let post = 0; post <= postCount; post += 1) {
-      addRunBox(
-        builder,
-        run,
-        profile.centerWorldM,
-        MAGENTA_FRAME,
-        -frame.lengthM / 2 + (frame.lengthM * post) / postCount,
-        terraceY + 0.7,
-        0.12,
-        0.08,
-        1.4,
-        0.08,
-      );
-    }
-  }
-}
-
 function buildMagentaMitte(): Group {
   const profile = LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.magentaMitte;
-  const builder = createBuilder();
-  for (const run of profile.facadeRuns) {
-    addContinuousGlassFacade(builder, run, profile.centerWorldM);
-  }
-  addMagentaCurvedBands(builder);
-  addMagentaRoofTerrace(builder);
-  addOpenEntranceFrame(
-    builder,
-    profile.facadeRuns[3],
-    profile.centerWorldM,
-    0,
-    4.5,
-    4.8,
-    MAGENTA_WHITE,
-  );
-  addRunLampBox(
-    builder,
-    profile.facadeRuns[3],
-    profile.centerWorldM,
-    MAGENTA_ACCENT,
-    0,
-    4.6 + 10.4,
-    0.38,
-    10.5,
-    0.18,
-    0.16,
-  );
-  const group = finishDrawnGroup(builder, {
-    lampEmissive: MAGENTA_ACCENT,
-    lampEmissiveIntensity: 0.8,
-    name: "Magenta Mitte curved-band facade overlays",
-  })!;
+  const group = createDrawnEbertstrasseOffice("telekom", "Magenta Mitte curved-band facade overlays");
   group.userData.profile = profile;
   group.userData.collisionRole = "visual-overlay-with-source-edge-portal";
   return group;

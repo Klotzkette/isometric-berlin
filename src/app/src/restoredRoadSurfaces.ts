@@ -10,6 +10,7 @@ import { cutGrosserSternGatehouseGroundSurface, smoothGroundTopSampler, type Vox
 import { spreebogenTerrainYAt } from "./spreebogenBankProfile";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { indexGeometryExactly } from "./exactGeometryIndex";
+import { cutStelenfeldPavingV385 } from "./stelenfeldPavingV385";
 import { decodeLosslessGzipJson } from "./losslessGzipBase85";
 
 import { readRoadWordRecord, readRoadWordBatch, ROAD_PLANES_ENCODING, type RoadWordBatch } from "./roadWordPlanesV362";
@@ -63,6 +64,10 @@ export function createRestoredRoadBatch(batch: RestoredRoadBatch | RoadWordBatch
     const bounds = g.boundingBox!;
     if (bounds.max.x > -1590 && bounds.min.x < -1330 && bounds.max.z > 399 && bounds.min.z < 512) {
       const opened = cutGrosserSternGatehouseGroundSurface(g);
+      if (opened !== g) { g.dispose(); g = opened; }
+    }
+    if (batch.kind === "paving") {
+      const opened = cutStelenfeldPavingV385(g);
       if (opened !== g) { g.dispose(); g = opened; }
     }
     mesh(g, batch.kind === "asphalt" ? "smooth carriageways" : "smooth paved paths",

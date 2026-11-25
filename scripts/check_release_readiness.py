@@ -1000,6 +1000,19 @@ def litfin_watchtower_source_failures(root: Path) -> list[str]:
   return failures
 
 
+def stelenfeld_survey_failures(root: Path) -> list[str]:
+  path = root / "src/app/src/data/stelenfeldV385/field.json"
+  try:
+    packet = json.loads(path.read_bytes())
+    rows = struct.iter_unpack("<6h", base64.b64decode(packet["stelae"], validate=True))
+    counts = Counter(top != 0 for _, _, top, _, _, _ in rows)
+  except (OSError, ValueError, KeyError, TypeError, struct.error) as exc:
+    return [f"Invalid surveyed stela records in {path}: {exc}"]
+  if counts != {True: 2598, False: 112}:
+    return [f"Expected 2598 raised stelae and 112 flush inserts in {path}"]
+  return []
+
+
 def webgl_viewer_source_failures(root: Path) -> list[str]:
   """Keep the true-3D, selected-only and touch interaction contracts intact."""
   viewer_path = root / "src/app/src/ThreeViewer.tsx"
@@ -1276,13 +1289,9 @@ def webgl_viewer_source_failures(root: Path) -> list[str]:
     discovery_path.exists() or "discoveryNoteFor" in app or ".discovery-note" in styles
   ):
     failures.append(f"Viewer still contains unsolicited location quips: {app_path}")
+  failures.extend(stelenfeld_survey_failures(root))
   required_memorial_snippets = {
-    # v0.69.0: the field is generated from the documented figures in
-    # holocaustField.ts (2711 stelae, 0.95 m alleys in both directions),
-    # so the readiness gate checks that source instead of the old
-    # hand-banded lattice it replaced.
     "complete Holocaust stela field": "holocaustStelePlacements()",
-    "documented Holocaust stele count": "HOLOCAUST_FIELD.steleCount",
     "official-mesh ground placement": "MEMORIAL_GROUND_Y",
     "mobile-safe Holocaust shadow budget": "stelae.castShadow = false",
     "Soviet memorial T-34/76 tanks": 'vehicleType = "T-34/76"',

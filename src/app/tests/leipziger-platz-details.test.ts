@@ -51,7 +51,7 @@ describe("Leipziger Platz source-bound architecture details", () => {
     expect(profile.taylorWessing.lod2ParentId).toBe("DEBE01YYK00009eV");
     expect(profile.taylorWessing.centerWorldM).toEqual([376.463, 885.086]);
     expect(profile.taylorWessing.footprintSizeM).toEqual([25.23, 16.9]);
-    expect(profile.taylorWessing.storeys).toBe(4);
+    expect(profile.taylorWessing.storeys).toBe(5);
 
     expect(profile.magentaMitte.lod2ParentId).toBe("DEBE01YYK0000B8N");
     expect(profile.magentaMitte.centerWorldM).toEqual([379.507, 854.014]);
@@ -112,8 +112,9 @@ describe("Leipziger Platz source-bound architecture details", () => {
     expect(bounds.max.x).toBeCloseTo(821.6, 0);
     expect(bounds.min.z).toBeCloseTo(860.4, 0);
     expect(bounds.max.z).toBeCloseTo(1023.1, 0);
-    // Complete raised residential/hotel levels now receive facade detail.
-    expect(bounds.max.y).toBeCloseTo(39.27, 1);
+    // The upper LP12 west entrance is registered against its existing LoD2
+    // roof at 40.855 m; the facing terminates just below the parapet.
+    expect(bounds.max.y).toBeCloseTo(40.73, 1);
 
     const passage = LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.mall.coveredPassage;
     expect(passage.spanM).toBeCloseTo(24.06, 2);
@@ -138,13 +139,13 @@ describe("Leipziger Platz source-bound architecture details", () => {
     ).toBe(true);
   });
 
-  test("keeps corrected Taylor geometry inside the 25 by 17 metre parent", () => {
+  test("fits Taylor to its 25 by 17 metre parent plus the street entrance steps", () => {
     const details = createLeipzigerPlatzDetails();
     const taylor = details.getObjectByName(GROUP_NAMES.taylor)!;
     const bounds = new Box3().setFromObject(taylor);
-    expect(bounds.max.x - bounds.min.x).toBeLessThan(26);
+    expect(bounds.max.x - bounds.min.x).toBeCloseTo(26.40, 1);
     expect(bounds.max.z - bounds.min.z).toBeLessThan(20);
-    expect(bounds.max.y).toBeLessThan(25.1);
+    expect(bounds.max.y).toBeCloseTo(26.76, 1);
     expect(
       taylor.getObjectByName("Taylor Wessing facade lettering"),
     ).toBeDefined();
@@ -154,9 +155,9 @@ describe("Leipziger Platz source-bound architecture details", () => {
     const details = createLeipzigerPlatzDetails();
     const magenta = details.getObjectByName(GROUP_NAMES.magenta)!;
     const bounds = new Box3().setFromObject(magenta);
-    expect(bounds.max.y).toBeCloseTo(27.61, 1);
-    expect(bounds.max.x - bounds.min.x).toBeGreaterThan(24);
-    expect(bounds.max.z - bounds.min.z).toBeGreaterThan(20);
+    expect(bounds.max.y).toBeCloseTo(26.12, 1);
+    expect(bounds.max.x - bounds.min.x).toBeCloseTo(23.87, 1);
+    expect(bounds.max.z - bounds.min.z).toBeCloseTo(21.4, 1);
     expect(
       LEIPZIGER_PLATZ_ARCHITECTURE_PROFILE.magentaMitte.sources.some(
         (source) => source.includes("telekom.com"),
@@ -164,13 +165,13 @@ describe("Leipziger Platz source-bound architecture details", () => {
     ).toBe(true);
   });
 
-  test("leaves building centres hollow instead of adding replacement boxes", () => {
+  test("leaves the covered passage, embassy and both office terraces open", () => {
     const details = createLeipzigerPlatzDetails();
     for (const [name, center] of [
       [GROUP_NAMES.mall, [563.374, 957.736]],
       [GROUP_NAMES.canada, [380.648, 945.665]],
-      [GROUP_NAMES.taylor, [376.463, 885.086]],
-      [GROUP_NAMES.magenta, [379.507, 854.014]],
+      [GROUP_NAMES.taylor, [366, 886]],
+      [GROUP_NAMES.magenta, [378, 854]],
     ] as const) {
       const raycaster = new Raycaster(
         new Vector3(center[0], 60, center[1]),

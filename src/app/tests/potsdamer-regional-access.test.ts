@@ -7,7 +7,7 @@ import {
 import {
   createPedestrianEnvironment, createPedestrianState, PEDESTRIAN_WALK_SPEED_MPS, stepPedestrian,
 } from "../src/pedestrianNavigation";
-import { schwellenraumFlightPointIsBlocked } from "../src/SchwellenraumNavigation";
+import { schwellenraumFlightPointIsBlocked } from "../src/schwellenraumNavigation";
 import type { VoxelPayload } from "../src/terrainPayload";
 import { disposeStaticAudit } from "./helpers/staticGeometryAudit";
 

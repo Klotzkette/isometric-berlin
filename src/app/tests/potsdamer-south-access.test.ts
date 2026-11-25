@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { Group, InstancedMesh, Mesh, Raycaster, Vector3 } from "three";
 import { createGroundSlabs } from "../src/terrainPayload";
 import { createPedestrianEnvironment, createPedestrianState, PEDESTRIAN_WALK_SPEED_MPS, stepPedestrian } from "../src/pedestrianNavigation";
-import { schwellenraumFlightPointIsBlocked } from "../src/SchwellenraumNavigation";
+import { schwellenraumFlightPointIsBlocked } from "../src/schwellenraumNavigation";
 import { createPotsdamerSouthAccess, installPotsdamerSouthNavigation } from "../src/PotsdamerSouthAccess";
 import { cutPotsdamerSouthGround } from "../src/PotsdamerSouthGround";
 import { POTSDAMER_DETAIL_PROFILE } from "../src/expandedCityProfiles";

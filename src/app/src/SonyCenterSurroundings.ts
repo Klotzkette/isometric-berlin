@@ -39,6 +39,9 @@ function facadeBoxes(
   const boxes: FacadeBox[] = [];
   for (const run of building.runs) {
     for (let segment = 0; segment < run.chain.length - 1; segment += 1) {
+      // The apartment tower's east and south displays now follow their exposed
+      // outer walls. Keep the separate west elevation in the legacy group.
+      if (building.id === "ritz-carlton" && run.prismId === "AyaY6CC9" && segment < 2) continue;
       const start = run.chain[segment];
       const end = run.chain[segment + 1];
       const dx = end[0] - start[0];
@@ -46,6 +49,10 @@ function facadeBoxes(
       const length = Math.hypot(dx, dz);
       if (length < 1) continue;
       const rotationY = -Math.atan2(dz, dx);
+      // The corrected sloping roofs expose the legacy windows and trim that
+      // were drawn up to the old flat roof. Keep only supported elements.
+      const eave = building.id === "ritz-carlton"
+        ? (run.prismId === "e1PTH7PY" ? 41.554 : 74.561) : Infinity;
       const add = (
         u: number,
         y: number,
@@ -55,6 +62,7 @@ function facadeBoxes(
         offset = 0.44,
         depth = 0.12,
       ) => {
+        if (run.groundY + y + height / 2 > eave) return;
         // In source winding the exterior is to the right of the chain.
         // Voxel bands are subdivided too: no continuous smooth facade double.
         const divisions = voxel ? Math.ceil(width / 5.5) : 1;
@@ -261,27 +269,6 @@ function addSegment(
       add(length / 2, crown, length, 0.3, 0xeeeae0, 0.64, 0.25);
     }
     add(length / 2, base - 0.5, length, 0.5, building.tone, 0.65, 0.32);
-    if (
-      building.id === "ritz-carlton" &&
-      run.prismId === "e1PTH7PY" &&
-      length > 35
-    ) {
-      const lobbyWidth = Math.min(12, length * 0.28);
-      add(length / 2, 2.65, lobbyWidth, 4.9, GLASS_LIGHT, 0.7, 0.28);
-      add(length / 2, 5.05, lobbyWidth + 1.2, 0.32, 0xd8d2c6, 1.08, 0.58);
-      for (const side of [-1, 1]) {
-        add(
-          length / 2 + side * lobbyWidth * 0.49,
-          2.75,
-          voxel ? 0.5 : 0.28,
-          5.3,
-          0xeee9df,
-          0.92,
-          0.28,
-        );
-      }
-      add(length / 2, 5.65, lobbyWidth * 0.72, 0.34, 0xb49b72, 0.98, 0.18);
-    }
   } else {
     add(length / 2, top, length, 0.35, SILVER, 0.54, 0.22);
     if (style === "curtain-wall") {

@@ -1,0 +1,34 @@
+{
+  "coordinateSystem": "EPSG:25833. x=easting-389500, z=5820000-northing. y is the existing model datum.",
+  "mallWestEntrance": {
+    "sources": [
+      "https://www.mallofberlin.de/center-info/anfahrt-s-und-u-bahn",
+      "https://www.openstreetmap.org/node/5479015632",
+      "https://www.openstreetmap.org/node/394948620",
+      "https://commons.wikimedia.org/wiki/File:Leipziger.Platz.Mall.of.Berlin.jpg",
+      "https://gdi.berlin.de/services/wms/truedop_2026?SERVICE=WMS&REQUEST=GetCapabilities"
+    ],
+    "photo": "Membeth, 2017-12-08, CC0. West facade in the presence of the Potsdamer Platz U-Bahn entrance.",
+    "registration": "OSM main entrance (531.02,998.15) on the west face of LP12. U-Bahn stair at (511.6,1010.6). Both front edges are vertices of the released LoD2 shells.",
+    "lower": {"part":"DEBE3Dpzh1IwtXlI", "edge":[[530.479,992.085],[532.900,1022.642]], "roofY":23.225, "wideBays":5},
+    "upper": {"part":"DEBE3DiRt8dZEY64", "edge":[[532.474,991.061],[534.811,1020.355]], "roofY":40.855, "windowPairsPerRow":5},
+    "interpretation": "The lower and upper permanent names, repeated window groups and projecting stone piers follow the exterior photograph. Profiles, individual pane sizes and colors are estimated."
+  },
+  "piazza": {
+    "sources":["https://tchobanvoss.de/de/projects/mall-of-berlin","https://www.openstreetmap.org/way/380243143","https://www.openstreetmap.org/way/380104431","https://www.openstreetmap.org/way/194066305"],
+    "photo":"Roland Halbe for Tchoban Voss, exterior and open-air Piazza photographs. Reference only.",
+    "registration":"OpenStreetMap footbridge loop with level=1;2. Four corner nodes locate the two transverse links and the gallery walks on either side. The stone floor is the surveyed November 2026 OSM pedestrian area 194066305 (2328.67 square metres), including both street approaches. The 24.3 m solid extrusions ANtdjIMa and f8929NwV were superseded by the visible decks at both ends. Deck elevations, gallery widths, shop window divisions, reflected colors and rail profiles are interpreted from the public Piazza photographs."
+  },
+  "canadianEmbassy": {
+    "sources":[
+      "https://www.kpmb.com/project/canadian-embassy-berlin/",
+      "https://www.cca.qc.ca/en/archives/166892/kuwabara-payne-mckenna-blumberg-fonds/489929/architectural-projects/502089/canadian-embassy-berlin-germany-1999-2005",
+      "https://gdi.berlin.de/data/a_lod2/atom/LoD2_389_5819.zip"
+    ],
+    "sourceZipSha256":"86084bf012830c373bbcb4ac1ca2814153430bb9a1eb6d8271b1f7fc8ccecd17",
+    "squarePhoto":"https://www.kpmb.com/wp-content/uploads/2016/05/9903_N128_300dpi-scaled.jpg",
+    "ebertPhoto":"https://www.kpmb.com/wp-content/uploads/2016/05/9903_N98_300dpi-scaled.jpg",
+    "registration":"The diagonal lower square wall of part DEBE3DYO57c7Jtdb spans (385.909,984.756) to (404.669,962.634); the Ebertstraße wall belongs to DEBE3DXLyhYfJwcC. The projected upper section of the diagonal facade fits under its LoD2 roof profile. Three louvred lower bays and two narrower wings on the square are distinguished from the broad screen on Ebertstraße. Glazing, blinds, metal finishes and flags interpret the architects' exterior photographs."
+  },
+  "native": "scripts/build_leipziger_voxel_fronts_v385.py extracts the exterior faces of the actually occupied four-metre columns at each elevation. Each trim, glass and stone panel is clipped to its exposed source face."
+}

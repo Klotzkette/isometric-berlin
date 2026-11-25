@@ -1,0 +1,232 @@
+{
+  "additions": {
+    "src/app/src/EbertstrasseOfficeDrawnV385.ts": "4550510239b5c5acdfa3f8df8283a83c90f4c3bf78411c1d2704630c1f99dd8d",
+    "src/app/src/EbertstrasseOfficesV385.ts": "1fea2236452b6ebd361bf7e7289d5a0c0ef52791ae0d77866ee62b4167c5f7b7",
+    "src/app/src/LeipzigerPublicFrontsV385.ts": "8af2f16194062c1a693c7260ea086fcd59bd77e58f94aac67ff72057d0096631",
+    "src/app/src/RitzCanopyV385.ts": "cedf79399f92629796ca23b7f9d9382d3530bd2c86ffcc840cc0c0807057ef14",
+    "src/app/src/RitzPortalsV385.ts": "a771f3123817c55c41b7255f53df1ed0459da666caee83b6e2cd62f61937f89b",
+    "src/app/src/RitzSurfacesV385.ts": "9842565f47e537a36101a161bc878623db885db9f8d9d4412b11c4163e4fdaea",
+    "src/app/src/data/ebertstrasseOfficesV385/magenta_drawn.json": "0211ad7ea1e69176e9900b53f71bc46609541d2dec29f61c6f474c1b8e840dcb",
+    "src/app/src/data/ebertstrasseOfficesV385/magenta_native.json": "c1cbd78004bdf491d72a6fd4826e1521d19449c43231733af7848db53efe0dda",
+    "src/app/src/data/ebertstrasseOfficesV385/owners.json": "e899e180af74beac393b4e7a5ff628794f86511368bd0afafe7061af87fef14a",
+    "src/app/src/data/ebertstrasseOfficesV385/taylor_drawn.json": "d46bdebab2c996d39a4a5b75ec68ea783218b27d80bd5d96e379ec53122e83cd",
+    "src/app/src/data/ebertstrasseOfficesV385/taylor_native.json": "9f25c45e3bc203f1f820a493c6051bd47a047eca4efced04ea22df20c37ce345",
+    "src/app/src/data/leipzigerVoxelFrontsV385.json": "bcb4e4db1d8b9edeb6540474403aadffb5708c3b8aad460a3fae5c36ae5c6295",
+    "src/app/src/data/mallAltMitteV385.json": "9505f37680478ee0086d64b475fd13acf8ec511e7076d04c55f6dd35fd3201a8",
+    "src/app/src/data/mallBridgeRoofsV385.json": "f9f1e38c25c1fb3a4a6100e37b09fea4984680f820db96f66b2f90d30f1263d4",
+    "src/app/src/data/mallWestForecourtV385.json": "1525b3b02757fc66bf0e647d726c86a4c6b9adf69993b55a4276dc2861b1683d",
+    "src/app/src/data/potsdamerForecourtsV385.json": "1371f75de19f3a04916540c4950bd8ebf868de68a38e0fa88f65c4d516f823bb",
+    "src/app/src/data/ritzRoofsV385.json": "2eb6451c98260b59efe090082037a7661ef314d2a8c2c15bbf9aae778df54923",
+    "src/app/src/data/stelenfeldAltMitteV385.json": "9de68be1e0cf2458d412870ea6db836e2790e6ba9b7c88171320133e80e20889",
+    "src/app/src/data/stelenfeldV385/field.json": "e46595bb3bd126e6237938c5ffeabbbb6c220a8a3d2dd4649214f89f9e4d97d8",
+    "src/app/src/data/stelenfeldV385/owners.json": "dd854292bd0e88681d9f2d92d3b85c1b33549dc8dfb66a4f1e6d77c4590b7c46",
+    "src/app/src/data/stelenfeldV385/rim.json": "5ac70019dcd5f026a7133ca4b49c2918b8108bf1c5910d987f385cefbea85456",
+    "src/app/src/data/stelenfeldV385/roads.json": "9c26726a45677022a96c32be1e911cfe8a97e0f212a0b15353122c9947dc6e02",
+    "src/app/src/ebertstrasseOfficeOwnersV385.ts": "e8aa1f54e93ab695562669bf6b3cbba61d3026086dc173de54c75de98fac136e",
+    "src/app/src/leipzigerVoxelFrontV385.ts": "8a105e47e6bf54eee095d2fce2110fbfb8ff36de738b47e1fc006fc4df06ffd5",
+    "src/app/src/mallBridgeNavigationV385.ts": "78c6a2fd011754d49dcc8ab8b0bf0b9fa80b5be1eda739ddb95fa4599e1fa256",
+    "src/app/src/mallPiazzaV385.ts": "152eb799f8b18b60ea1f1fa116a3d3ae5a6003560fa0de7319449f6081a2a1b3",
+    "src/app/src/potsdamerForecourtsV385.ts": "12ce2aef6d70086d38ad2e90018320073d10da53f91d99b511853db944ed7a80",
+    "src/app/src/potsdamerNativeWallV385.ts": "7311528187bb72587ea5bb6db4d285548513b9324a0648043f1c112c8018e128",
+    "src/app/src/potsdamerPlatzViewsV385.ts": "db9345927ca2b1b085b9f87559b3b5f564c82316021df1487e6cb4f4710ffc86",
+    "src/app/src/potsdamerQuartierV385.ts": "c22da78486c2302074831d3e61dda32b84b18bfacd4f5b2d5ad936609ac07600",
+    "src/app/src/potsdamerWallExhibitsV385.ts": "5683e307ac1deb692b7ef2edaf0d3ec27ede92e0658aa95d6694061fb8e61296",
+    "src/app/src/railTransportRemainderV385.ts": "59bb2a29fd73c6249e4eb0ae04b72ed692af0daa6ac5da4454f14ab39e343432",
+    "src/app/src/registeredAltMitteGeometryV385.ts": "63638c35683c26918bb722d8529d88033ed0be957074bb80d54f41ffcd0d883f",
+    "src/app/src/ritzCanopyProfileV385.ts": "de183bf61ad1fa5f340e4c204be9a7b9241b4f37ee1766505b6621bfeaaa18f0",
+    "src/app/src/ritzRoofsV385.ts": "a79e2aafc39f796a48531fab88cde25ecd33c7babcbba293bdce46227c73657f",
+    "src/app/src/stelenfeldAltMitteNavigationV385.ts": "12edeaa93d8f4f825af57fcb910967a39b50c75cc53c950f0fe50f10939b0c64",
+    "src/app/src/stelenfeldAltMitteV385.ts": "2948791516e6590b67212cdefbd4ddff2dac78b2116597b43adaeb093abe7325",
+    "src/app/src/stelenfeldPavingV385.ts": "e6077ce2eeffcdae0cd29f38e6be4f1e3833a387b609b98f1475fdf7b744ab30",
+    "src/app/src/stelenfeldRimV385.ts": "8098cd0df8e91286cb8ef7f077b9a593c4b90be0e930f65cda4cfff786f87772",
+    "src/app/src/stelenfeldSiteV385.ts": "ddc904906ded2bbdc4045daab5d17b4d92e6a6e74277597e968c912474ba5866"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "after": "e0ae968296366f53800527d19a7158f4e7a39aa61cf6a9cc72c7f99021f7f9bf",
+      "before": "aadb21ba433c61258df3128b701dd138d0f48574b6e2ff0dacc38e08409a775b"
+    },
+    "src/app/src/AltMitteCoreV169.ts": {
+      "after": "d6e8c0fec8b11d37c49363c384bed877d8ac88f703507283afa960898654a840",
+      "before": "bdef06f724a776d1599fd6ba490ea47a2f790e37a69b03c51d2b37f8f4853441"
+    },
+    "src/app/src/App.tsx": {
+      "after": "0eaf5759a533315eb9c84aa2708a039764fac67f9ce6ca63cf4f5a49019bf9bd",
+      "before": "4eed0dfbddd05defe2449ed7127403fc7f288bb231892f9ddf6c0d8809f12aae"
+    },
+    "src/app/src/CoreAllotmentDetailsV360.ts": {
+      "after": "2ab3afcb41ab9a9255a9c3923acee335a57fd80ef8b2219af65936966f96dbc9",
+      "before": "b7b6d0d7efc2b09bac9919669382cb0aad673a1133ec2418658c2ac0c80acd5f"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "after": "c3a133f26388b221893d660dce7ac54f132f4a746ea3bc2c1560dd7099fd54b7",
+      "before": "cda176b8aa159af5e14fbd1e15d28deff1db2c461d6e90f305f5419290a0f73c"
+    },
+    "src/app/src/LeipzigerPlatzDetails.ts": {
+      "after": "1450531d9d426132a2da914015706c9c1798b658f28e982d04de15817a1df8b6",
+      "before": "86e27ffa80e4f48067561cf4964aaca19e71aa41b3c85c8b2b77a6b0d3ad482a"
+    },
+    "src/app/src/MallAndVosspalaisDetails.ts": {
+      "after": "0c85334cd1158cee8812c617511d0e361f8a510c963ed73902107396c92fb4ce",
+      "before": "7bedc7176cc80d920f17305f49acc2a091d72999d841297ebe69a7b81dc2ed17"
+    },
+    "src/app/src/MemorialLandmarks.ts": {
+      "after": "3ca11cbcf975bd3e7b8dea9a027402f45d8e8599133eecf76fab998b89f81e8f",
+      "before": "6865b96816af2399b15f4653057f9b39230ba059514e7075355405a80aef2366"
+    },
+    "src/app/src/MinecraftMobs.ts": {
+      "after": "3ee3cc1b85b9999d0697b8cda6c0d96cff5d69d8bf226f9484e165d410cbc166",
+      "before": "1e307c530b34fc219b143998b4d6ad13d8c392495bfae7765f664cb18b452394"
+    },
+    "src/app/src/MinecraftVoxelWorld.ts": {
+      "after": "e6ed71472618b2eedee47b8fca287fafc4fa7c92d9dbdec143a8da11e415d0e8",
+      "before": "9a751d626e3a44e5f56b5aab069870f789f815c2d4004e6670e11441a4f8e1e7"
+    },
+    "src/app/src/NorthCoreActualTerrainV310.ts": {
+      "after": "6e59dab9edd8bf236892a7411b24998f4870d098dae6b4b57fabade9dc934546",
+      "before": "acd1f693c60fbfdd94d965b53ad6a43ae673fef1dc0c2a32403b6ccc05d09a44"
+    },
+    "src/app/src/NorthernFidelityV309.ts": {
+      "after": "c2e1bf305e7c9715e94fafc15511aefdc677025a3d700a09c42c6e17c3451145",
+      "before": "fa206382f8784a39308f07bf2e6873319131aa471b612963f4de26a7dc681741"
+    },
+    "src/app/src/PotsdamerPlatzPublicRealm.ts": {
+      "after": "b257ba7053bfb8f022aaac2e60608e705f27cedca0bc195dd16ed1bacfbdd282",
+      "before": "030004f3083cbe9464544d4844e8f90f5bcb1b58c5acab029804d20eddf6eefb"
+    },
+    "src/app/src/PotsdamerTrafficTower.ts": {
+      "after": "36d4e758e50206d98f73ce1b70ee5717d15d3ad1e0ffdeae9a1c1825a3856463",
+      "before": "82a0d016fe2441d511b09297bdb21d65421d87e0b7840dff525632b0f0c6e492"
+    },
+    "src/app/src/RailSseLegacyV307.ts": {
+      "after": "01d10abf0695c02ecfdd4243fdcec2587f29419a51145579c358bbef3031a435",
+      "before": "40758dc9258ed582add0f56894ef2986596c879b6ced4077c345293ca864b7b6"
+    },
+    "src/app/src/SnowstormEffects.ts": {
+      "after": "af982fe8486c1a9d9972f81320388acf0cf50995f646f877588ac4a0eb8c65a6",
+      "before": "dfe0ef9c62db1123a83c0e337d5d9382c8a19746efbb0a36dafe305be4c82442"
+    },
+    "src/app/src/SonyCenterSurroundings.ts": {
+      "after": "f0154e4cea1dd5abfa9207eee9962758adb8d086a58b1d41779a52fb027f725f",
+      "before": "d25aded6f690b52c7d164c1650eb72c4f0f2b4f97bac7abc60ec5c293109758c"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "after": "a30f04363ac5479764699d8644010e42a71b2c343ecdb58f936b1d2fe7d0d2aa",
+      "before": "a164013019efbe95af218621803172542328abbe1d1874cff9756d852653aa32"
+    },
+    "src/app/src/TiergartenMonuments.ts": {
+      "after": "01b68d2b72d9722750ba52184712caedec9274ddca43c69abc3b9a184b6c99f7",
+      "before": "c1ca137bb9f765c0b7e9c10d16e948189dce3afc6d0c383a9f1c871790049e50"
+    },
+    "src/app/src/altMitteV169NavigationIndex.ts": {
+      "after": "b99b8541fbecb9fd48bdc7195d41b9b610e89bc90520a489a92f3ef23e769d99",
+      "before": "23bdce4076047479c135ba4995ac5f3a410773af0e7df9355267874f332a1d63"
+    },
+    "src/app/src/altMitteV169Profile.ts": {
+      "after": "1d4cd772ef14d3b3d4e24c49756aa700bec7511a977ea1845b2538c590f905b8",
+      "before": "f4939645daf9ad55aa190e91a32651a18d0665a615d5544822c9ae2b4a28e80c"
+    },
+    "src/app/src/berlinPlaceViewsV378.ts": {
+      "after": "46c2b8c5a2783918bd99e58303523cdd6d37f9b9a720d6f2535fecc2333c2db9",
+      "before": "d7448cea1531bf819c6569549d70dcf24635d7c2a283787ee9c8f85ecbce6b4a"
+    },
+    "src/app/src/berlinRegionsV380.ts": {
+      "after": "0b59993c2a0724a0dba54ba7abd4a37b09892afa1c7eded298c3693f8c26f880",
+      "before": "f75e85c44fd16fc5a846a46f0fa039de44055d0e7aa2b82f7ea56a13a31bdb0b"
+    },
+    "src/app/src/holocaustField.ts": {
+      "after": "0525e69d588fdb808d66b04d32a0a40699cb20996829f0eed1aa6c1d3c100876",
+      "before": "51c1ec403e4d435cd61ceed4a2439ebd9400ae0d9bffa8b48225103f7550f198"
+    },
+    "src/app/src/leipzigerPlatzSourceProfile.ts": {
+      "after": "f019757ca7cadd6b7a34423685d1275af6037e3616fcc3a56a49e0b6efe306b3",
+      "before": "c8fed2635cd53d0f74b2f152a10b0c1436831dd7fb5b25e7cf1a97cec70436e6"
+    },
+    "src/app/src/pedestrianNavigation.ts": {
+      "after": "4194d661c746a043fec0fcda6aeb4b8b907a0e5a5ff80665ef9c21e854374a54",
+      "before": "27e9214ee942d0bfa3e1832c14b12a7a9646105f4dbcbb943e956a906d9fec38"
+    },
+    "src/app/src/potsdamerTrafficTowerProfile.ts": {
+      "after": "1f831f3017b4e8cc377bca8a179b252749c583492e6cc2e18e7d77098cf3c6bf",
+      "before": "796f22e387a4a0c51cebb2444559b6629b5bd77b217995b8d195a9df93ff6f07"
+    },
+    "src/app/src/restoredRoadSurfaces.ts": {
+      "after": "f9fc22f7fa1ce2788cb3a1874793fb1e82c2618706ab540bada41d873980f668",
+      "before": "fd42b4ece2f70d3965dd7231c8a3d63d839eb3eef0293861dd080591a94f9d64"
+    },
+    "src/app/src/startupView.ts": {
+      "after": "f54405935e2115988032e7885f943c80ac9954eb5a0154e68b31e8febf77468f",
+      "before": "a8c6ca58a4d66e25886b6de7739e907950ecef5000c2a4ba7c24e7b07a30f4b7"
+    }
+  },
+  "sources": {
+    "geo_data/regierungsviertel/ebertstrasse-offices-v385.json": {
+      "after": "1c74ff267f63fe4fcde028240d4f57a8593cca23aaf43d279af6a027951fc747",
+      "before": null
+    },
+    "geo_data/regierungsviertel/leipziger-platzfronten-v385.json": {
+      "after": "5a2277653158e4c42ffaaeb69f2bb0d64bf1c3c8c079d5a35423806ef3fbae21",
+      "before": null
+    },
+    "geo_data/regierungsviertel/mall-westeingang-v385.json.gz": {
+      "after": "3504bd7bad16efa0f2f5e66126c0ac8b448cf50ae80f3d69289f614b215e0609",
+      "before": null
+    },
+    "geo_data/regierungsviertel/potsdamer-eingangswege-v385.json.gz": {
+      "after": "759103f146404ee089c4eb939cbe2974054d1659330cce5708b011d5157d2f57",
+      "before": null
+    },
+    "geo_data/regierungsviertel/ritz-roofs-v385.json.gz": {
+      "after": "33e591b693a9477f3e470de7a466bb11f4b0ee0cb90464f7a1783f0e16ca519b",
+      "before": null
+    },
+    "geo_data/regierungsviertel/stelenfeld-rand-v385.geojson.gz": {
+      "after": "e3a748d1d78e1b4bbedcc6dba5f728dbe79636f9feea4d2853f736ec991f353d",
+      "before": null
+    },
+    "geo_data/regierungsviertel/stelenfeld-v385.json.gz": {
+      "after": "6e70ad475187e55b20fdb52fdbd01b9f4ac67e16b5481074d33d0d0bc7e8051b",
+      "before": null
+    },
+    "scripts/build_ebertstrasse_offices_v385.py": {
+      "after": "76457b1c639faff593cd03b4bf4c59fb091a5f3ced3df0cf2fc99789589e7824",
+      "before": null
+    },
+    "scripts/build_leipziger_voxel_fronts_v385.py": {
+      "after": "390d382fcae9341490fe3ffc845ae81f663ff1fa1e6216f6cc64d99bd4f1adea",
+      "before": null
+    },
+    "scripts/build_mall_altmitte_v385.py": {
+      "after": "ae552c2a8e255e6cbf8614980b0166fe3b700a42dc7d2d72c62275df19838706",
+      "before": null
+    },
+    "scripts/build_mall_bridge_roofs_v385.py": {
+      "after": "3f37963265e1569341c869c10ab01698f8aa061a7b3b44e53f2bbf4d36460d09",
+      "before": null
+    },
+    "scripts/build_potsdamer_forecourts_v385.py": {
+      "after": "af7bb9c2ec76b8efd04303713f8d0f7b037dbfea5bf2198f13a044eca843064e",
+      "before": null
+    },
+    "scripts/build_ritz_roofs_v385.py": {
+      "after": "174f158382c9b90087f960c616f9a4cc649e9a86cb94743cc870e603d0cc9732",
+      "before": null
+    },
+    "scripts/build_stelenfeld_altmitte_v385.py": {
+      "after": "30683086b7f91795aaa76da202eb8962af6a15b2bc440df73fa83f90c740b84b",
+      "before": null
+    },
+    "scripts/build_stelenfeld_rim_v385.py": {
+      "after": "f266d89c1de9d500cc94502f78b4889186e213bb25757d1f2e14cc1d2eb3e737",
+      "before": null
+    },
+    "scripts/build_stelenfeld_road_edges_v385.py": {
+      "after": "de037f6e99744a6c4e6508f8bf4eb94f75ff5755e17e04c03de6f3c1c96c4d57",
+      "before": null
+    },
+    "scripts/build_stelenfeld_v385.py": {
+      "after": "92c31857bef9f28959bd36eb1372b52e89ddca74edfac3cc20a66923818be0f4",
+      "before": null
+    }
+  }
+}

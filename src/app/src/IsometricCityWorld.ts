@@ -108,6 +108,7 @@ import { CAFE_NEUER_SEE_V164_PRISM_IDS } from "./cafeNeuerSeeV164Profile";
 import { SPANISH_EMBASSY_V164_PRISM_IDS } from "./spanishEmbassyV164Profile";
 import { GROSSER_STERN_GATEHOUSES_V164_PRISM_IDS } from "./grosserSternGatehousesV164Profile";
 import { cutGrosserSternGatehouseGroundSurface, restoreGrosserSternGatehouseGroundOwnership } from "./terrainPayload";
+import { cutStelenfeldPavingV385 } from "./stelenfeldPavingV385";
 import { HACKESCHER_MARKT_V163_PRISM_IDS } from "./hackescherMarktV163Profile";
 import { WEST_SQUARES_V163_PRISM_IDS } from "./westSquaresV163Profile";
 import { ULAP_QUARTER_IDS } from "./ulapQuarterProfile";
@@ -119,6 +120,11 @@ import { EAST_CIVIC_PRISM_IDS } from "./eastCivicProfile";
 import { RUSSIAN_EMBASSY_SOURCE_IDS } from "./RussianEmbassySourceGeometry";
 import { cutUnterDenLindenSurfaceApertures } from "./UnterDenLindenSurfaceApertures";
 import { GENDARMENMARKT_PRISM_IDS } from "./gendarmenmarktProfile";
+import { ritzRoofV385 } from "./ritzRoofsV385";
+import { isRitzCanopyV385 } from "./ritzCanopyProfileV385";
+import { createRitzCanopyV385 } from "./RitzCanopyV385";
+import { EBERTSTRASSE_OFFICE_PARTS_V385, ebertstrasseTerracePrismV385 } from "./ebertstrasseOfficeOwnersV385";
+import { replacesStelePrism, stelenfeldOwnsGroundCell } from "./stelenfeldSiteV385";
 import { isMehringplatzPrismV383 } from "./mehringplatzOwnersV383";
 import { GENDARMENMARKT_PERIMETER_REPLACED_PRISM_IDS } from "./gendarmenmarktPerimeterIds";
 import { createChariteHistoricFacades } from "./ChariteHistoricFacades";
@@ -324,7 +330,7 @@ import {
 } from "./Reichstagspraesidentenpalais";
 import { createFederalStateRepresentations, SACHSEN_ANHALT_FACADE_IDS } from "./FederalStateRepresentations";
 import { SONY_SURROUNDINGS_PRISM_TONES } from "./sonyCenterSurroundingsProfile";
-import { LEIPZIGER_SOURCE_PRISM_IDS } from "./leipzigerPlatzSourceProfile";
+import { LEIPZIGER_SOURCE_PRISM_IDS, MALL_PIAZZA_BRIDGE_PRISMS } from "./leipzigerPlatzSourceProfile";
 import { POTSDAMER_MINISTRY_REPLACEMENT_IDS } from "./potsdamerMinistryProfile";
 import { BIKINI_REPLACEMENT_IDS } from "./bikiniProfile";
 import { WILHELM_REFINEMENT_PRISM_TONES } from "./wilhelmRefinementProfile";
@@ -1129,7 +1135,7 @@ export const PRISM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
   // Both complete church towers are reconstructed at their original OSM
   // anchors; these former solid extrusions close the ruin's actual openings.
   "15218372", "15218373",
-  ...LEIPZIGER_SOURCE_PRISM_IDS, ...POTSDAMER_MINISTRY_REPLACEMENT_IDS,
+  ...LEIPZIGER_SOURCE_PRISM_IDS, ...MALL_PIAZZA_BRIDGE_PRISMS, ...POTSDAMER_MINISTRY_REPLACEMENT_IDS,
   ...DHM_PRISM_IDS, ...EAST_CIVIC_PRISM_IDS, ...RUSSIAN_EMBASSY_SOURCE_IDS, ...ALEXANDER_CIVIC_PRISM_IDS,
   ...GENDARMENMARKT_PERIMETER_REPLACED_PRISM_IDS,
   ...GENDARMENMARKT_PRISM_IDS,
@@ -1834,6 +1840,7 @@ function isRenderablePrismBuilding(building: PrismBuilding): boolean {
   return !(
     building.ring.length < 3 ||
     PRISM_SUPPRESSED_IDS.has(building.id) ||
+    replacesStelePrism(building) ||
     isMehringplatzPrismV383(building) ||
     isInterimOfficeFootprintSuppressed(building) ||
     isFriedrichstrasseStationFootprintSuppressed(building) ||
@@ -1924,7 +1931,7 @@ export function createDistantBuildingShells(
     (options.includeLegacyWeddingStationRoof !== false || !isWeddingRoofCoreV229(building)) &&
     (options.includeLegacySchlossplatzEnvelopes !== false || !isSchlossplatzCorePrismV239(building)) &&
     (options.includeLegacyColonnadesEnvelopes !== false || !isColonnadesCorePrismV231(building)))
-    .map(resolveHumboldthafenPrism).filter(isRenderablePrismBuilding);
+    .map(building => ebertstrasseTerracePrismV385(resolveHumboldthafenPrism(building))).filter(isRenderablePrismBuilding);
   group.userData.sourceBuildingCount = buildings.length;
   group.userData.visibleBuildingCount = visible.length;
   group.userData.representation = "indexed source footprints, open courts and source-code roofs";
@@ -1957,6 +1964,10 @@ export function createDistantBuildingShells(
   };
   const cityWestFronts = new CityWestFrontBatchV379();
   for (const building of visible) {
+    if (isRitzCanopyV385(building)) {
+      group.add(createRitzCanopyV385(false));
+      continue;
+    }
     const y0 = building.y0_dm / 10;
     const totalHeight = Math.max(2.5, building.h_dm / 10);
     const isGlass = isGlassPrismBuilding(building, prisms.classes);
@@ -1990,7 +2001,7 @@ export function createDistantBuildingShells(
       }
     }
     const lehrterRoof = lehrterKulturhausRoofV366(building);
-    const measuredRoof = lehrterRoof ?? zilleEstateRoofV366(building);
+    const measuredRoof = lehrterRoof ?? zilleEstateRoofV366(building) ?? ritzRoofV385(building);
     if (measuredRoof) {
       bodyHeight = measuredRoof.wallHeight;
       if (!roofTriangles) group.userData.pitchedRoofCount += 1;
@@ -2076,6 +2087,7 @@ export function createDistantBuildingShells(
       }
     }
   }
+  if (!positions.length) return freezeStaticSceneTransforms(group);
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
   geometry.setAttribute("normal", new Int8BufferAttribute(normals, 3, true));
@@ -2934,6 +2946,7 @@ export function windowFormatForBuilding(
 // these buildings. Generic prism panes underneath would double the windows,
 // create z-fighting and obscure the documented facade rhythm.
 export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...EBERTSTRASSE_OFFICE_PARTS_V385,
   ...MOABIT_GUARD_HOUSE_IDS,
   ...ULAP_QUARTER_IDS,
   ...CHARITE_HISTORIC_FACADE_IDS,
@@ -2969,6 +2982,7 @@ export const WINDOWS_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 // these parts. Suppress only the generic trim pass; the measured LoD2 prism
 // itself remains present and collision-authoritative.
 export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...EBERTSTRASSE_OFFICE_PARTS_V385,
   ...MOABIT_GUARD_HOUSE_IDS,
   ...ULAP_QUARTER_IDS,
   ...FRIEDRICHSTRASSE_ARCHITECTURE_IDS,
@@ -2996,6 +3010,7 @@ export const GENERIC_FACADE_TRIM_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
 // Wallot's two affected Palais roof parts instead use source-bounded crest
 // and fixture details in the dedicated recognition layer.
 export const GENERIC_CHIMNEY_SUPPRESSED_IDS: ReadonlySet<string> = new Set([
+  ...EBERTSTRASSE_OFFICE_PARTS_V385,
   ...FRIEDRICHSTRASSE_ARCHITECTURE_IDS,
   ...SACHSEN_ANHALT_FACADE_IDS,
   ...LUISEN_CORRIDOR_IDS,
@@ -10597,6 +10612,10 @@ export function createSmoothSurfaces(
     if (!plate) {
       continue;
     }
+    if (surface.kind === "paving") {
+      const opened = cutStelenfeldPavingV385(plate);
+      if (opened !== plate) { plate.dispose(); plate = opened; }
+    }
     if (surface.kind === "metal") {
       const opened = cutUnterDenLindenSurfaceApertures(plate);
       if (opened !== plate) { plate.dispose(); plate = opened; }
@@ -12229,6 +12248,10 @@ export function* createIsometricCityCoreStepsV309(
       onProgress?.({ phase: "buildings", completed: inspectedBuildings - 1, total: buildings.length });
       yield;
     }
+    if (isRitzCanopyV385(sourceBuilding)) {
+      group.add(createRitzCanopyV385(false));
+      continue;
+    }
     if (parisMoskauV354?.replacesPrism(sourceBuilding)) continue;
     if (options.chancelleryCanopySourceV289 && isChancelleryCanopyOldPrismV289(sourceBuilding)) continue;
     if (options.moabitMitteV300 && isMoabitMitteV300OldCore(sourceBuilding)) continue;
@@ -12261,7 +12284,7 @@ export function* createIsometricCityCoreStepsV309(
     if (options.includeLegacyColonnadesEnvelopes === false && isColonnadesCorePrismV231(sourceBuilding)) continue;
     if (options.includeLegacyWeddingStationRoof === false && isWeddingRoofCoreV229(sourceBuilding)) continue;
     if (options.includeLegacyHungarianEnvelope === false && HUNGARIAN_EMBASSY_V208_PROXY_IDS.has(sourceBuilding.id)) continue;
-    const building = resolveHumboldthafenPrism(sourceBuilding);
+    const building = ebertstrasseTerracePrismV385(resolveHumboldthafenPrism(sourceBuilding));
     if (!isRenderablePrismBuilding(building)) {
       continue;
     }
@@ -12314,7 +12337,7 @@ export function* createIsometricCityCoreStepsV309(
       }
     }
     const lehrterRoof = lehrterKulturhausRoofV366(building);
-    const measuredRoof = lehrterRoof ?? zilleEstateRoofV366(building);
+    const measuredRoof = lehrterRoof ?? zilleEstateRoofV366(building) ?? ritzRoofV385(building);
     if (measuredRoof) {
       bodyHeight = measuredRoof.wallHeight;
       roofTriangles = measuredRoof.triangles;
@@ -13502,7 +13525,7 @@ export function* createIsometricCityCoreStepsV309(
         skipClasses:
           surfaces && !options.retainRasterAsphalt ? ["asphalt"] : undefined,
         skipBridge: true,
-        skipAtWorld: (x,z) => pointInUnterDenLindenEntranceRegion(x,z) || isBebelLibraryGroundCell(x,z) || pointInBrandenburgApproach(x,z,ground.cell_m / Math.SQRT2) ||
+        skipAtWorld: (x,z) => (ground.cell_m === 4 && stelenfeldOwnsGroundCell(x,z)) || pointInUnterDenLindenEntranceRegion(x,z) || isBebelLibraryGroundCell(x,z) || pointInBrandenburgApproach(x,z,ground.cell_m / Math.SQRT2) ||
           isSpreebogenRasterReplacementAt(x,z,ground.cell_m) ||
           Boolean(insideTunnelApproach?.(x,z) || insideTillaDurieux?.(x,z)),
         skipWater: true,

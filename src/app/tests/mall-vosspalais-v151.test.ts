@@ -78,8 +78,8 @@ describe("complete Mall and Voßpalais source presentation",()=>{
   test("uses fixed geometry under bounded budgets and separate native facade and glass batches",()=>{
     const drawn=createMallAndVosspalaisDetails(),native=createMallAndVosspalaisDetails({minecraft:true});
     const d=budget(drawn),n=budget(native),s=budget(createLeipzigerPlatzSourceShells());
-    expect(d.draws).toBe(3);expect(d.instances).toBeLessThan(5000);expect(d.bytes).toBeLessThan(390_000);
-    expect(n.draws).toBe(2);expect(n.bytes).toBeLessThan(420_000);expect(native.userData.blockNative).toBe(true);
+    expect(d.draws).toBe(4);expect(d.instances).toBeLessThan(5000);expect(d.bytes).toBeLessThan(390_000);
+    expect(n.draws).toBe(3);expect(n.bytes).toBeLessThan(420_000);expect(native.userData.blockNative).toBe(true);
     expect(s.draws).toBe(17);expect(s.bytes).toBeLessThan(405_000);
     for(const root of [drawn,native])root.traverse(o=>expect(o.matrixAutoUpdate).toBe(false));
   });

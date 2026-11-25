@@ -1,4 +1,9 @@
 import { transferGatehouseCoresV374 } from "./BrandenburgGatehouseSourceV374";
+import { retireStelenfeldAltMitteFloor } from "./stelenfeldAltMitteV385";
+import { STELENFELD_LOD2_PARENT } from "./stelenfeldAltMitteNavigationV385";
+import { MALL_PIAZZA_LOD2_PARENT } from "./mallBridgeNavigationV385";
+import { retireRegisteredAltMitteGeometry, type AltMitteRegistrationV385 } from "./registeredAltMitteGeometryV385";
+import mallBridges from "./data/mallAltMitteV385.json";
 import { Group } from "three";
 import {
   buildCityChunkWithPaletteV362,
@@ -45,6 +50,8 @@ export function* buildAltMitteCoreV169Steps(
   let geometryBytes = 0,
     bufferCount = 0;
   const ids = new Set<string>();
+  const hasStelenfeld = payload.sourceParents.includes(STELENFELD_LOD2_PARENT);
+  const hasMallBridges = payload.sourceParents.includes(MALL_PIAZZA_LOD2_PARENT);
   let completed = false;
   try {
     for (const chunk of chunks) {
@@ -64,6 +71,9 @@ export function* buildAltMitteCoreV169Steps(
         ownership,
       );
       if (!native && ownership.gateWingsV374) transferGatehouseCoresV374(decoded.root, chunk.id);
+      if (hasStelenfeld) retireStelenfeldAltMitteFloor(decoded.root, chunk.id, native);
+      if (hasMallBridges) geometryBytes += retireRegisteredAltMitteGeometry(decoded.root, chunk.id, native,
+        mallBridges as unknown as AltMitteRegistrationV385, "mallBridgeFacesV385", "mallBridgeLinesV385");
       decoded.root.name = `${root.name}: ${chunk.id}`;
       decoded.root.userData.sourceGeometry =
         "Geoportal Berlin LoD2; complete measured Alt-Mitte source envelopes";

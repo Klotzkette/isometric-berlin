@@ -9,7 +9,7 @@ import {
   createPedestrianEnvironment, createPedestrianState, PEDESTRIAN_WALK_SPEED_MPS, stepPedestrian,
 } from "../src/pedestrianNavigation";
 import { POTSDAMER_SBAHN_Y, potsdamerSBahnFloorAt } from "../src/PotsdamerSBahn";
-import { resolveSchwellenraumFlightTranslation, schwellenraumFlightPointIsBlocked } from "../src/SchwellenraumNavigation";
+import { resolveSchwellenraumFlightTranslation, schwellenraumFlightPointIsBlocked } from "../src/schwellenraumNavigation";
 import { createGroundSlabs, smoothGroundTopSampler, type VoxelPayload } from "../src/terrainPayload";
 import { createRestoredRoadBatch, type RestoredRoadBatch } from "../src/restoredRoadSurfaces";
 import { deserializeTransferredObject3D, serializeObject3DForTransfer } from "../src/transferableObject3D";

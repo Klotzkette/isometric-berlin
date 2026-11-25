@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import ts from "typescript";
 import { binaryRoadBatches } from "../src/binaryRoadBatchesV376";
+import { cutStelenfeldPavingV385 } from "../src/stelenfeldPavingV385";
 import { readRoadWordRecord, readRoadWordBatch, ROAD_PLANES_ENCODING } from "../src/roadWordPlanesV362";
 import {
   BufferAttribute, BufferGeometry, DoubleSide, Group, LineBasicMaterial,
@@ -39,7 +40,7 @@ function host(fetcher: (url: string) => Promise<unknown> = async () => { throw n
     },
     exports: {}, BufferAttribute, BufferGeometry, DoubleSide, Group,
     LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial, Raycaster, Vector3, markArchitecturalInk,
-    smoothGroundTopSampler, spreebogenTerrainYAt, freezeStaticSceneTransforms, cutGrosserSternGatehouseGroundSurface: cutter,
+    smoothGroundTopSampler, spreebogenTerrainYAt, freezeStaticSceneTransforms, cutGrosserSternGatehouseGroundSurface: cutter, cutStelenfeldPavingV385,
     roadDataUrl, binaryRoadBatches, fetch: fetcher,
     RESTORED_ROAD_MAX_LINE_CHARS: 2 * 1024 * 1024, indexGeometryExactly: indexer, decodeSizes, decodeLosslessGzipJson, readRoadWordRecord, ROAD_PLANES_ENCODING, inflatedRoadIds,
     readRoadWordBatch(record: ReturnType<typeof readRoadWordRecord>) {

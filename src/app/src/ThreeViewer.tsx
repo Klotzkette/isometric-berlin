@@ -50,6 +50,8 @@ import { prenzlbergV264GroundAt, prenzlbergV264SolidAt, prenzlbergV264TerrainAt 
 import { ubahnV261FloorAt, ubahnV261SolidAt } from "./ubahnEntrancesV261Profile";
 import { cutUbahnPresentationV261 } from "./UbahnSurfaceAperturesV261";
 import { eastCinemasWalkableInteriorV260, eastCinemasSolidAtV260 } from "./eastCinemasV260Navigation";
+import { setStelenfeldPresentation } from "./MemorialLandmarks";
+import { stelenfeldSolidAtV385 } from "./holocaustField";
 import { setSintiRomaMemorialPresentation } from "./SintiRomaMemorialV256";
 import { kulturforumPiazzettaFloorAt } from "./kulturforumPiazzettaV246Profile";
 import { aegCampusV241GroundAt, aegCampusV241SolidAt } from "./aegCampusV241Navigation";
@@ -3507,6 +3509,7 @@ function setSceneLighting(
   setWagnerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setBerlinJunctionPresentation(runtime.monuments, voxelMode);
   setSintiRomaMemorialPresentation(runtime.monuments, voxelMode);
+  setStelenfeldPresentation(runtime.monuments, voxelMode, runtime.lightingMode === "snowstorm");
   setWagnerMemorialSnow(runtime.monuments, isSnowstorm);
   setMoabitPrisonMemorialSmoothVisibility(runtime.culturalDetails, !voxelMode);
   runtime.culturalDetails.visible = recognitionVisible;
@@ -4675,6 +4678,7 @@ function prepareIsoNavigation(
       csdAttackMemorialSolidAt(x, y, z, radius) ||
       berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
       tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
+      stelenfeldSolidAtV385(x,y,z,radius) ||
       sovietMemorialSolidAt(x,y,z,radius) ||
       bismarckMoltkeSolidAt(x,y,z,radius) ||
       fiftyHertzExtensionSolidAt(x,y,z,1.8,radius) ||
@@ -6029,6 +6033,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
       csdAttackMemorialSolidAt(x, y, z, radius) ||
       berlinerEnsemblePublicArtSolidAt(x, y, z, radius) ||
       tiergartenLiteraryMemorialSolidAt(x, y, z, radius) ||
+      stelenfeldSolidAtV385(x,y,z,radius) ||
       sovietMemorialSolidAt(x,y,z,radius) ||
       bismarckMoltkeSolidAt(x,y,z,radius) ||
       fiftyHertzExtensionSolidAt(x,y,z,1.8,radius) ||
@@ -6968,6 +6973,7 @@ function setModelMaterialState(runtime: Runtime, underside: boolean): void {
   setWagnerMemorialSmoothVisibility(runtime.monuments, !voxelMode);
   setBerlinJunctionPresentation(runtime.monuments, voxelMode);
   setSintiRomaMemorialPresentation(runtime.monuments, voxelMode);
+  setStelenfeldPresentation(runtime.monuments, voxelMode, runtime.lightingMode === "snowstorm");
   setMoabitPrisonMemorialSmoothVisibility(runtime.culturalDetails, !voxelMode);
   runtime.culturalDetails.visible = recognitionVisible;
   runtime.parkDetails.visible = recognitionVisible;
@@ -7503,7 +7509,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       if (!runtime) {
         return;
       }
-      const extraStartCamera = startupOnlySight(name) ? startupFlightCamera(name) : null;
+      const extraStartCamera = startupOnlySight(name) ? startupFlightCamera(name, runtime.lightingMode === "minecraft") : null;
       const landmark = runtime.landmarkByName.get(name) ?? (extraStartCamera
         ? { world: extraStartCamera.target_world! } : undefined);
       if (!landmark) {
@@ -10995,6 +11001,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             voxelModeActive(runtime),
           );
           setSintiRomaMemorialPresentation(runtime.monuments, voxelModeActive(runtime));
+          setStelenfeldPresentation(runtime.monuments, voxelModeActive(runtime), runtime.lightingMode === "snowstorm");
           setWagnerMemorialSnow(
             runtime.monuments,
             runtime.lightingMode === "snowstorm",

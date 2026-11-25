@@ -1,5 +1,7 @@
 # Potsdamer Platz traffic tower — v1.0.12
 
+The subsequent survey of the roof, cabin, plinth and paving, with updated geometry budgets, is recorded in the [v1.0.265 model notes](ritz-und-verkehrsturm-v385.md).
+
 This step-10 change replaces the former solid, square, permanently three-coloured
 marker with one source-bound representation of the present-day replica. It adds
 no tour stop, changes no city bounds and does not alter the controls.

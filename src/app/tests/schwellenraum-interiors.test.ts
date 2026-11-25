@@ -182,7 +182,7 @@ describe("Schwellenraum accessible architecture", () => {
     expect(SCHWELLENRAUM_PROTECTED_VOLUMES.length).toBeGreaterThanOrEqual(17);
     expect(
       isSchwellenraumProtectedObjectName(
-        "Holocaust Memorial 2711 instanced stelae",
+        "Holocaust Memorial 2598 raised stelae",
       ),
     ).toBeTrue();
     expect(

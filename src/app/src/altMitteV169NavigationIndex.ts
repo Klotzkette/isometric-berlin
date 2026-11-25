@@ -59,7 +59,7 @@ function indexBounds(
  * The injectable constructor also permits exact ownership/courtyard fixtures. */
 export function createAltMitteV169NavigationIndex(
   data: AltMitteV169Navigation,
-  options: { lazy?: boolean } = {},
+  options: { lazy?: boolean; retiredDrawnRoofs?: readonly (readonly number[])[] } = {},
 ) {
   const buildColumns = () => {
     const columns = data.legacyPrisms.map((p) => ({
@@ -106,7 +106,13 @@ export function createAltMitteV169NavigationIndex(
     const count = coordinates.length / 9;
     const bounds = new Float64Array(count * 5);
     const roofIndex = new Map<string, number[]>();
+    const retired = options.retiredDrawnRoofs?.filter(([ordinal, ...xyz]) =>
+      Number.isInteger(ordinal) && ordinal >= 0 && ordinal < count && xyz.length === 9 &&
+      xyz.every((value, j) => value === coordinates[ordinal * 9 + j])
+    ).map(([ordinal]) => ordinal).sort((a,b) => a-b) ?? [];
+    let nextRetired = 0;
     for (let i = 0; i < count; i++) {
+      if (i === retired[nextRetired]) { nextRetired++; continue; }
       const j = i * 9, k = i * 5;
       const ax = coordinates[j], az = coordinates[j + 2];
       const bx = coordinates[j + 3], bz = coordinates[j + 5];

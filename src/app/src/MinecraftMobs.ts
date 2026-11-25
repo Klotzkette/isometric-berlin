@@ -14,7 +14,7 @@ import {
   type VoxelPayload,
   worldGroundSampler,
 } from "./terrainPayload";
-import { isHolocaustMinecraftProtectedAt } from "./holocaustField";
+import { isHolocaustMinecraftProtectedAt } from "./stelenfeldSiteV385";
 import { isLenneOakVoxelTree } from "./MinecraftLenneOak";
 
 export const CREEPER_COUNT = 6;

@@ -1,11 +1,32 @@
 import { expect, test } from "bun:test";
 import { createHash } from "node:crypto";
+import { gunzipSync } from "node:zlib";
+import retired from "./fixtures/ritz-retired-v385.json";
 import { Matrix4, type InstancedMesh } from "three";
 import { createSonyCenterSurroundings, createMinecraftSonyCenterSurroundings } from "../src/SonyCenterSurroundings";
 import { SONY_SURROUNDING_BUILDINGS, SONY_SURROUNDINGS_PROFILE } from "../src/sonyCenterSurroundingsProfile";
 
 function digest(matrix:Float32Array,colors:Float32Array):string {
   return createHash("sha256").update(new Uint8Array(matrix.buffer,matrix.byteOffset,matrix.byteLength)).update(new Uint8Array(colors.buffer,colors.byteOffset,colors.byteLength)).digest("hex");
+}
+// Reinsert the retired Ritz spans from v1.0.264 at their original
+// indices. The v284 whole-batch hashes continue to protect every neighbour.
+function predecessor(matrix:Float32Array,colors:Float32Array,spans:typeof retired.drawn) {
+  const count=matrix.length/16+spans.reduce((n,v)=>n+v.count,0);
+  const output=new Float32Array(count*16),rgb=new Float32Array(count*3);
+  let current=0;
+  for(let i=0;i<count;){
+    const span=spans.find(v=>v.at===i);
+    if(span){
+      const bytes=gunzipSync(Buffer.from(span.data,'base64'));
+      expect(bytes.byteLength).toBe(span.count*76);
+      const floats=new Float32Array(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
+      for(let j=0;j<span.count;j++,i++){
+        output.set(floats.subarray(19*j,19*j+16),16*i);rgb.set(floats.subarray(19*j+16,19*j+19),3*i);
+      }
+    }else{output.set(matrix.subarray(current*16,current*16+16),16*i);rgb.set(colors.subarray(current*3,current*3+3),3*i);current++;i++;}
+  }
+  return digest(output,rgb);
 }
 const previousDrawn = [
   "6cbe4232dda4317eb0a57d2cec4a5b362b89b7f3661f491b2f24c1662d144ff9",
@@ -29,11 +50,12 @@ test("the photographed lower wing has its own complete retained source edge and 
   expect(run.groundY).toBe(5.1);expect(run.heightM).toBe(34.6);
 });
 
-test("all ten previous drawn facades and every legacy native component remain byte-identical",()=>{
+test("retains all nine neighbouring drawn facades and the original native components outside the corrected Ritz elevations",()=>{
   const drawn=createSonyCenterSurroundings();
   (drawn.children as InstancedMesh[]).forEach((mesh,i)=>{
     const count=i===7?640:mesh.count;
-    expect(digest((mesh.instanceMatrix.array as Float32Array).slice(0,count*16),(mesh.instanceColor!.array as Float32Array).slice(0,count*3))).toBe(previousDrawn[i]);
+    const matrix=(mesh.instanceMatrix.array as Float32Array).slice(0,count*16),color=(mesh.instanceColor!.array as Float32Array).slice(0,count*3);
+    expect(i===6 ? predecessor(matrix,color,retired.drawn) : digest(matrix,color)).toBe(previousDrawn[i]);
   });
   const native=createMinecraftSonyCenterSurroundings(),mesh=native.children[0] as InstancedMesh;
   const added=new Set<number>(native.userData.ownerPhotoV284InstanceIndices);
@@ -42,8 +64,8 @@ test("all ten previous drawn facades and every legacy native component remain by
     matrices.push(...mesh.instanceMatrix.array.slice(i*16,i*16+16));
     colors.push(...mesh.instanceColor!.array.slice(i*3,i*3+3));
   }
-  expect(matrices.length/16).toBe(3707);
-  expect(digest(new Float32Array(matrices),new Float32Array(colors))).toBe("3fde3a07d677217e34d55ca179340bf76fce9cc7f0a8bd544e963e3c2c0bfdaa");
+  expect(matrices.length/16).toBe(3125);
+  expect(predecessor(new Float32Array(matrices),new Float32Array(colors),retired.native)).toBe("3fde3a07d677217e34d55ca179340bf76fce9cc7f0a8bd544e963e3c2c0bfdaa");
 });
 
 test("new native exterior bricks are orthogonal and both families fit their existing instance limits",()=>{

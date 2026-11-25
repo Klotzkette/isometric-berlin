@@ -1,4 +1,6 @@
 import { expect, test } from "bun:test";
+import { expectedExactSourceRejection } from "./helpers/expectedExactSourceRejection";
+import { sourceHistoryV385 } from "./helpers/sourceHistoryV385";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -15,14 +17,15 @@ const publishedFile = (path: string) => execFileSync("git", ["show", published +
 
 test("v384 restores each changed viewer source to the exact published v1.0.263 bytes", () => {
   for (const [path, hashes] of Object.entries(receipt.changes)) {
-    const current = readFileSync(new URL(path, root));
+    const latest = readFileSync(new URL(path, root));
+    const current = sourceHistoryV385.restore(path, latest);
     const previous = publishedFile(path);
     expect(digest(previous)).toBe(hashes.before);
     expect(digest(current)).toBe(hashes.after);
     expect(Buffer.from(sourceAtBeforeV384(path, current)).equals(previous)).toBe(true);
     expect(sourceAtBeforeV384(path, previous)).toBe(previous);
-    expect(projectSourceBeforeV384(current.toString())).toBe(previous.toString());
-    expect(() => sourceAtBeforeV384(path, Buffer.concat([current, Buffer.from(" ")]))).toThrow("Unknown exact v384 source bytes: " + path);
+    expect(projectSourceBeforeV384(latest.toString())).toBe(previous.toString());
+    expect(() => sourceAtBeforeV384(path, Buffer.concat([latest, Buffer.from(" ")]))).toThrow(expectedExactSourceRejection(path));
   }
 });
 

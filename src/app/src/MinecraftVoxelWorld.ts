@@ -136,6 +136,7 @@ import { createMinecraftMoabitGuardHouses } from "./MoabitGuardHouses";
 import { isMoabitGuardHouseColumn } from "./moabitGuardHouseProfile";
 import { createAlterDessauerMonument } from "./AlterDessauerMonument";
 import { createMinecraftWilhelmStresemannDetails } from "./WilhelmStresemannDetails";
+import { createMallWestForecourtV385 } from "./potsdamerForecourtsV385";
 import { createMallAndVosspalaisDetails } from "./MallAndVosspalaisDetails";
 import { createLeipzigerPerimeterFacades } from "./LeipzigerPerimeterFacades";
 import { createMinecraftPotsdamerMinistryArchitecture } from "./PotsdamerMinistryArchitecture";
@@ -159,6 +160,10 @@ import { createMinecraftAlexanderPublicRealm } from "./AlexanderPublicRealm";
 import { createMinecraftGendarmenmarktShells } from "./GendarmenmarktShells";
 import { createMinecraftGendarmenmarktPerimeterShells } from "./GendarmenmarktPerimeterShells";
 import { createGendarmenmarktPerimeterFacades } from "./GendarmenmarktPerimeterFacades";
+import { ritzNativeRoofHeightsV385 } from "./ritzRoofsV385";
+import { isRitzCanopyV385, isRitzCanopyColumnV385, hasRitzCanopyColumnsV385 } from "./ritzCanopyProfileV385";
+import { createRitzCanopyV385 } from "./RitzCanopyV385";
+import { ebertstrasseTerraceTopV385, isEbertstrasseFacadeColumnV385 } from "./ebertstrasseOfficeOwnersV385";
 import { isMehringplatzReplacementColumnV383 } from "./mehringplatzOwnersV383";
 import { isGendarmenmarktPerimeterReplacementColumn } from "./gendarmenmarktPerimeterProfile";
 import { createMinecraftChariteHistoricFacades } from "./ChariteHistoricFacades";
@@ -301,7 +306,7 @@ import {
   MeshStandardMaterial,
 } from "three";
 
-import { isHolocaustMinecraftProtectedAt } from "./holocaustField";
+import { isHolocaustMinecraftProtectedAt, replacesSteleColumn, stelenfeldOwnsGroundCell } from "./stelenfeldSiteV385";
 import { minecraftSiegessaeuleBlocks, SIEGESSAEULE_LEVELS } from "./MinecraftSiegessaeule";
 import { isSiegessaeuleSourceVoxelColumn } from "./SiegessaeuleSource";
 
@@ -2495,6 +2500,7 @@ export function* buildMinecraftVoxelWorldSteps(
       // prevents coincident DGM slabs and Schrägufer blocks from flickering.
       skipAtWorld: (x, z) =>
         Boolean(
+          (cell === 4 && stelenfeldOwnsGroundCell(x,z)) ||
           pointInUnterDenLindenEntranceRegion(x,z) ||
           isBebelLibraryGroundCell(x, z) ||
           insideTunnelApproach?.(x, z) ||
@@ -2548,7 +2554,7 @@ export function* buildMinecraftVoxelWorldSteps(
   yield;
   group.add(createAlterDessauerMonument(true));
   yield;
-  group.add(createMallAndVosspalaisDetails({ minecraft: true }));
+  group.add(createMallAndVosspalaisDetails({ minecraft: true }), createMallWestForecourtV385(true));
   yield;
   group.add(createLeipzigerPerimeterFacades(true));
   yield;
@@ -2885,11 +2891,16 @@ export function* buildMinecraftVoxelWorldSteps(
   const diningOriginalColumnsV296=new Map<string,VoxelBuildingColumn>();
   const waterfrontColumnCutsV296=createWaterfrontColumnOpeningsV296((options.sourcePrisms??[]) as readonly WaterfrontPrismV296[],cell,fidelityV288.waterfront);
   const waterfrontOriginalColumnsV296=new Map<string,VoxelBuildingColumn>();
+  const ritzRoofTop = cell === 4 && options.sourcePrisms ? ritzNativeRoofHeightsV385(options.sourcePrisms) : undefined;
+  const ritzCanopy = hasRitzCanopyColumnsV385(payload) && options.sourcePrisms?.some(isRitzCanopyV385);
+  if (ritzCanopy) group.add(createRitzCanopyV385(true));
   let visitedColumns = 0;
   for (const [xIdx, zIdx, y0dm, y1dm, classId] of voxelBuildingColumns(
     payload,
   )) {
     if (visitedColumns++ % 1024 === 0) yield;
+    if (ritzCanopy && isRitzCanopyColumnV385(xIdx,zIdx,y0dm,y1dm,classId)) continue;
+    if (cell === 4 && replacesSteleColumn(xIdx,zIdx,y0dm,y1dm,classId)) continue;
     if (cell === 4 && isMehringplatzReplacementColumnV383(xIdx,zIdx,y0dm,y1dm,classId)) continue;
     if (parisMoskauV354?.replacesColumn(xIdx,zIdx,y0dm,y1dm,classId)) continue;
     const stationCuts = options.nordbahnhofCuts?.(xIdx, zIdx, y0dm, y1dm, classId);
@@ -3019,7 +3030,9 @@ export function* buildMinecraftVoxelWorldSteps(
     );
     const clippedTopDm =
       clippedTopY < sourceTopY - 1e-6 ? clippedTopY * 10 : y1dm;
-    const topDm = Math.max(y0dm, clippedTopDm);
+    const terraceTopDm = cell === 4 ? ebertstrasseTerraceTopV385(xIdx, zIdx, y0dm, y1dm, classId) : y1dm;
+    const ritzTopDm = ritzRoofTop?.(xIdx,zIdx,y0dm,y1dm,classId) ?? y1dm;
+    const topDm = Math.max(y0dm, Math.min(clippedTopDm, terraceTopDm, ritzTopDm));
     if (topDm > y0dm)
       visibleBuildingColumns.push([xIdx, zIdx, y0dm, topDm, classId]);
   }
@@ -3252,6 +3265,7 @@ export function* buildMinecraftVoxelWorldSteps(
       for (let i = 0; i < facadeColumns.length; i += 1) {
         if (i % 1024 === 0) yield;
         const [xIdx, zIdx, y0dm, y1dm, classId] = facadeColumns[i];
+        if (cell === 4 && isEbertstrasseFacadeColumnV385(xIdx, zIdx, y0dm, y1dm, classId)) continue;
         if (WINDOWLESS_CLASSES.has(payload.classes[classId] ?? "")) {
           continue;
         }

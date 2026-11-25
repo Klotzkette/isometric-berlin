@@ -1,11 +1,13 @@
 import { BoxGeometry, Color, CylinderGeometry, Group, InstancedBufferAttribute, InstancedMesh, Matrix4, MeshBasicMaterial, MeshStandardMaterial, Quaternion, SphereGeometry, Vector3 } from "three";
+import { createMallPiazzaPavingV385 } from "./mallPiazzaV385";
+import { LeipzigerVoxelFrontV385 } from "./leipzigerVoxelFrontV385";
 import { bebelplatzPartContains } from "./bebelplatzBuildingProfile";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 import { letteringStrokePaths } from "./drawnLettering";
-import { LEIPZIGER_MALL_PASSAGE_PART, LEIPZIGER_SOURCE_PARTS, LEIPZIGER_SOURCE_PROFILES, leipzigerMallRoofRib, LEIPZIGER_VOSSPALAIS_PROFILE as V, leipzigerSourceRoofAt } from "./leipzigerPlatzSourceProfile";
+import { LEIPZIGER_MALL_PASSAGE_PART, MALL_PIAZZA_GALLERY_CORNERS, MALL_PIAZZA_DECK_Y, LEIPZIGER_SOURCE_PARTS, LEIPZIGER_SOURCE_PROFILES, leipzigerMallRoofRib, LEIPZIGER_VOSSPALAIS_PROFILE as V, leipzigerSourceRoofAt } from "./leipzigerPlatzSourceProfile";
 
 type P = [number, number, number];
-type Axis = { a: readonly number[]; b: readonly number[]; outward?: number };
+type Axis = { a: readonly number[]; b: readonly number[]; outward?: number; native?: LeipzigerVoxelFrontV385 };
 type Kind = "blocks" | "rounds" | "ornament";
 const UP = new Vector3(0, 1, 0);
 const C = { red: 0xa66b54, light: 0xc08b6a, shadow: 0x775547, glass: 0x4f6266, frame: 0xe2dcc9, roof: 0x696c65, stone: 0xc9c4b5, joint: 0xaca695, bronze: 0x6c6450 };
@@ -26,7 +28,13 @@ class Batch {
     rows.push({ m: new Matrix4().compose(new Vector3(...p), q, new Vector3(...s)).toArray(), color }); this.rows.set(kind, rows);
   }
   box(p: P, s: P, c: number, rotation = 0): void { this.add("blocks", p, s, c, new Quaternion().setFromAxisAngle(UP, rotation)); }
-  face(a: Axis, u: number, y: number, w: number, h: number, c: number, out = .2, d = .16): void { this.box(at(a, u, y, out + (this.minecraft ? 1.0 : 0)), [w, h, d], c, yaw(a)); }
+  face(a: Axis, u: number, y: number, w: number, h: number, c: number, out = .2, d = .16): void {
+    if(this.minecraft && a.native) {
+      a.native.panels(u,y,w,h,d,out,(p,size,rotation)=>this.box(p,size,c,rotation));
+      return;
+    }
+    this.box(at(a, u, y, out + (this.minecraft ? 1.0 : 0)), [w, h, d], c, yaw(a));
+  }
   beam(a: P, b: P, w: number, c: number): void {
     const delta = new Vector3(...b).sub(new Vector3(...a)), l = delta.length();
     if (l < .001) return;
@@ -63,14 +71,19 @@ function arch(b: Batch, a: Axis, u: number, y: number, r: number, out: number): 
     b.beam(at(a,u+r*Math.cos(t),y+r*Math.sin(t),out),at(a,u+r*Math.cos(v),y+r*Math.sin(v),out),.25,C.light);
   }
 }
-function inscription(b: Batch, a: Axis, text: string, y: number, width: number, color: number): void {
+function inscription(b: Batch, a: Axis, text: string, y: number, width: number, color: number, center = length(a) / 2): void {
   const paths = letteringStrokePaths(text, 1);
   const min = Math.min(...paths.flat().map(p => p[0])), max = Math.max(...paths.flat().map(p => p[0]));
   if (!Number.isFinite(min) || max<=min) return;
-  const scale = width / (max-min), left = (length(a)-width)/2;
+  const scale = width / (max-min), left = center-width/2;
   for (const path of paths) for(let i=1;i<path.length;i++) {
     const p=path[i-1],q=path[i];
-    b.beam(at(a,left+(p[0]-min)*scale,y+p[1]*scale,.54),at(a,left+(q[0]-min)*scale,y+q[1]*scale,.54),b.minecraft?.15:.1,color);
+    const vertex=(v:number[])=>{
+      const u=left+(v[0]-min)*scale, h=y+v[1]*scale;
+      return b.minecraft && a.native ? a.native.point(u,h,.54) : at(a,u,h,.54);
+    };
+    const p1=vertex(p),p2=vertex(q);
+    if(p1 && p2) b.beam(p1,p2,b.minecraft?.15:.1,color);
   }
 }
 function vosspalais(b: Batch): void {
@@ -130,6 +143,8 @@ function mallUpperStoreys(b: Batch): void {
     for(const p of ring)for(const q of ring){const d=Math.hypot(p[0]-q[0],p[2]-q[2]);if(d>max){max=d;pair=[p,q];}}
     if(!pair||max<5)continue;
     const a:Axis={a:[pair[0][0],pair[0][2]],b:[pair[1][0],pair[1][2]]};
+    // The five paired axes of the upper LP12 west entrance use the photographed layout below.
+    if (part.id === "DEBE3DiRt8dZEY64" && pair.every(p => p[2] > 990 && p[0] < 535) && max > 27) continue;
     const mid=at(a,max/2,0,.25);if(bebelplatzPartContains(part,mid[0],mid[2]))a.outward=-1;
     const top=Math.max(...ring.map(p=>p[1])), bottom=Math.min(...ring.map(p=>p[1]));
     const bays=Math.max(1,Math.floor(max/3.7)),pitch=max/bays;
@@ -139,16 +154,84 @@ function mallUpperStoreys(b: Batch): void {
       framedWindow(b,a,u,y,Math.min(1.45,pitch*.46),1.95,.3,C.stone);
     }
   }
-  // Permanent name, rather than temporary store adverts or seasonal decorations.
-  const entrance:Axis={a:[487.498,956.571],b:[530.479,992.085],outward:1};
-  inscription(b,entrance,"MALL OF BERLIN",21.45,27,C.frame);
-  // Double-height storefront subdivisions along the retained square-facing run.
-  for(let i=0;i<12;i++){
-    const u=(i+.5)*length(entrance)/12;
-    b.face(entrance,u,8.1,.13,5.5,C.frame,.33,.16);
-    b.face(entrance,u,6.1,.11,1.6,C.bronze,.39,.12);
+  mallSquareEntrance(b);
+  piazzaGalleries(b);
+}
+
+function mallSquareEntrance(b: Batch): void {
+  // LoD2 part DEBE3Dpzh1IwtXlI and the recessed DEBE3DiRt8dZEY64. The
+  // mapped main entrance (node 5479015632) is on this west edge of LP12.
+  const lower: Axis = {a:[530.479,992.085], b:[532.9,1022.642], outward:-1};
+  const upper: Axis = {a:[532.474,991.061], b:[534.811,1020.355], outward:-1};
+  if(b.minecraft) {
+    lower.native = new LeipzigerVoxelFrontV385("mall",lower.a,lower.b,1);
+    upper.native = new LeipzigerVoxelFrontV385("mallUpper",upper.a,upper.b,1);
+  }
+  // The day postprocess applies a linear display pass. Use its calibrated
+  // sRGB inputs for the photographed grey stone, glazing and metal mullions.
+  const stone = 0xaaa8a3, glass = 0x819497, metal = 0x747675;
+  const width = length(lower), pitch = width / 5;
+  b.face(lower,width/2,14.2,width,17.98,stone,.12,.12);
+  for (let i = 0; i < 5; i++) {
+    const u = (i+.5)*pitch, opening = pitch*.78;
+    // A shopfront under each of the five stone bays, with paired upper
+    // glazing bands. The photographed tenant adverts are excluded.
+    for (const [y,h] of [[8.2,5.45],[15.15,3.5],[19.3,3.4]]) {
+      b.face(lower,u,y,opening,h,glass,.24,.10);
+      for (const f of [-.25,0,.25]) b.face(lower,u+f*opening,y,.105,h,metal,.34,.08);
+    }
+    b.face(lower,u,11.4,opening,.24,metal,.34,.12);
+  }
+  // The permanent lower inscription spans the first three bays, facing the
+  // square. Its upper companion belongs to the setback, not the diagonal wing.
+  inscription(b,lower,"MALL OF BERLIN",11.73,pitch*2.72,0xe7e5db,pitch*1.5);
+  const upperWidth = length(upper);
+  b.face(upper,upperWidth/2,31.99,upperWidth,17.48,0xb1aea5,.12,.12);
+  for (let i=0;i<5;i++) {
+    const center=(i+.5)*upperWidth/5;
+    for(const y of [25.30,30.22,35.13]) {
+      for(const side of [-1,1]) b.face(upper,center+side*.74,y,1.13,2.92,glass,.25,.10);
+    }
+  }
+  inscription(b,upper,"MALL OF BERLIN",38.62,upperWidth*.56,0xf1eee4);
+}
+
+function piazzaGalleries(b: Batch): void {
+  // OSM way 380243143 follows the closed walking loop on levels 1 and 2.
+  // Its end spans cross the Piazza; the long sides leave the central void open.
+  const corners = MALL_PIAZZA_GALLERY_CORNERS;
+  for (let i=0; i<corners.length; i++) {
+    const edge: Axis = {a:corners[i], b:corners[(i+1)%4]};
+    const span = length(edge), depth = i%2===0 ? 2.60 : 2.35;
+    if (i % 2 === 0) {
+      // Both visible sides of the public concourse have shop windows at each
+      // level behind the gallery face. Preserve the open end-to-end axis.
+      const count = 11, pitch = span / count;
+      for (const deck of [5.2,...MALL_PIAZZA_DECK_Y]) {
+        for (let bay = 0; bay < count; bay++) {
+          const u = (bay + .5) * pitch;
+          const reflection = [0x87918b,0x98968b,0xa39478,0x829292][bay % 4];
+          b.box(at(edge,u,deck+2.05,-.64),[pitch-.18,3.7,.12],reflection,yaw(edge));
+
+        }
+        b.box(at(edge,span/2,deck+3.93,-.76),[span,.22,.18],0xc6c2b1,yaw(edge));
+      }
+    }
+    for (const y of MALL_PIAZZA_DECK_Y) {
+      b.box(at(edge,span/2,y,0),[span,.33,depth],0xcec8b5,yaw(edge));
+      // Raised rails and regularly spaced slim posts preserve the sightline
+      // from the ground-floor concourse to the Bundesrat.
+      for (const side of (i%2===0 ? [-1] : [-1,1])) {
+        const out=side*(depth/2-.10);
+        b.box(at(edge,span/2,y+1.10,out),[span,.095,.10],0x77776b,yaw(edge));
+        const posts=Math.ceil(span/4);
+        for(let post=0;post<posts;post++)
+          b.box(at(edge,(post+.5)*span/posts,y+.62,out),[.09,.89,.09],0x89887b,yaw(edge));
+      }
+    }
   }
 }
+
 function nativePassage(b: Batch): Group {
   const glass = new Batch(true), p = LEIPZIGER_MALL_PASSAGE_PART;
   // Exact roof heights sampled on the native 2 m grid; no wall/volume fill.
@@ -157,7 +240,11 @@ function nativePassage(b: Batch): Group {
     if(top!==null)glass.box([x,top-.18,z],[2,.36,2],0xa7c1c0);
   }
   for(let rib=0;rib<=8;rib++) {
-    const points=leipzigerMallRoofRib(-37+74*rib/8);
+    const sampled=leipzigerMallRoofRib(-37+74*rib/8);
+    // Along each of the official planar roof faces these evenly spaced
+    // samples lie on one straight beam, including the flattened crown.
+    const points=sampled.filter((p,i)=>i===0 || i===sampled.length-1 ||
+      Math.abs(sampled[i-1][1]+sampled[i+1][1]-2*p[1]) > 1e-7);
     for(let i=1;i<points.length;i++)b.beam(points[i-1],points[i],.19,0xc9c9bd);
     for(const point of [points[0],points[points.length-1]])if(point)b.box([point[0],(point[1]+5.1)/2,point[2]],[.35,point[1]-5.1,.35],0xc9c9bd);
   }
@@ -175,6 +262,7 @@ export function createMallAndVosspalaisDetails(options:{minecraft?:boolean}={}):
   const b=new Batch(!!options.minecraft);vosspalais(b);mallUpperStoreys(b);
   const passage=options.minecraft?nativePassage(b):null;
   const root=b.finish(options.minecraft?MINECRAFT_MALL_VOSS_DETAIL_GROUP:MALL_VOSS_DETAIL_GROUP);
+  root.add(freezeStaticSceneTransforms(createMallPiazzaPavingV385(!!options.minecraft)));
   if(passage)root.add(passage);
   root.userData.vosspalais=V;root.userData.sourcePartIds=LEIPZIGER_SOURCE_PROFILES.filter(p=>p.name.startsWith("Mall of")||p.parent_id===V.parentId).flatMap(p=>p.parts.map(part=>part.id));
   return root;

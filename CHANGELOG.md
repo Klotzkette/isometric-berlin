@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.265
+
+- Refine the historic traffic tower, Ritz-Carlton roof and entrance canopy, Mall of Berlin entrance paving and galleries, Canadian Embassy and the Taylor Wessing and Telekom street fronts. Add direct views of their public facades and locate the exhibited Berlin Wall sections around Potsdamer and Leipziger Platz.
+- Rebuild the Memorial to the Murdered Jews of Europe from cadastral outlines, aerial evidence and laser elevations so the stelae and passages follow the field's terrain. [Direct views and sources](docs/potsdamer-platz-v385.md)
+- Restore the 168 existing garden surfaces across 14 allotment sites that exceeded the drawn core geometry limit. Exact vertex sharing reduces the complete reference mesh from 9,212,832 to 6,186,516 bytes in one draw. [Garden regression test](src/app/tests/core-allotment-v385.test.ts)
+- Restore Humboldthain and Gesundbrunnen in the live block view after the station and memorial ground changes. All 784 original terrain rows are verified. Geometry tests cover the two train cars at Gesundbrunnen and the tactile strips there and at Landsberger Allee at the surveyed platform heights in both styles.
+
 ## 1.0.264
 
 - Fit the surveyed streets, kerbs, street furniture and tree bases at Nollendorfplatz and Winterfeldtplatz to the terrain present at each site. [Schöneberg squares](docs/schoeneberger-plaetze-v383.md)

@@ -31,6 +31,7 @@ register(prenzlauerStreetsIdsV380, async () => (await import("./prenzlauerStreet
 register(torstrasseHostsV380.map(site => site.id), async () => (await import("./torstrasseV380")).attachTorstrasseV380);
 register(kreuzbergPlaetzeIdsV380, async () => (await import("./kreuzbergPlaetzeV380")).attachKreuzbergPlaetzeV380);
 register(["5_0","5_1","6_1"], async () => (await import("./jannowitzV380")).attachJannowitzV380);
+register(["0_1", "0_2"], async () => (await import("./potsdamerQuartierV385")).attachPotsdamerQuartierV385);
 register(embassyIdsV380, async () => (await import("./embassySitesV380")).attachEmbassySitesV380);
 register(diplomaticHosts.map(site => site.id), async () => (await import("./diplomaticSitesV380")).attachDiplomaticSitesV380);
 

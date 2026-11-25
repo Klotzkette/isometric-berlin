@@ -2,6 +2,7 @@ import { DEFAULT_THREE_CAMERA_OFFSET } from "./resetView";
 import { findSightBySlug, nextSimulationStartSight, parseViewHash, type NamedSight, type StartStorage } from "./viewNavigation";
 import type { NavigationSnapshot } from "./navigationContinuity";
 import { SIMULATION_START_VIEWS } from "./simulationStartViews";
+import catalogue from "./data/regierungsviertel-landmarks.json";
 import type { FocusCamera } from "./ArchitecturalLandmarks";
 
 // Match the existing ordinary gallery focus: its catalogue anchor, the default
@@ -152,12 +153,15 @@ export const STARTUP_ONLY_SIGHTS = [...new Set([
 
 // The optional city-wide place catalogue is fetched only for search, a shared
 // place link or restoring a visit. Ordinary startup keeps its small camera list.
-let berlinPlaceViewsV378: typeof MOABIT_VIEWS_V358 = {};
+type PlaceView = (typeof MOABIT_VIEWS_V358)[string];
+let berlinPlaceViewsV378: Record<string, PlaceView & { native?: PlaceView }> = {};
+let surveyedCataloguePlaces: typeof catalogue.landmarks = [];
 let placeLoad: Promise<void> | undefined;
 export function loadBerlinPlaceViewsV378(): Promise<void> {
   return placeLoad ??= import("./berlinPlaceViewsV378").then(module => {
     berlinPlaceViewsV378 = module.berlinPlaceViewsV378;
-    const known = new Set(STARTUP_ONLY_SIGHTS.map(place => place.name));
+    surveyedCataloguePlaces = catalogue.landmarks.filter(place => Object.hasOwn(berlinPlaceViewsV378, place.name));
+    const known = new Set([...surveyedCataloguePlaces, ...STARTUP_ONLY_SIGHTS].map(place => place.name));
     for (const name of Object.keys(berlinPlaceViewsV378)) {
       if (!known.has(name)) STARTUP_ONLY_SIGHTS.push({ name, role: "owner_added" });
     }
@@ -172,16 +176,20 @@ export function isSurveyedOpeningV378(name: string): boolean {
 }
 
 export function startupOnlySight(name: string) {
-  return STARTUP_ONLY_SIGHTS.find(sight => sight.name === name) ?? null;
+  // Some surveyed views refine a place already in the permanent catalogue.
+  // Give it its measured camera without adding a second search entry.
+  return STARTUP_ONLY_SIGHTS.find(sight => sight.name === name) ??
+    surveyedCataloguePlaces.find(sight => sight.name === name) ?? null;
 }
 
 export type StartupFlightView = Pick<NavigationSnapshot, "pose" | "fov"> & { landmarkName: string };
 
 /** Retain each opening's target and apparent scale at the ordinary 16-degree
  * flight lens. No pedestrian state is created or enabled. */
-export function startupFlightView(name: string): StartupFlightView {
+export function startupFlightView(name: string, native = false): StartupFlightView {
   if (name === GALLERY_FLIGHT_START_V223.landmarkName) return GALLERY_FLIGHT_START_V223;
-  const framed = berlinPlaceViewsV378[name] ?? MOABIT_VIEWS_V358[name] ?? MITTE_PAVING_VIEWS[name] ?? BUILDING_FACADE_VIEWS_V377[name];
+  const place = berlinPlaceViewsV378[name];
+  const framed = (native ? place?.native : undefined) ?? place ?? MOABIT_VIEWS_V358[name] ?? MITTE_PAVING_VIEWS[name] ?? BUILDING_FACADE_VIEWS_V377[name];
   if (framed) return { landmarkName: name, fov: framed.fov, pose: { target: [...framed.target], position: [...framed.position] } };
   const extra = GARDEN_VIEWS_V330[name] ?? AMENITY_VIEWS_V332[name] ?? COURT_VIEWS_V333[name] ?? TRANSPORT_VIEWS_V334[name] ?? BRITZ_NEUKOELLN_VIEWS_V342[name] ?? STREET_VIEWS_V343[name] ?? MITTE_EXTERIOR_VIEWS_V344[name] ?? CITY_DETAIL_VIEWS_V345[name] ?? VENUE_VIEWS_V357[name];
   if (extra) return { landmarkName: name, fov: 16, pose: { target: [...extra.target], position: [...extra.position] } };
@@ -203,8 +211,8 @@ export function startupFlightView(name: string): StartupFlightView {
 }
 
 /** The same flight pose for an explicit startup-only place link. */
-export function startupFlightCamera(name: string): FocusCamera {
-  const view = startupFlightView(name);
+export function startupFlightCamera(name: string, native = false): FocusCamera {
+  const view = startupFlightView(name, native);
   const [x, y, z] = view.pose.position.map((value, i) => value - view.pose.target[i]);
   const distance = Math.hypot(x, y, z);
   return { target_world: [...view.pose.target], target_height_m: 0, distance_m: distance,
@@ -218,7 +226,8 @@ export function startupViewSelection(landmarks: NamedSight[], hash = "", storage
   automatic: boolean;
 } {
   const slug = parseViewHash(hash).landmarkSlug;
-  const explicit = findSightBySlug(landmarks, slug) ?? findSightBySlug(STARTUP_ONLY_SIGHTS, slug);
+  const explicit = findSightBySlug(landmarks, slug) ?? findSightBySlug(STARTUP_ONLY_SIGHTS, slug) ??
+    findSightBySlug(surveyedCataloguePlaces, slug);
   return explicit
     ? { name: explicit.name, automatic: false }
     : { name: nextSimulationStartSight(storage), automatic: true };
