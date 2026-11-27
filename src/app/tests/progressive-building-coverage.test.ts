@@ -11,7 +11,7 @@ import {
   type PrismBuilding, type PrismPayload,
 } from "../src/IsometricCityWorld";
 import { buildingDetailProfile, buildingDetailDistricts, selectBuildingDetailDistricts } from "../src/buildingDetailStreaming";
-import { createProgressiveBuildingCoverage } from "../src/progressiveBuildingCoverage";
+import { createProgressiveBuildingCoverage, createProgressiveBuildingCoverageSteps } from "../src/progressiveBuildingCoverage";
 import {
   DESKTOP_INITIAL_BUILDING_COUNT,
   MOBILE_INITIAL_BUILDING_COUNT,
@@ -21,6 +21,8 @@ import {
 import { serializeObject3DForTransfer } from "../src/transferableObject3D";
 import { progressiveCoverageHost } from "./helpers/progressiveCoverageHost";
 import type { VisualMode } from "../src/visualMode";
+import { replacesStelePrism } from "../src/stelenfeldSiteV385";
+import { isMehringplatzPrismV383 } from "../src/mehringplatzOwnersV383";
 import weltkugelReceipt from "../src/data/weltkugelV281Ownership.json";
 
 const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
@@ -57,7 +59,7 @@ function representable(building: PrismBuilding): boolean {
   // complete required fountain model. No neighbouring envelope is suppressed.
   const obsoleteFountain = weltkugelReceipt.previousPrisms.some(prior =>
     prior.id === building.id && JSON.stringify(prior) === JSON.stringify(building));
-  return !obsoleteFountain && building.ring.length >= 3 && !PRISM_SUPPRESSED_IDS.has(building.id) &&
+  return !obsoleteFountain && !replacesStelePrism(building) && !isMehringplatzPrismV383(building) && building.ring.length >= 3 && !PRISM_SUPPRESSED_IDS.has(building.id) &&
     !isInterimOfficeFootprintSuppressed(building) &&
     !isFriedrichstrasseStationFootprintSuppressed(building) &&
     (PRISM_GLASSED_IDS.has(building.id) || !isHauptbahnhofFootprintSuppressed(building));
@@ -145,7 +147,11 @@ describe("complete buildings before worker refinement", () => {
       const host = progressiveCoverageHost(viewerSource, new Group().add(coverage), mobile);
       try {
         expect(coverage.children.length).toBe(1 + partition.remaining.length);
-        expect(meshes(coverage).length).toBeLessThanOrEqual(coverage.children.length);
+        const authored = new Set([
+          "City West · fotografierte Fassaden",
+          "The Ritz-Carlton · freitragendes Vordach (DEBE01YYK0003V2X)",
+        ]);
+        expect(meshes(coverage).filter(mesh => !authored.has(mesh.name)).length).toBeLessThanOrEqual(coverage.children.length);
         let represented = partition.initial.filter(representable).length;
         for (const [index, buildings] of [partition.omitted, ...partition.remaining].entries()) {
           const group = coverage.children[index];
@@ -154,7 +160,7 @@ describe("complete buildings before worker refinement", () => {
           expect(group.userData.visibleBuildingCount).toBe(visible.length);
           represented += visible.length;
           if (visible.length === 0) { expect(group.children).toHaveLength(0); continue; }
-          const shell = group.children[0] as Mesh;
+          const shell = group.getObjectByName("LoD2 distant building shells") as Mesh;
           expect(shell).toBeInstanceOf(Mesh);
           expect(shell.geometry.index).not.toBeNull();
           expect(shell.geometry.getAttribute("color").count).toBe(shell.geometry.getAttribute("position").count);
@@ -436,4 +442,23 @@ describe("production preview replacement lifecycle", () => {
       } finally { f.host.dispose(); }
     });
   }
+});
+
+
+test("startup owns each completed district between cancellable construction steps", () => {
+  const source: PrismPayload = payload;
+  const districts = source.buildings.slice(0, 3).map(building => [building]);
+  const owner = new Group();
+  const partial = createProgressiveBuildingCoverageSteps(source,
+    { initial: [], remaining: districts, omitted: [] }, {}, coverage => owner.add(coverage));
+  expect(owner.children).toHaveLength(0);
+  const first = partial.next();
+  expect(first.done).toBe(false);
+  const coverage = owner.children[0];
+  expect(coverage.children.map(child => child.name)).toEqual([
+    "Permanent distant building coverage", "Building refinement fallback 1",
+  ]);
+  partial.return(coverage as Group);
+  expect(partial.next().done).toBe(true);
+  expect(coverage.children).toHaveLength(2);
 });

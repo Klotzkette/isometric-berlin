@@ -20,7 +20,7 @@ import {assignStableInkRenderOrder} from "./stableInkRenderOrderV310";
 import {loadSourceQuarterRecipesV309} from "./SourceQuarterCatalogueV309";
 import {createNorthernLoaderV309, type NorthernLoaderV309} from "./northernLoaderV309";
 import {createNorthernQuarterLoadingV309} from "./northernQuarterLoadingV309";
-import {northernFidelityVisibleV309} from "./northernVisibilityV309";
+import {northernFidelityVisibleV309, northernNavigationNearV309} from "./northernVisibilityV309";
 import type {NorthernFidelityBundleV309} from "./NorthernFidelityV309";
 import type {NorthTerrainDrapingV309Transaction} from "./northTerrainDrapingV309";
 import {syncQuarterLegacyFittingsV303,type QuarterLegacyReceiptV303} from "./QuarterLegacyFittingsV303";
@@ -61,6 +61,7 @@ import { monbijouV231DeckAt, monbijouV231GroundAt, monbijouV231SolidAt } from ".
 import { centralNamedV230GroundAt, centralNamedV230SolidAt } from "./centralNamedV230Navigation";
 import { botanicalV230GroundAt, botanicalV230FloorAt, botanicalV230WaterAt, botanicalV230SolidAt } from "./botanicalV230Navigation";
 import { westIndustrialV230TerrainAt, westIndustrialV230GroundAt, westIndustrialV230SolidAt } from "./westIndustrialV230Navigation";
+import { createMobileConstructionTasks } from "./mobileConstructionTasks";
 import { createViewerContextRecovery } from "./viewerContextRecovery";
 import { createPergamonReveal, type PergamonReveal } from "./PergamonReveal";
 import { createReichstagSectionV319, createReichstagSectionRoomsV319, reichstagSectionCameraV319, type ReichstagSectionV319, type ReichstagSectionViewV319 } from "./ReichstagSectionV319";
@@ -126,7 +127,7 @@ import { compactStaticGeometry, compactStaticGeometrySteps } from "./compactStat
 import { queueOpeningShaderProgramsV383, queueOpeningSmaaProgramsV383 } from "./openingShaderProgramsV383";
 import { installGroundDrawCullingV383, prepareGroundDrawRangesV383 } from "./groundDrawRangesV383";
 import { installDistrictDrawCullingV383 } from "./districtDrawCullingV383";
-import { parkOpeningWorldBuffers, parkStaticGeometrySteps, parkStaticInstancesSteps } from "./losslessStaticStorage";
+import { parkAttachedWorldBuffers, parkOpeningWorldBuffers, parkStaticInstancesSteps } from "./losslessStaticStorage";
 import {collectFirstUploadParkingV323,type FirstUploadParkingV323} from "./firstUploadParkingV323";
 import {createFirstUploadScheduleV323,type FirstUploadScheduleV323} from "./firstUploadScheduleV323";
 import { createRosengarten, createRosengartenMinecraft } from "./Rosengarten";
@@ -164,7 +165,7 @@ import { correctGardenVoxelsV358 } from "./LehrterGardenPayloadV358";
 import { createLehrterGardensV358 } from "./LehrterGardensV358";
 import { createLesserUryFrontsV358 } from "./LesserUryFrontsV358";
 import { createSceneGpuWarmup, type SceneGpuWarmup } from "./sceneGpuWarmup";
-import { createSceneGpuResidency, type SceneGpuResidency } from "./sceneGpuResidency";
+import { createSceneGpuResidency, MOBILE_GPU_RESIDENCY_JUMP_METERS, type SceneGpuResidency } from "./sceneGpuResidency";
 import { createSceneGeometryGpuResidency, type SceneGeometryGpuResidency } from "./sceneGeometryGpuResidency";
 import { retireSceneMaterialPrograms } from "./sceneMaterialPrograms";
 import { registerInkDrawObject, registerInkShaderWrapper, restoreInkDrawVisibility, updateInkDrawVisibility } from "./inkDrawVisibility";
@@ -183,7 +184,7 @@ import { POTSDAMER_TOWER_ROOT_NAME } from "./potsdamerTrafficTowerProfile";
 import { updateVisiblePotsdamerTrafficTower } from "./potsdamerTrafficTowerMotion";
 import { createZooAnimalRuntimeV282 } from './ZooAnimalsV282';
 import {
-  createProgressiveBuildingCoverage,
+  createProgressiveBuildingCoverageSteps,
   hideReplacedBuildingPreview,
   restoreBuildingPreview,
 } from "./progressiveBuildingCoverage";
@@ -584,6 +585,7 @@ import {
   stableViewportSize,
 } from "./renderQuality";
 import { browserUsesMobileViewerProfile } from "./viewerResidency";
+import { unpaintedCanvas } from "./deferredCanvasTexture";
 import { configureSmaaEdgeTarget } from "./smaaEdgeTarget";
 import type { PublicAmenitiesV332 } from "./PublicAmenitiesV332";
 import type { BusStopsV334 } from "./BusStopsV334";
@@ -929,6 +931,7 @@ type Runtime = {
   coreUbahnLifecycleV326?:ReturnType<typeof createCoreUbahnLifecycleV326<Group,NorthernFidelityBundleV309>>;
   surroundingCityPendingV323?: Promise<void>;
   resumeSurroundingOutlinesV379?: () => void;
+  mobileConstruction?: ReturnType<typeof createMobileConstructionTasks>;
   firstUploadParkingV323?: FirstUploadScheduleV323;
   zooAnimalsV282?: ReturnType<typeof createZooAnimalRuntimeV282>;
   hbfStationV291?: ReturnType<typeof createHbfStationRuntimeV291>;
@@ -1886,21 +1889,27 @@ function fidelityAdmissionV296(runtime:Runtime):FidelityAdmissionV296 {
   return {native,courtsPark:world?.userData.courtsParkV293===true,south:world?.userData.southFidelityV294===true,dining:world?.userData.parliamentaryDiningV296===true,waterfront:world?.userData.waterfrontV296===true,wallGallery:world?.userData.wallGalleryV298===true};
 }
 
-function currentNorthernV309(runtime: Runtime): NorthernFidelityBundleV309 | undefined {
+function currentNorthernV309(runtime: Runtime, x?: number, z?: number, radius = 0): NorthernFidelityBundleV309 | undefined {
+  if (x !== undefined && z !== undefined && !northernNavigationNearV309(x, z, radius)) return undefined;
   return runtime.northernV309?.current(voxelModeActive(runtime));
 }
 
 function installNorthernNavigationV309(runtime: Runtime, environment: PedestrianEnvironment): void {
   const ground = environment.groundAt, floor = environment.interiorGroundAt, solid = environment.interiorSolidAt;
-  environment.groundAt = (x,z) => currentNorthernV309(runtime)?.terrainAt(x,z) ?? ground(x,z);
+  environment.groundAt = (x,z) => currentNorthernV309(runtime, x, z)?.terrainAt(x,z) ?? ground(x,z);
   environment.interiorGroundAt = (x,z,current) => {
     const world=voxelModeActive(runtime)?runtime.voxelWorld:runtime.isoWorld;
     const access=world?runtime.coreUbahnV326?.get(world):undefined;
     const uFloor=access?.groundAt(x,z,current)??runtime.surroundingCity?.interiorGroundAt(x,z,current)??null;if(uFloor!==null)return uFloor;
-    const bundle = currentNorthernV309(runtime), hint = current ?? environment.groundAt(x,z) ?? 0;
-    return bundle?.floorAt(x,z,hint) ?? bundle?.terrainAt(x,z) ?? floor?.(x,z,current) ?? null;
+    const bundle = currentNorthernV309(runtime, x, z);
+    if (bundle) {
+      const hint = current ?? environment.groundAt(x, z) ?? 0;
+      const northFloor = bundle.floorAt(x, z, hint) ?? bundle.terrainAt(x, z);
+      if (northFloor !== null) return northFloor;
+    }
+    return floor?.(x, z, current) ?? null;
   };
-  environment.interiorSolidAt = (x,y,z,radius=0) => {const world=voxelModeActive(runtime)?runtime.voxelWorld:runtime.isoWorld;return !!world&&runtime.coreUbahnV326?.get(world)?.solidAt(x,y,z,radius)===true||currentNorthernV309(runtime)?.solidAt(x,y,z,radius)||solid?.(x,y,z,radius)||false;};
+  environment.interiorSolidAt = (x,y,z,radius=0) => {const world=voxelModeActive(runtime)?runtime.voxelWorld:runtime.isoWorld;return !!world&&runtime.coreUbahnV326?.get(world)?.solidAt(x,y,z,radius)===true||currentNorthernV309(runtime, x, z, radius)?.solidAt(x,y,z,radius)||solid?.(x,y,z,radius)||false;};
 }
 
 function currentGovernmentOfficesV321(runtime:Runtime,native=voxelModeActive(runtime)):GovernmentOfficesV321|undefined{
@@ -2297,6 +2306,7 @@ function startSurroundingCity(runtime: Runtime, reason: "ready" | "opening" | "c
   const pending = loadStartupModuleV323(()=>import("./SurroundingCity"),yieldStartupWork,()=>runtime.disposed||runtime.loadSignal.aborted).then(({ createSurroundingCity }) => {
   if (runtime.disposed || runtime.loadSignal.aborted) return;
   const city = createSurroundingCity({
+    retireAfterJumpM: runtime.coarsePointer ? MOBILE_GPU_RESIDENCY_JUMP_METERS : undefined,
     allotmentDetailsV360: true,
     steelRailBridgesV369: true,
     waterwayBanksV370: true,
@@ -2340,7 +2350,7 @@ function startSurroundingCity(runtime: Runtime, reason: "ready" | "opening" | "c
       active:native=>!runtime.disposed&&!runtime.loadSignal.aborted&&!runtime.contextLost&&!document.hidden&&native===(runtime.lightingMode==="minecraft"),
       onError:error=>{if(!runtime.disposed&&!(error instanceof DOMException&&error.name==="AbortError"))console.warn("Northern Berlin details:",error);},
     }),
-    northFidelityV309:native=>runtime.northernV309?.current(native)?.complete()===true,
+    northFidelityV309: native => runtime.northernV309?.current(native) !== undefined,
     treptowWaterfrontV317:native=>(native?runtime.voxelWorld:runtime.isoWorld)?.userData.hasTreptowWaterfrontV317?.()===true,
     neukoellnLandmarksV305:native=>(native?runtime.voxelWorld:runtime.isoWorld)?.userData.hasNeukoellnLandmarksV305?.()===true,
     onQuarterResidentsV303:keys=>{runtime.sourceQuarterKeysV303=keys;if(runtime.outerThinOutlines)syncQuarterLegacyFittingsV303(runtime.outerThinOutlines,keys,legacyQuartersV304.records as QuarterLegacyReceiptV303[]);},
@@ -2478,13 +2488,9 @@ function parkCompletedGeometry(runtime: Runtime, root: Object3D, instances = fal
         const isCancelled = () => !task.root.parent || runtime.disposed || runtime.loadSignal.aborted;
         try {
           // A camera turn may have already retired this complete chunk.
-          if (!isCancelled()) await completeCooperatively(parkStaticGeometrySteps(task.root,
-            task.root.userData.progressiveWorldBatch === true), {
-            budgetMs: 4, yieldTask: yieldStartupWork, isCancelled,
-          });
-          if (task.instances && !isCancelled()) await completeCooperatively(parkStaticInstancesSteps(task.root), {
-            budgetMs: 4, yieldTask: yieldStartupWork, isCancelled,
-          });
+          if (!isCancelled()) await parkAttachedWorldBuffers(task.root,
+            task.root.userData.progressiveWorldBatch === true, task.instances,
+            isCancelled, yieldStartupWork);
         } catch (error) {
           if (!(isCancelled() && error instanceof DOMException && error.name === "AbortError")) throw error;
         } finally { task.resolve(); }
@@ -2514,7 +2520,7 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       if (industrialGround !== null) return industrialGround;
       const courtGround = districtCourtsV229TerrainAt(x, z, runtime.lightingMode === "minecraft");
       if (courtGround !== null) return courtGround;
-      const hospitalGround = currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) ? null : hospitalV228TerrainAt(x, z, runtime.lightingMode === "minecraft");
+      const hospitalGround = currentNorthernV309(runtime, x, z)?.overridesOldHospitalAt(x,z) ? null : hospitalV228TerrainAt(x, z, runtime.lightingMode === "minecraft");
       if (hospitalGround !== null) return hospitalGround;
       const townhallGround = districtTownhallV227TerrainAt(x, z, runtime.lightingMode === "minecraft");
       if (townhallGround !== null) return townhallGround;
@@ -2541,7 +2547,7 @@ function surroundingPedestrianExtension(runtime: Runtime) {
       ubahnV281SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       ubahnV261SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       rosenthalerV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
-      (!currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) && hospitalV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft")) ||
+      (!currentNorthernV309(runtime, x, z)?.overridesOldHospitalAt(x,z) && hospitalV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft")) ||
       schoolCultureV228SolidAt(x,y,z,radius, runtime.lightingMode === "minecraft") ||
       eastSquaresV163SolidAt(x,z,y,radius) ||
       prisonsMemorialsV209SolidAt(x,y,z,radius) ||
@@ -4651,7 +4657,7 @@ function prepareIsoNavigation(
     if (centralNamedV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft", true)) return true;
     if (westIndustrialV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (districtCourtsV229SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
-    if (!currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) && hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (!currentNorthernV309(runtime, x, z)?.overridesOldHospitalAt(x,z) && hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (schoolCultureV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (ubahnV281SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (ubahnV261SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -4719,27 +4725,28 @@ function prepareIsoNavigation(
     if (parliamentWorldReadyV295(runtime)) { const floor=parliamentGroundAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,z,currentGroundY); if(floor!==null)return floor; }
     const piazzettaFloor = kulturforumPiazzettaFloorAt(x, z, runtime.lightingMode === "minecraft");
     if (piazzettaFloor !== null) return piazzettaFloor;
-    const colonnadeFloor = museumColonnadesV231GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const groundHint = currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0;
+    const colonnadeFloor = museumColonnadesV231GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft");
     if (colonnadeFloor !== null) return colonnadeFloor;
-    const monbijouFloor = monbijouV231GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const monbijouFloor = monbijouV231GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft");
     if (monbijouFloor !== null) return monbijouFloor;
     const sledSlope = fritzRodelbahnGroundAtV229(x, z, runtime.lightingMode === "minecraft");
     if (sledSlope !== null) return sledSlope;
-    const weddingFloor = weddingStationFloorAtV229(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const weddingFloor = weddingStationFloorAtV229(x, z, groundHint, runtime.lightingMode === "minecraft");
     if (weddingFloor !== null) return weddingFloor;
-    const botanicalFloor = botanicalV230FloorAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const botanicalFloor = botanicalV230FloorAt(x, z, groundHint, runtime.lightingMode === "minecraft");
     if (botanicalFloor !== null) return botanicalFloor;
-    const planetariumFloor = prenzlbergV264GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const planetariumFloor = prenzlbergV264GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft");
     if (planetariumFloor !== null) return planetariumFloor;
-    const centralFloor = centralNamedV230GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft", true);
+    const centralFloor = centralNamedV230GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft", true);
     if (centralFloor !== null) return centralFloor;
-    const industrialFloor = westIndustrialV230GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const industrialFloor = westIndustrialV230GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft");
     if (industrialFloor !== null) return industrialFloor;
-    const courtFloor = districtCourtsV229GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const courtFloor = districtCourtsV229GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft");
     if (courtFloor !== null) return courtFloor;
-    const hospitalFloor = currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) ? null : hospitalV228GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const hospitalFloor = currentNorthernV309(runtime, x, z)?.overridesOldHospitalAt(x,z) ? null : hospitalV228GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft");
     if (hospitalFloor !== null) return hospitalFloor;
-    const schoolFloor = schoolCultureV228GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const schoolFloor = schoolCultureV228GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft");
     if (schoolFloor !== null) return schoolFloor;
     const v281Floor = ubahnV281FloorAt(x, z, runtime.lightingMode === "minecraft");
     if (v281Floor !== null) return v281Floor;
@@ -4747,15 +4754,15 @@ function prepareIsoNavigation(
     if (v261Floor !== null) return v261Floor;
     const rosenthalerFloor = rosenthalerV228FloorAt(x, z, runtime.lightingMode === "minecraft");
     if (rosenthalerFloor !== null) return rosenthalerFloor;
-    const aegFloor = aegCampusV241GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const aegFloor = aegCampusV241GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft");
     if (aegFloor !== null) return aegFloor;
-    const townhallFloor = districtTownhallV227GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const townhallFloor = districtTownhallV227GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft");
     if (townhallFloor !== null) return townhallFloor;
-    const motorwayFloor = steglitzMotorwayV226GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const motorwayFloor = steglitzMotorwayV226GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft");
     if (motorwayFloor !== null) return motorwayFloor;
-    const arenaStationFloor = arenaStationV225GroundAt(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft");
+    const arenaStationFloor = arenaStationV225GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft");
     if (arenaStationFloor !== null) return arenaStationFloor;
-    const neueFloor = neueNationalgalerieGroundAtV217(x, z, currentGroundY ?? pedestrianEnvironment.groundAt(x, z) ?? 0);
+    const neueFloor = neueNationalgalerieGroundAtV217(x, z, groundHint);
     if (neueFloor !== null) return neueFloor;
     const zooFloor = zooStationV165FloorAt(x,z,currentGroundY ?? 5.2);
     if (zooFloor !== null) return zooFloor;
@@ -4767,17 +4774,17 @@ function prepareIsoNavigation(
     if (udlFloor !== null) return udlFloor;
     const wacheFloor = neueWacheGroundAt(x,z,currentGroundY);
     if (wacheFloor !== null) return wacheFloor;
-    const promenade = spreebogenWalkSurfaceAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0,voxelModeActive(runtime),runtime.coarsePointer);
+    const promenade = spreebogenWalkSurfaceAt(x,z,groundHint,voxelModeActive(runtime),runtime.coarsePointer);
     if (promenade !== null) return promenade;
     const parkLawn = spreebogenLawnGroundAt(x,z);
     if (parkLawn !== null) return parkLawn;
-    const bendlerFloor = bendlerblockV202GroundAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
+    const bendlerFloor = bendlerblockV202GroundAt(x,z,groundHint);
     if (bendlerFloor !== null) return bendlerFloor;
-    const panoramaFloor = pergamonPanoramaV202GroundAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
+    const panoramaFloor = pergamonPanoramaV202GroundAt(x,z,groundHint);
     if (panoramaFloor !== null) return panoramaFloor;
-    const jamesFloor = jamesSimonWalkSurfaceAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
+    const jamesFloor = jamesSimonWalkSurfaceAt(x,z,groundHint);
     if (jamesFloor !== null) return jamesFloor;
-    const altesFloor = domAltesExtraGroundAt(x,z,currentGroundY ?? pedestrianEnvironment.groundAt(x,z) ?? 0);
+    const altesFloor = domAltesExtraGroundAt(x,z,groundHint);
     if (altesFloor !== null) return altesFloor;
     const museumFloor = nationalgalerieWalkSurfaceAt(x,z);
     if (museumFloor !== null) return museumFloor;
@@ -4793,7 +4800,7 @@ function prepareIsoNavigation(
     }
     const hint = Number.isFinite(currentGroundY)
       ? currentGroundY!
-      : (pedestrianEnvironment.groundAt(x, z) ?? 0);
+      : (currentGroundY == null ? groundHint : pedestrianEnvironment.groundAt(x, z) ?? 0);
     return schwellenraumInteriorGroundAt(x, z, hint);
   };
   const terrainSample = smoothGroundTopSampler(ground);
@@ -4919,6 +4926,7 @@ function ensureIsoWorld(
   if (runtime.isoWorldState !== "idle") {
     return;
   }
+  const yieldWorldTask = runtime.mobileConstruction?.yieldTask ?? yieldStartupWork;
   runtime.isoWorldState = "loading";
   let loadedParts = 0;
   runtime.reportStartupWork?.({ phase: "sources", completed: 0, total: 5 });
@@ -5064,13 +5072,14 @@ function ensureIsoWorld(
         return;
       }
       const governmentV323=await governmentDetailsV323;
+      if (runtime.mobileConstruction?.suspended) await yieldWorldTask();
       if(runtime.disposed||runtime.loadSignal.aborted||!isoWorldIntentActive(runtime))throw new DOMException("World construction cancelled","AbortError");
       if(!governmentV323)throw Error("Required architecture module could not be loaded");
       if(street&&ground)await prepareMemorialPreviousV322(false,{keys:["berlin","pyramide","cadillacs","french","british"],street,ground});
       if(runtime.disposed||runtime.loadSignal.aborted||!isoWorldIntentActive(runtime))throw new DOMException("World construction cancelled","AbortError");
       const pendingSignatures = new Group();
       runtime.reportStartupWork?.({ phase: "owners", completed: 0 });
-      await yieldStartupPaintV309(runtime.loadSignal);
+      await yieldStartupPaintV309(runtime.loadSignal, yieldWorldTask);
       if (runtime.disposed || runtime.loadSignal.aborted || !isoWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
       const fidelityV288 = prepareRequiredFidelityV288(prisms, ground, false, admitsChancelleryCanopyLegacyV289(runtime.signatures),runtime.coarsePointer,true,true);
       provisionalIsoWorld = fidelityV288.root;
@@ -5090,6 +5099,7 @@ function ensureIsoWorld(
           ])
         : [null, null, null, null];
       const squareModelsV383 = await prepareSouthernCoreSquaresV383(false);
+      if (runtime.mobileConstruction?.suspended) await yieldWorldTask();
       if (runtime.disposed || runtime.loadSignal.aborted || !isoWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
       const nordbahnhof = nordbahnhofModule?.prepareNordbahnhofDrawn(prisms.buildings, ground) ?? null;
       const hbfCirculationV291 = runtime.signatures.children.some(model => model.userData.hbfMotionFrameV291?.native === false);
@@ -5106,7 +5116,7 @@ function ensureIsoWorld(
       let pendingTrafficSignals: Group | null | undefined;
       if (ground && surfaces) {
         runtime.reportStartupWork?.({ phase: "navigation", completed: 0 });
-        await yieldStartupPaintV309(runtime.loadSignal);
+        await yieldStartupPaintV309(runtime.loadSignal, yieldWorldTask);
         if (runtime.disposed || runtime.loadSignal.aborted || !isoWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
         const navigation = prepareIsoNavigation(runtime, ground, surfaces, prisms, street?.monuments, fidelityV288.corePrismChecks);
         provisionalPedestrianEnvironment = navigation.environment;
@@ -5115,6 +5125,7 @@ function ensureIsoWorld(
       // The existing required-sites import has already loaded this source.
       // Prove only Drawn's immutable fitting field before its optional swap.
       await prepareFederalMinistryPressQuarterSourceV321(false);
+      if (runtime.mobileConstruction?.suspended) await yieldWorldTask();
       if(runtime.disposed||runtime.loadSignal.aborted||runtime.worldFailureReported||!isoWorldIntentActive(runtime))throw new DOMException("World construction cancelled","AbortError");
       const initialBuildingCount = runtime.coarsePointer
         ? MOBILE_INITIAL_BUILDING_COUNT
@@ -5525,7 +5536,7 @@ function ensureIsoWorld(
           yield;
           pendingPathTerrainAt = prepareDistrictPathTerrain(ground, runtime.tunnelPortalCourse);
         }
-        isoWorld.add(createProgressiveBuildingCoverage(prisms, buildingPartition, { nordbahnhofCuts: nordbahnhof?.cuts, potsdamerNorthPavilion, moabitMitteV300:fidelityV288.moabitMitte, westKiezV302:fidelityV288.westKiez, hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, charlottenburgerTorV379: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }));
+        yield* createProgressiveBuildingCoverageSteps(prisms, buildingPartition, { nordbahnhofCuts: nordbahnhof?.cuts, potsdamerNorthPavilion, moabitMitteV300:fidelityV288.moabitMitte, westKiezV302:fidelityV288.westKiez, hbfCirculationV291, parliamentInteriorsV295, parliamentaryDiningV296:fidelityV288.parliamentaryDining, waterfrontV296:fidelityV288.waterfront, potsdamerStationPhoto: stationPhotoAdmitted, historicDomV288: fidelityV288.historicDom, potsdamerCorridorV288: fidelityV288.potsdamerCorridor, chancelleryCanopySourceV289: fidelityV288.chancelleryCanopy, golgathaV270: true, tachelesFrontsV270: true, technikmuseumV272: true, tiergartenWerkhofV275: true, steppengartenShelterV283: true, bayerCampusV277: true, lehrterV277: true, rkiMoabitV277: true, verkehrskanzelV276: true, charlottenburgerTorV379: true, zooWestV276: true, zooHousesV282: true, operaTheatresV274: true, moabitLandmarksV269: true, tempodromAnhalterV266: true, northernSitesV266: true, chariteBridgesV265: true, architectureV241: true, includeLegacySchlossplatzEnvelopes: false, includeLegacyColonnadesEnvelopes: false, includeLegacyWeddingStationRoof: false, includeLegacyDistrictCourtEnvelopes: false, includeLegacyTownhallEnvelopes: false }, coverage => isoWorld.add(coverage));
         yield;
         isoWorld.add(komischeOper.createKomischeOperSourceGeometry());
         yield;
@@ -5745,20 +5756,21 @@ function ensureIsoWorld(
         }
         return isoWorld;
       })(), {
-        yieldTask: yieldStartupWork,
+        yieldTask: yieldWorldTask,
         isCancelled: () => runtime.disposed || runtime.loadSignal.aborted ||
           runtime.worldFailureReported || !isoWorldIntentActive(runtime),
       });
       prepareGroundDrawRangesV383(isoWorld);
       await parkOpeningWorldBuffers(isoWorld, provisionalIsoAddons!, provisionalParkingV323?.shouldPark,
         () => runtime.disposed || runtime.loadSignal.aborted || runtime.worldFailureReported || !isoWorldIntentActive(runtime),
-        yieldStartupWork);
+        yieldWorldTask);
       reportDetailStep(6);
       if (openingRoadViewV376) {
         await openingRoadViewV376.opening();
-        if (runtime.disposed || runtime.loadSignal.aborted || runtime.worldFailureReported || !isoWorldIntentActive(runtime))
-          throw new DOMException("World construction cancelled", "AbortError");
       }
+      if (runtime.mobileConstruction?.suspended) await yieldWorldTask();
+      if (runtime.disposed || runtime.loadSignal.aborted || runtime.worldFailureReported || !isoWorldIntentActive(runtime))
+        throw new DOMException("World construction cancelled", "AbortError");
       mutableRootSnapshots = captureMutableRootSnapshots([
         runtime.signatures,
         runtime.cityStaffage,
@@ -5830,7 +5842,7 @@ function ensureIsoWorld(
         provisionalParkingV323.reparent([isoWorld,runtime.signatures,runtime.cityStaffage,runtime.undergroundNetwork,runtime.tramCatenary]);
         performance.mark("isometric-first-upload-parking-deferred",{detail:{bytes:provisionalParkingV323.bytes,count:provisionalParkingV323.count}});
         const task=createFirstUploadScheduleV323(provisionalParkingV323,{
-          yieldTask:yieldStartupWork,yieldAfterPaint:()=>yieldStartupPaintV309(runtime.loadSignal),
+          yieldTask:yieldWorldTask,yieldAfterPaint:()=>yieldStartupPaintV309(runtime.loadSignal, yieldWorldTask),
           isCancelled:()=>runtime.disposed||runtime.loadSignal.aborted||runtime.isoWorld!==isoWorld,
           onSettled:()=>{
             if(runtime.firstUploadParkingV323!==task)return;
@@ -6006,7 +6018,7 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
     if (centralNamedV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft", true)) return true;
     if (westIndustrialV230SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (districtCourtsV229SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
-    if (!currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) && hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
+    if (!currentNorthernV309(runtime, x, z)?.overridesOldHospitalAt(x,z) && hospitalV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (schoolCultureV228SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (ubahnV281SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
     if (ubahnV261SolidAt(x, y, z, radius, runtime.lightingMode === "minecraft")) return true;
@@ -6051,47 +6063,50 @@ function prepareVoxelNavigation(runtime: Runtime, payload: VoxelPayload, prisms:
   };
   const formerBridgeGround = environment.bridgeGroundAt;
   environment.bridgeGroundAt = (x, z) => landwehrDeckFloorV378(x, z, runtime.lightingMode === "minecraft") ?? monbijouV231DeckAt(x, z, runtime.lightingMode === "minecraft") ?? formerBridgeGround?.(x, z) ?? null;
-  environment.interiorGroundAt = (x, z, currentGroundY) =>
-    (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.openSitesNavigationV346?.groundAt(x,z,currentGroundY) ??
+  environment.interiorGroundAt = (x, z, currentGroundY) => {
+    const priorityFloor = (voxelModeActive(runtime) ? runtime.voxelWorld : runtime.isoWorld)?.userData.openSitesNavigationV346?.groundAt(x,z,currentGroundY) ??
     europacityRoadFloor(runtime, x, z, currentGroundY) ??
     (parliamentWorldReadyV295(runtime) ? parliamentGroundAtV295(publishedNavigationMode(runtime.lightingMode,voxelModeActive(runtime)),x,z,currentGroundY) : null) ??
-    kulturforumPiazzettaFloorAt(x, z, runtime.lightingMode === "minecraft") ??
-    museumColonnadesV231GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
-    monbijouV231GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
+    kulturforumPiazzettaFloorAt(x, z, runtime.lightingMode === "minecraft");
+    if (priorityFloor != null) return priorityFloor;
+    const groundHint = currentGroundY ?? environment.groundAt(x, z) ?? 0;
+    return museumColonnadesV231GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft") ??
+    monbijouV231GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft") ??
     fritzRodelbahnGroundAtV229(x, z, runtime.lightingMode === "minecraft") ??
-    weddingStationFloorAtV229(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
-    botanicalV230FloorAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
-    prenzlbergV264GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
-    centralNamedV230GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft", true) ??
-    westIndustrialV230GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
-    districtCourtsV229GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
-    (currentNorthernV309(runtime)?.overridesOldHospitalAt(x,z) ? null : hospitalV228GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft")) ??
-    schoolCultureV228GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
+    weddingStationFloorAtV229(x, z, groundHint, runtime.lightingMode === "minecraft") ??
+    botanicalV230FloorAt(x, z, groundHint, runtime.lightingMode === "minecraft") ??
+    prenzlbergV264GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft") ??
+    centralNamedV230GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft", true) ??
+    westIndustrialV230GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft") ??
+    districtCourtsV229GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft") ??
+    (currentNorthernV309(runtime, x, z)?.overridesOldHospitalAt(x,z) ? null : hospitalV228GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft")) ??
+    schoolCultureV228GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft") ??
     ubahnV281FloorAt(x, z, runtime.lightingMode === "minecraft") ??
     ubahnV261FloorAt(x, z, runtime.lightingMode === "minecraft") ??
     rosenthalerV228FloorAt(x, z, runtime.lightingMode === "minecraft") ??
-    aegCampusV241GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
-    districtTownhallV227GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
-    steglitzMotorwayV226GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
-    arenaStationV225GroundAt(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0, runtime.lightingMode === "minecraft") ??
-    neueNationalgalerieGroundAtV217(x, z, currentGroundY ?? environment.groundAt(x, z) ?? 0) ??
+    aegCampusV241GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft") ??
+    districtTownhallV227GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft") ??
+    steglitzMotorwayV226GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft") ??
+    arenaStationV225GroundAt(x, z, groundHint, runtime.lightingMode === "minecraft") ??
+    neueNationalgalerieGroundAtV217(x, z, groundHint) ??
     zooStationV165FloorAt(x,z,currentGroundY ?? 5.2) ??
     fernsehturmPavilionSupportHeightAt(x,z,currentGroundY ?? 5.2) ??
     alexanderPublicRealmSupportHeightAt(x,z,currentGroundY ?? 5.2) ??
     unterDenLindenEntranceFloorAt(x,z) ??
     neueWacheGroundAt(x,z,currentGroundY) ??
-    spreebogenWalkSurfaceAt(x,z,currentGroundY ?? environment?.groundAt(x,z) ?? 0,voxelModeActive(runtime),runtime.coarsePointer) ??
+    spreebogenWalkSurfaceAt(x,z,groundHint,voxelModeActive(runtime),runtime.coarsePointer) ??
     spreebogenLawnGroundAt(x,z) ??
-    bendlerblockV202GroundAt(x,z,currentGroundY ?? environment?.groundAt(x,z) ?? 0) ??
-    pergamonPanoramaV202GroundAt(x,z,currentGroundY ?? environment?.groundAt(x,z) ?? 0) ??
-    jamesSimonWalkSurfaceAt(x,z,currentGroundY ?? environment?.groundAt(x,z) ?? 0) ??
-    domAltesExtraGroundAt(x,z,currentGroundY ?? environment?.groundAt(x,z) ?? 0) ??
+    bendlerblockV202GroundAt(x,z,groundHint) ??
+    pergamonPanoramaV202GroundAt(x,z,groundHint) ??
+    jamesSimonWalkSurfaceAt(x,z,groundHint) ??
+    domAltesExtraGroundAt(x,z,groundHint) ??
     nationalgalerieWalkSurfaceAt(x,z) ??
     sovietMemorialGroundAt(x,z) ??
     hauptbahnhofGroundAt(runtime.lightingMode, x, z, currentGroundY) ??
     (minecraftHeroCollisionEnabled(runtime.lightingMode)
       ? minecraftHeroGroundAt(x, z)
       : null);
+  };
   installFidelityNavigationV296(environment,()=>fidelityAdmissionV296(runtime));
   installNorthernNavigationV309(runtime,environment);
   installGovernmentNavigationV321(runtime,environment);
@@ -6152,6 +6167,7 @@ function ensureVoxelWorld(
   ) {
     return;
   }
+  const yieldWorldTask = runtime.mobileConstruction?.yieldTask ?? yieldStartupWork;
   runtime.voxelWorldState = "loading";
   runtime.reportStartupWork?.({ phase: "sources", completed: 0, total: 5, native: true });
   let loadedParts = 0;
@@ -6197,6 +6213,7 @@ function ensureVoxelWorld(
       // Preload only after confirming intent, then recheck after the await:
       // imports may finish after a mode switch or context retirement.
       const governmentV323=await governmentDetailsV323;
+      if (runtime.mobileConstruction?.suspended) await yieldWorldTask();
       if(runtime.disposed||runtime.loadSignal.aborted||!voxelWorldIntentActive(runtime))throw new DOMException("World construction cancelled","AbortError");
       if(!governmentV323)throw Error("Required architecture module could not be loaded");
       await tracked(preloadAltMitteNativeV169Source());
@@ -6228,6 +6245,7 @@ function ensureVoxelWorld(
         import("./GendarmenSecondRowV344"), import("./SchlossplatzContextV344"), import("./SchlossQuartierV383"), import("./PetriExteriorV344"), import("./BauakademieExteriorV344"), import("./NordbahnhofFrontsV345"), import("./OpenSitesV346"),
       ]) : [null, null, null, null, null, null, null, null, null];
       const squareModelsV383 = await prepareSouthernCoreSquaresV383(true);
+      if (runtime.mobileConstruction?.suspended) await yieldWorldTask();
       if (runtime.disposed || runtime.loadSignal.aborted || !voxelWorldIntentActive(runtime)) throw new DOMException("World construction cancelled", "AbortError");
       const nordbahnhof = nordbahnhofModule?.prepareNordbahnhofNative(prisms?.buildings, payload) ?? null;
       const treePayload = runtime.mitteTreesV375 ? withCanopyVoxelsV376(payload) : payload;
@@ -6259,7 +6277,7 @@ function ensureVoxelWorld(
           },
         ),
         {
-          yieldTask: yieldStartupWork,
+          yieldTask: yieldWorldTask,
           isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
         },
       );
@@ -6296,7 +6314,7 @@ function ensureVoxelWorld(
       // Finish source-bound matrix corrections, then retire the complete
       // immutable backing before navigation and companion fields allocate.
       await completeCooperatively(sitesV209.addRequiredSiteEnvelopesV209Steps(provisionalVoxelWorld, true), {
-        yieldTask: yieldStartupWork,
+        yieldTask: yieldWorldTask,
         isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
         onCheckpoint: completed => {
           if (voxelWorldIntentActive(runtime)) runtime.reportStartupWork?.({ phase: "architecture", completed, native: true });
@@ -6324,21 +6342,21 @@ function ensureVoxelWorld(
       const streetPreviousWorldV325=provisionalVoxelWorld;
       const streetPreviousV325=governmentV323.getWilhelmStreetFrontsPreviousInputV325(streetPreviousWorldV325,true);
       await completeCooperatively(governmentV323.prepareWilhelmHousingRuntimePreviousV324Steps(provisionalVoxelWorld,true,governmentSwapHooksV321(runtime,provisionalVoxelWorld),streetPreviousV325),{
-        yieldTask:yieldStartupWork,isCancelled:()=>runtime.disposed||!voxelWorldIntentActive(runtime),
+        yieldTask:yieldWorldTask,isCancelled:()=>runtime.disposed||!voxelWorldIntentActive(runtime),
       });
       if(streetPreviousV325&&!governmentV323.attachWilhelmStreetFrontsPreviousGateV325(provisionalVoxelWorld,true,
         ()=>governmentV323.hasWilhelmHousingRuntimePreviousV324(streetPreviousWorldV325,true))){
         governmentV323.resetWilhelmHousingRuntimePreviousV324(provisionalVoxelWorld,true);
         governmentV323.releaseWilhelmStreetFrontsRuntimeV325(provisionalVoxelWorld,true);
         await completeCooperatively(governmentV323.prepareWilhelmHousingRuntimePreviousV324Steps(provisionalVoxelWorld,true,governmentSwapHooksV321(runtime,provisionalVoxelWorld)),{
-          yieldTask:yieldStartupWork,isCancelled:()=>runtime.disposed||!voxelWorldIntentActive(runtime),
+          yieldTask:yieldWorldTask,isCancelled:()=>runtime.disposed||!voxelWorldIntentActive(runtime),
         });
       }
       provisionalGovernmentNativeV321=prisms?await completeCooperatively(preparePublicOfficesV322Steps(runtime,provisionalVoxelWorld,{sourcePrisms:prisms.buildings,voxels:payload,native:true,mobileLike:runtime.coarsePointer},governmentV323),{
-        yieldTask:yieldStartupWork,isCancelled:()=>runtime.disposed||!voxelWorldIntentActive(runtime),
+        yieldTask:yieldWorldTask,isCancelled:()=>runtime.disposed||!voxelWorldIntentActive(runtime),
       }):null;
       await completeCooperatively(parkStaticInstancesSteps(provisionalVoxelWorld), {
-        yieldTask: yieldStartupWork,
+        yieldTask: yieldWorldTask,
         isCancelled: () => runtime.disposed || !voxelWorldIntentActive(runtime),
         onCheckpoint: completed => {
           if (voxelWorldIntentActive(runtime)) runtime.reportStartupWork?.({ phase: "details", completed, native: true });
@@ -7153,6 +7171,7 @@ function disposeObject3D(runtime: Runtime, root: Object3D): void {
       )) {
         if (value instanceof Texture) {
           textures.add(value);
+          if (unpaintedCanvas(value)) continue;
           const image = value.source.data as { close?: () => void } | undefined;
           if (typeof image?.close === "function") {
             closeableImages.add(image as { close: () => void });
@@ -7203,7 +7222,7 @@ function yieldStartupWork(): Promise<void> {
 }
 
 /** Separate paint opportunities from geometry-construction checkpoints. */
-function yieldStartupPaintV309(signal?: AbortSignal): Promise<void> {
+function yieldStartupPaintV309(signal?: AbortSignal, yieldTask = yieldStartupWork): Promise<void> {
   return new Promise((resolve, reject) => {
     let frame = 0;
     const abort = () => {
@@ -7217,7 +7236,7 @@ function yieldStartupPaintV309(signal?: AbortSignal): Promise<void> {
       frame = 0;
       signal?.removeEventListener("abort", abort);
       // Resume in a new task, after this frame's React commit and paint.
-      yieldStartupWork().then(resolve, reject);
+      yieldTask().then(resolve, reject);
     });
   });
 }
@@ -8292,6 +8311,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         reducedMotion,
         precipitationEnabled: precipitationEnabledRef.current,
         loadSignal: loadController.signal,
+        mobileConstruction: coarsePointer ? createMobileConstructionTasks(yieldStartupWork, loadController.signal, !document.hidden) : undefined,
         reportWorldFailure: () => {
           if (runtime.disposed || runtime.worldFailureReported) return;
           runtime.worldFailureReported = true;
@@ -9420,10 +9440,19 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         onError: message => onWarningRef.current(message),
       });
       let recoveryPageHidden = false;
+      let mobileFrameTargetsSuspended = false;
       let contextRecovery: ReturnType<typeof createViewerContextRecovery> | undefined;
       const onVisibilityChange = () => {
-        contextRecovery?.setActive(!document.hidden && !recoveryPageHidden);
-        if (document.hidden || runtime.contextLost) {
+        const hidden = document.hidden || recoveryPageHidden;
+        if (contextRecovery?.setActive(!hidden)) return;
+        runtime.mobileConstruction?.setActive(!hidden && !runtime.contextLost);
+        if (hidden || runtime.contextLost) {
+          if (hidden && coarsePointer && !runtime.contextLost && appliedWidth > 0 && !mobileFrameTargetsSuspended) {
+            // Resizing releases Three's city colour/depth and SMAA targets.
+            // The displayed canvas, shaders and complete scene stay resident.
+            composer.setSize(1, 1);
+            mobileFrameTargetsSuspended = true;
+          }
           if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
           gpuWarmupTimer = null;
           resetTouchGesture();
@@ -9437,6 +9466,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             stopProgressiveWorld(runtime);
           }
         } else {
+          if (mobileFrameTargetsSuspended) {
+            composer.setSize(appliedWidth * appliedPixelRatio, appliedHeight * appliedPixelRatio);
+            mobileFrameTargetsSuspended = false;
+          }
           runtime.scheduleGpuWarmup?.();
           runtime.berlinerEnsembleRoofSignLastFrameAt = performance.now();
           runtime.europaCenterStarLastFrameAt = performance.now();
@@ -9469,18 +9502,10 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       const onPageHide = () => {
         recoveryPageHidden = true;
-        contextRecovery?.setActive(false);
-        if (gpuWarmupTimer !== null) window.clearTimeout(gpuWarmupTimer);
-        gpuWarmupTimer = null;
-        resetTouchGesture();
-        cancelScheduledProgressiveWorld(runtime);
-        if (runtime.progressiveWorldState === "loading") {
-          stopProgressiveWorld(runtime);
-        }
+        onVisibilityChange();
       };
       const onPageShow = (event: PageTransitionEvent) => {
         recoveryPageHidden = false;
-        contextRecovery?.setActive(!document.hidden);
         if (!event.persisted) return;
         resize(true);
         onVisibilityChange();
@@ -9975,7 +10000,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         frame = window.requestAnimationFrame(animate);
-        if (!activeRef.current || document.hidden || runtime.contextLost) {
+        if (!activeRef.current || document.hidden || recoveryPageHidden || runtime.contextLost) {
           runtime.hbfStationV291?.update(timestamp, camera, runtime.lightingMode === "minecraft", reducedMotion, true);
           runtime.zooAnimalsV282?.update(timestamp, camera, runtime.lightingMode === 'minecraft', true);
           runtime.columbiahalleV257?.suspend();
@@ -9994,7 +10019,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           return;
         }
         // The unlit exhibit fade has no changing shadow casters.
-        runtime.governmentCentralV321?.sync();
         if (runtime.pergamonReveal?.update(timestamp)) runtime.renderInvalidated = true;
         updatePressehausV272(timestamp, false);
         if (runtime.hbfStationV291?.update(timestamp, camera, runtime.lightingMode === "minecraft", reducedMotion, runtime.underside)) runtime.renderInvalidated = true;
@@ -10591,6 +10615,9 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           updateEuropaCenterStars(runtime.europaCenterStarTargets, runtime.europaCenterStarElapsedSeconds);
           runtime.europaCenterStarLastFrameAt = timestamp;
         }
+        // Validate the central replacement against this frame's final model
+        // and lighting. Skipped RAF callbacks keep the previous framebuffer.
+        runtime.governmentCentralV321?.sync();
         if (shadowRefresh) renderer.shadowMap.needsUpdate = true;
         composer.render();
         if(runtime.isoWorld&&!voxelModeActive(runtime))runtime.firstUploadParkingV323?.afterRender();
@@ -10599,6 +10626,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       };
       animate();
 
+      const yieldSceneTask = runtime.mobileConstruction?.yieldTask ?? yieldStartupWork;
       const startupFetcher = startupSources?.adopt();
       const sceneManifestPromise = fetchJsonWithRetry<SceneManifest>(new URL(sceneUrl, window.location.href), {
         signal: loadController.signal,
@@ -10608,6 +10636,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
       startupSources?.discard();
       void sceneManifestPromise
         .then(async (manifest) => {
+          if (runtime.mobileConstruction?.suspended) await yieldSceneTask();
           if (disposed) {
             return;
           }
@@ -10668,7 +10697,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             setParkSnowPresentation(runtime.parkDetails, runtime.lightingMode === "snowstorm");
             runtime.parkDetails.visible = !runtime.underside && !voxelModeActive(runtime);
           }
-          await yieldStartupWork();
+          await yieldSceneTask();
           if (runtime.disposed) return;
           runtime.civicDetails.removeFromParent();
           runtime.civicDetails = createCivicLandmarks(manifest.landmarks);
@@ -10740,7 +10769,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.civicDetails,
             runtime.lightingMode === "snowstorm",
           );
-          await yieldStartupWork();
+          await yieldSceneTask();
           if (runtime.disposed) return;
           runtime.focusCameraByName.set("Schweizerische Botschaft", {
             azimuth_degrees: -42,
@@ -10940,7 +10969,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             runtime.signatures,
             runtime.lightingMode === "snowstorm",
           );
-          await yieldStartupWork();
+          await yieldSceneTask();
           if (runtime.disposed) return;
           runtime.monuments.removeFromParent();
           runtime.monuments = createMemorialLandmarks(manifest.landmarks);
@@ -11021,7 +11050,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           // immediately so a cold Minecraft start receives the same stable
           // far-distance fade as Day without waiting for a later park load.
           collectFarZoomAntiFlickerTargets(runtime);
-          await yieldStartupWork();
+          await yieldSceneTask();
           if (runtime.disposed) return;
           const cityWestEarly = runtime.cityWestEarlyV379 ??= {};
           const church = await prepareDrawnChurchV379(runtime);
@@ -11106,7 +11135,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
             );
           }
           applyRuntimeMinecraftVisibility(runtime, voxelModeActive(runtime));
-          await yieldStartupWork();
+          await yieldSceneTask();
           if (runtime.disposed) return;
           for (const landmark of manifest.landmarks) {
             const focusCamera = culturalFocusCamera(landmark.name);
@@ -11124,16 +11153,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           }
           let deferredDetailsStarted = false;
           runtime.startDeferredDetails = () => {
-            if (runtime.contextLost || runtime.firstUploadParkingV323?.pending || deferredDetailsStarted || !manifest.park_details?.file) {
+            const parkSuspended = () => runtime.contextLost ||
+              (runtime.coarsePointer && (document.hidden || recoveryPageHidden || !isoWorldIntentActive(runtime)));
+            if (parkSuspended() || runtime.firstUploadParkingV323?.pending || deferredDetailsStarted || !manifest.park_details?.file) {
               return;
             }
             // Finish the required city before optional smooth park construction.
             if(!runtime.isoWorld)return;
             if (
               runtime.coarsePointer &&
-              (document.hidden ||
-                !isoWorldIntentActive(runtime) ||
-                runtime.progressiveWorldState === "loading" ||
+              (runtime.progressiveWorldState === "loading" ||
                 runtime.progressiveWorldStartCancel !== undefined ||
                 (runtime.progressiveWorldInput !== undefined &&
                   runtime.progressiveWorldState === "idle"))
@@ -11145,10 +11174,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
               if (runtime.disposed) {
                 return;
               }
-              if (
-                runtime.coarsePointer &&
-                (document.hidden || !isoWorldIntentActive(runtime))
-              ) {
+              if (parkSuspended()) {
                 deferredDetailsStarted = false;
                 return;
               }
@@ -11163,10 +11189,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   if (runtime.disposed) {
                     return;
                   }
-                  if (
-                    runtime.coarsePointer &&
-                    (document.hidden || !isoWorldIntentActive(runtime))
-                  ) {
+                  if (parkSuspended()) {
                     deferredDetailsStarted = false;
                     return;
                   }
@@ -11186,7 +11209,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
                   let northPropsOwner: NorthernFidelityBundleV309 | undefined;
                   let northPropsTransaction: NorthTerrainDrapingV309Transaction | undefined;
                   const constructionCancelled = () => runtime.disposed || loadController.signal.aborted ||
-                    (runtime.coarsePointer && (document.hidden || !isoWorldIntentActive(runtime)));
+                    parkSuspended();
                   try {
                     // Both input profiles keep their exact original options.
                     // Packed scratch and task boundaries also prevent desktop

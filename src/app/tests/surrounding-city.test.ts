@@ -768,6 +768,41 @@ test("changing landmarks replaces a still-visible opening request, including spe
   } finally { city.dispose(); for (const request of requests) request.finish(); }
 });
 
+test("mobile jumps retire only departed districts before the next fetch; desktop keeps its normal grace period", async () => {
+  for (const mobile of [false, true]) {
+    const view = camera(), events: string[] = [];
+    const city = createSurroundingCity({
+      camera: view, now: () => 0, retireAfterJumpM: mobile ? 128 : undefined,
+      manifestUrl: new URL("https://example.test/manifest.json"),
+      fetch: (async (input, init) => {
+        events.push(new URL(String(input)).pathname);
+        return sourceFetch()(input, init);
+      }) as typeof fetch,
+      onRelease: root => { events.push(root.name); disposeSurroundingCityRoot(root); },
+    });
+    try {
+      city.setPlaceFocusV383({x:256,z:256,required:["tile-0","tile-2048"]});
+      await city.ready;
+      await until(() => !city.pending && city.residentChunkCount===2);
+      const retained = city.root.getObjectByName("Surrounding Berlin outline tile-2048");
+      expect(retained).toBeDefined();
+
+      view.position.set(2304,500,256); view.lookAt(2304,0,256);
+      city.setPlaceFocusV383({x:2304,z:256,required:["tile-2048"]});
+      expect(retained!.parent).toBe(city.root);
+      expect(city.residentChunkCount).toBe(mobile ? 1 : 2);
+      if (!mobile) continue;
+
+      events.length=0;
+      view.position.set(256,500,256); view.lookAt(256,0,256);
+      city.setPlaceFocusV383({x:256,z:256,required:["tile-0"]});
+      await until(() => !city.pending && city.residentChunkCount===1);
+      expect(events).toEqual(["Surrounding Berlin outline tile-2048","/drawn/0.json"]);
+      expect(city.groundAt(256,256)).toBe(3);
+    } finally { city.dispose(); }
+  }
+});
+
 test("an off-screen owner straddling the selected place follows its style and retires after a pan", async () => {
   const source = manifest(), view = camera(), calls: string[] = [], warnings: string[] = [];
   let clock = 0, retry = false;

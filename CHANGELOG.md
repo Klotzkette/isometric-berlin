@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.266
+
+- On phones, a long camera jump releases districts that have left the view before the next ones load. Street packets now write directly to their final buffers. The complete set of 425 packets retained all 31,881,710 geometry bytes in comparison.
+- Prepare the initial 29,818 city buildings one district at a time, paint architectural signs when their textures are first used, and compress incoming geometry in bounded background tasks. The positions, normals, colours and indices of the initial building coverage matched the previous version byte for byte.
+- Run the central office model check once per displayed city frame, reuse the terrain sample across floor checks, and limit northern collision checks to the area they cover. Correct the edge mask used for antialiasing on flat facades and sky.
+- Pause mobile construction while the page is hidden, release temporary drawing buffers and restore the original resolution when returning to the viewer. A WebGL restoration received in the background now waits for the page to become visible.
+
 ## 1.0.265
 
 - Refine the historic traffic tower, Ritz-Carlton roof and entrance canopy, Mall of Berlin entrance paving and galleries, Canadian Embassy and the Taylor Wessing and Telekom street fronts. Add direct views of their public facades and locate the exhibited Berlin Wall sections around Potsdamer and Leipziger Platz.

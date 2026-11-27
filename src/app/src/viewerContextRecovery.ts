@@ -12,7 +12,7 @@ export function createViewerContextRecovery(options: {
     const timer = setTimeout(callback, delay);
     return () => clearTimeout(timer);
   });
-  let state: "ready" | "lost" | "failed" | "disposed" = "ready";
+  let state: "ready" | "lost" | "restored-hidden" | "failed" | "disposed" = "ready";
   let cancel: (() => void) | undefined;
   let generation = 0;
   let active = options.initiallyActive ?? true;
@@ -39,27 +39,35 @@ export function createViewerContextRecovery(options: {
     }, remainingMs);
   };
   return {
-    /** Count only foreground recovery time; background GPU restoration may be suspended. */
-    setActive(value: boolean): void {
-      if (state === "disposed" || value === active) return;
+    /** Return true when this transition already resumed the viewer. */
+    setActive(value: boolean): boolean {
+      if (state === "disposed" || value === active) return false;
       active = value;
       if (!active) cancelTimer();
-      else arm();
+      else if (state === "restored-hidden") {
+        state = "ready";
+        options.resume();
+        return true;
+      } else arm();
+      return false;
     },
     lost(event: Event): void {
       // This opts into the browser/Three renderer's context restoration.
       event.preventDefault();
-      if (state !== "ready") return;
+      if (state !== "ready" && state !== "restored-hidden") return;
+      const needsPause = state === "ready";
       state = "lost";
       remainingMs = options.timeoutMs ?? 20_000;
-      options.pause();
+      if (needsPause) options.pause();
       arm();
     },
     restored(): void {
       if (state !== "lost") return;
       cancelTimer();
-      state = "ready";
-      options.resume();
+      // WebKit can restore GL while a page is in the back-forward cache.
+      // Keep scene uploads and construction paused until the page is visible.
+      state = active ? "ready" : "restored-hidden";
+      if (active) options.resume();
     },
     dispose(): void {
       state = "disposed";

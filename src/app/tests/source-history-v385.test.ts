@@ -2,13 +2,15 @@ import { expect, test } from "bun:test";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { expectedExactSourceRejection } from "./helpers/expectedExactSourceRejection";
+import { sourceHistoryV386 } from "./helpers/sourceHistoryV386";
 import { sourceHistoryV385 } from "./helpers/sourceHistoryV385";
 
 const root = new URL("../../..", import.meta.url);
 const base = "4863cd5fc0ef1d48941ec4bd37f207afe90955fa";
 const digest = (data: Uint8Array) => createHash("sha256").update(data).digest("hex");
 const fixture = (name: string) => readFileSync(new URL(`./fixtures/source-history-${name}.json`, import.meta.url));
-const current = (path: string) => readFileSync(new URL(path, root));
+const current = (path: string) => Buffer.from(sourceHistoryV386.restore(path, readFileSync(new URL(path, root))));
 const git = (...args: string[]) => execFileSync("git", args, { cwd: root, maxBuffer: 32 * 1024 * 1024 });
 const receipt = JSON.parse(fixture("v385").toString()) as {
   changes: Record<string, { before: string; after: string }>;
@@ -25,7 +27,7 @@ test("each v385 change restores the exact v1.0.264 Git blob and rejects unknown 
     expect(Buffer.from(sourceHistoryV385.restore(path, after)).equals(before)).toBeTrue();
     expect(sourceHistoryV385.restore(path, before)).toBe(before);
     expect(sourceHistoryV385.project(after.toString())).toBe(before.toString());
-    expect(() => sourceHistoryV385.restore(path, Buffer.concat([after, Buffer.from(" ")]))).toThrow(`Unknown exact v385 source bytes: ${path}`);
+    expect(() => sourceHistoryV385.restore(path, Buffer.concat([after, Buffer.from(" ")]))).toThrow(expectedExactSourceRejection(path));
   }
   for (const [path, hash] of Object.entries(receipt.additions)) {
     expect(git("ls-tree", "--name-only", base, "--", path).length).toBe(0);

@@ -3,6 +3,7 @@ import {expect,test} from "bun:test";
 import {readFileSync} from "node:fs";
 import ts from "typescript";
 import {BufferAttribute,BufferGeometry,Group,Mesh,MeshBasicMaterial,Line,Points} from "three";
+import {takeMittePathPreviewV375} from "../src/mittePathArrivalV375";
 import {bindGroundFinishV348} from "../src/GroundFinishV348";
 import {bindHbfForecourtFinishV354} from "../src/HbfForecourtFinishV354";
 import {completeCooperatively} from "../src/cooperativeWork";
@@ -24,7 +25,7 @@ function attachment(government?:any,yieldTask:()=>Promise<void>=async()=>{}){
     governmentOfficesV321:{drawn:government},gpuResidency:{enqueue:()=>trace.push("gpu")},geometryResidency:{enqueue:()=>{}},
     gpuWarmup:{enqueue:()=>{}},scheduleGpuWarmup:()=>{},inkLineObjects:[],berlinerEnsembleRoofSignTargets:[]};
   const noop=()=>{};
-  const attach=actual("attachProgressiveWorldMessage",{Group,Mesh,Line,Points,bindGroundFinishV348,bindHbfForecourtFinishV354,
+  const attach=actual("attachProgressiveWorldMessage",{takeMittePathPreviewV375,Group,Mesh,Line,Points,bindGroundFinishV348,bindHbfForecourtFinishV354,
     releaseBuiltWorldPayloads:noop,invalidateScenePresentation:()=>trace.push("invalidate"),
     progressiveWorldStopPolicy:()=>({nextState:"complete"}),collectFarZoomAntiFlickerTargets:noop,
     tryProgressiveWorkerOperation:(action:()=>void)=>{action();return{ok:true};},failProgressiveWorld:()=>failed.push(true),

@@ -26,6 +26,7 @@ import bridgeCoreDelta from "./data/gesundbrunnenBridgeCoreV309Delta.json";
 import { parkReliefAt } from "./parkReliefV182";
 import { railSseArchitectureV307Solids, railSseGroundAtV307, quantizeNativeTerrainHeightV307 } from "./railSseNavigationV307";
 import { createNorthernNavigationV309 } from "./NorthernNavigationV309";
+import { northernNavigationNearV309 } from "./northernVisibilityV309";
 import { freezeStaticSceneTransforms } from "./staticSceneTransforms";
 
 export type NorthernFidelityContextV309 = {
@@ -90,7 +91,7 @@ export function* createNorthernFidelityStepsV309(native: boolean, mobileLike: bo
     const humboldtGroundAt = createCoreHumboldtNavigationV307(contact, native);
     const bridgeNavigation = createGesundbrunnenRoadBridgeNavigationV309(bridges, native);
     const stagedTerrainAt = (x: number, z: number): number | null => {
-      if (!modelComplete()) return null;
+      if (!northernNavigationNearV309(x, z) || !modelComplete()) return null;
       const schoolGround = northSchoolGroundAtV306(x, z, native); if (schoolGround !== null) return schoolGround;
       const lowerBridgeGround = bridgeNavigation.groundAt(x, z); if (lowerBridgeGround !== null) return lowerBridgeGround;
       const railGround = railSseGroundAtV307(x, z, native); if (railGround !== null) return railGround;

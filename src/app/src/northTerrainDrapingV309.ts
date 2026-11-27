@@ -41,9 +41,10 @@ function axisTranslation(mesh:Mesh):number[]|null{
  return [a[12],a[13],a[14]];
 }
 function changeAt(x:number,z:number,oldY:number,options:NorthTerrainDrapingV309Options,anchor=false):number|null{
- const native=options.native===true,old=options.oldGroundAt!(x,z,native),rail=options.railGroundAt!(x,z,native),park=options.parkOffsetAt!(x,z,native);
- if(old===null||!Number.isFinite(old)||!Number.isFinite(park)||rail!==null&&!Number.isFinite(rail))return null;
+ const native=options.native===true,rail=options.railGroundAt!(x,z,native),park=options.parkOffsetAt!(x,z,native);
  if(rail===null&&park===0)return null;
+ const old=options.oldGroundAt!(x,z,native);
+ if(old===null||!Number.isFinite(old)||!Number.isFinite(park)||rail!==null&&!Number.isFinite(rail))return null;
  // Exact catalogue trees are planted by their real original source base, even
  // if an older source base was wrong. Path clearances stay unchanged; bridges
  // and high mounted paths must never be pulled down to an unrelated floor.

@@ -29,7 +29,8 @@ function factory(name: string, overrides: Record<string, unknown>) {
 
 for (const native of [false, true]) {
   test(`${native ? "native" : "drawn"} navigation callbacks stay live after construction returns`, () => {
-    const environment: any = { groundAt: () => 17, water: [] };
+    let groundSamples = 0;
+    const environment: any = { groundAt: () => { groundSamples++; return 17; }, water: [] };
     const runtime: any = { lightingMode: native ? "minecraft" : "day", coarsePointer: true, tunnelPortalCourse: {}, schwellenraumPraesentation: {} };
     const ground = { cell_m: 4, grid: { min_x_idx: 5, min_z_idx: -8 } };
     const surfaces = { water: [] }, prisms = { buildings: [] };
@@ -37,6 +38,9 @@ for (const native of [false, true]) {
     let medianSampler: ((x: number, z: number) => number) | undefined;
     let bridgeMode: (() => string) | undefined;
     const prepare = factory(native ? "prepareVoxelNavigation" : "prepareIsoNavigation", {
+      pedestrianWaterReadyV326: new WeakSet(),
+      universitiesPreviousPrismV322: () => false,
+      governmentPreviousPrismV321: () => false,
       createPedestrianEnvironment: (...args: unknown[]) => { argumentsSeen.push(args); return environment; },
       surroundingPedestrianExtension: () => "surrounding exact policy",
       createSpreebogenLawnGroundAt: () => () => null,
@@ -53,6 +57,7 @@ for (const native of [false, true]) {
       smoothGroundTopSampler: () => (x: number, z: number) => x * 10 + z,
       deriveUnterDenLindenMedianSamples: () => ["median sample"],
       installUnterDenLindenMedianSamples: (_root: unknown, _samples: unknown, sampler: (x: number, z: number) => number) => { medianSampler = sampler; },
+      europacityRoadFloor: () => null,
       publishedNavigationMode: (mode: string) => mode,
       voxelModeActive: (current: typeof runtime) => current.lightingMode === "minecraft",
       minecraftHeroCollisionEnabled: (mode: string) => mode === "minecraft",
@@ -93,11 +98,15 @@ for (const native of [false, true]) {
     runtime.tunnelInteriorAt = () => false;
     expect(published.walkableInteriorAt(3, 2, 3, "building")).toBe(true);
     expect(published.walkableInteriorAt(4, 2, 3, "building")).toBe(false);
+    groundSamples = 0;
     expect(published.interiorGroundAt(1, 2)).toBe(20);
+    expect(groundSamples).toBe(1);
     expect(floorHints.at(-1)).toBe(17);
     runtime.lightingMode = "day";
     expect(bridgeMode!()).toBe("day");
+    groundSamples = 0;
     expect(published.interiorGroundAt(1, 2, 9)).toBe(null);
+    expect(groundSamples).toBe(0);
     expect(floorHints.at(-1)).toBe(9);
     if (!native) {
       result.installWorldDetails();

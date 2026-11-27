@@ -15,11 +15,11 @@
  */
 
 import {
-  CanvasTexture,
   LinearFilter,
   LinearMipmapLinearFilter,
   type Texture,
 } from "three";
+import { deferredCanvasTexture } from "./deferredCanvasTexture";
 
 /** Space between adjacent letters, as a fraction of the cap height. */
 export const LETTERING_TRACKING = 0.34;
@@ -1015,42 +1015,36 @@ export function createLetteringTexture({
   }
   const width = Math.round(bandWidthM * texelsPerMetre);
   const height = Math.round(bandHeightM * texelsPerMetre);
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d");
-  if (!context) {
-    return null;
-  }
-  const scale = width / bandWidthM;
-  context.fillStyle = fieldColor;
-  context.fillRect(0, 0, width, height);
+  const texture = deferredCanvasTexture(width, height, context => {
+    const scale = width / bandWidthM;
+    context.fillStyle = fieldColor;
+    context.fillRect(0, 0, width, height);
 
-  const originX = (bandWidthM - layout.totalWidthM) / 2;
-  const baselineY = (bandHeightM - layout.capHeightM) / 2;
-  context.strokeStyle = letterColor;
-  context.lineCap = "round";
-  context.lineJoin = "round";
-  context.lineWidth = layout.strokeWidthM * scale;
-  for (const glyph of layout.glyphs) {
-    for (const stroke of GLYPHS[glyph.character].strokes) {
-      context.beginPath();
-      stroke.forEach(([gx, gy], index) => {
-        const x = (originX + glyph.leftM + gx * layout.capHeightM) * scale;
-        // Canvas y grows downward; the glyph grid grows upward from the
-        // baseline, and v=0 of the texture is the top of the band.
-        const y = height - (baselineY + gy * layout.capHeightM) * scale;
-        if (index === 0) {
-          context.moveTo(x, y);
-        } else {
-          context.lineTo(x, y);
-        }
-      });
-      context.stroke();
+    const originX = (bandWidthM - layout.totalWidthM) / 2;
+    const baselineY = (bandHeightM - layout.capHeightM) / 2;
+    context.strokeStyle = letterColor;
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.lineWidth = layout.strokeWidthM * scale;
+    for (const glyph of layout.glyphs) {
+      for (const stroke of GLYPHS[glyph.character].strokes) {
+        context.beginPath();
+        stroke.forEach(([gx, gy], index) => {
+          const x = (originX + glyph.leftM + gx * layout.capHeightM) * scale;
+          // Canvas y grows downward; the glyph grid grows upward from the
+          // baseline, and v=0 of the texture is the top of the band.
+          const y = height - (baselineY + gy * layout.capHeightM) * scale;
+          if (index === 0) {
+            context.moveTo(x, y);
+          } else {
+            context.lineTo(x, y);
+          }
+        });
+        context.stroke();
+      }
     }
-  }
-
-  const texture = new CanvasTexture(canvas);
+  });
+  if (!texture) return null;
   texture.anisotropy = 8;
   texture.generateMipmaps = true;
   texture.magFilter = LinearFilter;

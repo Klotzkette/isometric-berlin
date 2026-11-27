@@ -11,3 +11,25 @@ export function northernFidelityVisibleV309(camera: Camera): boolean {
   }
   return false;
 }
+
+/** Broad phase for navigation. A cell can only reject an unrelated point.
+ * Hits still go through the complete live model and the exact source shape.
+ * Include neighbouring native cell centres, boundary tolerances and the
+ * usual walking capsule. Larger callers take the exact path directly. */
+const navigationCells = new Map<number, Set<number>>();
+const cellSize = 256;
+const maxRadius = 8;
+for (const [west, north, east, south] of index.regions) {
+  const margin = maxRadius + 4;
+  for (let x = Math.floor((west - margin) / cellSize); x <= Math.floor((east + margin) / cellSize); x++) {
+    let column = navigationCells.get(x);
+    if (!column) navigationCells.set(x, column = new Set());
+    for (let z = Math.floor((north - margin) / cellSize); z <= Math.floor((south + margin) / cellSize); z++) {
+      column.add(z);
+    }
+  }
+}
+
+export function northernNavigationNearV309(x: number, z: number, radius = 0): boolean {
+  return radius > maxRadius || navigationCells.get(Math.floor(x / cellSize))?.has(Math.floor(z / cellSize)) === true;
+}

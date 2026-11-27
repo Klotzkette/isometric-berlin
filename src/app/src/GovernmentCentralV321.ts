@@ -29,7 +29,7 @@ export type GovernmentCentralV321={
 export function createGovernmentCentralV321(options:{scene:Object3D;activeWorld:()=>Object3D|null|undefined;ready:()=>boolean}):GovernmentCentralV321{
   const token=Symbol("Private shared central government fitting owner v321");
   let source:ExactOwnersSourceV321|null=null,expectedOwners:readonly string[]=[];
-  let live:{root:Object3D;pose:number[];tx:ExactOwnersTransactionV321}|null=null;
+  let live:{root:Object3D;tx:ExactOwnersTransactionV321}|null=null;
   let pending:{root:Object3D;cancelled:boolean}|null=null,disposed=false;
   const admitted=()=>{try{return !disposed&&options.ready()===true;}catch{return false;}};
   const frameReady=(root:Object3D,originalPose:readonly number[])=>{
@@ -51,10 +51,9 @@ export function createGovernmentCentralV321(options:{scene:Object3D;activeWorld:
   const sync=()=>{
     if(!live)return false;
     const current=live;
-    // Do not short-circuit the private transaction's own invalidation/rollback.
-    const modelReady=admitted()&&frameReady(current.root,current.pose)&&owners.get(current.root)===token;
-    const sourceReady=current.tx.complete();
-    if(!modelReady||!sourceReady){release(current.root);return false;}
+    // complete() runs the original commit gate (including the current office
+    // model, frame and token), then checks its source and rolls back on failure.
+    if(!current.tx.complete()){release(current.root);return false;}
     return true;
   };
   return{
@@ -85,7 +84,7 @@ export function createGovernmentCentralV321(options:{scene:Object3D;activeWorld:
         // the complete actual five-band + ink owner before retiring anything.
         if(!tx||tx.activeOwners.length!==expectedOwners.length||
           expectedOwners.some(owner=>!tx!.activeOwners.includes(owner))||!tx.prepared()||!tx.commit(gate)||!tx.complete())return false;
-        live={root,pose:originalPose,tx};delivered=true;return true;
+        live={root,tx};delivered=true;return true;
       }finally{
         if(pending===work)pending=null;
         if(!delivered){tx?.rollback();if(owners.get(root)===token)owners.delete(root);}

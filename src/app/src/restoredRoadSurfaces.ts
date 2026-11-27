@@ -28,7 +28,13 @@ function bytes(encoded: string | ArrayBuffer): ArrayBuffer {
   return result.buffer;
 }
 
-/** No triangulation, smoothing or giant temporary number arrays at startup. */
+function writeRoadPoint(target: Float32Array, offset: number, x: number, y: number, z: number): void {
+  target[offset] = x;
+  target[offset + 1] = y;
+  target[offset + 2] = z;
+}
+
+/** Write each surveyed point directly to its final attribute. */
 export function createRestoredRoadBatch(batch: RestoredRoadBatch | RoadWordBatch, terrainAt: (x: number, z: number) => number, invalidenGroundV371 = false): Group {
   const xz = new Float32Array(bytes(batch.xz));
   const root = new Group();
@@ -54,7 +60,7 @@ export function createRestoredRoadBatch(batch: RestoredRoadBatch | RoadWordBatch
     const positions = new Float32Array(xz.length / 2 * 3);
     for (let i = 0; i < xz.length / 2; i++) {
       const x = xz[i*2], z = xz[i*2+1];
-      positions.set([x, terrainAt(x,z) + lift, z], i*3);
+      writeRoadPoint(positions, i * 3, x, terrainAt(x, z) + lift, z);
     }
     let g = geometry(positions);
     g.setIndex(new BufferAttribute(new Uint32Array(bytes(batch.indices!)), 1));
@@ -81,9 +87,21 @@ export function createRestoredRoadBatch(batch: RestoredRoadBatch | RoadWordBatch
     for (let i = 0; i < count; i++) {
       const ax = xz[i*4], az = xz[i*4+1], bx = xz[i*4+2], bz = xz[i*4+3];
       const ay = terrainAt(ax,az) + 0.14, by = terrainAt(bx,bz) + 0.14;
-      positions.set([ax,ay,az, bx,by,bz, bx,by+0.14,bz, ax,ay+0.14,az], i*12);
-      indices.set([i*4,i*4+1,i*4+2, i*4,i*4+2,i*4+3], i*6);
-      ink.set([ax,ay+0.15,az, bx,by+0.15,bz], i*6);
+      const vertex = i * 4;
+      const offset = i * 12;
+      writeRoadPoint(positions, offset, ax, ay, az);
+      writeRoadPoint(positions, offset + 3, bx, by, bz);
+      writeRoadPoint(positions, offset + 6, bx, by + 0.14, bz);
+      writeRoadPoint(positions, offset + 9, ax, ay + 0.14, az);
+      const edge = i * 6;
+      indices[edge] = vertex;
+      indices[edge + 1] = vertex + 1;
+      indices[edge + 2] = vertex + 2;
+      indices[edge + 3] = vertex;
+      indices[edge + 4] = vertex + 2;
+      indices[edge + 5] = vertex + 3;
+      writeRoadPoint(ink, edge, ax, ay + 0.15, az);
+      writeRoadPoint(ink, edge + 3, bx, by + 0.15, bz);
     }
     const g = geometry(positions); g.setIndex(new BufferAttribute(indices,1));
     indexGeometryExactly(g);

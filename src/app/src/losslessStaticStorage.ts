@@ -227,7 +227,7 @@ function installStorage(storage: Storage, chunks: StorageBlock[], weak: WeakRef<
 function* staticGeometryInputs(root: Object3D, ownsBuffers: boolean,
   shouldPark?: (storage: Storage) => boolean): Generator<[Storage, boolean]> {
   const storages = new Set<Storage>();
-  const owners = new Map<object, Set<Storage>>();
+  const owners = new Map<object, Storage | null>();
   root.traverse(object => {
     if (!(object instanceof Mesh || object instanceof Line || object instanceof Points)) return;
     const geometry: BufferGeometry = object.geometry;
@@ -239,8 +239,9 @@ function* staticGeometryInputs(root: Object3D, ownsBuffers: boolean,
       // Already parked fields still participate in alias protection, without
       // restoring all their invisible CPU backing merely to identify owners.
       const buffer = staticStorageInfo(storage).bufferIdentity;
-      let aliases = owners.get(buffer); if (!aliases) owners.set(buffer, aliases = new Set());
-      aliases.add(storage);
+      const previous = owners.get(buffer);
+      if (previous === undefined) owners.set(buffer, storage);
+      else if (previous !== storage) owners.set(buffer, null);
     }
     if ((geometry.userData.exactIndexPending !== false && geometry.userData.losslessStaticBacking !== true) || object.userData.modeColours ||
         geometry.userData.flatColorsBuilt || Object.values(geometry.morphAttributes).some(a => a.length)) return;
@@ -253,7 +254,7 @@ function* staticGeometryInputs(root: Object3D, ownsBuffers: boolean,
     if (shouldPark && !shouldPark(storage)) continue;
     if (parked.has(storage)) continue;
     const info = ownsBuffers ? staticStorageInfo(storage) : undefined;
-    yield [storage, !!info && info.byteLength === info.bufferBytes && owners.get(info.bufferIdentity)?.size === 1];
+    yield [storage, !!info && info.byteLength === info.bufferBytes && owners.get(info.bufferIdentity) === storage];
   }
 }
 
@@ -280,10 +281,45 @@ export function* parkStaticInstancesSteps(root: Object3D,
   return saved;
 }
 
+function* staticMatrixInputs(
+  matrixRoot: Object3D, roots: readonly Object3D[], shouldPark?: (storage: Storage) => boolean,
+): Generator<[Storage, boolean, boolean]> {
+  const matrices = new Set<BufferAttribute>();
+  matrixRoot.traverse(object => {
+    if (object instanceof InstancedMesh && !parked.has(object.instanceMatrix) &&
+        object.instanceMatrix.count * 64 >= MIN_BYTES && (!shouldPark || shouldPark(object.instanceMatrix))) {
+      matrices.add(object.instanceMatrix);
+    }
+  });
+  if (!matrices.size) return;
+  // An instance matrix normally owns its constructor allocation. A custom
+  // geometry or a sibling can still have a distinct view of the same buffer.
+  const exclusive = new Map<object, Storage | null>();
+  for (const matrix of matrices) {
+    const key = staticStorageInfo(matrix).bufferIdentity;
+    exclusive.set(key, exclusive.has(key) ? null : matrix);
+  }
+  const seen = new Set<Storage>();
+  for (const root of roots) root.traverse(object => {
+    if (!(object instanceof Mesh || object instanceof Line || object instanceof Points)) return;
+    for (const attribute of [...Object.values(object.geometry.attributes), object.geometry.index,
+      ...Object.values(object.geometry.morphAttributes).flat(),
+      ...(object instanceof InstancedMesh ? [object.instanceMatrix, object.instanceColor] : [])]) {
+      if (!attribute) continue;
+      const storage = "data" in attribute ? attribute.data : attribute;
+      if (seen.has(storage)) continue;
+      seen.add(storage);
+      const key = staticStorageInfo(storage).bufferIdentity;
+      if (exclusive.has(key) && exclusive.get(key) !== storage) exclusive.set(key, null);
+    }
+  });
+  for (const matrix of matrices) yield [matrix, exclusive.get(staticStorageInfo(matrix).bufferIdentity) === matrix, true];
+}
+
 /** Compress the unpublished city with the browser's background codec. Each of
  * the two lanes owns at most one 256 KiB input copy. The sync generator and
  * native path install exactly the same backing and restore the same words. */
-export async function parkOpeningWorldBuffers(
+export function parkOpeningWorldBuffers(
   world: Object3D, addons: Object3D, shouldPark: ((storage: Storage) => boolean) | undefined,
   cancelled: () => boolean, yieldTask: () => Promise<void>,
 ): Promise<void> {
@@ -291,39 +327,33 @@ export async function parkOpeningWorldBuffers(
     for (const root of [world, addons]) {
       for (const [storage] of staticGeometryInputs(root, false, shouldPark)) yield [storage, false, false];
     }
-    const matrices = new Set<BufferAttribute>();
-    world.traverse(object => {
-      if (object instanceof InstancedMesh && !parked.has(object.instanceMatrix) &&
-          object.instanceMatrix.count * 64 >= MIN_BYTES && (!shouldPark || shouldPark(object.instanceMatrix))) {
-        matrices.add(object.instanceMatrix);
-      }
-    });
-    // An instance matrix normally owns its constructor allocation. A custom
-    // geometry or a sibling can still have a distinct view of the same buffer.
-    const exclusive = new Map<object, Storage | null>();
-    for (const matrix of matrices) {
-      const key = staticStorageInfo(matrix).bufferIdentity;
-      exclusive.set(key, exclusive.has(key) ? null : matrix);
-    }
-    const seen = new Set<Storage>();
-    for (const root of [world, addons]) root.traverse(object => {
-      if (!(object instanceof Mesh || object instanceof Line || object instanceof Points)) return;
-      for (const attribute of [...Object.values(object.geometry.attributes), object.geometry.index,
-        ...Object.values(object.geometry.morphAttributes).flat(),
-        ...(object instanceof InstancedMesh ? [object.instanceMatrix, object.instanceColor] : [])]) {
-        if (!attribute) continue;
-        const storage = "data" in attribute ? attribute.data : attribute;
-        if (seen.has(storage)) continue;
-        seen.add(storage);
-        const key = staticStorageInfo(storage).bufferIdentity;
-        if (exclusive.has(key) && exclusive.get(key) !== storage) exclusive.set(key, null);
-      }
-    });
-    for (const matrix of matrices) yield [matrix, exclusive.get(staticStorageInfo(matrix).bufferIdentity) === matrix, true];
+    yield* staticMatrixInputs(world, [world, addons], shouldPark);
   }
-  const pending = inputs();
+  return parkBufferInputs(inputs(), 2, 5, cancelled, yieldTask);
+}
+
+/** The serial viewer queue retains the Worker ACK until this single codec lane
+ * has finished the batch. Limit live codec input to one 256 KiB block during
+ * camera movement, even when both building and road packets have arrived. */
+export function parkAttachedWorldBuffers(
+  root: Object3D, ownsGeometry: boolean, includeInstances: boolean,
+  cancelled: () => boolean, yieldTask: () => Promise<void>,
+): Promise<void> {
+  function* inputs(): Generator<[Storage, boolean, boolean]> {
+    for (const [storage, exclusive] of staticGeometryInputs(root, ownsGeometry)) {
+      yield [storage, exclusive, false];
+    }
+    if (includeInstances) yield* staticMatrixInputs(root, [root]);
+  }
+  return parkBufferInputs(inputs(), 1, 4, cancelled, yieldTask);
+}
+
+async function parkBufferInputs(
+  pending: Generator<[Storage, boolean, boolean]>, lanes: number, budgetMs: number,
+  cancelled: () => boolean, yieldTask: () => Promise<void>,
+): Promise<void> {
   let native = typeof CompressionStream === "function";
-  const claimed = new Set<Storage>();
+  const claimed = new WeakSet<Storage>();
   let failed = false;
   function check() {
     if (failed || cancelled()) throw new DOMException("World construction cancelled", "AbortError");
@@ -339,7 +369,7 @@ export async function parkOpeningWorldBuffers(
     return deflateSync(bytes, { level: 1 });
   }
   async function lane() {
-    let deadline = performance.now() + 5;
+    let deadline = performance.now() + budgetMs;
     for (;;) {
       check();
       const item = pending.next();
@@ -356,14 +386,14 @@ export async function parkOpeningWorldBuffers(
           next = steps.next(packed);
           if (performance.now() >= deadline) {
             await yieldTask();
-            deadline = performance.now() + 5;
+            deadline = performance.now() + budgetMs;
           }
         }
       } finally { steps.return(0); }
     }
   }
   const run = () => lane().catch(error => { failed = true; throw error; });
-  const results = await Promise.allSettled([run(), run()]);
+  const results = await Promise.allSettled(Array.from({ length: lanes }, run));
   pending.return(undefined);
   for (const result of results) if (result.status === "rejected") throw result.reason;
 }

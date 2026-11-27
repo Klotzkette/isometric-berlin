@@ -1,0 +1,64 @@
+{
+  "additions": {
+    "src/app/src/deferredCanvasTexture.ts": "53dbcd9f9e631c7a86f939f486aeff2d8b2ea3acb2f083d95b490a7a4b542981",
+    "src/app/src/mobileConstructionTasks.ts": "f7ff74dbab4ee4ffd4a45c8d1fc8b3f6b70a42c838c11ade769b606859567bc6"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "after": "c37c308c220da1eaa45bc93e199e613433845329dab03b8c9653b88b9365b703",
+      "before": "e0ae968296366f53800527d19a7158f4e7a39aa61cf6a9cc72c7f99021f7f9bf"
+    },
+    "src/app/src/GovernmentCentralV321.ts": {
+      "after": "0249d3b56840e1cd1d54d92913f5a23305daef19e3f5059b77b59b54acf4a387",
+      "before": "7bc6e6a96ccf84d17c818377bc2e01de4b6b8ce1fcd061be526daacbf01ad98e"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "after": "e877f738731b289d8ccbbf719234355eed4b5b66f74d6c08f52a1a6f1a00a5b9",
+      "before": "c3a133f26388b221893d660dce7ac54f132f4a746ea3bc2c1560dd7099fd54b7"
+    },
+    "src/app/src/NorthernFidelityV309.ts": {
+      "after": "7bf0c5640b75b7c7b802e708a2d0beb6449d7a671ac4bcc5d06ca90eb6d0a2f0",
+      "before": "c2e1bf305e7c9715e94fafc15511aefdc677025a3d700a09c42c6e17c3451145"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "after": "78e2b5a7db1612312e23538f878d172067edec57dec572e09e02e8087e9fc1b5",
+      "before": "20b76a2a894106ebc0ef43973301b0a18b2b8158a84575744f64efa22ebe2e24"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "after": "8e94ca88d06afd6484989821be148174030ce50a27e3ca9dceddfe02fa56a954",
+      "before": "a30f04363ac5479764699d8644010e42a71b2c343ecdb58f936b1d2fe7d0d2aa"
+    },
+    "src/app/src/drawnLettering.ts": {
+      "after": "d442986765f98bc14c99c5605481d3f48ce4976ff878a896b89853df0329c81c",
+      "before": "13268f6771fde6775652207a14f8ea54b71228b2fd0dceffc74db18ebc800e05"
+    },
+    "src/app/src/losslessStaticStorage.ts": {
+      "after": "dcfdbb6f9d15565b94d034cd1cc3cd4dc8968ee9770c33ba102b9363464c75e0",
+      "before": "26db75676dd96912f0dbf7de1ee238fa654ea1dd9fd9cabd76ddee798a897882"
+    },
+    "src/app/src/northTerrainDrapingV309.ts": {
+      "after": "9d90850f25345e65ee4f4d1612ea5fc37a8fb3eec605425e2492ca40a070e83f",
+      "before": "a1cc0cc9379e45be2fe88bdf243ca6b084dbefb7db71844ea30be7365292bca7"
+    },
+    "src/app/src/northernVisibilityV309.ts": {
+      "after": "4b4687705045051166ffd2c7faebaf5ba691fcd24acd12d5f47dfe1c849b3abe",
+      "before": "60d3e9412b17a8cb3bc6f0a791f75ee86a1238e729c761d7fc7695475f61b7ae"
+    },
+    "src/app/src/progressiveBuildingCoverage.ts": {
+      "after": "44d5962f689cae301c6458b7aaaebb211b43842440e959856fec47ea086916f4",
+      "before": "0292ed39c79a7c4dc26d9f0294f595190a76075d5bb300c2901cbdfb35d0f3f4"
+    },
+    "src/app/src/restoredRoadSurfaces.ts": {
+      "after": "dc045706fd64fa0488db52a5e288c495246b7cdfffc6fad78e6141664e186362",
+      "before": "f9fc22f7fa1ce2788cb3a1874793fb1e82c2618706ab540bada41d873980f668"
+    },
+    "src/app/src/smaaEdgeTarget.ts": {
+      "after": "83e0348625a1e9c909f4a3fb1df9eb372be8a01d9fa7c07bdf9fbcaf70df58ac",
+      "before": "7ae768753ffbd79be65a72124e48b6134e4f6f6a084ebfa68aeeb8892808ee10"
+    },
+    "src/app/src/viewerContextRecovery.ts": {
+      "after": "358204bbafabe340e944ccba347cbfa37906017d5505cfd3094840289d2d4b88",
+      "before": "4246bce6d5721bb26afb1a1cb154a34704cc6841c206956ae422364840906f50"
+    }
+  }
+}

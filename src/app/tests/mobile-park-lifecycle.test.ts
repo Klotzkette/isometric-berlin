@@ -1,4 +1,5 @@
 import { completeCooperatively } from "../src/cooperativeWork";
+import { unpaintedCanvas } from "../src/deferredCanvasTexture";
 import { parkStaticGeometrySteps, parkStaticInstancesSteps } from "../src/losslessStaticStorage";
 import { interleaveStaticGeometry } from "../src/interleaveStaticGeometry";
 import { expect, test } from "bun:test";
@@ -48,7 +49,7 @@ const payload: ParkDetailsPayload = {
   playgrounds: [],
 };
 
-type Interruption = "background" | "context" | "family";
+type Interruption = "background" | "context" | "unmount" | "family";
 
 // Execute the viewer's actual deferred-load closure, cooperative park builder
 // and disposal; replace only downloading, task dispatch and presentation hooks.
@@ -78,7 +79,8 @@ function host(options: {
   let isoEnsureCalls = 0;
   let voxelEnsureCalls = 0;
   const runtime = {
-    coarsePointer: options.mobile !== false, disposed: false, lightingMode: "day",
+    coarsePointer: options.mobile !== false, disposed: false, contextLost: false,
+    isoWorld: new Group(), lightingMode: "day",
     progressiveWorldState: options.deferStarterInstallation ? "loading" : "complete", progressiveWorldInput: undefined,
     mobileBuildingViewRevision: 0, isoWorldState: "ready",
     progressiveWorldStartCancel: undefined, districtPathTerrainAt: undefined,
@@ -106,7 +108,8 @@ function host(options: {
     interrupted = true;
     if (options.interrupt === "background") document.hidden = true;
     if (options.interrupt === "family") runtime.lightingMode = "minecraft";
-    if (options.interrupt === "context") {
+    if (options.interrupt === "context") runtime.contextLost = true;
+    if (options.interrupt === "unmount") {
       runtime.disposed = true;
       loadController.abort();
     }
@@ -118,7 +121,7 @@ function host(options: {
     // deferred closure must receive absence, not a fabricated partial bundle.
     currentNorthernV309: () => undefined,
     Group, Mesh, InstancedMesh, Line, LineSegments, Material, Points, Texture,
-    runtime, scene, document, loadController,
+    runtime, scene, document, loadController, recoveryPageHidden: false, hasMitteTrees: false,
     lightingModeRef: { get current() { return runtime.lightingMode; } },
     ensureIsoWorld: () => { expect(runtime.isoWorldState).toBe("ready"); isoEnsureCalls++; },
     ensureVoxelWorld: () => { voxelEnsureCalls++; },
@@ -171,7 +174,7 @@ function host(options: {
     setMinecraftMaterialPresentation: () => {},
     setEnvironmentalPresentation: () => {}, collectFarZoomAntiFlickerTargets: () => {},
     invalidateScenePresentation: () => {},
-    objectMaterialsIncludingTransferredAlternates, releaseMinecraftMaterialBindings,
+    objectMaterialsIncludingTransferredAlternates, releaseMinecraftMaterialBindings, unpaintedCanvas,
   };
   const lifecycle = new Function(...Object.keys(bindings), `${compiled}; return {
     installStarter, deliverSettled, completeSecondarySetup,
@@ -210,7 +213,7 @@ test("mobile park publishes the complete scene once after cooperative tasks", as
   h.dispose();
 });
 
-for (const interrupt of ["background", "context", "family"] as const) {
+for (const interrupt of ["background", "context", "unmount", "family"] as const) {
   test(`mobile ${interrupt} cancellation releases unpublished park resources`, async () => {
     const h = host({ interrupt });
     await h.start();
@@ -249,6 +252,10 @@ test("context loss at cooperative completion cannot publish a retired park", asy
   expect([...h.resources.values()]).toEqual([...h.resources.keys()].map(() => 1));
   expect(h.obstacleWrites).toBe(0);
   expect(h.warnings).toHaveLength(0);
+  h.runtime.contextLost = false;
+  await h.start();
+  expect(h.runtime.parkDetails).toBe(h.staged[1]);
+  expect(h.obstacleWrites).toBe(1);
   h.dispose();
 });
 

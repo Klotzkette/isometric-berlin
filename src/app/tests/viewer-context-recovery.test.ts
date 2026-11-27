@@ -117,7 +117,10 @@ test("suspension preserves the remaining foreground deadline and rejects stale t
 
 test("restoration while hidden and disposal never rearm an obsolete loss", () => {
   const h = activityHarness(); h.lose();
-  h.recovery.setActive(false); h.recovery.restored(); h.recovery.setActive(true);
+  h.recovery.setActive(false); h.recovery.restored();
+  expect(h.calls).toEqual(["pause"]);
+  expect(h.recovery.setActive(true)).toBe(true);
+  expect(h.recovery.setActive(true)).toBe(false);
   expect(h.calls).toEqual(["pause", "resume"]);
   expect(h.jobs).toHaveLength(1);
   h.lose(); h.recovery.setActive(false); h.recovery.dispose();
@@ -127,20 +130,57 @@ test("restoration while hidden and disposal never rearm an obsolete loss", () =>
   expect(h.jobs).toHaveLength(2);
 });
 
-test("production visibility/page suspension feeds the recovery clock independently of contextLost", async () => {
+test("a second hidden loss supersedes a hidden restoration without prematurely resuming", () => {
+  const h = activityHarness(false);
+  h.lose(); h.recovery.restored(); h.lose();
+  expect(h.recovery.setActive(true)).toBe(false);
+  expect(h.calls).toEqual(["pause"]);
+  expect(h.jobs).toHaveLength(1);
+  h.recovery.restored();
+  expect(h.calls).toEqual(["pause", "resume"]);
+});
+
+test("discarding a page while its restored context is hidden never resumes the old viewer", () => {
+  const h = activityHarness(false);
+  h.lose(); h.recovery.restored(); h.recovery.dispose();
+  expect(h.recovery.setActive(true)).toBe(false);
+  expect(h.calls).toEqual(["pause"]);
+});
+
+test("mobile page suspension releases the full-size frame targets once and restores their exact size", async () => {
   const source = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
-  const calls: boolean[] = [];
-  const contextRecovery = { setActive: (active: boolean) => calls.push(active) };
-  const prefix = (start: string, end: string) => {
-    const from = source.indexOf(start) + start.length;
-    return source.slice(from, source.indexOf(end, from));
+  const start = source.indexOf("const onVisibilityChange = () => {");
+  const handlers = source.slice(start, source.indexOf("const onDoubleClick", start));
+  const calls: boolean[] = [], construction: boolean[] = [], sizes: number[][] = [];
+  const browser = { hidden: false };
+  const runtime = { contextLost: false, renderInvalidated: false, progressiveWorldState: "complete",
+    mobileConstruction: { setActive: (value: boolean) => construction.push(value) } };
+  const bindings = {
+    document: browser, runtime, coarsePointer: true, appliedWidth: 390, appliedHeight: 844, appliedPixelRatio: 1.35,
+    resetTouchGesture() {}, cancelScheduledProgressiveWorld() {}, progressiveWorldVisibilityTransition: () => "none",
+    contextRecovery: { setActive: (active: boolean) => { calls.push(active); return false; } },
+    composer: { setSize: (w: number, h: number) => sizes.push([w, h]) },
+    resize: () => {},
   };
-  const visible = prefix("const onVisibilityChange = () => {", "if (document.hidden || runtime.contextLost)");
-  const hide = prefix("const onPageHide = () => {", "if (gpuWarmupTimer !== null)");
-  const show = prefix("const onPageShow = (event: PageTransitionEvent) => {", "if (!event.persisted)");
-  // A bfcache pagehide remains suspended even if visibility changes first;
-  // pageshow rearms only once the actual document is visible too.
-  new Function("contextRecovery", `let recoveryPageHidden=false; const document={hidden:false};
-    ${hide} ${visible} ${show} document.hidden=true; ${visible}`)(contextRecovery);
-  expect(calls).toEqual([false, false, true, false]);
+  const compiled = new Bun.Transpiler({loader: "ts"}).transformSync(handlers);
+  const mount = new Function(...Object.keys(bindings), `
+    let recoveryPageHidden=false, mobileFrameTargetsSuspended=false, gpuWarmupTimer=null;
+    ${compiled}
+    return { onVisibilityChange, onPageHide, onPageShow };
+  `);
+  const events = mount(...Object.values(bindings));
+  events.onPageHide(); events.onVisibilityChange();
+  browser.hidden = true;
+  events.onPageShow({persisted:true});
+  expect(sizes).toEqual([[1, 1]]);
+  browser.hidden = false;
+  events.onVisibilityChange(); events.onVisibilityChange();
+  expect(calls).toEqual([false, false, false, true, true]);
+  expect(construction).toEqual(calls);
+  expect(sizes).toEqual([[1, 1], [390 * 1.35, 844 * 1.35]]);
+  expect(runtime.renderInvalidated).toBe(true);
+  runtime.contextLost = true;
+  events.onVisibilityChange();
+  expect(calls.at(-1)).toBe(true);
+  expect(construction.at(-1)).toBe(false);
 });

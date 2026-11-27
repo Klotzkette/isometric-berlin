@@ -190,6 +190,8 @@ export type SurroundingCityOptions = {
   fetch?: typeof fetch;
   now?: () => number;
   retireMs?: number;
+  /** Drop departed districts on a large map jump before fetching the new view. */
+  retireAfterJumpM?: number;
   /** Network inactivity only; injectable for deterministic liveness tests. */
   transportIdleMs?: number;
   residentBudgetBytes?: number;
@@ -648,6 +650,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const fetcher = options.fetch ?? fetch;
   const now = options.now ?? (() => performance.now());
   const retireMs = options.retireMs ?? SURROUNDING_CITY_RETIRE_MS;
+  const jumpDistanceSquared = (options.retireAfterJumpM ?? Infinity) ** 2;
   const transportIdleMs = options.transportIdleMs ?? SURROUNDING_TRANSPORT_IDLE_MS;
   const budget = options.residentBudgetBytes ?? SURROUNDING_CITY_RESIDENT_BUDGET_BYTES;
   const publicAccessV326=new WeakMap<Group,UbahnGroundRuntimeV326>(),monumentsV326=new WeakMap<Group,PublicMonumentsPacketV326>();
@@ -715,6 +718,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   let queue: SurroundingChunkDescriptor[] = [];
   let geometryBytes = 0, bufferCount = 0, lastScan = -Infinity;
   let focus: { x: number; z: number } | undefined;
+  let lastFocusX = NaN, lastFocusZ = NaN;
   let navigationTiles: SurroundingNavigationTile[] | undefined;
   let manifestAttempt: AbortController | null = null;
   let pageHidden = false;
@@ -1077,6 +1081,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     desired.clear();
     queue = [];
     const focusPoint = focus ?? cameraPosition;
+    const jumped = (focusPoint.x - lastFocusX) ** 2 + (focusPoint.z - lastFocusZ) ** 2 >= jumpDistanceSquared;
+    lastFocusX = focusPoint.x;
+    lastFocusZ = focusPoint.z;
     // A named view can straddle districts. Submit its exact owners first even
     // when a tile's bounds sit just outside the lens. Ordinary pan/flight
     // resumes the view plan as soon as the camera leaves the destination.
@@ -1103,14 +1110,14 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     }
     if (active && (!desired.has(active.id) || (missingOwners.size > 0 && !missingOwners.has(active.id)))) active.controller.abort();
     cancelPrefetches();
-    if (processing) fillPrefetches();
     let changed = false;
     for (const [id, entry] of residents) {
-      if (!desired.has(id) && (timestamp - entry.lastWanted >= retireMs || geometryBytes > budget)) {
+      if (!desired.has(id) && (jumped || timestamp - entry.lastWanted >= retireMs || geometryBytes > budget)) {
         evict(id); changed = true;
       }
     }
     if (changed) options.onChange?.();
+    if (processing) fillPrefetches();
     void pump();
   };
 

@@ -15,22 +15,32 @@ const COVERAGE_NAME = "Startup complete building coverage";
  * roofs and courtyard openings, so suspension or detail eviction never reopens
  * city-sized gaps. Mobile coverage spans the full source inventory.
  */
-export function createProgressiveBuildingCoverage(
+export function createProgressiveBuildingCoverage(...args: Parameters<typeof createProgressiveBuildingCoverageSteps>): Group {
+  const steps = createProgressiveBuildingCoverageSteps(...args);
+  let step = steps.next();
+  while (!step.done) step = steps.next();
+  return step.value;
+}
+
+export function* createProgressiveBuildingCoverageSteps(
   prisms: PrismPayload,
   partition: ReturnType<typeof splitProgressiveBuildings>,
   options: { nordbahnhofCuts?: NordbahnhofDrawnCuts; hbfCirculationV291?: boolean; parliamentInteriorsV295?: boolean; parliamentaryDiningV296?: boolean; waterfrontV296?: boolean; moabitMitteV300?: boolean; westKiezV302?: boolean; historicDomV288?: boolean; potsdamerCorridorV288?: boolean; chancelleryCanopySourceV289?: boolean; potsdamerStationPhoto?: boolean; potsdamerNorthPavilion?: boolean; golgathaV270?: boolean; tachelesFrontsV270?: boolean; technikmuseumV272?: boolean; operaTheatresV274?: boolean; tiergartenWerkhofV275?: boolean; steppengartenShelterV283?: boolean; bayerCampusV277?: boolean; lehrterV277?: boolean; rkiMoabitV277?: boolean; verkehrskanzelV276?: boolean; charlottenburgerTorV379?: boolean; zooWestV276?: boolean; zooHousesV282?: boolean; moabitLandmarksV269?: boolean; northernSitesV266?: boolean; tempodromAnhalterV266?: boolean; chariteBridgesV265?: boolean; architectureV241?: boolean; includeLegacyTownhallEnvelopes?: boolean; includeLegacyDistrictCourtEnvelopes?: boolean; includeLegacyWeddingStationRoof?: boolean; includeLegacySchlossplatzEnvelopes?: boolean; includeLegacyColonnadesEnvelopes?: boolean } = {},
-): Group {
+  attach?: (coverage: Group) => void,
+): Generator<void, Group> {
   const coverage = new Group();
   coverage.name = COVERAGE_NAME;
+  attach?.(coverage);
   const distant = createDistantBuildingShells(prisms, partition.omitted, options);
   distant.name = "Permanent distant building coverage";
   coverage.add(distant);
-  partition.remaining.forEach((buildings, index) => {
+  for (const [index, buildings] of partition.remaining.entries()) {
     const preview = createDistantBuildingShells(prisms, buildings, options);
     preview.name = `Building refinement fallback ${index + 1}`;
     preview.userData.progressiveBuildingPreviewId = `buildings-preview-${index + 1}`;
     coverage.add(preview);
-  });
+    yield;
+  }
   return coverage;
 }
 

@@ -1,3 +1,4 @@
+import { releaseScratchBuffer } from "./releaseScratchBuffer";
 import { CityWestFrontBatchV379 } from "./cityWestFrontsV379";
 import { prepareLandwehrClustersV378 } from "./waterwayReplacementV378";
 import { GATE_COLONNADE_PRISMS_V374 } from "./BrandenburgGatehouseSourceV374";
@@ -222,11 +223,11 @@ import {
   DoubleSide,
   EdgesGeometry,
   ExtrudeGeometry,
+  BufferAttribute,
   Float32BufferAttribute,
   Group,
   IcosahedronGeometry,
   InstancedMesh,
-  Int8BufferAttribute,
   LineBasicMaterial,
   LineDashedMaterial,
   LineSegments,
@@ -1884,6 +1885,40 @@ function roofColorFor(building: PrismBuilding, facade: Color, target: Color): Co
       : target.copy(facade).multiplyScalar(0.97).lerp(ROOF_PLATE_TINT, ROOF_PLATE_TINT_BLEND);
 }
 
+type ShellArray = Float32Array<ArrayBuffer> | Int8Array<ArrayBuffer> | Uint8Array<ArrayBuffer> | Uint32Array<ArrayBuffer>;
+
+/** Each district writes GPU-format triples directly. An ordinary wall plus its
+ * roof uses about five vertices per footprint point. Extra storeys and fitted
+ * roofs can grow the private allocation without retaining prior buffers. */
+class ShellTriplets<T extends ShellArray> {
+  private values: T;
+  length = 0;
+
+  constructor(private readonly ArrayType: new(length: number) => T, capacity: number) {
+    this.values = new ArrayType(Math.max(3, capacity * 3));
+  }
+
+  push(x: number, y: number, z: number): void {
+    if (this.length + 3 > this.values.length) {
+      const previous = this.values;
+      this.values = new this.ArrayType(Math.max(this.length + 3, Math.ceil(this.length * 1.5)));
+      this.values.set(previous);
+      releaseScratchBuffer(previous.buffer);
+    }
+    this.values[this.length++] = x;
+    this.values[this.length++] = y;
+    this.values[this.length++] = z;
+  }
+
+  finish(): T {
+    if (this.values.length === this.length) return this.values;
+    const exact = new this.ArrayType(this.length);
+    exact.set(this.values.subarray(0, this.length));
+    releaseScratchBuffer(this.values.buffer);
+    return exact;
+  }
+}
+
 /**
  * Complete coloured source envelopes, available before expensive facade work.
  * The old boxes filled courts and used the same pale facade tint on the roofs.
@@ -1939,10 +1974,15 @@ export function createDistantBuildingShells(
   group.userData.pitchedRoofCount = 0;
   if (visible.length === 0) return group;
 
-  const positions: number[] = [];
-  const normals: number[] = [];
-  const colors: number[] = [];
-  const indices: number[] = [];
+  let footprintPoints = 0;
+  for (const building of visible) {
+    footprintPoints += building.ring.length;
+    for (const hole of building.holes ?? []) footprintPoints += hole.length;
+  }
+  const positions = new ShellTriplets(Float32Array, footprintPoints * 5);
+  const normals = new ShellTriplets(Int8Array, footprintPoints * 5);
+  const colors = new ShellTriplets(Uint8Array, footprintPoints * 5);
+  const indices = new ShellTriplets(Uint32Array, footprintPoints * 3);
   const color = new Color();
   const capColor = new Color();
   const upperColor = new Color(POTSDAMER_UPPER_STOREYS.color);
@@ -2037,12 +2077,15 @@ export function createDistantBuildingShells(
         const low = level === 0 ? y0 : upperY!;
         const high = level === 0 && upperY !== undefined ? upperY : y0 + bodyHeight;
         const a = positions.length / 3, b = a+1, c = a+2, d = a+3;
-        positions.push(wall.x1,low,wall.z1, x2,low,z2, x2,high,z2, wall.x1,high,wall.z1);
+        positions.push(wall.x1, low, wall.z1);
+        positions.push(x2, low, z2);
+        positions.push(x2, high, z2);
+        positions.push(wall.x1, high, wall.z1);
         faceAttributes(wall.nx,0,wall.nz,level === 0 ? color : upperColor,4);
         if (-wall.dirZ * wall.nx + wall.dirX * wall.nz > 0) {
-          indices.push(a, b, c, a, c, d);
+          indices.push(a, b, c); indices.push(a, c, d);
         } else {
-          indices.push(a, c, b, a, d, c);
+          indices.push(a, c, b); indices.push(a, d, c);
         }
       }
     }
@@ -2089,10 +2132,17 @@ export function createDistantBuildingShells(
   }
   if (!positions.length) return freezeStaticSceneTransforms(group);
   const geometry = new BufferGeometry();
-  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
-  geometry.setAttribute("normal", new Int8BufferAttribute(normals, 3, true));
-  geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3, true));
-  geometry.setIndex(indices);
+  geometry.setAttribute("position", new BufferAttribute(positions.finish(), 3));
+  geometry.setAttribute("normal", new BufferAttribute(normals.finish(), 3, true));
+  geometry.setAttribute("color", new BufferAttribute(colors.finish(), 3, true));
+  const indexWords = indices.finish();
+  // Preserve Three's primitive-restart threshold, including unused vertices.
+  if (indexWords.some(index => index >= 65535)) {
+    geometry.setIndex(new BufferAttribute(indexWords, 1));
+  } else {
+    geometry.setIndex(new BufferAttribute(new Uint16Array(indexWords), 1));
+    releaseScratchBuffer(indexWords.buffer);
+  }
   geometry.computeBoundingBox();
   // computeBoundingSphere scans the same position buffer a second time to
   // recreate the box. All vertices are finalized Float32s with no morphs.

@@ -34,10 +34,10 @@ function fixture(){
     const object=component.kind==="lines"?new LineSegments(geometry,day):new Mesh(geometry,day);object.name=component.name;object.userData={dayMaterial:day,nightMaterial:night};root.add(object);
     return{object,original:geometry,attributes:Object.fromEntries(Object.entries(geometry.attributes).map(([k,a])=>[k,{object:a,bytes:bytes(a.array)}])),size};
   }));
-  let ready=true,world:Group|null=drawn;
-  const manager=createGovernmentCentralV321({scene,ready:()=>ready,activeWorld:()=>world});
+  let ready=true,world:Group|null=drawn,readyChecks=0;
+  const manager=createGovernmentCentralV321({scene,ready:()=>{readyChecks++;return ready;},activeWorld:()=>world});
   expect(manager.prepare(actual)).toBeTrue();
-  return{scene,drawn,native,root,manager,objects,setReady:(value:boolean)=>{ready=value},setWorld:(value:Group|null)=>{world=value}};
+  return{scene,drawn,native,root,manager,objects,readyChecks:()=>readyChecks,setReady:(value:boolean)=>{ready=value},setWorld:(value:Group|null)=>{world=value}};
 }
 
 test("the literal five-band and ink plan binds actual original BMB source and leaves every foreign word unchanged",()=>{
@@ -56,6 +56,18 @@ test("one shared central transaction survives a ready Drawn to Native switch and
   f.setWorld(f.native);expect(f.manager.sync()).toBeTrue();expect(drain(f.manager.stageSteps(f.root))).toBeTrue();expect(swaps).toBe(2);f.objects.forEach((r,i)=>expect(r.object.geometry).toBe(live[i]));
   f.setReady(false);expect(f.manager.sync()).toBeFalse();for(const row of f.objects)expect(row.object.geometry).toBe(row.original);
   f.setReady(true);expect(drain(f.manager.stageSteps(f.root))).toBeTrue();f.manager.dispose();
+});
+
+test("each central sync checks the live office model once and observes its next change",()=>{
+  const f=fixture();
+  expect(drain(f.manager.stageSteps(f.root))).toBeTrue();
+  const before=f.readyChecks();
+  expect(f.manager.sync()).toBeTrue();
+  expect(f.readyChecks()-before).toBe(1);
+  f.setReady(false);
+  expect(f.manager.sync()).toBeFalse();
+  expect(f.readyChecks()-before).toBe(2);
+  for(const row of f.objects)expect(row.object.geometry).toBe(row.original);
 });
 
 test("only the exact zero-frame Scene sibling can acquire the central owner",()=>{
