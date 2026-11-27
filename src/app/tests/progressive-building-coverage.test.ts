@@ -462,3 +462,41 @@ test("startup owns each completed district between cancellable construction step
   expect(partial.next().done).toBe(true);
   expect(coverage.children).toHaveLength(2);
 });
+
+test("a settled mobile worker releases its realm and reopens only for missing selected geometry", () => {
+  const buildings = Array.from({ length: 35 }, (_, i) => ({
+    id: `parked-preview-${i}`, class: 0, y0_dm: 0, h_dm: 100,
+    ring: [[i * 4000, 80000], [i * 4000 + 80, 80000], [i * 4000, 80080]],
+  }));
+  const partition = { initial: [], omitted: [], remaining: buildings.map(b => [b]) };
+  const world = new Group().add(createProgressiveBuildingCoverage(payload, partition));
+  const host = progressiveCoverageHost(viewerSource, world);
+  try {
+    host.runtime.mobileBuildingDistricts = buildingDetailDistricts(partition.remaining);
+    host.view(0, 8000, 1000);
+    const wanted = host.runtime.mobileBuildingWanted!;
+    for (const id of wanted) {
+      const i = Number(id.replace("buildings-", "")) - 1;
+      host.attach(packet(partition.remaining[i], i));
+    }
+    const source = {
+      prisms: { ...payload, buildings: [] }, defaultWanted: [...wanted], packets: new Map<string, string>(),
+      chancelleryCanopySourceV289: false, moabitMitteV300: false, westKiezV302: false, historicDomV288: false,
+      potsdamerCorridorV288: false, stationPhotoAdmitted: false, northPavilionAdmitted: false,
+    };
+    host.attach({ type: "settled", viewRevision: host.runtime.mobileBuildingViewRevision!, mobileSource: source });
+    expect(host.terminated).toBe(1);
+    expect(host.runtime.progressiveWorldWorker).toBeUndefined();
+    expect(host.runtime.progressiveWorldState).toBe("complete");
+    expect(host.runtime.progressiveWorldBatches.length).toBe(wanted.length);
+    host.view(0, 8000, 2000);
+    expect(host.scheduled).toBe(0);
+    host.view(12800, 8000, 3000);
+    expect(host.scheduled).toBe(1);
+    expect(host.runtime.progressiveWorldState).toBe("idle");
+    host.restart();
+    expect(host.builds).toHaveLength(1);
+    expect(host.builds[0]).toMatchObject({ mobileSource: source, surfacesComplete: true,
+      requestedBatchIds: host.runtime.mobileBuildingWanted });
+  } finally { host.dispose(); }
+});

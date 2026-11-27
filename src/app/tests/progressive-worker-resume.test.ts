@@ -8,7 +8,7 @@ import { Group } from "three";
 import type { PrismBuilding, PrismPayload, SurfacePayload } from "../src/IsometricCityWorld";
 import {
   splitParkSurfaceFamily, splitProgressiveBuildings, surfaceFamilyPayload,
-  type ProgressiveWorldWorkerInput, type ProgressiveWorldWorkerMessage,
+  type MobileBuildingSource, type ProgressiveWorldWorkerInput, type ProgressiveWorldWorkerMessage,
   type ProgressiveWorldWorkerOutput,
 } from "../src/progressiveWorld";
 import { BuildingDetailWorker } from "../src/buildingDetailWorker";
@@ -169,13 +169,14 @@ function workerHost(profile: "full" | "mobile", groundSource?: VoxelPayload, sta
       waiters.add(wake);
     });
   }
-  async function start(completedBatchIds: string[] = [], surfacesComplete = false): Promise<void> {
+  async function start(completedBatchIds: string[] = [], surfacesComplete = false, mobileSource?: MobileBuildingSource,
+    requestedBatchIds?: string[]): Promise<void> {
     const common = {
       type: "build" as const, initialBuildingCount: 1, prismUrl: "prisms",
       potsdamerStationPhoto: stationPhotoAdmitted,
-      groundUrl: "ground", surfacesUrl: "surfaces", completedBatchIds, surfacesComplete,
+      groundUrl: "ground", surfacesUrl: "surfaces", completedBatchIds, surfacesComplete, requestedBatchIds,
     };
-    await build(profile === "mobile" ? { ...common, detailProfile: profile } : {
+    await build(profile === "mobile" ? { ...common, detailProfile: profile, mobileSource } : {
       ...common, detailProfile: profile, tunnel: null,
     });
     await waitFor(() => messages.some(message => message.type === "settled"));
@@ -305,7 +306,8 @@ describe("complete source detail and resumable worker surfaces", () => {
       expect(finished.buildingBuilds).toBe(0);
       expect(finished.surfaceBuilds).toBe(0);
       expect(finished.roadBuilds).toEqual([]);
-      expect(finished.messages).toEqual([{ type: "settled", viewRevision: 0 }]);
+      expect(finished.messages).toHaveLength(1);
+      expect(finished.messages[0]).toMatchObject({ type: "settled", viewRevision: 0 });
     });
 
     test(`${profile}: all surface source records arrive once, with water owned by exactly one constructor`, async () => {
@@ -459,4 +461,22 @@ describe("complete source detail and resumable worker surfaces", () => {
       expect(host.attachedBatchResolvers.size).toBe(0);
     });
   }
+});
+
+test("a fresh mobile worker rebuilds just the newly requested district from its verified packed source", async () => {
+  const first = await runWorker("mobile");
+  const receipt = first.messages.find(message => message.type === "settled");
+  if (receipt?.type !== "settled" || !receipt.mobileSource) throw Error("Missing mobile source");
+  const retained = first.batches().map(batch => batch.id);
+  const freshId = first.districts.find(district => !retained.includes(district.id))!.id;
+  const source = structuredClone(receipt.mobileSource);
+  expect(source.prisms.buildings).toHaveLength(0);
+  expect(source.packets.size).toBe(first.districts.length);
+  const resumed = workerHost("mobile");
+  await resumed.start(retained, true, source, [freshId]);
+  expect(resumed.fetchedSources).toEqual([]);
+  expect(resumed.roadLoads).toBe(0);
+  expect(resumed.buildingBatches().map(message => message.id)).toEqual([freshId]);
+  expect(resumed.buildingSources[0]).toEqual(JSON.parse(source.packets.get(freshId)!).map((b: PrismBuilding) => b.id));
+  expect(resumed.messages.at(-1)).toEqual({ type: "settled", viewRevision: 0 });
 });

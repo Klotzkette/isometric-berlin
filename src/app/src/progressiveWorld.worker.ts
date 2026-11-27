@@ -24,6 +24,7 @@ import {
   splitProgressiveBuildings,
   splitParkSurfaceFamily,
   surfaceFamilyPayload,
+  type MobileBuildingSource,
   type ProgressiveWorldWorkerInput,
   type ProgressiveWorldWorkerMessage,
   type ProgressiveWorldWorkerOutput,
@@ -242,14 +243,7 @@ async function buildSurfaceFamilies(
 import { admitsMoabitMitteV300Core } from "./MoabitMitteV300Ownership";
 import { admitsWestKiezV302Core } from "./WestKiezV302CoreOwnership";
 
-async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
-  const completedBatchIds = new Set(input.completedBatchIds ?? []);
-  latestMobileView = {
-    type: "detail-view",
-    requestedBatchIds: input.requestedBatchIds ?? [],
-    retainedBatchIds: [...completedBatchIds],
-    viewRevision: input.viewRevision ?? 0,
-  };
+async function readBuildingSource(input: ProgressiveWorldWorkerInput): Promise<MobileBuildingSource> {
   const prisms = await loadPrismPayload(input.prismUrl);
   const chancelleryCanopySourceV289 = input.chancelleryCanopySourceV289 === true && admitsChancelleryCanopySourceV289(prisms);
   const moabitMitteV300=input.moabitMitteV300===true&&admitsMoabitMitteV300Core(prisms);
@@ -271,6 +265,23 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
     { profile: input.detailProfile },
   );
   const batches = new PackedBuildingDistrictStore(partition.remaining);
+  return { prisms, packets: batches.packets, defaultWanted, chancelleryCanopySourceV289,
+    moabitMitteV300, westKiezV302, historicDomV288, potsdamerCorridorV288, stationPhotoAdmitted, northPavilionAdmitted };
+}
+
+async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
+  const completedBatchIds = new Set(input.completedBatchIds ?? []);
+  latestMobileView = {
+    type: "detail-view",
+    requestedBatchIds: input.requestedBatchIds ?? [],
+    retainedBatchIds: [...completedBatchIds],
+    viewRevision: input.viewRevision ?? 0,
+  };
+  const restored = input.detailProfile === "mobile" ? input.mobileSource : undefined;
+  const source = restored ?? await readBuildingSource(input);
+  const { prisms, packets, defaultWanted, chancelleryCanopySourceV289, moabitMitteV300, westKiezV302,
+    historicDomV288, potsdamerCorridorV288, stationPhotoAdmitted, northPavilionAdmitted } = source;
+  let sendSource = input.detailProfile === "mobile" && !restored;
   await yieldWorker();
   let surfacesReady = false;
   let failed = false;
@@ -281,12 +292,15 @@ async function build(input: ProgressiveWorldWorkerInput): Promise<void> {
         settledRevision !== latestMobileView?.viewRevision ||
         settledRevision === publishedRevision) return;
     publishedRevision = settledRevision;
-    workerScope.postMessage({ type: "settled", viewRevision: settledRevision });
+    workerScope.postMessage(sendSource
+      ? { type: "settled", viewRevision: settledRevision, mobileSource: source }
+      : { type: "settled", viewRevision: settledRevision });
+    sendSource = false;
   };
   mobileDetailWorker = new BuildingDetailWorker({
     build: async (id) => {
       const startedAt = performance.now();
-      const buildings = batches.read(id);
+      const buildings = PackedBuildingDistrictStore.read(packets, id);
       const root = createIsometricCityCore(prisms, null, null, null, {
         buildings, includeContext: false, smoothSurfaces: null,
         // Never retire this source when its main-thread replacement was rejected.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.267
+
+- Compute each terrain triangle's bounds once when fitting U-Bahn entrances during navigation. On the same district packet with 160 surveyed entrance locations, the drawn calculation fell from 249 to 9 ms and the block calculation from 1,144 to 52 ms in the local benchmark. Every selected triangle index and world coordinate matched.
+- Generate indexed planar ground directly and refine the hills using bounded typed buffers. In the isolated first park build, peak process memory fell from about 1,907 to 970 MiB. All 29,723,552 bytes of the resulting park geometry matched the previous build.
+- On phones, release the background city worker after its current districts and terrain have finished loading. Moving among resident districts uses the attached meshes. A new district reuses the verified building packets and skips the completed terrain.
+- Let the mobile viewer take its idle path when shadow maps are disabled. Camera input and visible animations keep their normal update cadence.
+
 ## 1.0.266
 
 - On phones, a long camera jump releases districts that have left the view before the next ones load. Street packets now write directly to their final buffers. The complete set of 425 packets retained all 31,881,710 geometry bytes in comparison.

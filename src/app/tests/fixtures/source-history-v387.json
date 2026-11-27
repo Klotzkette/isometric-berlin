@@ -1,0 +1,39 @@
+{
+  "additions": {
+    "src/app/src/tessellatePlanarPlate.ts": "de20723cd34dd81c2af3e1cf7ced256a3f35704122bccc1b77a7798818448b3b"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "after": "93bd2e97abcdaf30aeb650714e46adb0d1ca5a0301e4e99f616f391a0d04b7b0",
+      "before": "c37c308c220da1eaa45bc93e199e613433845329dab03b8c9653b88b9365b703"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "after": "44240de98b42f8cbde2b1b7c932cde527c4b9cccace2c6516ab5c50dcf9843b2",
+      "before": "e877f738731b289d8ccbbf719234355eed4b5b66f74d6c08f52a1a6f1a00a5b9"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "after": "cb4183be3d17b54c56127e49b9510f5bd889581ffb40f0b62ec46d8e95188cbb",
+      "before": "8e94ca88d06afd6484989821be148174030ce50a27e3ca9dceddfe02fa56a954"
+    },
+    "src/app/src/UbahnGroundSupportV326.ts": {
+      "after": "5b1096513e6b01fef7bb11dab30bd797f3ce26146d86f0fba76fefa8ff7ae8a0",
+      "before": "01553ef16c55e1d2ec96e9613d75b3283a445ac68d159d96629a4cc3ad4823dc"
+    },
+    "src/app/src/packedBuildingDistrictStore.ts": {
+      "after": "44256e94d811249986522e557c5772b803ba26d8ae16e59f35543caa9cf899de",
+      "before": "0bf634119be6be75aa70370e91acd0130a76a2ea55a16c1814ac9bc929abdd24"
+    },
+    "src/app/src/parkReliefSurfaceV182.ts": {
+      "after": "a3987e67b7d1dd97c739e7e5965b3546df9fd82b580bb4a93ebfcd3c845aa41b",
+      "before": "4b4e60fbecbc358f406374426d59e25a0ce3bee75879e05c6e7337b3baf5afde"
+    },
+    "src/app/src/progressiveWorld.ts": {
+      "after": "409162634f6bb3804138c7df8fe7c9e1892f0947ae17a28d1c7b5480652d96a1",
+      "before": "f277838cb25d0391d478984f820d9be8eaa95a58f0a12f0f53f9dcfa208e05a5"
+    },
+    "src/app/src/progressiveWorld.worker.ts": {
+      "after": "0e99fa672a19dfa8c12ace7da059eddf392ece333da8c04fc5d0b7d819438db2",
+      "before": "a45ff9934297cf1348c666745390e87523f8bee29dbf0a2ec85283b1dc33e287"
+    }
+  }
+}

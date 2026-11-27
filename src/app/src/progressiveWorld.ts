@@ -112,6 +112,22 @@ const DESKTOP_PLACE_DETAIL_ZONES = PLAZA_FACADE_DETAIL_ZONES.filter((zone) =>
   DESKTOP_PLACE_DETAIL_ZONE_NAME_SET.has(zone.name),
 );
 
+/** Worker-verified source belonging to the retained drawn world. The prism
+ * metadata has an empty buildings array. Only individual district JSON strings
+ * survive a mobile Worker retirement, with their original ownership checks. */
+export type MobileBuildingSource = {
+  prisms: PrismPayload;
+  packets: ReadonlyMap<string, string>;
+  defaultWanted: string[];
+  chancelleryCanopySourceV289: boolean;
+  moabitMitteV300: boolean;
+  westKiezV302: boolean;
+  historicDomV288: boolean;
+  potsdamerCorridorV288: boolean;
+  stationPhotoAdmitted: boolean;
+  northPavilionAdmitted: boolean;
+};
+
 type ProgressiveWorldWorkerInputBase = {
   /** Exact south-hall replacement committed with the retained main-thread city. */
   hbfCirculationV291?: boolean;
@@ -146,6 +162,7 @@ export type ProgressiveWorldWorkerInput =
   | (ProgressiveWorldWorkerInputBase & {
       /** Mobile fetches source in-worker; no large decoded graph is cloned. */
       detailProfile: "mobile";
+      mobileSource?: MobileBuildingSource;
       prismUrl: string;
       requestedBatchIds?: readonly string[];
       viewRevision?: number;
@@ -195,7 +212,7 @@ export type ProgressiveWorldWorkerOutput =
       pretriangulated: boolean;
       type: "complete";
     }
-  | { type: "settled"; viewRevision: number }
+  | { type: "settled"; viewRevision: number; mobileSource?: MobileBuildingSource }
   | { message: string; type: "error" };
 
 /**

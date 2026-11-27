@@ -248,6 +248,7 @@ import {
   Sphere,
   Vector3,
 } from "three";
+import { tessellatePlanarPlate } from "./tessellatePlanarPlate";
 import { TessellateModifier } from "three/examples/jsm/modifiers/TessellateModifier.js";
 import {
   INTERIM_OFFICE_FOOTPRINT_RING,
@@ -10416,9 +10417,13 @@ export function createSmoothSurfaces(
         // dip inside that triangle. Bounded tessellation adds only the
         // vertices needed for the 16 m sampled terrain; merge them back into
         // an indexed buffer before the height lookup to keep memory stable.
-        const tessellated = terrainTessellator.modify(source);
-        geometry = mergeVertices(tessellated, 1e-4);
-        tessellated.dispose();
+        if (source instanceof ShapeGeometry && source !== pretriangulated) {
+          geometry = tessellatePlanarPlate(source, DRAPED_SURFACE_MAX_EDGE_M, DRAPED_SURFACE_MAX_ITERATIONS);
+        } else {
+          const tessellated = terrainTessellator.modify(source);
+          geometry = mergeVertices(tessellated, 1e-4);
+          tessellated.dispose();
+        }
         source.dispose();
       }
       geometry.rotateX(-Math.PI / 2);

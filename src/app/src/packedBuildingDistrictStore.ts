@@ -26,8 +26,15 @@ export class PackedBuildingDistrictStore {
 
   get size(): number { return this.districts.size; }
 
+  /** The viewer keeps only these JSON strings between mobile Worker lifetimes. */
+  get packets(): ReadonlyMap<string, string> { return this.districts; }
+
   read(id: string): PrismBuilding[] {
-    const encoded = this.districts.get(id);
+    return PackedBuildingDistrictStore.read(this.districts, id);
+  }
+
+  static read(packets: ReadonlyMap<string, string>, id: string): PrismBuilding[] {
+    const encoded = packets.get(id);
     if (encoded === undefined) throw new Error(`Unknown building district ${id}`);
     return JSON.parse(encoded) as PrismBuilding[];
   }

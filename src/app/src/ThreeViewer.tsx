@@ -972,6 +972,7 @@ type Runtime = {
   progressiveWorldMessages: ProgressiveWorldQueuedMessage[];
   progressiveWorldState: ProgressiveWorldState;
   progressiveWorldStartCancel?: () => void;
+  progressiveWorkerIdleTimer?: ReturnType<typeof setTimeout>;
   progressiveWorldWorker?: Worker;
   loadSignal: AbortSignal;
   reportWorldFailure: () => void;
@@ -3750,6 +3751,7 @@ function restoreProgressiveWorld(
     runtime.progressiveWorldWorker &&
     runtime.progressiveWorldWorker !== snapshot.worker
   ) {
+    cancelIdleWorkerRetirement(runtime);
     runtime.progressiveWorldWorker.terminate();
   }
   const retained = new Set(snapshot.batches);
@@ -3978,6 +3980,7 @@ function cancelScheduledProgressiveAttachment(runtime: Runtime): void {
 }
 
 function clearProgressiveAttachmentQueue(runtime: Runtime): void {
+  cancelIdleWorkerRetirement(runtime);
   cancelScheduledProgressiveAttachment(runtime);
   runtime.progressiveWorldMessages.length = 0;
 }
@@ -3998,6 +4001,21 @@ function browserInputPending(): boolean {
   }
 }
 
+function cancelIdleWorkerRetirement(runtime: Runtime): void {
+  if (runtime.progressiveWorkerIdleTimer !== undefined) clearTimeout(runtime.progressiveWorkerIdleTimer);
+  runtime.progressiveWorkerIdleTimer = undefined;
+}
+
+/** All attached meshes and the verified packed district strings belong to the
+ * drawn world. Release WebKit's whole construction realm while it has no work. */
+function retireSettledMobileWorker(runtime: Runtime): void {
+  cancelIdleWorkerRetirement(runtime);
+  const input = runtime.progressiveWorldInput;
+  if (runtime.progressiveWorldState !== "complete" || input?.detailProfile !== "mobile" || !input.mobileSource) return;
+  runtime.progressiveWorldWorker?.terminate();
+  runtime.progressiveWorldWorker = undefined;
+}
+
 /** Keep bounded exact detail around the moving ground focus and its route ahead. */
 function updateMobileBuildingDetails(
   runtime: Runtime,
@@ -4006,8 +4024,10 @@ function updateMobileBuildingDetails(
 ): void {
   const districts = runtime.mobileBuildingDistricts;
   const worker = runtime.progressiveWorldWorker;
-  if (!districts || !worker || !runtime.isoWorld || !isoWorldIntentActive(runtime) ||
-      document.hidden || runtime.disposed) return;
+  const input = runtime.progressiveWorldInput;
+  const dormant = !worker && input?.detailProfile === "mobile" && input.mobileSource && input.surfacesComplete;
+  if (!districts || (!worker && !dormant) || !runtime.isoWorld || !isoWorldIntentActive(runtime) ||
+      document.hidden || runtime.contextLost || runtime.disposed) return;
   const previous = runtime.mobileBuildingLastView;
   if (previous && now - previous.at < 200) return;
   const focus = runtime.pedestrian.enabled ? runtime.camera.position : runtime.controls.target;
@@ -4055,6 +4075,18 @@ function updateMobileBuildingDetails(
   }
   for (const id of lastUsed.keys()) {
     if (!wanted.includes(id) && !retained.has(id)) lastUsed.delete(id);
+  }
+  cancelIdleWorkerRetirement(runtime);
+  if (!worker) {
+    const attached = new Set(runtime.progressiveWorldBatches.map(batch => batch.userData.progressiveWorldBatchId));
+    if (wanted.some(id => !attached.has(id))) {
+      runtime.progressiveWorldState = "idle";
+      scheduleProgressiveWorld(runtime, warn);
+    } else {
+      cancelScheduledProgressiveWorld(runtime);
+      runtime.progressiveWorldState = "complete";
+    }
+    return;
   }
   runtime.progressiveWorldState = "loading";
   invalidateScenePresentation(runtime);
@@ -4136,6 +4168,10 @@ async function attachProgressiveWorldMessage(
   warn: (message: string) => void,
 ): Promise<void> {
   if (message.type === "settled") {
+    const input = runtime.progressiveWorldInput;
+    // A camera change invalidates the selected districts, but the retained
+    // world's verified source remains valid for every subsequent revision.
+    if (input?.detailProfile === "mobile" && message.mobileSource) input.mobileSource = message.mobileSource;
     if (message.viewRevision !== runtime.mobileBuildingViewRevision) return;
     runtime.arrivalRoadViewV376?.stop();
     runtime.arrivalRoadViewV376 = undefined;
@@ -4143,6 +4179,13 @@ async function attachProgressiveWorldMessage(
     // this drawn world so a resumed worker need not reload its finished terrain.
     if (runtime.progressiveWorldInput) runtime.progressiveWorldInput.surfacesComplete = true;
     runtime.progressiveWorldState = "complete";
+    if (input?.detailProfile === "mobile" && input.mobileSource) {
+      cancelIdleWorkerRetirement(runtime);
+      // The first settled city immediately hands memory to the pending park
+      // build. A short grace on later camera updates reuses a moving Worker.
+      if (message.mobileSource) retireSettledMobileWorker(runtime);
+      else runtime.progressiveWorkerIdleTimer = setTimeout(() => retireSettledMobileWorker(runtime), 4000);
+    }
     releaseBuiltWorldPayloads(runtime);
     invalidateScenePresentation(runtime);
     performance.clearMarks("isometric-city-exact-ready");
@@ -9457,6 +9500,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           gpuWarmupTimer = null;
           resetTouchGesture();
           cancelScheduledProgressiveWorld(runtime);
+          retireSettledMobileWorker(runtime);
           if (
             progressiveWorldVisibilityTransition(
               true,
@@ -10128,7 +10172,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const pedestrianInput = pedestrianInputRef.current;
         const continuousInputActive =
           runtime.renderInvalidated ||
-          runtime.shadowInvalidated ||
+          (renderer.shadowMap.enabled && runtime.shadowInvalidated) ||
           frameNavigationMoved ||
           touchGestureMoved ||
           directControlChanged ||

@@ -110,6 +110,23 @@ describe("static desktop shadow invalidation", () => {
     expect(view.updates()).toBe(1);
   });
 
+  test("an unused shadow atlas does not keep stationary frames active", () => {
+    const start = source.indexOf("const continuousInputActive =");
+    const input = source.indexOf("frameNavigationMoved ||", start);
+    expect(start).toBeGreaterThan(-1);
+    expect(input).toBeGreaterThan(start);
+    const idleFrameIsActive = new Function("runtime", "renderer",
+      source.slice(start, input) + "false; return continuousInputActive;");
+    const view = harness(false);
+    invalidateScenePresentation(view.runtime);
+    expect(idleFrameIsActive(view.runtime, view.renderer)).toBeTrue();
+    view.frame(false);
+    expect(view.runtime.shadowInvalidated).toBeTrue();
+    expect(idleFrameIsActive(view.runtime, view.renderer)).toBeFalse();
+    view.renderer.shadowMap.enabled = true;
+    expect(idleFrameIsActive(view.runtime, view.renderer)).toBeTrue();
+  });
+
   test("geometry, lighting and model visibility explicitly invalidate shadows", () => {
     for (const name of ["attachProgressiveWorldMessage", "setSceneLighting",
       "setModelMaterialState", "setEnvironmentalPresentation", "syncPedestrianTunnelPresentation",

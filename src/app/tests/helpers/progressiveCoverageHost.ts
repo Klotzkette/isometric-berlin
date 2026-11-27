@@ -51,7 +51,7 @@ export function progressiveCoverageHost(
 ) {
   const names = [
     "cancelScheduledProgressiveAttachment", "clearProgressiveAttachmentQueue",
-    "cancelScheduledProgressiveWorld", "failProgressiveWorld",
+    "cancelScheduledProgressiveWorld", "cancelIdleWorkerRetirement", "retireSettledMobileWorker", "failProgressiveWorld",
     "markProgressiveWorldUnavailable", "stopProgressiveWorld",
     "startProgressiveWorld", "prepareArrivalRoadViewV376",
     "attachProgressiveWorldMessage", "releaseBuiltWorldPayloads",
@@ -71,7 +71,7 @@ export function progressiveCoverageHost(
   const acknowledged: string[] = [];
   const builds: ProgressiveWorldWorkerInput[] = [];
   const views: unknown[] = [];
-  let terminated = 0;
+  let terminated = 0, scheduled = 0;
   let failAcknowledgement = false;
   const createWorker = () => ({
     terminate: () => { terminated += 1; },
@@ -108,7 +108,7 @@ export function progressiveCoverageHost(
     updateBerlinerEnsembleRoofSign: () => {},
     registerBerlinerEnsembleRoofSignTargets: () => {},
     setEnvironmentalPresentation: () => {},
-    scheduleProgressiveAttachment: () => {},
+    scheduleProgressiveAttachment: () => {}, scheduleProgressiveWorld: () => { scheduled++; },
     isoWorldIntentActive: (state: { lightingMode: VisualMode }) => state.lightingMode !== "minecraft",
     Worker: function () { worker = createWorker(); return worker; },
     URL, document,
@@ -166,6 +166,7 @@ export function progressiveCoverageHost(
     finishBacking: () => { for (const ready of pendingBacking.splice(0)) ready(); },
     get worker() { return worker; },
     get terminated() { return terminated; },
+    get scheduled() { return scheduled; },
     get deferredStarts() { return deferredStarts; },
     arrivalHooks: () => functions.prepareArrivalRoadViewV376(runtime, {}, false, warn),
     arrival: (road: ArrivalRoadV376) => functions.attachProgressiveWorldMessage(runtime, undefined, { ...road, type: "arrival", kind: "surfaces" }, warn),

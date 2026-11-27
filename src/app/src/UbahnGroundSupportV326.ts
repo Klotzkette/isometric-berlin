@@ -35,7 +35,14 @@ export function isUbahnGroundFaceV326(p:readonly number[][]):boolean{
  return true;
 }
 const overlaps=(a:readonly number[],b:readonly number[])=>a[0]<=b[2]&&a[2]>=b[0]&&a[1]<=b[3]&&a[3]>=b[1];
-const bounds=(p:readonly P[])=>[Math.min(...p.map(q=>q[0])),Math.min(...p.map(q=>q[2])),Math.max(...p.map(q=>q[0])),Math.max(...p.map(q=>q[2]))];
+function bounds(points:readonly P[],out:number[]=[]):number[]{
+ let minX=Infinity,minZ=Infinity,maxX=-Infinity,maxZ=-Infinity;
+ for(const point of points){
+  minX=Math.min(minX,point[0]);minZ=Math.min(minZ,point[2]);
+  maxX=Math.max(maxX,point[0]);maxZ=Math.max(maxZ,point[2]);
+ }
+ out[0]=minX;out[1]=minZ;out[2]=maxX;out[3]=maxZ;return out;
+}
 
 /** Borrow only explicitly supplied source owners from the real construction.
  * Cooperative slices never copy a whole city or allocate a second mesh. */
@@ -45,6 +52,7 @@ export function* collectUbahnGroundSupportV326Steps(root:Object3D,hosts:readonly
  if(hosts.some(m=>!within(m)))return null;root.updateMatrixWorld(true);
  const query=points.map(p=>{const q=p.ring??[p.point];return[Math.min(...q.map(p=>p[0]))-1,Math.min(...q.map(p=>p[1]))-1,Math.max(...q.map(p=>p[0]))+1,Math.max(...q.map(p=>p[1]))+1];});
  const carriers:UbahnGroundCarrierV326[]=[],pins:Array<()=>boolean>=[],v=new Vector3(),box=new Box3();let work=0;
+ const faceBounds:number[]=[];
  for(const mesh of hosts){
   const g=mesh.geometry,p=g.getAttribute('position'),index=g.index;if(!p||p.itemSize!==3||g.morphAttributes.position?.length)continue;
   const transform=mesh.matrixWorld.clone(),oldParent=mesh.parent,oldP=p,oldIndex=index,oldCount=p.count,oldIndexCount=index?.count;
@@ -56,14 +64,18 @@ export function* collectUbahnGroundSupportV326Steps(root:Object3D,hosts:readonly
   for(let n=0;n<instances;n++){
    if(++work%128===0)yield;
    let matrix=transform;
-   if(mesh instanceof InstancedMesh){mesh.getMatrixAt(n,im);matrix=new Matrix4().multiplyMatrices(transform,im);box.copy(g.boundingBox!).applyMatrix4(matrix);if(!query.some(q=>overlaps(q,[box.min.x,box.min.z,box.max.x,box.max.z])))continue;}
+   if(mesh instanceof InstancedMesh){mesh.getMatrixAt(n,im);matrix=new Matrix4().multiplyMatrices(transform,im);box.copy(g.boundingBox!).applyMatrix4(matrix);
+    const instanceBounds=[box.min.x,box.min.z,box.max.x,box.max.z];
+    if(!query.some(q=>overlaps(q,instanceBounds)))continue;}
    const sourceMatrix=matrix.clone();
    for(let at=0;at<(index?.count??p.count);at+=3){
     const ids=index?[index.getX(at),index.getX(at+1),index.getX(at+2)]:[at,at+1,at+2];
     if(eligible&&!eligible(mesh,ids))continue;
     const read=()=>{let current=mesh.matrixWorld;if(mesh instanceof InstancedMesh){const m=new Matrix4();mesh.getMatrixAt(n,m);current=new Matrix4().multiplyMatrices(mesh.matrixWorld,m);}return ids.map(i=>{v.set(p.getX(i),p.getY(i),p.getZ(i)).applyMatrix4(current);return[v.x,v.y,v.z];});};
     if(++work%4096===0)yield;
-    const vertices=read();if(area(vertices)<1e-8||!query.some(q=>overlaps(q,bounds(vertices))))continue;
+    const vertices=read();if(area(vertices)<1e-8)continue;
+    bounds(vertices,faceBounds);
+    if(!query.some(q=>overlaps(q,faceBounds)))continue;
     // Upright structures cannot masquerade as a supporting footway.
     if(!isUbahnGroundFaceV326(vertices))continue;
     pins.push(()=>!index||isParkedStaticStorageV321(index)||ids.every((id,k)=>index.getX(at+k)===id));
@@ -78,7 +90,9 @@ export function* collectUbahnGroundSupportV326Steps(root:Object3D,hosts:readonly
   const ring=opening.ring.map(p=>[p[0],opening.surfaceY,p[1]]),triangles:P[][]=[];
   if(opening.native){for(const r of mergeUbahnNativeCellsV326(opening.nativeCells??[])){const a=[r[0],opening.surfaceY,r[1]],b=[r[2],opening.surfaceY,r[1]],c=[r[2],opening.surfaceY,r[3]],d=[r[0],opening.surfaceY,r[3]];triangles.push([a,b,c],[a,c,d]);}}
   else for(const ids of ShapeUtils.triangulateShape(opening.ring.map(p=>new Vector2(...p)),[]))triangles.push(ids.map(i=>ring[i]));
-  if(!triangles.length)return false;const close=carriers.filter(c=>overlaps(bounds(c.points),bounds(ring))).map(c=>clip(clip(c.points,p=>p[1]-opening.bottomY-.02),p=>opening.surfaceY+.34-p[1])).filter(p=>p.length>=3&&area(p)>1e-10);
+  if(!triangles.length)return false;
+  const ringBounds=bounds(ring);
+  const close=carriers.filter(c=>overlaps(bounds(c.points,faceBounds),ringBounds)).map(c=>clip(clip(c.points,p=>p[1]-opening.bottomY-.02),p=>opening.surfaceY+.34-p[1])).filter(p=>p.length>=3&&area(p)>1e-10);
   for(const triangle of triangles){let remainder=[triangle];for(const c of close){remainder=remainder.flatMap(p=>subtractUbahnConvexV326(p,c));if(!remainder.length)break;}if(remainder.reduce((n,p)=>n+area(p),0)>1e-5)return false;}
   return true;
  };
