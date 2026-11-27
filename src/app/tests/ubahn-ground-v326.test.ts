@@ -1,6 +1,8 @@
 import {createUbahnNavigationSupportV326} from '../src/UbahnNavigationSupportV326';
 import {test,expect} from 'bun:test';
-import {Group,Mesh,PlaneGeometry,MeshBasicMaterial,ShaderLib} from 'three';
+import {BoxGeometry,Group,InstancedMesh,InterleavedBufferAttribute,Matrix4,Mesh,PlaneGeometry,MeshBasicMaterial,PerspectiveCamera,Scene,ShaderLib,type WebGLRenderer} from 'three';
+import {installGroundDrawCullingV383} from '../src/groundDrawRangesV383';
+import {groundRangeShaderSafeV383} from '../src/groundRangeShaderProvenanceV383';
 import raw from '../src/data/ubahnAccessV326.json';
 import {createUbahnGroundRuntimeV326Steps} from '../src/UbahnGroundRuntimeV326';
 import {patchUbahnGroundShaderV326,mergeUbahnNativeCellsV326} from '../src/UbahnGroundAtlasV326';
@@ -23,3 +25,51 @@ test('every eligibility IEEE754 word and shadow callback stays in the private ad
 test('numeric GPU aperture source is immutable and any foreign sampler/uniform change closes admission',()=>{const f=fixture(),q=drain(createUbahnGroundRuntimeV326Steps(f.root,[f.m],[entry.id],false,()=>3,true))!,shader={...ShaderLib.basic,uniforms:{...ShaderLib.basic.uniforms}};f.m.material.onBeforeCompile(shader as never,{}as never);const u=shader.uniforms as any,t=u.uUbahnApertureDataV326.value,first=t.image.data[0],borrow=t.image.data;borrow[0]+=64;expect(t.image.data[0]).toBe(first);expect(q.complete()).toBe(true);expect(()=>{u.uUbahnApertureGridV326.value.x+=64;}).toThrow();const old=t.wrapS;t.wrapS=1000;expect(q.complete()).toBe(false);expect(u.uUbahnApertureEnabledV326.value).toBe(0);t.wrapS=old;expect(q.complete()).toBe(true);u.uUbahnApertureEnabledV326.value=0;expect(q.complete()).toBe(false);expect(u.uUbahnApertureEnabledV326.value).toBe(0);q.dispose();expect(q.complete()).toBe(false);});
 
 test('pure terrain and mixed packet shaders have independent stable program cache keys',()=>{const f=fixture(),pure=drain(createUbahnGroundRuntimeV326Steps(f.root,[f.m],[entry.id],false,()=>3,true))!,key=f.m.material.customProgramCacheKey();pure.dispose();const mixed=drain(createUbahnGroundRuntimeV326Steps(f.root,[f.m],[entry.id],false,()=>3,false))!;expect(f.m.material.customProgramCacheKey()).not.toBe(key);const shader={...ShaderLib.basic,uniforms:{...ShaderLib.basic.uniforms}};f.m.material.onBeforeCompile(shader as never,{}as never);expect(shader.vertexShader).toContain('attribute float ubahnGroundEligibleV326');expect(shader.fragmentShader).toContain('vUbahnEligibleV326>.999&&ubahnCutV326');mixed.dispose();});
+
+
+test('real aperture masks keep their original slab and shadow bindings when a draw starts mid-buffer', () => {
+  const scene = new Scene(), owner = new Group(), geometry = new BoxGeometry(100, 1, 100);
+  const material = new MeshBasicMaterial(), mesh = new InstancedMesh(geometry, material, 2048);
+  mesh.name = 'Drawn ground slabs';
+  const center = mesh.count / 2, transform = new Matrix4();
+  mesh.position.set(entry.point[0], 2.5, entry.point[1]);
+  for (let i = 0; i < mesh.count; i++)
+    mesh.setMatrixAt(i, transform.makeTranslation((i - center) * 160, 0, 0));
+  owner.add(mesh);
+  scene.add(owner);
+  const aperture = drain(createUbahnGroundRuntimeV326Steps(owner, [mesh], [entry.id], false, () => 3, true))!;
+  expect(aperture.openingIds).toEqual([entry.id]);
+  const camera = new PerspectiveCamera(60, 1, 1, 180);
+  camera.position.copy(mesh.position);
+  camera.position.y += 30;
+  camera.position.z += 40;
+  camera.lookAt(mesh.position);
+  camera.updateMatrixWorld();
+  const ranges: Array<[number, number]> = [];
+  const renderer = {renderBufferDirect() {
+    const binding = geometry.getAttribute('instanceMatrix') as InterleavedBufferAttribute;
+    expect(binding.data as unknown).toBe(mesh.instanceMatrix);
+    ranges.push([binding.offset / 16, mesh.count]);
+  }} as unknown as WebGLRenderer;
+  installGroundDrawCullingV383(renderer);
+  for (const pass of [material, mesh.customDepthMaterial!, mesh.customDistanceMaterial!]) {
+    ranges.length = 0;
+    expect(groundRangeShaderSafeV383(pass)).toBe(true);
+    renderer.renderBufferDirect(camera, scene, geometry, pass, mesh, geometry.groups[0]);
+    expect(ranges.some(([start, count]) => start > 0 && start <= center && center < start + count)).toBe(true);
+    expect(mesh.count).toBe(2048);
+    expect(aperture.complete()).toBe(true);
+  }
+  aperture.dispose();
+
+  const foreign = material.onBeforeCompile = shader => {
+    shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>',
+      '#include <begin_vertex>\ntransformed.x += float(gl_InstanceID);');
+  };
+  const mixed = drain(createUbahnGroundRuntimeV326Steps(owner, [mesh], [entry.id], false, () => 3, false))!;
+  expect(mixed.complete()).toBe(true);
+  expect(groundRangeShaderSafeV383(material)).toBe(false);
+  mixed.dispose();
+  expect(material.onBeforeCompile).toBe(foreign);
+  expect(groundRangeShaderSafeV383(material)).toBe(false);
+});

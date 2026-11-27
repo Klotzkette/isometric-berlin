@@ -1,10 +1,11 @@
 import {
   Box3, BoxGeometry, Camera, Frustum, InstancedBufferAttribute, InstancedInterleavedBuffer,
-  InstancedMesh, InterleavedBufferAttribute, Material, Matrix4, Object3D,
+  InstancedMesh, InterleavedBufferAttribute, Matrix4, Object3D,
   Vector3, type BufferAttribute, type WebGLRenderer,
 } from "three";
 
 import { staticStorageInfo } from "./losslessStaticStorage";
+import { groundRangeShaderSafeV383 } from "./groundRangeShaderProvenanceV383";
 
 // These static layers each span multiple buildings or city blocks. A single
 // city-wide sphere admitted up to 40,883 facade cuboids even in a close-up.
@@ -137,9 +138,15 @@ export function installGroundDrawCullingV383(renderer: WebGLRenderer): void {
   renderer.renderBufferDirect = (camera, scene, geometry, material, mesh, group) => {
     if (!(mesh instanceof InstancedMesh) || !layers.has(mesh.name) || !(geometry instanceof BoxGeometry) || mesh.geometry !== geometry ||
         geometry.attributes.instanceMatrix || geometry.attributes.instanceColor || mesh.morphTexture ||
-        material.onBeforeCompile !== Material.prototype.onBeforeCompile || ("displacementMap" in material && material.displacementMap) ||
+        !groundRangeShaderSafeV383(material) || ("displacementMap" in material && material.displacementMap) ||
         ("isShaderMaterial" in material) || mesh.instanceColor && mesh.instanceColor.meshPerAttribute !== 1 ||
         geometry.drawRange.count === 0) return draw(camera, scene, geometry, material, mesh, group);
+    // Only the object's matrix and color get rebased when a range starts midway.
+    for (const attribute of Object.values(geometry.attributes)) {
+      if (("isInstancedBufferAttribute" in attribute && attribute.isInstancedBufferAttribute) ||
+          ("data" in attribute && "isInstancedInterleavedBuffer" in attribute.data && attribute.data.isInstancedInterleavedBuffer))
+        return draw(camera, scene, geometry, material, mesh, group);
+    }
     const layout = prepare(mesh);
     if (!layout) return draw(camera, scene, geometry, material, mesh, group);
     const ranges = visibleRanges(layout, camera, mesh);

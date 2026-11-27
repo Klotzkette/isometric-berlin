@@ -2,6 +2,7 @@
 import { Color, InstancedMesh, Material, Mesh, type Object3D } from 'three';
 import source from './data/hbfForecourtFinishV354.json';
 import { isSceneMaterialProgramRetirementV321 } from './sceneMaterialPrograms';
+import { registerGroundRangeShaderWrapperV383 } from './groundRangeShaderProvenanceV383';
 
 const CONTROL = 2767908831;
 const TAG = 'hbfForecourtFinishV354';
@@ -98,6 +99,7 @@ function install(material:Material,native:boolean):boolean {
     const next=patchHbfForecourtShaderV354(shader.vertexShader,shader.fragmentShader,native);
     shader.vertexShader=next.vertex;shader.fragmentShader=next.fragment;
   };
+  registerGroundRangeShaderWrapperV383(previous, material.onBeforeCompile);
   material.customProgramCacheKey=()=>key+'|hbf-forecourt-v354-'+(native?'native':'drawn');
   material.addEventListener('dispose',()=>{if(!isSceneMaterialProgramRetirementV321(material))binding.dead=true;});
   material.needsUpdate=true;return true;

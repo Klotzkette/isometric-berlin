@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.268
+
+- Keep camera-based culling active for the original architectural sheen and ground finishes. The viewer skips offscreen groups of ground slabs and facade parts while retaining their full geometry, original materials and draw order.
+- In the mobile WebKit comparison, the Brandenburger Tor view submitted 5,817,945 triangles instead of 8,754,417. The Federal Ministry of Finance view submitted 2,632,130 instead of 4,224,014. Every output pixel at both camera positions matched v1.0.267.
+
 ## 1.0.267
 
 - Compute each terrain triangle's bounds once when fitting U-Bahn entrances during navigation. On the same district packet with 160 surveyed entrance locations, the drawn calculation fell from 249 to 9 ms and the block calculation from 1,144 to 52 ms in the local benchmark. Every selected triangle index and world coordinate matched.

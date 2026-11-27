@@ -1,7 +1,8 @@
 import {expect,test} from 'bun:test';
 import {BoxGeometry,Color,InstancedMesh,Matrix4,MeshBasicMaterial,MeshStandardMaterial,ShaderLib} from 'three';
 import {bindHbfForecourtFinishV354 as bind,hbfForecourtPavedAtV354 as paved,inheritHbfForecourtFinishV354 as inherit,markHbfForecourtFinishV354 as mark,patchHbfForecourtShaderV354 as patch} from '../src/HbfForecourtFinishV354';
-import {patchGroundFinishShaderV348} from '../src/GroundFinishV348';
+import {bindGroundFinishV348,markGroundFinishV348,patchGroundFinishShaderV348} from '../src/GroundFinishV348';
+import {groundRangeShaderSafeV383} from '../src/groundRangeShaderProvenanceV383';
 import {retireSceneMaterialPrograms} from '../src/sceneMaterialPrograms';
 import {deserializeTransferredObject3D,serializeObject3DForTransfer} from '../src/transferableObject3D';
 
@@ -11,6 +12,22 @@ function ground(native=false){
  mesh.setColorAt(0,new Color(native?0x74b043:0xb9d9aa));return mesh;
 }
 function compile(m:any){const shader={vertexShader:ShaderLib.standard.vertexShader,fragmentShader:ShaderLib.standard.fragmentShader,uniforms:{}};m.onBeforeCompile(shader,{});return shader;}
+test('ground draw ranges accept both authored finishes only over known vertex behavior',()=>{
+ for(const native of [false,true])for(const foreign of [false,true]){
+  const mesh=ground(native), material=mesh.material;
+  if(foreign)material.onBeforeCompile=s=>{s.vertexShader=s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed.x += float(gl_InstanceID);');};
+  markGroundFinishV348(mesh,native?'core-native':'core-drawn');
+  expect(bindGroundFinishV348(mesh,native)).toBe(native?0:1);
+  expect(groundRangeShaderSafeV383(material)).toBe(!foreign);
+  expect(mark(mesh,native)).toBe(true);expect(bind(mesh)).toBe(1);
+  expect(groundRangeShaderSafeV383(material)).toBe(!foreign);
+  const shader=compile(material);
+  expect(shader.vertexShader.includes('gl_InstanceID')).toBe(foreign);
+  expect(shader.vertexShader.includes('vGroundWorldV348')).toBe(!native);
+  expect(shader.vertexShader).toContain('forecourtPositionV354=instanceMatrix*forecourtPositionV354');
+  mesh.geometry.dispose();material.dispose();
+ }
+});
 test('actual place masks preserve grove, planted holes and the complete outside',()=>{
  for(const native of [false,true]){
   expect(paved(-100,-500,native)).toBe(true);expect(paved(-140,-800,native)).toBe(true);

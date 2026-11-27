@@ -4,6 +4,7 @@ import type { VisualMode } from "./visualMode";
 import { finishPaints, finishes, strengths, type Finish, type SurfaceFinish } from "./architecturalFinishTypes";
 import { civicArchitecturalFinish } from "./civicArchitecturalFinish";
 import { skylineArchitecturalFinish } from "./skylineFinishes";
+import { registerGroundRangeShaderWrapperV383 } from "./groundRangeShaderProvenanceV383";
 
 // These batches own the indicated surface. Other batches can combine trees,
 // paving, buildings or signs into the same paint and deliberately stay outside.
@@ -167,6 +168,7 @@ function install(material: SurfaceMaterial, profile: unknown, selector: Selector
         ";\n" + dayFinish + "\n#include <opaque_fragment>",
     );
   };
+  registerGroundRangeShaderWrapperV383(previous, material.onBeforeCompile);
   material.customProgramCacheKey = () => key + "|architectural-sheen|" + selector.key;
   material.needsUpdate = true;
   const binding = { gate, profile };

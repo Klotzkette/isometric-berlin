@@ -1,0 +1,31 @@
+{
+  "additions": {
+    "src/app/src/groundRangeShaderProvenanceV383.ts": "92100d3e3ad26b93161925be7230ab99540ac227928ade8d539f85e29b546384"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "after": "b47ad7393372a63acd3bb1a0ab500d503e412f1e64a1bd700b95f1e99aea7779",
+      "before": "93bd2e97abcdaf30aeb650714e46adb0d1ca5a0301e4e99f616f391a0d04b7b0"
+    },
+    "src/app/src/GroundFinishV348.ts": {
+      "after": "4c9b4fa9f25fe3f5bb363d6422f6868f65f129a0e4ff971b3337df537dd785e3",
+      "before": "15967ba27a36deb5240e23d92fdf6f09e9f2961e91c46003e5d8743f54030658"
+    },
+    "src/app/src/HbfForecourtFinishV354.ts": {
+      "after": "96b2509ee2eabe5183ce774f0bea126e59c0ad924abd4a8f87100e7d7bec5278",
+      "before": "364e011b8f569122e800f836c52e7ccf294a4613e98a04ae2cedd1b4b2e491ef"
+    },
+    "src/app/src/UbahnGroundRuntimeV326.ts": {
+      "after": "e9f45834ee5185d7eb6a7463ae2e12034ebfe628a9b94c3cb17de58f8e0cca9e",
+      "before": "1381c6009a09f71c8c44be316c2357c0071a1eef0b728d7cea50514c67830703"
+    },
+    "src/app/src/architecturalSheen.ts": {
+      "after": "77c75739927cb69a4463282f377b9797c6c69877086153dd15ba967a47e87601",
+      "before": "d4f572ab4bef99148b7adaa03811f0bf2ede1e1af67db05df347fe6868a7ee97"
+    },
+    "src/app/src/groundDrawRangesV383.ts": {
+      "after": "7d9960092a2e2174d98a8a587b861a3bba38200d881dedaf7ae1d03617c5bf99",
+      "before": "fcb0f5c7feffe9fd6cc02c21fd1f4bcd2bde7af574a6c66c77c7a1b52ad8691c"
+    }
+  }
+}

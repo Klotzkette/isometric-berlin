@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
-import { Color, InstancedMesh, Mesh } from "three";
+import { BoxGeometry, Color, InstancedBufferAttribute, InstancedMesh, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, type WebGLRenderer } from "three";
 import { civicArchitecturalFinish, civicPacketFinish, markKoepenickCourtWalls } from "../src/civicArchitecturalFinish";
 import { markMappedBuildingWalls } from "../src/highRiseWallFinish";
 import { createSurroundingCityChunk, type SurroundingCityChunk } from "../src/SurroundingCityGeometry";
@@ -9,6 +9,9 @@ import { courtPaneMasksV333 } from "../src/CourtsParkV293";
 import { createDistrictCourtEnvelopesV229 } from "../src/DistrictCourtEnvelopesV229";
 import { createDistrictCourtsV229 } from "../src/DistrictCourtsV229";
 import { createFederalMinistriesV321, hasCompleteFederalMinistriesV321 } from "../src/FederalMinistriesV321";
+import { presentArchitecturalSheen } from "../src/architecturalSheen";
+import { installGroundDrawCullingV383 } from "../src/groundDrawRangesV383";
+import { groundRangeShaderSafeV383 } from "../src/groundRangeShaderProvenanceV383";
 import { createForeignOfficeV344, FOREIGN_OFFICE_V344_NAME } from "../src/ForeignOfficeV344";
 import { createBendlerblockV202 } from "../src/BendlerblockV202";
 import { createDistrictTownhallsV227 } from "../src/DistrictTownhallsV227";
@@ -38,6 +41,59 @@ function paintedSwatches(mesh: Mesh) {
   }
   return colors;
 }
+
+test("the Gate view culls the finished ministry facade while preserving unknown shader inputs", () => {
+  const root = createFederalMinistriesV321(false, {sourcePrisms: federal.sourcePrisms as unknown as PrismBuilding[], mobileLike: true});
+  try {
+    const mesh = root.getObjectByName("Source-bound ministry reveals, unlit glazing and seven public colonnade arches") as InstancedMesh;
+    const scene = new Scene();
+    scene.add(root);
+    scene.updateMatrixWorld(true);
+    const camera = new PerspectiveCamera(16, 530 / 889, 0.25, 97000);
+    camera.position.set(639.4495, 66.978, 368.1881);
+    camera.lookAt(417.898, 17.734, 300.453);
+    camera.updateMatrixWorld();
+    const submitted: number[] = [];
+    const renderer = {renderBufferDirect() {submitted.push(mesh.count);}} as unknown as WebGLRenderer;
+    installGroundDrawCullingV383(renderer);
+    const material = mesh.material as MeshBasicMaterial;
+    const draw = () => {
+      submitted.length = 0;
+      renderer.renderBufferDirect(camera, scene, mesh.geometry, material, mesh, mesh.geometry.groups[0]);
+      return [...submitted];
+    };
+    expect(mesh.count).toBe(40883);
+    const ordinary = draw();
+    expect(ordinary).toEqual([64]);
+    presentArchitecturalSheen(mesh, "day");
+    expect(draw()).toEqual(ordinary);
+    expect(hasCompleteFederalMinistriesV321(root, false)).toBe(true);
+
+    const sheen = material.onBeforeCompile;
+    material.onBeforeCompile = shader => {shader.vertexShader += "\n// Foreign position or instance-ID code";};
+    expect(draw()).toEqual([40883]);
+    material.onBeforeCompile = sheen;
+    mesh.geometry.setAttribute("customInstance", new InstancedBufferAttribute(new Float32Array(mesh.count), 1));
+    expect(draw()).toEqual([40883]);
+    mesh.geometry.deleteAttribute("customInstance");
+    expect(draw()).toEqual(ordinary);
+  } finally { disposeStaticAudit(root); }
+});
+
+test("architectural sheen keeps an existing external shader outside range culling", () => {
+  const material = new MeshBasicMaterial();
+  const mesh = new Mesh(new BoxGeometry(), material);
+  mesh.name = "LoD2 prism buildings";
+  const external = material.onBeforeCompile = shader => {
+    shader.vertexShader = shader.vertexShader.replace("#include <begin_vertex>",
+      "#include <begin_vertex>\ntransformed.y += float(gl_InstanceID);");
+  };
+  presentArchitecturalSheen(mesh, "day");
+  expect(material.onBeforeCompile).not.toBe(external);
+  expect(groundRangeShaderSafeV383(material)).toBe(false);
+  mesh.geometry.dispose();
+  material.dispose();
+});
 
 test("district court masonry and windows follow 18 actual fronts, with the three plaque-only sites excluded", () => {
   const courts = createDistrictCourtsV229(false, courtPaneMasksV333());

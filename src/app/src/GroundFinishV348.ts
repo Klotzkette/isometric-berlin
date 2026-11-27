@@ -2,6 +2,7 @@
 import { Color, Material, Mesh, Vector4, type Object3D } from 'three';
 import type { SurroundingCityChunk } from './SurroundingCityGeometry';
 import { isSceneMaterialProgramRetirementV321 } from './sceneMaterialPrograms';
+import { registerGroundRangeShaderWrapperV383 } from './groundRangeShaderProvenanceV383';
 
 export type GroundFinishKindV348 = 'asphalt' | 'paving' | 'grass' | 'core-drawn' | 'core-native';
 type Role = 1 | 2 | 3 | 4; // asphalt, paving, grass, unspecified mapped path
@@ -211,6 +212,7 @@ function install(material: Material, spec: Spec): boolean {
     shader.uniforms.uGroundKindV348={value:spec.kind in ROLES?ROLES[spec.kind as keyof typeof ROLES]:0};
     shader.uniforms.uGroundNightV348={value:+spec.night};
   };
+  registerGroundRangeShaderWrapperV383(previous, material.onBeforeCompile);
   material.customProgramCacheKey=function(){return key.call(this)+'|semantic-ground-v348';};
   material.addEventListener('dispose',()=>{if(!isSceneMaterialProgramRetirementV321(material))binding.dead=true;});
   material.needsUpdate=true;
