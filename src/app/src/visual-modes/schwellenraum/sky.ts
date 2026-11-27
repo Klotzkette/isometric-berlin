@@ -8,11 +8,11 @@ import {
 
 /** Authored atmosphere colours, independent of the city's source materials. */
 export const SCHWELLENRAUM_SKY_PALETTE = {
-  horizon: 0xf0d2c6,
-  middle: 0xbec3e2,
-  zenith: 0x7d8dbc,
-  below: 0xa8a6bd,
-  glow: 0xffe3bf,
+  horizon: 0xf2bda7,
+  middle: 0xc4adce,
+  zenith: 0x688cb7,
+  below: 0xc3afb9,
+  glow: 0xffddb3,
 } as const;
 
 /**

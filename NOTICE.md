@@ -3419,3 +3419,7 @@ Für die Sitzfigur von Gustav Seitz wurden Aufnahmen von Susanne Kähler (2013, 
 ## Plätze und Straßen in Mitte, Kreuzberg und Schöneberg (v1.0.263)
 
 Für die gezeichnete und die blockbasierte Darstellung wurden Daten des Geoportals Berlin verwendet, darunter Straßenbefahrung, Baumkataster, amtliche Höhenmessungen und das texturierte 3D-Stadtmodell. Ergänzende Umrisse stammen von © OpenStreetMap-Mitwirkenden, ODbL 1.0. Die genauen Datensätze, Ortsbezüge sowie Bild- und Architekturquellen sind bei den jeweiligen Modellen angegeben. [Straßenflächen](docs/mitte-strassen-v383.md) · [Gendarmenmarkt](docs/gendarmenquartier-v383.md) · [Unter den Linden](docs/unter-den-linden-v383.md) · [Humboldt Forum und Hausvogteiplatz](docs/schloss-und-hausvogteiplatz-v383.md) · [Wittenbergplatz und Tauentzienstraße](docs/wittenbergplatz-und-tauentzien-v383.md) · [Hallesches Tor und Mehringplatz](docs/arbeitsministerium-und-mehringplatz-v383.md) · [Nollendorfplatz und Winterfeldtplatz](docs/schoeneberger-plaetze-v383.md)
+
+## Viktoria auf der Siegessäule
+
+VollwertBIT, Polibil, Muck, Gerd Eichmann und Gary Todd dokumentieren Haltung, Feldzeichen, Flügel und Gewandsaum aus mehreren Blickwinkeln. Die Einzelangaben stehen im [Fotografienachweis](docs/goldelse-skulpturansichten.md) und im [mitgelieferten Wikimedia-Verzeichnis](src/app/public/dzi/regierungsviertel/wikimedia_attribution.json).

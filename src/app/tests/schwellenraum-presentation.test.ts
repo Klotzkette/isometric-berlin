@@ -36,10 +36,10 @@ const street = streetDetails as unknown as StreetDetailsPayload;
 
 describe("Schwellenraum presentation", () => {
   test("uses the visible requested name in both interface languages", () => {
-    expect(UI_COPY.de.schwellenraum).toBe("Schwellenraum");
-    expect(UI_COPY.en.schwellenraum).toBe("Schwellenraum");
-    expect(UI_COPY.de.visualModes).toContain("Schwellenraum");
-    expect(UI_COPY.en.visualModes).toContain("Schwellenraum");
+    expect(UI_COPY.de.schwellenraum).toBe("Schwellentraum");
+    expect(UI_COPY.en.schwellenraum).toBe("Schwellentraum");
+    expect(UI_COPY.de.visualModes).toContain("Schwellentraum");
+    expect(UI_COPY.en.visualModes).toContain("Schwellentraum");
   });
 
   test("keeps the standard paint curve bit-faithful", () => {

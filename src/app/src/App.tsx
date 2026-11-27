@@ -2955,6 +2955,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
   ]);
 
   const schwellenraumMode = lightingMode === "schwellenraum";
+  const videogameModeLabel = `${copy.schwellenraum} · ${copy.videogameMode}`;
   const snowfallMode = lightingMode === "snowstorm";
   const precipitationEnabled = schwellenraumMode
     ? false
@@ -3185,7 +3186,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
                 : ""}
               {lightingMode === "minecraft" ? " · Voxel" : ""}
               {lightingMode === "snowstorm" ? " · Snow" : ""}
-              {lightingMode === "schwellenraum" ? " · Schwellenraum" : ""}
+              {schwellenraumMode ? ` · ${copy.schwellenraum}` : ""}
               {lightingMode === "flood" ? ` · ${copy.flood}` : ""}
             </small>
           </span>
@@ -3283,9 +3284,9 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
             </button>
             <button
               type="button"
-              aria-label={copy.schwellenraum}
+              aria-label={videogameModeLabel}
               aria-pressed={lightingMode === "schwellenraum"}
-              title={copy.schwellenraum}
+              title={videogameModeLabel}
               onClick={() => selectVisualMode("schwellenraum")}
             >
               <Sparkles size={18} aria-hidden="true" />
@@ -4169,6 +4170,7 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
             </button>
             <button
               type="button"
+              aria-label={videogameModeLabel}
               aria-pressed={lightingMode === "schwellenraum"}
               onClick={() => {
                 selectVisualMode("schwellenraum");
@@ -4176,7 +4178,8 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
               }}
             >
               <Sparkles size={20} aria-hidden="true" />
-              <span>Schwellen<wbr />raum</span>
+              <span>Schwellen<wbr />traum</span>
+              <span>{copy.videogameMode}</span>
             </button>
             <button
               type="button"

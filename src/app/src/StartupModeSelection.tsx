@@ -2,7 +2,7 @@ import { CloudSnow, Copy, Info, Link, Moon, Sparkles, Sun, Waves } from "lucide-
 import { useState, type CSSProperties } from "react";
 import { SourcesDialog } from "./SourcesDialog";
 import { modeLinkFor } from "./modeLinks";
-import type { Language } from "./localization";
+import { UI_COPY, type Language } from "./localization";
 import type { VisualMode } from "./visualMode";
 import { MinecraftCubeIcon } from "./visual-modes/minecraft/MinecraftCubeIcon";
 
@@ -10,7 +10,9 @@ const choices = [
   { mode: "day", icon: Sun, de: ["Normal", "Berlin bei Tageslicht"], en: ["Day", "Berlin in daylight"] },
   { mode: "night", icon: Moon, de: ["Nacht", "Mit eingeschalteten Lichtern"], en: ["Night", "City lights switched on"] },
   { mode: "snowstorm", icon: CloudSnow, de: ["Schnee", "Mit dichtem Schneetreiben"], en: ["Snow", "With a swirling snowstorm"] },
-  { mode: "schwellenraum", icon: Sparkles, de: ["Schwellenraum", "Eine andere Wirklichkeit"], en: ["Schwellenraum", "Another reality"] },
+  { mode: "schwellenraum", icon: Sparkles,
+    de: [UI_COPY.de.schwellenraum, `${UI_COPY.de.videogameMode} im Dreamcore-Stil`],
+    en: [UI_COPY.en.schwellenraum, `${UI_COPY.en.videogameMode} with Dreamcore visuals`] },
   { mode: "flood", icon: Waves, de: ["Unterwasser", "Berlin unter 3 Metern Wasser"], en: ["Underwater", "Berlin under 3 metres of water"] },
   { mode: "minecraft", icon: MinecraftCubeIcon, de: ["Minecraft", "Berlin aus Blöcken"], en: ["Minecraft", "Berlin built from blocks"] },
 ] as const;

@@ -7654,10 +7654,11 @@ export function createSiegessaeule(): Group {
     const normal = geometry.getAttribute("normal");
     const colors = geometry.getAttribute("color");
     for (let index = 0; index < colors.count; index += 1) {
-      const light = 0.88 + 0.12 * (
-        normal.getX(index) * 0.5 + normal.getY(index) * 0.72 - normal.getZ(index) * 0.48);
-      colors.setXYZ(index, colors.getX(index) * light,
-        colors.getY(index) * light, colors.getZ(index) * light);
+      const lighting = normal.getX(index) * 0.50 + normal.getY(index) * 0.72 - normal.getZ(index) * 0.48;
+      const diffuse = 0.72 + 0.25 * lighting;
+      const glint = Math.max(0, (lighting - 0.72) / 0.28) ** 3;
+      colors.setXYZ(index, colors.getX(index) * diffuse + 0.22 * glint,
+        colors.getY(index) * diffuse + 0.20 * glint, colors.getZ(index) * diffuse + 0.14 * glint);
     }
     goldelseGeometries.push(geometry);
     if (inked) {

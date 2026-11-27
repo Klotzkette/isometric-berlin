@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
 import { UI_COPY } from "../src/localization";
+import { StartupModeSelection } from "../src/StartupModeSelection";
 
 describe("bilingual viewer copy", () => {
   test("keeps the German UI free of the false-friend landmark wording", () => {
@@ -14,6 +17,25 @@ describe("bilingual viewer copy", () => {
     expect(Object.keys(UI_COPY.en).sort()).toEqual(
       Object.keys(UI_COPY.de).sort(),
     );
+  });
+
+  test("names the existing dream mode in both startup choosers and sharing controls", () => {
+    for (const language of ["de", "en"] as const) {
+      const copy = UI_COPY[language];
+      const markup = renderToStaticMarkup(createElement(StartupModeSelection, {
+        initialMode: "schwellenraum", language, backdropUrl: "",
+        onLanguageChange() {}, onStart() {},
+      }));
+      expect(markup.match(/type="radio"/g)).toHaveLength(6);
+      const choice = markup.split("</label>").find(label => label.includes('value="schwellenraum"'));
+      expect(choice).toContain("checked");
+      expect(choice).toContain(`<strong>${copy.schwellenraum}</strong>`);
+      expect(choice).toContain(copy.videogameMode);
+      expect(choice).toContain("Dreamcore");
+      expect(markup).toContain(language === "de"
+        ? `aria-label="${copy.schwellenraum} direkt öffnen"`
+        : `aria-label="Open ${copy.schwellenraum} directly"`);
+    }
   });
 
   test("localizes isometric camera controls without a flat-map action", () => {

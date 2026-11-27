@@ -78,7 +78,7 @@ test('retained finish utility composes explicitly with a Schwellenraum grade', (
   expect(shader.fragmentShader).toContain('diffuseColor.rgb=hbfVentFinishV349(diffuseColor.rgb)');
   expect(shader.fragmentShader).toContain('schwellenraumLuma');
   expect(shader.fragmentShader.match(/vec3 hbfVentFinishV349\(/g)).toHaveLength(1);
-  expect(graded.customProgramCacheKey()).toContain('|schwellenraum-material-grade-v3|hbf-vent-finish-v349');
+  expect(graded.customProgramCacheKey()).toContain('|schwellenraum-material-grade-v4|hbf-vent-finish-v349');
   expect(bindHbfVentFinishV349(mesh)).toBe(0);
   expect(compile(graded).fragmentShader).toEqual(shader.fragmentShader);
   mesh.material.dispose(); mesh.geometry.dispose();

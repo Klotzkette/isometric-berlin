@@ -545,3 +545,7 @@ courtyard (CC BY-SA 3.0), and Bahnfrend's Haus des Reisens (CC BY-SA 4.0).
 All exact file URLs and per-file credits are retained in both Wikimedia
 manifests. No photographic pixels are bundled. See
 [the release source review](../../docs/release-v1.0.89-review.md).
+
+## Viktoria on the Siegessäule
+
+The [sculpture reference sheet](../../docs/goldelse-skulpturansichten.md) identifies the nine additional photographs of the wreath, field standard, wings and drapery. Both manifests group their individual credits under `siegessaeule_viktoria`.

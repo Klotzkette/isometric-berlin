@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.269
+
+- The existing Dreamcore view now appears as *Schwellentraum* with the subtitle *Videogame-Modus*. Its horizon shifts gently from apricot to lilac and blue, with cooler shadows on Berlin’s streets. Existing `theme=schwellenraum` links still open the mode.
+- Give the gilded Viktoria on the Siegessäule swept-back wings, a windblown robe and a clearer silhouette for the raised laurel wreath and the standard. The sculpture follows photographs taken from the front, the side and the observation deck. [Photographs and sculpture dimensions](docs/goldelse-skulpturansichten.md)
+
 ## 1.0.268
 
 - Keep camera-based culling active for the original architectural sheen and ground finishes. The viewer skips offscreen groups of ground slabs and facade parts while retaining their full geometry, original materials and draw order.

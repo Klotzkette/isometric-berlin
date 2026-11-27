@@ -72,7 +72,9 @@ describe("Goldelse figure", () => {
     expect(leftMin).toBeCloseTo(-rightMax, 6);
     expect(leftMax).toBeCloseTo(-rightMin, 6);
     // Both wings actually reach out to the side rather than hugging the body.
-    expect(Math.max(leftMax, rightMax)).toBeGreaterThan(2.5);
+    expect(Math.max(leftMax, rightMax)).toBeGreaterThan(2);
+    const flights = figure.parts.filter((part) => part.name === "Goldelse primary wing feathers");
+    expect(Math.max(...flights.map((part) => spanOf(part.triangles)[1]))).toBeGreaterThan(3.4);
   });
 
   test("the photographed standard finial is the 8.32 m crown above the wreath", () => {
@@ -104,7 +106,7 @@ describe("Goldelse figure", () => {
     expect(figure.metrics).toEqual({
       laurelLeafCount: 20,
       primaryFeathersPerWing: 10,
-      robeFoldCount: 7,
+      robeFoldCount: 10,
       secondaryFeathersPerWing: 8,
       standardRibbonCount: 3,
     });
@@ -132,8 +134,8 @@ describe("Goldelse figure", () => {
       0,
     );
     expect(figure.parts.length).toBeLessThanOrEqual(48);
-    expect(vertexCount).toBe(21_828);
-    expect(vertexCount).toBeLessThanOrEqual(22_000);
+    expect(vertexCount).toBe(21_804);
+    expect(vertexCount).toBeLessThanOrEqual(21_828);
     expect(figure.inkSegments.length / 6).toBeLessThanOrEqual(90);
     for (const name of [
       "Goldelse primary wing feathers",
@@ -203,17 +205,50 @@ describe("Goldelse figure", () => {
     }
   });
 
-  test("fans the outer feathers downward behind the shoulders as in the frontal reference", () => {
-    const figure = createGoldelseFigure({ ...AT_ORIGIN, facing: [1, 0] });
-    const outerFeatherHeights: number[] = [];
-    for (const part of figure.parts.filter((entry) => entry.name === "Goldelse primary wing feathers")) {
-      for (let index = 0; index < part.triangles.length; index += 3) {
-        if (Math.abs(part.triangles[index + 2]) > 2.5) outerFeatherHeights.push(part.triangles[index + 1]);
+  test("the raised, swept-back primaries project below the shoulders in the low frontal view", () => {
+    const { parts } = createGoldelseFigure({ ...AT_ORIGIN, facing: [1, 0] });
+    const tips: number[][] = [];
+    for (const part of parts.filter((entry) => entry.name === "Goldelse primary wing feathers")) {
+      for (let i = 0; i < part.triangles.length; i += 3) {
+        const [x, y, z] = part.triangles.subarray(i, i + 3);
+        if (Math.abs(z) > 3.2) tips.push([x, y]);
       }
     }
-    expect(outerFeatherHeights.length).toBeGreaterThan(400);
-    expect(Math.max(...outerFeatherHeights)).toBeLessThan(4.3);
-    expect(Math.min(...outerFeatherHeights)).toBeGreaterThan(2.5);
+    expect(tips.length).toBeGreaterThan(100);
+    expect(Math.max(...tips.map(([x]) => x))).toBeLessThan(-2.2);
+    expect(Math.max(...tips.map(([, y]) => y))).toBeGreaterThan(6);
+    // Looking up at 45 degrees in front of the west face: screen height is proportional to x + y.
+    expect(Math.max(...tips.map(([x, y]) => x + y))).toBeLessThan(4.0);
+  });
+
+  test("the turned hem and asymmetric overfold are modelled on the back and separate from the feet", () => {
+    const { parts } = createGoldelseFigure({ ...AT_ORIGIN, facing: [1, 0] });
+    const points = (name: string) => {
+      const raw = parts.find((p) => p.name === name)!.triangles;
+      return Array.from({ length: raw.length / 3 }, (_, i) => raw.slice(3*i, 3*i + 3));
+    };
+    const hem = points("Goldelse wind-filled robe train");
+    expect(Math.min(...hem.map(([x]) => x))).toBeLessThan(-2);
+    expect(Math.max(...hem.map(([x]) => x))).toBeGreaterThan(0.9);
+    expect(Math.max(...hem.map(([,y]) => y)) - Math.min(...hem.map(([,y]) => y))).toBeGreaterThan(0.6);
+    const overfold = points("Goldelse folded overfall");
+    expect(Math.min(...overfold.map(([x]) => x))).toBeLessThan(-0.8);
+    expect(Math.min(...overfold.map(([,y]) => y))).toBeLessThan(2.4);
+    const shoes = parts.filter((p) => p.name === "Goldelse 0.92 m shoe");
+    const toes = shoes.map(({ triangles }) => Math.max(...triangles.filter((_, i) => i % 3 === 0)));
+    expect(toes[0] - toes[1]).toBeGreaterThan(0.6);
+  });
+
+  test("the right hand meets the wreath above the eyes and the bent left hand grips the raised standard", () => {
+    const { parts } = createGoldelseFigure({ ...AT_ORIGIN, facing: [1, 0] });
+    const positions = (name: string, axis: number) =>
+      parts.find(p => p.name === name)!.triangles.filter((_, i) => i % 3 === axis);
+    expect(Math.max(...positions("Goldelse wreath hand", 1))).toBeGreaterThan(Math.min(...positions("Goldelse laurel wreath", 1)));
+    expect(Math.min(...positions("Goldelse field standard", 1))).toBeGreaterThan(3);
+    expect(Math.max(...positions("Goldelse standard hand", 1))).toBeGreaterThan(4.8);
+    expect(Math.max(...positions("Goldelse field standard", 1))).toBeLessThan(7.3);
+    const ribbons = positions("Goldelse field standard ribbons", 0);
+    expect(Math.max(...ribbons) - Math.min(...ribbons)).toBeGreaterThan(0.65);
   });
 
   test("uses bright leaf-gold highlights with deep fold separation", () => {

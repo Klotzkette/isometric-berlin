@@ -62,8 +62,9 @@ Vom Wasser aus sieht man die gefalteten Stahlprofile am Humboldthafen, rote Zieg
   oder über die Dächer schweben. Maus, Tastatur und Touch werden unterstützt.
 - **93 Tourstationen:** bekannte Wahrzeichen und kleinere Entdeckungen direkt
   ansteuern oder die Stadt auf eigene Faust erkunden.
-- **Sechs Ansichten:** Tag, Nacht, Schneesturm, Minecraft, Schwellenraum und
+- **Sechs Ansichten:** Tag, Nacht, Schneesturm, Minecraft, Schwellentraum und
   Versunken. Beim Wechsel bleiben Standort und Blickrichtung erhalten.
+  [Schwellentraum im Videogame-Modus öffnen](https://klotzkette.github.io/isometric-berlin/?theme=schwellenraum&lang=de)
 - **Direkt im Browser:** auf Desktop, Tablet und Smartphone, mit deutscher
   und englischer Oberfläche. Konto, API-Schlüssel und KI-Modell sind für
   den Viewer nicht erforderlich.
@@ -225,8 +226,9 @@ From the water, look for folded steel piles at Humboldthafen, red brick along th
   rooftops, using a mouse, keyboard or touch controls.
 - **Follow 93 tour stops:** jump to major landmarks and smaller discoveries,
   then venture beyond the curated route.
-- **Choose six views:** Day, Night, Snowstorm, Minecraft, Schwellenraum and
+- **Choose six views:** Day, Night, Snowstorm, Minecraft, Schwellentraum and
   Flooded Berlin. Switching views preserves your location and direction.
+  [Open Schwellentraum in video game mode](https://klotzkette.github.io/isometric-berlin/?theme=schwellenraum&lang=en)
 - **Open it in a browser:** desktop, tablet and phone are supported, with
   German and English controls. The viewer needs no account, API key or AI model.
 
@@ -343,8 +345,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.268** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.268/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.269** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.269/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

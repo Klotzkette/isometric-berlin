@@ -79,10 +79,10 @@ describe("Schwellenraum audio routing", () => {
   });
 
   test("uses calm mode-specific labels in both interface languages", () => {
-    expect(UI_COPY.de.schwellenraumSound).toBe("Schwellenraum-Klang");
-    expect(UI_COPY.en.schwellenraumSound).toBe("Schwellenraum sound");
+    expect(UI_COPY.de.schwellenraumSound).toBe("Schwellentraum-Klang");
+    expect(UI_COPY.en.schwellenraumSound).toBe("Schwellentraum sound");
     expect(UI_COPY.de.schwellenraumRoomOn).toContain("Raumrauschen");
-    expect(UI_COPY.de.schwellenraumScoreOn).toContain("Schwellenraum");
+    expect(UI_COPY.de.schwellenraumScoreOn).toContain("Schwellentraum");
     expect(UI_COPY.de.schwellenraumWeatherStatic).toContain("still");
     expect(UI_COPY.en.schwellenraumWeatherStatic).toContain("still");
   });

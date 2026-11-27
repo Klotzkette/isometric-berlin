@@ -29,20 +29,20 @@ import {
   type SchwellenraumProtectedVolume,
 } from "../../SchwellenraumInteriors";
 import { attachPariserPlatzEntityLoop } from "./pariserPlatzEntityLoop";
-import { createSchwellenraumSky } from "./sky";
+import { createSchwellenraumSky, SCHWELLENRAUM_SKY_PALETTE } from "./sky";
 
 /**
  * The Schwellenraum keeps the ordinary daylight city intact. Its atmosphere
  * is therefore made from a different sky and a few additive light objects,
  * never from displaced, stretched or post-processed architecture.
  */
-export const SCHWELLENRAUM_SKY_COLOR = 0xa5a3bf;
+export const SCHWELLENRAUM_SKY_COLOR = SCHWELLENRAUM_SKY_PALETTE.below;
 
 export const SCHWELLENRAUM_LIGHT_TONES = [
-  0xeac79a,
-  0xacd8c7,
-  0xc5b3e0,
-  0x8bbdcd,
+  0xf0ba95,
+  0x9bcac2,
+  0xc6aeda,
+  0x87b9ce,
 ] as const;
 
 export type SchwellenraumDetailProfile = "full" | "mobile";

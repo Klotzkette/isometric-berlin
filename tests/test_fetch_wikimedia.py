@@ -370,6 +370,40 @@ def test_committed_siegessaeule_references_are_packaged_and_public() -> None:
     assert public_record == expected_public
 
 
+def test_goldelse_sculpture_views_keep_individual_credits_in_the_web_viewer() -> None:
+  expected = {
+    "File:Siegessaeule Goldelse Berlin2007.jpg": ("VollwertBIT", "CC BY-SA 3.0"),
+    "File:Viktoria Berlin (DSC00406).jpg": ("Polibil", "CC BY-SA 4.0"),
+    "File:Viktoria Berlin (DSC00409).jpg": ("Polibil", "CC BY-SA 4.0"),
+    "File:Berlin-Siegessaeule-22-Engel-2017-gje.jpg": ("Gerd Eichmann", "CC BY-SA 4.0"),
+    "File:Berlin Victory Column (28481759940).jpg": ("Gary Todd", "CC0"),
+    **{
+      f"File:Berliner Siegessäule Viktoria-{i:02}.jpg": ("Muck", "CC BY-SA 4.0")
+      for i in range(1, 5)
+    },
+  }
+  manifest = ROOT / "geo_data/regierungsviertel/wikimedia_references.json"
+  public = ROOT / "src/app/public/dzi/regierungsviertel/wikimedia_attribution.json"
+
+  def sculpture_records(path: Path) -> list[dict]:
+    return [
+      r for r in json.loads(path.read_text(encoding="utf-8"))["records"]
+      if r.get("landmark_id") == "siegessaeule_viktoria"
+    ]
+
+  records = sculpture_records(public)
+  assert records == sculpture_records(manifest)
+  assert len(records) == len(expected)
+  assert {r["title"]: (r["artist"], r["license"]) for r in records} == expected
+  for record in records:
+    assert record["page_url"].startswith("https://commons.wikimedia.org/wiki/File:")
+    assert record["license_url"].startswith("https://creativecommons.org/")
+    assert record["artist"] in record["credit"]
+    assert record["role"] == "external_visual_QA_reference_attribution_only"
+    assert record["photo_bundled"] is False
+    assert "thumbnail_path" not in record
+
+
 def test_daderot_reichstag_west_reference_is_pinned_and_publicly_packaged() -> None:
   assert fw.PINNED_FILE_REFERENCES[DADEROT_REICHSTAG_WEST_TITLE] == "reichstag"
   manifest = json.loads(

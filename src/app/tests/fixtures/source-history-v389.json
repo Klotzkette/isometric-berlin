@@ -1,0 +1,45 @@
+{
+  "additions": {},
+  "changes": {
+    "src/app/package.json": {
+      "after": "6e2fb069f77c15090b03b1b4c5cd05f9f5bb8b595375464c12bc18268cbe0569",
+      "before": "b47ad7393372a63acd3bb1a0ab500d503e412f1e64a1bd700b95f1e99aea7779"
+    },
+    "src/app/src/App.tsx": {
+      "after": "166f11a991c741b44a0e71997b49ccce2abe44ca259a177d084bae1a5701507f",
+      "before": "0eaf5759a533315eb9c84aa2708a039764fac67f9ce6ca63cf4f5a49019bf9bd"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "after": "6b269067b37118133bed50880fcf1852ab482514f42be23da4578fd270715258",
+      "before": "44240de98b42f8cbde2b1b7c932cde527c4b9cccace2c6516ab5c50dcf9843b2"
+    },
+    "src/app/src/MinecraftSiegessaeule.ts": {
+      "after": "f7ebb77a264fa6d74d6a33521ec639c4108fc9d5b875c0b198c3d72d80ddf701",
+      "before": "5a2040791a510ca4696755297e9c4c88a86800bd4e7de3bc7f9da77e9f2c052f"
+    },
+    "src/app/src/StartupModeSelection.tsx": {
+      "after": "28e85b9ff6c4b6b7760a6990d2129bf8f33a1b3d93716f52c0cbd570df8622ec",
+      "before": "80ffa85feb9c23ba924d8d75c03cbba0203baa841377a4dd125f577eb3ba7fda"
+    },
+    "src/app/src/goldelse.ts": {
+      "after": "875855bc3eab200066d55765c0fe25ff3ac22d1816262344bb10c1ef94d90275",
+      "before": "b59bbd44c618e7c3ceb0b73b5b8b4ebd705e27d9f433c1053f1f9afadffc443b"
+    },
+    "src/app/src/localization.ts": {
+      "after": "89f32fa2dfb35a38443a4723a796ce5c275fafc0128308b3ab6c293fbfafc8b0",
+      "before": "8ae883c752b0ad81346624dfe445461affaa2a6708f4599d0851d7521fff4858"
+    },
+    "src/app/src/visual-modes/schwellenraum/materialGrade.ts": {
+      "after": "4c48ad2c9314aad8ad3905bfa0148a38f9153cb49386f99cde00c8510f431ec4",
+      "before": "c98198fd84ebadf4445a3d4cdd5506a6549fe2061dd7103dbd380a97cce95254"
+    },
+    "src/app/src/visual-modes/schwellenraum/presentation.ts": {
+      "after": "119b9abf3337cedd271d019342a554f0198bf7a4fe2021cf092ba3ed192b5aca",
+      "before": "a8322ecbb7f04b7dcf23429724d3936f35f87d632dd724696542820a05105ee8"
+    },
+    "src/app/src/visual-modes/schwellenraum/sky.ts": {
+      "after": "457b2100e214e40444d800b972ee4beb45310506f5e1d71747367ceba766779c",
+      "before": "e2da64918a4ae36b8d2a6f8a366b6647aaabc2751544e05305624cf418aee0d0"
+    }
+  }
+}

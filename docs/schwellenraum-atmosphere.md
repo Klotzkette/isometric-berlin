@@ -1,18 +1,23 @@
-# Schwellenraum atmosphere — step 10
+# Schwellentraum · Videogame-Modus
 
-The September 2026 atmosphere refinement gives the still city a pearl-dusk
-palette while retaining its dislocated light corridors, quiet everyday-object
-vignettes and existing soundscape. These colours and light effects are authored
-presentation choices, not additional claims about Berlin architecture.
+The Dreamcore presentation takes its colour direction from the Vice City
+airport approach and Leonida Keys outdoor scenes in Rockstar's official
+gallery. Apricot at the horizon passes through rose-lilac into blue overhead.
+Warm stone highlights sit against blue-green shadows, with enough local colour
+to distinguish Berlin's brick, trees and roofs. The existing light corridors,
+everyday-object vignettes and soundscape accompany the city.
+[Official screenshots](https://www.rockstargames.com/VI/media/screenshots)
+
+![The same view of Pariser Platz in versions 1.0.268 and 1.0.269. The newer view has a warmer horizon and slightly warmer stone on the flanking buildings.](screenshots/schwellentraum-vergleich-v269.webp)
 
 The source-bound building geometry, roof silhouettes and surface positions stay
 unchanged. The material-integrated grade retains more facade colour, separates
-warm pale-stone highlights from cool lilac shadows and restores the original
+warm pale-stone highlights from cool blue-green shadows and restores the original
 Day material on exit. Protected memorial subtrees continue to use exact Day
 materials through the shared object-mode dispatcher.
 
 A static, texture-free background triangle supplies a peach-pearl horizon,
-lavender middle sky and blue-violet zenith. Its direction derives from the
+lavender middle sky and blue zenith. Its direction derives from the
 camera matrices, so the gradient remains attached to the world as the camera
 turns. It renders before scene geometry, writes no depth, cannot receive
 pointer hits and disappears with the existing obstructed/underwater/underside

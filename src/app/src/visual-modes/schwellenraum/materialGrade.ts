@@ -1,5 +1,6 @@
 import { inheritHbfForecourtFinishV354 } from "../../HbfForecourtFinishV354";
 import { inheritGroundFinishV348 } from "../../GroundFinishV348";
+import { registerGroundRangeShaderWrapperV383 } from "../../groundRangeShaderProvenanceV383";
 import {
   Color,
   Material,
@@ -13,11 +14,11 @@ import { restoreInheritedReichstagSectionV318 } from "../../reichstagSectionMate
 import { isSceneMaterialProgramRetirementV321 } from "../../sceneMaterialPrograms";
 
 export const SCHWELLENRAUM_MATERIAL_GRADE = {
-  saturation: 0.38,
-  highlightTint: [1.08, 1.015, 0.955] as const,
-  shadowLift: [0.018, 0.025, 0.043] as const,
-  strength: 0.72,
-  tint: [0.93, 0.97, 1.04] as const,
+  saturation: 0.72,
+  highlightTint: [1.10, 1.01, 0.91] as const,
+  shadowLift: [0.008, 0.021, 0.031] as const,
+  strength: 0.74,
+  tint: [0.90, 1.015, 1.055] as const,
 } as const;
 
 type PatchableShader = {
@@ -57,15 +58,16 @@ function createSchwellenraumMaterialGrade(dayMaterial: Material): Material {
   inheritHbfForecourtFinishV354(dayMaterial, material);
   material.name = `${dayMaterial.name || dayMaterial.type} Schwellenraum grade`;
   material.userData.schwellenraumMaterialGrade = true;
-  const previousOnBeforeCompile = material.onBeforeCompile.bind(material);
+  const previousOnBeforeCompile = material.onBeforeCompile;
   const previousProgramCacheKey = material.customProgramCacheKey();
   material.onBeforeCompile = (shader, renderer) => {
-    previousOnBeforeCompile(shader, renderer as WebGLRenderer);
+    previousOnBeforeCompile.call(material, shader, renderer as WebGLRenderer);
     const patchable = shader as unknown as PatchableShader;
     patchable.fragmentShader = gradeFragmentShader(patchable.fragmentShader);
   };
+  registerGroundRangeShaderWrapperV383(previousOnBeforeCompile, material.onBeforeCompile);
   material.customProgramCacheKey = () =>
-    `${previousProgramCacheKey}|schwellenraum-material-grade-v3`;
+    `${previousProgramCacheKey}|schwellenraum-material-grade-v4`;
   material.needsUpdate = true;
   return material;
 }
@@ -124,15 +126,22 @@ export function setSchwellenraumStandardMaterialTone(
       material.userData.schwellenraumToneActive === true &&
       typeof stored === "number"
     ) {
-      material.color.setHex(stored);
+      const original = material.userData.schwellenraumDayRGB;
+      if (Array.isArray(original)) material.color.fromArray(original);
+      else material.color.setHex(stored);
       material.userData.schwellenraumToneActive = false;
+      delete material.userData.schwellenraumDayRGB;
     }
     return;
   }
 
-  const dayColor = typeof stored === "number" ? stored : material.color.getHex();
-  material.userData.schwellenraumDayColor = dayColor;
-  const source = new Color(dayColor);
+  // A linear-RGB source can contain more precision than its 8-bit display hex.
+  if (!material.userData.schwellenraumToneActive) {
+    material.userData.schwellenraumDayRGB = material.color.toArray();
+    material.userData.schwellenraumDayColor = material.color.getHex();
+  }
+  const original = material.userData.schwellenraumDayRGB;
+  const source = Array.isArray(original) ? new Color().fromArray(original) : new Color(stored);
   const luma = source.r * 0.2126 + source.g * 0.7152 + source.b * 0.0722;
   const muted = new Color(luma, luma, luma).lerp(
     source,

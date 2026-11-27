@@ -99,31 +99,44 @@ export function minecraftSiegessaeuleBlocks(x: number, z: number, facing: readon
       facing[1] * fx - facing[0] * fz, sx, sy, sz, tone);
     blocks[blocks.length - 1].rotationY = -Math.atan2(facing[1], facing[0]);
   };
-  figure("left shoe", 0.2, 0.16, 0.32, 0.92, 0.32, 0.42);
-  figure("right shoe", 0.45, 0.16, -0.32, 0.92, 0.32, 0.42);
-  for (let fold = 0; fold < 5; fold += 1) figure("draped robe", -0.15 + fold * 0.06, 0.6 + fold * 0.59, 0.12 - fold * 0.025, 1.45 - fold * 0.08, 0.65, 2.2 - fold * 0.27, fold % 2 === 0 ? gold : 0xe4b849);
-  figure("torso", 0.13, 3.65, 0, 1.16, 1.28, 1.54);
-  figure("neck", 0.16, 4.43, 0, 0.5, 0.42, 0.5);
-  figure("head", 0.18, 4.88, 0, 0.82, 0.65, 0.7);
-  figure("eagle helmet", 0.05, 5.33, 0, 1.03, 0.24, 0.98);
-  figure("helmet eagle", 0.05, 5.58, 0, 0.25, 0.36, 0.92);
-  for (const wing of [-1, 1]) {
-    for (let feather = 0; feather < 5; feather += 1) {
-      figure("stepped wing feather", -0.68 - feather * 0.12, 4.02 - feather * 0.15, wing * (0.72 + feather * 0.53), 0.32, 1.5 - feather * 0.15, 0.64, feather % 2 ? 0xffe3a0 : gold);
+  figure("left shoe", -0.10, 0.14, 0.27, 0.92, 0.28, 0.36);
+  figure("right shoe", 0.58, 0.14, -0.22, 0.92, 0.28, 0.37);
+  // The lowest layers carry the blown-back train. Hips turn towards the forward foot.
+  for (let fold = 0; fold < 5; fold++) {
+    const low = (4 - fold) / 4;
+    figure("draped robe", 0.06 - 0.70 * low * low, 0.61 + fold * 0.64, 0.20 * low,
+      1.35 + 1.48 * low * low, 0.70, 1.76 + 0.51 * low, fold % 2 ? 0xe5b850 : gold);
+  }
+  figure("torso", 0.10, 3.99, 0, 1.13, 1.58, 1.52);
+  figure("neck", 0.10, 4.85, 0, 0.42, 0.41, 0.43);
+  figure("head", 0.13, 5.30, 0, 0.65, 0.74, 0.61);
+  figure("eagle helmet", -0.02, 5.71, 0, 0.84, 0.22, 0.80);
+  figure("helmet eagle", 0.03, 5.99, 0, 0.26, 0.39, 0.31);
+  for (const side of [-1, 1]) {
+    figure("helmet eagle wing", -0.08, 6.12, side * 0.33, 0.18, 0.16, 0.51, 0xffe3a0);
+    for (let feather = 0; feather < 5; feather++) {
+      const t = feather / 4;
+      figure("stepped wing feather", -0.29 - 1.84 * t * t, 4.16 + 1.22 * t * t,
+        side * (0.68 + 2.48 * t), 0.43 + 0.64 * t, 1.50 - 0.63 * t, 0.74,
+        feather % 2 ? 0xffe3a0 : gold);
     }
   }
-  figure("raised wreath upper arm", 0.36, 4.05, -0.95, 0.42, 0.9, 0.42);
-  figure("raised wreath forearm", 0.62, 4.74, -1.32, 0.4, 0.9, 0.4);
-  figure("raised wreath wrist", 0.83, 5.3, -1.62, 0.36, 0.55, 0.36);
-  for (let leaf = 0; leaf < 12; leaf += 1) {
-    const angle = leaf / 12 * Math.PI * 2;
-    figure("open laurel wreath", 0.9, 6.12 + Math.sin(angle) * 0.67, -1.72 + Math.cos(angle) * 0.67, 0.23, 0.29, 0.29);
+  figure("raised wreath upper arm", 0.24, 4.98, -1.16, 0.46, 0.56, 1.12);
+  figure("raised wreath forearm", 0.51, 5.69, -1.89, 0.52, 1.04, 0.58);
+  figure("raised wreath wrist", 0.81, 6.62, -2.18, 0.38, 1.0, 0.41);
+  for (let leaf = 0; leaf < 10; leaf++) {
+    const angle = leaf / 10 * Math.PI * 2;
+    figure("open laurel wreath", 0.91, 7.58 + Math.sin(angle) * 0.51, -2.34 + Math.cos(angle) * 0.51,
+      0.18, 0.33, 0.33, leaf % 2 ? gold : 0xffe3a0);
   }
-  figure("standard arm", 0.42, 3.63, 0.92, 0.42, 0.5, 0.78);
-  figure("standard shaft", 0.65, 4.7, 1.42, 0.14, 6.5, 0.14);
-  figure("Iron Cross vertical", 0.65, 7.46, 1.42, 0.22, 0.85, 0.32);
-  figure("Iron Cross transverse", 0.65, 7.46, 1.42, 0.22, 0.28, 0.94);
-  figure("standard finial", 0.65, 8.12, 1.42, 0.28, 0.4, 0.28);
-  for (let ribbon = 0; ribbon < 3; ribbon += 1) figure("standard ribbon", 0.47 - ribbon * 0.27, 6.78 - ribbon * 0.26, 1.63 + ribbon * 0.24, 0.24, 0.7, 0.32);
+  figure("standard arm", 0.38, 4.30, 0.92, 0.38, 1.08, 0.46);
+  figure("standard shaft", 0.51, 5.36, 0.94, 0.15, 4.52, 0.15);
+  figure("Iron Cross vertical", 0.52, 7.57, 0.94, 0.17, 0.70, 0.21);
+  figure("Iron Cross transverse", 0.52, 7.57, 0.94, 0.17, 0.23, 0.74);
+  figure("standard finial", 0.51, 8.12, 0.94, 0.21, 0.40, 0.21);
+  for (let ribbon = 0; ribbon < 3; ribbon++) {
+    figure("standard ribbon", 0.45 - 0.16 * ribbon, 6.83 - 0.71 * ribbon, 1.08 + 0.27 * Math.sin(ribbon),
+      0.18, 0.83, 0.19);
+  }
   return blocks;
 }

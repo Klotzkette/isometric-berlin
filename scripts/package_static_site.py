@@ -21,7 +21,7 @@ import zipfile
 from pathlib import Path
 
 PACKAGE_NAME = "isometric-berlin-regierungsviertel-local"
-PACKAGE_VERSION = "1.0.268"
+PACKAGE_VERSION = "1.0.269"
 SERVE_SCRIPT_NAME = "serve-local.py"
 STATIC_ARCHIVE_NAME = f"isometric-berlin-viewer-v{PACKAGE_VERSION}.tar.gz"
 EXECUTABLE_PACKAGE_FILES = frozenset(
@@ -556,7 +556,7 @@ def write_readme(package_dir: Path) -> None:
 DEUTSCH
 
 Dieses Paket enthält die vollständige isometrische 3D-Stadt mit Tag, Nacht,
-Schnee, Minecraft, Schwellenraum und Versunken. Standort, Blickrichtung und Geh-/Flugzustand
+Schnee, Minecraft, Schwellentraum (Videogame-Modus) und Versunken. Standort, Blickrichtung und Geh-/Flugzustand
 bleiben beim Wechsel der Darstellung erhalten. Alle benötigten Daten sind lokal
 enthalten; kein AI-Modell, Google-Schlüssel oder kostenpflichtiger Dienst nötig.
 
@@ -584,7 +584,7 @@ neu starten und die angezeigte HTTP-Adresse öffnen. Der Browser benötigt WebGL
 ENGLISH
 
 This package contains the complete isometric 3D city in Day, Night, Snowstorm,
-Minecraft, Schwellenraum and Flooded Berlin. Visual changes preserve location, view and walking
+Minecraft, Schwellentraum (video game mode) and Flooded Berlin. Visual changes preserve location, view and walking
 or flight state. Every required asset is included locally. No AI model, Google
 key or paid service is required.
 
