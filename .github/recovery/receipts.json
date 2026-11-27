@@ -128,5 +128,15 @@
       "isometric-berlin-regierungsviertel-local-compact.zip": "78f2c30d46a30cdc181bc992c342c26232a10fc65b0764acd71b959e7f50b455",
       "isometric-berlin-viewer-v1.0.265.tar.gz": "def2e40d520fdce2ac29bda9d48cad50a54fe373442381e9453d372f6a535b90"
     }
+  },
+  "v1.0.266": {
+    "source": "a4e52ba4a801439fb50b67ee9bfa377ab173bc5a",
+    "pages": "9624cd9260194e2b39828395c753a1cbdc7354e9",
+    "draft": 460311195,
+    "sha256": {
+      "isometric-berlin-regierungsviertel-local.zip": "7cdbb967caa40cd6af10470ad60280d9fbebd0eb8a7da61d125fd401507630dd",
+      "isometric-berlin-regierungsviertel-local-compact.zip": "653ec04e9784212738e84072292afbb041d85c23c99a3d8d3808d3342c0ff6a6",
+      "isometric-berlin-viewer-v1.0.266.tar.gz": "a978609a12a9d8cc569dd95eb37ad81f7295c1f1a3711c6b5ad7079bd7be1c1d"
+    }
   }
 }
