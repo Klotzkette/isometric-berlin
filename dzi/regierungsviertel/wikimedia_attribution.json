@@ -2629,6 +2629,105 @@
       "photo_bundled": false
     },
     {
+      "landmark_id": "siegessaeule_viktoria",
+      "title": "File:Siegessaeule Goldelse Berlin2007.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Siegessaeule_Goldelse_Berlin2007.jpg",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "artist": "VollwertBIT",
+      "credit": "VollwertBIT, 2007-09-26 / CC BY-SA 3.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "siegessaeule_viktoria",
+      "title": "File:Viktoria Berlin (DSC00406).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Viktoria_Berlin_%28DSC00406%29.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Polibil",
+      "credit": "Polibil, 2026-03-29 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "siegessaeule_viktoria",
+      "title": "File:Viktoria Berlin (DSC00409).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Viktoria_Berlin_%28DSC00409%29.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Polibil",
+      "credit": "Polibil, 2026-03-29 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "siegessaeule_viktoria",
+      "title": "File:Berliner Siegessäule Viktoria-01.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berliner_Siegess%C3%A4ule_Viktoria-01.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Muck",
+      "credit": "Muck, 2019-08-14 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "siegessaeule_viktoria",
+      "title": "File:Berliner Siegessäule Viktoria-02.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berliner_Siegess%C3%A4ule_Viktoria-02.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Muck",
+      "credit": "Muck, 2019-08-14 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "siegessaeule_viktoria",
+      "title": "File:Berliner Siegessäule Viktoria-03.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berliner_Siegess%C3%A4ule_Viktoria-03.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Muck",
+      "credit": "Muck, 2019-08-14 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "siegessaeule_viktoria",
+      "title": "File:Berliner Siegessäule Viktoria-04.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berliner_Siegess%C3%A4ule_Viktoria-04.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Muck",
+      "credit": "Muck, 2019-08-14 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "siegessaeule_viktoria",
+      "title": "File:Berlin-Siegessaeule-22-Engel-2017-gje.jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin-Siegessaeule-22-Engel-2017-gje.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "artist": "Gerd Eichmann",
+      "credit": "Gerd Eichmann, 2017-07-28 / CC BY-SA 4.0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
+      "landmark_id": "siegessaeule_viktoria",
+      "title": "File:Berlin Victory Column (28481759940).jpg",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Berlin_Victory_Column_%2828481759940%29.jpg",
+      "license": "CC0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "artist": "Gary Todd",
+      "credit": "Gary Todd, 2016-08-04 / CC0",
+      "role": "external_visual_QA_reference_attribution_only",
+      "photo_bundled": false
+    },
+    {
       "landmark_id": "richard_wagner",
       "title": "File:20220812 Richard-Wagner-Denkmal Berlin.jpg",
       "page_url": "https://commons.wikimedia.org/wiki/File%3A20220812_Richard-Wagner-Denkmal_Berlin.jpg",
