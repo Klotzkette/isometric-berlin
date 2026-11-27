@@ -1,10 +1,11 @@
 import {expect,test} from "bun:test";
 import {
-  BufferAttribute, BufferGeometry, Frustum, Group, Matrix4, Mesh, MeshBasicMaterial,
+  BufferAttribute, BufferGeometry, Frustum, Group, Line, LineBasicMaterial, LineSegments, Matrix4, Mesh, MeshBasicMaterial,
   OrthographicCamera, PerspectiveCamera, Scene, Vector3, type GeometryGroup, type WebGLRenderer,
 } from "three";
 import {isParkedStaticStorageV321, parkStaticAttribute} from "../src/losslessStaticStorage";
 import {installDistrictDrawCullingV383} from "../src/districtDrawCullingV383";
+import {stabilizeInkLineMaterial} from "../src/ThreeViewer";
 
 const positions = new Float32Array(24 * 400 * 9);
 for (let tile=0,offset=0;tile<24;tile++) for (let i=0;i<400;i++) {
@@ -105,4 +106,51 @@ test("camera moves reuse street bounds without inflating parked position or inde
   expect(draw(camera).length).toBeGreaterThan(0);
   expect(isParkedStaticStorageV321(p)).toBe(true);
   expect(isParkedStaticStorageV321(index)).toBe(true);
+});
+
+test("kerb and marking lines retain complete original pairs, including ink lifted inside the far plane", () => {
+  const camera = new OrthographicCamera(-1, 1, 1, -1, .1, 10);
+  camera.updateMatrixWorld();
+  const lineCount = 14_000, firstOutside = 3_600;
+  const positions = new Float32Array(lineCount * 6);
+  for (let i = 0; i < lineCount; i++) {
+    const x = i < firstOutside ? 0 : 1_000_000;
+    positions.set([x - 2_000, i % 20, 0, x + 2_000, i % 20, 0], i * 6);
+  }
+  for (const indexed of [true, false]) {
+    const geometry = new BufferGeometry().setAttribute("position", new BufferAttribute(positions, 3));
+    if (indexed) geometry.setIndex(new BufferAttribute(Uint16Array.from({length: lineCount * 2}, (_, i) => i), 1));
+    const material = new LineBasicMaterial(), line = new LineSegments(geometry, material);
+    line.name = indexed ? "District kerb ink" : "District lane markings";
+    line.scale.setScalar(.001);
+    line.position.z = -10.015;
+    line.updateMatrixWorld();
+    const calls: [number, number][] = [];
+    const renderer = {renderBufferDirect(_camera, _scene, _geometry, _material, _object, group) {
+      calls.push([group.start, group.count]);
+    }} as WebGLRenderer;
+    const dispose = installDistrictDrawCullingV383(renderer);
+    const scene = new Scene(), group = {start: 4, count: 24_004, materialIndex: 1};
+    const draw = (object: Line = line, start = group.start) => {
+      calls.length = 0;
+      renderer.renderBufferDirect(camera, scene, geometry, material, object, {...group, start});
+      return calls.slice();
+    };
+    try {
+      expect(draw()).toEqual([]);
+      stabilizeInkLineMaterial(material);
+      const ranges = draw();
+      expect(ranges.length).toBe(1);
+      const [[start, count]] = ranges;
+      expect(start).toBe(group.start);
+      expect((start + count) % 2).toBe(0);
+      expect(start + count).toBeGreaterThanOrEqual(firstOutside * 2);
+      expect(count).toBeLessThan(group.count / 2);
+      expect(draw(line, 3)).toEqual([[3, group.count]]);
+      const connected = new Line(geometry, material); connected.name = line.name;
+      expect(draw(connected)).toEqual([[group.start, group.count]]);
+      material.onBeforeCompile = shader => { shader.vertexShader += "/* custom vertex behaviour */"; };
+      expect(draw()).toEqual([[group.start, group.count]]);
+    } finally { dispose(); }
+  }
 });

@@ -4,7 +4,7 @@ import { Box3, Frustum, Matrix4, OrthographicCamera, PerspectiveCamera, Raycaste
 import { createSurroundingViewPlanV379 } from "../src/surroundingViewPlanV379";
 import { indexSurroundingFootprintV379 } from "../src/surroundingFootprintV379";
 import { surroundingPolygonContains } from "../src/SurroundingCityGeometry";
-import { cameraNeedsSurroundingGroundV379 } from "../src/surroundingCityScope";
+import { cameraNeedsSurroundingGroundV379, createSurroundingCameraProbe } from "../src/surroundingCityScope";
 import type { SurroundingCityManifest } from "../src/SurroundingCity";
 
 const manifest: SurroundingCityManifest = JSON.parse(fs.readFileSync(
@@ -65,4 +65,45 @@ test("the early desktop camera recognises represented exterior terrain and exclu
     expect(cameraNeedsSurroundingGroundV379(418,300,native)).toBeFalse();
     expect(cameraNeedsSurroundingGroundV379(100000,100000,native)).toBeFalse();
   }
+});
+
+test("the iPhone lens starts its outer ground on a settled raised view and skips untouched or transient central visits", () => {
+  const camera = new PerspectiveCamera(16, 393 / 852, .25, 16000);
+  const focus = new Vector3(417.898, 17.734, 300.453);
+  camera.position.set(639.4495, 66.978, 368.1881);
+  const setView = (position: [number, number, number], target: [number, number, number], fov: number) => {
+    camera.position.set(...position);
+    focus.set(...target);
+    camera.fov = fov;
+    camera.updateProjectionMatrix();
+    camera.lookAt(focus);
+    camera.updateMatrixWorld();
+  };
+  const probe = createSurroundingCameraProbe(true);
+  for (let t = 0; t <= 1500; t += 250) expect(probe(t, false, camera, focus, false)).toBeFalse();
+  // A transient external target has already been replaced by the time its check is due.
+  setView([-3980, 65, 650], [-3980, 3, 535], 39);
+  expect(probe(2000, true, camera, focus, false)).toBeFalse();
+  setView([639.4495, 66.978, 368.1881], [417.898, 17.734, 300.453], 16);
+  expect(probe(2085, true, camera, focus, false)).toBeFalse();
+  expect(probe(2160, false, camera, focus, false)).toBeFalse();
+
+  // A high camera can still see only the core, including its upper screen edge.
+  setView([400, 1400, 2300], [400, 3, 400], 39);
+  expect(cameraNeedsSurroundingGroundV379(focus.x, focus.z, false)).toBeFalse();
+  expect(probe(3000, true, camera, focus, false)).toBeFalse();
+  expect(probe(3150, false, camera, focus, false)).toBeFalse();
+  // The focus is still in the core. Three rays at the western edge now hit
+  // mapped Charlottenburg ground within the 2.4-km phone sample radius.
+  setView([-1000, 1400, 535], [-2900, 3, 535], 39);
+  expect(cameraNeedsSurroundingGroundV379(focus.x, focus.z, false)).toBeFalse();
+  expect(probe(3200, true, camera, focus, false)).toBeFalse();
+  expect(probe(3400, false, camera, focus, false)).toBeTrue();
+  expect(probe(3450, false, camera, focus, false)).toBeFalse();
+  setView([100000, 1400, 101900], [100000, 3, 100000], 39);
+  expect(probe(3500, true, camera, focus, true)).toBeFalse();
+  expect(probe(3750, false, camera, focus, true)).toBeFalse();
+  const desktop = createSurroundingCameraProbe(false);
+  setView([-1000, 1400, 535], [-2900, 3, 535], 39);
+  expect(desktop(0, false, camera, focus, false)).toBeTrue();
 });

@@ -52,6 +52,74 @@ function exactGeometry(root: import("three").Group, id: number): void {
   } finally { disposeSurroundingCityRoot(expected.root); }
 }
 
+test("early mobile views load complete foreground packets and named owners before resuming ordinary coverage", async () => {
+  const source = manifest(14), camera = view();
+  camera.left = -1_600; camera.right = 1_600; camera.updateProjectionMatrix();
+  source.chunks[1].detailCompanionOf = source.chunks[0].id;
+  source.chunks[1].bounds = source.chunks[0].bounds;
+  let early = true, active = 0, peak = 0;
+  const requests: number[] = [], errors: string[] = [];
+  const city = createSurroundingCity({
+    camera, manifestUrl: url, earlyMobileCamera: () => early,
+    openingPlaceV378: {x:50,z:50,required:["tile-12"],pending:()=>false,onGeometry() {}},
+    onError: message => errors.push(message),
+    fetch: fetcher(async input => {
+      const path = new URL(String(input)).pathname;
+      if (path === "/manifest.json") return response(source);
+      const id = Number(path.slice(1, -5));
+      requests.push(id); peak = Math.max(peak, ++active);
+      await pause(3); active--;
+      return response(packet(id * 100));
+    }),
+  });
+  try {
+    await city.ready; await until(() => !city.pending);
+    expect(requests[0]).toBe(12);
+    expect(requests).not.toContain(1);
+    expect(city.residentChunkCount).toBe(8);
+    expect(requests).toHaveLength(8);
+    expect(peak).toBe(1);
+    const retained = city.root.children.slice();
+    for (const [i, root] of retained.entries()) exactGeometry(root as import("three").Group, requests[i]);
+    early = false; city.refresh();
+    await until(() => !city.pending);
+    expect(city.residentChunkCount).toBe(14);
+    expect(new Set(requests).size).toBe(requests.length);
+    expect(retained.every(root => root.parent === city.root)).toBeTrue();
+    expect(errors).toEqual([]);
+  } finally { city.dispose(); }
+});
+
+test("the early core overlap limits actual resident bytes and retries deferred geometry after the core settles", async () => {
+  const source = manifest(5), sample = createSurroundingCityChunk(packet(), "tile-0");
+  const budget = 2 * sample.geometryBytes;
+  disposeSurroundingCityRoot(sample.root);
+  let early = true, clock = 0;
+  const requests: number[] = [], errors: string[] = [];
+  const city = createSurroundingCity({
+    camera: view(), manifestUrl: url, residentBudgetBytes: budget,
+    earlyMobileCamera: () => early, now: () => clock,
+    onError: error => errors.push(error),
+    fetch: fetcher(async input => {
+      const path = new URL(String(input)).pathname;
+      if (path === "/manifest.json") return response(source);
+      const id = Number(path.slice(1, -5)); requests.push(id);
+      return response(packet(id * 100));
+    }),
+  });
+  try {
+    await city.ready; await until(() => !city.pending);
+    expect(city.residentGeometryBytes).toBe(budget);
+    expect(city.residentChunkCount).toBe(2);
+    const before = requests.slice();
+    clock+=1000; city.refresh(); await until(() => !city.pending);
+    expect(requests).toEqual(before);
+    early = false; city.refresh(); await until(() => !city.pending);
+    expect(city.residentChunkCount).toBe(5);
+    expect(errors).toEqual([]);
+  } finally { city.dispose(); }
+});
+
 test("a stalled fetch times out, aborts transport, and cancels a late response", async () => {
   const owner = new AbortController(); let network: AbortSignal | undefined;
   let finish: (response: Response) => void = () => undefined; let cancelled = false;

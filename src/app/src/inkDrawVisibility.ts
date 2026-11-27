@@ -2,6 +2,7 @@ import { Layers, Material, NormalBlending, Object3D, type BufferGeometry, type L
 
 // Only known alpha-preserving shader wrappers can skip a zero-alpha draw.
 const safeShaders = new WeakSet([Material.prototype.onBeforeCompile]);
+const lineDepthBias = new WeakMap<Material["onBeforeCompile"], number>([[Material.prototype.onBeforeCompile, 0]]);
 const safeAfterRender = new WeakSet([Object3D.prototype.onAfterRender]);
 const callbackMaterials = new WeakSet<Material>();
 const suppressed = new WeakSet<Material>();
@@ -14,8 +15,16 @@ const uploadGated = new WeakMap<Object3D, {
 export function registerInkShaderWrapper(
   previous: Material["onBeforeCompile"],
   wrapped: Material["onBeforeCompile"],
+  viewBias?: number,
 ): void {
   if (safeShaders.has(previous)) safeShaders.add(wrapped);
+  // Only the viewer's known transformation of a stock line shader supplies
+  // an exact position contract. Alpha-preserving wrappers may move vertices.
+  if (previous === Material.prototype.onBeforeCompile && viewBias !== undefined) lineDepthBias.set(wrapped, viewBias);
+}
+
+export function inkLineViewBias(material: Material): number | undefined {
+  return lineDepthBias.get(material.onBeforeCompile);
 }
 
 /** GPU residency observers preserve the authored draw callback contract. */

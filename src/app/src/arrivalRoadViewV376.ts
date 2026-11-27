@@ -58,9 +58,6 @@ export function createArrivalRoadViewV376(hooks: RoadViewHooks) {
           hooks.remove(road.root);
           continue;
         }
-        // Retire only unclaimed arrivals outside the new camera neighbourhood.
-        // Its wanted set contains at most four cells, including edge crossings.
-        for (const [id, root] of early) if (!wanted.includes(id)) release(id, root);
         early.set(road.id, road.root);
         if (active) void publish(road);
       }
@@ -84,6 +81,9 @@ export function createArrivalRoadViewV376(hooks: RoadViewHooks) {
       revision++;
       wanted = ids;
       query?.abort();
+      // A destination may already be covered, lack road data, or take time to
+      // load. Free the last view's unclaimed batches even when none arrive.
+      for (const [id, root] of early) if (!wanted.includes(id)) release(id, root);
       retryAt = 0;
       run();
     } else if (retryAt && now >= retryAt) {

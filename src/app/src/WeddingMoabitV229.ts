@@ -27,13 +27,41 @@ class Batch {
   mesh.name=name;mesh.userData.fullStaticDetailOnTouch=true;root.add(mesh);
  }
 }
+/** The native relief is terraced. A line that interpolates between two cell
+ * heights disappears into the upper terrace while crossing the boundary. */
+function fieldMarking(batch: Batch, a: P, b: P, ground: {origin:number[];step:number}):void {
+  const width=.085, chalk=0xe8e5d5;
+  if (!batch.native) { batch.line(a,b,width,chalk); return; }
+  const cuts=[0,1];
+  for (const [axis,origin] of [[0,ground.origin[0]],[2,ground.origin[1]]]) {
+    const start=a[axis], end=b[axis];
+    for (let edge=origin+(1+Math.floor((Math.min(start,end)-origin)/ground.step))*ground.step;
+         edge<Math.max(start,end);edge+=ground.step) {
+      cuts.push((edge-start)/(end-start));
+    }
+  }
+  cuts.sort((l,r)=>l-r);
+  const dx=b[0]-a[0], dz=b[2]-a[2];
+  for(let i=1;i<cuts.length;i++){
+    const t=cuts[i-1],u=cuts[i];
+    if(u-t<1e-8)continue;
+    const mid=(t+u)/2, y=weddingMoabitGroundV229(a[0]+dx*mid,a[2]+dz*mid,true)+.13;
+    batch.line([a[0]+dx*t,y,a[2]+dz*t],[a[0]+dx*u,y,a[2]+dz*u],width,chalk);
+  }
+}
 export function createWeddingMoabitV229(native=false):Group {
  const source=weddingMoabitSourceV229(),root=new Group();root.name="Wedding and Moabit source details v229";root.userData={fullStaticDetailOnTouch:true,textureFree:true,nativeMinecraft:native,keepInMinecraft:native,sourceGeometryRetained:true};
  for(const p of source.pitches){
   const b=new Batch(native),[x,z,ux,uz,length,width]=p.frame,at=(u:number,v:number,dy=0):P=>{const px=x+ux*u-uz*v,pz=z+uz*u+ux*v;return[px,weddingMoabitGroundV229(px,pz,native)+.13+dy,pz];};
-  const line=(a:P,c:P)=>{const steps=Math.ceil(Math.hypot(c[0]-a[0],c[1]-a[1])/2);for(let i=0;i<steps;i++){const aa=[a[0]+(c[0]-a[0])*i/steps,a[1]+(c[1]-a[1])*i/steps],cc=[a[0]+(c[0]-a[0])*(i+1)/steps,a[1]+(c[1]-a[1])*(i+1)/steps];const pa=at(...aa as [number,number]),pc=at(...cc as [number,number]);if(inWeddingRingV229(p.ring,pa[0],pa[2])&&inWeddingRingV229(p.ring,pc[0],pc[2]))b.line(pa,pc,.085,0xe8e5d5);}};
-  const halfL=length/2-1.6,halfW=width/2-1.6;for(const sign of [-1,1]){line([-halfL,sign*halfW],[halfL,sign*halfW]);line([sign*halfL,-halfW],[sign*halfL,halfW]);}line([0,-halfW],[0,halfW]);
+  const line=(a:P,c:P)=>{const steps=Math.ceil(Math.hypot(c[0]-a[0],c[1]-a[1])/2);for(let i=0;i<steps;i++){const aa=[a[0]+(c[0]-a[0])*i/steps,a[1]+(c[1]-a[1])*i/steps],cc=[a[0]+(c[0]-a[0])*(i+1)/steps,a[1]+(c[1]-a[1])*(i+1)/steps];const pa=at(...aa as [number,number]),pc=at(...cc as [number,number]);if(inWeddingRingV229(p.ring,pa[0],pa[2])&&inWeddingRingV229(p.ring,pc[0],pc[2]))fieldMarking(b,pa,pc,source.grounds[0]);}};
+  // The OSM tennis footprints include the runoff area. Fit the regulation
+  // playing lines and doubles alleys inside those larger clay rectangles.
+  const tennis = p.sport === "tennis";
+  const halfL = tennis ? 23.77 / 2 : length/2-1.6;
+  const halfW = tennis ? 10.97 / 2 : width/2-1.6;
+  for(const sign of [-1,1]){line([-halfL,sign*halfW],[halfL,sign*halfW]);line([sign*halfL,-halfW],[sign*halfL,halfW]);}
   if(p.sport==="soccer"){
+   line([0,-halfW],[0,halfW]);
    const radius=Math.min(9.15,halfW*.27);for(let i=0;i<48;i++)line([Math.cos(i*Math.PI/24)*radius,Math.sin(i*Math.PI/24)*radius],[Math.cos((i+1)*Math.PI/24)*radius,Math.sin((i+1)*Math.PI/24)*radius]);
    for(const sign of [-1,1]){const goalW=Math.min(7.32,width*.18),boxW=Math.min(40.3,width*.65),depth=Math.min(16.5,length*.16),goal=sign*halfL;line([goal,-boxW/2],[goal-sign*depth,-boxW/2]);line([goal,boxW/2],[goal-sign*depth,boxW/2]);line([goal-sign*depth,-boxW/2],[goal-sign*depth,boxW/2]);
     for(const side of [-1,1])b.line(at(goal,side*goalW/2),at(goal,side*goalW/2,2.44),.095,0xe8e5d5);b.line(at(goal,-goalW/2,2.44),at(goal,goalW/2,2.44),.095,0xe8e5d5);
@@ -41,10 +69,18 @@ export function createWeddingMoabitV229(native=false):Group {
     for(let i=0;i<=8;i++){const v=-goalW/2+i*goalW/8;b.line(at(goal,v,2.44),at(goal+sign*1.7,v,.12),.018,0xa6aaa0);}b.line(at(goal+sign*1.7,-goalW/2,.12),at(goal+sign*1.7,goalW/2,.12),.04,0xb6b6a8);
    }
   }else{
-   for(const sign of [-1,1]){line([sign*halfL*.55,-halfW],[sign*halfL*.55,halfW]);line([-halfL,sign*halfW*.76],[halfL,sign*halfW*.76]);}line([-halfL*.55,0],[halfL*.55,0]);
-   b.line(at(0,-halfW,.96),at(0,halfW,.96),.06,0xe5e2d2);for(let v=-halfW;v<=halfW;v+=.8)b.line(at(0,v,.10),at(0,v,.94),.022,0x626f64);
+   const single = 8.23/2, service = 6.40, posts = halfW+.914;
+   for(const sign of [-1,1]){
+     line([sign*service,-single],[sign*service,single]);
+     line([-halfL,sign*single],[halfL,sign*single]);
+     line([sign*(halfL-.10),0],[sign*halfL,0]);
+     b.line(at(0,sign*posts),at(0,sign*posts,1.07),.06,0x646f67);
+     b.line(at(0,sign*posts,1.07),at(0,0,.914),.04,0xe5e2d2);
+   }
+   line([-service,0],[service,0]);
+   for(let v=-posts;v<=posts;v+=.8)b.line(at(0,v,.10),at(0,v,.914+.156*Math.abs(v/posts)),.022,0x626f64);
   }
-  b.finish(root,`${p.name}: mapped ${p.id} field markings and open goals v229`);
+  b.finish(root,`${p.id === "way/17189008" ? "Poststadion" : p.name}: mapped ${p.id} field markings and open goals v229`);
  }
  // Source exterior west glass facade and entrance wing. Roof/body stays owned
  // by the existing complete measured LoD2 model; mullion rhythm is illustrative.

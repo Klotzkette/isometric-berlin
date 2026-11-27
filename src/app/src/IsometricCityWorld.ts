@@ -1,3 +1,4 @@
+import { isFritzArenaPrismV390 } from "./fritzArenaOwnershipV390";
 import { releaseScratchBuffer } from "./releaseScratchBuffer";
 import { CityWestFrontBatchV379 } from "./cityWestFrontsV379";
 import { prepareLandwehrClustersV378 } from "./waterwayReplacementV378";
@@ -1841,6 +1842,7 @@ function facadeColorFor(
 function isRenderablePrismBuilding(building: PrismBuilding): boolean {
   return !(
     building.ring.length < 3 ||
+    isFritzArenaPrismV390(building) ||
     PRISM_SUPPRESSED_IDS.has(building.id) ||
     replacesStelePrism(building) ||
     isMehringplatzPrismV383(building) ||

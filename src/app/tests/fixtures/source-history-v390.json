@@ -1,0 +1,87 @@
+{
+  "additions": {
+    "src/app/src/BundesschlangeV390.ts": "b9c100f4409c740a8fc472a3a4c592051e4e065dd3a2392d0814678fb981389c",
+    "src/app/src/FritzSportparkV390.ts": "64fd17e0fbee1f64a7a2915d7517e075dce4c9f26f6b6201e2612ab4232f9588",
+    "src/app/src/ViewerLaunch.tsx": "a3321ea85cf20f11e45a34b2487be9dacfd2a0444841522b7524d3275b89e63f",
+    "src/app/src/data/bundesschlangeV390.json": "23bcf36048c6092432f503147bb1d272b8e8578f7b7deb7aced35716b26f83f0",
+    "src/app/src/data/fritzArenaOwnersV390.json": "85382b3a87931bae0a723423162b9d0f80c35baaa024c7d64918389604a4da4c",
+    "src/app/src/data/fritzSportparkV390.json": "e776a3c7147ed870eb9affb6e6093ce904a9f3e0701f12929ac3cbe05a1a4c72",
+    "src/app/src/fritzArenaOwnershipV390.ts": "96fc63a0220778a2e9909ad20f964fe6809d8fab17de8de75879b704a7bf6aa8",
+    "src/app/src/moabiterWerderTower.ts": "709bd58f029eff82be6ec1094e1ee0264fd1affe503e9cd17487488e717a83fc",
+    "src/app/src/viewerAssetPath.ts": "505cc4382ca9d8847d4c4e32da3a49b24d98a0ac136713a0c8c0476c1bc49300"
+  },
+  "changes": {
+    "src/app/package.json": {
+      "after": "da046140a019c08848ed8daab80653b17c51003dc3722154c566d1f1c58fdddb",
+      "before": "6e2fb069f77c15090b03b1b4c5cd05f9f5bb8b595375464c12bc18268cbe0569"
+    },
+    "src/app/src/App.tsx": {
+      "after": "e041e98c7275ae55455daf15916e0de26b1ca0987611af5cc3340123dce31bb3",
+      "before": "166f11a991c741b44a0e71997b49ccce2abe44ca259a177d084bae1a5701507f"
+    },
+    "src/app/src/FederalMinistriesV321.ts": {
+      "after": "6d22768326ada14a636da1c0c102eaa9dbf3aa12b1f7e9d1a7c9f4a9b68b1f35",
+      "before": "edde240a53328e1ea776b0f98d59c3928764eedfa6e9dcf852ac38b564263db3"
+    },
+    "src/app/src/FritzParkRecognisersV366.ts": {
+      "after": "2088394d777fb244ed0d8cf3122900845ffe734278193619fb7e2afcf82d7dc1",
+      "before": "55054263280c391935b9333baf81e7a88ab8f5319d39fcda96b275ffc59f2a6d"
+    },
+    "src/app/src/IsometricCityWorld.ts": {
+      "after": "094614c198a5ef2814547ea387ae29ccf6f62c3f3857784075f4f44c5de3c21b",
+      "before": "6b269067b37118133bed50880fcf1852ab482514f42be23da4578fd270715258"
+    },
+    "src/app/src/MinecraftVoxelWorld.ts": {
+      "after": "28f9ff80927923f08e002525cb41c856be1a3665ce1419097f07987d2458ddf7",
+      "before": "e6ed71472618b2eedee47b8fca287fafc4fa7c92d9dbdec143a8da11e415d0e8"
+    },
+    "src/app/src/MoabitStreetFrontsV340.ts": {
+      "after": "c3215400bc643e27aa6898cba171fde83b82e92754a73be57ac62bd1af6bbff2",
+      "before": "a553cdb733c9a3bd2c8ef34f2a224db3c4d35bc9e5f42e587892390e27f88e20"
+    },
+    "src/app/src/SurroundingCity.ts": {
+      "after": "ccb837b9abcfacb29872606c77049341bd1a83b1d301f5211c6b7710beb1df29",
+      "before": "78e2b5a7db1612312e23538f878d172067edec57dec572e09e02e8087e9fc1b5"
+    },
+    "src/app/src/ThreeViewer.tsx": {
+      "after": "849a3b5526cf370adb3935d24b4c00be854d0e2b46309f9b3b4b2c204607cef7",
+      "before": "cb4183be3d17b54c56127e49b9510f5bd889581ffb40f0b62ec46d8e95188cbb"
+    },
+    "src/app/src/WeddingMoabitV229.ts": {
+      "after": "81c30b73ab14bc33b27730130e3fda410305ca6231de725eb6c4cf5cadd00d99",
+      "before": "cf189c8c54590500b11f74c1251842989a3b412c770b538da851a9fe80816fce"
+    },
+    "src/app/src/arrivalRoadViewV376.ts": {
+      "after": "acbddb8ab81576f0c17f43e2a9c3b6f04987f02024a690a1f18a8b87f9591ff7",
+      "before": "82a1e1a0dff70ca92f2aca3c14f3fd46c766009bbf2f767e8aeebc24f7648076"
+    },
+    "src/app/src/berlinPlaceViewsV378.ts": {
+      "after": "983b3d09a33a9de96c0feb045e3ea49023a19bda60cea9a8ff776668a8c53bf2",
+      "before": "46c2b8c5a2783918bd99e58303523cdd6d37f9b9a720d6f2535fecc2333c2db9"
+    },
+    "src/app/src/districtDrawCullingV383.ts": {
+      "after": "b7e5ff7932b525a23899f485ce5e249edbb3d3af6d9000a9bedb81329644052e",
+      "before": "5d5d2f00d76c6cf23fe275bd529043539200699473fd6fbbfa6aff103564099a"
+    },
+    "src/app/src/inkDrawVisibility.ts": {
+      "after": "330dc5e581563ee256258b40c2e0d7e192d9f3bb4c56f6d5ea1f099191c9c66e",
+      "before": "340d82a1d819a70da1faef38fd679cbd470bed60a983b658159790b558eb852d"
+    },
+    "src/app/src/main.tsx": {
+      "after": "23f1c2d9e52712d5a85586f307d21408c40c60a01edb54d1bf32de4cbf99d20b",
+      "before": "5dca4ac3958a855eaf1aba145a617adbb5105336b7b6df7685c63c76398a85a2"
+    },
+    "src/app/src/pedestrianNavigation.ts": {
+      "after": "6525c58bab83e0daafbcaa5d8e0c0c1c29e72ad7762bb993c4f6216051d4ed9a",
+      "before": "4194d661c746a043fec0fcda6aeb4b8b907a0e5a5ff80665ef9c21e854374a54"
+    },
+    "src/app/src/surroundingCityScope.ts": {
+      "after": "2b66de93923d14cc744ff409b10dff20e9dfc7df506a7a3ff89c907d2f5eb3c7",
+      "before": "d568d3adc8a26197b62066cde12eff501c3b3d2f264c7cd188ab253d8ebc6e6c"
+    },
+    "src/app/src/viewerEngineLoader.ts": {
+      "after": "efa00672ec714692bd8cfe6951e1f015a684a09ea8906e852207510004ae2921",
+      "before": "b7f736f413fd01c06e9f6c80bc79e950e3af7a05a368b8f012e32b6600717961"
+    }
+  }
+}

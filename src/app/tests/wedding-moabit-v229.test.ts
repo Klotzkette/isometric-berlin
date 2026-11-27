@@ -19,7 +19,7 @@ describe('bounded Wedding/Moabit v229',()=>{
   console.log({native,bytes,count,calls:root.children.length});dispose(root);
  });
  test('source identities and terrain finite at every pitch',()=>{const s=weddingMoabitSourceV229();expect(s.pitches.length).toBe(14);expect(s.square.id).toBe('relation/4717544');for(const p of s.pitches)for(const [x,z]of p.ring){expect(Number.isFinite(weddingMoabitGroundV229(x,z))).toBe(true);expect(Number.isFinite(weddingMoabitGroundV229(x,z,true))).toBe(true);}expect(s.stationCorrection.oldDatasetSha256['railStationsV190.json'].length).toBe(64);});
- test('the shipped rail constructor invokes the exact transform',()=>{const root=createRailStationsV190(false);const hall=root.children.find(o=>o.userData.stationName==='Wedding')!;expect(hall.position.y).toBe(6.5);expect(hall.userData.weddingHeightV229).toBe(true);for(const o of root.children)if(o!==hall)expect(o.position.y).toBe(0);const box=new Box3().setFromObject(hall);expect(box.min.y).toBeGreaterThan(10);dispose(root);});
+ test('the shipped rail constructor invokes the exact transform',()=>{const root=createRailStationsV190(false);const hall=root.children.find(o=>o.userData.stationName==='Wedding')!;expect(hall.position.y).toBe(6.5);expect(hall.userData.weddingHeightV229).toBe(true);for(const o of root.children)if(o!==hall)expect(o.position.y).toBe(0);root.updateMatrixWorld(true);const platform=hall.getObjectByName("Wedding complete source platform surfaces")!;const box=new Box3().setFromObject(platform);expect(box.min.y).toBeCloseTo(10.46,4);expect(box.max.y).toBeCloseTo(10.46,4);expect(new Box3().setFromObject(hall).min.y).toBeCloseTo(9.80,4);dispose(root);});
 });
 // This uses actual delivered lawns/ground, not merely a second analytic sampler.
 import ground from '../public/mesh/regierungsviertel/ground-context.json';
@@ -36,7 +36,7 @@ for(const native of [false,true])test(`field paint clears delivered Poststadion 
  })},'bounded actual Poststadion ground',CLASS_SHADES,{parkRelief:'native'}):createSmoothSurfaces({...surfaces,parks:surfaces.parks.filter(p=>p.name==='SportPark Poststadion'||p.name==='Fritz-Schloß-Park'),roads:[],water:[],scrub_points:[],lane_markings:[],sunken_walls:[]}as SurfacePayload,-1.15,4.2,terrain);
  const root=createWeddingMoabitV229(native);old.updateMatrixWorld(true);root.updateMatrixWorld(true);let hits=0,min=Infinity;
  for(const p of weddingMoabitSourceV229().pitches){const[x,z,ux,uz,length,width]=p.frame;const mesh=root.children.find(o=>o.name.includes(p.id))!;
-  for(const sign of [-1,1])for(let i=1;i<8;i++){const u=(i/8-.5)*(length-3.2),v=sign*(width/2-1.6),px=x+ux*u-uz*v,pz=z+uz*u+ux*v;const ray=new Raycaster(new Vector3(px,80,pz),new Vector3(0,-1,0)),a=ray.intersectObject(mesh,true),b=ray.intersectObject(old,true);if(!a.length||!b.length)continue;hits++;min=Math.min(min,a[0].point.y-b[0].point.y);}
+  for(const sign of [-1,1])for(let i=1;i<8;i++){const u=(i/8-.5)*(p.sport==="tennis"?23.77:length-3.2),v=sign*(p.sport==="tennis"?10.97/2:width/2-1.6),px=x+ux*u-uz*v,pz=z+uz*u+ux*v;const ray=new Raycaster(new Vector3(px,80,pz),new Vector3(0,-1,0)),a=ray.intersectObject(mesh,true),b=ray.intersectObject(old,true);if(!a.length||!b.length)continue;hits++;min=Math.min(min,a[0].point.y-b[0].point.y);}
  }
  console.log({native,groundPaintSamples:hits,minClearance:min});expect(hits).toBeGreaterThan(150);expect(min).toBeGreaterThan(-.005);dispose(root);dispose(old);
 },20000);

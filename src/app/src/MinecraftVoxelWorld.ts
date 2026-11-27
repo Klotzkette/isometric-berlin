@@ -1,3 +1,4 @@
+import { fritzArenaColumnsV390 } from "./fritzArenaOwnershipV390";
 import { CityWestFrontBatchV379, hasCityWestFrontV379 } from "./cityWestFrontsV379";
 import { nativeChestnutTrunkHeight } from "./terrainPayload";
 import { LEHRTER_BRICK, LEHRTER_TILE, lehrterKulturhausOwnerV366 } from "./lehrterKulturhausProfileV366";
@@ -2850,6 +2851,7 @@ export function* buildMinecraftVoxelWorldSteps(
     ? createTownhallCoreColumnTesterV227(options.sourcePrisms, cell) : () => false;
   const districtCourtColumnAt = options.includeLegacyDistrictCourtEnvelopes === false
     ? createDistrictCourtCoreColumnTesterV229(options.sourcePrisms, cell) : () => false;
+  const fritzArenaColumnAt = fritzArenaColumnsV390(options.sourcePrisms, cell);
   const weddingRoofColumnAt = options.includeLegacyWeddingStationRoof === false
     ? createWeddingRoofCoreColumnTesterV229(options.sourcePrisms, cell) : () => false;
   const schlossColumnAt = options.includeLegacySchlossplatzEnvelopes === false
@@ -2935,6 +2937,7 @@ export function* buildMinecraftVoxelWorldSteps(
     if (chariteBridgeColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (schlossColumnAt(worldXAbs(xIdx), worldZAbs(zIdx), y0dm, y1dm, classId)) continue;
     if (aegColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
+    if (fritzArenaColumnAt(xIdx,zIdx,y0dm,y1dm,classId)) continue;
     if (colonnadeColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || townhallColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || districtCourtColumnAt(xIdx, zIdx, y0dm, y1dm, classId) || weddingRoofColumnAt(xIdx, zIdx, y0dm, y1dm, classId)) continue;
     if (!(
       !uraniaArcV206SourceColumn(worldXAbs(xIdx), worldZAbs(zIdx), y0dm / 10, y1dm / 10) &&

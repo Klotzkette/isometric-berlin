@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.270
+
+- Restore the two distinct elevations of the Bundesschlange at Moabiter Werder. Pale brick and individual windows face the railway, while continuous glazing winds along the garden side. The adjoining head building has its own shop and office levels. [Facade sources and views](docs/moabiter-werder-v390.md)
+- Rework the Federal Interior Ministry’s limestone window reveals, glazed base and stepped office wings. The tower at the west end follows its surveyed footprint and roof elevations. [Ministry and tower sources](docs/bmi-moabiter-werder-v390.md)
+- Uncover the Poststadion pitch and running track in the drawn and block cities. The surrounding sports grounds and wooded hill use mapped facilities and measured tree positions. The search includes the polling place used on 20 September 2026. [Park survey and sources](docs/fritz-sportpark-v390.md)
+- Load the mode chooser separately from the viewer controller. On phones, a settled camera looking beyond the core can request nearby visible terrain while the first city upload is finishing. Visible packets have their own memory and request limits during that interval.
+- Skip offscreen kerb and road-marking line segments when the original material and geometry permit it. The tested Brandenburger Tor view submitted 19,373 of 83,508 segments with identical output pixels. Release superseded arrival-road geometry when changing destination.
+
 ## 1.0.269
 
 - The existing Dreamcore view now appears as *Schwellentraum* with the subtitle *Videogame-Modus*. Its horizon shifts gently from apricot to lilac and blue, with cooler shadows on Berlin’s streets. Existing `theme=schwellenraum` links still open the mode.

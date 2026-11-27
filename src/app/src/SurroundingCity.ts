@@ -70,6 +70,11 @@ export const SURROUNDING_CITY_MANIFEST_RETRY_MS = [500, 1_500] as const;
 // the decoded size too: HTTP Content-Encoding may already inflate a response.
 export const SURROUNDING_CITY_PREFETCH_BYTES = 4 * 1024 * 1024;
 export const SURROUNDING_CITY_PREFETCH_COUNT = 2;
+// While the mobile core is still uploading, overlap only a small foreground
+// view of complete source packets with it. The ordinary plan resumes afterwards.
+const MOBILE_EARLY_TILES = 8;
+const MOBILE_EARLY_RESIDENT_BYTES = 8 * 1024 * 1024;
+const MOBILE_EARLY_PACKET_BYTES = 4 * 1024 * 1024;
 
 type Asset = { url: string; bytes: number; encoding?: "gzip"; decodedBytes?: number; deltaDecodedBytes?: number; sha256?: string };
 export type SurroundingChunkDescriptor = {
@@ -110,6 +115,8 @@ const siteDescriptors = exteriorSitesV378.map((site): SurroundingChunkDescriptor
 }));
 const siteExteriors = new Set(siteDescriptors);
 const detailOnlyDescriptors = new Set([...steelDescriptors, ...bankDescriptors, ...siteDescriptors]);
+const baseViewTile = (tile: SurroundingChunkDescriptor): boolean =>
+  !tile.detailCompanionOf && !detailOnlyDescriptors.has(tile) && !exteriorDescriptorsV360.has(tile);
 
 const surveyedShellTileKeysV377 = new Set([
   "4_5", "5_5", "east200-20_13", "east200-20_14", "east200-21_13", "east200-21_14",
@@ -170,6 +177,8 @@ export type SurroundingCityOptions = {
   signal?: AbortSignal;
   /** Pause requests during a renderer reset, retaining all resident packets. */
   isActive?: () => boolean;
+  /** Camera-initiated mobile overlap ends when the initial core upload settles. */
+  earlyMobileCamera?: () => boolean;
   /** Runs before first publication: register residency and apply current lighting. */
   onAttach?: (root: Group, mode: VisualMode) => void;
   /** Unregister residency and dispose geometry/materials; controller removes it first. */
@@ -653,6 +662,9 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
   const jumpDistanceSquared = (options.retireAfterJumpM ?? Infinity) ** 2;
   const transportIdleMs = options.transportIdleMs ?? SURROUNDING_TRANSPORT_IDLE_MS;
   const budget = options.residentBudgetBytes ?? SURROUNDING_CITY_RESIDENT_BUDGET_BYTES;
+  const earlyBudget = Math.min(budget, MOBILE_EARLY_RESIDENT_BYTES);
+  let earlyCamera = options.earlyMobileCamera?.() === true;
+  const deferredBytes = new Map<string, number>();
   const publicAccessV326=new WeakMap<Group,UbahnGroundRuntimeV326>(),monumentsV326=new WeakMap<Group,PublicMonumentsPacketV326>();
   const baseRelease=options.onRelease??disposeSurroundingCityRoot;
   const release=(group:Group)=>{options.onBeforeRelease?.(group);baseRelease(group);publicAccessV326.get(group)?.dispose();publicAccessV326.delete(group);monumentsV326.get(group)?.dispose();monumentsV326.delete(group);};
@@ -778,7 +790,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     }
   };
   const fillPrefetches = (): void => {
-    if (disposed || !activeView()) return;
+    if (disposed || earlyCamera || !activeView()) return;
     const minecraft = mode === "minecraft";
     for (const descriptor of queue) {
       if (prefetches.size >= SURROUNDING_CITY_PREFETCH_COUNT) break;
@@ -911,11 +923,18 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
             const stones=await finishV326(createPublicMonumentsPacketV326Steps(entry.root,descriptor.id,minecraft,entry.nav,entry.origin,{hosts:originalHostsV326,openings:access?.openings??[]}),task.signal);
             if(stones.root){entry.nav=stones.navigation??entry.nav;monumentsV326.set(entry.root,stones);entry.geometryBytes+=stones.geometryBytes;entry.bufferCount+=stones.bufferCount;}
           }
-          if(options.publicSitesV326===true&&entry.geometryBytes>budget){release(entry.root);unpublished=null;throw Error("Complete public detail packet exceeds resident budget");}
+          if(!earlyCamera&&options.publicSitesV326===true&&entry.geometryBytes>budget){release(entry.root);unpublished=null;throw Error("Complete public detail packet exceeds resident budget");}
           // New resources use the existing measured resident counter. Only
           // no-longer-visible packets retire; visible source detail is retained.
           const retirees=[...residents].filter(([id])=>!desired.has(id));
-          for(const [id]of retirees){if(geometryBytes+entry.geometryBytes<=budget)break;evict(id);}
+          const limit = earlyCamera ? earlyBudget : budget;
+          for(const [id]of retirees){if(geometryBytes+entry.geometryBytes<=limit && (!earlyCamera || residents.size < MOBILE_EARLY_TILES))break;evict(id);}
+          if (earlyCamera && geometryBytes + entry.geometryBytes > earlyBudget) {
+            // Keep observable terrain intact. Remember only the measured size
+            // while this tile is wanted, so every scan need not build it again.
+            deferredBytes.set(descriptor.id, entry.geometryBytes);
+            release(entry.root); unpublished = null; continue;
+          }
           // onAttach can synchronously dispose this controller during error recovery.
           if (disposed || !activeView() || task.signal.aborted || familyRevision !== revision || !desired.has(descriptor.id) ||
               (southAdmissionChanged()||admissionChangedV298()||westAdmissionChangedV302()||neukoellnChangedV305()||northChangedV309()||treptowChangedV317()||officesChangedV322()||wilhelmChangedV324()||wilhelmStreetChangedV325()||southwestChangedV326())) {
@@ -1064,6 +1083,11 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       }
     }
     if (!manifest) return;
+    if (earlyCamera && !options.earlyMobileCamera?.()) {
+      earlyCamera = false;
+      deferredBytes.clear();
+      lastScan = -Infinity;
+    }
     if (timestamp - lastScan < SURROUNDING_CITY_SCAN_MS) return;
     lastScan = timestamp;
     options.camera.updateMatrixWorld();
@@ -1088,26 +1112,33 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
     // when a tile's bounds sit just outside the lens. Ordinary pan/flight
     // resumes the view plan as soon as the camera leaves the destination.
     missingOwners.clear();
+    const want = (descriptor: SurroundingChunkDescriptor, owner = false): void => {
+      if (desired.has(descriptor.id)) return;
+      if (earlyCamera) {
+        if (desired.size >= MOBILE_EARLY_TILES || (!owner && !baseViewTile(descriptor))) return;
+        const asset = descriptor[mode === "minecraft" ? "minecraft" : "drawn"];
+        if (Math.max(asset.bytes, asset.decodedBytes ?? 0, asset.deltaDecodedBytes ?? 0) > MOBILE_EARLY_PACKET_BYTES) return;
+      }
+      desired.add(descriptor.id);
+      const entry = residents.get(descriptor.id);
+      if (entry) { entry.lastWanted = timestamp; return; }
+      if (owner && timestamp - (failedAt.get(descriptor.id) ?? -Infinity) < 30_000) return;
+      const size = deferredBytes.get(descriptor.id);
+      if (size !== undefined && geometryBytes + size > earlyBudget) return;
+      if (owner) missingOwners.add(descriptor.id);
+      queue.push(descriptor);
+    };
     if (selectedPlace && Math.hypot(focusPoint.x - selectedPlace.x, focusPoint.z - selectedPlace.z) <= 180) {
       for (const id of selectedPlace.required) {
         const descriptor = tilesById?.get(id);
-        if (!descriptor || desired.has(id)) continue;
-        desired.add(id);
-        const entry = residents.get(id);
-        if (entry) entry.lastWanted = timestamp;
-        else if (timestamp - (failedAt.get(id) ?? -Infinity) >= 30_000) {
-          missingOwners.add(id);
-          queue.push(descriptor);
-        }
+        if (descriptor) want(descriptor, true);
       }
     }
     for (const descriptor of selectView!(options.camera, frustum, cameraPosition, focusPoint)) {
-      if (desired.has(descriptor.id)) continue;
-      desired.add(descriptor.id);
-      const entry = residents.get(descriptor.id);
-      if (entry) entry.lastWanted = timestamp;
-      else queue.push(descriptor);
+      if (earlyCamera && desired.size >= MOBILE_EARLY_TILES) break;
+      want(descriptor);
     }
+    for (const id of deferredBytes.keys()) if (!desired.has(id)) deferredBytes.delete(id);
     if (active && (!desired.has(active.id) || (missingOwners.size > 0 && !missingOwners.has(active.id)))) active.controller.abort();
     cancelPrefetches();
     let changed = false;
@@ -1175,7 +1206,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
           selectView = createSurroundingViewPlanV379(manifest.chunks,
             tile => bankExteriors.has(tile) ? 24 : exteriorDescriptorsV360.has(tile) ? 7 : 410,
             tile => siteExteriors.has(tile),
-            tile => !tile.detailCompanionOf && !detailOnlyDescriptors.has(tile) && !exteriorDescriptorsV360.has(tile));
+            baseViewTile);
           refresh();
         }
         return;
@@ -1232,6 +1263,7 @@ export function createSurroundingCity(options: SurroundingCityOptions): Surround
       cancelPrefetches(true);
       for (const id of residents.keys()) evict(id);
       failedAt.clear();
+      deferredBytes.clear();
       lastScan = -Infinity;
       refresh();
       options.onChange?.();

@@ -32,4 +32,9 @@ export const berlinPlaceViewsV378: typeof memorialViewsV378 = {
   ...kollwitzKiezViewsV381,
   ...mitteWestViewsV383,
   ...potsdamerPlatzViewsV385,
+  "Bundesschlange am Moabiter Werder": { position: [-885,85,130], target: [-920,15,-20], fov: 58 },
+  "Bundesinnenministerium am Moabiter Werder": { position: [-704,75,-112], target: [-579,21,-323], fov: 40 },
+  // Bezirksamt Mitte mapped this venue for the election of 20 September 2026.
+  "Wahllokal 2026 am Poststadion": { position: [-755,48,-1139], target: [-782.79,8,-1195.36], fov: 53 },
+  "Poststadion im Fritz-Schloß-Park": { position: [-635,185,-981], target: [-900,9,-1230], fov: 51 },
 };

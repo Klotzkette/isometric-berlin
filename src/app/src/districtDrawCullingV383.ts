@@ -1,17 +1,19 @@
 import {
   BufferAttribute, Frustum, Matrix4, type BufferGeometry, type Camera, type GeometryGroup,
-  type Material, type Mesh, type Object3D, type WebGLRenderer,
+  type LineBasicMaterial, type LineSegments, type Material, type Mesh, type Object3D, type WebGLRenderer,
 } from "three";
 import {staticStorageInfo} from "./losslessStaticStorage";
+import {inkLineViewBias} from "./inkDrawVisibility";
 
-// The production index order already follows successive strips of pavement.
-// A box covers an exact contiguous original interval; no triangle is reordered.
+// One contiguous interval ends on both triangle and line-pair boundaries.
+// Preserve the input order of the pavement, its kerb strokes and markings.
 const BLOCK = 3 * 192;
 const MAX_CALLS = 8;
 const MIN_INDICES = BLOCK * 32;
 const installed = new WeakMap<WebGLRenderer, () => void>();
-const districtSurfaces = new Set([
-  "District raised kerbstones", "District asphalt carriageways", "District mapped paved walkways",
+const verticesPerPrimitive = new Map<string, number>([
+  ["District raised kerbstones", 3], ["District asphalt carriageways", 3], ["District mapped paved walkways", 3],
+  ["District kerb ink", 2], ["District lane markings", 2],
 ]);
 
 type PartialMesh = Material & {wireframe?: boolean; displacementMap?: unknown};
@@ -143,16 +145,28 @@ export function installDistrictDrawCullingV383(renderer: WebGLRenderer): () => v
   const clip=new Matrix4(), frustum=new Frustum();
   const partial: GeometryGroup={start:0,count:0,materialIndex:0};
   const wrapped: WebGLRenderer["renderBufferDirect"]=function(camera,scene,geometry,material,object,group) {
-    if (!object || !districtSurfaces.has(object.name)) return original.call(renderer,camera,scene,geometry,material,object,group);
+    const size = object && verticesPerPrimitive.get(object.name);
+    if (!size) return original.call(renderer,camera,scene,geometry,material,object,group);
+    let viewBias = 0;
+    if (size === 2) {
+      const bias = inkLineViewBias(material);
+      if (!(object as LineSegments).isLineSegments || !object.frustumCulled ||
+          !(material as LineBasicMaterial).isLineBasicMaterial || bias === undefined ||
+          geometry.morphAttributes.position?.length || "isInstancedBufferGeometry" in geometry) {
+        return original.call(renderer,camera,scene,geometry,material,object,group);
+      }
+      viewBias = bias;
+    } else if (!supportedMesh(object,material,geometry)) {
+      return original.call(renderer,camera,scene,geometry,material,object,group);
+    }
     const p=geometry.getAttribute("position"), idx=geometry.index;
-    if (!supportedMesh(object,material,geometry) ||
-        !(p instanceof BufferAttribute) || p.itemSize!==3 || (idx && idx.itemSize!==1)) {
+    if (!(p instanceof BufferAttribute) || p.itemSize!==3 || (idx && idx.itemSize!==1)) {
       return original.call(renderer,camera,scene,geometry,material,object,group);
     }
     const total=idx?.count ?? p.count;
     const start=Math.max(0,geometry.drawRange.start,group?.start ?? 0);
     const end=Math.min(total,geometry.drawRange.start+geometry.drawRange.count,group?group.start+group.count:Infinity);
-    if (end-start<MIN_INDICES || start%3 || end%3) return original.call(renderer,camera,scene,geometry,material,object,group);
+    if (end-start<MIN_INDICES || start%size || end%size) return original.call(renderer,camera,scene,geometry,material,object,group);
     let map=cache.get(geometry);
     if (!map?.matches(p,idx)) {
       if (!(p.array instanceof Float32Array) || (idx && !(idx.array instanceof Uint16Array || idx.array instanceof Uint32Array)))
@@ -160,7 +174,11 @@ export function installDistrictDrawCullingV383(renderer: WebGLRenderer): () => v
       map=new IndexedBounds(p,idx);
       cache.set(geometry,map);
     }
-    clip.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse).multiply(object.matrixWorld);
+    // Match the stock line shader's optional view-space depth adjustment
+    // before projection, including for scaled objects and perspective cameras.
+    clip.copy(camera.matrixWorldInverse);
+    clip.elements[14] += viewBias;
+    clip.premultiply(camera.projectionMatrix).multiply(object.matrixWorld);
     const count=map.plan(clip,camera,frustum,start,end);
     if (count===1 && map.ranges[0]===start && map.ranges[1]===end-start)
       return original.call(renderer,camera,scene,geometry,material,object,group);

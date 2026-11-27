@@ -1,3 +1,5 @@
+import type { PerspectiveCamera } from "three";
+import { buildingDetailViewPoints } from "./buildingDetailStreaming";
 import { memorialParcelGroundV378 } from "./memorialParcelGroundV378";
 import addedCityV346 from "./data/addedCityScopeV346.json";
 import { buddhistFrohnauGroundAtV347 } from "./BuddhistFrohnauGroundV347";
@@ -66,4 +68,28 @@ export function surroundingScopeGroundAt(x: number, z: number, native = false): 
  * stream while the first core GPU upload is still being parked. */
 export function cameraNeedsSurroundingGroundV379(x: number, z: number, native: boolean): boolean {
   return !surroundingPolygonContains(scope.core, x, z) && surroundingScopeGroundAt(x,z,native) !== null;
+}
+
+
+/** Sample a moving phone's actual lens after the core frame has been presented.
+ * A short coalescing window lets rapid camera hops resolve to their destination.
+ * A settled phone never repeats the ground queries. */
+export function createSurroundingCameraProbe(mobile: boolean) {
+  let nextCheckAt = 0;
+  let waitingForView = false;
+  return (timestamp: number, moved: boolean, camera: PerspectiveCamera,
+    focus: { x: number; y: number; z: number }, native: boolean): boolean => {
+    if (mobile && !waitingForView) {
+      if (!moved) return false;
+      waitingForView = true;
+      nextCheckAt = Math.max(nextCheckAt, timestamp + 150);
+    }
+    if (timestamp < nextCheckAt) return false;
+    waitingForView = false;
+    nextCheckAt = timestamp + 250;
+    if (cameraNeedsSurroundingGroundV379(focus.x, focus.z, native)) return true;
+    if (camera.position.y - focus.y <= 300) return false;
+    return buildingDetailViewPoints(camera, focus, mobile ? "mobile" : "full")
+      .some(([x, z]) => cameraNeedsSurroundingGroundV379(x, z, native));
+  };
 }

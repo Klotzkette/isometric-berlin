@@ -3,7 +3,8 @@ import react from "@vitejs/plugin-react";
 import { losslessJsonData, STREAMED_TILE_DATA_V362 } from "./losslessJsonData";
 import { losslessRestoredRoadSurfacesV346 } from "./losslessRestoredRoadSurfacesV346";
 
-export const STARTUP_JS_BUDGET_BYTES = 400 * 1024;
+// Bound the complete six-mode chooser, including shared React and all static imports.
+export const STARTUP_JS_BUDGET_BYTES = 300 * 1024;
 // The worker used to import 27 MB of unrelated model/navigation source data.
 // Catch that dependency regression before publishing another mobile build.
 export const PROGRESSIVE_WORKER_JS_BUDGET_BYTES = 16 * 1024 * 1024;
@@ -89,7 +90,7 @@ function startupBudget(): Plugin {
           return 0;
         }
         return (
-          item.code.length +
+          Buffer.byteLength(item.code, "utf8") +
           item.imports.reduce(
             (total, dependency) => total + visit(dependency),
             0,

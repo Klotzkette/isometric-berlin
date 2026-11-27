@@ -1,3 +1,4 @@
+import { addFritzSportparkV390 } from "./FritzSportparkV390";
 import { BufferGeometry, Color, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 import source from "./data/fritzParkV366.json";
 import { justicePalaceV183Boxes } from "./justicePalaceV183Batches";
@@ -28,6 +29,7 @@ function boulder(x:number, z:number, y:number): Mesh {
 }
 
 export function addFritzParkV366(root:Group,native:boolean):void {
+  addFritzSportparkV390(root, native);
   const [limestone,granite]=source.memorials;
   const [x,z]=limestone, y=limestone[native?3:2];
   const blocks=[

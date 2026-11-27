@@ -91,6 +91,39 @@ test("unmount cancels the outstanding arrival and releases its unowned geometry"
   expect(f.removed.size).toBe(8);
 });
 
+test("jumps immediately free unadopted roads even when the new view yields no geometry", async () => {
+  for (const destination of ["outside", "already attached", "empty source"] as const) {
+    const world = new Group(), disposed = new Set<Group>();
+    const first = arrivalRoadIdsV376(0, 0);
+    const nextX = destination === "outside" ? 12_000 : 4_000;
+    const next = arrivalRoadIdsV376(nextX, 0);
+    const view = createArrivalRoadViewV376({
+      signal: new AbortController().signal, active: () => true,
+      attached: () => new Set(world.children.map(o => o.name)),
+      async *load(x) { if (x === 0) for (const id of first) yield {id, root: new Group()}; },
+      async attach({id, root}) { root.name = id; world.add(root); },
+      remove(root) { expect(disposed.has(root)).toBeFalse(); disposed.add(root); root.removeFromParent(); },
+      adopt() {},
+    });
+    try {
+      view.activate();
+      view.update(0, 0, 100);
+      await view.opening();
+      const adopted = world.children[0] as Group;
+      view.adopt(adopted.name);
+      if (destination === "already attached") for (const id of next) {
+        const resident = new Group(); resident.name = id; world.add(resident);
+      }
+      view.update(nextX, 0, 300);
+      expect(disposed.size).toBe(first.length - 1);
+      expect(adopted.parent).toBe(world);
+      expect(world.children.length).toBe(1 + (destination === "already attached" ? next.length : 0));
+      await view.opening();
+      expect(disposed.size).toBe(first.length - 1);
+    } finally { view.stop(); }
+  }
+});
+
 test("ordinary worker ACK, material switching and resume reuse a camera-attached road exactly once", async () => {
   const world = new Group();
   const host = progressiveCoverageHost(source, world, false);

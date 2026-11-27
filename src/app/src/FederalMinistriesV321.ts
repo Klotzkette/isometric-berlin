@@ -17,6 +17,7 @@ import { schwellenraumMaterialFor } from "./visual-modes/schwellenraum/materialG
 import type { PrismBuilding } from "./IsometricCityWorld";
 import type { VoxelPayload } from "./terrainPayload";
 import type { DeutschesTheaterVoxelPayload } from "./DeutschesTheater";
+import { insideMoabiterTower, moabiterTowerBase, moabiterTowerColumnsMatch, moabiterTowerRoof, moabiterTowerRows, precedingTowerPrism, type MinistryBox } from "./moabiterWerderTower";
 
 type Face = {detail?:{style:string;palette:number[];pitch:number;storey:number;ratio:number}; owner:string; parent?:string; a:number[]; d:number[]; n:number[]; range:number[]; scope?:number[]; polygon?:number[][]; holes?:number[][][]; voids:number[][]};
 type Site = {key:string; style:string; palette:number[]; pitch:number; storey:number; ratio:number; faces:Face[]; nativeFaces?:Face[]; partIds:string[]};
@@ -78,8 +79,54 @@ const fits=(f:Face,u:number,y:number,w:number,h:number)=>{
     }}
   return true;
 };
-type BoxRow={p:number[];s:number[];yaw:number;color:number;role:string};
-function* rowSteps(native:boolean):Generator<void,BoxRow[]>{
+type BoxRow=MinistryBox;
+type AddFaceBox = (face: Face, u: number, y: number, width: number, height: number,
+  color: number, depth: number, outward: number, role: string, checked?: boolean) => void;
+
+/** Müller Reimann's built main wings rise from a common plinth. Keep all
+ * fittings on the certified wall, including the independently mapped block faces. */
+function* moabitMinistryFront(face: Face, site: Site, add: AddFaceBox): Generator<void> {
+  const [start, end, bottom, top] = face.range;
+  const base = 5.45;
+  const plinthTop = base + 5.1;
+  const upperFloors = Math.max(4, Math.min(8, Math.floor((top - base - 4.2) / 3.95)));
+  const floorHeight = (top - plinthTop) / upperFloors;
+  const [stone, glass, steel] = site.palette;
+  // A tall stone base encloses larger glazed fields. The upper floors have
+  // regularly spaced, full-height windows recessed behind the pale limestone.
+  for (let floor = 0; floor <= upperFloors; floor++) {
+    const plinth = floor === 0;
+    const low = plinth ? base : plinthTop + (floor - 1) * floorHeight;
+    const high = plinth ? plinthTop : plinthTop + floor * floorHeight;
+    const y = (low + high) / 2;
+    if (high <= bottom) continue;
+    const bays = Math.max(1, Math.round((end - start) / (site.pitch * (plinth ? 2 : 1))));
+    const pitch = (end - start) / bays;
+    const width = pitch - .06, height = high - low - .12;
+    const glassWidth = width * (plinth ? .86 : .59);
+    const glassHeight = height * (plinth ? .68 : .84);
+    const cheek = (width - glassWidth) / 2, rail = (height - glassHeight) / 2;
+    for (let bay = 0; bay < bays; bay++) {
+      const u = start + (bay + .5) * pitch;
+      if (bay % 32 === 31) yield;
+      if (!fits(face, u, y, width, height)) continue;
+      // The glazed plane is inside the frame. The returns extend from the
+      // wall to the stone face, so an oblique camera sees real depth.
+      add(face, u, y, glassWidth, glassHeight, glass, .08, .35, "glazing", true);
+      for (const side of [-1, 1]) {
+        add(face, u + side * (width - cheek) / 2, y, cheek, height,
+          stone, plinth ? .51 : .47, .51, "Jura limestone jamb", true);
+      }
+      add(face, u, y + (height - rail) / 2, glassWidth, rail, stone, .52, .54, "Jura limestone lintel", true);
+      add(face, u, y - (height - rail) / 2, glassWidth, rail, stone, .47, .51, "Jura limestone sill", true);
+      add(face, u, y, plinth ? .13 : .075, glassHeight, steel, .12, .42, "stainless glazing mullion", true);
+      if (plinth) add(face, u, y + .22 * glassHeight, glassWidth, .09, steel, .11, .415, "plinth glazing transom", true);
+    }
+    yield;
+  }
+}
+
+function* rowSteps(native:boolean, includeTower:boolean):Generator<void,BoxRow[]>{
   let panes=0;
   const all:BoxRow[]=[];
   const add=(f:Face,u:number,y:number,w:number,h:number,color:number,depth:number,out:number,role:string,checked=false)=>{
@@ -90,6 +137,10 @@ function* rowSteps(native:boolean):Generator<void,BoxRow[]>{
   for(const site of source.sites)for(const f of native?site.nativeFaces!:site.faces){
     const profile={...site,...f.detail};
     if(native&&Math.abs(f.d[0]*f.d[1])>1e-9)throw Error("Native ministry front is not cardinal");
+    if (site.key === "BMI") {
+      yield* moabitMinistryFront(f, site, add);
+      continue;
+    }
     const[u0,u1,bottom,top]=f.range,length=u1-u0,bays=Math.max(1,Math.round(length/profile.pitch)),pitch=length/bays;
     const historic=profile.style.startsWith("historic")||profile.style==="vohl-and-basalt";
     const width=Math.min(pitch-.22,pitch*profile.ratio),height=Math.min(profile.storey-1.05,historic?2.65:2.7);
@@ -108,7 +159,9 @@ function* rowSteps(native:boolean):Generator<void,BoxRow[]>{
     }
     for(const y of[bottom+.18,top-.15])add(f,(u0+u1)/2,y,length,.17,profile.palette[0],.23,.30,"retained facade edge");
   }
-  all.push(...colonnadeRows(native));return all;
+  all.push(...colonnadeRows(native));
+  if (includeTower) all.push(...(yield* moabiterTowerRows(native)));
+  return all;
 }
 function colonnadeRows(native:boolean):BoxRow[]{
   const all:BoxRow[]=[];
@@ -133,7 +186,7 @@ const intact=(a:StaticAttribute|undefined,p:AttrPin)=>{if(!a||a!==p.attribute||s
 const pose=(o:Object3D)=>[...o.position.toArray(),...o.quaternion.toArray(),...o.scale.toArray(),...o.matrix.elements,Number(o.matrixAutoUpdate),Number(o.matrixWorldAutoUpdate)];
 const samePose=(o:Object3D,p:number[])=>{const q=pose(o);return q.length===p.length&&q.every((v,i)=>Object.is(v,p[i]));};
 type MemberReceipt={mesh:InstancedMesh;geometry:BoxGeometry;attributes:Map<string,AttrPin>;index:AttrPin;matrix:AttrPin;color:AttrPin;count:number;day:Material;night:Material;grade:Material;meshPose:number[];lit:boolean};
-type Receipt={native:boolean;body:Group;members:MemberReceipt[];rootPose:number[];bodyPose:number[];invalid:boolean};
+type Receipt={native:boolean;includeTower:boolean;body:Group;members:MemberReceipt[];rootPose:number[];bodyPose:number[];invalid:boolean};
 const complete=new WeakMap<Group,Receipt>();
 export function hasCompleteFederalMinistriesV321(root:Group,native?:boolean):boolean {
  const r=complete.get(root);if(!r||r.invalid||native!==undefined&&native!==r.native||!root.visible||root.children.length!==r.members.length+1||root.children[0]!==r.body||r.body.parent!==root||!samePose(root,r.rootPose)||!samePose(r.body,r.bodyPose)||!completePackedRootV307(r.body,bodyOwner,r.native))return false;
@@ -147,7 +200,9 @@ export function* createFederalMinistriesV321Steps(native=false,options:{sourcePr
   const resources=new Set<{dispose():void}>();let delivered=false;
   try{
     const body=yield*createPackedRootStepsV309(bodyOwner,"Complete X8 and Justice measured lower families v321",native,source.models.filter(p=>p.native===native),{sourceGeometryRetained:true},body=>root.add(body));
-    const list=yield*rowSteps(native);
+    const older=options.sourcePrisms!.filter(p=>p.id===precedingTowerPrism.id);
+    const includeTower=older.length===1&&exact(older[0],precedingTowerPrism)&&(!native||moabiterTowerColumnsMatch(options.voxels));
+    const list=yield*rowSteps(native,includeTower);
     const geometry=new BoxGeometry(1,1,1);geometry.deleteAttribute("uv");resources.add(geometry);
     // The partition changes no matrix/colour word. Only a deterministic small
     // subset of glazing receives the existing lights-on emissive contract;
@@ -161,14 +216,18 @@ export function* createFederalMinistriesV321Steps(native=false,options:{sourcePr
       const day=new MeshBasicMaterial({color:0xFFFFFF}),night=new MeshStandardMaterial({color:0xFFFFFF,roughness:group.lit ? .7 : .91});resources.add(day);resources.add(night);
       if(group.lit){night.userData.nightEmissive=0xE6C782;night.userData.nightEmissiveIntensity=.42;}
       const mesh=new InstancedMesh(geometry,day,0),matrices=new Float32Array(group.rows.length*16),colors=new Float32Array(group.rows.length*3),matrix=new Matrix4(),size=new Vector3(),tint=new Color();
-      for(let i=0;i<group.rows.length;i++){const row=group.rows[i];matrix.makeRotationY(row.yaw).scale(size.fromArray(row.s)).setPosition(...row.p as[number,number,number]).toArray(matrices,i*16);tint.setHex(row.color).toArray(colors,i*3);if(i%512===511)yield;}
+      for(let i=0;i<group.rows.length;i++){
+        const row=group.rows[i];matrix.makeRotationY(row.yaw).scale(size.fromArray(row.s)).setPosition(...row.p as[number,number,number]);
+        if (row.roofBasis) [matrix.elements[0],matrix.elements[2],matrix.elements[8],matrix.elements[10]]=row.roofBasis;
+        matrix.toArray(matrices,i*16);tint.setHex(row.color).toArray(colors,i*3);if(i%512===511)yield;
+      }
       mesh.instanceMatrix=new InstancedBufferAttribute(matrices,16);mesh.instanceColor=new InstancedBufferAttribute(colors,3);mesh.count=group.rows.length;group.rows.length=0;
       mesh.name=group.lit?"Source-bound ministry illuminated glazing":"Source-bound ministry reveals, unlit glazing and seven public colonnade arches";
       mesh.userData={dayMaterial:day,nightMaterial:night,textureFree:true,fullStaticDetailOnTouch:true,nativeMinecraft:native,blockNative:native,keepInMinecraft:native};root.add(mesh);resources.add(mesh);members.push(mesh);
       const grade=schwellenraumMaterialFor(mesh,day);mesh.userData.schwellenraumMaterial=grade;resources.add(grade);mesh.computeBoundingBox();mesh.computeBoundingSphere();yield;
     }
     interleaveStaticGeometry(root);freezeStaticSceneTransforms(root);yield*parkStaticInstancesSteps(root);
-    const receipt:Receipt={native,body,members:members.map((mesh,i)=>({mesh,geometry,attributes:new Map(Object.entries(geometry.attributes).map(([k,a])=>[k,pin(a as StaticAttribute)])),index:pin(geometry.index!),matrix:pin(mesh.instanceMatrix),color:pin(mesh.instanceColor!),count:mesh.count,day:mesh.userData.dayMaterial,night:mesh.userData.nightMaterial,grade:mesh.userData.schwellenraumMaterial,meshPose:pose(mesh),lit:i===1})),rootPose:pose(root),bodyPose:pose(body),invalid:false};
+    const receipt:Receipt={native,includeTower,body,members:members.map((mesh,i)=>({mesh,geometry,attributes:new Map(Object.entries(geometry.attributes).map(([k,a])=>[k,pin(a as StaticAttribute)])),index:pin(geometry.index!),matrix:pin(mesh.instanceMatrix),color:pin(mesh.instanceColor!),count:mesh.count,day:mesh.userData.dayMaterial,night:mesh.userData.nightMaterial,grade:mesh.userData.schwellenraumMaterial,meshPose:pose(mesh),lit:i===1})),rootPose:pose(root),bodyPose:pose(body),invalid:false};
     geometry.addEventListener("dispose",()=>{if(!isSceneGeometryGpuRetirementV309(geometry))receipt.invalid=true;});
     for(const mesh of members){mesh.addEventListener("dispose",()=>{if(!isSceneInstanceGpuRetirementV309(mesh))receipt.invalid=true;});for(const m of[mesh.userData.dayMaterial,mesh.userData.nightMaterial,mesh.userData.schwellenraumMaterial]as Material[])m.addEventListener("dispose",()=>{if(!isSceneMaterialProgramRetirementV321(m))receipt.invalid=true;});}
     complete.set(root,receipt);root.userData.instances=count;delivered=true;return root;
@@ -198,6 +257,7 @@ export function federalMinistryNavigationV321(root:Group,native=false):{solidAt(
     if(!hasCompleteFederalMinistriesV321(root,native))return false;
     if(supportAt(x,y,z,radius))return true;
     const samples=radius?[[x,z],[x-radius,z-radius],[x-radius,z+radius],[x+radius,z-radius],[x+radius,z+radius]]:[[x,z]];
+    if(y>=moabiterTowerBase&&y<moabiterTowerRoof&&complete.get(root)?.includeTower&&samples.some(([px,pz])=>insideMoabiterTower(px,pz,native)))return true;
     if(native)return samples.some(([px,pz])=>cells.has(`${Math.floor(px/2)},${Math.floor((y-5.2)/2)},${Math.floor(pz/2)}`));
     for(const[px,pz]of samples){if(inRing(px,pz,c.openRing)&&y>=c.base&&y<c.ceiling)continue;
       if(source.navigation.some(p=>inPart(px,pz,p)&&y>=p.groundY&&y<(roofAt(p,px,pz)??p.topY)))return true;}
@@ -205,6 +265,7 @@ export function federalMinistryNavigationV321(root:Group,native=false):{solidAt(
   },groundAt(x,z,currentY){
     if(!hasCompleteFederalMinistriesV321(root,native)||currentY===undefined)return null;
     let best:number|null=null;const accept=(top:number)=>{if(top>=currentY-1&&top<=currentY+.65)best=Math.max(best??-Infinity,top);};
+    if(complete.get(root)?.includeTower&&insideMoabiterTower(x,z,native))accept(moabiterTowerRoof);
     if(native){for(const top of columns.get(`${Math.floor(x/2)},${Math.floor(z/2)}`)??[])accept(top);}
     else for(const p of source.navigation){const top=roofAt(p,x,z);if(top!==null)accept(top);}
     if(inRing(x,z,c.openRing))accept(native?c.nativeBase??5.2:c.base);

@@ -24,6 +24,7 @@ import type { VisualMode } from "../src/visualMode";
 import { replacesStelePrism } from "../src/stelenfeldSiteV385";
 import { isMehringplatzPrismV383 } from "../src/mehringplatzOwnersV383";
 import weltkugelReceipt from "../src/data/weltkugelV281Ownership.json";
+import fritzArenaReceipt from "../src/data/fritzArenaOwnersV390.json";
 
 const payload = await Bun.file(new URL("../public/mesh/regierungsviertel/lod2-prisms.json", import.meta.url)).json() as PrismPayload;
 const viewerSource = await Bun.file(new URL("../src/ThreeViewer.tsx", import.meta.url)).text();
@@ -59,7 +60,9 @@ function representable(building: PrismBuilding): boolean {
   // complete required fountain model. No neighbouring envelope is suppressed.
   const obsoleteFountain = weltkugelReceipt.previousPrisms.some(prior =>
     prior.id === building.id && JSON.stringify(prior) === JSON.stringify(building));
-  return !obsoleteFountain && !replacesStelePrism(building) && !isMehringplatzPrismV383(building) && building.ring.length >= 3 && !PRISM_SUPPRESSED_IDS.has(building.id) &&
+  const obsoleteArena = fritzArenaReceipt.owners.some(prior =>
+    prior.id === building.id && JSON.stringify(prior) === JSON.stringify(building));
+  return !obsoleteFountain && !obsoleteArena && !replacesStelePrism(building) && !isMehringplatzPrismV383(building) && building.ring.length >= 3 && !PRISM_SUPPRESSED_IDS.has(building.id) &&
     !isInterimOfficeFootprintSuppressed(building) &&
     !isFriedrichstrasseStationFootprintSuppressed(building) &&
     (PRISM_GLASSED_IDS.has(building.id) || !isHauptbahnhofFootprintSuppressed(building));

@@ -1,3 +1,4 @@
+import { isFritzArenaPrismV390, fritzNorthTerraceTopV390 } from "./fritzArenaOwnershipV390";
 import type { CorePrismChecksV383 } from "./corePrismChecksV383";
 import { isLeopoldplatzFountainPad } from "./leopoldplatzFountainV367";
 import {treptowWaterfrontV317Solids} from "./treptowWaterfrontV317Navigation";
@@ -1091,6 +1092,14 @@ export function compilePedestrianObstacles(
             `gleisdreieck-v238-${i}`, 1, () => solid.maxY);
           index.buildingCount += 1;
         }
+      }
+      continue;
+    }
+    if (isFritzArenaPrismV390(sourceBuilding)) {
+      if(sourceBuilding.id==="j50000ZC"){
+        addPolygonObstacle(index,sourceBuilding.ring,[],4,20,sourceBuilding.id,.1,
+          (x,z)=>fritzNorthTerraceTopV390(x,z,visualMode()==="minecraft"));
+        index.buildingCount++;
       }
       continue;
     }

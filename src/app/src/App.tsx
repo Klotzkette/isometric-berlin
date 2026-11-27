@@ -1,9 +1,8 @@
 import type { ReichstagSectionViewV319 } from "./ReichstagSectionV319";
 import { simulationStartLabel } from "./simulationStartViews";
 import { StartupPresentation } from "./StartupPresentation";
-import { StartupModeSelection } from "./StartupModeSelection";
-import { directStartupMode } from "./modeLinks";
-import { createStartupWorldRequests } from "./startupWorldRequests";
+import { ViewerLaunch, type ViewerAppProps } from "./ViewerLaunch";
+import { assetPath, resolveCssAssetUrl } from "./viewerAssetPath";
 import { readViewerVisit, saveViewerVisit, watchViewerVisit, type ViewerVisit } from "./viewerSessionRecovery";
 import { SourcesDialog } from "./SourcesDialog";
 import {
@@ -135,9 +134,8 @@ import {
   LANGUAGE_STORAGE_KEY,
   UI_COPY,
   type Language,
-  initialLanguage,
 } from "./localization";
-import { type VisualMode, resolveInitialVisualMode } from "./visualMode";
+import type { VisualMode } from "./visualMode";
 import { DEFAULT_FLOOD_DEPTH, FLOOD_DEPTHS, type FloodDepth } from "./floodDepth";
 import {
   isNightLightsOnByUser,
@@ -193,12 +191,10 @@ type LandmarkPayload = {
   landmarks: Landmark[];
 };
 
-const RECOVERED_VISIT = typeof window === "undefined" ? null : readViewerVisit(window);
-
-function initialSimulationStart(): { name: string; automatic: boolean } {
+function initialSimulationStart(recoveredVisit: ViewerVisit | null): { name: string; automatic: boolean } {
   const landmarks = (bundledLandmarkPayload as LandmarkPayload).landmarks;
-  const restored = RECOVERED_VISIT?.selected;
-  if (RECOVERED_VISIT?.navigation && restored &&
+  const restored = recoveredVisit?.selected;
+  if (recoveredVisit?.navigation && restored &&
     (landmarks.some(landmark => landmark.name === restored) || startupOnlySight(restored))) {
     return { name: restored, automatic: false };
   }
@@ -209,14 +205,14 @@ function initialSimulationStart(): { name: string; automatic: boolean } {
   );
 }
 
-export function prepareInitialPlaceView(): Promise<void> | undefined {
-  if (typeof window !== "undefined" && (parseViewHash(window.location.hash).landmarkSlug || RECOVERED_VISIT?.navigation)) {
+export function prepareInitialPlaceView(recoveredVisit: ViewerVisit | null): Promise<void> | undefined {
+  if (typeof window !== "undefined" && (parseViewHash(window.location.hash).landmarkSlug || recoveredVisit?.navigation)) {
     return loadBerlinPlaceViewsV378();
   }
 }
 
-function initialOpening(mode: VisualMode) {
-  const INITIAL_SIMULATION_START = initialSimulationStart();
+function initialOpening(mode: VisualMode, recoveredVisit: ViewerVisit | null) {
+  const INITIAL_SIMULATION_START = initialSimulationStart(recoveredVisit);
   const INITIAL_FLIGHT_VIEW = INITIAL_SIMULATION_START.automatic || startupOnlySight(INITIAL_SIMULATION_START.name)
     ? startupFlightView(INITIAL_SIMULATION_START.name, mode === "minecraft") : null;
   const INITIAL_OPENING_NAME = INITIAL_FLIGHT_VIEW ? INITIAL_SIMULATION_START.name : null;
@@ -276,32 +272,8 @@ const ORIENTATIONS = [
   { degrees: NORTH_UP_ROTATION + 270, short: "W", label: "West oben" },
 ] as const;
 
-function assetPath(path: string): string {
-  const base = import.meta.env.BASE_URL || "./";
-  return `${base.endsWith("/") ? base : `${base}/`}${path}`;
-}
-
 function cssUrl(path: string): string {
   return `url(${JSON.stringify(path)})`;
-}
-
-function resolveCssAssetUrl(path: string): string {
-  if (typeof document === "undefined") return path;
-  try {
-    return new URL(path, document.baseURI).href;
-  } catch {
-    return path;
-  }
-}
-
-// An ordinary visit preselects Day; a valid theme link starts that mode directly.
-function initialLightingMode(): VisualMode {
-  try {
-    const requested = new URLSearchParams(window.location.search).get("theme");
-    return resolveInitialVisualMode(requested);
-  } catch {
-    return "day";
-  }
 }
 
 function initialChromeHidden(): boolean {
@@ -791,40 +763,12 @@ function HoldControlButton({
 }
 
 export function App() {
-  const [initialMode, setInitialMode] = useState<VisualMode | null>(() =>
-    typeof window === "undefined" ? null : RECOVERED_VISIT?.mode ?? directStartupMode(window.location.search),
-  );
-  const [language, setLanguage] = useState<Language>(initialLanguage);
-
-  useEffect(() => {
-    document.documentElement.lang = language;
-  }, [language]);
-
-  // A fresh visit waits for Start unless its link already selects a theme.
-  // A re-created tab entry can resume its prior selection and navigation.
-  if (initialMode === null) {
-    return (
-      <StartupModeSelection
-        initialMode={initialLightingMode()}
-        language={language}
-        onLanguageChange={setLanguage}
-        onStart={mode => {
-          saveViewerVisit(window, { mode, navigation: null, selected: null });
-          setInitialMode(mode);
-        }}
-        backdropUrl={resolveCssAssetUrl(assetPath("dzi/regierungsviertel/startup-map.jpg"))}
-      />
-    );
-  }
-  return <ViewerApp initialMode={initialMode} initialViewerLanguage={language} recoveredVisit={RECOVERED_VISIT} />;
+  const [visit] = useState(() => typeof window === "undefined" ? null : readViewerVisit(window));
+  return <ViewerLaunch Viewer={ViewerApp} recoveredVisit={visit} />;
 }
 
-function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
-  initialMode: VisualMode;
-  initialViewerLanguage: Language;
-  recoveredVisit: ViewerVisit | null;
-}) {
-  const { INITIAL_SIMULATION_START, INITIAL_FLIGHT_VIEW, INITIAL_OPENING_NAME } = opening ??= initialOpening(initialMode);
+export function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit, sceneUrl, startupSources }: ViewerAppProps) {
+  const { INITIAL_SIMULATION_START, INITIAL_FLIGHT_VIEW, INITIAL_OPENING_NAME } = opening ??= initialOpening(initialMode, recoveredVisit);
   const restoredNavigation = recoveredVisit?.navigation ?? null;
   const appShellRef = useRef<HTMLElement | null>(null);
   const [pergamonRevealed, setPergamonRevealed] = useState(false);
@@ -988,17 +932,6 @@ function ViewerApp({ initialMode, initialViewerLanguage, recoveredVisit }: {
   );
   const threeViewerInstanceKey = `${threeViewerFamily}-${threeViewerGeneration}`;
   activeThreeViewerKeyRef.current = threeViewerInstanceKey;
-
-  const sceneUrl = useMemo(
-    () => assetPath("mesh/regierungsviertel/scene.json"),
-    [],
-  );
-  const [startupSources] = useState(createStartupWorldRequests);
-  useEffect(() => {
-    // Only the chosen world starts transferring, while the lazy engine loads.
-    startupSources.prime(new URL(sceneUrl, window.location.href), initialMode);
-    return startupSources.discard;
-  }, [initialMode, sceneUrl, startupSources]);
 
   const pedestrianMapUrl = useMemo(
     () => assetPath("dzi/regierungsviertel/pedestrian_map.png"),

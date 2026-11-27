@@ -62,7 +62,7 @@ test("the Gate view culls the finished ministry facade while preserving unknown 
       renderer.renderBufferDirect(camera, scene, mesh.geometry, material, mesh, mesh.geometry.groups[0]);
       return [...submitted];
     };
-    expect(mesh.count).toBe(40883);
+    expect(mesh.count).toBe(37048);
     const ordinary = draw();
     expect(ordinary).toEqual([64]);
     presentArchitecturalSheen(mesh, "day");
@@ -71,10 +71,10 @@ test("the Gate view culls the finished ministry facade while preserving unknown 
 
     const sheen = material.onBeforeCompile;
     material.onBeforeCompile = shader => {shader.vertexShader += "\n// Foreign position or instance-ID code";};
-    expect(draw()).toEqual([40883]);
+    expect(draw()).toEqual([37048]);
     material.onBeforeCompile = sheen;
     mesh.geometry.setAttribute("customInstance", new InstancedBufferAttribute(new Float32Array(mesh.count), 1));
-    expect(draw()).toEqual([40883]);
+    expect(draw()).toEqual([37048]);
     mesh.geometry.deleteAttribute("customInstance");
     expect(draw()).toEqual(ordinary);
   } finally { disposeStaticAudit(root); }

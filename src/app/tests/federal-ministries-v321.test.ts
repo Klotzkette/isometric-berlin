@@ -1,10 +1,11 @@
 import {expect,test} from "bun:test";
 import {readFileSync} from "node:fs";
 import {gunzipSync} from "node:zlib";
-import {Group,InstancedMesh,InterleavedBufferAttribute,LineSegments,Mesh,Material} from "three";
+import {Color,Group,InstancedMesh,InterleavedBufferAttribute,LineSegments,Mesh,Material} from "three";
 import data from "../src/data/federalMinistriesV321.json";
 import officePrints from "../src/data/officePrismPaintV362.json";
 import {hasOfficePrismPaintV362} from "../src/coreFacadeAppearance";
+import {moabiterTowerBase,moabiterTowerColumnsMatch,moabiterTowerRoof,moabiterTowerRows,precedingTowerPrism} from "../src/moabiterWerderTower";
 import {berlinSenatePreviousPlanV321} from "../src/BerlinSenateBuildingsV321";
 import {uniExactPlansV322} from "../src/UniversitiesArchitectureV322";
 import {wilhelmHousingCorePlanV324} from "../src/WilhelmHousingV324Core";
@@ -33,13 +34,104 @@ const plans=packets as unknown as SourceQuarterSourceV303;
 function drain<T>(g:Generator<void,T>):T{for(;;){const r=g.next();if(r.done)return r.value;}}
 function dispose(root:Group){const resources=new Set<{dispose():void}>();root.traverse(o=>{if(o instanceof Mesh||o instanceof LineSegments){resources.add(o.geometry);for(const m of[o.material,o.userData.dayMaterial,o.userData.nightMaterial,o.userData.schwellenraumMaterial].flat())if(m?.dispose)resources.add(m);if(o instanceof InstancedMesh)resources.add(o);}});for(const r of resources)r.dispose();root.clear();}
 
+test.each([false,true])("the Moabiter Werder upper wing has eight recessed office rows above its broad glazed plinth, native=%s",native=>{
+  const site=data.sites.find(s=>s.key==="BMI")!;
+  const face=(native?site.nativeFaces:site.faces).find(f=>f.owner==="DEBE3DF9ieb7nHT4")!;
+  const root=createFederalMinistriesV321(native,{sourcePrisms:p.buildings,voxels:v});
+  try {
+    const levels=new Map<number,number>(), fronts:number[]=[], color=new Color();
+    for(const mesh of root.children.slice(1) as InstancedMesh[]) {
+      const matrices=mesh.instanceMatrix.array;
+      for(let i=0;i<mesh.count;i++) {
+        const offset=i*16, x=matrices[offset+12]-face.a[0], z=matrices[offset+14]-face.a[1];
+        const along=x*face.d[0]+z*face.d[1], normal=x*face.n[0]+z*face.n[1];
+        if(along<face.range[0]||along>face.range[1]||normal<.25||normal>.85)continue;
+        mesh.getColorAt(i,color);
+        const widthX=Math.hypot(matrices[offset],matrices[offset+2]);
+        const widthZ=Math.hypot(matrices[offset+8],matrices[offset+10]);
+        const [width,depth]=native&&Math.abs(face.d[1])>.5?[widthZ,widthX]:[widthX,widthZ];
+        if(color.getHex()===site.palette[1]&&Math.abs(normal-.35)<.002) {
+          expect(depth).toBeCloseTo(.08,3);
+          levels.set(Math.round(matrices[offset+13]*100),width);
+        } else if(color.getHex()===site.palette[0]) fronts.push(normal+depth/2);
+      }
+    }
+    const heights=[...levels.keys()].sort((a,b)=>a-b);
+    expect(heights).toHaveLength(9);
+    expect(heights[0]).toBe(800);
+    expect(levels.get(heights[0])!).toBeGreaterThan(2*levels.get(heights[1])!);
+    expect(Math.max(...fronts)-.39).toBeGreaterThan(.34);
+  } finally { dispose(root); }
+});
+
+test.each([false,true])("Bauteil C meets the retained body and roof hit surface on its own upper footprint, native=%s",native=>{
+  const root=createFederalMinistriesV321(native,{sourcePrisms:p.buildings,voxels:v});
+  try {
+    const nav=federalMinistryNavigationV321(root,native)!;
+    expect(nav.solidAt(-701,35,-269)).toBeTrue();
+    expect(nav.solidAt(-701,moabiterTowerRoof,-269)).toBeFalse();
+    expect(nav.solidAt(-744,35,-260)).toBeFalse();
+    expect(nav.groundAt(-701,-269,moabiterTowerRoof)).toBeCloseTo(53.89,5);
+    expect(nav.groundAt(-744,-260,moabiterTowerRoof)).toBeNull();
+    const rows=drain(moabiterTowerRows(native));
+    const bodies=rows.filter(row=>row.role==="C tower limestone"||row.role==="C tower stepped stone");
+    expect(bodies.length).toBeGreaterThan(0);
+    for(const box of bodies) {
+      expect(box.p[1]-box.s[1]/2).toBeCloseTo(moabiterTowerBase,5);
+      expect(box.p[1]+box.s[1]/2).toBeCloseTo(moabiterTowerRoof,5);
+    }
+    const old=p.buildings.find((b:any)=>b.id===precedingTowerPrism.id);
+    expect((old.y0_dm+old.h_dm)/10).toBeCloseTo(moabiterTowerBase,5);
+    const glass=rows.filter(r=>r.role==="glazing");
+    expect(new Set(glass.map(r=>r.p[1])).size).toBe(10);
+    expect(Math.min(...glass.map(r=>r.p[1]-r.s[1]/2))).toBeGreaterThan(moabiterTowerBase);
+    expect(Math.max(...glass.map(r=>r.p[1]+r.s[1]/2))).toBeLessThan(moabiterTowerRoof);
+    const area=bodies.reduce((sum,box)=>sum+(box.roofBasis ?
+      box.roofBasis[0]*box.roofBasis[3]-box.roofBasis[1]*box.roofBasis[2] : box.s[0]*box.s[2]),0);
+    expect(Math.abs(area-915.022)).toBeLessThan(native?15:1);
+    let renderedArea=0, renderedBodies=0;
+    for(const mesh of root.children.slice(1) as InstancedMesh[]) {
+      const m=mesh.instanceMatrix.array;
+      for(let i=0;i<mesh.count;i++) {
+        const j=i*16;
+        if(m[j+12]<-724||m[j+12]>-680||m[j+14]<-293||m[j+14]>-251||
+          Math.abs(m[j+5]-(moabiterTowerRoof-moabiterTowerBase))>.001)continue;
+        renderedArea+=m[j]*m[j+10]-m[j+2]*m[j+8];
+        renderedBodies++;
+        expect(m[j+13]+m[j+5]/2).toBeCloseTo(moabiterTowerRoof,4);
+      }
+    }
+    expect(renderedBodies).toBe(bodies.length);
+    expect(renderedArea).toBeCloseTo(area,3);
+  } finally { dispose(root); }
+});
+
+test("a revised lower source body or voxel column disables the extra tower, including its roof collision",()=>{
+  const changed=p.buildings.map((b:any)=>b.id===precedingTowerPrism.id?{...b,h_dm:b.h_dm+1}:b);
+  const root=createFederalMinistriesV321(false,{sourcePrisms:changed});
+  try {
+    expect(hasCompleteFederalMinistriesV321(root)).toBeTrue();
+    expect(federalMinistryNavigationV321(root)!.groundAt(-701,-269,moabiterTowerRoof)).toBeNull();
+  } finally { dispose(root); }
+  const buildings:number[][]=[];
+  for(let z=-73;z<=-64;z++) for(let x=-180;x<=-171;x++) {
+    const row=v.building_rows[z-v.grid.min_z_idx],i=x-v.grid.min_x_idx;
+    for(const [start,n,floor,top,kind] of row) if(i>=start&&i<start+n) buildings.push([x,z,floor,top,kind]);
+  }
+  const sparse={...v,building_rows:undefined,buildings};
+  expect(moabiterTowerColumnsMatch(v)).toBeTrue();
+  expect(moabiterTowerColumnsMatch(sparse)).toBeTrue();
+  buildings.find(([x,z])=>x===-175&&z===-69)![3]++;
+  expect(moabiterTowerColumnsMatch(sparse)).toBeFalse();
+});
+
 test.each([false,true])("complete current public exteriors, real touch preparation and six-mode materials, native=%s",native=>{
  const root=createFederalMinistriesV321(native,{sourcePrisms:p.buildings,voxels:v});
  try{
   expect(hasCompleteFederalMinistriesV321(root,native)).toBeTrue();expect(hasCompleteFederalMinistriesV321(root,!native)).toBeFalse();expect(hasCompleteFederalMinistriesV321(root.clone(),native)).toBeFalse();
   expect(root.children).toHaveLength(3);expect(root.children[0].children).toHaveLength(10);
   const members=root.children.slice(1)as InstancedMesh[],mesh=members[0],countAll=members.reduce((n,m)=>n+m.count,0);
-  expect(countAll).toBe(root.userData.instances);expect(countAll).toBeGreaterThan(40000);expect(countAll).toBeLessThan(60000);expect(members[1].count).toBeGreaterThan(1000);
+  expect(countAll).toBe(root.userData.instances);expect(countAll).toBe(native ? 47872 : 40740);expect(members[1].count).toBeGreaterThan(1000);
   const count=mesh.count,original=mesh.instanceMatrix;
   interleaveStaticGeometry(root);drain(parkStaticGeometrySteps(root));drain(parkStaticInstancesSteps(root));
   expect(hasCompleteFederalMinistriesV321(root,native)).toBeTrue();expect(mesh.instanceMatrix).toBe(original);expect(mesh.count).toBe(count);

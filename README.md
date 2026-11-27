@@ -13,6 +13,7 @@ the Spree and discover the city's architecture from an isometric perspective.
 [Download](https://github.com/Klotzkette/isometric-berlin/releases/latest/download/isometric-berlin-regierungsviertel-local.zip) ·
 [Potsdamer Platz, Leipziger Platz und Stelenfeld](docs/potsdamer-platz-v385.md) ·
 [Gendarmenmarkt und Friedrichstraße](docs/gendarmenquartier-v383.md) ·
+[Moabiter Werder, Poststadion und mobile Fernsicht](docs/moabit-und-fernsicht-v390.md) ·
 [Unter den Linden](docs/unter-den-linden-v383.md) ·
 [Wittenbergplatz und Tauentzienstraße](docs/wittenbergplatz-und-tauentzien-v383.md) ·
 [Nollendorfplatz und Winterfeldtplatz](docs/schoeneberger-plaetze-v383.md) ·
@@ -345,8 +346,8 @@ uv run python3 scripts/package_static_site.py
 | Veröffentlichung und Pakete / Deployment and packaging | [docs/deployment.md](docs/deployment.md) |
 | Versionsgeschichte / Release history | [CHANGELOG.md](CHANGELOG.md) |
 
-**Local v1.0.269** ·
-[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.269/isometric-berlin-regierungsviertel-local.zip) ·
+**Local v1.0.270** ·
+[Versionsgebundener Download / Versioned download](https://github.com/Klotzkette/isometric-berlin/releases/download/v1.0.270/isometric-berlin-regierungsviertel-local.zip) ·
 [Releases](https://github.com/Klotzkette/isometric-berlin/releases)
 
 ## Quellen, Lizenz und Dank / Sources, license and credits

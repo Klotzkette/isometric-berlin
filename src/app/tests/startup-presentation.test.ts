@@ -8,6 +8,7 @@ import {
 } from "../src/ThreeViewer";
 import type { VisualMode } from "../src/visualMode";
 import { UI_COPY } from "../src/localization";
+import { resolveCssAssetUrl } from "../src/viewerAssetPath";
 
 const drawnModes: VisualMode[] = [
   "day",
@@ -155,7 +156,14 @@ describe("startup presentation gate", () => {
     expect(appSource).toContain("startup-map.jpg");
     expect(await backdrop.exists()).toBeTrue();
     expect(backdrop.size).toBeLessThan(32_000);
-    expect(appSource).toContain("new URL(path, document.baseURI).href");
+    const oldDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
+    try {
+      Object.defineProperty(globalThis, "document", { configurable: true, value: { baseURI: "https://example.test/berlin/" } });
+      expect(resolveCssAssetUrl("./dzi/startup.jpg")).toBe("https://example.test/berlin/dzi/startup.jpg");
+    } finally {
+      if (oldDocument) Object.defineProperty(globalThis, "document", oldDocument);
+      else Reflect.deleteProperty(globalThis, "document");
+    }
     expect(appSource).toContain("style={viewerStaticBackdropStyle}");
     expect(appSource).toContain('className="viewer-static-backdrop"');
     expect(stylesSource).toContain(".viewer-static-backdrop");

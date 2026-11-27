@@ -1,5 +1,6 @@
 import { appendLehrterKulturhausV366, applyLehrterClinkerV366 } from "./LehrterKulturhausV366";
 import { appendMoabitWohnfrontenV366 } from "./MoabitWohnfrontenV366";
+import { createBundesschlangeV390 } from "./BundesschlangeV390";
 import { Group } from "three";
 import data from "./data/moabitStreetFrontsV340.json";
 import { GendarmenmarktFacadeBuilder, perimeterEdgeLength, perimeterFacadePoint, type PerimeterFacadeEdge } from "./GendarmenmarktFacadeBuilder";
@@ -266,8 +267,10 @@ export function createMoabitStreetFrontsV340(buildings: readonly unknown[], nati
   }
   const residentialFronts = appendMoabitWohnfrontenV366(builder, buildings, native ? payload : undefined);
   const lehrterKulturhaus = appendLehrterKulturhausV366(builder, buildings, native, payload);
-  if (!addresses.length && !residentialFronts.length && !lehrterKulturhaus.length) return null;
+  const bundesschlange = createBundesschlangeV390(buildings, native ? payload : undefined);
+  if (!addresses.length && !residentialFronts.length && !lehrterKulturhaus.length && !bundesschlange) return null;
   const root = builder.finish("Moabit — individual historic street fronts");
+  if (bundesschlange) root.add(bundesschlange);
   if (!root.children.length) return null;
   if (lehrterKulturhaus.length) applyLehrterClinkerV366(root);
   root.userData = { ...root.userData, sourceAddresses: addresses, sourcePrismIds: admittedIds, sourceFaceCount: faceCount, residentialFronts, lehrterKulturhaus };

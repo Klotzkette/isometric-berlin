@@ -198,13 +198,14 @@ describe("idle-frame anti-flicker contract", () => {
     expect(
       viewerSource.match(/moabitPrisonMemorialSolidAt\(x, y, z, 0\)/g),
     ).toHaveLength(2);
-    const expandedCall = viewerSource.match(/createExpandedCityDetails\(\s*manifest\.landmarks,\s*\{([^}]+)\},\s*\)/);
+    const expandedCall = viewerSource.match(/createExpandedCityDetails\(\s*manifest\.landmarks,\s*\{([^}]+)\}\s*,?\s*\)/);
     expect(expandedCall).not.toBeNull();
     // V296 transfers the old Potsdamer south hall to its complete source-bound
     // family. Preserve both explicit old-owner exclusions and full touch detail.
-    expect(expandedCall![1].replace(/\s+/g, "")).toBe(
-      'detailProfile:runtime.coarsePointer?"mobile":"full",includeLegacyAnhalter:false,includePotsdamerSouthHall:false',
-    );
+    const options = expandedCall![1].replace(/\s+/g, "");
+    expect(options).toContain('detailProfile:runtime.coarsePointer?"mobile":"full",');
+    expect(options).toContain("includeLegacyAnhalter:false,");
+    expect(options).toContain("includePotsdamerSouthHall:false,");
   });
 
   test("keeps the final anti-aliasing pass identical during motion and at rest", () => {

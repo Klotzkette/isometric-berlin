@@ -1,0 +1,126 @@
+{
+  "building": "Bundesministerium des Innern, Ingeborg-Drewitz-Allee 4, Bauteil C",
+  "checked": "2026-11-27",
+  "coordinates": "Viewer metres [x,z] from EPSG:25833 (389500,5820000), x east and z south. Elevations in metres NHN.",
+  "cadastral": {
+    "service": "https://gdi.berlin.de/services/wfs/alkis",
+    "layer": "alkis:gebaeudeflaechen",
+    "towerAndLowWing": "DEBE01AL27w00003",
+    "storeys": 13,
+    "lowWing": "DEBE01AL27w0000B",
+    "lowWingStoreys": 1,
+    "surveyFindings": "Upper footprint is the exterior building minus the separately surveyed one-storey part.",
+    "upperRing": [
+      [
+        -682.229,
+        -289.535
+      ],
+      [
+        -707.442,
+        -290.022
+      ],
+      [
+        -711.728,
+        -278.898
+      ],
+      [
+        -712.728,
+        -276.324
+      ],
+      [
+        -721.336,
+        -253.997
+      ],
+      [
+        -696.134,
+        -253.507
+      ],
+      [
+        -693.797,
+        -259.561
+      ],
+      [
+        -691.488,
+        -265.516
+      ],
+      [
+        -686.508,
+        -278.456
+      ],
+      [
+        -685.912,
+        -279.992
+      ]
+    ],
+    "upperAreaM2": 915.022,
+    "parallelogramMaxOffsetM": 0.0092
+  },
+  "heights": {
+    "service": "https://gdi.berlin.de/services/wms/bdom",
+    "layer": "b_bdom",
+    "procedure": "WMS 1.3.0 GetFeatureInfo with 1 m EPSG:25833 BBOX around each point and dimensions 1 × 1.",
+    "roofSamples": [
+      [
+        -697,
+        -281,
+        82.11
+      ],
+      [
+        -700,
+        -278,
+        83.67
+      ],
+      [
+        -695,
+        -270,
+        84.11
+      ],
+      [
+        -701,
+        -269,
+        84.95
+      ],
+      [
+        -704,
+        -263,
+        82.95
+      ],
+      [
+        -704,
+        -256,
+        82.74
+      ],
+      [
+        -709,
+        -278,
+        84.96
+      ],
+      [
+        -714,
+        -266,
+        84.6
+      ]
+    ],
+    "lowerAdjacentControlSamples": [
+      [
+        -721,
+        -263,
+        39.56
+      ],
+      [
+        -744,
+        -260,
+        39.44
+      ],
+      [
+        -680,
+        -251,
+        33.91
+      ]
+    ],
+    "medianRoofNHN": 83.89,
+    "viewerDatumNHN": 30
+  },
+  "sourceLicence": "Datenlizenz Deutschland – Zero – Version 2.0, Land Berlin",
+  "architecture": "https://www.mueller-reimann.de/projekte/erweiterungsbau-bundesministerium-des-innern"
+}

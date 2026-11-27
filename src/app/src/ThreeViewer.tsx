@@ -112,7 +112,7 @@ import { urbanFacadeInkShader } from "./urbanFacadePresentation";
 import { interleaveStaticGeometry, interleaveStaticGeometrySteps } from "./interleaveStaticGeometry";
 import type { SurroundingCity, SurroundingNavigationTile, SurroundingPlaceFocusV383 } from "./SurroundingCity";
 import {loadStartupModuleV323} from "./startupModuleLoadingV323";
-import { cameraNeedsSurroundingGroundV379, surroundingScopeGroundAt } from "./surroundingCityScope";
+import { createSurroundingCameraProbe, surroundingScopeGroundAt } from "./surroundingCityScope";
 import { prisonsMemorialsV209SolidAt } from "./prisonsMemorialsV209Navigation";
 import { volksbuehneV209SolidAt } from "./volksbuehneV209Navigation";
 import { westCivicSolidAtV210 } from "./westCivicNavigationV210";
@@ -2308,6 +2308,8 @@ function startSurroundingCity(runtime: Runtime, reason: "ready" | "opening" | "c
   if (runtime.disposed || runtime.loadSignal.aborted) return;
   const city = createSurroundingCity({
     retireAfterJumpM: runtime.coarsePointer ? MOBILE_GPU_RESIDENCY_JUMP_METERS : undefined,
+    earlyMobileCamera: runtime.coarsePointer && reason === "camera"
+      ? () => runtime.firstUploadParkingV323?.pending === true : undefined,
     allotmentDetailsV360: true,
     steelRailBridgesV369: true,
     waterwayBanksV370: true,
@@ -2955,7 +2957,7 @@ export function stabilizeInkLineMaterial(material: LineBasicMaterial): void {
     shader.vertexShader = stabilizeInkVertexShader(shader.vertexShader);
     if (urbanContrast) Object.assign(shader, urbanFacadeInkShader(shader.vertexShader, shader.fragmentShader));
   };
-  registerInkShaderWrapper(previousOnBeforeCompile, material.onBeforeCompile);
+  registerInkShaderWrapper(previousOnBeforeCompile, material.onBeforeCompile, STABLE_INK_VIEW_BIAS_M);
   material.customProgramCacheKey = () =>
     `${previousProgramCacheKey}|stable-ink-view-bias-v1${urbanContrast ? "|urban-facade-ink-v1" : ""}`;
   material.needsUpdate = true;
@@ -10038,7 +10040,16 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         const railAccessChanged = railAccess?.refresh(focus.x, focus.z, native, revision, support);
         if (amenitiesChanged || busStopsChanged || railAccessChanged) runtime.renderInvalidated = true;
       }
-      let nextEarlySurroundingCheck = 0;
+      const probeSurroundings = createSurroundingCameraProbe(runtime.coarsePointer);
+      const checkEarlySurroundings = (timestamp: number, moved: boolean) => {
+        if (!runtime.presentationReady || runtime.underside || !runtime.firstUploadParkingV323?.pending ||
+            runtime.surroundingCity || runtime.surroundingCityPendingV323 ||
+            !runtime.sceneRootUrl.pathname.endsWith("/mesh/regierungsviertel/")) return;
+        const focus = runtime.pedestrian.enabled ? camera.position : controls.target;
+        if (probeSurroundings(timestamp, moved, camera, focus, runtime.lightingMode === "minecraft")) {
+          startSurroundingCity(runtime, "camera");
+        }
+      };
       const animate = (timestamp = 0) => {
         if (disposed) {
           return;
@@ -10250,6 +10261,8 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           runtime.gpuResidency?.refresh(timestamp);
           runtime.geometryResidency?.refresh(timestamp);
           refreshNorthernV309(runtime, timestamp);
+          // A final pan or jump can settle before its coalesced phone check is due.
+          if (runtime.coarsePointer) checkEarlySurroundings(timestamp, false);
           runtime.surroundingCity?.refresh(timestamp, runtime.controls.target);
           updatePublicAmenities(timestamp);
           return;
@@ -10328,6 +10341,20 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           stabilizedRecovered = stabilized.recovered;
           if (stabilizedRecovered) resetTouchGesture();
         }
+        // A still camera must let Minecraft settle to one calm frame instead
+        // of re-voxelising forever (the "Flirren"); motion still drives the
+        // active cadence through the terms below.
+        const cameraMoving =
+          frameNavigationMoved ||
+          touchGestureMoved ||
+          flying ||
+          panning ||
+          orbiting ||
+          pedestrianMoving ||
+          panMomentumActive ||
+          directControlMoved ||
+          controlsChanged ||
+          stabilizedChanged;
         // Retire only old offscreen GPU copies; the exact scene stays intact.
         if (runtime.hbfStationV291?.update(timestamp, camera, runtime.lightingMode === "minecraft", reducedMotion, runtime.underside)) runtime.renderInvalidated = true;
         if (runtime.surroundingCity?.updateAirportBeaconV378(timestamp, reducedMotion || runtime.underside)) runtime.renderInvalidated = true;
@@ -10335,18 +10362,7 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
         runtime.geometryResidency?.refresh(timestamp);
         refreshNorthernV309(runtime, timestamp);
         if (runtime.resumeSurroundingOutlinesV379 && !runtime.firstUploadParkingV323?.pending) runtime.resumeSurroundingOutlinesV379();
-        if (!runtime.coarsePointer && runtime.presentationReady && !runtime.underside &&
-            runtime.sceneRootUrl.pathname.endsWith("/mesh/regierungsviertel/") && !runtime.surroundingCity && !runtime.surroundingCityPendingV323 &&
-            runtime.firstUploadParkingV323?.pending && timestamp >= nextEarlySurroundingCheck) {
-          nextEarlySurroundingCheck = timestamp + 250;
-          const focus = runtime.pedestrian.enabled ? camera.position : controls.target;
-          const native = runtime.lightingMode === "minecraft";
-          if (cameraNeedsSurroundingGroundV379(focus.x,focus.z,native) ||
-              (camera.position.y - focus.y > 300 && buildingDetailViewPoints(camera,focus,"full")
-                .some(([x,z]) => cameraNeedsSurroundingGroundV379(x,z,native)))) {
-            startSurroundingCity(runtime,"camera");
-          }
-        }
+        checkEarlySurroundings(timestamp, cameraMoving);
         runtime.surroundingCity?.refresh(timestamp, runtime.controls.target);
         updatePublicAmenities(timestamp);
         if (runtime.zooAnimalsV282?.update(timestamp, camera, runtime.lightingMode === 'minecraft',
@@ -10442,20 +10458,6 @@ export const ThreeViewer = forwardRef<ThreeViewerHandle, ThreeViewerProps>(
           europaStarMotion ||
           roofSignMotion.environmentalMotion;
 
-        // A still camera must let Minecraft settle to one calm frame instead
-        // of re-voxelising forever (the "Flirren"); motion still drives the
-        // active cadence through the terms below.
-        const cameraMoving =
-          frameNavigationMoved ||
-          touchGestureMoved ||
-          flying ||
-          panning ||
-          orbiting ||
-          pedestrianMoving ||
-          panMomentumActive ||
-          directControlMoved ||
-          controlsChanged ||
-          stabilizedChanged;
         const isMoving =
           cameraMoving ||
           stability.forceContinuousRender ||

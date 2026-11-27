@@ -8,11 +8,17 @@ import {createBerlinSenateBuildingsV321,hasCompleteBerlinSenateBuildingsV321} fr
 import {compactStaticGeometry} from "../src/compactStaticGeometry";
 import {setFlatUnlit,setBuildingColorMode} from "../src/drawnBuildings";
 import {schwellenraumObjektmodus} from "../src/visual-modes/schwellenraum/presentation";
-import {schwellenraumMaterialFor,setSchwellenraumStandardMaterialTone} from "../src/visual-modes/schwellenraum/materialGrade";
+import {groundOverlayPresentationV329,schwellenraumMaterialFor,setSchwellenraumStandardMaterialTone} from "../src/visual-modes/schwellenraum/materialGrade";
+import {bindGroundFinishV348} from "../src/GroundFinishV348";
+import {bindHbfForecourtFinishV354} from "../src/HbfForecourtFinishV354";
+import {presentArchitecturalSheen} from "../src/architecturalSheen";
+import {presentKerbStoneFinish} from "../src/kerbStoneFinish";
 import {applyArchitecturalInkMode} from "../src/architecturalInk";
 const source=readFileSync(new URL("../src/ThreeViewer.tsx",import.meta.url),"utf8"),ast=ts.createSourceFile("ThreeViewer.tsx",source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
 const functions=["applyMaterialLighting","applyLightingToRoot"].map(name=>{const n=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);if(!n)throw Error("Missing actual Viewer lighting function "+name);return n.getText(ast).replace(/^export\s+/,"");}).join("\n");
-const dependencies={Mesh,LineSegments,MeshStandardMaterial,LineBasicMaterial,compactStaticGeometry,setFlatUnlit,setBuildingColorMode,schwellenraumObjektmodus,schwellenraumMaterialFor,setSchwellenraumStandardMaterialTone,applyArchitecturalInkMode,MOONLIGHT_EMISSIVE:0x1c2636,MOONLIGHT_EMISSIVE_INTENSITY:.22};
+const dependencies={Mesh,LineSegments,MeshStandardMaterial,LineBasicMaterial,compactStaticGeometry,setFlatUnlit,setBuildingColorMode,schwellenraumObjektmodus,schwellenraumMaterialFor,setSchwellenraumStandardMaterialTone,applyArchitecturalInkMode,
+  bindGroundFinishV348,bindHbfForecourtFinishV354,presentArchitecturalSheen,presentKerbStoneFinish,groundOverlayPresentationV329,
+  MOONLIGHT_EMISSIVE:0x1c2636,MOONLIGHT_EMISSIVE_INTENSITY:.22};
 const apply=new Function(...Object.keys(dependencies),ts.transpileModule(functions,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText+"\nreturn applyLightingToRoot;")(...Object.values(dependencies))as(root:Group,mode:string,lightsOn?:boolean)=>void;
 const prisms=JSON.parse(readFileSync(new URL("../public/mesh/regierungsviertel/lod2-prisms.json",import.meta.url),"utf8")).buildings;
 const voxels=JSON.parse(readFileSync(new URL("../public/mesh/regierungsviertel/minecraft-voxels.json",import.meta.url),"utf8"));
