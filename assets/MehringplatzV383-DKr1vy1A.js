@@ -1,1 +1,0 @@
-import{a as e}from"./index-fowiMR5a.js";import{t}from"./platzModelGroupV383-XIjUj81O.js";async function n(n){let r=n?await e(()=>import(`./native-DejCN_5_.js`),[],import.meta.url):await e(()=>import(`./drawn-BGIcESsn.js`),[],import.meta.url);return()=>t(`Wohnringe am Mehringplatz und Hochbahnhof Hallesches Tor`,n,r.default)}export{n as prepareMehringplatzV383};

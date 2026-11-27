@@ -1,1 +1,0 @@
-import{a as e}from"./index-fowiMR5a.js";import{t}from"./platzModelGroupV383-XIjUj81O.js";async function n(n){let r=n?await e(()=>import(`./native-AtwdMJXh.js`),[],import.meta.url):await e(()=>import(`./drawn-BQSI_BrL.js`),[],import.meta.url);return()=>t(`Hofbeamtenhaus und Zietenplatz`,n,[r.default])}export{n as prepareArbeitsministeriumQuartierV383};
